@@ -20,10 +20,49 @@
  */
 
 #include <QApplication>
+#include <QCommandLineParser>
+#include <QDir>
+#include <QFile>
+
+#include "Gui/MainWindow.h"
+
+#include "ConfigIni.h"
+
+#define MEM_VERSION "200"
+#define APP_NAME "MEM"
 
 int main(int argc, char *argv[])
 {
     QApplication application(argc, argv);
 
-    return application.exec();
+    QCoreApplication::setOrganizationName(APP_NAME);
+    QCoreApplication::setApplicationName(APP_NAME);
+    QCoreApplication::setApplicationVersion(MEM_VERSION);
+
+    QCommandLineParser cmdLineParser;
+    cmdLineParser.setApplicationDescription(QCoreApplication::applicationName());
+    cmdLineParser.process(application);
+
+    ConfigIni *conf = new ConfigIni();
+    if (!cmdLineParser.positionalArguments().isEmpty())
+    {
+        // TODO: cmdline mode
+        return -1;
+    }
+    else
+    {
+        QString iniPath = QCoreApplication::applicationDirPath() + QDir::separator() + "installer.ini";
+        if (QFile::exists(iniPath))
+        {
+            // TODO: installer mode
+            return 0;
+        }
+        else
+        {
+            MainWindow window;
+            window.show();
+
+            return application.exec();
+        }
+    }
 }
