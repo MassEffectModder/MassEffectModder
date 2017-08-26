@@ -1,6 +1,7 @@
 QT += core gui widgets
 
 CONFIG += c++14 static precompile_header
+CONFIG -= app_bundle
 
 TARGET = MassEffectModder
 
@@ -33,4 +34,5 @@ QMAKE_CXXFLAGS += -fopenmp
 macx {
     QMAKE_CC  = /usr/local/opt/llvm/bin/clang
     QMAKE_CXX = /usr/local/opt/llvm/bin/clang++
+    PRECOMPILED_DIR = ".pch"
 }
