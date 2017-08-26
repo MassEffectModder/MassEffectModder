@@ -1,6 +1,6 @@
 QT += core gui widgets
 
-CONFIG += c++14 static
+CONFIG += c++14 static precompile_header
 
 TARGET = MassEffectModder
 
@@ -13,6 +13,8 @@ SOURCES += Main.cpp \
     Logs/Logs.cpp \
     ConfigIni.cpp
 
+PRECOMPILED_HEADER = Precompiled.h
+
 HEADERS += \
     Exceptions/SignalHandler.h \
     Gui/MainWindow.h \
@@ -21,6 +23,10 @@ HEADERS += \
     ConfigIni.h
 
 DEFINES += QT_DEPRECATED_WARNINGS
+
+precompile_header:!isEmpty(PRECOMPILED_HEADER) {
+    DEFINES += USING_PCH
+}
 
 QMAKE_CXXFLAGS += -fopenmp
 
