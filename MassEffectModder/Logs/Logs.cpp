@@ -133,3 +133,9 @@ bool CreateLogs()
 
     return g_log->init();
 }
+
+void ReleaseLogs()
+{
+    delete g_log;
+    g_log = nullptr;
+}

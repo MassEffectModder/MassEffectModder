@@ -44,5 +44,6 @@ public:
 extern Logs *g_log;
 
 bool CreateLogs();
+void ReleaseLogs();
 
 #endif

@@ -24,14 +24,16 @@
 #include <QDir>
 #include <QFile>
 
+#include "Exceptions/SignalHandler.h"
 #include "Gui/MainWindow.h"
+#include "Logs/Logs.h"
 
 #include "ConfigIni.h"
 
 #define MEM_VERSION "200"
 #define APP_NAME "MEM"
 
-int main(int argc, char *argv[])
+int runQtApplication(int argc, char *argv[])
 {
     QApplication application(argc, argv);
 
@@ -43,7 +45,8 @@ int main(int argc, char *argv[])
     cmdLineParser.setApplicationDescription(QCoreApplication::applicationName());
     cmdLineParser.process(application);
 
-    ConfigIni *conf = new ConfigIni();
+    ConfigIni conf;
+
     if (!cmdLineParser.positionalArguments().isEmpty())
     {
         // TODO: cmdline mode
@@ -65,4 +68,17 @@ int main(int argc, char *argv[])
             return application.exec();
         }
     }
+}
+
+int main(int argc, char *argv[])
+{
+    InstallSignalsHandler();
+
+    CreateLogs();
+
+    int status = runQtApplication(argc, argv);
+
+    ReleaseLogs();
+
+    return status;
 }
