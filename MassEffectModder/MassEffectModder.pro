@@ -9,11 +9,13 @@ TEMPLATE = app
 SOURCES += Main.cpp \
     Gui/MainWindow.cpp \
     Gui/LayoutMeSelect.cpp \
+    Logs/Logs.cpp \
     ConfigIni.cpp
 
 HEADERS += \
     Gui/MainWindow.h \
     Gui/LayoutMeSelect.h \
+    Logs/Logs.h \
     ConfigIni.h
 
 DEFINES += QT_DEPRECATED_WARNINGS
