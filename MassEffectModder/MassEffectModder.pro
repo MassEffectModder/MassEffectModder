@@ -7,12 +7,14 @@ TARGET = MassEffectModder
 TEMPLATE = app
 
 SOURCES += Main.cpp \
+    Exceptions/SignalHandler.cpp \
     Gui/MainWindow.cpp \
     Gui/LayoutMeSelect.cpp \
     Logs/Logs.cpp \
     ConfigIni.cpp
 
 HEADERS += \
+    Exceptions/SignalHandler.h \
     Gui/MainWindow.h \
     Gui/LayoutMeSelect.h \
     Logs/Logs.h \
