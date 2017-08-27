@@ -19,32 +19,9 @@
  *
  */
 
-// C includes
+#ifndef __VERSION_H__
+#define __VERSION_H__
 
-
-#if defined __cplusplus
-
-// C++ includes
-
-#include <pthread.h>
-
-#include <QApplication>
-#include <QCommandLineParser>
-#include <QDir>
-#include <QFile>
-#include <QSettings>
-#include <QStandardPaths>
-#include <QDateTime>
-#include <QSysInfo>
-#include <QString>
-
-#include <QtWidgets>
-#include <QMainWindow>
-#include <QFormLayout>
-#include <QStackedLayout>
-#include <QPushButton>
-#include <QMessageBox>
-
+#define MEM_VERSION "200-WIP"
 
 #endif
-

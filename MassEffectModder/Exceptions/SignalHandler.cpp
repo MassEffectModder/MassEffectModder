@@ -30,41 +30,32 @@ using namespace std;
 static void SignalsHandler(int signal)
 {
     string output;
+    bool crashed = false;
 
     switch (signal)
     {
-        case SIGSEGV:
-            output += "\nSIGSEGV: Invalid memory access (segmentation fault)\n";
-            break;
-        case SIGABRT:
-            output += "\nSIGABRT: Abnormal termination an abort() or assert()\n";
-            break;
-        case SIGILL:
-            output += "\nSIGILL: Illegal instruction\n";
-            break;
-        case SIGFPE:
-            output += "\nSIGFPE: Fatal arithmetic error\n";
-            break;
-        case SIGINT:
-            output += "\nSIGINT: Received interrupt, probably a ctrl+c\n";
-            exit(signal);
-            break;
-        case SIGTERM:
-        default:
-            output += "\nSIGTERM: Program termination request received\n";
-            exit(signal);
-            break;
+    case SIGSEGV:
+    case SIGABRT:
+    case SIGILL:
+    case SIGFPE:
+        output += "Program crashed!\n";
+        crashed = true;
+        break;
+    default:
+        output += "Program stopped.\n";
+        break;
     }
 
+    //if (crashed)
     //GetBackTrace(output, true);
 
-    cerr << output;
+    if (g_logs)
+        g_logs->printf("%s", output.c_str());
+    else
+        cerr << output;
 
-    //if (g_log)
-    //    g_log->printf("%s", output.c_str);
-
-    //if (g_qexpectiongui)
-    //    g_qexpectiongui->display();
+    //if (crashed && g_qexpectiongui)
+    //    g_qexpectiongui->display(output);
 
     exit(signal);
 }

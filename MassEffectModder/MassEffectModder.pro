@@ -23,7 +23,8 @@ HEADERS += \
     Gui/LayoutMeSelect.h \
     Helpers/Misc.h \
     Logs/Logs.h \
-    ConfigIni.h
+    ConfigIni.h \
+    Version.h
 
 DEFINES += QT_DEPRECATED_WARNINGS
 

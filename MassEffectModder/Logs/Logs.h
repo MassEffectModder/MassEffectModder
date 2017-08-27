@@ -24,6 +24,8 @@
 
 #include <pthread.h>
 
+class QString;
+
 class Logs
 {
 private:
@@ -31,6 +33,7 @@ private:
     bool            _initialized;
     pthread_mutex_t _lock;
     float           _startedTimestamp;
+    bool            _timeStampEnabled;
 
 public:
 
@@ -38,10 +41,15 @@ public:
     ~Logs();
     bool init();
     bool deinit();
-    bool printf(const char *format, ...);
+    void printf(const char *format, ...);
+    void print(const char *message);
+    void printline(const char *message);
+    void printMsgTimeStamp(QString &message);
+    void printMsg(QString &message);
+    void enableTimeStamp(bool enable) { _timeStampEnabled = enable; }
 };
 
-extern Logs *g_log;
+extern Logs *g_logs;
 
 bool CreateLogs();
 void ReleaseLogs();

@@ -23,14 +23,17 @@
 #include <QCommandLineParser>
 #include <QDir>
 #include <QFile>
+#include <QDateTime>
+#include <QSysInfo>
 
 #include "Exceptions/SignalHandler.h"
 #include "Gui/MainWindow.h"
 #include "Logs/Logs.h"
+#include "Helpers/Misc.h"
 
 #include "ConfigIni.h"
+#include "Version.h"
 
-#define MEM_VERSION "200"
 #define APP_NAME "MEM"
 
 int runQtApplication(int argc, char *argv[])
@@ -75,6 +78,14 @@ int main(int argc, char *argv[])
     InstallSignalsHandler();
 
     CreateLogs();
+    g_logs->print("\n----------------------------------------------------\n");
+    g_logs->printf("Log started at: %s\n", QDateTime::currentDateTime().toString().toStdString().c_str());
+
+    g_logs->print(APP_NAME " v" MEM_VERSION "\n");
+    g_logs->print("Compiled at time: " __DATE__ " " __TIME__ "\n");
+    g_logs->printf("OS: %s %s\n", QSysInfo::productType().toStdString().c_str(),
+                  QSysInfo::productVersion().toStdString().c_str());
+    g_logs->printf("RAM: %d GB\n\n", DetectAmountMemoryGB());
 
     int status = runQtApplication(argc, argv);
 

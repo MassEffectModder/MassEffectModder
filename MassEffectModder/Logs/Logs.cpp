@@ -26,10 +26,15 @@
 #include <string.h>
 #include <sys/time.h>
 
+#include <QString>
+
 #include "Logs.h"
 
 Logs::Logs() :
-        _initialized(false), _startedTimestamp(0) {}
+        _initialized(false), _startedTimestamp(0),
+        _timeStampEnabled(false)
+{
+}
 
 Logs::~Logs()
 {
@@ -41,10 +46,7 @@ bool Logs::init()
     struct timeval current_time;
 
     if (_initialized == true)
-    {
-        printf("Logs::init(): Already initialized!\n");
-        return false;
-    }
+        return true;
 
     if (pthread_mutex_init(&_lock, NULL) != 0)
     {
@@ -55,8 +57,6 @@ bool Logs::init()
     gettimeofday(&current_time, nullptr);
     _startedTimestamp = ((current_time.tv_sec - 1) * 1000 + (current_time.tv_usec / 1000));
 
-    ::printf("- compiled at time: " __DATE__ " " __TIME__ " -\n");
-
     _initialized = true;
     return true;
 }
@@ -64,35 +64,26 @@ bool Logs::init()
 bool Logs::deinit()
 {
     if (_initialized == false)
-    {
-        fprintf(stderr, "Logs::deinit(): Already deinitialized\n");
         return false;
-    }
 
     _initialized = false;
 
     if (pthread_mutex_destroy(&_lock) != 0)
-    {
-        fprintf(stderr, "Logs::deinit(): Failed destroy mutex\n");
         return false;
-    }
 
     return true;
 }
 
-#define MAX_LOG_MSG_SIZE 1000
+#define MAX_LOG_MSG_SIZE 4000
 
-bool Logs::printf(const char *format, ...)
+void Logs::printf(const char *format, ...)
 {
     va_list arguments;
     char message[MAX_LOG_MSG_SIZE];
     struct timeval current_time;
 
     if (_initialized == false)
-    {
-        fprintf(stderr, "Logs::print(): not initialized!\n");
-        return false;
-    }
+        return;
 
     gettimeofday(&current_time, NULL);
     float timestamp = (current_time.tv_sec * 1000 + (current_time.tv_usec / 1000)) - _startedTimestamp;
@@ -101,41 +92,70 @@ bool Logs::printf(const char *format, ...)
     vsnprintf(message, MAX_LOG_MSG_SIZE - 1, format, arguments);
     va_end(arguments);
 
-    printf("[%.3f] %s", timestamp / 1000, message);
-
     pthread_mutex_lock(&_lock);
 
-    FILE *file = fopen("Log.txt", "a");
-    if (file != NULL)
-    {
-        fprintf(file, "[%.3f] %s", timestamp / 1000, message);
-        fclose(file);
-        pthread_mutex_unlock(&_lock);
-        return true;
-    }
+    if (_timeStampEnabled)
+        ::printf("[%.3f] %s", timestamp / 1000, message);
     else
+        ::printf("%s", message);
+
+    FILE *file = fopen("Log.txt", "a");
+    if (file)
     {
-        pthread_mutex_unlock(&_lock);
-        return false;
+        if (_timeStampEnabled)
+            fprintf(file, "[%.3f] %s", timestamp / 1000, message);
+        else
+            fprintf(file, "%s", message);
+        fclose(file);
     }
+    pthread_mutex_unlock(&_lock);
 }
 
-Logs *g_log;
+void Logs::print(const char *message)
+{
+    this->printf("%s", message);
+}
+
+void Logs::printline(const char *message)
+{
+    bool oldState = _timeStampEnabled;
+    _timeStampEnabled = false;
+    this->printf("%s\n", message);
+    _timeStampEnabled = oldState;
+}
+
+void Logs::printMsgTimeStamp(QString &message)
+{
+    bool oldState = _timeStampEnabled;
+    _timeStampEnabled = true;
+    this->printf("%s\n", message.toStdString().c_str());
+    _timeStampEnabled = oldState;
+}
+
+void Logs::printMsg(QString &message)
+{
+    bool oldState = _timeStampEnabled;
+    _timeStampEnabled = false;
+    this->printf("%s\n", message.toStdString().c_str());
+    _timeStampEnabled = oldState;
+}
+
+Logs *g_logs;
 
 bool CreateLogs()
 {
-    g_log = new Logs();
-    if (g_log == nullptr)
+    g_logs = new Logs();
+    if (g_logs == nullptr)
     {
         fprintf(stderr, "CreateLogs: Failed create instance\n");
         return false;
     }
 
-    return g_log->init();
+    return g_logs->init();
 }
 
 void ReleaseLogs()
 {
-    delete g_log;
-    g_log = nullptr;
+    delete g_logs;
+    g_logs = nullptr;
 }
