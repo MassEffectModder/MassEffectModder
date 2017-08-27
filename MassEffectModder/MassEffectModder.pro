@@ -11,6 +11,7 @@ SOURCES += Main.cpp \
     Exceptions/SignalHandler.cpp \
     Gui/MainWindow.cpp \
     Gui/LayoutMeSelect.cpp \
+    Helpers/Misc.cpp \
     Logs/Logs.cpp \
     ConfigIni.cpp
 
@@ -20,6 +21,7 @@ HEADERS += \
     Exceptions/SignalHandler.h \
     Gui/MainWindow.h \
     Gui/LayoutMeSelect.h \
+    Helpers/Misc.h \
     Logs/Logs.h \
     ConfigIni.h
 
