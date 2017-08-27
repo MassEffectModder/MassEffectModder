@@ -58,7 +58,7 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
             output += "()";
         }
 
-        output += std::to_string(offset) + "\n";
+        output += " offset " + std::to_string(offset) + "\n";
         count++;
     }
     free(strings);
