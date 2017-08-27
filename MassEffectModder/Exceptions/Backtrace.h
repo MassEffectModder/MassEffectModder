@@ -19,33 +19,11 @@
  *
  */
 
-// C includes
+#ifndef BACKTRACE_H
+#define BACKTRACE_H
 
-
-#if defined __cplusplus
-
-// C++ includes
-
-#include <pthread.h>
 #include <string>
 
-#include <QApplication>
-#include <QCommandLineParser>
-#include <QDir>
-#include <QFile>
-#include <QSettings>
-#include <QStandardPaths>
-#include <QDateTime>
-#include <QSysInfo>
-#include <QString>
-
-#include <QtWidgets>
-#include <QMainWindow>
-#include <QFormLayout>
-#include <QStackedLayout>
-#include <QPushButton>
-#include <QMessageBox>
-
+bool GetBackTrace(std::string &output, bool crashMode = true);
 
 #endif
-

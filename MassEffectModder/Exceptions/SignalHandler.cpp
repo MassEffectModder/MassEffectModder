@@ -24,6 +24,8 @@
 #include <signal.h>
 
 #include <Logs/Logs.h>
+#include <Exceptions/Backtrace.h>
+#include <errno.h>
 
 using namespace std;
 
@@ -46,8 +48,8 @@ static void SignalsHandler(int signal)
         break;
     }
 
-    //if (crashed)
-    //GetBackTrace(output, true);
+    if (crashed)
+        GetBackTrace(output);
 
     if (g_logs)
         g_logs->printf("%s", output.c_str());

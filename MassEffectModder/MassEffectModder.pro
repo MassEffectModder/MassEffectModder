@@ -18,6 +18,7 @@ SOURCES += Main.cpp \
 PRECOMPILED_HEADER = Precompiled.h
 
 HEADERS += \
+    Exceptions/Backtrace.h \
     Exceptions/SignalHandler.h \
     Gui/MainWindow.h \
     Gui/LayoutMeSelect.h \
@@ -32,10 +33,19 @@ precompile_header:!isEmpty(PRECOMPILED_HEADER) {
     DEFINES += USING_PCH
 }
 
-QMAKE_CXXFLAGS += -fopenmp
+QMAKE_CXXFLAGS += -fopenmp -g
 
 macx {
     QMAKE_CC  = /usr/local/opt/llvm/bin/clang
     QMAKE_CXX = /usr/local/opt/llvm/bin/clang++
     PRECOMPILED_DIR = ".pch"
+    SOURCES += Exceptions/BacktraceMac.cpp
+}
+
+win32 {
+    SOURCES += Exceptions/BacktraceWin.cpp
+}
+
+linux {
+    SOURCES += Exceptions/BacktraceLin.cpp
 }
