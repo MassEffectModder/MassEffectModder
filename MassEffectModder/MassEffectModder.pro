@@ -45,10 +45,10 @@ macx {
 win32 {
     SOURCES += Exceptions/BacktraceWin.cpp
     LIBS += -lbfd -liberty -limagehlp -lintl -liconv -lz
-	# WA: this bad. Assuming Qtcreator/project is on the same disk as msys2.
-	# And assuming msys64 is main directory of msys2 64bit installation.
-	# It should be /mingw64/lib/binutils but doesn't work in Qt env.
-	QMAKE_LIBDIR += /msys64/mingw64/lib/binutils
+    # WA: this bad. Assuming Qtcreator/project is on the same disk as msys2.
+    # And assuming msys64 is main directory of msys2 64bit installation.
+    # It should be /mingw64/lib/binutils but doesn't work in Qt env.
+    QMAKE_LIBDIR += /msys64/mingw64/lib/binutils
 }
 
 linux {
