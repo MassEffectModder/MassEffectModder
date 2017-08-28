@@ -30,6 +30,7 @@
 #endif
 
 #define GIGABYTES (1024 * 1024 * 1024)
+#define ALIGN_GIGABYTES (1024 * 1024 * 1023)
 
 int DetectAmountMemoryGB()
 {
@@ -38,16 +39,16 @@ int DetectAmountMemoryGB()
     MEMORYSTATUSEX memoryStatusEx;
     memoryStatusEx.dwLength = sizeof(MEMORYSTATUSEX);
     GlobalMemoryStatusEx(&memoryStatusEx);
-    amountGB = memoryStatusEx.ullTotalPhys / GIGABYTES;
+    amountGB = (memoryStatusEx.ullTotalPhys + ALIGN_GIGABYTES) / GIGABYTES;
 #elif defined(__APPLE__)
     uint64_t physMem;
     size_t paramLen = sizeof(physMem);
     sysctlbyname("hw.memsize", &physMem, &paramLen, NULL, 0);
-    amountGB = physMem / GIGABYTES;
+    amountGB = (physMem + ALIGN_GIGABYTES) / GIGABYTES;
 #elif defined(__linux__)
     struct sysinfo sysInfo;
     sysinfo(&sysInfo);
-    amountGB = ((uint64_t)sysInfo.totalram * sys_info.mem_unit) / GIGABYTES;
+    amountGB = ((uint64_t)sysInfo.totalram * sysInfo.mem_unit + ALIGN_GIGABYTES) / GIGABYTES;
 #endif
 
     return amountGB;
