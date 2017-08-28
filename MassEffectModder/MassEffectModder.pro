@@ -52,5 +52,7 @@ win32 {
 }
 
 linux {
+    PRECOMPILED_DIR = ".pch"
+    QMAKE_LFLAGS += -rdynamic
     SOURCES += Exceptions/BacktraceLin.cpp
 }
