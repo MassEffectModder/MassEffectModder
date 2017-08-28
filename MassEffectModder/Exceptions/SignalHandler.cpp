@@ -25,7 +25,6 @@
 
 #include <Logs/Logs.h>
 #include <Exceptions/Backtrace.h>
-#include <errno.h>
 
 using namespace std;
 
