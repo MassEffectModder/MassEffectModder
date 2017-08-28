@@ -42,6 +42,8 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
                (char *)&moduleName, (char *)&address, (char *)&sourceFunc, &offset);
         if (crashMode && i <= 2)
             continue;
+        if (!crashMode && i <= 0)
+            continue;
         if (strcmp(sourceFunc, "start") == 0)
             continue;
 
