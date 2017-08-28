@@ -152,9 +152,14 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
             moduleName = moduleFilePath;
             status = getInfoFromModule(moduleFilePath, stackFrame.AddrPC.Offset, &sourceFile, &sourceFunc, &sourceLine);
         }
-        getFilename(moduleFilePath, moduleName);
+        if (moduleName)
+            getFilename(moduleFilePath, moduleName);
+        else
+            strcpy(moduleFilePath, "???");
 
         if (crashMode && current <= 6)
+            continue;
+        if (!crashMode && current <= 0)
             continue;
         if (status == 0)
         {
@@ -183,7 +188,10 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
                     output += "() ";
                 }
 
-                getFilename(moduleFilePath, sourceFile);
+                if (moduleName)
+                    getFilename(moduleFilePath, moduleName);
+                else
+                    strcpy(moduleFilePath, "???");
                 sourceFile = moduleFilePath;
                 output += "at ";
                 output += sourceFile;
