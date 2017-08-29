@@ -29,8 +29,8 @@
 #include <binutils/bfd.h>
 #include <libiberty/demangle.h>
 
-int getInfoFromModule(char *moduleFilePath, DWORD64 offset, const char **sourceFile,
-    const char **sourceFunc, unsigned int *sourceLine)
+int getInfoFromModule(char *moduleFilePath, DWORD64 offset, char *sourceFile,
+    char *sourceFunc, unsigned int *sourceLine)
 {
     bfd *bfdHandle = bfd_openr(moduleFilePath, NULL);
     if (bfdHandle == NULL)
@@ -79,9 +79,14 @@ int getInfoFromModule(char *moduleFilePath, DWORD64 offset, const char **sourceF
             bfd_size_type sectionSize = bfd_get_section_size(section);
             if (offset >= address && offset < address + sectionSize)
             {
+                const char *filename = NULL, *function = NULL;
                 if (bfd_find_nearest_line(bfdHandle, section, (bfd_symbol **)symbolsTable,
-                    offset - address, sourceFile, sourceFunc, sourceLine))
+                    offset - address, &filename, &function, sourceLine))
                 {
+                    if (filename)
+                        strcpy(sourceFile, filename);
+                    if (function)
+                        strcpy(sourceFunc, function);
                     bfd_close(bfdHandle);
                     return 0;
                 }
@@ -140,17 +145,17 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
     {
         current++;
         int status = -1;
-        const char *moduleName = "???";
-        const char *sourceFile, *sourceFunc;
-        unsigned int sourceLine;
-        char moduleFilePath[MAX_PATH];
-        char tmpBuffer[MAX_PATH];
+        char *moduleName = NULL;
+        char sourceFile[MAX_PATH], sourceFunc[MAX_PATH];
+        unsigned int sourceLine = 0;
+        char moduleFilePath[MAX_PATH], tmpBuffer[MAX_PATH];
 
         DWORD64 moduleBase = SymGetModuleBase64(process, stackFrame.AddrPC.Offset);
         if (moduleBase && GetModuleFileNameA((HINSTANCE)moduleBase, moduleFilePath, MAX_PATH))
         {
             moduleName = moduleFilePath;
-            status = getInfoFromModule(moduleFilePath, stackFrame.AddrPC.Offset, &sourceFile, &sourceFunc, &sourceLine);
+            status = getInfoFromModule(moduleFilePath, stackFrame.AddrPC.Offset,
+                                       (char *)&sourceFile, (char *)&sourceFunc, &sourceLine);
         }
         if (moduleName)
             getFilename(moduleFilePath, moduleName);
@@ -161,52 +166,46 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
             continue;
         if (!crashMode && current <= 0)
             continue;
+
         if (status == 0)
         {
             if (!sourceFunc)
+                strcpy(sourceFunc, "???");
+            if (!sourceFile)
+                strcpy(sourceFile, "???");
+            if (strcmp(sourceFunc, "WinMain") == 0 ||
+                  strcmp(sourceFunc, "__tmainCRTStartup") == 0 ||
+                  strcmp(sourceFunc, "WinMainCRTStartup") == 0)
+                continue;
+            sprintf(tmpBuffer, "#%02d  0x%016llx %s in ", count, stackFrame.AddrPC.Offset, moduleName);
+            output += tmpBuffer;
+            char *name = cplus_demangle(sourceFunc, DMGL_PARAMS | DMGL_ANSI | DMGL_VERBOSE | DMGL_TYPES);
+            if (name)
             {
-                sprintf(tmpBuffer, "#%02d  0x%016llx %s at ???", count, stackFrame.AddrPC.Offset, moduleName);
-                output += tmpBuffer;
+                output += name;
+                output += " ";
             }
             else
             {
-                if (strcmp(sourceFunc, "WinMain") == 0 ||
-                      strcmp(sourceFunc, "__tmainCRTStartup") == 0 ||
-                      strcmp(sourceFunc, "WinMainCRTStartup") == 0)
-                    continue;
-                sprintf(tmpBuffer, "#%02d  0x%016llx %s in ", count, stackFrame.AddrPC.Offset, moduleName);
-                output += tmpBuffer;
-                char *name = cplus_demangle(sourceFunc, DMGL_PARAMS | DMGL_ANSI | DMGL_VERBOSE | DMGL_TYPES);
-                if (name)
-                {
-                    output += name;
-                    output += " ";
-                }
-                else
-                {
-                    output += sourceFunc;
-                    output += "() ";
-                }
-
-                if (moduleName)
-                    getFilename(moduleFilePath, moduleName);
-                else
-                    strcpy(moduleFilePath, "???");
-                sourceFile = moduleFilePath;
-                output += "at ";
-                output += sourceFile;
-                output += ":";
-                output += std::to_string(sourceLine);
+                output += sourceFunc;
+                output += "() ";
             }
+
+            getFilename(moduleFilePath, sourceFile);
+            strcpy(sourceFile, moduleFilePath);
+            output += "at ";
+            output += sourceFile;
+            output += ":";
+            output += std::to_string(sourceLine);
             output += "\n";
         }
         else if (status == 1)
         {
             DWORD64 unused = 0;
             if (SymFromAddr(process, stackFrame.AddrPC.Offset, &unused, symbol))
-                sourceFile = symbol->Name;
+                strcpy(sourceFile, symbol->Name);
             else
-                sourceFile = "???";
+                strcpy(sourceFile, "???");
             if (strcmp(sourceFile, "BaseThreadInitThunk") == 0 ||
                 strcmp(sourceFile, "RtlUserThreadStart") == 0)
                 continue;
