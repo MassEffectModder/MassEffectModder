@@ -1,6 +1,6 @@
 QT += core gui widgets
 
-CONFIG += c++14 static precompile_header
+CONFIG += c++14 static precompile_header nostrip
 CONFIG -= app_bundle
 
 TARGET = MassEffectModder
