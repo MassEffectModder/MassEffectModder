@@ -57,6 +57,8 @@ int runQtApplication(int argc, char *argv[])
     }
     else
     {
+        guiMode = true;
+
         QString iniPath = QCoreApplication::applicationDirPath() + QDir::separator() + "installer.ini";
         if (QFile::exists(iniPath))
         {

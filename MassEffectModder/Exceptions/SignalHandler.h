@@ -22,6 +22,8 @@
 #ifndef SIGNALHANDLER_H
 #define SIGNALHANDLER_H
 
+extern bool guiMode;
+
 void InstallSignalsHandler();
 
 #endif

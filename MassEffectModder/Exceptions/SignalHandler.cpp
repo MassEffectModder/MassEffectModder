@@ -25,6 +25,9 @@
 
 #include <Logs/Logs.h>
 #include <Exceptions/Backtrace.h>
+#include <QMessageBox>
+
+bool guiMode = false;
 
 using namespace std;
 
@@ -55,8 +58,18 @@ static void SignalsHandler(int signal)
     else
         cerr << output;
 
-    //if (crashed && g_qexpectiongui)
-    //    g_qexpectiongui->display(output);
+    if (crashed && guiMode)
+    {
+        QMessageBox msgBox(QMessageBox::Critical, "Program crashed!",
+                           "Backtrace to crash provided in below Details.\n"
+                           "Program log provided in the Log.txt file.",
+                           QMessageBox::Close, nullptr, Qt::Dialog);
+        msgBox.setDetailedText(QString::fromStdString(output));
+        msgBox.setWindowModality(Qt::ApplicationModal);
+        msgBox.setStyleSheet("QLabel{min-width: 400px;}");
+        msgBox.show();
+        msgBox.exec();
+    }
 
     exit(signal);
 }
