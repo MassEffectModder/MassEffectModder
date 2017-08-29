@@ -42,7 +42,6 @@ static void SignalsHandler(int signal)
     case SIGABRT:
     case SIGILL:
     case SIGFPE:
-        output += "Program crashed!\n";
         crashed = true;
         break;
     default:
@@ -60,16 +59,25 @@ static void SignalsHandler(int signal)
 
     if (crashed && guiMode)
     {
-        QMessageBox msgBox(QMessageBox::Critical, "Program crashed!",
+        QMessageBox msgBox(QMessageBox::Critical, "",
+                           "Program crashed!\n\n"
                            "Backtrace to crash provided in below Details.\n"
                            "Program log provided in the Log.txt file.",
                            QMessageBox::Close, nullptr, Qt::Dialog);
         msgBox.setDetailedText(QString::fromStdString(output));
         msgBox.setWindowModality(Qt::ApplicationModal);
-        msgBox.setStyleSheet("QLabel{min-width: 400px;}");
+        msgBox.setStyleSheet("QLabel{min-width: 400px;min-height: 100px;}");
         msgBox.show();
         msgBox.exec();
     }
+
+    if (crashed)
+        output = "Program crashed!\n" + output;
+
+    if (g_logs)
+        g_logs->printf("%s", output.c_str());
+    else
+        cerr << output;
 
     exit(signal);
 }
