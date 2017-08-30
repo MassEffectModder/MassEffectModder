@@ -28,6 +28,7 @@
 
 #include <pthread.h>
 #include <string>
+#include <stdint.h>
 
 #include <QApplication>
 #include <QCommandLineParser>
