@@ -12,7 +12,6 @@ SOURCES += Main.cpp \
     Gui/MainWindow.cpp \
     Gui/LayoutMeSelect.cpp \
     Helpers/Misc.cpp \
-    Helpers/StreamIO.cpp \
     Logs/Logs.cpp \
     ConfigIni.cpp
 
