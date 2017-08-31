@@ -26,6 +26,13 @@
 
 class QString;
 
+typedef enum
+{
+    Begin = 0,
+    Current,
+    End
+} SeekOrigin;
+
 class StreamIO
 {
 protected:
@@ -39,13 +46,6 @@ protected:
     virtual ~StreamIO() {}
 
 public:
-
-    typedef enum
-    {
-        Begin = 0,
-        Current,
-        End
-    } SeekOrigin;
 
     int64_t Length() { return length; }
     int64_t Position() { return position; }
