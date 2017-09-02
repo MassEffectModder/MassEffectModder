@@ -31,31 +31,11 @@ bool guiMode = false;
 
 using namespace std;
 
-static void SignalsHandler(int signal)
+void LogCrash(string output, string message)
 {
-    string output;
-    bool crashed = false;
-
-    switch (signal)
+    if (guiMode)
     {
-    case SIGSEGV:
-    case SIGABRT:
-    case SIGILL:
-    case SIGFPE:
-        crashed = true;
-        break;
-    default:
-        output += "Program stopped.\n";
-        break;
-    }
-
-    if (crashed)
-        GetBackTrace(output);
-
-    if (crashed && guiMode)
-    {
-        QMessageBox msgBox(QMessageBox::Critical, "",
-                           "Program crashed!\n\n"
+        QMessageBox msgBox(QMessageBox::Critical, "", QString::fromStdString(message) + "\n" +
                            "Backtrace to crash provided in below Details.\n"
                            "Program log provided in the Log.txt file.",
                            QMessageBox::Close, nullptr, Qt::Dialog);
@@ -66,13 +46,78 @@ static void SignalsHandler(int signal)
         msgBox.exec();
     }
 
-    if (crashed)
-        output = "Program crashed!\n" + output;
+    output = message + output;
 
     if (g_logs)
         g_logs->printf("%s", output.c_str());
     else
         cerr << output;
+}
+
+static void getFilename(char *dst, const char *src)
+{
+    int offset = 0;
+    for (char *ptr = (char *)src; *ptr != 0; ptr++)
+    {
+        if (*ptr == '/' || *ptr == '\\')
+            offset = ptr - src + 1;
+    }
+    strncpy(dst, src + offset, 1024);
+}
+
+void Exception(const char *file, const char *func, int line, const char *msg)
+{
+    char str[1024];
+    getFilename(str, file);
+
+    string message = "Exception occured! ";
+    if (msg)
+    {
+        message += "\"";
+        message += msg;
+        message += "\"";
+    }
+    message += "\nin ";
+    message += func;
+    message += " at ";
+    message += str;
+    message += ":";
+    message += std::to_string(line);
+    message += "\n";
+
+    string output = "Backtrace:\n";
+    GetBackTrace(output);
+
+    LogCrash(output, message);
+
+    exit(1);
+}
+
+static void SignalsHandler(int signal)
+{
+    string output, message;
+    bool crashed = false;
+
+    switch (signal)
+    {
+    case SIGSEGV:
+    case SIGABRT:
+    case SIGILL:
+    case SIGFPE:
+        message = "Program crashed!\n";
+        crashed = true;
+        break;
+    default:
+        message = "Program stopped.\n";
+        break;
+    }
+
+    if (crashed)
+    {
+        string output = "Backtrace:\n";
+        GetBackTrace(output);
+        LogCrash(output, message);
+    }
 
     exit(signal);
 }

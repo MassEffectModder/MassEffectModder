@@ -111,7 +111,6 @@ static void getFilename(char *dst, const char *src)
     strncpy(dst, src + offset, MAX_PATH);
 }
 
-
 bool GetBackTrace(std::string &output, bool crashMode = true)
 {
     bfd_init();

@@ -21,15 +21,19 @@
 
 // C includes
 
-
 #if defined __cplusplus
 
 // C++ includes
 
+#include <stdlib.h>
 #include <pthread.h>
 #include <string>
-#include <stdint.h>
 
+void Exception(const char *file, const char *func, int line, const char *msg = NULL);
+#define CRASH_MSG(msg) Exception(__FILE__, __PRETTY_FUNCTION__, __LINE__, msg)
+#define CRASH(msg) Exception(__FILE__, __PRETTY_FUNCTION__, __LINE__)
+
+#include <QtGlobal>
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QDir>
