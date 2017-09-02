@@ -52,11 +52,6 @@ static void SignalsHandler(int signal)
     if (crashed)
         GetBackTrace(output);
 
-    if (g_logs)
-        g_logs->printf("%s", output.c_str());
-    else
-        cerr << output;
-
     if (crashed && guiMode)
     {
         QMessageBox msgBox(QMessageBox::Critical, "",
