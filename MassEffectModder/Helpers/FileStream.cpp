@@ -19,77 +19,461 @@
  *
  */
 
+#include <QString>
+#include <QFile>
+
 #include <Helpers/FileStream.h>
 
-FileStream::FileStream()
+void FileStream::UpdateErrorStatus()
 {
+    if (file->error() != QFileDevice::NoError)
+    {
+        errorOccured = false;
+    }
+    else
+    {
+        errorOccured = true;
+        errorString = file->errorString();
+    }
+}
 
+FileStream::FileStream(QString &path, FileMode mode, FileAccess access)
+    : file(nullptr), errorOccured(false)
+{
+    QFile::OpenMode openFlags = 0;
+    file = new QFile(path);
+
+    switch (access)
+    {
+    case FileAccess::ReadOnly:
+        openFlags |= QIODevice::ReadOnly;
+        break;
+    case FileAccess::WriteOnly:
+        if (mode == FileMode::Create)
+            openFlags |= QIODevice::WriteOnly | QIODevice::Truncate;
+        else
+            openFlags |= QIODevice::WriteOnly;
+        break;
+    case FileAccess::ReadWrite:
+        if (mode == FileMode::Create)
+            openFlags |= QIODevice::ReadWrite | QIODevice::Truncate;
+        else
+            openFlags |= QIODevice::ReadWrite;
+        break;
+    }
+
+    if (!file->open(openFlags))
+        CRASH_MSG((QString("Filed to open file: ") + path + QString(" Error: ") + file->errorString()).toStdString().c_str());
 }
 
 FileStream::~FileStream()
 {
-
+    Close();
+    delete file;
 }
 
 void FileStream::Flush()
 {
-
+    file->flush();
 }
 
 void FileStream::Close()
 {
-
+    file->close();
 }
 
-void FileStream::CopyTo(StreamIO *stream)
-void FileStream::CopyTo(StreamIO *stream, int32_t bufferSize)
-void FileStream::CopyTo(StreamIO *stream, uint32_t bufferSize)
-void FileStream::CopyFrom(StreamIO *stream)
-void FileStream::CopyFrom(StreamIO *stream, int32_t bufferSize)
-void FileStream::CopyFrom(StreamIO *stream, uint32_t bufferSize)
-int64_t FileStream::ReadToBuffer(uint8_t *buffer, int64_t offset, int64_t count)
-int64_t FileStream::ReadToBuffer(uint8_t *buffer, uint64_t offset, int64_t count)
-uint64_t FileStream::ReadToBuffer(uint8_t *buffer, int64_t offset, uint64_t count)
-uint64_t FileStream::ReadToBuffer(uint8_t *buffer, uint64_t offset, uint64_t count)
-int32_t FileStream::ReadToBuffer(uint8_t *buffer, int32_t offset, int32_t count)
-int32_t FileStream::ReadToBuffer(uint8_t *buffer, uint32_t offset, int32_t count)
-uint32_t FileStream::ReadToBuffer(uint8_t *buffer, int32_t offset, uint32_t count)
-uint32_t FileStream::ReadToBuffer(uint8_t *buffer, uint32_t offset, uint32_t count)
-int FileStream::ReadByte()
-int64_t FileStream::Seek(int64_t offset, SeekOrigin origin)
-void FileStream::WriteFromBuffer(uint8_t *buffer, int64_t offset, int64_t count)
-void FileStream::WriteByte(uint8_t value)
-void FileStream::WriteByte(uint32_t value)
-void FileStream::WriteByte(int32_t value)
-void FileStream::ReadStringASCII(QString &string, int32_t count)
-void FileStream::ReadStringASCII(QString &string, uint32_t count)
-void FileStream::ReadStringASCIINull(QString &string)
-void FileStream::ReadStringUnicode(QString &string, int32_t count)
-void FileStream::ReadStringUnicode(QString &string, uint32_t count)
-void FileStream::ReadStringUnicodeNull(QString &string)
-void FileStream::WriteStringASCII(QString &string)
-void FileStream::WriteStringASCIINull(QString &string)
-int64_t FileStream::ReadInt64()
-uint64_t FileStream::ReadUInt64()
-int32_t FileStream::ReadInt32()
-uint32_t FileStream::ReadUInt32()
-int16_t FileStream::ReadInt16()
-uint16_t FileStream::ReadUInt16()
-void FileStream::WriteInt64(int64_t value)
-void FileStream::WriteUInt64(uint64_t value)
-void FileStream::WriteInt32(int32_t value)
-void FileStream::WriteUInt32(uint32_t value)
-void FileStream::WriteInt16(int16_t value)
-void FileStream::WriteUInt16(uint16_t value)
-void FileStream::WriteZeros(int32_t count)
-void FileStream::WriteZeros(uint32_t count)
-void FileStream::JumpTo(int32_t offset)
-void FileStream::JumpTo(uint32_t offset)
-void FileStream::JumpTo(int64_t offset)
-void FileStream::JumpTo(uint64_t offset)
-void FileStream::Skip(int32_t offset)
-void FileStream::Skip(uint32_t offset)
-void FileStream::SkipByte()
-void FileStream::SkipInt16()
-void FileStream::SkipInt32()
-void FileStream::SkipInt64()
+bool FileStream::CopyFrom(Stream *stream, qint64 count, qint64 bufferSize)
+{
+    qint64 copied = 0;
+    qint64 status;
+    quint8 *buffer = new quint8[bufferSize];
+    do
+    {
+        status = stream->ReadToBuffer(buffer, qMin(bufferSize, count));
+        UpdateErrorStatus();
+        if (status == -1)
+            break;
+        status = WriteFromBuffer(buffer, count);
+        UpdateErrorStatus();
+        if (status == -1)
+            break;
+        copied += status;
+        count -= status;
+    } while (count != 0);
+
+    delete[] buffer;
+
+    if (status == -1)
+        return false;
+    else
+        return true;
+}
+
+bool FileStream::ReadToBuffer(quint8 *buffer, qint64 count)
+{
+    qint64 readed = file->read((char *)buffer, count);
+    UpdateErrorStatus();
+    return readed;
+}
+
+bool FileStream::WriteFromBuffer(quint8 *buffer, qint64 count)
+{
+    qint64 written = file->write((char *)buffer, count);
+    UpdateErrorStatus();
+    return written;
+}
+
+bool FileStream::ReadStringASCII(QString &string, qint64 count)
+{
+    char *buffer = new char[count + 1];
+
+    buffer[count] = 0;
+
+    qint64 readed = file->read(buffer, count);
+    if (readed == count)
+        string = QString(buffer);
+
+    delete[] buffer;
+
+    UpdateErrorStatus();
+
+    if (readed == count)
+        return true;
+    else
+        return false;
+}
+
+bool FileStream::ReadStringASCIINull(QString &str)
+{
+    do
+    {
+        char c = 0;
+        if (!file->getChar(&c))
+            break;
+        if (!c)
+        {
+            UpdateErrorStatus();
+            return true;
+        }
+        str += c;
+    } while (!file->atEnd() || file->error() != QFileDevice::NoError);
+
+    UpdateErrorStatus();
+    return false;
+}
+
+bool FileStream::ReadStringUnicode16(QString &str, qint64 count)
+{
+    count *= 2;
+    char *buffer = new char[count + 2];
+
+    buffer[count] = 0;
+    buffer[count + 1] = 0;
+
+    qint64 readed = file->read(buffer, count);
+    if (readed == count)
+        str = QString(buffer);
+
+    delete[] buffer;
+
+    UpdateErrorStatus();
+
+    return true;
+}
+
+bool FileStream::ReadStringUnicode16Null(QString &str)
+{
+    do
+    {
+        quint16 c = ReadUInt16();
+        if (errorOccured)
+            return false;
+        if (!c)
+        {
+            return true;
+        }
+        str += QChar((ushort)c);
+    } while (!file->atEnd() || file->error() != QFileDevice::NoError);
+
+    return false;
+}
+
+bool FileStream::WriteStringASCII(QString &str)
+{
+    const char *s = str.toStdString().c_str();
+    if (file->write(s, str.length()) == -1)
+    {
+        UpdateErrorStatus();
+        return false;
+    }
+    else
+    {
+        UpdateErrorStatus();
+        return true;
+    }
+}
+
+bool FileStream::WriteStringASCIINull(QString &str)
+{
+    if (!WriteStringASCII(str))
+        return false;
+    if (!WriteByte(0))
+        return false;
+    return true;
+}
+
+bool FileStream::WriteStringUnicode16(QString &str)
+{
+    const ushort *s = str.utf16();
+    if (file->write((char *)s, str.length() * 2) == -1)
+    {
+        UpdateErrorStatus();
+        return false;
+    }
+    else
+    {
+        UpdateErrorStatus();
+        return true;
+    }
+}
+
+bool FileStream::WriteStringUnicode16Null(QString &str)
+{
+    if (!WriteStringUnicode16(str))
+        return false;
+    if (!WriteUInt16(0))
+        return false;
+    return true;
+}
+
+qint64 FileStream::ReadInt64()
+{
+    qint64 value;
+    file->read((char *)&value, sizeof(qint64));
+    UpdateErrorStatus();
+    return value;
+}
+
+quint64 FileStream::ReadUInt64()
+{
+    quint64 value;
+    file->read((char *)&value, sizeof(quint64));
+    UpdateErrorStatus();
+    return value;
+}
+
+qint32 FileStream::ReadInt32()
+{
+    qint32 value;
+    file->read((char *)&value, sizeof(qint32));
+    UpdateErrorStatus();
+    return value;
+}
+
+quint32 FileStream::ReadUInt32()
+{
+    quint32 value;
+    file->read((char *)&value, sizeof(quint32));
+    UpdateErrorStatus();
+    return value;
+}
+
+qint16 FileStream::ReadInt16()
+{
+    qint16 value;
+    file->read((char *)&value, sizeof(qint16));
+    UpdateErrorStatus();
+    return value;
+}
+
+quint16 FileStream::ReadUInt16()
+{
+    quint16 value;
+    file->read((char *)&value, sizeof(quint16));
+    UpdateErrorStatus();
+    return value;
+}
+
+quint8 FileStream::ReadByte()
+{
+    quint8 value;
+    file->read((char *)&value, sizeof(quint8));
+    UpdateErrorStatus();
+    return value;
+}
+
+bool FileStream::WriteInt64(qint64 value)
+{
+    if (file->write((char *)&value, sizeof(qint64)) == -1)
+    {
+        UpdateErrorStatus();
+        return false;
+    }
+    else
+    {
+        UpdateErrorStatus();
+        return true;
+    }
+}
+
+bool FileStream::WriteUInt64(quint64 value)
+{
+    if (file->write((char *)&value, sizeof(quint64)) == -1)
+    {
+        UpdateErrorStatus();
+        return false;
+    }
+    else
+    {
+        UpdateErrorStatus();
+        return true;
+    }
+}
+
+bool FileStream::WriteInt32(qint32 value)
+{
+    if (file->write((char *)&value, sizeof(qint32)) == -1)
+    {
+        UpdateErrorStatus();
+        return false;
+    }
+    else
+    {
+        UpdateErrorStatus();
+        return true;
+    }
+}
+
+bool FileStream::WriteUInt32(quint32 value)
+{
+    if (file->write((char *)&value, sizeof(quint32)) == -1)
+    {
+        UpdateErrorStatus();
+        return false;
+    }
+    else
+    {
+        UpdateErrorStatus();
+        return true;
+    }
+}
+
+bool FileStream::WriteInt16(qint16 value)
+{
+    if (file->write((char *)&value, sizeof(qint16)) == -1)
+    {
+        UpdateErrorStatus();
+        return false;
+    }
+    else
+    {
+        UpdateErrorStatus();
+        return true;
+    }
+}
+
+bool FileStream::WriteUInt16(quint16 value)
+{
+    if (file->write((char *)&value, sizeof(quint16)) == -1)
+    {
+        UpdateErrorStatus();
+        return false;
+    }
+    else
+    {
+        UpdateErrorStatus();
+        return true;
+    }
+}
+
+bool FileStream::WriteByte(quint8 value)
+{
+    if (file->write((char *)&value, sizeof(quint8)) == -1)
+    {
+        UpdateErrorStatus();
+        return false;
+    }
+    else
+    {
+        UpdateErrorStatus();
+        return true;
+    }
+}
+
+bool FileStream::WriteZeros(qint64 count)
+{
+    const quint8 z = 0;
+
+    for (qint64 l = 0; l < count; l++)
+    {
+         if (file->write((char *)&z, sizeof(quint8) == -1))
+         {
+             UpdateErrorStatus();
+             return false;
+         }
+    }
+
+    UpdateErrorStatus();
+    return true;
+}
+
+bool FileStream::Seek(qint64 offset, SeekOrigin origin)
+{
+    switch (origin)
+    {
+    case SeekOrigin::Begin:
+        if (!file->seek(offset))
+        {
+            UpdateErrorStatus();
+            return false;
+        }
+        break;
+    case SeekOrigin::Current:
+        if (!file->seek(file->pos() + offset))
+        {
+            UpdateErrorStatus();
+            return false;
+        }
+        break;
+    case SeekOrigin::End:
+        if (!file->seek(file->size() - offset))
+        {
+            UpdateErrorStatus();
+            return false;
+        }
+        break;
+    }
+
+    UpdateErrorStatus();
+    return true;
+}
+
+bool FileStream::JumpTo(qint64 offset)
+{
+    return Seek(offset, SeekOrigin::Begin);
+}
+
+bool FileStream::Skip(qint64 offset)
+{
+    return Seek(offset, SeekOrigin::Current);
+}
+
+bool FileStream::SkipByte()
+{
+    return Seek(sizeof(quint8), SeekOrigin::Current);
+}
+
+bool FileStream::SkipInt16()
+{
+    return Seek(sizeof(quint16), SeekOrigin::Current);
+}
+
+bool FileStream::SkipInt32()
+{
+    return Seek(sizeof(qint32), SeekOrigin::Current);
+}
+
+bool FileStream::SkipInt64()
+{
+    return Seek(sizeof(quint64), SeekOrigin::Current);
+}

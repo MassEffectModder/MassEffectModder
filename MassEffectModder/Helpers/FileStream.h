@@ -22,93 +22,77 @@
 #ifndef FILESTREAM_H
 #define FILESTREAM_H
 
-#include <stdio.h>
-#include <stdint.h>
+#include <QtGlobal>
 
-#include "Helpers/StreamIO.h"
+#include "Helpers/Stream.h"
 
 typedef enum {
-    Append = 0,
+    Open = 0,
     Create,
-    CreateNew,
-    Open,
-    OpenOrCreate,
-    Truncate
 } FileMode;
 
 typedef enum {
-    Read = 0,
+    ReadOnly = 0,
     ReadWrite,
-    Write
+    WriteOnly
 } FileAccess;
 
-class FileStream : public StreamIO
-{
-    private:
+class QFile;
 
-    FILE *fileHandle;
+class FileStream : public Stream
+{
+private:
+
+    QFile *file;
+    bool errorOccured;
+    QString errorString;
+
+    void UpdateErrorStatus();
 
 public:
 
-    FileStream();
-    FileStream(QString &path, FileMode mode);
+    FileStream(QString &path, FileMode mode)
+      : FileStream(path, mode, FileAccess::ReadWrite) {}
+    FileStream(QString &path, FileMode mode, FileAccess access);
     ~FileStream();
 
+    bool isOpen() { return file->isOpen(); }
     void Flush();
     void Close();
 
-    void CopyTo(StreamIO *stream);
-    void CopyTo(StreamIO *stream, int32_t bufferSize);
-    void CopyTo(StreamIO *stream, uint32_t bufferSize);
-    void CopyFrom(StreamIO *stream);
-    void CopyFrom(StreamIO *stream, int32_t bufferSize);
-    void CopyFrom(StreamIO *stream, uint32_t bufferSize);
-    int64_t ReadToBuffer(uint8_t *buffer, int64_t offset, int64_t count);
-    int64_t ReadToBuffer(uint8_t *buffer, uint64_t offset, int64_t count);
-    uint64_t ReadToBuffer(uint8_t *buffer, int64_t offset, uint64_t count);
-    uint64_t ReadToBuffer(uint8_t *buffer, uint64_t offset, uint64_t count);
-    int32_t ReadToBuffer(uint8_t *buffer, int32_t offset, int32_t count);
-    int32_t ReadToBuffer(uint8_t *buffer, uint32_t offset, int32_t count);
-    uint32_t ReadToBuffer(uint8_t *buffer, int32_t offset, uint32_t count);
-    uint32_t ReadToBuffer(uint8_t *buffer, uint32_t offset, uint32_t count);
-    int ReadByte();
-    int64_t Seek(int64_t offset, SeekOrigin origin);
-    void WriteFromBuffer(uint8_t *buffer, int64_t offset, int64_t count);
-    void WriteByte(uint8_t value);
-    void WriteByte(uint32_t value);
-    void WriteByte(int32_t value);
-    void ReadStringASCII(QString &string, int32_t count);
-    void ReadStringASCII(QString &string, uint32_t count);
-    void ReadStringASCIINull(QString &string);
-    void ReadStringUnicode(QString &string, int32_t count);
-    void ReadStringUnicode(QString &string, uint32_t count);
-    void ReadStringUnicodeNull(QString &string);
-    void WriteStringASCII(QString &string);
-    void WriteStringASCIINull(QString &string);
-    int64_t ReadInt64();
-    uint64_t ReadUInt64();
-    int32_t ReadInt32();
-    uint32_t ReadUInt32();
-    int16_t ReadInt16();
-    uint16_t ReadUInt16();
-    void WriteInt64(int64_t value);
-    void WriteUInt64(uint64_t value);
-    void WriteInt32(int32_t value);
-    void WriteUInt32(uint32_t value);
-    void WriteInt16(int16_t value);
-    void WriteUInt16(uint16_t value);
-    void WriteZeros(int32_t count);
-    void WriteZeros(uint32_t count);
-    void JumpTo(int32_t offset);
-    void JumpTo(uint32_t offset);
-    void JumpTo(int64_t offset);
-    void JumpTo(uint64_t offset);
-    void Skip(int32_t offset);
-    void Skip(uint32_t offset);
-    void SkipByte();
-    void SkipInt16();
-    void SkipInt32();
-    void SkipInt64();
+    bool CopyFrom(Stream *stream, qint64 count, qint64 bufferSize = 0x10000);
+    bool ReadToBuffer(quint8 *buffer, qint64 count);
+    bool WriteFromBuffer(quint8 *buffer, qint64 count);
+    bool ReadStringASCII(QString &str, qint64 count);
+    bool ReadStringASCIINull(QString &str);
+    bool ReadStringUnicode16(QString &str, qint64 count);
+    bool ReadStringUnicode16Null(QString &str);
+    bool WriteStringASCII(QString &str);
+    bool WriteStringASCIINull(QString &str);
+    bool WriteStringUnicode16(QString &str);
+    bool WriteStringUnicode16Null(QString &str);
+    qint64 ReadInt64();
+    quint64 ReadUInt64();
+    qint32 ReadInt32();
+    quint32 ReadUInt32();
+    qint16 ReadInt16();
+    quint16 ReadUInt16();
+    quint8 ReadByte();
+    bool WriteInt64(qint64 value);
+    bool WriteUInt64(quint64 value);
+    bool WriteInt32(qint32 value);
+    bool WriteUInt32(quint32 value);
+    bool WriteInt16(qint16 value);
+    bool WriteUInt16(quint16 value);
+    bool WriteByte(quint8 value);
+    bool WriteZeros(qint64 count);
+    bool Seek(qint64 offset, SeekOrigin origin);
+    bool JumpTo(qint64 offset);
+    bool Skip(qint64 offset);
+    bool SkipByte();
+    bool SkipInt16();
+    bool SkipInt32();
+    bool SkipInt64();
 };
 
 #endif

@@ -25,7 +25,7 @@ HEADERS += \
     Gui/LayoutMeSelect.h \
     Helpers/Misc.h \
     Helpers/FileStream.h \
-    Helpers/StreamIO.h \
+    Helpers/Stream.h \
     Logs/Logs.h \
     ConfigIni.h \
     Version.h
