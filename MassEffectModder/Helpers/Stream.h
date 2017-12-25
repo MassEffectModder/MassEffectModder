@@ -53,9 +53,9 @@ public:
     virtual void Flush() = 0;
     virtual void Close() = 0;
 
-    virtual bool CopyFrom(Stream *stream, qint64 count, qint64 bufferSize = 0x10000) = 0;
-    virtual bool ReadToBuffer(quint8 *buffer, qint64 count) = 0;
-    virtual bool WriteFromBuffer(quint8 *buffer, qint64 count) = 0;
+    virtual bool CopyFrom(Stream *stream, qint64 count, qint64 bufferSize = 10000) = 0;
+    virtual qint64 ReadToBuffer(quint8 *buffer, qint64 count) = 0;
+    virtual qint64 WriteFromBuffer(quint8 *buffer, qint64 count) = 0;
     virtual bool ReadStringASCII(QString &str, qint64 count) = 0;
     virtual bool ReadStringASCIINull(QString &str) = 0;
     virtual bool ReadStringUnicode16(QString &str, qint64 count) = 0;

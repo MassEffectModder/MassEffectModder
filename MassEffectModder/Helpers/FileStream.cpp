@@ -24,24 +24,20 @@
 
 #include <Helpers/FileStream.h>
 
-void FileStream::UpdateErrorStatus()
+void FileStream::CheckFileIOErrorStatus()
 {
     if (file->error() != QFileDevice::NoError)
     {
-        errorOccured = false;
-    }
-    else
-    {
-        errorOccured = true;
-        errorString = file->errorString();
+        CRASH_MSG((QString("File: ") + filePath + QString(" Error: ") + file->errorString()).toStdString().c_str());
     }
 }
 
 FileStream::FileStream(QString &path, FileMode mode, FileAccess access)
-    : file(nullptr), errorOccured(false)
+    : file(nullptr)
 {
     QFile::OpenMode openFlags = 0;
     file = new QFile(path);
+    filePath = path;
 
     switch (access)
     {
@@ -84,21 +80,15 @@ void FileStream::Close()
 
 bool FileStream::CopyFrom(Stream *stream, qint64 count, qint64 bufferSize)
 {
-    qint64 copied = 0;
     qint64 status;
     quint8 *buffer = new quint8[bufferSize];
     do
     {
         status = stream->ReadToBuffer(buffer, qMin(bufferSize, count));
-        UpdateErrorStatus();
-        if (status == -1)
+        if (status == 00)
             break;
-        status = WriteFromBuffer(buffer, count);
-        UpdateErrorStatus();
-        if (status == -1)
-            break;
-        copied += status;
         count -= status;
+        status = WriteFromBuffer(buffer, count);
     } while (count != 0);
 
     delete[] buffer;
@@ -109,17 +99,17 @@ bool FileStream::CopyFrom(Stream *stream, qint64 count, qint64 bufferSize)
         return true;
 }
 
-bool FileStream::ReadToBuffer(quint8 *buffer, qint64 count)
+qint64 FileStream::ReadToBuffer(quint8 *buffer, qint64 count)
 {
     qint64 readed = file->read((char *)buffer, count);
-    UpdateErrorStatus();
+    CheckFileIOErrorStatus();
     return readed;
 }
 
-bool FileStream::WriteFromBuffer(quint8 *buffer, qint64 count)
+qint64 FileStream::WriteFromBuffer(quint8 *buffer, qint64 count)
 {
     qint64 written = file->write((char *)buffer, count);
-    UpdateErrorStatus();
+    CheckFileIOErrorStatus();
     return written;
 }
 
@@ -130,12 +120,11 @@ bool FileStream::ReadStringASCII(QString &string, qint64 count)
     buffer[count] = 0;
 
     qint64 readed = file->read(buffer, count);
+    CheckFileIOErrorStatus();
     if (readed == count)
         string = QString(buffer);
 
     delete[] buffer;
-
-    UpdateErrorStatus();
 
     if (readed == count)
         return true;
@@ -148,17 +137,13 @@ bool FileStream::ReadStringASCIINull(QString &str)
     do
     {
         char c = 0;
-        if (!file->getChar(&c))
-            break;
-        if (!c)
-        {
-            UpdateErrorStatus();
+        file->getChar(&c);
+        CheckFileIOErrorStatus();
+        if (c == 0)
             return true;
-        }
         str += c;
-    } while (!file->atEnd() || file->error() != QFileDevice::NoError);
+    } while (true);
 
-    UpdateErrorStatus();
     return false;
 }
 
@@ -171,12 +156,11 @@ bool FileStream::ReadStringUnicode16(QString &str, qint64 count)
     buffer[count + 1] = 0;
 
     qint64 readed = file->read(buffer, count);
+    CheckFileIOErrorStatus();
     if (readed == count)
         str = QString(buffer);
 
     delete[] buffer;
-
-    UpdateErrorStatus();
 
     return true;
 }
@@ -186,14 +170,11 @@ bool FileStream::ReadStringUnicode16Null(QString &str)
     do
     {
         quint16 c = ReadUInt16();
-        if (errorOccured)
-            return false;
-        if (!c)
-        {
+        CheckFileIOErrorStatus();
+        if (c == 0)
             return true;
-        }
         str += QChar((ushort)c);
-    } while (!file->atEnd() || file->error() != QFileDevice::NoError);
+    } while (true);
 
     return false;
 }
@@ -201,48 +182,30 @@ bool FileStream::ReadStringUnicode16Null(QString &str)
 bool FileStream::WriteStringASCII(QString &str)
 {
     const char *s = str.toStdString().c_str();
-    if (file->write(s, str.length()) == -1)
-    {
-        UpdateErrorStatus();
-        return false;
-    }
-    else
-    {
-        UpdateErrorStatus();
-        return true;
-    }
+    file->write(s, str.length());
+    CheckFileIOErrorStatus();
+    return true;
 }
 
 bool FileStream::WriteStringASCIINull(QString &str)
 {
-    if (!WriteStringASCII(str))
-        return false;
-    if (!WriteByte(0))
-        return false;
+    WriteStringASCII(str);
+    WriteByte(0);
     return true;
 }
 
 bool FileStream::WriteStringUnicode16(QString &str)
 {
     const ushort *s = str.utf16();
-    if (file->write((char *)s, str.length() * 2) == -1)
-    {
-        UpdateErrorStatus();
-        return false;
-    }
-    else
-    {
-        UpdateErrorStatus();
-        return true;
-    }
+    file->write((char *)s, str.length() * 2);
+    CheckFileIOErrorStatus();
+    return true;
 }
 
 bool FileStream::WriteStringUnicode16Null(QString &str)
 {
-    if (!WriteStringUnicode16(str))
-        return false;
-    if (!WriteUInt16(0))
-        return false;
+    WriteStringUnicode16(str);
+    WriteUInt16(0);
     return true;
 }
 
@@ -250,7 +213,7 @@ qint64 FileStream::ReadInt64()
 {
     qint64 value;
     file->read((char *)&value, sizeof(qint64));
-    UpdateErrorStatus();
+    CheckFileIOErrorStatus();
     return value;
 }
 
@@ -258,7 +221,7 @@ quint64 FileStream::ReadUInt64()
 {
     quint64 value;
     file->read((char *)&value, sizeof(quint64));
-    UpdateErrorStatus();
+    CheckFileIOErrorStatus();
     return value;
 }
 
@@ -266,7 +229,7 @@ qint32 FileStream::ReadInt32()
 {
     qint32 value;
     file->read((char *)&value, sizeof(qint32));
-    UpdateErrorStatus();
+    CheckFileIOErrorStatus();
     return value;
 }
 
@@ -274,7 +237,7 @@ quint32 FileStream::ReadUInt32()
 {
     quint32 value;
     file->read((char *)&value, sizeof(quint32));
-    UpdateErrorStatus();
+    CheckFileIOErrorStatus();
     return value;
 }
 
@@ -282,7 +245,7 @@ qint16 FileStream::ReadInt16()
 {
     qint16 value;
     file->read((char *)&value, sizeof(qint16));
-    UpdateErrorStatus();
+    CheckFileIOErrorStatus();
     return value;
 }
 
@@ -290,7 +253,7 @@ quint16 FileStream::ReadUInt16()
 {
     quint16 value;
     file->read((char *)&value, sizeof(quint16));
-    UpdateErrorStatus();
+    CheckFileIOErrorStatus();
     return value;
 }
 
@@ -298,106 +261,57 @@ quint8 FileStream::ReadByte()
 {
     quint8 value;
     file->read((char *)&value, sizeof(quint8));
-    UpdateErrorStatus();
+    CheckFileIOErrorStatus();
     return value;
 }
 
 bool FileStream::WriteInt64(qint64 value)
 {
-    if (file->write((char *)&value, sizeof(qint64)) == -1)
-    {
-        UpdateErrorStatus();
-        return false;
-    }
-    else
-    {
-        UpdateErrorStatus();
-        return true;
-    }
+    file->write((char *)&value, sizeof(qint64));
+    CheckFileIOErrorStatus();
+    return true;
 }
 
 bool FileStream::WriteUInt64(quint64 value)
 {
-    if (file->write((char *)&value, sizeof(quint64)) == -1)
-    {
-        UpdateErrorStatus();
-        return false;
-    }
-    else
-    {
-        UpdateErrorStatus();
-        return true;
-    }
+    file->write((char *)&value, sizeof(quint64));
+    CheckFileIOErrorStatus();
+    return true;
 }
 
 bool FileStream::WriteInt32(qint32 value)
 {
-    if (file->write((char *)&value, sizeof(qint32)) == -1)
-    {
-        UpdateErrorStatus();
-        return false;
-    }
-    else
-    {
-        UpdateErrorStatus();
-        return true;
-    }
+    file->write((char *)&value, sizeof(qint32));
+    CheckFileIOErrorStatus();
+    return true;
 }
 
 bool FileStream::WriteUInt32(quint32 value)
 {
-    if (file->write((char *)&value, sizeof(quint32)) == -1)
-    {
-        UpdateErrorStatus();
-        return false;
-    }
-    else
-    {
-        UpdateErrorStatus();
-        return true;
-    }
+    file->write((char *)&value, sizeof(quint32));
+    CheckFileIOErrorStatus();
+    return true;
 }
 
 bool FileStream::WriteInt16(qint16 value)
 {
-    if (file->write((char *)&value, sizeof(qint16)) == -1)
-    {
-        UpdateErrorStatus();
-        return false;
-    }
-    else
-    {
-        UpdateErrorStatus();
-        return true;
-    }
+    file->write((char *)&value, sizeof(qint16));
+    CheckFileIOErrorStatus();
+    return true;
 }
 
 bool FileStream::WriteUInt16(quint16 value)
 {
-    if (file->write((char *)&value, sizeof(quint16)) == -1)
-    {
-        UpdateErrorStatus();
-        return false;
-    }
-    else
-    {
-        UpdateErrorStatus();
-        return true;
-    }
+    file->write((char *)&value, sizeof(qint16));
+    CheckFileIOErrorStatus();
+    return true;
 }
 
 bool FileStream::WriteByte(quint8 value)
 {
-    if (file->write((char *)&value, sizeof(quint8)) == -1)
-    {
-        UpdateErrorStatus();
-        return false;
-    }
-    else
-    {
-        UpdateErrorStatus();
-        return true;
-    }
+    file->write((char *)&value, sizeof(quint8));
+    CheckFileIOErrorStatus();
+    return true;
 }
 
 bool FileStream::WriteZeros(qint64 count)
@@ -406,14 +320,10 @@ bool FileStream::WriteZeros(qint64 count)
 
     for (qint64 l = 0; l < count; l++)
     {
-         if (file->write((char *)&z, sizeof(quint8) == -1))
-         {
-             UpdateErrorStatus();
-             return false;
-         }
+         file->write((char *)&z, sizeof(quint8));
+         CheckFileIOErrorStatus();
     }
 
-    UpdateErrorStatus();
     return true;
 }
 
@@ -422,29 +332,19 @@ bool FileStream::Seek(qint64 offset, SeekOrigin origin)
     switch (origin)
     {
     case SeekOrigin::Begin:
-        if (!file->seek(offset))
-        {
-            UpdateErrorStatus();
-            return false;
-        }
+        file->seek(offset);
+        CheckFileIOErrorStatus();
         break;
     case SeekOrigin::Current:
-        if (!file->seek(file->pos() + offset))
-        {
-            UpdateErrorStatus();
-            return false;
-        }
+        file->seek(file->pos() + offset);
+        CheckFileIOErrorStatus();
         break;
     case SeekOrigin::End:
-        if (!file->seek(file->size() - offset))
-        {
-            UpdateErrorStatus();
-            return false;
-        }
+        file->seek(file->size() - offset);
+        CheckFileIOErrorStatus();
         break;
     }
 
-    UpdateErrorStatus();
     return true;
 }
 

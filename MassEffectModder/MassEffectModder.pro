@@ -13,6 +13,7 @@ SOURCES += Main.cpp \
     Gui/LayoutMeSelect.cpp \
     Helpers/Misc.cpp \
     Helpers/FileStream.cpp \
+    Helpers/MemoryStream.cpp \
     Logs/Logs.cpp \
     ConfigIni.cpp
 
@@ -25,6 +26,7 @@ HEADERS += \
     Gui/LayoutMeSelect.h \
     Helpers/Misc.h \
     Helpers/FileStream.h \
+    Helpers/MemoryStream.h \
     Helpers/Stream.h \
     Logs/Logs.h \
     ConfigIni.h \

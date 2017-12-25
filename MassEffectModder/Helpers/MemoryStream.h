@@ -19,46 +19,28 @@
  *
  */
 
-#ifndef FILESTREAM_H
-#define FILESTREAM_H
+#ifndef MEMORYSTREAM_H
+#define MEMORYSTREAM_H
 
 #include <QtGlobal>
 
 #include "Helpers/Stream.h"
 
-typedef enum {
-    Open = 0,
-    Create,
-} FileMode;
-
-typedef enum {
-    ReadOnly = 0,
-    ReadWrite,
-    WriteOnly
-} FileAccess;
-
-class QFile;
-
-class FileStream : public Stream
+class MemoryStream : public Stream
 {
 private:
 
-    QFile *file;
-    QString filePath;
-    QString errorString;
-
-    void CheckFileIOErrorStatus();
+    const qint64 bufferMargin = 10000;
+    quint8 *internalBuffer;
+    qint64 internalBufferSize;
 
 public:
 
-    FileStream(QString &path, FileMode mode)
-      : FileStream(path, mode, FileAccess::ReadWrite) {}
-    FileStream(QString &path, FileMode mode, FileAccess access);
-    ~FileStream();
+    MemoryStream();
+    ~MemoryStream();
 
-    bool isOpen() { return file->isOpen(); }
-    void Flush();
-    void Close();
+    void Flush() {}
+    void Close() {}
 
     bool CopyFrom(Stream *stream, qint64 count, qint64 bufferSize = 10000);
     qint64 ReadToBuffer(quint8 *buffer, qint64 count);
