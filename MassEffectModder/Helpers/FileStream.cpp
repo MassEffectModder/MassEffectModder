@@ -59,7 +59,7 @@ FileStream::FileStream(QString &path, FileMode mode, FileAccess access)
     }
 
     if (!file->open(openFlags))
-        CRASH_MSG((QString("Filed to open file: ") + path + QString(" Error: ") + file->errorString()).toStdString().c_str());
+        CRASH_MSG((QString("Failed to open file: ") + path + QString(" Error: ") + file->errorString()).toStdString().c_str());
 }
 
 FileStream::~FileStream()
