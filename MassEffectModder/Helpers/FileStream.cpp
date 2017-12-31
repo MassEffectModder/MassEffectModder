@@ -78,61 +78,45 @@ void FileStream::Close()
     file->close();
 }
 
-bool FileStream::CopyFrom(Stream *stream, qint64 count, qint64 bufferSize)
+void FileStream::CopyFrom(Stream *stream, qint64 count, qint64 bufferSize)
 {
-    qint64 status;
     quint8 *buffer = new quint8[bufferSize];
     do
     {
-        status = stream->ReadToBuffer(buffer, qMin(bufferSize, count));
-        if (status == 00)
-            break;
-        count -= status;
-        status = WriteFromBuffer(buffer, count);
+        qint64 size = qMin(bufferSize, count);
+        stream->ReadToBuffer(buffer, size);
+        WriteFromBuffer(buffer, size);
+        count -= size;
     } while (count != 0);
 
     delete[] buffer;
-
-    if (status == -1)
-        return false;
-    else
-        return true;
 }
 
-qint64 FileStream::ReadToBuffer(quint8 *buffer, qint64 count)
+void FileStream::ReadToBuffer(quint8 *buffer, qint64 count)
 {
-    qint64 readed = file->read((char *)buffer, count);
+    file->read((char *)buffer, count);
     CheckFileIOErrorStatus();
-    return readed;
 }
 
-qint64 FileStream::WriteFromBuffer(quint8 *buffer, qint64 count)
+void FileStream::WriteFromBuffer(quint8 *buffer, qint64 count)
 {
-    qint64 written = file->write((char *)buffer, count);
+    file->write((char *)buffer, count);
     CheckFileIOErrorStatus();
-    return written;
 }
 
-bool FileStream::ReadStringASCII(QString &string, qint64 count)
+void FileStream::ReadStringASCII(QString &str, qint64 count)
 {
     char *buffer = new char[count + 1];
 
     buffer[count] = 0;
-
-    qint64 readed = file->read(buffer, count);
+    file->read(buffer, count);
     CheckFileIOErrorStatus();
-    if (readed == count)
-        string = QString(buffer);
+    str = QString(buffer);
 
     delete[] buffer;
-
-    if (readed == count)
-        return true;
-    else
-        return false;
 }
 
-bool FileStream::ReadStringASCIINull(QString &str)
+void FileStream::ReadStringASCIINull(QString &str)
 {
     do
     {
@@ -140,14 +124,12 @@ bool FileStream::ReadStringASCIINull(QString &str)
         file->getChar(&c);
         CheckFileIOErrorStatus();
         if (c == 0)
-            return true;
+            return;
         str += c;
     } while (true);
-
-    return false;
 }
 
-bool FileStream::ReadStringUnicode16(QString &str, qint64 count)
+void FileStream::ReadStringUnicode16(QString &str, qint64 count)
 {
     count *= 2;
     char *buffer = new char[count + 2];
@@ -155,58 +137,49 @@ bool FileStream::ReadStringUnicode16(QString &str, qint64 count)
     buffer[count] = 0;
     buffer[count + 1] = 0;
 
-    qint64 readed = file->read(buffer, count);
+    file->read(buffer, count);
     CheckFileIOErrorStatus();
-    if (readed == count)
-        str = QString(buffer);
+    str = QString(buffer);
 
     delete[] buffer;
-
-    return true;
 }
 
-bool FileStream::ReadStringUnicode16Null(QString &str)
+void FileStream::ReadStringUnicode16Null(QString &str)
 {
     do
     {
         quint16 c = ReadUInt16();
         CheckFileIOErrorStatus();
         if (c == 0)
-            return true;
+            return;
         str += QChar((ushort)c);
     } while (true);
-
-    return false;
 }
 
-bool FileStream::WriteStringASCII(QString &str)
+void FileStream::WriteStringASCII(QString &str)
 {
     const char *s = str.toStdString().c_str();
     file->write(s, str.length());
     CheckFileIOErrorStatus();
-    return true;
 }
 
-bool FileStream::WriteStringASCIINull(QString &str)
+void FileStream::WriteStringASCIINull(QString &str)
 {
     WriteStringASCII(str);
     WriteByte(0);
-    return true;
 }
 
-bool FileStream::WriteStringUnicode16(QString &str)
+void FileStream::WriteStringUnicode16(QString &str)
 {
     const ushort *s = str.utf16();
     file->write((char *)s, str.length() * 2);
     CheckFileIOErrorStatus();
-    return true;
 }
 
-bool FileStream::WriteStringUnicode16Null(QString &str)
+void FileStream::WriteStringUnicode16Null(QString &str)
 {
     WriteStringUnicode16(str);
     WriteUInt16(0);
-    return true;
 }
 
 qint64 FileStream::ReadInt64()
@@ -265,56 +238,49 @@ quint8 FileStream::ReadByte()
     return value;
 }
 
-bool FileStream::WriteInt64(qint64 value)
+void FileStream::WriteInt64(qint64 value)
 {
     file->write((char *)&value, sizeof(qint64));
     CheckFileIOErrorStatus();
-    return true;
 }
 
-bool FileStream::WriteUInt64(quint64 value)
+void FileStream::WriteUInt64(quint64 value)
 {
     file->write((char *)&value, sizeof(quint64));
     CheckFileIOErrorStatus();
-    return true;
 }
 
-bool FileStream::WriteInt32(qint32 value)
+void FileStream::WriteInt32(qint32 value)
 {
     file->write((char *)&value, sizeof(qint32));
     CheckFileIOErrorStatus();
-    return true;
 }
 
-bool FileStream::WriteUInt32(quint32 value)
+void FileStream::WriteUInt32(quint32 value)
 {
     file->write((char *)&value, sizeof(quint32));
     CheckFileIOErrorStatus();
-    return true;
 }
 
-bool FileStream::WriteInt16(qint16 value)
+void FileStream::WriteInt16(qint16 value)
 {
     file->write((char *)&value, sizeof(qint16));
     CheckFileIOErrorStatus();
-    return true;
 }
 
-bool FileStream::WriteUInt16(quint16 value)
+void FileStream::WriteUInt16(quint16 value)
 {
     file->write((char *)&value, sizeof(qint16));
     CheckFileIOErrorStatus();
-    return true;
 }
 
-bool FileStream::WriteByte(quint8 value)
+void FileStream::WriteByte(quint8 value)
 {
     file->write((char *)&value, sizeof(quint8));
     CheckFileIOErrorStatus();
-    return true;
 }
 
-bool FileStream::WriteZeros(qint64 count)
+void FileStream::WriteZeros(qint64 count)
 {
     const quint8 z = 0;
 
@@ -323,11 +289,9 @@ bool FileStream::WriteZeros(qint64 count)
          file->write((char *)&z, sizeof(quint8));
          CheckFileIOErrorStatus();
     }
-
-    return true;
 }
 
-bool FileStream::Seek(qint64 offset, SeekOrigin origin)
+void FileStream::Seek(qint64 offset, SeekOrigin origin)
 {
     switch (origin)
     {
@@ -344,36 +308,34 @@ bool FileStream::Seek(qint64 offset, SeekOrigin origin)
         CheckFileIOErrorStatus();
         break;
     }
-
-    return true;
 }
 
-bool FileStream::JumpTo(qint64 offset)
+void FileStream::JumpTo(qint64 offset)
 {
-    return Seek(offset, SeekOrigin::Begin);
+    Seek(offset, SeekOrigin::Begin);
 }
 
-bool FileStream::Skip(qint64 offset)
+void FileStream::Skip(qint64 offset)
 {
-    return Seek(offset, SeekOrigin::Current);
+    Seek(offset, SeekOrigin::Current);
 }
 
-bool FileStream::SkipByte()
+void FileStream::SkipByte()
 {
-    return Seek(sizeof(quint8), SeekOrigin::Current);
+    Seek(sizeof(quint8), SeekOrigin::Current);
 }
 
-bool FileStream::SkipInt16()
+void FileStream::SkipInt16()
 {
-    return Seek(sizeof(quint16), SeekOrigin::Current);
+    Seek(sizeof(quint16), SeekOrigin::Current);
 }
 
-bool FileStream::SkipInt32()
+void FileStream::SkipInt32()
 {
-    return Seek(sizeof(qint32), SeekOrigin::Current);
+    Seek(sizeof(qint32), SeekOrigin::Current);
 }
 
-bool FileStream::SkipInt64()
+void FileStream::SkipInt64()
 {
-    return Seek(sizeof(quint64), SeekOrigin::Current);
+    Seek(sizeof(quint64), SeekOrigin::Current);
 }

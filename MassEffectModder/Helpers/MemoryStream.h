@@ -42,17 +42,17 @@ public:
     void Flush() {}
     void Close() {}
 
-    bool CopyFrom(Stream *stream, qint64 count, qint64 bufferSize = 10000);
-    qint64 ReadToBuffer(quint8 *buffer, qint64 count);
-    qint64 WriteFromBuffer(quint8 *buffer, qint64 count);
-    bool ReadStringASCII(QString &str, qint64 count);
-    bool ReadStringASCIINull(QString &str);
-    bool ReadStringUnicode16(QString &str, qint64 count);
-    bool ReadStringUnicode16Null(QString &str);
-    bool WriteStringASCII(QString &str);
-    bool WriteStringASCIINull(QString &str);
-    bool WriteStringUnicode16(QString &str);
-    bool WriteStringUnicode16Null(QString &str);
+    void CopyFrom(Stream *stream, qint64 count, qint64 bufferSize = 10000);
+    void ReadToBuffer(quint8 *buffer, qint64 count);
+    void WriteFromBuffer(quint8 *buffer, qint64 count);
+    void ReadStringASCII(QString &str, qint64 count);
+    void ReadStringASCIINull(QString &str);
+    void ReadStringUnicode16(QString &str, qint64 count);
+    void ReadStringUnicode16Null(QString &str);
+    void WriteStringASCII(QString &str);
+    void WriteStringASCIINull(QString &str);
+    void WriteStringUnicode16(QString &str);
+    void WriteStringUnicode16Null(QString &str);
     qint64 ReadInt64();
     quint64 ReadUInt64();
     qint32 ReadInt32();
@@ -60,21 +60,21 @@ public:
     qint16 ReadInt16();
     quint16 ReadUInt16();
     quint8 ReadByte();
-    bool WriteInt64(qint64 value);
-    bool WriteUInt64(quint64 value);
-    bool WriteInt32(qint32 value);
-    bool WriteUInt32(quint32 value);
-    bool WriteInt16(qint16 value);
-    bool WriteUInt16(quint16 value);
-    bool WriteByte(quint8 value);
-    bool WriteZeros(qint64 count);
-    bool Seek(qint64 offset, SeekOrigin origin);
-    bool JumpTo(qint64 offset);
-    bool Skip(qint64 offset);
-    bool SkipByte();
-    bool SkipInt16();
-    bool SkipInt32();
-    bool SkipInt64();
+    void WriteInt64(qint64 value);
+    void WriteUInt64(quint64 value);
+    void WriteInt32(qint32 value);
+    void WriteUInt32(quint32 value);
+    void WriteInt16(qint16 value);
+    void WriteUInt16(quint16 value);
+    void WriteByte(quint8 value);
+    void WriteZeros(qint64 count);
+    void Seek(qint64 offset, SeekOrigin origin);
+    void JumpTo(qint64 offset);
+    void Skip(qint64 offset);
+    void SkipByte();
+    void SkipInt16();
+    void SkipInt32();
+    void SkipInt64();
 };
 
 #endif
