@@ -1,16 +1,14 @@
-QT += core gui widgets
+QT += core
 
 CONFIG += c++14 static precompile_header
 CONFIG -= app_bundle
 
-TARGET = MassEffectModder
+TARGET = MassEffectModderNoGui
 
 TEMPLATE = app
 
 SOURCES += Main.cpp \
     Exceptions/SignalHandler.cpp \
-    Gui/MainWindow.cpp \
-    Gui/LayoutMeSelect.cpp \
     Helpers/Misc.cpp \
     Helpers/FileStream.cpp \
     Helpers/MemoryStream.cpp \
@@ -22,8 +20,6 @@ PRECOMPILED_HEADER = Precompiled.h
 HEADERS += \
     Exceptions/Backtrace.h \
     Exceptions/SignalHandler.h \
-    Gui/MainWindow.h \
-    Gui/LayoutMeSelect.h \
     Helpers/Misc.h \
     Helpers/FileStream.h \
     Helpers/MemoryStream.h \

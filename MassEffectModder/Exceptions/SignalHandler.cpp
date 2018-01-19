@@ -25,7 +25,6 @@
 
 #include <Logs/Logs.h>
 #include <Exceptions/Backtrace.h>
-#include <QMessageBox>
 
 bool guiMode = false;
 
@@ -33,19 +32,6 @@ using namespace std;
 
 void LogCrash(string output, string message)
 {
-    if (guiMode)
-    {
-        QMessageBox msgBox(QMessageBox::Critical, "", QString::fromStdString(message) + "\n" +
-                           "Backtrace to crash provided in below Details.\n"
-                           "Program log provided in the Log.txt file.",
-                           QMessageBox::Close, nullptr, Qt::Dialog);
-        msgBox.setDetailedText(QString::fromStdString(output));
-        msgBox.setWindowModality(Qt::ApplicationModal);
-        msgBox.setStyleSheet("QLabel{min-width: 400px;min-height: 100px;}");
-        msgBox.show();
-        msgBox.exec();
-    }
-
     output = message + output;
 
     if (g_logs)

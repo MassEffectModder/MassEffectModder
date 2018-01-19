@@ -19,7 +19,7 @@
  *
  */
 
-#include <QApplication>
+#include <QCoreApplication>
 #include <QCommandLineParser>
 #include <QDir>
 #include <QFile>
@@ -27,7 +27,6 @@
 #include <QSysInfo>
 
 #include "Exceptions/SignalHandler.h"
-#include "Gui/MainWindow.h"
 #include "Logs/Logs.h"
 #include "Helpers/Misc.h"
 
@@ -38,7 +37,7 @@
 
 int runQtApplication(int argc, char *argv[])
 {
-    QApplication application(argc, argv);
+    QCoreApplication application(argc, argv);
 
     QCoreApplication::setOrganizationName(APP_NAME);
     QCoreApplication::setApplicationName(APP_NAME);
@@ -57,21 +56,8 @@ int runQtApplication(int argc, char *argv[])
     }
     else
     {
-        guiMode = true;
-
-        QString iniPath = QCoreApplication::applicationDirPath() + QDir::separator() + "installer.ini";
-        if (QFile::exists(iniPath))
-        {
-            // TODO: installer mode
-            return 0;
-        }
-        else
-        {
-            MainWindow window;
-            window.show();
-
-            return application.exec();
-        }
+        // TODO: cmdline mode
+        return -1;
     }
 }
 

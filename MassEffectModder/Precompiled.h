@@ -34,7 +34,7 @@ void Exception(const char *file, const char *func, int line, const char *msg = N
 #define CRASH(msg) Exception(__FILE__, __PRETTY_FUNCTION__, __LINE__)
 
 #include <QtGlobal>
-#include <QApplication>
+#include <QCoreApplication>
 #include <QCommandLineParser>
 #include <QDir>
 #include <QFile>
@@ -43,14 +43,6 @@ void Exception(const char *file, const char *func, int line, const char *msg = N
 #include <QDateTime>
 #include <QSysInfo>
 #include <QString>
-
-#include <QtWidgets>
-#include <QMainWindow>
-#include <QFormLayout>
-#include <QStackedLayout>
-#include <QPushButton>
-#include <QMessageBox>
-
 
 #endif
 
