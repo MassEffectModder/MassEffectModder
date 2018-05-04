@@ -22,6 +22,6 @@
 #ifndef __VERSION_H__
 #define __VERSION_H__
 
-#define MEM_VERSION "300-WIP"
+#define MEM_VERSION "400-WIP"
 
 #endif
