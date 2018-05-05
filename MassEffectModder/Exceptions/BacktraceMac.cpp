@@ -30,7 +30,7 @@ using namespace std;
 bool GetBackTrace(std::string &output, bool crashMode = true)
 {
     void *callstack[MAX_CALLSTACK];
-    char moduleName[1024], address[20], sourceFunc[1024];
+    char moduleName[1024], address[50], sourceFunc[1024];
     int offset, status, count = 0;
 
     int numberTraces = backtrace(callstack, MAX_CALLSTACK);
@@ -39,7 +39,7 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
     for (int i = 0; i < numberTraces; ++i)
     {
         sscanf(strings[i], "%*s %s %s %s %*s %d",
-               (char *)&moduleName, (char *)&address, (char *)&sourceFunc, &offset);
+               const_cast<char *>(moduleName), const_cast<char *>(address), const_cast<char *>(sourceFunc), &offset);
         if (crashMode && i <= 2)
             continue;
         if (!crashMode && i <= 0)
@@ -48,7 +48,7 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
             continue;
 
         output += "#" + std::to_string(count) + "  " + address + " " + moduleName + " in ";
-        char *funcNewName = abi::__cxa_demangle(sourceFunc, NULL, 0, &status);
+        char *funcNewName = abi::__cxa_demangle(sourceFunc, nullptr, nullptr, &status);
         if (status == 0)
         {
             output += funcNewName;
@@ -56,8 +56,7 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
         }
         else
         {
-            output += sourceFunc;
-            output += "()";
+            output += std::string(const_cast<char *>(sourceFunc)) + "()";
         }
 
         output += " offset " + std::to_string(offset) + "\n";

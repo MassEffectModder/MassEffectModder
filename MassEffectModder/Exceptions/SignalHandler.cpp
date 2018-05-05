@@ -26,8 +26,6 @@
 #include <Logs/Logs.h>
 #include <Exceptions/Backtrace.h>
 
-bool guiMode = false;
-
 using namespace std;
 
 void LogCrash(string output, string message)
@@ -42,8 +40,8 @@ void LogCrash(string output, string message)
 
 static void getFilename(char *dst, const char *src)
 {
-    int offset = 0;
-    for (char *ptr = (char *)src; *ptr != 0; ptr++)
+    long offset = 0;
+    for (char *ptr = const_cast<char *>(src); *ptr != 0; ptr++)
     {
         if (*ptr == '/' || *ptr == '\\')
             offset = ptr - src + 1;
@@ -51,7 +49,7 @@ static void getFilename(char *dst, const char *src)
     strncpy(dst, src + offset, 1024);
 }
 
-void Exception(const char *file, const char *func, int line, const char *msg)
+[[ noreturn ]] void Exception(const char *file, const char *func, int line, const char *msg)
 {
     char str[1024];
     getFilename(str, file);
@@ -59,17 +57,9 @@ void Exception(const char *file, const char *func, int line, const char *msg)
     string message = "Exception occured! ";
     if (msg)
     {
-        message += "\"";
-        message += msg;
-        message += "\"";
+        message += "\"" + std::string(msg) + "\"";
     }
-    message += "\nin ";
-    message += func;
-    message += " at ";
-    message += str;
-    message += ":";
-    message += std::to_string(line);
-    message += "\n";
+    message += "\nin " + std::string(func) + " at " + std::string(str) + ":" + std::to_string(line) + "\n";
 
     string output = "Backtrace:\n";
     GetBackTrace(output);
@@ -79,7 +69,7 @@ void Exception(const char *file, const char *func, int line, const char *msg)
     exit(1);
 }
 
-static void SignalsHandler(int signal)
+[[ noreturn ]] static void SignalsHandler(int signal)
 {
     string output, message;
     bool crashed = false;

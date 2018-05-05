@@ -27,8 +27,8 @@ using namespace std;
 
 static void getFilename(char *dst, const char *src)
 {
-    int offset = 0;
-    for (char *ptr = (char *)src; *ptr != 0; ptr++)
+    long offset = 0;
+    for (char *ptr = const_cast<char *>(src); *ptr != 0; ptr++)
     {
         if (*ptr == '/' || *ptr == '\\')
             offset = ptr - src + 1;
@@ -41,7 +41,7 @@ static void getFilename(char *dst, const char *src)
 bool GetBackTrace(std::string &output, bool crashMode = true)
 {
     void *callstack[MAX_CALLSTACK];
-    char moduleName[1024], address[20], offset[20], sourceFunc[1024];
+    char moduleName[1024], address[50], offset[50], sourceFunc[1024];
     int status, count = 0;
 
     int numberTraces = backtrace(callstack, MAX_CALLSTACK);
@@ -55,11 +55,11 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
         strcpy(offset, "???");
 
         char part1[1024];
-        sscanf(strings[i], "%s %s", (char *)&part1, (char *)&address);
+        sscanf(strings[i], "%s %s", const_cast<char *>(part1), const_cast<char *>(address));
         char *start = strstr(part1, "(");
         if (start)
         {
-            int pos = start - part1;
+            long pos = start - part1;
             part1[pos++] = 0;
             getFilename(moduleName, part1);
             start += 1;
@@ -80,7 +80,7 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
         }
         if (address[0] == '[')
         {
-            for (char *ptr = (char *)address; *ptr != 0; ptr++)
+            for (char *ptr = const_cast<char *>(address); *ptr != 0; ptr++)
             {
                 *ptr = *(ptr + 1);
                 if (*ptr == ']')
@@ -99,7 +99,7 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
             continue;
 
         output += "#" + std::to_string(count) + "  " + address + " " + moduleName + " in ";
-        char *funcNewName = abi::__cxa_demangle(sourceFunc, NULL, 0, &status);
+        char *funcNewName = abi::__cxa_demangle(sourceFunc, nullptr, nullptr, &status);
         if (status == 0)
         {
             output += funcNewName;
@@ -107,13 +107,10 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
         }
         else
         {
-            output += sourceFunc;
-            output += "()";
+            output += std::string(sourceFunc) + "()";
         }
 
-        output += " offset ";
-        output += offset;
-        output += "\n";
+        output += " offset " + std::string(offset) + "\n";
         count++;
     }
     free(strings);

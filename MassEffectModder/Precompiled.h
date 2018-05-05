@@ -29,7 +29,7 @@
 #include <pthread.h>
 #include <string>
 
-void Exception(const char *file, const char *func, int line, const char *msg = NULL);
+[[ noreturn ]] void Exception(const char *file, const char *func, int line, const char *msg = NULL);
 #define CRASH_MSG(msg) Exception(__FILE__, __PRETTY_FUNCTION__, __LINE__, msg)
 #define CRASH(msg) Exception(__FILE__, __PRETTY_FUNCTION__, __LINE__)
 

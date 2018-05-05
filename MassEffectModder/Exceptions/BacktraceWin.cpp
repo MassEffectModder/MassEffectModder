@@ -71,7 +71,7 @@ int getInfoFromModule(char *moduleFilePath, DWORD64 offset, char *sourceFile,
     }
 
     asection *section = bfdHandle->sections;
-    while (section != NULL)
+    while (section != nullptr)
     {
         if ((bfd_get_section_flags(bfdHandle, section) & SEC_ALLOC) == SEC_ALLOC)
         {
@@ -79,7 +79,7 @@ int getInfoFromModule(char *moduleFilePath, DWORD64 offset, char *sourceFile,
             bfd_size_type sectionSize = bfd_get_section_size(section);
             if (offset >= address && offset < address + sectionSize)
             {
-                const char *filename = NULL, *function = NULL;
+                const char *filename = nullptr, *function = nullptr;
                 if (bfd_find_nearest_line(bfdHandle, section, (bfd_symbol **)symbolsTable,
                     offset - address, &filename, &function, sourceLine))
                 {
@@ -102,8 +102,8 @@ int getInfoFromModule(char *moduleFilePath, DWORD64 offset, char *sourceFile,
 
 static void getFilename(char *dst, const char *src)
 {
-    int offset = 0;
-    for (char *ptr = (char *)src; *ptr != 0; ptr++)
+    long offset = 0;
+    for (char *ptr = const_cast<char *>(src); *ptr != 0; ptr++)
     {
         if (*ptr == '/' || *ptr == '\\')
             offset = ptr - src + 1;
@@ -144,7 +144,7 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
     {
         current++;
         int status = -1;
-        char *moduleName = NULL;
+        char *moduleName = nullptr;
         char sourceFile[MAX_PATH], sourceFunc[MAX_PATH];
         unsigned int sourceLine = 0;
         char moduleFilePath[MAX_PATH], tmpBuffer[MAX_PATH];
@@ -181,22 +181,16 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
             char *name = cplus_demangle(sourceFunc, DMGL_PARAMS | DMGL_ANSI | DMGL_VERBOSE | DMGL_TYPES);
             if (name)
             {
-                output += name;
-                output += " ";
+                output += std::string(name) + " ";
             }
             else
             {
-                output += sourceFunc;
-                output += "() ";
+                output += std::string(sourceFunc) + "() ";
             }
 
             getFilename(moduleFilePath, sourceFile);
             strcpy(sourceFile, moduleFilePath);
-            output += "at ";
-            output += sourceFile;
-            output += ":";
-            output += std::to_string(sourceLine);
-            output += "\n";
+            output += "at " + std::string(sourceFile) + ":" + std::to_string(sourceLine) + "\n";
         }
         else if (status == 1)
         {
