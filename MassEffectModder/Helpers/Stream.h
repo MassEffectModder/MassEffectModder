@@ -72,7 +72,7 @@ public:
     virtual quint16 ReadUInt16() = 0;
     virtual quint8 ReadByte() = 0;
     virtual void WriteInt64(qint64 value) = 0;
-    virtual void WriteUInt64(uint64_t value) = 0;
+    virtual void WriteUInt64(quint64 value) = 0;
     virtual void WriteInt32(qint32 value) = 0;
     virtual void WriteUInt32(quint32 value) = 0;
     virtual void WriteInt16(qint16 value) = 0;
