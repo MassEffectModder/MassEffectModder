@@ -55,7 +55,7 @@ win32 {
     # WA: this bad. Assuming Qtcreator/project is on the same disk as msys2.
     # And assuming msys64 is main directory of msys2 64bit installation.
     # It should be /mingw64/lib/binutils but doesn't work in Qt env.
-    QMAKE_LIBDIR += /msys64/mingw64/lib/binutils
+    QMAKE_LIBDIR += c:/msys64/mingw64/lib/binutils
 }
 
 linux {
