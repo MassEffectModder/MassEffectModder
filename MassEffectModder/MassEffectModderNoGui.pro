@@ -41,6 +41,7 @@ macx {
     # we need provide version with enabled
     QMAKE_CC  = /usr/local/opt/llvm/bin/clang
     QMAKE_CXX = /usr/local/opt/llvm/bin/clang++
+    QMAKE_LIBDIR += /usr/local/opt/llvm/lib
 
     # WA: PCH file clash with targer file name
     PRECOMPILED_DIR = ".pch"
