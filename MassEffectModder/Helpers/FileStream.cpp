@@ -1,7 +1,7 @@
 /*
  * MassEffectModder
  *
- * Copyright (C) 2017 Pawel Kolodziejski <aquadran at users.sourceforge.net>
+ * Copyright (C) 2017-2018 Pawel Kolodziejski <aquadran at users.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -35,7 +35,7 @@ void FileStream::CheckFileIOErrorStatus()
 FileStream::FileStream(QString &path, FileMode mode, FileAccess access)
     : file(nullptr)
 {
-    QFile::OpenMode openFlags = 0;
+    QFile::OpenMode openFlags = QIODevice::NotOpen;
     file = new QFile(path);
     filePath = path;
 
