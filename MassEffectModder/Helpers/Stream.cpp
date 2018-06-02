@@ -1,7 +1,7 @@
 /*
  * MassEffectModder
  *
- * Copyright (C) 2017 Pawel Kolodziejski <aquadran at users.sourceforge.net>
+ * Copyright (C) 2017-2018 Pawel Kolodziejski <aquadran at users.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,27 +19,6 @@
  *
  */
 
-#ifndef CONFIG_INI_H
-#define CONFIG_INI_H
+#include <Helpers/Stream.h>
 
-#include <QString>
-
-class QSettings;
-
-class ConfigIni
-{
-    QSettings *settings;
-    bool valid = false;
-
-public:
-    explicit ConfigIni();
-    ConfigIni(const QString &iniPath);
-
-    bool IsConfigFileValid() { return valid; }
-    QString Read(const QString &key, const QString &section);
-    bool Write(const QString &key, const QString &value, const QString &section);
-    bool DeleteKey(const QString &key, const QString &section);
-    bool DeleteSection(const QString &section);
-};
-
-#endif
+Stream::~Stream() {}

@@ -80,7 +80,7 @@ void FileStream::Close()
 
 void FileStream::CopyFrom(Stream *stream, qint64 count, qint64 bufferSize)
 {
-    quint8 *buffer = new quint8[bufferSize];
+    quint8 *buffer = new quint8[static_cast<unsigned long>(bufferSize)];
     do
     {
         qint64 size = qMin(bufferSize, count);
@@ -94,19 +94,19 @@ void FileStream::CopyFrom(Stream *stream, qint64 count, qint64 bufferSize)
 
 void FileStream::ReadToBuffer(quint8 *buffer, qint64 count)
 {
-    file->read((char *)buffer, count);
+    file->read(reinterpret_cast<char *>(buffer), count);
     CheckFileIOErrorStatus();
 }
 
 void FileStream::WriteFromBuffer(quint8 *buffer, qint64 count)
 {
-    file->write((char *)buffer, count);
+    file->write(reinterpret_cast<char *>(buffer), count);
     CheckFileIOErrorStatus();
 }
 
 void FileStream::ReadStringASCII(QString &str, qint64 count)
 {
-    char *buffer = new char[count + 1];
+    char *buffer = new char[static_cast<unsigned long>(count) + 1];
 
     buffer[count] = 0;
     file->read(buffer, count);
@@ -132,7 +132,7 @@ void FileStream::ReadStringASCIINull(QString &str)
 void FileStream::ReadStringUnicode16(QString &str, qint64 count)
 {
     count *= 2;
-    char *buffer = new char[count + 2];
+    char *buffer = new char[static_cast<unsigned long>(count) + 2];
 
     buffer[count] = 0;
     buffer[count + 1] = 0;
@@ -152,7 +152,7 @@ void FileStream::ReadStringUnicode16Null(QString &str)
         CheckFileIOErrorStatus();
         if (c == 0)
             return;
-        str += QChar((ushort)c);
+        str += QChar(static_cast<ushort>(c));
     } while (true);
 }
 
@@ -171,8 +171,8 @@ void FileStream::WriteStringASCIINull(QString &str)
 
 void FileStream::WriteStringUnicode16(QString &str)
 {
-    const ushort *s = str.utf16();
-    file->write((char *)s, str.length() * 2);
+    ushort *s = const_cast<ushort *>(str.utf16());
+    file->write(reinterpret_cast<char *>(s), str.length() * 2);
     CheckFileIOErrorStatus();
 }
 
@@ -185,7 +185,7 @@ void FileStream::WriteStringUnicode16Null(QString &str)
 qint64 FileStream::ReadInt64()
 {
     qint64 value;
-    file->read((char *)&value, sizeof(qint64));
+    file->read(reinterpret_cast<char *>(&value), sizeof(qint64));
     CheckFileIOErrorStatus();
     return value;
 }
@@ -193,7 +193,7 @@ qint64 FileStream::ReadInt64()
 quint64 FileStream::ReadUInt64()
 {
     quint64 value;
-    file->read((char *)&value, sizeof(quint64));
+    file->read(reinterpret_cast<char *>(&value), sizeof(quint64));
     CheckFileIOErrorStatus();
     return value;
 }
@@ -201,7 +201,7 @@ quint64 FileStream::ReadUInt64()
 qint32 FileStream::ReadInt32()
 {
     qint32 value;
-    file->read((char *)&value, sizeof(qint32));
+    file->read(reinterpret_cast<char *>(&value), sizeof(qint32));
     CheckFileIOErrorStatus();
     return value;
 }
@@ -209,7 +209,7 @@ qint32 FileStream::ReadInt32()
 quint32 FileStream::ReadUInt32()
 {
     quint32 value;
-    file->read((char *)&value, sizeof(quint32));
+    file->read(reinterpret_cast<char *>(&value), sizeof(quint32));
     CheckFileIOErrorStatus();
     return value;
 }
@@ -217,7 +217,7 @@ quint32 FileStream::ReadUInt32()
 qint16 FileStream::ReadInt16()
 {
     qint16 value;
-    file->read((char *)&value, sizeof(qint16));
+    file->read(reinterpret_cast<char *>(&value), sizeof(qint16));
     CheckFileIOErrorStatus();
     return value;
 }
@@ -225,7 +225,7 @@ qint16 FileStream::ReadInt16()
 quint16 FileStream::ReadUInt16()
 {
     quint16 value;
-    file->read((char *)&value, sizeof(quint16));
+    file->read(reinterpret_cast<char *>(&value), sizeof(quint16));
     CheckFileIOErrorStatus();
     return value;
 }
@@ -233,60 +233,60 @@ quint16 FileStream::ReadUInt16()
 quint8 FileStream::ReadByte()
 {
     quint8 value;
-    file->read((char *)&value, sizeof(quint8));
+    file->read(reinterpret_cast<char *>(&value), sizeof(quint8));
     CheckFileIOErrorStatus();
     return value;
 }
 
 void FileStream::WriteInt64(qint64 value)
 {
-    file->write((char *)&value, sizeof(qint64));
+    file->write(reinterpret_cast<char *>(&value), sizeof(qint64));
     CheckFileIOErrorStatus();
 }
 
 void FileStream::WriteUInt64(quint64 value)
 {
-    file->write((char *)&value, sizeof(quint64));
+    file->write(reinterpret_cast<char *>(&value), sizeof(quint64));
     CheckFileIOErrorStatus();
 }
 
 void FileStream::WriteInt32(qint32 value)
 {
-    file->write((char *)&value, sizeof(qint32));
+    file->write(reinterpret_cast<char *>(&value), sizeof(qint32));
     CheckFileIOErrorStatus();
 }
 
 void FileStream::WriteUInt32(quint32 value)
 {
-    file->write((char *)&value, sizeof(quint32));
+    file->write(reinterpret_cast<char *>(&value), sizeof(quint32));
     CheckFileIOErrorStatus();
 }
 
 void FileStream::WriteInt16(qint16 value)
 {
-    file->write((char *)&value, sizeof(qint16));
+    file->write(reinterpret_cast<char *>(&value), sizeof(qint16));
     CheckFileIOErrorStatus();
 }
 
 void FileStream::WriteUInt16(quint16 value)
 {
-    file->write((char *)&value, sizeof(qint16));
+    file->write(reinterpret_cast<char *>(&value), sizeof(qint16));
     CheckFileIOErrorStatus();
 }
 
 void FileStream::WriteByte(quint8 value)
 {
-    file->write((char *)&value, sizeof(quint8));
+    file->write(reinterpret_cast<char *>(&value), sizeof(quint8));
     CheckFileIOErrorStatus();
 }
 
 void FileStream::WriteZeros(qint64 count)
 {
-    const quint8 z = 0;
+    quint8 z = 0;
 
     for (qint64 l = 0; l < count; l++)
     {
-         file->write((char *)&z, sizeof(quint8));
+         file->write(reinterpret_cast<char *>(&z), sizeof(quint8));
          CheckFileIOErrorStatus();
     }
 }

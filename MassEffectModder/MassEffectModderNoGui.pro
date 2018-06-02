@@ -12,6 +12,7 @@ SOURCES += Main.cpp \
     Helpers/Misc.cpp \
     Helpers/FileStream.cpp \
     Helpers/MemoryStream.cpp \
+    Helpers/Stream.cpp \
     Logs/Logs.cpp \
     ConfigIni.cpp
 

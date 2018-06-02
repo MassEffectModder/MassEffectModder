@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef __VERSION_H__
-#define __VERSION_H__
+#ifndef VERSION_H
+#define VERSION_H
 
 #define MEM_VERSION "400-WIP"
 

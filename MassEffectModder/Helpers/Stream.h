@@ -43,7 +43,7 @@ protected:
     bool writtable;
     bool seekable;
 
-    virtual ~Stream() {}
+    virtual ~Stream() = 0;
 
 public:
 
