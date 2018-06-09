@@ -71,8 +71,8 @@ void MemoryStream::WriteFromBuffer(quint8 *buffer, qint64 count)
     if (position + count + bufferMargin > length)
     {
         qint64 newOffset = position + count;
-        buffer = static_cast<quint8 *>(realloc(internalBuffer, static_cast<size_t>(newOffset + bufferMargin)));
-        if (buffer == nullptr)
+        internalBuffer = static_cast<quint8 *>(realloc(internalBuffer, static_cast<size_t>(newOffset + bufferMargin)));
+        if (internalBuffer == nullptr)
         {
             CRASH_MSG("MemoryStream: out of memory");
         }
