@@ -32,7 +32,7 @@ private:
 
     bool            _initialized;
     pthread_mutex_t _lock;
-    float           _startedTimestamp;
+    double          _startedTimestamp;
     bool            _timeStampEnabled;
 
 public:

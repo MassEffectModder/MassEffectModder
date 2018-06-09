@@ -70,7 +70,6 @@ int main(int argc, char *argv[])
     g_logs->printf("Log started at: %s\n", QDateTime::currentDateTime().toString().toStdString().c_str());
 
     g_logs->print(APP_NAME " v" MEM_VERSION "\n");
-    g_logs->print("Compiled at time: " __DATE__ " " __TIME__ "\n");
     g_logs->printf("OS: %s %s\n", QSysInfo::productType().toStdString().c_str(),
                   QSysInfo::productVersion().toStdString().c_str());
     g_logs->printf("RAM: %d GB\n\n", DetectAmountMemoryGB());

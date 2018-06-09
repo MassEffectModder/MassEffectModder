@@ -48,7 +48,7 @@ bool Logs::init()
     if (_initialized == true)
         return true;
 
-    if (pthread_mutex_init(&_lock, NULL) != 0)
+    if (pthread_mutex_init(&_lock, nullptr) != 0)
     {
         fprintf(stderr, "Logs::init(): Failed create mutex!\n");
         return false;
@@ -76,6 +76,7 @@ bool Logs::deinit()
 
 #define MAX_LOG_MSG_SIZE 4000
 
+__attribute__ ((__format__ (printf, 2, 3)))
 void Logs::printf(const char *format, ...)
 {
     va_list arguments;
@@ -85,8 +86,8 @@ void Logs::printf(const char *format, ...)
     if (_initialized == false)
         return;
 
-    gettimeofday(&current_time, NULL);
-    float timestamp = (current_time.tv_sec * 1000 + (current_time.tv_usec / 1000)) - _startedTimestamp;
+    gettimeofday(&current_time, nullptr);
+    double timestamp = (current_time.tv_sec * 1000 + (current_time.tv_usec / 1000)) - _startedTimestamp;
 
     va_start(arguments, format);
     vsnprintf(message, MAX_LOG_MSG_SIZE - 1, format, arguments);
