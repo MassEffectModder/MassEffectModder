@@ -8,4 +8,5 @@ SUBDIRS += \
     Libs/lzo2 \
     Libs/xdelta3 \
     Libs/zlib \
+    Wrappers \
     MassEffectModder
