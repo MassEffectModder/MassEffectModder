@@ -65,6 +65,4 @@ typedef float               CMP_FLOAT;         ///< A 32-bit float   format.
 #define min(a,b)            (((a) < (b)) ? (a) : (b))
 #endif
 
-#define CMP_API
-
 #endif // !COMMON_H

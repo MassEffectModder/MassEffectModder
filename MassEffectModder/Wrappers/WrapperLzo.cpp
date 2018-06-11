@@ -25,48 +25,48 @@
 
 int LzoDecompress(unsigned char *src, unsigned int src_len, unsigned char *dst, unsigned int *dst_len)
 {
-	lzo_uint len = *dst_len;
+    lzo_uint len = *dst_len;
 
-	int status = lzo_init();
-	if (status != LZO_E_OK)
-		return status;
+    int status = lzo_init();
+    if (status != LZO_E_OK)
+        return status;
 
     status = lzo1x_decompress_safe(src, src_len, dst, &len, nullptr);
-	*dst_len = (unsigned int)len;
+    *dst_len = (unsigned int)len;
 
-	return status;
+    return status;
 }
 
 int LzoCompress(unsigned char *src, unsigned int src_len, unsigned char *dst, unsigned int *dst_len)
 {
-	lzo_uint len = 0;
+    lzo_uint len = 0;
 
-	int status = lzo_init();
-	if (status != LZO_E_OK)
-		return status;
+    int status = lzo_init();
+    if (status != LZO_E_OK)
+        return status;
 
     unsigned char *wrkmem = static_cast<unsigned char *>(malloc(LZO1X_1_15_MEM_COMPRESS));
     if (wrkmem == nullptr)
-		return LZO_E_OUT_OF_MEMORY;
-	memset(wrkmem, 0, LZO1X_1_15_MEM_COMPRESS);
+        return LZO_E_OUT_OF_MEMORY;
+    memset(wrkmem, 0, LZO1X_1_15_MEM_COMPRESS);
 
     unsigned char *tmpBuffer = static_cast<unsigned char *>(malloc(src_len + LZO1X_1_15_MEM_COMPRESS));
     if (tmpBuffer == nullptr)
-	{
-		free(wrkmem);
-		return LZO_E_OUT_OF_MEMORY;
-	}
-	memset(tmpBuffer, 0, src_len + LZO1X_1_15_MEM_COMPRESS);
+    {
+        free(wrkmem);
+        return LZO_E_OUT_OF_MEMORY;
+    }
+    memset(tmpBuffer, 0, src_len + LZO1X_1_15_MEM_COMPRESS);
 
-	status = lzo1x_1_15_compress(src, src_len, tmpBuffer, &len, wrkmem);
-	if (status == LZO_E_OK)
-	{
+    status = lzo1x_1_15_compress(src, src_len, tmpBuffer, &len, wrkmem);
+    if (status == LZO_E_OK)
+    {
         *dst_len = static_cast<unsigned int>(len);
-		memcpy(dst, tmpBuffer, len);
-	}
+        memcpy(dst, tmpBuffer, len);
+    }
 
-	free(tmpBuffer);
-	free(wrkmem);
+    free(tmpBuffer);
+    free(wrkmem);
 
-	return status;
+    return status;
 }

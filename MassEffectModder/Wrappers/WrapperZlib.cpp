@@ -29,26 +29,26 @@
 
 int ZlibDecompress(unsigned char *src, unsigned int src_len, unsigned char *dst, unsigned int *dst_len)
 {
-	uLongf len = *dst_len;
+    uLongf len = *dst_len;
 
-	int status = uncompress((Bytef *)dst, &len, (Bytef *)src, (uLong)src_len);
-	if (status == Z_OK)
-		*dst_len = len;
-	else
-		*dst_len = 0;
+    int status = uncompress((Bytef *)dst, &len, (Bytef *)src, (uLong)src_len);
+    if (status == Z_OK)
+        *dst_len = len;
+    else
+        *dst_len = 0;
 
-	return status;
+    return status;
 }
 
 int ZlibCompress(int compression_level, unsigned char *src, unsigned int src_len, unsigned char *dst, unsigned int *dst_len)
 {
-	uLongf len = *dst_len;
+    uLongf len = *dst_len;
 
-	int status = compress2((Bytef *)dst, &len, (Bytef *)src, (uLong)src_len, compression_level);
-	if (status == Z_OK)
-		*dst_len = len;
-	else
-		*dst_len = 0;
+    int status = compress2((Bytef *)dst, &len, (Bytef *)src, (uLong)src_len, compression_level);
+    if (status == Z_OK)
+        *dst_len = len;
+    else
+        *dst_len = 0;
 
-	return status;
+    return status;
 }

@@ -34,24 +34,24 @@
 
 typedef struct
 {
-	zlib_filefunc64_def api;
-	voidpf handle;
-	unzFile file;
-	unz_global_info globalInfo;
-	unz_file_info curFileInfo;
-	int tpfMode;
+    zlib_filefunc64_def api;
+    voidpf handle;
+    unzFile file;
+    unz_global_info globalInfo;
+    unz_file_info curFileInfo;
+    int tpfMode;
 } UnzipHandle;
 
 #pragma pack(pop)
 
 static unsigned char tpfPassword[] =
-{ 
-	0x73, 0x2A, 0x63, 0x7D, 0x5F, 0x0A, 0xA6, 0xBD,
-	0x7D, 0x65, 0x7E, 0x67, 0x61, 0x2A, 0x7F, 0x7F,
-	0x74, 0x61, 0x67, 0x5B, 0x60, 0x70, 0x45, 0x74,
-	0x5C, 0x22, 0x74, 0x5D, 0x6E, 0x6A, 0x73, 0x41,
-	0x77, 0x6E, 0x46, 0x47, 0x77, 0x49, 0x0C, 0x4B,
-	0x46, 0x6F, '\0'
+{
+    0x73, 0x2A, 0x63, 0x7D, 0x5F, 0x0A, 0xA6, 0xBD,
+    0x7D, 0x65, 0x7E, 0x67, 0x61, 0x2A, 0x7F, 0x7F,
+    0x74, 0x61, 0x67, 0x5B, 0x60, 0x70, 0x45, 0x74,
+    0x5C, 0x22, 0x74, 0x5D, 0x6E, 0x6A, 0x73, 0x41,
+    0x77, 0x6E, 0x46, 0x47, 0x77, 0x49, 0x0C, 0x4B,
+    0x46, 0x6F, '\0'
 };
 
 unsigned char tpfXorKey[2] = { 0xA4, 0x3F };
@@ -61,66 +61,66 @@ unzFile unzOpenIoFile(const void *path, zlib_filefunc64_def* pzlib_filefunc_def)
 
 void *ZipOpenFromFile(const void *path, unsigned long *numEntries, int tpf)
 {
-	UnzipHandle *unzipHandle;
-	int result;
+    UnzipHandle *unzipHandle;
+    int result;
 
     unzipHandle = static_cast<UnzipHandle *>(malloc(sizeof(UnzipHandle)));
     if (unzipHandle == nullptr || numEntries == nullptr)
         return nullptr;
 
-	gXor = unzipHandle->tpfMode = tpf;
+    gXor = unzipHandle->tpfMode = tpf;
 
-	unzipHandle->file = unzOpenIoFile(path, &unzipHandle->api);
+    unzipHandle->file = unzOpenIoFile(path, &unzipHandle->api);
     if (unzipHandle->file == nullptr)
-	{
-		free(unzipHandle);
+    {
+        free(unzipHandle);
         return nullptr;
-	}
-	result = unzGetGlobalInfo(unzipHandle->file, &unzipHandle->globalInfo);
-	if (result != UNZ_OK)
-	{
-		unzClose(unzipHandle->file);
-		free(unzipHandle);
+    }
+    result = unzGetGlobalInfo(unzipHandle->file, &unzipHandle->globalInfo);
+    if (result != UNZ_OK)
+    {
+        unzClose(unzipHandle->file);
+        free(unzipHandle);
         return nullptr;
-	}
+    }
 
-	*numEntries = unzipHandle->globalInfo.number_entry;
+    *numEntries = unzipHandle->globalInfo.number_entry;
 
     return static_cast<void *>(unzipHandle);
 }
 
 void *ZipOpenFromMem(unsigned char *src, unsigned long srcLen, unsigned long *numEntries, int tpf)
 {
-	UnzipHandle *unzipHandle;
-	int result;
+    UnzipHandle *unzipHandle;
+    int result;
 
     unzipHandle = static_cast<UnzipHandle *>(malloc(sizeof(UnzipHandle)));
     if (unzipHandle == nullptr || numEntries == nullptr)
         return nullptr;
 
-	gXor = unzipHandle->tpfMode = tpf;
+    gXor = unzipHandle->tpfMode = tpf;
 
-	unzipHandle->handle = create_ioapi_from_buffer(&unzipHandle->api, src, srcLen);
+    unzipHandle->handle = create_ioapi_from_buffer(&unzipHandle->api, src, srcLen);
     if (unzipHandle->handle == nullptr)
-	{
-		free(unzipHandle);
+    {
+        free(unzipHandle);
         return nullptr;
-	}
-	unzipHandle->file = unzOpenIoMem(unzipHandle->handle, &unzipHandle->api, 1);
+    }
+    unzipHandle->file = unzOpenIoMem(unzipHandle->handle, &unzipHandle->api, 1);
     if (unzipHandle->file == nullptr)
-	{
-		free(unzipHandle);
+    {
+        free(unzipHandle);
         return nullptr;
-	}
-	result = unzGetGlobalInfo(unzipHandle->file, &unzipHandle->globalInfo);
-	if (result != UNZ_OK)
-	{
-		unzClose(unzipHandle->file);
-		free(unzipHandle);
+    }
+    result = unzGetGlobalInfo(unzipHandle->file, &unzipHandle->globalInfo);
+    if (result != UNZ_OK)
+    {
+        unzClose(unzipHandle->file);
+        free(unzipHandle);
         return nullptr;
-	}
+    }
 
-	*numEntries = unzipHandle->globalInfo.number_entry;
+    *numEntries = unzipHandle->globalInfo.number_entry;
 
     return static_cast<void *>(unzipHandle);
 }
@@ -128,20 +128,20 @@ void *ZipOpenFromMem(unsigned char *src, unsigned long srcLen, unsigned long *nu
 int ZipGetCurrentFileInfo(void *handle, char *fileName, unsigned long sizeOfFileName, unsigned long *dstLen)
 {
     UnzipHandle *unzipHandle = static_cast<UnzipHandle *>(handle);
-	int result;
-	char f[256];
+    int result;
+    char f[256];
 
     if (unzipHandle == nullptr || sizeOfFileName == 0 || dstLen == nullptr)
-		return -1;
+        return -1;
 
     result = unzGetCurrentFileInfo(unzipHandle->file, &unzipHandle->curFileInfo, f, sizeOfFileName, nullptr, 0, nullptr, 0);
-	if (result != UNZ_OK)
-		return result;
+    if (result != UNZ_OK)
+        return result;
 
     strcpy(fileName, f);
-	*dstLen = unzipHandle->curFileInfo.uncompressed_size;
+    *dstLen = unzipHandle->curFileInfo.uncompressed_size;
 
-	return 0;
+    return 0;
 }
 
 int ZipGoToFirstFile(void *handle)
@@ -150,13 +150,13 @@ int ZipGoToFirstFile(void *handle)
     int result;
 
     if (unzipHandle == nullptr)
-		return -1;
+        return -1;
 
-	result = unzGoToFirstFile(unzipHandle->file);
-	if (result != UNZ_OK)
-		return result;
+    result = unzGoToFirstFile(unzipHandle->file);
+    if (result != UNZ_OK)
+        return result;
 
-	return 0;
+    return 0;
 }
 
 int ZipGoToNextFile(void *handle)
@@ -165,13 +165,13 @@ int ZipGoToNextFile(void *handle)
     int result;
 
     if (unzipHandle == nullptr)
-		return -1;
+        return -1;
 
-	result = unzGoToNextFile(unzipHandle->file);
-	if (result != UNZ_OK)
-		return result;
+    result = unzGoToNextFile(unzipHandle->file);
+    if (result != UNZ_OK)
+        return result;
 
-	return 0;
+    return 0;
 }
 
 int ZipLocateFile(void *handle, const char *filename)
@@ -180,13 +180,13 @@ int ZipLocateFile(void *handle, const char *filename)
     int result;
 
     if (unzipHandle == nullptr || filename == nullptr)
-		return -1;
+        return -1;
 
-	result = unzLocateFile(unzipHandle->file, filename, 2);
-	if (result != UNZ_OK)
-		return result;
+    result = unzLocateFile(unzipHandle->file, filename, 2);
+    if (result != UNZ_OK)
+        return result;
 
-	return 0;
+    return 0;
 }
 
 int ZipReadCurrentFile(void *handle, unsigned char *dst, unsigned long dst_len, unsigned char *pass)
@@ -195,29 +195,29 @@ int ZipReadCurrentFile(void *handle, unsigned char *dst, unsigned long dst_len, 
     int result;
 
     if (unzipHandle == nullptr || dst == nullptr)
-		return -1;
+        return -1;
 
-	if ((unzipHandle->curFileInfo.flag & 1) != 0)
-	{
+    if ((unzipHandle->curFileInfo.flag & 1) != 0)
+    {
         result = unzOpenCurrentFilePassword(unzipHandle->file,
-                                            unzipHandle->tpfMode == 1 ? reinterpret_cast<char *>(tpfPassword) : pass == nullptr ? "" : (const char *)pass);
-	}
-	else
-	{
-		result = unzOpenCurrentFile(unzipHandle->file);
-	}
-	if (result != UNZ_OK)
-		return result;
+                unzipHandle->tpfMode == 1 ? reinterpret_cast<char *>(tpfPassword) : pass == nullptr ? "" : (const char *)pass);
+    }
+    else
+    {
+        result = unzOpenCurrentFile(unzipHandle->file);
+    }
+    if (result != UNZ_OK)
+        return result;
 
     result = unzReadCurrentFile(unzipHandle->file, dst, static_cast<unsigned>(dst_len));
-	if (result < 0)
-		return result;
+    if (result < 0)
+        return result;
 
-	result = unzCloseCurrentFile(unzipHandle->file);
-	if (result != UNZ_OK)
-		return result;
+    result = unzCloseCurrentFile(unzipHandle->file);
+    if (result != UNZ_OK)
+        return result;
 
-	return 0;
+    return 0;
 }
 
 void ZipClose(void *handle)
@@ -225,9 +225,9 @@ void ZipClose(void *handle)
     UnzipHandle *unzipHandle = static_cast<UnzipHandle *>(handle);
 
     if (unzipHandle == nullptr)
-		return;
+        return;
 
-	unzClose(unzipHandle->file);
+    unzClose(unzipHandle->file);
 
-	free(unzipHandle);
+    free(unzipHandle);
 }

@@ -23,11 +23,11 @@
 
 int LzmaDecompress(unsigned char *src, unsigned int src_len, unsigned char *dst, unsigned int *dst_len)
 {
-	size_t len = *dst_len, sLen = src_len - LZMA_PROPS_SIZE;
+    size_t len = *dst_len, sLen = src_len - LZMA_PROPS_SIZE;
 
-	int status = LzmaUncompress(dst, &len, &src[LZMA_PROPS_SIZE], &sLen, src, LZMA_PROPS_SIZE);
-	if (status == SZ_OK)
-		*dst_len = len;
+    int status = LzmaUncompress(dst, &len, &src[LZMA_PROPS_SIZE], &sLen, src, LZMA_PROPS_SIZE);
+    if (status == SZ_OK)
+        *dst_len = len;
 
-	return status;
+    return status;
 }

@@ -37,34 +37,34 @@
 #include <xdelta3.h>
 
 int XDelta3Compress(unsigned char *src1, unsigned char *src2, unsigned int src_len,
-	unsigned char *delta, unsigned int *delta_len)
+        unsigned char *delta, unsigned int *delta_len)
 {
-	int result;
-	usize_t len = 0;
+    int result;
+    usize_t len = 0;
 
     result = xd3_encode_memory(static_cast<const uint8_t *>(src2), static_cast<usize_t>(src_len),
                                static_cast<const uint8_t *>(src1), static_cast<usize_t>(src_len),
                                static_cast<uint8_t *>(delta), &len, static_cast<usize_t>(src_len),
                                XD3_SEC_DJW | XD3_ADLER32);
 
-	if (result == 0)
+    if (result == 0)
         *delta_len = static_cast<unsigned int>(len);
 
-	return result;
+    return result;
 }
 
 int XDelta3Decompress(unsigned char *src, unsigned int src_len,
-	unsigned char *delta, unsigned int delta_len, unsigned char *dst, unsigned int *dst_len)
+        unsigned char *delta, unsigned int delta_len, unsigned char *dst, unsigned int *dst_len)
 {
-	int result;
-	usize_t len = 0;
+    int result;
+    usize_t len = 0;
 
     result = xd3_decode_memory(static_cast<const uint8_t *>(delta), static_cast<usize_t>(delta_len),
                                static_cast<const uint8_t *>(src), static_cast<usize_t>(src_len),
                                static_cast<uint8_t *>(dst), &len, static_cast<usize_t>(src_len), 0);
 
-	if (result == 0)
+    if (result == 0)
         *dst_len = static_cast<unsigned int>(len);
 
-	return result;
+    return result;
 }
