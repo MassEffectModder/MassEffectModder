@@ -22,6 +22,7 @@
 #ifndef VERSION_H
 #define VERSION_H
 
+#define APP_NAME "MEM"
 #define MEM_VERSION "400-WIP"
 
 #endif

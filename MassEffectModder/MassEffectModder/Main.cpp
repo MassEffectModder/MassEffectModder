@@ -33,8 +33,6 @@
 #include "ConfigIni.h"
 #include "Version.h"
 
-#define APP_NAME "MEM"
-
 int runQtApplication(int argc, char *argv[])
 {
     QCoreApplication application(argc, argv);
