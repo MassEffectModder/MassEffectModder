@@ -27,7 +27,7 @@ int LzmaDecompress(unsigned char *src, unsigned int src_len, unsigned char *dst,
 
     int status = LzmaUncompress(dst, &len, &src[LZMA_PROPS_SIZE], &sLen, src, LZMA_PROPS_SIZE);
     if (status == SZ_OK)
-        *dst_len = len;
+        *dst_len = static_cast<unsigned int>(len);
 
     return status;
 }
