@@ -29,7 +29,7 @@
 #include <pthread.h>
 #include <string>
 
-[[ noreturn ]] void Exception(const char *file, const char *func, int line, const char *msg = NULL);
+[[ noreturn ]] void Exception(const char *file, const char *func, int line, const char *msg = nullptr);
 #define CRASH_MSG(msg) Exception(__FILE__, __PRETTY_FUNCTION__, __LINE__, msg)
 #define CRASH(msg) Exception(__FILE__, __PRETTY_FUNCTION__, __LINE__)
 
@@ -38,11 +38,14 @@
 #include <QCommandLineParser>
 #include <QDir>
 #include <QFile>
+#include <QDirIterator>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QDateTime>
 #include <QSysInfo>
 #include <QString>
+#include <QList>
+#include <QStringList>
 
 #endif
 

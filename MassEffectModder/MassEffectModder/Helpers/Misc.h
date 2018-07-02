@@ -22,6 +22,11 @@
 #ifndef MISC_H
 #define MISC_H
 
+#include <QString>
+
 int DetectAmountMemoryGB();
+void ConsolePrint(const char *message);
+void ConsolePrint(const QString &message);
+void ConsolePrintf(const char *format, ...);
 
 #endif

@@ -39,11 +39,10 @@ ConfigIni::ConfigIni(const QString &iniPath)
     else
     {
         QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
-                QDir::separator() + "MassEffectModder";
+                "MassEffectModder";
         if (!QDir(path).exists())
             QDir(path).mkpath(path);
-        settings = new QSettings(path + QDir::separator() + "MassEffectModder.ini",
-                                 QSettings::IniFormat);
+        settings = new QSettings(path + "/MassEffectModder.ini", QSettings::IniFormat);
     }
     if (settings->status() == QSettings::NoError)
         valid = true;

@@ -1,6 +1,6 @@
 QT += core
 
-CONFIG += c++14 static precompile_header
+CONFIG += c++14 static precompile_header console
 CONFIG -= app_bundle
 
 TARGET = MassEffectModderNoGui
@@ -8,13 +8,14 @@ TARGET = MassEffectModderNoGui
 TEMPLATE = app
 
 SOURCES += \
-    Main.cpp \
     Exceptions/SignalHandler.cpp \
+    Logs/Logs.cpp \
     Helpers/Misc.cpp \
     Helpers/FileStream.cpp \
     Helpers/MemoryStream.cpp \
     Helpers/Stream.cpp \
-    Logs/Logs.cpp \
+    Main.cpp \
+    GameData.cpp \
     ConfigIni.cpp
 
 PRECOMPILED_HEADER = Precompiled.h
@@ -22,12 +23,14 @@ PRECOMPILED_HEADER = Precompiled.h
 HEADERS += \
     Exceptions/Backtrace.h \
     Exceptions/SignalHandler.h \
+    Logs/Logs.h \
     Helpers/Misc.h \
     Helpers/FileStream.h \
     Helpers/MemoryStream.h \
     Helpers/Stream.h \
-    Logs/Logs.h \
+    GameData.h \
     ConfigIni.h \
+    MeType.h \
     Version.h
 
 DEFINES += QT_DEPRECATED_WARNINGS

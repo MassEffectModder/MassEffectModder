@@ -125,7 +125,7 @@ void Logs::printline(const char *message)
     _timeStampEnabled = oldState;
 }
 
-void Logs::printMsgTimeStamp(QString &message)
+void Logs::printMsgTimeStamp(const QString &message)
 {
     bool oldState = _timeStampEnabled;
     _timeStampEnabled = true;
@@ -133,7 +133,7 @@ void Logs::printMsgTimeStamp(QString &message)
     _timeStampEnabled = oldState;
 }
 
-void Logs::printMsg(QString &message)
+void Logs::printMsg(const QString &message)
 {
     bool oldState = _timeStampEnabled;
     _timeStampEnabled = false;

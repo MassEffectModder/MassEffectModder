@@ -31,6 +31,7 @@
 #include "Helpers/Misc.h"
 
 #include "ConfigIni.h"
+//#include "GameData.h"
 #include "Version.h"
 
 int runQtApplication(int argc, char *argv[])
@@ -49,6 +50,9 @@ int runQtApplication(int argc, char *argv[])
 
     if (!cmdLineParser.positionalArguments().isEmpty())
     {
+        ConsolePrint("\n\n--- MEM no GUI v" + QString(MEM_VERSION) + " command line ---\n");
+
+        //GameData gameData;
         // TODO: cmdline mode
         return -1;
     }

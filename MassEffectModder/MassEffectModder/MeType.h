@@ -1,7 +1,7 @@
 /*
  * MassEffectModder
  *
- * Copyright (C) 2017-2018 Pawel Kolodziejski <aquadran at users.sourceforge.net>
+ * Copyright (C) 2018 Pawel Kolodziejski <aquadran at users.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,39 +19,15 @@
  *
  */
 
-#ifndef LOGS_H
-#define LOGS_H
+#ifndef ME_TYPE_H
+#define ME_TYPE_H
 
-#include <pthread.h>
-
-class QString;
-
-class Logs
+enum MeType
 {
-private:
-
-    bool            _initialized;
-    pthread_mutex_t _lock;
-    double          _startedTimestamp;
-    bool            _timeStampEnabled;
-
-public:
-
-    Logs();
-    ~Logs();
-    bool init();
-    bool deinit();
-    void printf(const char *format, ...);
-    void print(const char *message);
-    void printline(const char *message);
-    void printMsgTimeStamp(const QString &message);
-    void printMsg(const QString &message);
-    void enableTimeStamp(bool enable) { _timeStampEnabled = enable; }
+    UNKNOWN_TYPE = 0,
+    ME1_TYPE,
+    ME2_TYPE,
+    ME3_TYPE
 };
-
-extern Logs *g_logs;
-
-bool CreateLogs();
-void ReleaseLogs();
 
 #endif
