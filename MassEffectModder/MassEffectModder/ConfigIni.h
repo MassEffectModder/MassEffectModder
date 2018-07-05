@@ -32,7 +32,7 @@ class ConfigIni
     bool valid = false;
 
 public:
-    explicit ConfigIni();
+    ConfigIni();
     ConfigIni(const QString &iniPath);
 
     bool IsConfigFileValid() { return valid; }

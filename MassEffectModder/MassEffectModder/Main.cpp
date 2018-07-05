@@ -20,18 +20,17 @@
  */
 
 #include <QCoreApplication>
-#include <QCommandLineParser>
 #include <QDir>
 #include <QFile>
 #include <QDateTime>
 #include <QSysInfo>
+#include <QStringList>
 
 #include "Exceptions/SignalHandler.h"
-#include "Logs/Logs.h"
+#include "Helpers/Logs.h"
 #include "Helpers/Misc.h"
 
-#include "ConfigIni.h"
-//#include "GameData.h"
+#include "CmdLineParams.h"
 #include "Version.h"
 
 int runQtApplication(int argc, char *argv[])
@@ -40,27 +39,14 @@ int runQtApplication(int argc, char *argv[])
 
     QCoreApplication::setOrganizationName(APP_NAME);
     QCoreApplication::setApplicationName(APP_NAME);
-    QCoreApplication::setApplicationVersion(MEM_VERSION);
 
-    QCommandLineParser cmdLineParser;
-    cmdLineParser.setApplicationDescription(QCoreApplication::applicationName());
-    cmdLineParser.process(application);
+    ConsoleWrite(QString("\nMassEffectModder (MEM) v%1 command line version\n"
+                         "Copyright (C) 2014-2018 Pawel Kolodziejski\n"
+                         "This is free software; see the source for copying conditions.\n"
+                         "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n"
+                         ).arg(MEM_VERSION));
 
-    ConfigIni conf;
-
-    if (!cmdLineParser.positionalArguments().isEmpty())
-    {
-        ConsolePrint("\n\n--- MEM no GUI v" + QString(MEM_VERSION) + " command line ---\n");
-
-        //GameData gameData;
-        // TODO: cmdline mode
-        return -1;
-    }
-    else
-    {
-        // TODO: cmdline mode
-        return -1;
-    }
+    return ProcessArguments();
 }
 
 int main(int argc, char *argv[])
@@ -68,13 +54,11 @@ int main(int argc, char *argv[])
     InstallSignalsHandler();
 
     CreateLogs();
-    g_logs->print("\n----------------------------------------------------\n");
-    g_logs->printf("Log started at: %s\n", QDateTime::currentDateTime().toString().toStdString().c_str());
-
-    g_logs->print(APP_NAME " v" MEM_VERSION "\n");
-    g_logs->printf("OS: %s %s\n", QSysInfo::productType().toStdString().c_str(),
-                  QSysInfo::productVersion().toStdString().c_str());
-    g_logs->printf("RAM: %d GB\n\n", DetectAmountMemoryGB());
+    g_logs->printMsg("\n----------------------------------------------------");
+    g_logs->printMsg("Log started at: " + QDateTime::currentDateTime().toString());
+    g_logs->printMsg(QString(APP_NAME) + " v" + QString(MEM_VERSION));
+    g_logs->printMsg("OS: " + QSysInfo::productType() + " " + QSysInfo::productVersion());
+    g_logs->printMsg("RAM: " + QString::number(DetectAmountMemoryGB()) + " GB\n");
 
     int status = runQtApplication(argc, argv);
 

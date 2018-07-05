@@ -19,44 +19,20 @@
  *
  */
 
-#ifndef GAME_DATA_H
-#define GAME_DATA_H
+#include "Exceptions/SignalHandler.h"
+#include "Helpers/Misc.h"
 
-#include "MeType.h"
+#include "CmdLineTools.h"
 #include "ConfigIni.h"
+#include "GameData.h"
+#include "MeType.h"
 
-#include <QString>
-#include <QStringList>
-
-class GameData
+int ScanTextures(MeType gameType, bool ipc)
 {
-private:
-    static QString _path;
-    static ConfigIni *_configIni;
+    int errorCode = 0;
 
-    void ScanGameFiles(bool force);
 
-public:
-    static MeType gameType;
-    static QStringList gameFiles;
-    static QStringList packageFiles;
-    static QStringList tfcFiles;
-    static bool FullScanME1Game;
-    bool DLCDataCacheDone = false;
 
-    GameData(MeType type, ConfigIni *configIni, bool force);
-    QString GamePath() { return _path; }
-    QString MainData();
-    QString bioGamePath();
-    QString RelativeGameData(QString &path);
-    QString DLCData();
-    QString GameExePath();
-    QString GameUserPath();
-    QString ConfigIniPath();
-    QString EngineConfigIniPath();
-    void getTfcTextures();
-    void getPackages();
-    void ClosePackagesList();
-};
+    return errorCode;
+}
 
-#endif

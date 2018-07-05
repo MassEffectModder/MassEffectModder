@@ -19,12 +19,37 @@
  *
  */
 
-#ifndef MISC_H
-#define MISC_H
+#ifndef LOGS_H
+#define LOGS_H
 
-#include <QString>
+#include <mutex>
+#include <cstring>
 
-int DetectAmountMemoryGB();
-void ConsoleWrite(const QString &message);
+class QString;
+
+class Logs
+{
+private:
+
+    std::mutex      _lock;
+    qint64          _startedTimestamp;
+    bool            _timeStampEnabled;
+    bool            _printToConsoleEnabled;
+
+    void print(const QString &message);
+
+public:
+
+    Logs();
+    void printStdMsg(const std::string &message);
+    void printMsg(const QString &message);
+    void printMsgTimeStamp(const QString &message);
+    void enableTimeStamp(bool enable) { _timeStampEnabled = enable; }
+};
+
+extern Logs *g_logs;
+
+bool CreateLogs();
+void ReleaseLogs();
 
 #endif

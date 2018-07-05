@@ -43,7 +43,7 @@ MemoryStream::~MemoryStream()
 
 void MemoryStream::CopyFrom(Stream *stream, qint64 count, qint64 bufferSize)
 {
-    quint8 *buffer = new quint8[static_cast<unsigned long>(bufferSize)];
+    auto *buffer = new quint8[static_cast<unsigned long>(bufferSize)];
     do
     {
         qint64 size = qMin(bufferSize, count);
@@ -87,7 +87,7 @@ void MemoryStream::WriteFromBuffer(quint8 *buffer, qint64 count)
 
 void MemoryStream::ReadStringASCII(QString &str, qint64 count)
 {
-    char *buffer = new char[static_cast<size_t>(count) + 1];
+    auto *buffer = new char[static_cast<size_t>(count) + 1];
 
     buffer[count] = 0;
     ReadToBuffer(reinterpret_cast<quint8 *>(buffer), count);
@@ -99,7 +99,7 @@ void MemoryStream::ReadStringASCIINull(QString &str)
 {
     do
     {
-        char c = static_cast<char>(ReadByte());
+        auto c = static_cast<char>(ReadByte());
         if (c == 0)
             return;
         str += c;
@@ -109,7 +109,7 @@ void MemoryStream::ReadStringASCIINull(QString &str)
 void MemoryStream::ReadStringUnicode16(QString &str, qint64 count)
 {
     count *= 2;
-    char *buffer = new char[static_cast<size_t>(count) + 2];
+    auto *buffer = new char[static_cast<size_t>(count) + 2];
 
     buffer[count] = 0;
     buffer[count + 1] = 0;
@@ -143,7 +143,7 @@ void MemoryStream::WriteStringASCIINull(QString &str)
 
 void MemoryStream::WriteStringUnicode16(QString &str)
 {
-    ushort *s = const_cast<ushort *>(str.utf16());
+    auto *s = const_cast<ushort *>(str.utf16());
     WriteFromBuffer(reinterpret_cast<quint8 *>(s), str.length() * 2);
 }
 

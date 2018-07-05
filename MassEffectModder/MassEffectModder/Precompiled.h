@@ -25,9 +25,9 @@
 
 // C++ includes
 
-#include <stdlib.h>
-#include <pthread.h>
+#include <cstdlib>
 #include <string>
+#include <cstring>
 
 [[ noreturn ]] void Exception(const char *file, const char *func, int line, const char *msg = nullptr);
 #define CRASH_MSG(msg) Exception(__FILE__, __PRETTY_FUNCTION__, __LINE__, msg)

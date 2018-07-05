@@ -56,31 +56,7 @@ int DetectAmountMemoryGB()
 
 #define MAX_MSG_SIZE 4000
 
-void ConsolePrint(const char *message)
-{
-    if (message == nullptr)
-        CRASH_MSG("ConsolePrint: NULL param!");
-
-    ::puts(message);
-}
-
-void ConsolePrint(const QString &message)
+void ConsoleWrite(const QString &message)
 {
     ::puts(message.toStdString().c_str());
-}
-
-__attribute__ ((__format__ (printf, 1, 2)))
-void ConsolePrintf(const char *format, ...)
-{
-    va_list arguments;
-    char message[MAX_MSG_SIZE];
-
-    if (format == nullptr)
-        CRASH_MSG("ConsolePrintf: NULL param!");
-
-    va_start(arguments, format);
-    vsnprintf(message, MAX_MSG_SIZE - 1, format, arguments);
-    va_end(arguments);
-
-    ::printf("%s", message);
 }

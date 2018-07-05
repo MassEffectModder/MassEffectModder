@@ -9,12 +9,14 @@ TEMPLATE = app
 
 SOURCES += \
     Exceptions/SignalHandler.cpp \
-    Logs/Logs.cpp \
+    Helpers/Logs.cpp \
     Helpers/Misc.cpp \
     Helpers/FileStream.cpp \
     Helpers/MemoryStream.cpp \
     Helpers/Stream.cpp \
     Main.cpp \
+    CmdLineParams.cpp \
+    CmdLineTools.cpp \
     GameData.cpp \
     ConfigIni.cpp
 
@@ -23,11 +25,13 @@ PRECOMPILED_HEADER = Precompiled.h
 HEADERS += \
     Exceptions/Backtrace.h \
     Exceptions/SignalHandler.h \
-    Logs/Logs.h \
+    Helpers/Logs.h \
     Helpers/Misc.h \
     Helpers/FileStream.h \
     Helpers/MemoryStream.h \
     Helpers/Stream.h \
+    CmdLineParams.h \
+    CmdLineTools.h \
     GameData.h \
     ConfigIni.h \
     MeType.h \

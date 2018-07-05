@@ -22,12 +22,12 @@
 #ifndef ME_TYPE_H
 #define ME_TYPE_H
 
-enum MeType
+typedef enum
 {
     UNKNOWN_TYPE = 0,
     ME1_TYPE,
     ME2_TYPE,
     ME3_TYPE
-};
+} MeType;
 
 #endif

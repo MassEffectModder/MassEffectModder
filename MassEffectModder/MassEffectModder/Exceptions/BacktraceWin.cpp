@@ -29,7 +29,7 @@
 #include <binutils/bfd.h>
 #include <libiberty/demangle.h>
 
-int getInfoFromModule(char *moduleFilePath, DWORD64 offset, char *sourceFile,
+int getInfoFromModule(char *moduleFilePath, DWORD64, char *sourceFile,
     char *sourceFunc, unsigned int *sourceLine)
 {
     bfd *bfdHandle = bfd_openr(moduleFilePath, NULL);
@@ -103,7 +103,7 @@ int getInfoFromModule(char *moduleFilePath, DWORD64 offset, char *sourceFile,
 static void getFilename(char *dst, const char *src)
 {
     long offset = 0;
-    for (char *ptr = const_cast<char *>(src); *ptr != 0; ptr++)
+    for (auto *ptr = src; *ptr != 0; ptr++)
     {
         if (*ptr == '/' || *ptr == '\\')
             offset = ptr - src + 1;

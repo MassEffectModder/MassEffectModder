@@ -37,44 +37,44 @@ private:
 public:
 
     MemoryStream();
-    ~MemoryStream();
+    ~MemoryStream() override;
 
-    void Flush() {}
-    void Close() {}
+    void Flush() override {}
+    void Close() override {}
 
-    void CopyFrom(Stream *stream, qint64 count, qint64 bufferSize = 10000);
-    void ReadToBuffer(quint8 *buffer, qint64 count);
-    void WriteFromBuffer(quint8 *buffer, qint64 count);
-    void ReadStringASCII(QString &str, qint64 count);
-    void ReadStringASCIINull(QString &str);
-    void ReadStringUnicode16(QString &str, qint64 count);
-    void ReadStringUnicode16Null(QString &str);
-    void WriteStringASCII(QString &str);
-    void WriteStringASCIINull(QString &str);
-    void WriteStringUnicode16(QString &str);
-    void WriteStringUnicode16Null(QString &str);
-    qint64 ReadInt64();
-    quint64 ReadUInt64();
-    qint32 ReadInt32();
-    quint32 ReadUInt32();
-    qint16 ReadInt16();
-    quint16 ReadUInt16();
-    quint8 ReadByte();
-    void WriteInt64(qint64 value);
-    void WriteUInt64(quint64 value);
-    void WriteInt32(qint32 value);
-    void WriteUInt32(quint32 value);
-    void WriteInt16(qint16 value);
-    void WriteUInt16(quint16 value);
-    void WriteByte(quint8 value);
-    void WriteZeros(qint64 count);
-    void Seek(qint64 offset, SeekOrigin origin);
-    void JumpTo(qint64 offset);
-    void Skip(qint64 offset);
-    void SkipByte();
-    void SkipInt16();
-    void SkipInt32();
-    void SkipInt64();
+    void CopyFrom(Stream *stream, qint64 count, qint64 bufferSize = 10000) override;
+    void ReadToBuffer(quint8 *buffer, qint64 count) override;
+    void WriteFromBuffer(quint8 *buffer, qint64 count) override;
+    void ReadStringASCII(QString &str, qint64 count) override;
+    void ReadStringASCIINull(QString &str) override;
+    void ReadStringUnicode16(QString &str, qint64 count) override;
+    void ReadStringUnicode16Null(QString &str) override;
+    void WriteStringASCII(QString &str) override;
+    void WriteStringASCIINull(QString &str) override;
+    void WriteStringUnicode16(QString &str) override;
+    void WriteStringUnicode16Null(QString &str) override;
+    qint64 ReadInt64() override;
+    quint64 ReadUInt64() override;
+    qint32 ReadInt32() override;
+    quint32 ReadUInt32() override;
+    qint16 ReadInt16() override;
+    quint16 ReadUInt16() override;
+    quint8 ReadByte() override;
+    void WriteInt64(qint64 value) override;
+    void WriteUInt64(quint64 value) override;
+    void WriteInt32(qint32 value) override;
+    void WriteUInt32(quint32 value) override;
+    void WriteInt16(qint16 value) override;
+    void WriteUInt16(quint16 value) override;
+    void WriteByte(quint8 value) override;
+    void WriteZeros(qint64 count) override;
+    void Seek(qint64 offset, SeekOrigin origin) override;
+    void JumpTo(qint64 offset) override;
+    void Skip(qint64 offset) override;
+    void SkipByte() override;
+    void SkipInt16() override;
+    void SkipInt32() override;
+    void SkipInt64() override;
 };
 
 #endif

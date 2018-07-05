@@ -37,11 +37,11 @@ class Stream
 {
 protected:
 
-    qint64 length;
-    qint64 position;
-    bool readable;
-    bool writtable;
-    bool seekable;
+    qint64 length{};
+    qint64 position{};
+    bool readable{};
+    bool writtable{};
+    bool seekable{};
 
     virtual ~Stream() = 0;
 

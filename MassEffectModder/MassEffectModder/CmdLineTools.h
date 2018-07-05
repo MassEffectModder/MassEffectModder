@@ -1,7 +1,7 @@
 /*
  * MassEffectModder
  *
- * Copyright (C) 2017-2018 Pawel Kolodziejski <aquadran at users.sourceforge.net>
+ * Copyright (C) 2018 Pawel Kolodziejski <aquadran at users.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,12 +19,11 @@
  *
  */
 
-#ifndef MISC_H
-#define MISC_H
+#ifndef CMD_LINE_TOOLS_H
+#define CMD_LINE_TOOLS_H
 
-#include <QString>
+#include "MeType.h"
 
-int DetectAmountMemoryGB();
-void ConsoleWrite(const QString &message);
+int ScanTextures(MeType gameType, bool ipc);
 
 #endif

@@ -21,4 +21,4 @@
 
 #include <Helpers/Stream.h>
 
-Stream::~Stream() {}
+Stream::~Stream() = default;

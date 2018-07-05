@@ -87,8 +87,7 @@ GameData::GameData(MeType type, ConfigIni *configIni, bool force = false)
             ScanGameFiles(force);
             return;
         }
-        else
-            _path = "";
+        _path = "";
     }
 
 #if defined(_WIN32)
@@ -114,8 +113,7 @@ GameData::GameData(MeType type, ConfigIni *configIni, bool force = false)
             ScanGameFiles(force);
             return;
         }
-        else
-            _path = "";
+        _path = "";
     }
 #endif
 
@@ -245,12 +243,12 @@ QString GameData::EngineConfigIniPath()
     CRASH();
 }
 
-QString GameData::RelativeGameData(QString path)
+QString GameData::RelativeGameData(QString &path)
 {
     if (_path == "")
         CRASH_MSG("Game path not set!");
 
-    if (!path.toLower().contains(_path.toLower()))
+    if (!path.contains(_path.toLower(), Qt::CaseInsensitive))
         CRASH_MSG("The path not found in game path!");
 
     return path.left(_path.length());

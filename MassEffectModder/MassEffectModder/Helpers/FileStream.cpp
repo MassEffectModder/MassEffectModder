@@ -80,7 +80,7 @@ void FileStream::Close()
 
 void FileStream::CopyFrom(Stream *stream, qint64 count, qint64 bufferSize)
 {
-    quint8 *buffer = new quint8[static_cast<unsigned long>(bufferSize)];
+    auto *buffer = new quint8[static_cast<unsigned long>(bufferSize)];
     do
     {
         qint64 size = qMin(bufferSize, count);
@@ -106,7 +106,7 @@ void FileStream::WriteFromBuffer(quint8 *buffer, qint64 count)
 
 void FileStream::ReadStringASCII(QString &str, qint64 count)
 {
-    char *buffer = new char[static_cast<unsigned long>(count) + 1];
+    auto *buffer = new char[static_cast<unsigned long>(count) + 1];
 
     buffer[count] = 0;
     file->read(buffer, count);
@@ -132,7 +132,7 @@ void FileStream::ReadStringASCIINull(QString &str)
 void FileStream::ReadStringUnicode16(QString &str, qint64 count)
 {
     count *= 2;
-    char *buffer = new char[static_cast<unsigned long>(count) + 2];
+    auto *buffer = new char[static_cast<unsigned long>(count) + 2];
 
     buffer[count] = 0;
     buffer[count + 1] = 0;
@@ -171,7 +171,7 @@ void FileStream::WriteStringASCIINull(QString &str)
 
 void FileStream::WriteStringUnicode16(QString &str)
 {
-    ushort *s = const_cast<ushort *>(str.utf16());
+    auto *s = const_cast<ushort *>(str.utf16());
     file->write(reinterpret_cast<char *>(s), str.length() * 2);
     CheckFileIOErrorStatus();
 }

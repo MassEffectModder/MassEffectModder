@@ -21,19 +21,19 @@
 
 #include <string>
 #include <iostream>
-#include <signal.h>
+#include <csignal>
 
-#include <Logs/Logs.h>
+#include <Helpers/Logs.h>
 #include <Exceptions/Backtrace.h>
 
 using namespace std;
 
-void LogCrash(string output, string message)
+void LogCrash(string output, string &message)
 {
     output = message + output;
 
     if (g_logs)
-        g_logs->printf("%s", output.c_str());
+        g_logs->printStdMsg(output);
     else
         cerr << output;
 }
@@ -41,7 +41,7 @@ void LogCrash(string output, string message)
 static void getFilename(char *dst, const char *src)
 {
     long offset = 0;
-    for (char *ptr = const_cast<char *>(src); *ptr != 0; ptr++)
+    for (auto *ptr = src; *ptr != 0; ptr++)
     {
         if (*ptr == '/' || *ptr == '\\')
             offset = ptr - src + 1;
@@ -52,14 +52,14 @@ static void getFilename(char *dst, const char *src)
 [[ noreturn ]] void Exception(const char *file, const char *func, int line, const char *msg)
 {
     char str[1024];
-    getFilename(str, file);
+    getFilename(static_cast<char *>(str), file);
 
     string message = "Exception occured! ";
     if (msg)
     {
         message += "\"" + std::string(msg) + "\"";
     }
-    message += "\nin " + std::string(func) + " at " + std::string(str) + ":" + std::to_string(line) + "\n";
+    message += "\nin " + std::string(func) + " at " + std::string(static_cast<char *>(str)) + ":" + std::to_string(line) + "\n";
 
     string output = "Backtrace:\n";
     GetBackTrace(output);
