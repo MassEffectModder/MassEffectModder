@@ -126,6 +126,7 @@ int Package::Open(const QString &filename, bool headerOnly)
         return -1;
     }
 
+    packageHeader = new quint8[packageHeaderSize];
     packageStream->SeekBegin();
     packageStream->ReadToBuffer(packageHeader, packageHeaderSize);
 
@@ -136,7 +137,7 @@ int Package::Open(const QString &filename, bool headerOnly)
 
     numChunks = packageStream->ReadUInt32();
 
-    chunksTableOffset = (uint)packageStream->Position();
+    chunksTableOffset = packageStream->Position();
 
     if (getCompressedFlag())
     {
@@ -1105,6 +1106,8 @@ void Package::Dispose()
     if (chunkCache != nullptr)
         DisposeCache();
     ReleaseChunks();
+    delete packageHeader;
+    packageHeader = nullptr;
     delete packageData;
     packageData = nullptr;
     delete packageStream;
