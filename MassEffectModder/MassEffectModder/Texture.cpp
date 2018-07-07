@@ -275,12 +275,12 @@ quint8 *Texture::decompressTexture(MemoryStream &stream, StorageTypes type, int 
 
     for (int b = 0; b < blocks.count(); b++)
     {
-        uint dstLen = 0;
+        uint dstLen = maxBlockSize * 2;
         Package::ChunkBlock block = blocks[b];
         if (type == StorageTypes::extLZO || type == StorageTypes::pccLZO)
-            dstLen = LzoDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen);
+            LzoDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen);
         else if (type == StorageTypes::extZlib || type == StorageTypes::pccZlib)
-            dstLen = ZlibDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen);
+            ZlibDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen);
         else
             CRASH_MSG("Compression type not expected!");
         if (dstLen != block.uncomprSize)

@@ -279,12 +279,12 @@ void Package::getData(uint offset, uint length, Stream &output)
 
                 for (int b = 0; b < blocks.count(); b++)
                 {
-                    uint dstLen = 0;
                     const ChunkBlock& block = blocks[b];
+                    uint dstLen = maxBlockSize * 2;
                     if (compressionType == CompressionType::LZO)
-                        dstLen = LzoDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen);
+                        LzoDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen);
                     else if (compressionType == CompressionType::Zlib)
-                        dstLen = ZlibDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen);
+                        ZlibDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen);
                     else
                         CRASH_MSG("Compression type not expected!");
                     if (dstLen != block.uncomprSize)
@@ -294,7 +294,7 @@ void Package::getData(uint offset, uint length, Stream &output)
                 for (int b = 0; b < blocks.count(); b++)
                 {
                     const ChunkBlock& block = blocks[b];
-                    chunkCache->ReadToBuffer(block.uncompressedBuffer, block.uncomprSize);
+                    chunkCache->WriteFromBuffer(block.uncompressedBuffer, block.uncomprSize);
                 }
             }
             chunkCache->JumpTo(startInChunk);
