@@ -14,7 +14,7 @@ HEADERS += \
 
 DEFINES += USE_SSE USE_SSE2
 
-QMAKE_CXXFLAGS += 
+QMAKE_CXXFLAGS +=
 
 macx {
     # macOS clang doesn't have OpenMP enabled
