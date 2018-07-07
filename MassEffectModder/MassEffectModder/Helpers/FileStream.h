@@ -46,8 +46,6 @@ class FileStream : public Stream
 private:
 
     QFile *file;
-    QString filePath;
-    QString errorString;
 
     void CheckFileIOErrorStatus();
 
@@ -57,6 +55,9 @@ public:
       : FileStream(path, mode, FileAccess::ReadWrite) {}
     FileStream(const QString &path, FileMode mode, FileAccess access);
     ~FileStream() override;
+
+    qint64 Length() override;
+    qint64 Position() override;
 
     bool isOpen() { return file->isOpen(); }
     void Flush() override;

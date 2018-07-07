@@ -28,7 +28,7 @@ void FileStream::CheckFileIOErrorStatus()
 {
     if (file->error() != QFileDevice::NoError)
     {
-        CRASH_MSG((QString("File: ") + filePath + " Error: " + file->errorString()).toStdString().c_str());
+        CRASH_MSG((QString("File: ") + file->fileName() + " Error: " + file->errorString()).toStdString().c_str());
     }
 }
 
@@ -37,7 +37,6 @@ FileStream::FileStream(const QString &path, FileMode mode, FileAccess access)
 {
     QFile::OpenMode openFlags = QIODevice::NotOpen;
     file = new QFile(path);
-    filePath = path;
 
     switch (access)
     {
@@ -66,6 +65,16 @@ FileStream::~FileStream()
 {
     Close();
     delete file;
+}
+
+qint64 FileStream::Length()
+{
+    return file->size();
+}
+
+qint64 FileStream::Position()
+{
+    return file->pos();
 }
 
 void FileStream::Flush()

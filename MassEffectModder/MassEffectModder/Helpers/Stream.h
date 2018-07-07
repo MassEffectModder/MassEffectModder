@@ -37,8 +37,6 @@ class Stream
 {
 protected:
 
-    qint64 length{};
-    qint64 position{};
     bool readable{};
     bool writtable{};
     bool seekable{};
@@ -47,8 +45,8 @@ public:
 
     virtual ~Stream() = 0;
 
-    qint64 Length() { return length; }
-    qint64 Position() { return position; }
+    virtual qint64 Length()  = 0;
+    virtual qint64 Position() = 0;
 
     virtual void Flush() = 0;
     virtual void Close() = 0;

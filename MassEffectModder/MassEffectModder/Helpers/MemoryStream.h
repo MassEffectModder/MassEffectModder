@@ -30,7 +30,13 @@ class MemoryStream : public Stream
 {
 private:
 
-    const qint64 bufferMargin = 10000;
+    enum BufferSize
+    {
+        bufferMargin = 10000,
+    };
+
+    qint64 length;
+    qint64 position;
     quint8 *internalBuffer;
     qint64 internalBufferSize;
 
@@ -40,6 +46,9 @@ public:
     MemoryStream(quint8 *buffer, qint64 count);
     MemoryStream(quint8 *buffer, qint64 offset, qint64 count);
     ~MemoryStream() override;
+
+    qint64 Length() override { return length; }
+    qint64 Position() override { return position; }
 
     void Flush() override {}
     void Close() override {}

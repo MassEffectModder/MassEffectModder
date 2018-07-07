@@ -45,7 +45,7 @@ MemoryStream::MemoryStream(quint8 *buffer, qint64 count)
     }
     memcpy(internalBuffer, buffer, count);
     internalBufferSize = count + bufferMargin;
-    length = 0;
+    length = count;
     position = 0;
 }
 
