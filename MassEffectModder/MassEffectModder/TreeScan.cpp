@@ -36,10 +36,10 @@ int TreeScan::PrepareListOfTextures(MeType gameId, bool ipc)
     auto *textures = new QList<FoundTexture>();
 
     QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
-            "MassEffectModder";
+            "/MassEffectModder";
     if (!QDir(path).exists())
         QDir(path).mkpath(path);
-    QString filename = path + "me" + (int)gameId + "map.bin";
+    QString filename = path + QString("/me%1map.bin").arg((int)gameId);
 
     if (ipc)
     {

@@ -42,10 +42,12 @@ void GameData::ScanGameFiles(bool force)
     if (gameFiles.count() == 0)
     {
         QDirIterator iterator(MainData(), QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
+        int pathLen = _path.length();
         while (iterator.hasNext())
         {
-            gameFiles.push_back(iterator.path().left(_path.length()));
-        }
+            iterator.next();
+            gameFiles.push_back(iterator.filePath().mid(pathLen));
+        };
 
         if (QDir(DLCData()).exists())
         {
@@ -53,15 +55,21 @@ void GameData::ScanGameFiles(bool force)
             foreach (QString DLCDir, DLCs)
             {
                 QStringList packages;
-                QDirIterator iterator(DLCDir, QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
+                QDirIterator iterator(DLCData() + "/" + DLCDir, QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
                 bool isValid = false;
                 while (iterator.hasNext())
                 {
-                    if (gameType == MeType::ME3_TYPE && DLCDir.contains("Default.sfar", Qt::CaseInsensitive))
+                    iterator.next();
+                    if (gameType == MeType::ME3_TYPE && iterator.filePath().contains("Default.sfar", Qt::CaseInsensitive))
                         isValid = true;
-                    packages.push_back(iterator.path().left(_path.length()));
+                    packages.push_back(iterator.filePath().mid(pathLen));
                 }
-                if (gameType == MeType::ME3_TYPE && isValid)
+                if (gameType == MeType::ME3_TYPE)
+                {
+                    if (isValid)
+                        gameFiles += packages;
+                }
+                else
                 {
                     gameFiles += packages;
                 }
@@ -87,12 +95,12 @@ void GameData::Init(MeType type, ConfigIni *configIni, bool force = false)
     gameType = type;
     _configIni = configIni;
 
-    QString key = QString("ME") + static_cast<char>(gameType);
+    QString key = QString("ME%1").arg(static_cast<int>(gameType));
     QString path = configIni->Read(key, "GameDataPath");
     if (path != "" && !force)
     {
         _path = QDir::cleanPath(path);
-        if (QDir(GameExePath()).exists())
+        if (QFile(GameExePath()).exists())
         {
             ScanGameFiles(force);
             return;
@@ -272,8 +280,7 @@ void GameData::getTfcTextures()
     if (gameFiles.count() == 0)
         ScanGameFiles(false);
 
-    QRegExp regex("*.tfc", Qt::CaseInsensitive, QRegExp::Wildcard);
-    tfcFiles = gameFiles.filter(regex);
+    tfcFiles = gameFiles.filter(QRegExp("*.tfc", Qt::CaseInsensitive, QRegExp::Wildcard));
 }
 
 void GameData::getPackages()
@@ -286,8 +293,9 @@ void GameData::getPackages()
 
     if (gameType == MeType::ME1_TYPE)
     {
-        packageFiles = gameFiles.filter(QRegExp("*.upk", Qt::CaseInsensitive, QRegExp::Wildcard));
-        packageFiles += gameFiles.filter(QRegExp("*.u", Qt::CaseInsensitive, QRegExp::Wildcard));
+        // TODO: figure out why *.u match also *.upk
+        //packageFiles = gameFiles.filter(QRegExp("*.upk", Qt::CaseInsensitive, QRegExp::Wildcard));
+        packageFiles = gameFiles.filter(QRegExp("*.u", Qt::CaseInsensitive, QRegExp::Wildcard));
         packageFiles += gameFiles.filter(QRegExp("*.sfm", Qt::CaseInsensitive, QRegExp::Wildcard));
         index = packageFiles.indexOf(QRegExp("*localshadercache-pc-d3d-sm3.upk", Qt::CaseInsensitive, QRegExp::Wildcard));
         if (index != -1)
@@ -311,7 +319,8 @@ void GameData::getPackages()
             QDirIterator iterator(MainData() + "/Movies", QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
             while (iterator.hasNext())
             {
-                if (iterator.path().contains("niebieska_pl.bik"))
+                iterator.next();
+                if (iterator.fileName().compare("niebieska_pl.bik"))
                 {
                     FullScanME1Game = true;
                     break;
@@ -326,9 +335,12 @@ void GameData::getPackages()
     else if (gameType == MeType::ME3_TYPE)
     {
         packageFiles = gameFiles.filter(QRegExp("*.pcc", Qt::CaseInsensitive, QRegExp::Wildcard));
-        index = packageFiles.indexOf(QRegExp("*guidcache*", Qt::CaseInsensitive, QRegExp::Wildcard));
-        if (index != -1)
-            packageFiles.removeAt(index);
+        do
+        {
+            index = packageFiles.indexOf(QRegExp("*guidcache*", Qt::CaseInsensitive, QRegExp::Wildcard));
+            if (index != -1)
+                packageFiles.removeAt(index);
+        } while (index != -1);
     }
 }
 
