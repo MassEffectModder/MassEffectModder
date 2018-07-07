@@ -32,34 +32,37 @@ class Package
 {
 public:
 
-    const uint packageTag = 0x9E2A83C1;
-    const ushort packageFileVersionME1 = 491;
-    const ushort packageFileVersionME2 = 512;
-    const ushort packageFileVersionME3 = 684;
-    const uint maxBlockSize = 0x20000; // 128KB
-    const uint maxChunkSize = 0x100000; // 1MB
-    const uint packageHeaderSizeME1 = 121;
-    const uint packageHeaderSizeME2 = 117;
-    const uint packageHeaderSizeME3 = 126;
-    const int sizeOfGeneration = 12;
+    enum PackageEnums
+    {
+        packageTag = 0x9E2A83C1,
+        packageFileVersionME1 = 491,
+        packageFileVersionME2 = 512,
+        packageFileVersionME3 = 684,
+    };
 
-    const int packageHeaderTagOffset = 0;
-    const int packageHeaderVersionOffset = 4;
-    const int packageHeaderFirstChunkSizeOffset = 8;
-    const int packageHeaderNameSizeOffset = 12;
+    enum PackageHeaderEnums
+    {
+        packageHeaderSizeME1 = 121,
+        packageHeaderSizeME2 = 117,
+        packageHeaderSizeME3 = 126,
 
-    const int packageHeaderNamesCountTableOffset = 0;
-    const int packageHeaderNamesOffsetTabletsOffset = 4;
-    const int packageHeaderExportsCountTableOffset = 8;
-    const int packageHeaderExportsOffsetTableOffset = 12;
-    const int packageHeaderImportsCountTableOffset = 16;
-    const int packageHeaderImportsOffsetTableOffset = 20;
-    const int packageHeaderDependsOffsetTableOffset = 24;
-    const int packageHeaderGuidsOffsetTableOffset = 28;
-    const int packageHeaderGuidsCountTableOffset = 36;
+        sizeOfGeneration = 12,
 
-    const int SizeOfChunkBlock = 8;
-    const int SizeOfChunk = 16;
+        packageHeaderTagOffset = 0,
+        packageHeaderVersionOffset = 4,
+        packageHeaderFirstChunkSizeOffset = 8,
+        packageHeaderNameSizeOffset = 12,
+
+        packageHeaderNamesCountTableOffset = 0,
+        packageHeaderNamesOffsetTabletsOffset = 4,
+        packageHeaderExportsCountTableOffset = 8,
+        packageHeaderExportsOffsetTableOffset = 12,
+        packageHeaderImportsCountTableOffset = 16,
+        packageHeaderImportsOffsetTableOffset = 20,
+        packageHeaderDependsOffsetTableOffset = 24,
+        packageHeaderGuidsOffsetTableOffset = 28,
+        packageHeaderGuidsCountTableOffset = 36,
+    };
 
     enum CompressionType
     {
@@ -71,6 +74,14 @@ public:
     enum PackageFlags
     {
         compressed = 0x02000000,
+    };
+
+    enum ChunkBlockEnums
+    {
+        SizeOfChunkBlock = 8,
+        SizeOfChunk = 16,
+        maxBlockSize = 0x20000, // 128KB
+        maxChunkSize = 0x100000, // 1MB
     };
 
     struct ChunkBlock

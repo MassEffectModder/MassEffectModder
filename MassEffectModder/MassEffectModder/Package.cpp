@@ -88,7 +88,7 @@ int Package::Open(const QString &filename, bool headerOnly)
         g_logs->printMsg(QString("Package file has 0 length: %1").arg(filename));
         return -1;
     }
-    if (QFileInfo(filename).size() < packageHeaderSize)
+    if (QFileInfo(filename).size() < packageHeaderSizeME3)
     {
         g_logs->printMsg(QString("Broken package header in: %1").arg(filename));
         return -1;
@@ -1012,7 +1012,7 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
             for (uint b = 0; b < newNumBlocks; b++)
             {
                 ChunkBlock block{};
-                block.uncomprSize = qMin(maxBlockSize, dataBlockLeft);
+                block.uncomprSize = qMin((uint)maxBlockSize, dataBlockLeft);
                 dataBlockLeft -= block.uncomprSize;
                 block.uncompressedBuffer = new quint8[block.uncomprSize];
                 tempOutput.ReadToBuffer(block.uncompressedBuffer, block.uncomprSize);
