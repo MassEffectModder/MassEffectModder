@@ -57,5 +57,7 @@ int ZlibCompress(unsigned char *src, unsigned int src_len, unsigned char **dst, 
     else
         *dst_len = 0;
 
+    delete[] tmpbuf;
+
     return status;
 }
