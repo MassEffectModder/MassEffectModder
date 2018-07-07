@@ -4,6 +4,7 @@ CONFIG += staticlib
 QT -= gui core
 
 SOURCES += \
+    lzo_init.c \
     lzo1x_1o.c \
     lzo1x_d1.c \
     lzo1x_d2.c

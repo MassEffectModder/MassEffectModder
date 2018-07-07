@@ -37,10 +37,13 @@ private:
 public:
 
     MemoryStream();
+    MemoryStream(quint8 *buffer, qint64 count);
+    MemoryStream(quint8 *buffer, qint64 offset, qint64 count);
     ~MemoryStream() override;
 
     void Flush() override {}
     void Close() override {}
+    quint8 *ToArray(qint64 &count);
 
     void CopyFrom(Stream *stream, qint64 count, qint64 bufferSize = 10000) override;
     void ReadToBuffer(quint8 *buffer, qint64 count) override;
@@ -49,10 +52,10 @@ public:
     void ReadStringASCIINull(QString &str) override;
     void ReadStringUnicode16(QString &str, qint64 count) override;
     void ReadStringUnicode16Null(QString &str) override;
-    void WriteStringASCII(QString &str) override;
-    void WriteStringASCIINull(QString &str) override;
-    void WriteStringUnicode16(QString &str) override;
-    void WriteStringUnicode16Null(QString &str) override;
+    void WriteStringASCII(const QString &str) override;
+    void WriteStringASCIINull(const QString &str) override;
+    void WriteStringUnicode16(const QString &str) override;
+    void WriteStringUnicode16Null(const QString &str) override;
     qint64 ReadInt64() override;
     quint64 ReadUInt64() override;
     qint32 ReadInt32() override;
@@ -69,6 +72,8 @@ public:
     void WriteByte(quint8 value) override;
     void WriteZeros(qint64 count) override;
     void Seek(qint64 offset, SeekOrigin origin) override;
+    void SeekBegin() override;
+    void SeekEnd() override;
     void JumpTo(qint64 offset) override;
     void Skip(qint64 offset) override;
     void SkipByte() override;

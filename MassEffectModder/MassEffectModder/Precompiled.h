@@ -38,6 +38,7 @@
 #include <QCommandLineParser>
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QDirIterator>
 #include <QSettings>
 #include <QStandardPaths>

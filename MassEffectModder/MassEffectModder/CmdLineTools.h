@@ -22,8 +22,8 @@
 #ifndef CMD_LINE_TOOLS_H
 #define CMD_LINE_TOOLS_H
 
-#include "MeType.h"
+#include "MemTypes.h"
 
-int ScanTextures(MeType gameType, bool ipc);
+int ScanTextures(MeType gameId, bool ipc);
 
 #endif

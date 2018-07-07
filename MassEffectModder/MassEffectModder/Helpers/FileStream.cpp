@@ -32,7 +32,7 @@ void FileStream::CheckFileIOErrorStatus()
     }
 }
 
-FileStream::FileStream(QString &path, FileMode mode, FileAccess access)
+FileStream::FileStream(const QString &path, FileMode mode, FileAccess access)
     : file(nullptr)
 {
     QFile::OpenMode openFlags = QIODevice::NotOpen;
@@ -118,6 +118,7 @@ void FileStream::ReadStringASCII(QString &str, qint64 count)
 
 void FileStream::ReadStringASCIINull(QString &str)
 {
+    str = "";
     do
     {
         char c = 0;
@@ -131,21 +132,18 @@ void FileStream::ReadStringASCIINull(QString &str)
 
 void FileStream::ReadStringUnicode16(QString &str, qint64 count)
 {
-    count *= 2;
-    auto *buffer = new char[static_cast<unsigned long>(count) + 2];
-
-    buffer[count] = 0;
-    buffer[count + 1] = 0;
-
-    file->read(buffer, count);
-    CheckFileIOErrorStatus();
-    str = QString(buffer);
-
-    delete[] buffer;
+    str = "";
+    for (int n = 0; n < count; n++)
+    {
+        quint16 c = ReadUInt16();
+        CheckFileIOErrorStatus();
+        str += QChar(static_cast<ushort>(c));
+    }
 }
 
 void FileStream::ReadStringUnicode16Null(QString &str)
 {
+    str = "";
     do
     {
         quint16 c = ReadUInt16();
@@ -156,27 +154,27 @@ void FileStream::ReadStringUnicode16Null(QString &str)
     } while (true);
 }
 
-void FileStream::WriteStringASCII(QString &str)
+void FileStream::WriteStringASCII(const QString &str)
 {
     const char *s = str.toStdString().c_str();
     file->write(s, str.length());
     CheckFileIOErrorStatus();
 }
 
-void FileStream::WriteStringASCIINull(QString &str)
+void FileStream::WriteStringASCIINull(const QString &str)
 {
     WriteStringASCII(str);
     WriteByte(0);
 }
 
-void FileStream::WriteStringUnicode16(QString &str)
+void FileStream::WriteStringUnicode16(const QString &str)
 {
     auto *s = const_cast<ushort *>(str.utf16());
     file->write(reinterpret_cast<char *>(s), str.length() * 2);
     CheckFileIOErrorStatus();
 }
 
-void FileStream::WriteStringUnicode16Null(QString &str)
+void FileStream::WriteStringUnicode16Null(const QString &str)
 {
     WriteStringUnicode16(str);
     WriteUInt16(0);
@@ -308,6 +306,16 @@ void FileStream::Seek(qint64 offset, SeekOrigin origin)
         CheckFileIOErrorStatus();
         break;
     }
+}
+
+void FileStream::SeekBegin()
+{
+    Seek(0, SeekOrigin::Begin);
+}
+
+void FileStream::SeekEnd()
+{
+    Seek(0, SeekOrigin::End);
 }
 
 void FileStream::JumpTo(qint64 offset)

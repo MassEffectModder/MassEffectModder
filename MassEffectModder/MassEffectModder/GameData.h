@@ -22,7 +22,7 @@
 #ifndef GAME_DATA_H
 #define GAME_DATA_H
 
-#include "MeType.h"
+#include "MemTypes.h"
 #include "ConfigIni.h"
 
 #include <QString>
@@ -34,6 +34,7 @@ private:
     static QString _path;
     static ConfigIni *_configIni;
 
+    void Init(MeType type, ConfigIni *configIni, bool force);
     void ScanGameFiles(bool force);
 
 public:
@@ -44,16 +45,17 @@ public:
     static bool FullScanME1Game;
     bool DLCDataCacheDone = false;
 
+    GameData(MeType type, ConfigIni *configIni);
     GameData(MeType type, ConfigIni *configIni, bool force);
-    QString GamePath() { return _path; }
-    QString MainData();
-    QString bioGamePath();
-    QString RelativeGameData(QString &path);
-    QString DLCData();
-    QString GameExePath();
-    QString GameUserPath();
-    QString ConfigIniPath();
-    QString EngineConfigIniPath();
+    static QString GamePath() { return _path; }
+    static const QString MainData();
+    static const QString bioGamePath();
+    static const QString DLCData();
+    static const QString RelativeGameData(QString &path);
+    const QString GameExePath();
+    const QString GameUserPath();
+    const QString ConfigIniPath();
+    const QString EngineConfigIniPath();
     void getTfcTextures();
     void getPackages();
     void ClosePackagesList();

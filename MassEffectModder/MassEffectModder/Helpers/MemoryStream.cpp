@@ -36,9 +36,43 @@ MemoryStream::MemoryStream()
     position = 0;
 }
 
+MemoryStream::MemoryStream(quint8 *buffer, qint64 count)
+{
+    internalBuffer = static_cast<quint8 *>(malloc(static_cast<size_t>(count + bufferMargin)));
+    if (internalBuffer == nullptr)
+    {
+        CRASH_MSG("MemoryStream: out of memory");
+    }
+    memcpy(internalBuffer, buffer, count);
+    internalBufferSize = count + bufferMargin;
+    length = 0;
+    position = 0;
+}
+
+MemoryStream::MemoryStream(quint8 *buffer, qint64 offset, qint64 count)
+{
+    internalBuffer = static_cast<quint8 *>(malloc(static_cast<size_t>(count + bufferMargin)));
+    if (internalBuffer == nullptr)
+    {
+        CRASH_MSG("MemoryStream: out of memory");
+    }
+    memcpy(internalBuffer + offset, buffer, count);
+    internalBufferSize = count + bufferMargin;
+    length = 0;
+    position = 0;
+}
+
 MemoryStream::~MemoryStream()
 {
     free(internalBuffer);
+}
+
+quint8 *MemoryStream::ToArray(qint64 &count)
+{
+    auto buffer = new quint8[length];
+    memcpy(buffer, internalBuffer, length);
+    count = length;
+    return buffer;
 }
 
 void MemoryStream::CopyFrom(Stream *stream, qint64 count, qint64 bufferSize)
@@ -97,6 +131,7 @@ void MemoryStream::ReadStringASCII(QString &str, qint64 count)
 
 void MemoryStream::ReadStringASCIINull(QString &str)
 {
+    str = "";
     do
     {
         auto c = static_cast<char>(ReadByte());
@@ -108,18 +143,17 @@ void MemoryStream::ReadStringASCIINull(QString &str)
 
 void MemoryStream::ReadStringUnicode16(QString &str, qint64 count)
 {
-    count *= 2;
-    auto *buffer = new char[static_cast<size_t>(count) + 2];
-
-    buffer[count] = 0;
-    buffer[count + 1] = 0;
-    ReadToBuffer(reinterpret_cast<quint8 *>(buffer), count);
-    str = QString(buffer);
-    delete[] buffer;
+    str = "";
+    for (int n = 0; n < count; n++)
+    {
+        quint16 c = ReadUInt16();
+        str += QChar(static_cast<ushort>(c));
+    }
 }
 
 void MemoryStream::ReadStringUnicode16Null(QString &str)
 {
+    str = "";
     do
     {
         quint16 c = ReadUInt16();
@@ -129,25 +163,25 @@ void MemoryStream::ReadStringUnicode16Null(QString &str)
     } while (position < length);
 }
 
-void MemoryStream::WriteStringASCII(QString &str)
+void MemoryStream::WriteStringASCII(const QString &str)
 {
     char *s = const_cast<char *>(str.toStdString().c_str());
     WriteFromBuffer(reinterpret_cast<quint8 *>(s), str.length());
 }
 
-void MemoryStream::WriteStringASCIINull(QString &str)
+void MemoryStream::WriteStringASCIINull(const QString &str)
 {
     WriteStringASCII(str);
     WriteByte(0);
 }
 
-void MemoryStream::WriteStringUnicode16(QString &str)
+void MemoryStream::WriteStringUnicode16(const QString &str)
 {
     auto *s = const_cast<ushort *>(str.utf16());
     WriteFromBuffer(reinterpret_cast<quint8 *>(s), str.length() * 2);
 }
 
-void MemoryStream::WriteStringUnicode16Null(QString &str)
+void MemoryStream::WriteStringUnicode16Null(const QString &str)
 {
     WriteStringUnicode16(str);
     WriteUInt16(0);
@@ -308,6 +342,16 @@ void MemoryStream::Seek(qint64 offset, SeekOrigin origin)
             position = length + offset;
         break;
     }
+}
+
+void MemoryStream::SeekBegin()
+{
+    Seek(0, SeekOrigin::Begin);
+}
+
+void MemoryStream::SeekEnd()
+{
+    Seek(0, SeekOrigin::End);
 }
 
 void MemoryStream::JumpTo(qint64 offset)

@@ -19,6 +19,8 @@
  *
  */
 
+#include <QString>
+
 #if defined(_WIN32)
 #include <windows.h>
 #elif defined(__APPLE__)
@@ -59,4 +61,34 @@ int DetectAmountMemoryGB()
 void ConsoleWrite(const QString &message)
 {
     ::puts(message.toStdString().c_str());
+}
+
+void ConsoleSync()
+{
+    ::fflush(stdout);
+}
+
+QString BaseName(const QString &path)
+{
+    const QString str = path.section('/', -1, -1);
+    if (str == "")
+        return path;
+    return str;
+}
+
+QString DirName(const QString &path)
+{
+    const QString str = path.section('/', 0, -2);
+    if (str == "")
+        return path;
+    return str;
+}
+
+QString BaseNameWithoutExt(const QString &path)
+{
+    const QString str = BaseName(path);
+    const QString name = str.section('.', 0, 0);
+    if (name == "")
+        return str;
+    return name;
 }

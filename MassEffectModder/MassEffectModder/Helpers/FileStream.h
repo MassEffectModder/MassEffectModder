@@ -53,9 +53,9 @@ private:
 
 public:
 
-    FileStream(QString &path, FileMode mode)
+    FileStream(const QString &path, FileMode mode)
       : FileStream(path, mode, FileAccess::ReadWrite) {}
-    FileStream(QString &path, FileMode mode, FileAccess access);
+    FileStream(const QString &path, FileMode mode, FileAccess access);
     ~FileStream() override;
 
     bool isOpen() { return file->isOpen(); }
@@ -69,10 +69,10 @@ public:
     void ReadStringASCIINull(QString &str) override;
     void ReadStringUnicode16(QString &str, qint64 count) override;
     void ReadStringUnicode16Null(QString &str) override;
-    void WriteStringASCII(QString &str) override;
-    void WriteStringASCIINull(QString &str) override;
-    void WriteStringUnicode16(QString &str) override;
-    void WriteStringUnicode16Null(QString &str) override;
+    void WriteStringASCII(const QString &str) override;
+    void WriteStringASCIINull(const QString &str) override;
+    void WriteStringUnicode16(const QString &str) override;
+    void WriteStringUnicode16Null(const QString &str) override;
     qint64 ReadInt64() override;
     quint64 ReadUInt64() override;
     qint32 ReadInt32() override;
@@ -89,6 +89,8 @@ public:
     void WriteByte(quint8 value) override;
     void WriteZeros(qint64 count) override;
     void Seek(qint64 offset, SeekOrigin origin) override;
+    void SeekBegin() override;
+    void SeekEnd() override;
     void JumpTo(qint64 offset) override;
     void Skip(qint64 offset) override;
     void SkipByte() override;

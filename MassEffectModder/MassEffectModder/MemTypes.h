@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef ME_TYPE_H
-#define ME_TYPE_H
+#ifndef MEM_TYPES_H
+#define MEM_TYPES_H
 
 typedef enum
 {
@@ -29,5 +29,14 @@ typedef enum
     ME2_TYPE,
     ME3_TYPE
 } MeType;
+
+#define textureMapBinTag      0x5054454D
+#define textureMapBinVersion  2
+#define TextureModTag         0x444F4D54
+#define TextureModVersion     2
+#define FileTextureTag        0x53444446
+#define FileBinTag            0x4E494246
+#define MEMI_TAG              0x494D454D
+#define MEMendFileMarker      "ThisIsMEMEndOfFileMarker"
 
 #endif

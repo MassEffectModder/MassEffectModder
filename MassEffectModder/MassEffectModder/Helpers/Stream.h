@@ -43,9 +43,9 @@ protected:
     bool writtable{};
     bool seekable{};
 
-    virtual ~Stream() = 0;
-
 public:
+
+    virtual ~Stream() = 0;
 
     qint64 Length() { return length; }
     qint64 Position() { return position; }
@@ -60,10 +60,10 @@ public:
     virtual void ReadStringASCIINull(QString &str) = 0;
     virtual void ReadStringUnicode16(QString &str, qint64 count) = 0;
     virtual void ReadStringUnicode16Null(QString &str) = 0;
-    virtual void WriteStringASCII(QString &str) = 0;
-    virtual void WriteStringASCIINull(QString &str) = 0;
-    virtual void WriteStringUnicode16(QString &str) = 0;
-    virtual void WriteStringUnicode16Null(QString &str) = 0;
+    virtual void WriteStringASCII(const QString &str) = 0;
+    virtual void WriteStringASCIINull(const QString &str) = 0;
+    virtual void WriteStringUnicode16(const QString &str) = 0;
+    virtual void WriteStringUnicode16Null(const QString &str) = 0;
     virtual qint64 ReadInt64() = 0;
     virtual quint64 ReadUInt64() = 0;
     virtual qint32 ReadInt32() = 0;
@@ -80,6 +80,8 @@ public:
     virtual void WriteByte(quint8 value) = 0;
     virtual void WriteZeros(qint64 count) = 0;
     virtual void Seek(qint64 offset, SeekOrigin origin) = 0;
+    virtual void SeekBegin() = 0;
+    virtual void SeekEnd() = 0;
     virtual void JumpTo(qint64 offset) = 0;
     virtual void Skip(qint64 offset) = 0;
     virtual void SkipByte() = 0;

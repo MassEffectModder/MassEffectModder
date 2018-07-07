@@ -72,7 +72,17 @@ void GameData::ScanGameFiles(bool force)
     }
 }
 
+GameData::GameData(MeType type, ConfigIni *configIni)
+{
+    Init(type, configIni, false);
+}
+
 GameData::GameData(MeType type, ConfigIni *configIni, bool force = false)
+{
+    Init(type, configIni, force);
+}
+
+void GameData::Init(MeType type, ConfigIni *configIni, bool force = false)
 {
     gameType = type;
     _configIni = configIni;
@@ -123,7 +133,7 @@ GameData::GameData(MeType type, ConfigIni *configIni, bool force = false)
     ScanGameFiles(force);
 }
 
-QString GameData::bioGamePath()
+const QString GameData::bioGamePath()
 {
     if (_path == "")
         CRASH_MSG("Game path not set!");
@@ -142,7 +152,7 @@ QString GameData::bioGamePath()
     CRASH();
 }
 
-QString GameData::MainData()
+const QString GameData::MainData()
 {
     switch (gameType)
     {
@@ -158,7 +168,7 @@ QString GameData::MainData()
     CRASH();
 }
 
-QString GameData::DLCData()
+const QString GameData::DLCData()
 {
     if (_path == "")
         CRASH_MSG("Game path not set!");
@@ -177,7 +187,7 @@ QString GameData::DLCData()
     CRASH();
 }
 
-QString GameData::GameExePath()
+const QString GameData::GameExePath()
 {
     if (_path == "")
         CRASH_MSG("Game path not set!");
@@ -197,7 +207,7 @@ QString GameData::GameExePath()
     CRASH();
 }
 
-QString GameData::GameUserPath()
+const QString GameData::GameUserPath()
 {
     if (_path == "")
         CRASH_MSG("Game path not set!");
@@ -211,7 +221,7 @@ QString GameData::GameUserPath()
     return path;
 }
 
-QString GameData::ConfigIniPath()
+const QString GameData::ConfigIniPath()
 {
     switch (gameType)
     {
@@ -227,7 +237,7 @@ QString GameData::ConfigIniPath()
     CRASH();
 }
 
-QString GameData::EngineConfigIniPath()
+const QString GameData::EngineConfigIniPath()
 {
     switch (gameType)
     {
@@ -243,7 +253,7 @@ QString GameData::EngineConfigIniPath()
     CRASH();
 }
 
-QString GameData::RelativeGameData(QString &path)
+const QString GameData::RelativeGameData(QString &path)
 {
     if (_path == "")
         CRASH_MSG("Game path not set!");

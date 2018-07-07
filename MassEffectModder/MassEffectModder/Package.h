@@ -1,0 +1,401 @@
+/*
+ * MassEffectModder
+ *
+ * Copyright (C) 2018 Pawel Kolodziejski <aquadran at users.sourceforge.net>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ *
+ */
+
+#ifndef PACKAGE_H
+#define PACKAGE_H
+
+#include <QString>
+#include <QList>
+
+#include <Helpers/FileStream.h>
+#include <Helpers/MemoryStream.h>
+
+class Package
+{
+public:
+
+    const uint packageTag = 0x9E2A83C1;
+    const ushort packageFileVersionME1 = 491;
+    const ushort packageFileVersionME2 = 512;
+    const ushort packageFileVersionME3 = 684;
+    const uint maxBlockSize = 0x20000; // 128KB
+    const uint maxChunkSize = 0x100000; // 1MB
+    const uint packageHeaderSizeME1 = 121;
+    const uint packageHeaderSizeME2 = 117;
+    const uint packageHeaderSizeME3 = 126;
+    const int sizeOfGeneration = 12;
+
+    const int packageHeaderTagOffset = 0;
+    const int packageHeaderVersionOffset = 4;
+    const int packageHeaderFirstChunkSizeOffset = 8;
+    const int packageHeaderNameSizeOffset = 12;
+
+    const int packageHeaderNamesCountTableOffset = 0;
+    const int packageHeaderNamesOffsetTabletsOffset = 4;
+    const int packageHeaderExportsCountTableOffset = 8;
+    const int packageHeaderExportsOffsetTableOffset = 12;
+    const int packageHeaderImportsCountTableOffset = 16;
+    const int packageHeaderImportsOffsetTableOffset = 20;
+    const int packageHeaderDependsOffsetTableOffset = 24;
+    const int packageHeaderGuidsOffsetTableOffset = 28;
+    const int packageHeaderGuidsCountTableOffset = 36;
+
+    const int SizeOfChunkBlock = 8;
+    const int SizeOfChunk = 16;
+
+    enum CompressionType
+    {
+        None = 0,
+        Zlib,
+        LZO
+    };
+
+    enum PackageFlags
+    {
+        compressed = 0x02000000,
+    };
+
+    struct ChunkBlock
+    {
+        uint comprSize;
+        uint uncomprSize;
+        quint8 *compressedBuffer;
+        quint8 *uncompressedBuffer;
+    };
+
+    struct Chunk
+    {
+        uint uncomprOffset;
+        uint uncomprSize;
+        uint comprOffset;
+        uint comprSize;
+        QList<ChunkBlock> blocks;
+    };
+
+    struct NameEntry
+    {
+        QString name;
+        ulong flags;
+    };
+
+    struct ImportEntry
+    {
+        //int packageFileId;
+        //QString packageFile; // not used - save RAM
+        int classId;
+        //QString className; // not used - save RAM
+        int linkId;
+        int objectNameId;
+        QString objectName;
+        quint8 *raw;
+        quint32 rawSize;
+    };
+
+    struct ExportEntry
+    {
+        enum Offsets {
+            ClassIdOffset = 0,
+            LinkIdOffset = 8,
+            ObjectNameIdOffset = 12,
+            DataSizeOffset = 32,
+            DataOffsetOffset = 36,
+        };
+
+        quint8 *raw;
+        quint32 rawSize;
+        quint8 *newData;
+        //ulong objectFlags; // not used - save RAM
+        uint id;
+
+        inline int getClassId() const
+        {
+            return *reinterpret_cast<int *>(&raw[ClassIdOffset]);
+        }
+        //QString className; // not used - save RAM
+        //int classParentId; // not used - save RAM
+        inline int getLinkId() const
+        {
+            return *reinterpret_cast<int *>(&raw[LinkIdOffset]);
+        }
+        inline int getObjectNameId() const
+        {
+            return *reinterpret_cast<int *>(&raw[ObjectNameIdOffset]);
+        }
+        QString objectName;
+        //int suffixNameId; // not used - save RAM
+        inline uint getDataSize() const
+        {
+            return *reinterpret_cast<int *>(&raw[DataSizeOffset]);
+        }
+        inline void setDataSize(uint size) const
+        {
+            *reinterpret_cast<int *>(&raw[DataSizeOffset]) = size;
+        }
+        inline uint getDataOffset() const
+        {
+            return *reinterpret_cast<int *>(&raw[DataOffsetOffset]);
+        }
+        inline void setDataOffset(uint offset) const
+        {
+            *reinterpret_cast<int *>(&raw[DataOffsetOffset]) = offset;
+        }
+    };
+
+    struct GuidEntry
+    {
+        quint8 guid[16];
+        int index;
+    };
+
+    struct ExtraNameEntry
+    {
+        QString name;
+        quint8 *raw;
+        quint32 rawSize;
+    };
+
+    QList<NameEntry> namesTable;
+    QList<ImportEntry> importsTable;
+    QList<ExportEntry> exportsTable;
+    int nameIdTexture2D = -1;
+    int nameIdLightMapTexture2D = -1;
+    int nameIdShadowMapTexture2D = -1;
+    int nameIdTextureFlipBook = -1;
+
+    inline bool getCompressedFlag()
+    {
+        return (getFlags() & PackageFlags::compressed) != 0;
+    }
+
+    inline void setCompressedFlag(bool value)
+    {
+        if (value)
+            setFlags(getFlags() | PackageFlags::compressed);
+        else
+            setFlags(getFlags() & ~PackageFlags::compressed);
+    }
+
+
+private:
+
+    quint8 *packageHeader{};
+    uint packageHeaderSize{};
+    uint packageFileVersion{};
+    uint numChunks{};
+    uint someTag{};
+    long dataOffset{};
+    uint exportsEndOffset{};
+    MemoryStream *packageData{};
+    QList<Chunk> chunks;
+    uint chunksTableOffset{};
+    uint namesTableEnd{};
+    bool namesTableModified = false;
+    uint importsTableEnd{};
+    bool importsTableModified = false;
+    QList<int> dependsTable;
+    QList<GuidEntry> guidsTable;
+    QList<ExtraNameEntry> extraNamesTable;
+    int currentChunk = -1;
+    MemoryStream *chunkCache{};
+    bool modified = false;
+
+    inline uint getTag()
+    {
+        return *reinterpret_cast<uint *>(&packageHeader[packageHeaderTagOffset]);
+    }
+
+    inline ushort getVersion()
+    {
+        return *reinterpret_cast<ushort *>(&packageHeader[packageHeaderVersionOffset]);
+    }
+
+    inline uint getEndOfTablesOffset()
+    {
+        return *reinterpret_cast<uint *>(&packageHeader[packageHeaderFirstChunkSizeOffset]);
+    }
+
+    inline void setEndOfTablesOffset(uint value)
+    {
+        *reinterpret_cast<uint *>(&packageHeader[packageHeaderFirstChunkSizeOffset]) = value;
+    }
+
+    inline int getPackageHeaderFlagsOffset()
+    {
+        int len = *reinterpret_cast<uint *>(&packageHeader[packageHeaderNameSizeOffset]);
+        if (len < 0)
+            return (len * -2) + packageHeaderNameSizeOffset + sizeof(uint); // Unicode name
+        return len + packageHeaderNameSizeOffset + sizeof(uint); // Ascii name
+    }
+
+    inline uint getFlags()
+    {
+        return *reinterpret_cast<uint *>(&packageHeader[getPackageHeaderFlagsOffset()]);
+    }
+
+    inline void setFlags(uint value)
+    {
+        *reinterpret_cast<uint *>(&packageHeader[getPackageHeaderFlagsOffset()]) = value;
+    }
+
+    inline int getTablesOffset()
+    {
+        if (getVersion() == packageFileVersionME3)
+            return getPackageHeaderFlagsOffset() + sizeof(uint) + sizeof(uint); // additional entry in header
+        return getPackageHeaderFlagsOffset() + sizeof(uint);
+    }
+
+    inline uint getNamesCount()
+    {
+        return *reinterpret_cast<uint *>(&packageHeader[getTablesOffset() + packageHeaderNamesCountTableOffset]);
+    }
+
+    inline void setNamesCount(uint value)
+    {
+        *reinterpret_cast<uint *>(&packageHeader[getTablesOffset() + packageHeaderNamesCountTableOffset]) = value;
+    }
+
+    inline uint getNamesOffset()
+    {
+        return *reinterpret_cast<uint *>(&packageHeader[getTablesOffset() + packageHeaderNamesOffsetTabletsOffset]);
+    }
+
+    inline void setNamesOffset(uint value)
+    {
+        *reinterpret_cast<uint *>(&packageHeader[getTablesOffset() + packageHeaderNamesOffsetTabletsOffset]) = value;
+    }
+
+    inline uint getExportsCount()
+    {
+        return *reinterpret_cast<uint *>(&packageHeader[getTablesOffset() + packageHeaderExportsCountTableOffset]);
+    }
+
+    inline void setExportsCount(uint value)
+    {
+        *reinterpret_cast<uint *>(&packageHeader[getTablesOffset() + packageHeaderExportsCountTableOffset]) = value;
+    }
+
+    inline uint getExportsOffset()
+    {
+        return *reinterpret_cast<uint *>(&packageHeader[getTablesOffset() + packageHeaderExportsOffsetTableOffset]);
+    }
+
+    inline void setExportsOffset(uint value)
+    {
+        *reinterpret_cast<uint *>(&packageHeader[getTablesOffset() + packageHeaderExportsOffsetTableOffset]) = value;
+    }
+
+    inline uint getImportsCount()
+    {
+        return *reinterpret_cast<uint *>(&packageHeader[getTablesOffset() + packageHeaderImportsCountTableOffset]);
+    }
+
+    inline void setImportsCount(uint value)
+    {
+        *reinterpret_cast<uint *>(&packageHeader[getTablesOffset() + packageHeaderImportsCountTableOffset]) = value;
+    }
+
+    inline uint getImportsOffset()
+    {
+        return *reinterpret_cast<uint *>(&packageHeader[getTablesOffset() + packageHeaderImportsOffsetTableOffset]);
+    }
+
+    inline void setImportsOffset(uint value)
+    {
+        *reinterpret_cast<uint *>(&packageHeader[getTablesOffset() + packageHeaderImportsOffsetTableOffset]) = value;
+    }
+
+    inline uint getDependsOffset()
+    {
+        return *reinterpret_cast<uint *>(&packageHeader[getTablesOffset() + packageHeaderDependsOffsetTableOffset]);
+    }
+
+    inline void setDependsOffset(uint value)
+    {
+        *reinterpret_cast<uint *>(&packageHeader[getTablesOffset() + packageHeaderDependsOffsetTableOffset]) = value;
+    }
+
+    inline uint getGuidsOffset()
+    {
+        return *reinterpret_cast<uint *>(&packageHeader[getTablesOffset() + packageHeaderGuidsOffsetTableOffset]);
+    }
+
+    inline void setGuidsOffset(uint value)
+    {
+        *reinterpret_cast<uint *>(&packageHeader[getTablesOffset() + packageHeaderGuidsOffsetTableOffset]) = value;
+    }
+
+    inline uint getGuidsCount()
+    {
+        return *reinterpret_cast<uint *>(&packageHeader[getTablesOffset() + packageHeaderGuidsCountTableOffset]);
+    }
+
+    inline void setGuidsCount(uint value)
+    {
+        *reinterpret_cast<uint *>(&packageHeader[getTablesOffset() + packageHeaderGuidsCountTableOffset]) = value;
+    }
+
+
+public:
+
+    CompressionType compressionType = CompressionType::None;
+    Stream *packageStream{};
+    FileStream *packageFile{};
+    QString packagePath;
+
+    Package() = default;
+    ~Package() { ReleaseChunks(); Dispose(); }
+    int Open(const QString &filename, bool headerOnly = false);
+    bool isName(int id);
+    QString getClassName(int id);
+    int getClassNameId(int id);
+    QString resolvePackagePath(int id);
+    void getData(uint offset, uint length, Stream &output);
+    quint8 *getExportData(int id, qint64 &length);
+    void setExportData(int id, quint8 *data, quint32 dataSize);
+    void MoveExportDataToEnd(int id);
+    void SortExportsTableByDataOffset(const QList<ExportEntry> &list, QList<ExportEntry> &sortedExports);
+    bool ReserveSpaceBeforeExportData(int space);
+    int getNameId(const QString &name);
+    bool existsNameId(const QString &name);
+    QString getName(int id);
+    int addName(const QString &name);
+    void loadNames(Stream &input);
+    void saveNames(Stream &output);
+    void loadExtraNames(Stream &input, bool rawMode = true);
+    void saveExtraNames(Stream &output, bool rawMode = true);
+    void loadImports(Stream &input);
+    void loadImportsNames();
+    void saveImports(Stream &output);
+    void loadExports(Stream &input);
+    void loadExportsNames();
+    void saveExports(Stream &output);
+    void loadDepends(Stream &input);
+    void saveDepends(Stream &output);
+    void loadGuids(Stream &input);
+    void saveGuids(Stream &output);
+    bool SaveToFile(bool forceCompressed = false, bool forceDecompressed = false, bool appendMarker = true);
+    void Dispose();
+    void DisposeCache();
+    void ReleaseChunks();
+
+};
+
+#endif

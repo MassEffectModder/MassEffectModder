@@ -24,15 +24,50 @@
 
 #include "CmdLineTools.h"
 #include "ConfigIni.h"
+#include "TreeScan.h"
 #include "GameData.h"
-#include "MeType.h"
+#include "MemTypes.h"
 
-int ScanTextures(MeType gameType, bool ipc)
+static QList<FoundTexture> *textures = nullptr;
+static TreeScan *treeScan = nullptr;
+
+static bool CheckGamePath()
 {
-    int errorCode = 0;
+    if (GameData::GamePath() == "" || !QDir(GameData::GamePath()).exists())
+    {
+        ConsoleWrite("Error: Could not found the game!");
+        return false;
+    }
 
+    return true;
+}
 
+int ScanTextures(MeType gameId, bool ipc)
+{
+    int errorCode;
+
+    treeScan = new TreeScan();
+    auto *configIni = new ConfigIni();
+    auto *gameData = new GameData(gameId, configIni);
+
+    if (!CheckGamePath())
+        return -1;
+
+    if (ipc)
+    {
+    }
+
+    gameData->getPackages();
+
+    if (gameId != MeType::ME1_TYPE)
+        gameData->getTfcTextures();
+
+    ConsoleWrite("Scan textures started...");
+
+    errorCode = treeScan->PrepareListOfTextures(gameId, ipc);
+    textures = treeScan->treeScan;
+
+    ConsoleWrite("Scan textures finished.\n");
 
     return errorCode;
 }
-

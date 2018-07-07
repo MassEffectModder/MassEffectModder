@@ -1,4 +1,4 @@
-/* WraperUnzip.c
+/* WraperUnzip.cpp
 
         Copyright (C) 2017-2018 Pawel Kolodziejski <aquadran at users.sourceforge.net>
 

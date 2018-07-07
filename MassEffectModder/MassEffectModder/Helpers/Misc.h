@@ -26,5 +26,9 @@
 
 int DetectAmountMemoryGB();
 void ConsoleWrite(const QString &message);
+void ConsoleSync();
+QString BaseName(const QString &path);
+QString DirName(const QString &path);
+QString BaseNameWithoutExt(const QString &path);
 
 #endif

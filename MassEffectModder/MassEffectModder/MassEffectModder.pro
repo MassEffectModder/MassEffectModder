@@ -14,10 +14,15 @@ SOURCES += \
     Helpers/FileStream.cpp \
     Helpers/MemoryStream.cpp \
     Helpers/Stream.cpp \
+    Helpers/ParallelCRC.cpp \
     Main.cpp \
     CmdLineParams.cpp \
     CmdLineTools.cpp \
     GameData.cpp \
+    Package.cpp \
+    Texture.cpp \
+    TextureProps.cpp \
+    TreeScan.cpp \
     ConfigIni.cpp
 
 PRECOMPILED_HEADER = Precompiled.h
@@ -30,11 +35,16 @@ HEADERS += \
     Helpers/FileStream.h \
     Helpers/MemoryStream.h \
     Helpers/Stream.h \
+    Helpers/ParallelCRC.h \
     CmdLineParams.h \
     CmdLineTools.h \
     GameData.h \
+    Package.h \
     ConfigIni.h \
-    MeType.h \
+    MemTypes.h \
+    Texture.h \
+    TextureProps.h \
+    TreeScan.h \
     Version.h
 
 DEFINES += QT_DEPRECATED_WARNINGS
@@ -55,7 +65,13 @@ INCLUDEPATH += $$PWD/../Wrappers
 
 DEPENDPATH += $$PWD/../Wrappers
 
-LIBS += -L$$OUT_PWD/../Wrappers -lWrappers
+LIBS += \
+    -L$$OUT_PWD/../Wrappers -lWrappers \
+    -L$$OUT_PWD/../Libs/dxtc -ldxtc \
+    -L$$OUT_PWD/../Libs/lzma -llzma \
+    -L$$OUT_PWD/../Libs/lzo2 -llzo2 \
+    -L$$OUT_PWD/../Libs/xdelta3 -lxdelta3 \
+    -L$$OUT_PWD/../Libs/zlib -lzlib
 
 macx {
     # macOS clang doesn't have OpenMP enabled
