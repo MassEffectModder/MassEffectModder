@@ -268,7 +268,7 @@ private:
 
     inline int getTablesOffset()
     {
-        if (getVersion() == packageFileVersionME3)
+        if (packageFileVersion == packageFileVersionME3)
             return getPackageHeaderFlagsOffset() + sizeof(uint) + sizeof(uint); // additional entry in header
         return getPackageHeaderFlagsOffset() + sizeof(uint);
     }
@@ -372,7 +372,7 @@ public:
     QString packagePath;
 
     Package() = default;
-    ~Package() { ReleaseChunks(); Dispose(); }
+    ~Package();
     int Open(const QString &filename, bool headerOnly = false);
     bool isName(int id);
     QString getClassName(int id);

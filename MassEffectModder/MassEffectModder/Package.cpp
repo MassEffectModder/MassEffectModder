@@ -31,6 +31,29 @@
 #include "GameData.h"
 #include "MemTypes.h"
 
+Package::~Package()
+{
+    for (int i = 0; i < exportsTable.count(); i++)
+    {
+        delete[] exportsTable[i].raw;
+        delete[] exportsTable[i].newData;
+    }
+    for (int i = 0; i < importsTable.count(); i++)
+    {
+        delete[] importsTable[i].raw;
+    }
+    for (int i = 0; i < extraNamesTable.count(); i++)
+    {
+        delete[] extraNamesTable[i].raw;
+    }
+
+    DisposeCache();
+    ReleaseChunks();
+    delete packageHeader;
+    delete packageData;
+    delete packageStream;
+}
+
 bool Package::isName(int id)
 {
     return id >= 0 && id < namesTable.count();
@@ -153,7 +176,7 @@ int Package::Open(const QString &filename, bool headerOnly)
     }
     long afterChunksTable = packageStream->Position();
     someTag = packageStream->ReadUInt32();
-    if (getVersion() == packageFileVersionME2)
+    if (packageFileVersion == packageFileVersionME2)
         packageStream->SkipInt32(); // const 0
 
     loadExtraNames(*packageStream);
@@ -206,7 +229,7 @@ int Package::Open(const QString &filename, bool headerOnly)
     else
         loadDepends(*packageStream);
 
-    if (getVersion() == packageFileVersionME3)
+    if (packageFileVersion == packageFileVersionME3)
     {
         if (getCompressedFlag())
             loadGuids(*packageData);
@@ -377,7 +400,7 @@ bool Package::ReserveSpaceBeforeExportData(int space)
         if (sortedExports[i].objectName == "SeekFreeShaderCache" &&
                 getClassName(sortedExports[i].getClassId()) == "ShaderCache")
             return false;
-        if (GameData::gameType == MeType::ME1_TYPE)
+        if (packageFileVersion == packageFileVersionME1)
         {
             int id = getClassNameId(sortedExports[i].getClassId());
             if (id == nameIdTexture2D ||
@@ -438,9 +461,9 @@ int Package::addName(const QString &name)
 
     NameEntry entry;
     entry.name = name;
-    if (getVersion() == packageFileVersionME1)
+    if (packageFileVersion == packageFileVersionME1)
         entry.flags = 0x0007001000000000;
-    if (getVersion() == packageFileVersionME2)
+    if (packageFileVersion == packageFileVersionME2)
         entry.flags = 0xfffffff2;
     namesTable.push_back(entry);
     setNamesCount(namesTable.count());
@@ -459,7 +482,7 @@ void Package::loadNames(Stream &input)
         if (len < 0) // unicode
         {
             entry.name = "";
-            if (getVersion() == packageFileVersionME3)
+            if (packageFileVersion == packageFileVersionME3)
             {
                 for (int n = 0; n < -len; n++)
                 {
@@ -481,7 +504,6 @@ void Package::loadNames(Stream &input)
         {
             input.ReadStringASCII(entry.name, len);
         }
-        //entry.name = entry.name.Trim('\0');
 
         if (nameIdTexture2D == -1 && entry.name == "Texture2D")
             nameIdTexture2D = i;
@@ -492,9 +514,9 @@ void Package::loadNames(Stream &input)
         else if (nameIdTextureFlipBook == -1 && entry.name == "TextureFlipBook")
             nameIdTextureFlipBook = i;
 
-        if (getVersion() == packageFileVersionME1)
+        if (packageFileVersion == packageFileVersionME1)
             entry.flags = input.ReadUInt64();
-        if (getVersion() == packageFileVersionME2)
+        if (packageFileVersion == packageFileVersionME2)
             entry.flags = input.ReadUInt32();
 
         namesTable.push_back(entry);
@@ -532,9 +554,9 @@ void Package::saveNames(Stream &output)
                 output.WriteInt32(entry.name.length() + 1);
                 output.WriteStringASCIINull(entry.name);
             }
-            if (getVersion() == packageFileVersionME1)
+            if (packageFileVersion == packageFileVersionME1)
                 output.WriteUInt64(entry.flags);
-            if (getVersion() == packageFileVersionME2)
+            if (packageFileVersion == packageFileVersionME2)
                 output.WriteUInt32(entry.flags);
         }
     }
@@ -573,7 +595,6 @@ void Package::loadExtraNames(Stream &input, bool rawMode)
             {
                 input.ReadStringASCII(name, len);
             }
-            //name = name.Trim('\0');
             entry.name = name;
         }
         extraNamesTable.push_back(entry);
@@ -629,6 +650,8 @@ void Package::loadImports(Stream &input)
 
         long len = input.Position() - start;
         input.JumpTo(start);
+        entry.raw = new quint8[len];
+        entry.rawSize = len;
         input.ReadToBuffer(entry.raw, len);
 
         importsTable.push_back(entry);
@@ -679,7 +702,7 @@ void Package::loadExports(Stream &input)
 
         long start = input.Position();
         input.Skip(entry.DataOffsetOffset + 4);
-        if (getVersion() != packageFileVersionME3)
+        if (packageFileVersion != packageFileVersionME3)
         {
             input.Skip(input.ReadUInt32() * 12); // skip entries
         }
@@ -802,7 +825,7 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
     if (tempOutput.Position() > sortedExports[0].getDataOffset())
         CRASH();
 
-    if (getVersion() == packageFileVersionME3)
+    if (packageFileVersion == packageFileVersionME3)
     {
         setGuidsOffset(tempOutput.Position());
         saveGuids(tempOutput);
@@ -993,7 +1016,7 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
         fs->WriteUInt32(chunks.count());
         fs->Skip(SizeOfChunk * chunks.count()); // skip chunks table - filled later
         fs->WriteUInt32(someTag);
-        if (getVersion() == packageFileVersionME2)
+        if (packageFileVersion == packageFileVersionME2)
             fs->WriteUInt32(0); // const 0
         saveExtraNames(*fs);
 
@@ -1099,17 +1122,4 @@ void Package::DisposeCache()
     delete chunkCache;
     chunkCache = nullptr;
     currentChunk = -1;
-}
-
-void Package::Dispose()
-{
-    if (chunkCache != nullptr)
-        DisposeCache();
-    ReleaseChunks();
-    delete packageHeader;
-    packageHeader = nullptr;
-    delete packageData;
-    packageData = nullptr;
-    delete packageStream;
-    packageStream = nullptr;
 }

@@ -89,6 +89,12 @@ void FileStream::Close()
 
 void FileStream::CopyFrom(Stream *stream, qint64 count, qint64 bufferSize)
 {
+    if (count == 0)
+        return;
+
+    if (count < 0)
+        CRASH();
+
     auto *buffer = new quint8[static_cast<unsigned long>(bufferSize)];
     do
     {

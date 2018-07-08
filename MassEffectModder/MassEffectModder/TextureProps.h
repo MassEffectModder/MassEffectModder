@@ -71,6 +71,7 @@ private:
 public:
 
     TexProperty(Package &pkg, quint8 *data);
+    ~TexProperty();
     TexPropertyEntry getProperty(const QString &name);
     void fetchValue(const QString &name);
     void fetchValue(int index);

@@ -395,6 +395,4 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> *textures, const 
             }
         }
     }
-
-    package.Dispose();
 }

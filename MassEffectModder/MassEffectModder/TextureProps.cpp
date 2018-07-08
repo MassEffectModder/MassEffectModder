@@ -38,6 +38,15 @@ TexProperty::TexProperty(Package &pkg, quint8 *data)
     getProperty(data, 4);
 }
 
+TexProperty::~TexProperty()
+{
+    for (int i = 0; i < texPropertyList.count(); i++)
+    {
+        delete[] texPropertyList[i].valueRaw;
+        delete[] texPropertyList[i].valueStruct;
+    }
+}
+
 void TexProperty::getProperty(quint8 *data, int offset)
 {
     TexPropertyEntry texProperty;
@@ -87,6 +96,7 @@ void TexProperty::getProperty(quint8 *data, int offset)
     }
     texProperty.valueRaw = new quint8[size];
     texProperty.valueRawLength = size;
+    texProperty.valueStruct = nullptr;
     memcpy(texProperty.valueRaw, data + valueRawPos, size);
     texPropertyList.push_back(texProperty);
 
