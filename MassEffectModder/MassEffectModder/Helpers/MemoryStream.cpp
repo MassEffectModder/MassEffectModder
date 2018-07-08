@@ -38,27 +38,25 @@ MemoryStream::MemoryStream()
 
 MemoryStream::MemoryStream(quint8 *buffer, qint64 count)
 {
-    internalBuffer = static_cast<quint8 *>(malloc(static_cast<size_t>(count + bufferMargin)));
+    internalBuffer = static_cast<quint8 *>(malloc(static_cast<size_t>(count)));
     if (internalBuffer == nullptr)
     {
         CRASH_MSG("MemoryStream: out of memory");
     }
     memcpy(internalBuffer, buffer, count);
-    internalBufferSize = count + bufferMargin;
-    length = count;
+    internalBufferSize = length = count;
     position = 0;
 }
 
 MemoryStream::MemoryStream(quint8 *buffer, qint64 offset, qint64 count)
 {
-    internalBuffer = static_cast<quint8 *>(malloc(static_cast<size_t>(count + bufferMargin)));
+    internalBuffer = static_cast<quint8 *>(malloc(static_cast<size_t>(count)));
     if (internalBuffer == nullptr)
     {
         CRASH_MSG("MemoryStream: out of memory");
     }
     memcpy(internalBuffer, buffer + offset, count);
-    internalBufferSize = count + bufferMargin;
-    length = count;
+    internalBufferSize = length = count;
     position = 0;
 }
 
