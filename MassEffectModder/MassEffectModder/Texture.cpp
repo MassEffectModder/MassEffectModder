@@ -370,7 +370,7 @@ const Texture::MipMap& Texture::getMipmap(int width, int height)
 
 bool Texture::hasImageData()
 {
-    return mipMapsList.count() == 0;
+    return mipMapsList.count() != 0;
 }
 
 quint8 *Texture::getTopImageData(int &length)
