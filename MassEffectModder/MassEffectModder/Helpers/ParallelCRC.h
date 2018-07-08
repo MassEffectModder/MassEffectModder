@@ -177,11 +177,11 @@ private:
                 crc = Table[(unsigned char)crc + 0x700]
                     ^ Table[(unsigned char)(crc >> 8) + 0x600]
                     ^ Table[(unsigned char)(crc >> 16) + 0x500]
-                    ^ Table[/*(unsigned char)*/(crc >> 24) + 0x400]
+                    ^ Table[(unsigned char)(crc >> 24) + 0x400]
                     ^ Table[(unsigned char)(high) + 0x300]
                     ^ Table[(unsigned char)(high >> 8) + 0x200]
                     ^ Table[(unsigned char)(high >> 16) + 0x100]
-                    ^ Table[/*(unsigned char)*/(high >> 8) + 0x000];
+                    ^ Table[(unsigned char)(high >> 24) + 0x000];
             }
         }
 
