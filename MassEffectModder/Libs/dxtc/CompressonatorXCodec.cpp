@@ -1101,7 +1101,7 @@ CMP_FLOAT RefineSSE2(CMP_FLOAT _OutRmpPnts[NUM_CHANNELS][NUM_ENDPOINTS],
 
             CMP_FLOAT mse;
             {
-                vector Mse;
+                vector Mse{};
                 Mse.m128 = _mm_setzero_ps();
                 __m128 weight = _mm_load_ps1(&fWeightRed);
                 for(int k = 0; k < NbrCycls; k++)
@@ -1224,7 +1224,7 @@ CMP_FLOAT RefineSSE2(CMP_FLOAT _OutRmpPnts[NUM_CHANNELS][NUM_ENDPOINTS],
 
             CMP_FLOAT mse;
             {
-                vector Mse;
+                vector Mse{};
                 Mse.m128 = _mm_setzero_ps();
                 __m128 weight = _mm_load_ps1(&fWeightGreen);
                 for(int k = 0; k < NbrCycls; k++)
@@ -1347,7 +1347,7 @@ CMP_FLOAT RefineSSE2(CMP_FLOAT _OutRmpPnts[NUM_CHANNELS][NUM_ENDPOINTS],
 
             CMP_FLOAT mse;
             {
-                vector Mse;
+                vector Mse{};
                 Mse.m128 = _mm_setzero_ps();
                 __m128 weight = _mm_load_ps1(&fWeightBlue);
                 for(int k = 0; k < NbrCycls; k++)
@@ -1552,7 +1552,7 @@ static CMP_FLOAT Refine3DSSE2(CMP_FLOAT _OutRmpPnts[NUM_CHANNELS][NUM_ENDPOINTS]
 
                             CMP_FLOAT mse;
                             {
-                                vector Mse;
+                                vector Mse{};
                                 Mse.m128 = _mm_setzero_ps();
                                 __m128 weight = _mm_load_ps1(&fWeightRed);
                                 for(int k = 0; k < NbrCycls; k++)

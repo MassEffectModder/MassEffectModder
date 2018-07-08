@@ -25,7 +25,7 @@
   ---------------------------------------------------------------------------------
 */
 
-#include <string.h>
+#include <cstring>
 
 #include <iomemapi.h>
 #include <unzip.h>
@@ -56,8 +56,6 @@ static unsigned char tpfPassword[] =
 
 unsigned char tpfXorKey[2] = { 0xA4, 0x3F };
 int gXor = 0;
-
-unzFile unzOpenIoFile(const void *path, zlib_filefunc64_def* pzlib_filefunc_def);
 
 void *ZipOpenFromFile(const void *path, unsigned long *numEntries, int tpf)
 {
@@ -127,7 +125,7 @@ void *ZipOpenFromMem(unsigned char *src, unsigned long srcLen, unsigned long *nu
 
 int ZipGetCurrentFileInfo(void *handle, char *fileName, unsigned long sizeOfFileName, unsigned long *dstLen)
 {
-    UnzipHandle *unzipHandle = static_cast<UnzipHandle *>(handle);
+    auto unzipHandle = static_cast<UnzipHandle *>(handle);
     int result;
     char f[256];
 
@@ -146,7 +144,7 @@ int ZipGetCurrentFileInfo(void *handle, char *fileName, unsigned long sizeOfFile
 
 int ZipGoToFirstFile(void *handle)
 {
-    UnzipHandle *unzipHandle = static_cast<UnzipHandle *>(handle);
+    auto unzipHandle = static_cast<UnzipHandle *>(handle);
     int result;
 
     if (unzipHandle == nullptr)
@@ -161,7 +159,7 @@ int ZipGoToFirstFile(void *handle)
 
 int ZipGoToNextFile(void *handle)
 {
-    UnzipHandle *unzipHandle = static_cast<UnzipHandle *>(handle);
+    auto unzipHandle = static_cast<UnzipHandle *>(handle);
     int result;
 
     if (unzipHandle == nullptr)
@@ -176,7 +174,7 @@ int ZipGoToNextFile(void *handle)
 
 int ZipLocateFile(void *handle, const char *filename)
 {
-    UnzipHandle *unzipHandle = static_cast<UnzipHandle *>(handle);
+    auto unzipHandle = static_cast<UnzipHandle *>(handle);
     int result;
 
     if (unzipHandle == nullptr || filename == nullptr)
@@ -189,9 +187,9 @@ int ZipLocateFile(void *handle, const char *filename)
     return 0;
 }
 
-int ZipReadCurrentFile(void *handle, unsigned char *dst, unsigned long dst_len, unsigned char *pass)
+int ZipReadCurrentFile(void *handle, unsigned char *dst, unsigned long dst_len, const unsigned char *pass)
 {
-    UnzipHandle *unzipHandle = static_cast<UnzipHandle *>(handle);
+    auto unzipHandle = static_cast<UnzipHandle *>(handle);
     int result;
 
     if (unzipHandle == nullptr || dst == nullptr)
@@ -222,7 +220,7 @@ int ZipReadCurrentFile(void *handle, unsigned char *dst, unsigned long dst_len, 
 
 void ZipClose(void *handle)
 {
-    UnzipHandle *unzipHandle = static_cast<UnzipHandle *>(handle);
+    auto unzipHandle = static_cast<UnzipHandle *>(handle);
 
     if (unzipHandle == nullptr)
         return;

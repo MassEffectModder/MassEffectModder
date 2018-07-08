@@ -37,7 +37,7 @@ int ZipGetCurrentFileInfo(void *handle, char *fileName, UINT64 sizeOfFileName, U
 int ZipGoToFirstFile(void *handle);
 int ZipGoToNextFile(void *handle);
 int ZipLocateFile(void *handle, const char *filename);
-int ZipReadCurrentFile(void *handle, BYTE *dst, UINT64 dst_len, BYTE *pass);
+int ZipReadCurrentFile(void *handle, BYTE *dst, UINT64 dst_len, const BYTE *pass);
 void ZipClose(void *handle);
 
 int XDelta3Compress(BYTE *src1, BYTE *src2, UINT32 src_len, BYTE *delta, UINT32 *delta_len);
