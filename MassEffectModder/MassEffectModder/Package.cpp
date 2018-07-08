@@ -240,7 +240,7 @@ int Package::Open(const QString &filename, bool headerOnly)
     //loadImportsNames(); // not used by tool
     //loadExportsNames(); // not used by tool
 
-    return true;
+    return 0;
 }
 
 void Package::getData(uint offset, uint length, Stream &output)

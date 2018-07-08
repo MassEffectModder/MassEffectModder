@@ -240,7 +240,7 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> *textures, const 
                             bool modified, bool ipc)
 {
     Package package;
-    bool status = package.Open(GameData::GamePath() + packagePath);
+    int status = package.Open(GameData::GamePath() + packagePath);
     if (status != 0)
     {
         if (ipc)

@@ -119,9 +119,10 @@ void MemoryStream::WriteFromBuffer(quint8 *buffer, qint64 count)
         }
         memset(internalBuffer + newPosition, 0, static_cast<size_t>(bufferMargin));
     }
+    if (newPosition > length)
+        length = newPosition;
     memcpy(internalBuffer + position, buffer, static_cast<size_t>(count));
     position += count;
-    length += count;
 }
 
 void MemoryStream::ReadStringASCII(QString &str, qint64 count)
@@ -287,6 +288,7 @@ void MemoryStream::Seek(qint64 offset, SeekOrigin origin)
     switch (origin)
     {
     case SeekOrigin::Begin:
+    {
         if (offset < 0)
         {
             CRASH_MSG("MemoryStream: out of stream");
@@ -304,14 +306,16 @@ void MemoryStream::Seek(qint64 offset, SeekOrigin origin)
         }
         position = offset;
         break;
+    }
     case SeekOrigin::Current:
-        if (position + offset < 0)
+    {
+        qint64 newOffset = position + offset;
+        if (newOffset < 0)
         {
             CRASH_MSG("MemoryStream: out of stream");
         }
-        else if (position + offset > internalBufferSize)
+        else if (newOffset > internalBufferSize)
         {
-            qint64 newOffset = position + offset;
             internalBufferSize = newOffset + bufferMargin;
             internalBuffer = reinterpret_cast<quint8 *>(realloc(internalBuffer, static_cast<size_t>(internalBufferSize)));
             if (internalBuffer == nullptr)
@@ -319,19 +323,21 @@ void MemoryStream::Seek(qint64 offset, SeekOrigin origin)
                 CRASH_MSG("MemoryStream: out of memory");
             }
             memset(internalBuffer + newOffset, 0, static_cast<size_t>(bufferMargin));
-            length = position = newOffset;
         }
-        else
-            position += offset;
+        if (newOffset > length)
+            length = newOffset;
+        position = newOffset;
         break;
+    }
     case SeekOrigin::End:
-        if (length + offset < 0)
+    {
+        qint64 newOffset = length + offset;
+        if (newOffset < 0)
         {
             CRASH_MSG("MemoryStream: out of stream");
         }
-        else if (length + offset > internalBufferSize)
+        else if (newOffset > internalBufferSize)
         {
-            qint64 newOffset = length + offset;
             internalBufferSize = newOffset + bufferMargin;
             internalBuffer = reinterpret_cast<quint8 *>(realloc(internalBuffer, static_cast<size_t>(internalBufferSize)));
             if (internalBuffer == nullptr)
@@ -339,11 +345,12 @@ void MemoryStream::Seek(qint64 offset, SeekOrigin origin)
                 CRASH_MSG("MemoryStream: out of memory");
             }
             memset(internalBuffer + newOffset, 0, static_cast<size_t>(bufferMargin));
-            length = position = newOffset;
         }
-        else
-            position = length + offset;
+        if (newOffset > length)
+            length = newOffset;
+        position = newOffset;
         break;
+    }
     }
 }
 
