@@ -198,7 +198,8 @@ int ZipReadCurrentFile(void *handle, unsigned char *dst, unsigned long dst_len, 
     if ((unzipHandle->curFileInfo.flag & 1) != 0)
     {
         result = unzOpenCurrentFilePassword(unzipHandle->file,
-                unzipHandle->tpfMode == 1 ? reinterpret_cast<char *>(tpfPassword) : pass == nullptr ? "" : reinterpret_cast<char *>(pass));
+                unzipHandle->tpfMode == 1 ? reinterpret_cast<char *>(tpfPassword) :
+                                            pass == nullptr ? "" : reinterpret_cast<const char *>(pass));
     }
     else
     {
