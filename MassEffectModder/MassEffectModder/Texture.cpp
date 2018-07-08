@@ -145,6 +145,18 @@ Texture::Texture(Package &package, int exportId, quint8 *data, int length, bool 
     }
 }
 
+Texture::~Texture()
+{
+    delete textureData;
+    delete[] mipMapData;
+    delete[] restOfData;
+    delete properties;
+    for (int i = 0; i < mipMapsList.count(); i++)
+    {
+        delete[] mipMapsList[i].newData;
+    }
+}
+
 void Texture::replaceMipMaps(QList<MipMap> &newMipMaps)
 {
     for (int l = 0; l < mipMapsList.count(); l++)
@@ -423,7 +435,7 @@ quint8 *Texture::getMipMapData(MipMap &mipmap, int &length)
             {
                 QString archive = properties->getProperty("TextureFileCacheName").valueName;
                 filename = GameData::MainData() + archive + ".tfc";
-                if (packagePath.toLower().contains("\\dlc"))
+                if (packagePath.contains("/DLC"), Qt::CaseInsensitive)
                 {
                     QString DLCArchiveFile = DirName(packagePath) + archive + ".tfc";
                     if (QFile(DLCArchiveFile).exists())
@@ -460,11 +472,12 @@ quint8 *Texture::getMipMapData(MipMap &mipmap, int &length)
                 fs->ReadToBuffer(buffer, mipmap.compressedSize);
                 MemoryStream tmpStream = MemoryStream(buffer, mipmap.compressedSize);
                 mipMapData = decompressTexture(tmpStream, mipmap.storageType, mipmap.uncompressedSize, mipmap.compressedSize);
+                delete[] buffer;
             }
             else
             {
                 delete mipMapData;
-                auto mipMapData = new quint8[mipmap.uncompressedSize];
+                mipMapData = new quint8[mipmap.uncompressedSize];
                 fs->ReadToBuffer(mipMapData, mipmap.uncompressedSize);
             }
             delete fs;
@@ -543,10 +556,4 @@ int Texture::numNotEmptyMips()
             num++;
     }
     return num;
-}
-
-void Texture::Dispose()
-{
-    delete textureData;
-    textureData = nullptr;
 }

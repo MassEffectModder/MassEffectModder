@@ -30,5 +30,3 @@
 */
 
 #include <Helpers/ParallelCRC.h>
-
-uint *ParallelCRC::even_cache = nullptr;

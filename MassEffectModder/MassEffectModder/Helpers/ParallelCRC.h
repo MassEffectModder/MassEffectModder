@@ -36,16 +36,14 @@ static const uint kCrcPoly = 0xEDB88320;
 static const uint kInitial = 0xFFFFFFFF;
 static const int CRC_NUM_TABLES = 8;
 static uint Table[256 * CRC_NUM_TABLES];
+static uint even_cache[32];
+static uint odd_cache[32];
+
 static bool initialized = false;
 
 class ParallelCRC
 {
 private:
-
-    //const int ThreadCost = 256 << 10;
-
-    static uint *even_cache;
-    static uint *odd_cache;
 
     uint value{};
 
@@ -75,6 +73,9 @@ public:
                 uint r = Table[i - 256];
                 Table[i] = Table[r & 0xFF] ^ (r >> 8);
             }
+
+            Prepare_even_odd_Cache();
+
             initialized = true;
         }
 
@@ -95,13 +96,17 @@ public:
     {
         auto crc = new ParallelCRC();
         crc->Update(data, offset, count);
-        return crc->getValue();
+        int crcValue = crc->getValue();
+        delete crc;
+        return crcValue;
     }
 
     static int Compute(unsigned char *data, uint length)
     {
         return Compute(data, 0, length);
     }
+
+private:
 
     /*
      * CRC values combining algorithm.
@@ -113,13 +118,10 @@ public:
         if (length2 <= 0) return crc1;
         if (crc1 == kInitial) return crc2;
 
-        if (even_cache == nullptr)
-        {
-            Prepare_even_odd_Cache();
-        }
-
-        uint *even = CopyArray(even_cache, 32);
-        uint *odd = CopyArray(odd_cache, 32);
+        uint even[32];
+        uint odd[32];
+        memcpy(even, even_cache, 32);
+        memcpy(odd, odd_cache, 32);
 
         crc1 = ~crc1;
         crc2 = ~crc2;
@@ -147,8 +149,6 @@ public:
         crc1 ^= crc2;
         return ~crc1;
     }
-
-private:
 
     static uint ProcessBlock(uint crc, const unsigned char *data, int offset, int count)
     {
@@ -193,21 +193,15 @@ private:
 
     static void Prepare_even_odd_Cache()
     {
-        auto even = new uint[32];     // even-power-of-two zeros operator
-        auto odd = new uint[32];      // odd-power-of-two zeros operator
-
         // put operator for one zero bit in odd
-        odd[0] = kCrcPoly;  // the CRC-32 polynomial
-        for (int i = 1; i < 32; i++) odd[i] = 1U << (i - 1);
+        odd_cache[0] = kCrcPoly;  // the CRC-32 polynomial
+        for (int i = 1; i < 32; i++) odd_cache[i] = 1U << (i - 1);
 
         // put operator for two zero bits in even
-        gf2_matrix_square(even, odd);
+        gf2_matrix_square(even_cache, odd_cache);
 
         // put operator for four zero bits in odd
-        gf2_matrix_square(odd, even);
-
-        odd_cache = odd;
-        even_cache = even;
+        gf2_matrix_square(odd_cache, even_cache);
     }
 
     static uint gf2_matrix_times(const uint *matrix, uint vec)
@@ -227,13 +221,6 @@ private:
     {
         for (int i = 0; i < 32; i++)
             square[i] = gf2_matrix_times(mat, mat[i]);
-    }
-
-    static uint *CopyArray(uint *a, uint length)
-    {
-        auto b = new uint[length];
-        memcpy(b, a, length * sizeof(uint));
-        return b;
     }
 };
 

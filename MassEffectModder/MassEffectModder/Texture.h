@@ -89,6 +89,7 @@ public:
     bool weakSlave;
 
     Texture(Package &package, int exportId, quint8 *data, int length, bool fixDim = true);
+    ~Texture();
     void replaceMipMaps(QList<MipMap> &newMipMaps);
     quint8 *compressTexture(quint8 *inputData, uint length, StorageTypes type, qint64 &compressedSize);
     quint8 *decompressTexture(MemoryStream &stream, StorageTypes type, int uncompressedSize, int compressedSize);

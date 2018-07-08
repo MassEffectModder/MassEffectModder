@@ -369,6 +369,7 @@ void Package::MoveExportDataToEnd(int id)
     exp.setDataOffset(exportsEndOffset);
     exportsEndOffset = exp.getDataSize() + exp.getDataSize();
 
+    delete[] exp.newData;
     exp.newData = data;
     exportsTable.replace(id, exp);
     modified = true;
@@ -595,6 +596,7 @@ void Package::loadExtraNames(Stream &input, bool rawMode)
             {
                 input.ReadStringASCII(name, len);
             }
+            entry.raw = nullptr;
             entry.name = name;
         }
         extraNamesTable.push_back(entry);
@@ -720,6 +722,7 @@ void Package::loadExports(Stream &input)
 
         entry.objectName = namesTable[entry.getObjectNameId()].name;
         entry.id = i;
+        entry.newData = nullptr;
         exportsTable.push_back(entry);
     }
 }
