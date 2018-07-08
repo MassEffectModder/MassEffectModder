@@ -133,7 +133,7 @@ Texture::Texture(Package &package, int exportId, quint8 *data, int length, bool 
             {
                 for (int i = 0; i < GameData::packageFiles.count(); i++)
                 {
-                    if (baseName.compare(BaseNameWithoutExt(GameData::packageFiles[i]), Qt::CaseInsensitive))
+                    if (baseName.compare(BaseNameWithoutExt(GameData::packageFiles[i]), Qt::CaseInsensitive) == 0)
                     {
                         basePackageName = baseName;
                         weakSlave = true;
@@ -422,7 +422,7 @@ quint8 *Texture::getMipMapData(MipMap &mipmap, int &length)
             {
                 for (int i = 0; i < GameData::packageFiles.count(); i++)
                 {
-                    if (basePackageName.compare(BaseNameWithoutExt(GameData::packageFiles[i]), Qt::CaseInsensitive))
+                    if (basePackageName.compare(BaseNameWithoutExt(GameData::packageFiles[i]), Qt::CaseInsensitive) == 0)
                     {
                         filename = GameData::GamePath() + GameData::packageFiles[i];
                         break;
@@ -468,11 +468,11 @@ quint8 *Texture::getMipMapData(MipMap &mipmap, int &length)
             fs->JumpTo(mipmap.dataOffset);
             if (mipmap.storageType == StorageTypes::extLZO || mipmap.storageType == StorageTypes::extZlib)
             {
-                auto buffer = new quint8[mipmap.compressedSize];
-                fs->ReadToBuffer(buffer, mipmap.compressedSize);
-                MemoryStream tmpStream = MemoryStream(buffer, mipmap.compressedSize);
+                MemoryStream tmpStream;
+                tmpStream.CopyFrom(fs, mipmap.compressedSize);
+                tmpStream.SeekBegin();
+                delete mipMapData;
                 mipMapData = decompressTexture(tmpStream, mipmap.storageType, mipmap.uncompressedSize, mipmap.compressedSize);
-                delete[] buffer;
             }
             else
             {

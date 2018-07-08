@@ -320,7 +320,7 @@ void GameData::getPackages()
             while (iterator.hasNext())
             {
                 iterator.next();
-                if (iterator.fileName().compare("niebieska_pl.bik"))
+                if (iterator.fileName().compare("niebieska_pl.bik") == 0)
                 {
                     FullScanME1Game = true;
                     break;
