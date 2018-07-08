@@ -424,7 +424,7 @@ quint8 *Texture::getMipMapData(MipMap &mipmap, int &length)
                 {
                     if (basePackageName.compare(BaseNameWithoutExt(GameData::packageFiles[i]), Qt::CaseInsensitive))
                     {
-                        filename = GameData::packageFiles[i];
+                        filename = GameData::GamePath() + GameData::packageFiles[i];
                         break;
                     }
                 }
@@ -434,10 +434,10 @@ quint8 *Texture::getMipMapData(MipMap &mipmap, int &length)
             else
             {
                 QString archive = properties->getProperty("TextureFileCacheName").valueName;
-                filename = GameData::MainData() + archive + ".tfc";
+                filename = GameData::MainData() + "/" + archive + ".tfc";
                 if (packagePath.contains("/DLC"), Qt::CaseInsensitive)
                 {
-                    QString DLCArchiveFile = DirName(packagePath) + archive + ".tfc";
+                    QString DLCArchiveFile = GameData::GamePath() + DirName(packagePath) + archive + ".tfc";
                     if (QFile(DLCArchiveFile).exists())
                         filename = DLCArchiveFile;
                     else if (!QFile(filename).exists())
