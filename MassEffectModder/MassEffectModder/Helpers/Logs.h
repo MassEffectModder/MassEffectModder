@@ -42,6 +42,7 @@ public:
 
     Logs();
     void printStdMsg(const std::string &message);
+    void consoleEnabled(bool enabled) { _printToConsoleEnabled = enabled; }
     void printMsg(const QString &message);
     void printMsgTimeStamp(const QString &message);
     void enableTimeStamp(bool enable) { _timeStampEnabled = enable; }

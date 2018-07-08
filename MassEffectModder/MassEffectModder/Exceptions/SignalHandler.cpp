@@ -33,7 +33,11 @@ void LogCrash(string output, string &message)
     output = message + output;
 
     if (g_logs)
+    {
+        g_logs->consoleEnabled(true);
         g_logs->printStdMsg(output);
+        g_logs->consoleEnabled(false);
+    }
     else
         cerr << output;
 }
@@ -49,25 +53,32 @@ static void getFilename(char *dst, const char *src)
     strncpy(dst, src + offset, 1024);
 }
 
-[[ noreturn ]] void Exception(const char *file, const char *func, int line, const char *msg)
+#ifdef NDEBUG
+[[ noreturn ]]
+#endif
+void Exception(const char *file, const char *func, int line, const char *msg)
 {
     char str[1024];
     getFilename(static_cast<char *>(str), file);
 
-    string message = "Exception occured! ";
+    string message = "\nException occured: ";
     if (msg)
     {
         message += "\"" + std::string(msg) + "\"";
     }
-    message += "\nin " + std::string(func) + " at " + std::string(static_cast<char *>(str)) + ":" + std::to_string(line) + "\n";
+    message += "\nin " + std::string(func) + " at " + std::string(static_cast<char *>(str)) + ": line " + std::to_string(line) + "\n";
 
     string output = "Backtrace:\n";
     GetBackTrace(output);
 
     LogCrash(output, message);
 
+#ifdef NDEBUG
     exit(1);
+#endif
 }
+
+#ifdef NDEBUG
 
 [[ noreturn ]] static void SignalsHandler(int signal)
 {
@@ -98,12 +109,16 @@ static void getFilename(char *dst, const char *src)
     exit(signal);
 }
 
+#endif
+
 void InstallSignalsHandler()
 {
+#ifdef NDEBUG
     signal(SIGSEGV, SignalsHandler);
     signal(SIGABRT, SignalsHandler);
     signal(SIGILL,  SignalsHandler);
     signal(SIGFPE,  SignalsHandler);
     signal(SIGINT,  SignalsHandler);
     signal(SIGTERM, SignalsHandler);
+#endif
 }

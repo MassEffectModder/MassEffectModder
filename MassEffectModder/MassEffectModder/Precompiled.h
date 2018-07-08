@@ -29,9 +29,19 @@
 #include <string>
 #include <cstring>
 
-[[ noreturn ]] void Exception(const char *file, const char *func, int line, const char *msg = nullptr);
-#define CRASH_MSG(msg) Exception(__FILE__, __PRETTY_FUNCTION__, __LINE__, msg)
-#define CRASH(msg) Exception(__FILE__, __PRETTY_FUNCTION__, __LINE__)
+#ifndef NDEBUG
+#define TRAP __asm__ volatile("int $3"); exit(1);
+#else
+#define TRAP
+#endif
+
+#ifdef NDEBUG
+[[ noreturn ]]
+#endif
+void Exception(const char *file, const char *func, int line, const char *msg = nullptr);
+
+#define CRASH_MSG(msg) { Exception(__FILE__, __PRETTY_FUNCTION__, __LINE__, msg); TRAP }
+#define CRASH(msg) { Exception(__FILE__, __PRETTY_FUNCTION__, __LINE__); TRAP }
 
 #include <QtGlobal>
 #include <QCoreApplication>
