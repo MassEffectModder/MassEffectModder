@@ -207,7 +207,7 @@ public:
 
 private:
 
-    quint8 *packageHeader{};
+    quint8 *packageHeader = nullptr;
     uint packageHeaderSize{};
     uint packageFileVersion{};
     uint numChunks{};
@@ -225,7 +225,7 @@ private:
     QList<GuidEntry> guidsTable;
     QList<ExtraNameEntry> extraNamesTable;
     int currentChunk = -1;
-    MemoryStream *chunkCache{};
+    MemoryStream *chunkCache = nullptr;
     bool modified = false;
 
     inline uint getTag()
@@ -367,8 +367,8 @@ private:
 public:
 
     CompressionType compressionType = CompressionType::None;
-    Stream *packageStream{};
-    FileStream *packageFile{};
+    Stream *packageStream = nullptr;
+    FileStream *packageFile = nullptr;
     QString packagePath;
 
     Package() = default;
@@ -378,8 +378,8 @@ public:
     QString getClassName(int id);
     int getClassNameId(int id);
     QString resolvePackagePath(int id);
-    void getData(uint offset, uint length, Stream &output);
-    quint8 *getExportData(int id, qint64 &length);
+    void getData(uint offset, uint length, Stream *outputStream = nullptr, quint8 *outputBuffer = nullptr);
+    quint8 *getExportData(int id);
     void setExportData(int id, quint8 *data, quint32 dataSize);
     void MoveExportDataToEnd(int id);
     void SortExportsTableByDataOffset(const QList<ExportEntry> &list, QList<ExportEntry> &sortedExports);

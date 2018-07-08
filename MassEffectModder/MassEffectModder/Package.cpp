@@ -194,7 +194,7 @@ int Package::Open(const QString &filename, bool headerOnly)
         uint length = getEndOfTablesOffset() - (uint)dataOffset;
         packageData = new MemoryStream();
         packageData->JumpTo(dataOffset);
-        getData((uint)dataOffset, length, *packageData);
+        getData((uint)dataOffset, length, packageData);
     }
 
     if (getCompressedFlag())
@@ -243,10 +243,11 @@ int Package::Open(const QString &filename, bool headerOnly)
     return 0;
 }
 
-void Package::getData(uint offset, uint length, Stream &output)
+void Package::getData(uint offset, uint length, Stream *outputStream, quint8 *outputBuffer)
 {
     if (getCompressedFlag())
     {
+        uint pos = 0;
         uint bytesLeft = length;
         for (int c = 0; c < chunks.count(); c++)
         {
@@ -321,7 +322,11 @@ void Package::getData(uint offset, uint length, Stream &output)
                 }
             }
             chunkCache->JumpTo(startInChunk);
-            output.CopyFrom(chunkCache, bytesLeftInChunk);
+            if (outputStream)
+                outputStream->CopyFrom(chunkCache, bytesLeftInChunk);
+            if (outputBuffer)
+                chunkCache->ReadToBuffer(outputBuffer + pos, bytesLeftInChunk);
+            pos += bytesLeftInChunk;
             bytesLeft -= bytesLeftInChunk;
             if (bytesLeft == 0)
                 break;
@@ -330,20 +335,24 @@ void Package::getData(uint offset, uint length, Stream &output)
     else
     {
         packageStream->JumpTo(offset);
-        output.CopyFrom(packageStream, length);
+        if (outputStream)
+            outputStream->CopyFrom(packageStream, length);
+        if (outputBuffer)
+            packageStream->ReadToBuffer(outputBuffer, length);
     }
 }
 
-quint8 *Package::getExportData(int id, qint64 &length)
+quint8 *Package::getExportData(int id)
 {
-    if (exportsTable[id].newData != nullptr)
-    {
-        return exportsTable[id].newData;
-    }
+    const ExportEntry& exp = exportsTable[id];
+    uint length = exp.getDataSize();
+    auto data = new quint8[length];
+    if (exp.newData != nullptr)
+        memcpy(data, exp.newData, length);
+    else
+        getData(exp.getDataOffset(), exp.getDataSize(), nullptr, data);
 
-    MemoryStream data;
-    getData(exportsTable[id].ExportEntry::getDataOffset(), exportsTable[id].ExportEntry::getDataSize(), data);
-    return data.ToArray(length);
+    return data;
 }
 
 void Package::setExportData(int id, quint8 *data, quint32 dataSize)
@@ -363,8 +372,7 @@ void Package::setExportData(int id, quint8 *data, quint32 dataSize)
 
 void Package::MoveExportDataToEnd(int id)
 {
-    qint64 length = 0;
-    quint8 *data = getExportData(id, length);
+    quint8 *data = getExportData(id);
     ExportEntry exp = exportsTable[id];
     exp.setDataOffset(exportsEndOffset);
     exportsEndOffset = exp.getDataSize() + exp.getDataSize();
@@ -921,7 +929,7 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
         }
         else
         {
-            getData(exp.getDataOffset(), exp.getDataSize(), tempOutput);
+            getData(exp.getDataOffset(), exp.getDataSize(), &tempOutput);
         }
         tempOutput.WriteZeros(dataLeft);
     }

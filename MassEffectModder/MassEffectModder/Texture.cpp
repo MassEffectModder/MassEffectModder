@@ -206,7 +206,7 @@ quint8 *Texture::compressTexture(quint8 *inputData, uint length, StorageTypes ty
     for (uint b = 0; b < newNumBlocks; b++)
     {
         Package::ChunkBlock block{};
-        block.uncomprSize = qMin(maxBlockSize, dataBlockLeft);
+        block.uncomprSize = qMin((uint)maxBlockSize, dataBlockLeft);
         dataBlockLeft -= block.uncomprSize;
         inputStream->ReadToBuffer(block.uncompressedBuffer, block.uncomprSize);
         blocks.push_back(block);

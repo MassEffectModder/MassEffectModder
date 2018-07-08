@@ -35,10 +35,13 @@ class Texture
 {
 private:
 
-    const uint textureTag = 0x9E2A83C1;
-    const uint maxBlockSize = 0x20000; // 128KB
-    const int SizeOfChunkBlock = 8;
-    const int SizeOfChunk = 16;
+    enum TextureEnums
+    {
+        textureTag = 0x9E2A83C1,
+        maxBlockSize = 0x20000, // 128KB
+        SizeOfChunkBlock = 8,
+        SizeOfChunk = 16,
+    };
 
     MemoryStream *textureData = nullptr;
     quint8 *mipMapData = nullptr;

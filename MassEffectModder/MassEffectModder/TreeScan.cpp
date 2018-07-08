@@ -264,8 +264,9 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> *textures, const 
             id == package.nameIdShadowMapTexture2D ||
             id == package.nameIdTextureFlipBook)
         {
-            qint64 dataSize = 0;
-            auto texture = new Texture(package, i, package.getExportData(i, dataSize), dataSize);
+            quint8 *exportData = package.getExportData(i);
+            auto texture = new Texture(package, i, exportData, exp.getDataSize());
+            delete[] exportData;
             if (!texture->hasImageData())
                 continue;
 
