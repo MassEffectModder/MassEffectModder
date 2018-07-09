@@ -66,7 +66,7 @@ public:
 
     TreeScan() = default;
     int PrepareListOfTextures(MeType gameId, bool ipc);
-
+    void ReleaseTreeScan(QList<FoundTexture> *textures);
 };
 
 

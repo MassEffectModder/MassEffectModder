@@ -274,7 +274,10 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> *textures, const 
             auto texture = new Texture(package, i, exportData, exp.getDataSize());
             delete[] exportData;
             if (!texture->hasImageData())
+            {
+                delete texture;
                 continue;
+            }
 
             const Texture::MipMap& mipmap = texture->getTopMipmap();
             QString name = package.exportsTable.at(i).objectName;
@@ -284,6 +287,8 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> *textures, const 
             matchTexture.packageName = texture->packageName;
             matchTexture.removeEmptyMips = texture->hasEmptyMips();
             matchTexture.numMips = texture->numNotEmptyMips();
+            matchTexture.crcs = nullptr;
+            matchTexture.masterDataOffset = nullptr;
             if (gameId == MeType::ME1_TYPE)
             {
                 matchTexture.basePackageName = texture->basePackageName;
@@ -308,6 +313,7 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> *textures, const 
                 {
                     ConsoleWrite("Error: Texture " + exp.objectName + " is broken in package: " + packagePath + ", skipping...");
                 }
+                delete texture;
                 continue;
             }
 
@@ -400,6 +406,22 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> *textures, const 
                 }
                 textures->push_back(foundTex);
             }
+            delete texture;
         }
+    }
+}
+
+void TreeScan::ReleaseTreeScan(QList<FoundTexture> *textures)
+{
+    for (int k = 0; k < textures->count(); k++)
+    {
+        const FoundTexture& t = textures->at(k);
+        for (int e = 0; e < t.list->count(); e++)
+        {
+            const MatchedTexture& m = t.list->at(e);
+            delete m.crcs;
+            delete m.masterDataOffset;
+        }
+        delete t.list;
     }
 }

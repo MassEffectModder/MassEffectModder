@@ -67,6 +67,7 @@ int ScanTextures(MeType gameId, bool ipc)
 
     errorCode = treeScan->PrepareListOfTextures(gameId, ipc);
     textures = treeScan->treeScan;
+    treeScan->ReleaseTreeScan(textures);
     delete textures;
 
     ConsoleWrite("Scan textures finished.\n");

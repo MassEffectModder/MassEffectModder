@@ -326,7 +326,9 @@ uint Texture::getCrcMipmap(MipMap &mipmap)
     quint8 *data = getMipMapData(mipmap, length);
     if (data == nullptr)
         return 0;
-    return getCrcData(data, length);
+    uint crc = getCrcData(data, length);
+    delete data;
+    return crc;
 }
 
 uint Texture::getCrcTopMipmap()
@@ -335,7 +337,9 @@ uint Texture::getCrcTopMipmap()
     quint8 *data = getTopImageData(length);
     if (data == nullptr)
         return 0;
-    return getCrcData(data, length);
+    uint crc = getCrcData(data, length);
+    delete data;
+    return crc;
 }
 
 const Texture::MipMap& Texture::getTopMipmap()
