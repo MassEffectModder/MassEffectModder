@@ -65,9 +65,9 @@ int TreeScan::PrepareListOfTextures(MeType gameId, bool ipc)
             }
             else
             {
-                ConsoleWrite(QString("Package " + QString::number(i + 1) + "/" +
+                ConsoleWrite(QString("Package ") + QString::number(i + 1) + "/" +
                                      QString::number(g_GameData->packageFiles.count()) + " : " +
-                                     g_GameData->packageFiles[i]));
+                                     g_GameData->packageFiles[i]);
             }
             FindTextures(gameId, textures, g_GameData->packageFiles[i], false, ipc);
         }
