@@ -27,7 +27,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include <string>
+#include <string.h>
 #include <float.h>
 #include <cmath>
 
