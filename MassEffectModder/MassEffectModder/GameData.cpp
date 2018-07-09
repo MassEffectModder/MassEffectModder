@@ -26,13 +26,7 @@
 #include <QDir>
 #include <QDirIterator>
 
-QString GameData::_path;
-ConfigIni *GameData::_configIni = nullptr;
 MeType GameData::gameType = UNKNOWN_TYPE;
-QStringList GameData::gameFiles;
-QStringList GameData::packageFiles;
-QStringList GameData::tfcFiles;
-bool GameData::FullScanME1Game = false;
 
 void GameData::ScanGameFiles(bool force)
 {
@@ -80,17 +74,17 @@ void GameData::ScanGameFiles(bool force)
     }
 }
 
-GameData::GameData(MeType type, ConfigIni *configIni)
+void GameData::Init(MeType type, ConfigIni *configIni)
 {
-    Init(type, configIni, false);
-}
-
-GameData::GameData(MeType type, ConfigIni *configIni, bool force = false)
-{
-    Init(type, configIni, force);
+    InternalInit(type, configIni, false);
 }
 
 void GameData::Init(MeType type, ConfigIni *configIni, bool force = false)
+{
+    InternalInit(type, configIni, force);
+}
+
+void GameData::InternalInit(MeType type, ConfigIni *configIni, bool force = false)
 {
     gameType = type;
     _configIni = configIni;
@@ -349,4 +343,23 @@ void GameData::ClosePackagesList()
     gameFiles.clear();
     packageFiles.clear();
     tfcFiles.clear();
+}
+
+GameData *g_GameData;
+
+bool CreateGameData()
+{
+    g_GameData = new GameData();
+    if (g_GameData == nullptr)
+    {
+        std::fputs("CreateLogs: Failed create instance\n", stderr);
+        return false;
+    }
+    return true;
+}
+
+void ReleaseGameData()
+{
+    delete g_GameData;
+    g_GameData = nullptr;
 }

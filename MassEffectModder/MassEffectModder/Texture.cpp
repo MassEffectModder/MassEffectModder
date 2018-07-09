@@ -131,9 +131,9 @@ Texture::Texture(Package &package, int exportId, quint8 *data, int length, bool 
         {
             if (baseName != "" && !properties->exists("NeverStream"))
             {
-                for (int i = 0; i < GameData::packageFiles.count(); i++)
+                for (int i = 0; i < g_GameData->packageFiles.count(); i++)
                 {
-                    if (baseName.compare(BaseNameWithoutExt(GameData::packageFiles[i]), Qt::CaseInsensitive) == 0)
+                    if (baseName.compare(BaseNameWithoutExt(g_GameData->packageFiles[i]), Qt::CaseInsensitive) == 0)
                     {
                         basePackageName = baseName;
                         weakSlave = true;
@@ -420,11 +420,11 @@ quint8 *Texture::getMipMapData(MipMap &mipmap, int &length)
             QString filename;
             if (GameData::gameType == MeType::ME1_TYPE)
             {
-                for (int i = 0; i < GameData::packageFiles.count(); i++)
+                for (int i = 0; i < g_GameData->packageFiles.count(); i++)
                 {
-                    if (basePackageName.compare(BaseNameWithoutExt(GameData::packageFiles[i]), Qt::CaseInsensitive) == 0)
+                    if (basePackageName.compare(BaseNameWithoutExt(g_GameData->packageFiles[i]), Qt::CaseInsensitive) == 0)
                     {
-                        filename = GameData::GamePath() + GameData::packageFiles[i];
+                        filename = g_GameData->GamePath() + g_GameData->packageFiles[i];
                         break;
                     }
                 }
@@ -434,15 +434,15 @@ quint8 *Texture::getMipMapData(MipMap &mipmap, int &length)
             else
             {
                 QString archive = properties->getProperty("TextureFileCacheName").valueName;
-                filename = GameData::MainData() + "/" + archive + ".tfc";
+                filename = g_GameData->MainData() + "/" + archive + ".tfc";
                 if (packagePath.contains("/DLC"), Qt::CaseInsensitive)
                 {
-                    QString DLCArchiveFile = GameData::GamePath() + DirName(packagePath) + archive + ".tfc";
+                    QString DLCArchiveFile = g_GameData->GamePath() + DirName(packagePath) + archive + ".tfc";
                     if (QFile(DLCArchiveFile).exists())
                         filename = DLCArchiveFile;
                     else if (!QFile(filename).exists())
                     {
-                        QStringList files = QDir(GameData::bioGamePath(), archive + ".tfc", QDir::NoSort, QDir::Files | QDir::NoSymLinks).entryList();
+                        QStringList files = QDir(g_GameData->bioGamePath(), archive + ".tfc", QDir::NoSort, QDir::Files | QDir::NoSymLinks).entryList();
                         if (files.count() == 1)
                             filename = files[0];
                         else if (files.count() == 0)
@@ -452,7 +452,7 @@ quint8 *Texture::getMipMapData(MipMap &mipmap, int &length)
                             if (QFile(DLCArchiveFile).exists())
                                 filename = DLCArchiveFile;
                             else
-                                filename = GameData::MainData() + "Textures.tfc";
+                                filename = g_GameData->MainData() + "Textures.tfc";
                         }
                         else
                             CRASH();

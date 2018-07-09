@@ -31,27 +31,27 @@
 class GameData
 {
 private:
-    static QString _path;
-    static ConfigIni *_configIni;
+    QString _path;
+    ConfigIni *_configIni{};
 
-    void Init(MeType type, ConfigIni *configIni, bool force);
+    void InternalInit(MeType type, ConfigIni *configIni, bool force);
     void ScanGameFiles(bool force);
 
 public:
     static MeType gameType;
-    static QStringList gameFiles;
-    static QStringList packageFiles;
-    static QStringList tfcFiles;
-    static bool FullScanME1Game;
+    QStringList gameFiles;
+    QStringList packageFiles;
+    QStringList tfcFiles;
+    bool FullScanME1Game;
     bool DLCDataCacheDone = false;
 
-    GameData(MeType type, ConfigIni *configIni);
-    GameData(MeType type, ConfigIni *configIni, bool force);
-    static QString GamePath() { return _path; }
-    static const QString MainData();
-    static const QString bioGamePath();
-    static const QString DLCData();
-    static const QString RelativeGameData(QString &path);
+    void Init(MeType type, ConfigIni *configIni);
+    void Init(MeType type, ConfigIni *configIni, bool force);
+    QString GamePath() { return _path; }
+    const QString MainData();
+    const QString bioGamePath();
+    const QString DLCData();
+    const QString RelativeGameData(QString &path);
     const QString GameExePath();
     const QString GameUserPath();
     const QString ConfigIniPath();
@@ -60,5 +60,10 @@ public:
     void getPackages();
     void ClosePackagesList();
 };
+
+extern GameData *g_GameData;
+
+bool CreateGameData();
+void ReleaseGameData();
 
 #endif

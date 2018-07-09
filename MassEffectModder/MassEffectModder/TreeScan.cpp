@@ -50,12 +50,12 @@ int TreeScan::PrepareListOfTextures(MeType gameId, bool ipc)
 
     {
         int lastProgress = -1;
-        for (int i = 0; i < GameData::packageFiles.count(); i++)
+        for (int i = 0; i < g_GameData->packageFiles.count(); i++)
         {
             if (ipc)
             {
-                ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + GameData::packageFiles[i]);
-                int newProgress = i * 100 / GameData::packageFiles.count();
+                ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + g_GameData->packageFiles[i]);
+                int newProgress = i * 100 / g_GameData->packageFiles.count();
                 if (lastProgress != newProgress)
                 {
                     ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + newProgress);
@@ -66,10 +66,10 @@ int TreeScan::PrepareListOfTextures(MeType gameId, bool ipc)
             else
             {
                 ConsoleWrite(QString("Package " + QString::number(i + 1) + "/" +
-                                     QString::number(GameData::packageFiles.count()) + " : " +
-                                     GameData::packageFiles[i]));
+                                     QString::number(g_GameData->packageFiles.count()) + " : " +
+                                     g_GameData->packageFiles[i]));
             }
-            FindTextures(gameId, textures, GameData::packageFiles[i], false, ipc);
+            FindTextures(gameId, textures, g_GameData->packageFiles[i], false, ipc);
         }
     }
 
@@ -209,10 +209,10 @@ int TreeScan::PrepareListOfTextures(MeType gameId, bool ipc)
     }
     if (!generateBuiltinMapFiles)
     {
-        mem.WriteInt32(GameData::packageFiles.count());
-        for (int i = 0; i < GameData::packageFiles.count(); i++)
+        mem.WriteInt32(g_GameData->packageFiles.count());
+        for (int i = 0; i < g_GameData->packageFiles.count(); i++)
         {
-            QString s = GameData::RelativeGameData(GameData::packageFiles[i]);
+            QString s = g_GameData->RelativeGameData(g_GameData->packageFiles[i]);
             s.replace(QChar('\\'), QChar('/'), Qt::CaseSensitive);
             mem.WriteInt32(s.length());
             mem.WriteStringASCII(s);
@@ -246,7 +246,7 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> *textures, const 
                             bool modified, bool ipc)
 {
     Package package;
-    int status = package.Open(GameData::GamePath() + packagePath);
+    int status = package.Open(g_GameData->GamePath() + packagePath);
     if (status != 0)
     {
         if (ipc)

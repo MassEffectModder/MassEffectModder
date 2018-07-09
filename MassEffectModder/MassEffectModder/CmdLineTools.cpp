@@ -33,7 +33,7 @@ static TreeScan *treeScan = nullptr;
 
 static bool CheckGamePath()
 {
-    if (GameData::GamePath() == "" || !QDir(GameData::GamePath()).exists())
+    if (g_GameData->GamePath() == "" || !QDir(g_GameData->GamePath()).exists())
     {
         ConsoleWrite("Error: Could not found the game!");
         return false;
@@ -48,7 +48,8 @@ int ScanTextures(MeType gameId, bool ipc)
 
     treeScan = new TreeScan();
     auto *configIni = new ConfigIni();
-    auto *gameData = new GameData(gameId, configIni);
+    auto *gameData = g_GameData;
+    gameData->Init(gameId, configIni);
 
     if (!CheckGamePath())
         return -1;

@@ -29,6 +29,7 @@
 #include "Exceptions/SignalHandler.h"
 #include "Helpers/Logs.h"
 #include "Helpers/Misc.h"
+#include "GameData.h"
 
 #include "CmdLineParams.h"
 #include "Version.h"
@@ -52,17 +53,19 @@ int runQtApplication(int argc, char *argv[])
 int main(int argc, char *argv[])
 {
     InstallSignalsHandler();
-
+    CreateGameData();
     CreateLogs();
+
     g_logs->printMsg("\n----------------------------------------------------");
-    g_logs->printMsg("Log started at: " + QDateTime::currentDateTime().toString());
+    g_logs->printMsg(QString("Log started at: ") + QDateTime::currentDateTime().toString());
     g_logs->printMsg(QString(APP_NAME) + " v" + QString(MEM_VERSION));
-    g_logs->printMsg("OS: " + QSysInfo::productType() + " " + QSysInfo::productVersion());
-    g_logs->printMsg("RAM: " + QString::number(DetectAmountMemoryGB()) + " GB\n");
+    g_logs->printMsg(QString("OS: ") + QSysInfo::productType() + " " + QSysInfo::productVersion());
+    g_logs->printMsg(QString("RAM: ") + QString::number(DetectAmountMemoryGB()) + " GB\n");
 
     int status = runQtApplication(argc, argv);
 
     ReleaseLogs();
+    ReleaseGameData();
 
     return status;
 }
