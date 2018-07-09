@@ -304,8 +304,8 @@ quint8 *Texture::decompressTexture(MemoryStream &stream, StorageTypes type, int 
     {
         memcpy(data + dstPos, blocks[b].uncompressedBuffer, blocks[b].uncomprSize);
         dstPos += blocks[b].uncomprSize;
-        delete blocks[b].compressedBuffer;
-        delete blocks[b].uncompressedBuffer;
+        delete[] blocks[b].compressedBuffer;
+        delete[] blocks[b].uncompressedBuffer;
     }
 
     return data;
@@ -327,7 +327,7 @@ uint Texture::getCrcMipmap(MipMap &mipmap)
     if (data == nullptr)
         return 0;
     uint crc = getCrcData(data, length);
-    delete data;
+    delete[] data;
     return crc;
 }
 
@@ -338,7 +338,7 @@ uint Texture::getCrcTopMipmap()
     if (data == nullptr)
         return 0;
     uint crc = getCrcData(data, length);
-    delete data;
+    delete[] data;
     return crc;
 }
 
@@ -439,7 +439,7 @@ quint8 *Texture::getMipMapData(MipMap &mipmap, int &length)
             {
                 QString archive = properties->getProperty("TextureFileCacheName").valueName;
                 filename = g_GameData->MainData() + "/" + archive + ".tfc";
-                if (packagePath.contains("/DLC"), Qt::CaseInsensitive)
+                if (packagePath.contains("/DLC", Qt::CaseInsensitive))
                 {
                     QString DLCArchiveFile = g_GameData->GamePath() + DirName(packagePath) + archive + ".tfc";
                     if (QFile(DLCArchiveFile).exists())
@@ -475,12 +475,12 @@ quint8 *Texture::getMipMapData(MipMap &mipmap, int &length)
                 MemoryStream tmpStream;
                 tmpStream.CopyFrom(fs, mipmap.compressedSize);
                 tmpStream.SeekBegin();
-                delete mipMapData;
+                delete[] mipMapData;
                 mipMapData = decompressTexture(tmpStream, mipmap.storageType, mipmap.uncompressedSize, mipmap.compressedSize);
             }
             else
             {
-                delete mipMapData;
+                delete[] mipMapData;
                 mipMapData = new quint8[mipmap.uncompressedSize];
                 fs->ReadToBuffer(mipMapData, mipmap.uncompressedSize);
             }
