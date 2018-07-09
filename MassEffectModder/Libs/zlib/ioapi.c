@@ -64,7 +64,7 @@ ZPOS64_T call_ztell64 (const zlib_filefunc64_32_def* pfilefunc,voidpf filestream
         return (*(pfilefunc->zfile_func64.ztell64_file)) (pfilefunc->zfile_func64.opaque,filestream);
     else
     {
-        uLong tell_uLong = (*(pfilefunc->ztell32_file))(pfilefunc->zfile_func64.opaque,filestream);
+        uLong tell_uLong = (uLong)(*(pfilefunc->ztell32_file))(pfilefunc->zfile_func64.opaque,filestream);
         if ((tell_uLong) == MAXU32)
             return (ZPOS64_T)-1;
         else
@@ -138,7 +138,7 @@ static voidpf ZCALLBACK fopen64_file_func (voidpf opaque __attribute__ ((unused)
 static uLong ZCALLBACK fread_file_func (voidpf opaque, voidpf stream, void* buf, uLong size)
 {
     uLong ret;
-    uLong filePos;
+    uLong filePos = 0;
     if (gXor)
         filePos = (uLong)ftell64_file_func(opaque, stream);
     ret = (uLong)fread(buf, 1, (size_t)size, (FILE *)stream);
@@ -148,8 +148,8 @@ static uLong ZCALLBACK fread_file_func (voidpf opaque, voidpf stream, void* buf,
         uLong pos = 0;
         if (filePos & 1)
             src[pos++] ^= tpfXorKey[1];
-            for (uLong i = pos; i < size; i++)
-                src[i] ^= tpfXorKey[(i - pos) % 2];
+        for (uLong i = pos; i < size; i++)
+            src[i] ^= tpfXorKey[(i - pos) % 2];
     }
     return ret;
 }
@@ -164,8 +164,8 @@ static uLong ZCALLBACK fwrite_file_func (voidpf opaque, voidpf stream, const voi
         uLong pos = 0;
         if (filePos & 1)
             src[pos++] ^= tpfXorKey[1];
-            for (uLong i = pos; i < size; i++)
-                src[i] ^= tpfXorKey[(i - pos) % 2];
+        for (uLong i = pos; i < size; i++)
+            src[i] ^= tpfXorKey[(i - pos) % 2];
     }
     ret = (uLong)fwrite(buf, 1, (size_t)size, (FILE *)stream);
     return ret;
@@ -182,7 +182,7 @@ static long ZCALLBACK ftell_file_func (voidpf opaque __attribute__ ((unused)), v
 static ZPOS64_T ZCALLBACK ftell64_file_func (voidpf opaque __attribute__ ((unused)), voidpf stream)
 {
     ZPOS64_T ret;
-    ret = FTELLO_FUNC((FILE *)stream);
+    ret = (ZPOS64_T)FTELLO_FUNC((FILE *)stream);
     return ret;
 }
 
@@ -204,7 +204,7 @@ static long ZCALLBACK fseek_file_func (voidpf opaque __attribute__ ((unused)), v
     default: return -1;
     }
     ret = 0;
-    if (fseek((FILE *)stream, offset, fseek_origin) != 0)
+    if (fseek((FILE *)stream, (long)offset, fseek_origin) != 0)
         ret = -1;
     return ret;
 }
@@ -228,7 +228,7 @@ static long ZCALLBACK fseek64_file_func (voidpf opaque __attribute__ ((unused)),
     }
     ret = 0;
 
-    if(FSEEKO_FUNC((FILE *)stream, offset, fseek_origin) != 0)
+    if(FSEEKO_FUNC((FILE *)stream, (long)offset, fseek_origin) != 0)
                         ret = -1;
 
     return ret;
