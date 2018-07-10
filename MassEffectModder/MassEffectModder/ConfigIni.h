@@ -29,6 +29,7 @@ class QSettings;
 class ConfigIni
 {
     QSettings *settings;
+    QString _iniPath;
     bool valid = false;
 
 public:

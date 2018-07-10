@@ -25,6 +25,10 @@
 #include <QStandardPaths>
 #include <QDir>
 
+#if defined(_WIN32)
+#include <windows.h>
+#endif
+
 ConfigIni::ConfigIni()
     : ConfigIni("")
 {
@@ -34,7 +38,12 @@ ConfigIni::ConfigIni(const QString &iniPath)
 {
     if (iniPath != "")
     {
+#if defined(_WIN32)
+        settings = nullptr;
+        _iniPath = iniPath;
+#else
         settings = new QSettings(iniPath, QSettings::IniFormat);
+#endif
     }
     else
     {
@@ -42,9 +51,16 @@ ConfigIni::ConfigIni(const QString &iniPath)
                 "/MassEffectModder";
         if (!QDir(path).exists())
             QDir(path).mkpath(path);
+#if defined(_WIN32)
+        settings = nullptr;
+        _iniPath = path + "/MassEffectModder.ini";
+#else
         settings = new QSettings(path + "/MassEffectModder.ini", QSettings::IniFormat);
+#endif
     }
+#if !defined(_WIN32)
     if (settings->status() == QSettings::NoError)
+#endif
         valid = true;
 }
 
@@ -53,27 +69,62 @@ QString ConfigIni::Read(const QString &key, const QString &section)
     if (!valid)
         return "";
 
+#if defined(_WIN32)
+    wchar_t str[256];
+    GetPrivateProfileString(section.toStdWString().c_str(),
+                            key.toStdWString().c_str(), nullptr, str, 256,
+                            _iniPath.toStdWString().c_str());
+    return QString::fromWCharArray(str);
+#else
+    settings->value(section + "/" + key, "");
     return settings->value(section + "/" + key, "").toString();
+#endif
 }
 
 bool ConfigIni::Write(const QString &key, const QString &value, const QString &section)
 {
-    if (!valid || key == "" || section == "" || !settings->isWritable())
+    if (!valid || key == "" || section == ""
+#if !defined(_WIN32)
+            || !settings->isWritable()
+#endif
+       )
+    {
         return false;
+    }
 
+#if defined(_WIN32)
+    return WritePrivateProfileString(section.toStdWString().c_str(),
+                                     key.toStdWString().c_str(),
+                                     value.toStdWString().c_str(),
+                                     _iniPath.toStdWString().c_str());
+#else
     settings->setValue(section + "/" + key, value);
     settings->sync();
+#endif
 
     return true;
 }
 
 bool ConfigIni::DeleteKey(const QString &key, const QString &section)
 {
-    if (!valid || key == "" || section == "" || !settings->isWritable())
+    if (!valid || key == "" || section == ""
+#if !defined(_WIN32)
+            || !settings->isWritable()
+#endif
+       )
+    {
         return false;
+    }
 
+#if defined(_WIN32)
+    return WritePrivateProfileString(section.toStdWString().c_str(),
+                                     key.toStdWString().c_str(),
+                                     nullptr,
+                                     _iniPath.toStdWString().c_str());
+#else
     settings->remove(section + "/" + key);
     settings->sync();
+#endif
 
     return true;
 }

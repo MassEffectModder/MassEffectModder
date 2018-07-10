@@ -119,9 +119,10 @@ void GameData::InternalInit(MeType type, ConfigIni *configIni, bool force = fals
     if (path != "" && !force)
     {
         _path = QDir::cleanPath(path);
-        if (QDir(GameExePath()).exists())
+        if (QFile(GameExePath()).exists())
         {
-            configIni->Write(key, _path, "GameDataPath");
+            configIni->Write(key,
+                       _path.replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameDataPath");
             ScanGameFiles(force);
             return;
         }
@@ -130,7 +131,12 @@ void GameData::InternalInit(MeType type, ConfigIni *configIni, bool force = fals
 #endif
 
     if (_path != "")
+#if defined(_WIN32)
+        configIni->Write(key,
+                   _path.replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameDataPath");
+#else
         _configIni->Write(key, _path, "GameDataPath");
+#endif
 
     ScanGameFiles(force);
 }
