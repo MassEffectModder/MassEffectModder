@@ -188,7 +188,7 @@ int Package::Open(const QString &filename, bool headerOnly)
         if (packageStream->Position() != chunks[0].comprOffset)
             CRASH();
 
-        if (dataOffset != chunks[0].uncomprOffset)
+        if ((ulong)dataOffset != chunks[0].uncomprOffset)
             CRASH();
 
         uint length = getEndOfTablesOffset() - (uint)dataOffset;
@@ -474,7 +474,7 @@ int Package::addName(const QString &name)
     NameEntry entry;
     entry.name = name;
     if (packageFileVersion == packageFileVersionME1)
-        entry.flags = 0x0007001000000000;
+        entry.flags = (ulong)0x0007001000000000;
     if (packageFileVersion == packageFileVersionME2)
         entry.flags = 0xfffffff2;
     namesTable.push_back(entry);
