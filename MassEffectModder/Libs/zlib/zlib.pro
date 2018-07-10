@@ -38,7 +38,7 @@ HEADERS += \
     zlib.h \
     zutil.h
 
-QMAKE_CFLAGS +=
+QMAKE_CFLAGS += -Wno-implicit-fallthrough
 
 DEFINES += Z_HAVE_UNISTD_H Z_HAVE_STDARG_H
 
