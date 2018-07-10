@@ -57,18 +57,33 @@ precompile_header:!isEmpty(PRECOMPILED_HEADER) {
 QMAKE_CXXFLAGS += -fopenmp
 Release:QMAKE_LFLAGS += -static
 
-win32:!win32-g++: {
+win32-g++: {
     Release:PRE_TARGETDEPS += $$OUT_PWD/../Wrappers/release/libWrappers.a
     Debug:PRE_TARGETDEPS += $$OUT_PWD/../Wrappers/debug/libWrappers.a
-} else:unix|win32-g++: {
+} else:unix: {
     PRE_TARGETDEPS += $$OUT_PWD/../Wrappers/libWrappers.a
 }
-
 
 INCLUDEPATH += $$PWD/../Wrappers
 
 DEPENDPATH += $$PWD/../Wrappers
 
+win32-g++: {
+Release:LIBS += \
+    -L$$OUT_PWD/../Wrappers/release -lWrappers \
+    -L$$OUT_PWD/../Libs/dxtc/release -ldxtc \
+    -L$$OUT_PWD/../Libs/lzma/release -llzma \
+    -L$$OUT_PWD/../Libs/lzo2/release -llzo2 \
+    -L$$OUT_PWD/../Libs/xdelta3/release -lxdelta3 \
+    -L$$OUT_PWD/../Libs/zlib/release -lzlib
+Debug:LIBS += \
+    -L$$OUT_PWD/../Wrappers/debug -lWrappers \
+    -L$$OUT_PWD/../Libs/dxtc/debug -ldxtc \
+    -L$$OUT_PWD/../Libs/lzma/debug -llzma \
+    -L$$OUT_PWD/../Libs/lzo2/debug -llzo2 \
+    -L$$OUT_PWD/../Libs/xdelta3/debug -lxdelta3 \
+    -L$$OUT_PWD/../Libs/zlib/debug -lzlib
+} else:unix: {
 LIBS += \
     -L$$OUT_PWD/../Wrappers -lWrappers \
     -L$$OUT_PWD/../Libs/dxtc -ldxtc \
@@ -76,6 +91,7 @@ LIBS += \
     -L$$OUT_PWD/../Libs/lzo2 -llzo2 \
     -L$$OUT_PWD/../Libs/xdelta3 -lxdelta3 \
     -L$$OUT_PWD/../Libs/zlib -lzlib
+}
 
 macx {
     # macOS clang doesn't have OpenMP enabled
