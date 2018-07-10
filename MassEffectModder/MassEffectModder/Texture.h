@@ -44,7 +44,7 @@ private:
     };
 
     MemoryStream *textureData = nullptr;
-    quint8 *mipMapData = nullptr;
+    const quint8 *mipMapData = nullptr;
     quint8 *restOfData = nullptr;
     int restOfDataSize{};
     QString packagePath;
@@ -88,27 +88,27 @@ public:
     TexProperty *properties;
     QString packageName;
     QString basePackageName;
-    bool slave;
-    bool weakSlave;
+    bool slave{};
+    bool weakSlave{};
 
     Texture(Package &package, int exportId, quint8 *data, int length, bool fixDim = true);
     ~Texture();
     void replaceMipMaps(QList<MipMap> &newMipMaps);
-    quint8 *compressTexture(quint8 *inputData, uint length, StorageTypes type, qint64 &compressedSize);
-    quint8 *decompressTexture(MemoryStream &stream, StorageTypes type, int uncompressedSize, int compressedSize);
-    uint getCrcData(quint8 *data, int length);
+    const quint8 *compressTexture(const quint8 *inputData, uint length, StorageTypes type, qint64 &compressedSize);
+    const quint8 *decompressTexture(MemoryStream &stream, StorageTypes type, int uncompressedSize, int compressedSize);
+    uint getCrcData(const quint8 *data, int length);
     uint getCrcMipmap(MipMap &mipmap);
     uint getCrcTopMipmap();
-    const MipMap&getTopMipmap();
+    const MipMap& getTopMipmap();
     bool existMipmap(int width, int height);
     const MipMap& getMipmap(int width, int height);
     bool hasImageData();
-    quint8 *getTopImageData(int &length);
-    quint8 *getMipMapDataByIndex(int index, int &length);
-    quint8 *getMipMapData(MipMap &mipmap, int &length);
+    const quint8 *getTopImageData(int &length);
+    const quint8 *getMipMapDataByIndex(int index, int &length);
+    const quint8 *getMipMapData(MipMap &mipmap, int &length);
     bool hasEmptyMips();
     int numNotEmptyMips();
-    quint8 *toArray(uint pccTextureDataOffset, qint64 &length, bool updateOffset = true);
+    const quint8 *toArray(uint pccTextureDataOffset, qint64 &length, bool updateOffset = true);
     void Dispose();
 };
 

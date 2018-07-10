@@ -46,13 +46,15 @@ int ScanTextures(MeType gameId, bool ipc)
 {
     int errorCode;
 
-    treeScan = new TreeScan();
     auto *configIni = new ConfigIni();
     auto *gameData = g_GameData;
     gameData->Init(gameId, configIni);
 
     if (!CheckGamePath())
+    {
+        delete configIni;
         return -1;
+    }
 
     if (ipc)
     {
@@ -65,12 +67,16 @@ int ScanTextures(MeType gameId, bool ipc)
 
     ConsoleWrite("Scan textures started...");
 
+    treeScan = new TreeScan();
     errorCode = treeScan->PrepareListOfTextures(gameId, ipc);
     textures = treeScan->treeScan;
     treeScan->ReleaseTreeScan(textures);
     delete textures;
+    delete treeScan;
 
     ConsoleWrite("Scan textures finished.\n");
+
+    delete configIni;
 
     return errorCode;
 }

@@ -36,7 +36,7 @@ MemoryStream::MemoryStream()
     position = 0;
 }
 
-MemoryStream::MemoryStream(quint8 *buffer, qint64 count)
+MemoryStream::MemoryStream(const quint8 *buffer, qint64 count)
 {
     internalBuffer = static_cast<quint8 *>(malloc(static_cast<size_t>(count)));
     if (internalBuffer == nullptr)
@@ -48,7 +48,7 @@ MemoryStream::MemoryStream(quint8 *buffer, qint64 count)
     position = 0;
 }
 
-MemoryStream::MemoryStream(quint8 *buffer, qint64 offset, qint64 count)
+MemoryStream::MemoryStream(const quint8 *buffer, qint64 offset, qint64 count)
 {
     internalBuffer = static_cast<quint8 *>(malloc(static_cast<size_t>(count)));
     if (internalBuffer == nullptr)
@@ -169,8 +169,9 @@ void MemoryStream::ReadStringUnicode16Null(QString &str)
 
 void MemoryStream::WriteStringASCII(const QString &str)
 {
-    char *s = const_cast<char *>(str.toStdString().c_str());
-    WriteFromBuffer(reinterpret_cast<quint8 *>(s), str.length());
+    std::string string = str.toStdString();
+    char *s = const_cast<char *>(string.c_str());
+    WriteFromBuffer(reinterpret_cast<quint8 *>(s), string.length());
 }
 
 void MemoryStream::WriteStringASCIINull(const QString &str)

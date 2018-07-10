@@ -87,12 +87,12 @@ public:
         return (int)~value;
     }
 
-    void Update(unsigned char *data, int offset, int count)
+    void Update(const unsigned char *data, int offset, int count)
     {
         value = ProcessBlock(value, data, offset, count);
     }
 
-    static int Compute(unsigned char *data, int offset, int count)
+    static int Compute(const unsigned char *data, int offset, int count)
     {
         auto crc = new ParallelCRC();
         crc->Update(data, offset, count);
@@ -101,7 +101,7 @@ public:
         return crcValue;
     }
 
-    static int Compute(unsigned char *data, uint length)
+    static int Compute(const unsigned char *data, uint length)
     {
         return Compute(data, 0, length);
     }

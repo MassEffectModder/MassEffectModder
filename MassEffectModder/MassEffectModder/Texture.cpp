@@ -192,7 +192,7 @@ void Texture::replaceMipMaps(QList<MipMap> &newMipMaps)
     }
 }
 
-quint8 *Texture::compressTexture(quint8 *inputData, uint length, StorageTypes type, qint64 &compressedSize)
+const quint8 *Texture::compressTexture(const quint8 *inputData, uint length, StorageTypes type, qint64 &compressedSize)
 {
     MemoryStream ouputStream;
     compressedSize = 0;
@@ -249,7 +249,7 @@ quint8 *Texture::compressTexture(quint8 *inputData, uint length, StorageTypes ty
     return ouputStream.ToArray(compressedSize);
 }
 
-quint8 *Texture::decompressTexture(MemoryStream &stream, StorageTypes type, int uncompressedSize, int compressedSize)
+const quint8 *Texture::decompressTexture(MemoryStream &stream, StorageTypes type, int uncompressedSize, int compressedSize)
 {
     auto data = new quint8[uncompressedSize];
     uint blockTag = stream.ReadUInt32();
@@ -311,7 +311,7 @@ quint8 *Texture::decompressTexture(MemoryStream &stream, StorageTypes type, int 
     return data;
 }
 
-uint Texture::getCrcData(quint8 *data, int length)
+uint Texture::getCrcData(const quint8 *data, int length)
 {
     if (data == nullptr)
         return 0;
@@ -323,23 +323,19 @@ uint Texture::getCrcData(quint8 *data, int length)
 uint Texture::getCrcMipmap(MipMap &mipmap)
 {
     int length = 0;
-    quint8 *data = getMipMapData(mipmap, length);
+    const quint8 *data = getMipMapData(mipmap, length);
     if (data == nullptr)
         return 0;
-    uint crc = getCrcData(data, length);
-    delete[] data;
-    return crc;
+    return getCrcData(data, length);
 }
 
 uint Texture::getCrcTopMipmap()
 {
     int length = 0;
-    quint8 *data = getTopImageData(length);
+    const quint8 *data = getTopImageData(length);
     if (data == nullptr)
         return 0;
-    uint crc = getCrcData(data, length);
-    delete[] data;
-    return crc;
+    return getCrcData(data, length);
 }
 
 const Texture::MipMap& Texture::getTopMipmap()
@@ -377,7 +373,7 @@ bool Texture::hasImageData()
     return mipMapsList.count() != 0;
 }
 
-quint8 *Texture::getTopImageData(int &length)
+const quint8 *Texture::getTopImageData(int &length)
 {
     if (mipMapsList.count() == 0)
         return nullptr;
@@ -389,7 +385,7 @@ quint8 *Texture::getTopImageData(int &length)
     return getMipMapData(m, length);
 }
 
-quint8 *Texture::getMipMapDataByIndex(int index, int &length)
+const quint8 *Texture::getMipMapDataByIndex(int index, int &length)
 {
     if (mipMapsList.count() == 0 || index < 0 || index > mipMapsList.count())
         return nullptr;
@@ -397,7 +393,7 @@ quint8 *Texture::getMipMapDataByIndex(int index, int &length)
     return getMipMapData(mipMapsList[index], length);
 }
 
-quint8 *Texture::getMipMapData(MipMap &mipmap, int &length)
+const quint8 *Texture::getMipMapData(MipMap &mipmap, int &length)
 {
     switch (mipmap.storageType)
     {
@@ -406,7 +402,7 @@ quint8 *Texture::getMipMapData(MipMap &mipmap, int &length)
             textureData->JumpTo(mipmap.internalOffset);
             delete[] mipMapData;
             mipMapData = new quint8[mipmap.uncompressedSize];
-            textureData->ReadToBuffer(mipMapData, mipmap.uncompressedSize);
+            textureData->ReadToBuffer(const_cast<quint8 *>(mipMapData), mipmap.uncompressedSize);
             break;
         }
     case StorageTypes::pccLZO:
@@ -482,7 +478,7 @@ quint8 *Texture::getMipMapData(MipMap &mipmap, int &length)
             {
                 delete[] mipMapData;
                 mipMapData = new quint8[mipmap.uncompressedSize];
-                fs->ReadToBuffer(mipMapData, mipmap.uncompressedSize);
+                fs->ReadToBuffer(const_cast<quint8 *>(mipMapData), mipmap.uncompressedSize);
             }
             delete fs;
             break;
@@ -495,7 +491,7 @@ quint8 *Texture::getMipMapData(MipMap &mipmap, int &length)
     return mipMapData;
 }
 
-quint8 *Texture::toArray(uint pccTextureDataOffset, qint64 &length, bool updateOffset)
+const quint8 *Texture::toArray(uint pccTextureDataOffset, qint64 &length, bool updateOffset)
 {
     MemoryStream newData;
     if (GameData::gameType != MeType::ME3_TYPE)

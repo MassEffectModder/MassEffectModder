@@ -49,7 +49,7 @@ Package::~Package()
 
     DisposeCache();
     ReleaseChunks();
-    delete packageHeader;
+    delete[] packageHeader;
     delete packageData;
     delete packageStream;
 }
@@ -317,8 +317,11 @@ void Package::getData(uint offset, uint length, Stream *outputStream, quint8 *ou
 
                 for (int b = 0; b < blocks.count(); b++)
                 {
-                    const ChunkBlock& block = blocks[b];
+                    ChunkBlock block = blocks[b];
                     chunkCache->WriteFromBuffer(block.uncompressedBuffer, block.uncomprSize);
+                    delete[] block.compressedBuffer;
+                    delete[] block.uncompressedBuffer;
+                    blocks[b] = block;
                 }
             }
             chunkCache->JumpTo(startInChunk);

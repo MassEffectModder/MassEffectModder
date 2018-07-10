@@ -43,8 +43,8 @@ private:
 public:
 
     MemoryStream();
-    MemoryStream(quint8 *buffer, qint64 count);
-    MemoryStream(quint8 *buffer, qint64 offset, qint64 count);
+    MemoryStream(const quint8 *buffer, qint64 count);
+    MemoryStream(const quint8 *buffer, qint64 offset, qint64 count);
     ~MemoryStream() override;
 
     qint64 Length() override { return length; }

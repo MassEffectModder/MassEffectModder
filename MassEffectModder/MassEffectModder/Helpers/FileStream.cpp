@@ -171,8 +171,9 @@ void FileStream::ReadStringUnicode16Null(QString &str)
 
 void FileStream::WriteStringASCII(const QString &str)
 {
-    const char *s = str.toStdString().c_str();
-    file->write(s, str.length());
+    std::string string = str.toStdString();
+    const char *s = string.c_str();
+    file->write(s, string.length());
     CheckFileIOErrorStatus();
 }
 

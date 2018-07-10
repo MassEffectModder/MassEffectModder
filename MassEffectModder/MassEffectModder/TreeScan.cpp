@@ -122,6 +122,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, bool ipc)
                         texList->push_front(tex);
                 }
                 FoundTexture f = textures->at(k);
+                delete f.list;
                 f.list = texList;
                 textures->replace(k, f);
                 if (textures->at(k).list->first().weakSlave)

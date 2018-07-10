@@ -97,6 +97,7 @@ void TexProperty::getProperty(quint8 *data, int offset)
     texProperty.valueRaw = new quint8[size];
     texProperty.valueRawLength = size;
     texProperty.valueStruct = nullptr;
+    texProperty.fetched = false;
     memcpy(texProperty.valueRaw, data + valueRawPos, size);
     texPropertyList.push_back(texProperty);
 

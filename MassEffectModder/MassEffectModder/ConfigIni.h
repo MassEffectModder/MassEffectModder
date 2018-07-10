@@ -33,6 +33,7 @@ class ConfigIni
 
 public:
     ConfigIni();
+    ~ConfigIni() { delete settings; }
     ConfigIni(const QString &iniPath);
 
     bool IsConfigFileValid() { return valid; }
