@@ -57,7 +57,13 @@ precompile_header:!isEmpty(PRECOMPILED_HEADER) {
 QMAKE_CXXFLAGS += -fopenmp
 Release:QMAKE_LFLAGS += -static
 
-PRE_TARGETDEPS += $$OUT_PWD/../Wrappers/libWrappers.a
+win32:!win32-g++: {
+    Release:PRE_TARGETDEPS += $$OUT_PWD/../Wrappers/release/libWrappers.a
+    Debug:PRE_TARGETDEPS += $$OUT_PWD/../Wrappers/debug/libWrappers.a
+} else:unix|win32-g++: {
+    PRE_TARGETDEPS += $$OUT_PWD/../Wrappers/libWrappers.a
+}
+
 
 INCLUDEPATH += $$PWD/../Wrappers
 
