@@ -25,21 +25,12 @@ macx {
     QMAKE_LIBDIR += /usr/local/opt/llvm/lib
 }
 
-win32:!win32-g++: {
-    PRE_TARGETDEPS += \
-    $$OUT_PWD/../Libs/dxtc/dxtc.lib \
-    $$OUT_PWD/../Libs/lzma/lzma.lib \
-    $$OUT_PWD/../Libs/lzo2/lzo2.lib \
-    $$OUT_PWD/../Libs/xdelta3/xdelta3.lib \
-    $$OUT_PWD/../Libs/zlib/zlib.lib
-} else:unix|win32-g++: {
-    PRE_TARGETDEPS += \
-    $$OUT_PWD/../Libs/dxtc/libdxtc.a \
-    $$OUT_PWD/../Libs/lzma/liblzma.a \
-    $$OUT_PWD/../Libs/lzo2/liblzo2.a \
-    $$OUT_PWD/../Libs/xdelta3/libxdelta3.a \
-    $$OUT_PWD/../Libs/zlib/libzlib.a
-}
+PRE_TARGETDEPS += \
+$$OUT_PWD/../Libs/dxtc/libdxtc.a \
+$$OUT_PWD/../Libs/lzma/liblzma.a \
+$$OUT_PWD/../Libs/lzo2/liblzo2.a \
+$$OUT_PWD/../Libs/xdelta3/libxdelta3.a \
+$$OUT_PWD/../Libs/zlib/libzlib.a
 
 INCLUDEPATH += $$PWD/../Libs/dxtc $$PWD/../Libs/lzma $$PWD/../Libs/lzo2 $$PWD/../Libs/xdelta3 $$PWD/../Libs/zlib
 
