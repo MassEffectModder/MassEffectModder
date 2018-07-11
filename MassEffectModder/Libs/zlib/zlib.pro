@@ -41,12 +41,3 @@ HEADERS += \
 QMAKE_CFLAGS += -Wno-implicit-fallthrough
 
 DEFINES += Z_HAVE_UNISTD_H Z_HAVE_STDARG_H
-
-macx {
-    # macOS clang doesn't have OpenMP enabled
-    # we need provide version with enabled
-    # brew version setup:
-    QMAKE_CC  = /usr/local/opt/llvm/bin/clang
-    QMAKE_CXX = /usr/local/opt/llvm/bin/clang++
-    QMAKE_LIBDIR += /usr/local/opt/llvm/lib
-}

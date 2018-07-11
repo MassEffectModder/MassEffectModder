@@ -54,7 +54,7 @@ precompile_header:!isEmpty(PRECOMPILED_HEADER) {
     DEFINES += USING_PCH
 }
 
-QMAKE_CXXFLAGS += -fopenmp
+QMAKE_CXXFLAGS += -g
 
 win32-g++: {
     Release:PRE_TARGETDEPS += $$OUT_PWD/../Wrappers/release/libWrappers.a
@@ -93,32 +93,28 @@ LIBS += \
 }
 
 macx {
-    # macOS clang doesn't have OpenMP enabled
-    # we need provide version with enabled
-    # brew version setup:
-    QMAKE_CC  = /usr/local/opt/llvm/bin/clang
-    QMAKE_CXX = /usr/local/opt/llvm/bin/clang++
-    QMAKE_LIBDIR += /usr/local/opt/llvm/lib
+    # macOS doesn't have OpenMP installed
+    # build from sources and install:
+    OMP_PATH=/usr/local/libomp
+    QMAKE_CXXFLAGS += -Xpreprocessor -fopenmp -I$$OMP_PATH/include
+    LIBS += -L$$OMP_PATH/lib -lomp
 
     # WA: PCH file clash with targer file name
     PRECOMPILED_DIR = ".pch"
 
     SOURCES += Exceptions/BacktraceMac.cpp
-    LIBS += -lomp
 }
 
 win32 {
     SOURCES += Exceptions/BacktraceWin.cpp
     LIBS += -lbfd -liberty -limagehlp -lintl -liconv -lz -lgomp
 
+    QMAKE_CXXFLAGS += -fopenmp
+
     # WA: this bad. Assuming Qtcreator/project is on the same disk as msys2.
     # And assuming msys64 is main directory of msys2 64bit installation.
     # It should be /mingw64/lib/binutils but doesn't work in Qt env.
     QMAKE_LIBDIR += c:/msys64/mingw64/lib/binutils
-
-    QMAKE_CXXFLAGS_RELEASE += -g
-    QMAKE_CFLAGS_RELEASE += -g
-    QMAKE_LFLAGS_RELEASE =
 }
 
 linux {
@@ -128,6 +124,8 @@ linux {
     # backtrace require compile with 'dynamic' flag
     QMAKE_LFLAGS += -rdynamic
 
+    QMAKE_CXXFLAGS += -fopenmp
+    LIBS += -lgomp
+
     SOURCES += Exceptions/BacktraceLin.cpp
-    LIBS += -lomp
 }

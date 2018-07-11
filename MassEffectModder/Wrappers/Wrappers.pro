@@ -16,15 +16,6 @@ QMAKE_CFLAGS +=
 
 DEFINES +=
 
-macx {
-    # macOS clang doesn't have OpenMP enabled
-    # we need provide version with enabled
-    # brew version setup:
-    QMAKE_CC  = /usr/local/opt/llvm/bin/clang
-    QMAKE_CXX = /usr/local/opt/llvm/bin/clang++
-    QMAKE_LIBDIR += /usr/local/opt/llvm/lib
-}
-
 win32-g++: {
     Release:PRE_TARGETDEPS += \
     $$OUT_PWD/../Libs/dxtc/release/libdxtc.a \
