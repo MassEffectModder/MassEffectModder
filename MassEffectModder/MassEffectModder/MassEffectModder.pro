@@ -55,7 +55,6 @@ precompile_header:!isEmpty(PRECOMPILED_HEADER) {
 }
 
 QMAKE_CXXFLAGS += -fopenmp
-Release:QMAKE_LFLAGS += -static
 
 win32-g++: {
     Release:PRE_TARGETDEPS += $$OUT_PWD/../Wrappers/release/libWrappers.a
