@@ -44,11 +44,13 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
             continue;
         std::sscanf(strings[i], "%*s %s %s %s %*s %d",
                static_cast<char *>(moduleName), static_cast<char *>(address), static_cast<char *>(sourceFunc), &offset);
-        if (crashMode && i <= 2)
+        if (crashMode && i <= 1)
             continue;
         if (!crashMode && i <= 0)
             continue;
         if (strcmp(static_cast<char *>(sourceFunc), "start") == 0)
+            continue;
+        if (strcmp(static_cast<char *>(moduleName), "") == 0)
             continue;
 
         output += "#" + std::to_string(count) + "  " + static_cast<char *>(address) + " " + static_cast<char *>(moduleName) + " in ";
