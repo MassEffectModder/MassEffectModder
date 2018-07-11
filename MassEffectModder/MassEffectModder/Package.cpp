@@ -301,6 +301,7 @@ void Package::getData(uint offset, uint length, Stream *outputStream, quint8 *ou
                     blocks.replace(b, block);
                 }
 
+                #pragma omp parallel for
                 for (int b = 0; b < blocks.count(); b++)
                 {
                     const ChunkBlock& block = blocks[b];
@@ -1057,6 +1058,7 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
                 chunk.blocks.push_back(block);
             }
 
+            #pragma omp parallel for
             for (int b = 0; b < chunk.blocks.count(); b++)
             {
                 ChunkBlock block = chunk.blocks.at(b);

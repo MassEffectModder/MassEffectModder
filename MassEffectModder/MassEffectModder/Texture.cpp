@@ -213,6 +213,7 @@ const quint8 *Texture::compressTexture(const quint8 *inputData, uint length, Sto
     }
     delete inputStream;
 
+    #pragma omp parallel for
     for (int b = 0; b < blocks.count(); b++)
     {
         Package::ChunkBlock block = blocks[b];
@@ -285,6 +286,7 @@ const quint8 *Texture::decompressTexture(MemoryStream &stream, StorageTypes type
         blocks[b] = block;
     }
 
+    #pragma omp parallel for
     for (int b = 0; b < blocks.count(); b++)
     {
         uint dstLen = maxBlockSize * 2;
