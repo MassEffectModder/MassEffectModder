@@ -161,7 +161,7 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
         else
             strcpy(moduleFilePath, "???");
 
-        if (crashMode && current <= 6)
+        if (crashMode && current <= 1)
             continue;
         if (!crashMode && current <= 0)
             continue;
@@ -174,6 +174,7 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
                 strcpy(sourceFile, "???");
             if (strcmp(sourceFunc, "WinMain") == 0 ||
                   strcmp(sourceFunc, "__tmainCRTStartup") == 0 ||
+                  strcmp(sourceFunc, "mainCRTStartup") == 0 ||
                   strcmp(sourceFunc, "WinMainCRTStartup") == 0)
                 continue;
             sprintf(tmpBuffer, "#%02d  0x%016llx %s in ", count, stackFrame.AddrPC.Offset, moduleName);
