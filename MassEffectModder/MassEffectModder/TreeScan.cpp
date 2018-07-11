@@ -213,10 +213,8 @@ int TreeScan::PrepareListOfTextures(MeType gameId, bool ipc)
         mem.WriteInt32(g_GameData->packageFiles.count());
         for (int i = 0; i < g_GameData->packageFiles.count(); i++)
         {
-            QString s = g_GameData->packageFiles[i];
-            s.replace(QChar('\\'), QChar('/'), Qt::CaseSensitive);
-            mem.WriteInt32(s.length());
-            mem.WriteStringASCII(s);
+            mem.WriteInt32(g_GameData->packageFiles[i].length());
+            mem.WriteStringASCII(g_GameData->packageFiles[i]);
         }
     }
     mem.SeekBegin();
