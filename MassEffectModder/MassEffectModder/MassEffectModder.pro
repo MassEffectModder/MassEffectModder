@@ -55,6 +55,7 @@ precompile_header:!isEmpty(PRECOMPILED_HEADER) {
 }
 
 QMAKE_CXXFLAGS += -fopenmp
+QMAKE_LFLAGS += -lomp
 Release:QMAKE_LFLAGS += -static
 
 win32-g++: {
