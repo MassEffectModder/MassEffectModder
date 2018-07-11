@@ -55,7 +55,6 @@ precompile_header:!isEmpty(PRECOMPILED_HEADER) {
 }
 
 QMAKE_CXXFLAGS += -fopenmp
-QMAKE_LFLAGS += -lomp
 Release:QMAKE_LFLAGS += -static
 
 win32-g++: {
@@ -106,11 +105,12 @@ macx {
     PRECOMPILED_DIR = ".pch"
 
     SOURCES += Exceptions/BacktraceMac.cpp
+    LIBS += -lomp
 }
 
 win32 {
     SOURCES += Exceptions/BacktraceWin.cpp
-    LIBS += -lbfd -liberty -limagehlp -lintl -liconv -lz
+    LIBS += -lbfd -liberty -limagehlp -lintl -liconv -lz -lgomp
 
     # WA: this bad. Assuming Qtcreator/project is on the same disk as msys2.
     # And assuming msys64 is main directory of msys2 64bit installation.
@@ -126,4 +126,5 @@ linux {
     QMAKE_LFLAGS += -rdynamic
 
     SOURCES += Exceptions/BacktraceLin.cpp
+    LIBS += -lomp
 }
