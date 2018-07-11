@@ -66,7 +66,7 @@ void Exception(const char *file, const char *func, int line, const char *msg)
     {
         message += "\"" + std::string(msg) + "\"";
     }
-    message += "\nin " + std::string(func) + " at " + std::string(static_cast<char *>(str)) + ": line " + std::to_string(line) + "\n";
+    message += "\n" + std::string(func) + " at " + std::string(static_cast<char *>(str)) + ": line " + std::to_string(line) + "\n";
 
     string output = "Backtrace:\n";
     GetBackTrace(output);

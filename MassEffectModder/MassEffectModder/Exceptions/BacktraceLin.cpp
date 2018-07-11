@@ -90,7 +90,7 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
                 }
             }
         }
-        if (crashMode && i <= 2)
+        if (crashMode && i <= 1)
             continue;
         if (!crashMode && i <= 0)
             continue;
