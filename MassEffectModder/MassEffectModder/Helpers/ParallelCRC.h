@@ -129,6 +129,7 @@ public:
                 len = lastBlockSize;
             value = Combine(value, crc[i], len);
         }
+        delete[] crc;
     }
 
     static int Compute(const unsigned char *data, int offset, int count)
