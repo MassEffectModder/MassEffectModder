@@ -32,6 +32,9 @@
 #ifndef PARALLEL_CRC_H
 #define PARALLEL_CRC_H
 
+#include <omp.h>
+#include <cstring>
+
 static const uint kCrcPoly = 0xEDB88320;
 static const uint kInitial = 0xFFFFFFFF;
 static const int CRC_NUM_TABLES = 8;
@@ -89,7 +92,42 @@ public:
 
     void Update(const unsigned char *data, int offset, int count)
     {
-        value = ProcessBlock(value, data, offset, count);
+        const int ThreadCost = 256 << 10;
+        int threadCount = omp_get_max_threads();
+        if (count <= ThreadCost || threadCount <= 1)
+        {
+            value = ProcessBlock(value, data, offset, count);
+            return;
+        }
+
+        int bytesPerThread = (count + threadCount - 1) / threadCount;
+        while (bytesPerThread < (ThreadCost >> 1))
+        {
+            bytesPerThread = (count + threadCount - 1) / threadCount;
+            threadCount--;
+        };
+
+        int numTasks = threadCount;
+        int lastBlockSize = count - (bytesPerThread * numTasks);
+        auto crc = new uint[numTasks];
+
+        omp_set_num_threads(numTasks);
+        #pragma omp parallel for
+        for (int i = 0; i < numTasks; i++)
+        {
+            uint len = bytesPerThread;
+            if (lastBlockSize != 0 && (i + 1) == numTasks)
+                len = lastBlockSize;
+            crc[i] = ProcessBlock(kInitial, data, offset + (bytesPerThread * i), len);
+        }
+
+        for (int i = 0; i < numTasks; i++)
+        {
+            uint len = bytesPerThread;
+            if (lastBlockSize != 0 && (i + 1) == numTasks)
+                len = lastBlockSize;
+            value = Combine(value, crc[i], len);
+        }
     }
 
     static int Compute(const unsigned char *data, int offset, int count)
@@ -120,8 +158,8 @@ private:
 
         uint even[32];
         uint odd[32];
-        memcpy(even, even_cache, 32);
-        memcpy(odd, odd_cache, 32);
+        memcpy(even, even_cache, sizeof(even));
+        memcpy(odd, odd_cache, sizeof(odd));
 
         crc1 = ~crc1;
         crc2 = ~crc2;

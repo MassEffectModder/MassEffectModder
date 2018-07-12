@@ -15,7 +15,6 @@ SOURCES += \
     Helpers/FileStream.cpp \
     Helpers/MemoryStream.cpp \
     Helpers/Stream.cpp \
-    Helpers/ParallelCRC.cpp \
     Main.cpp \
     CmdLineParams.cpp \
     CmdLineTools.cpp \
