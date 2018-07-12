@@ -118,14 +118,16 @@ win32 {
 }
 
 linux {
+    # libomp need to be compiled from sources
+    OMP_PATH=/usr/local/libomp
+    QMAKE_CXXFLAGS += -fopenmp -I$$OMP_PATH/include
+    LIBS += -L$$OMP_PATH/lib -lomp
+
     # WA: PCH file clash with targer file name
     PRECOMPILED_DIR = ".pch"
 
     # backtrace require compile with 'dynamic' flag
     QMAKE_LFLAGS += -rdynamic
-
-    QMAKE_CXXFLAGS += -fopenmp
-    LIBS += -lgomp
 
     SOURCES += Exceptions/BacktraceLin.cpp
 }
