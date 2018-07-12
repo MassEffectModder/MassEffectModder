@@ -269,7 +269,7 @@ const QString GameData::RelativeGameData(QString &path)
     if (!path.contains(_path.toLower(), Qt::CaseInsensitive))
         CRASH_MSG("The path not found in game path!");
 
-    return path.left(_path.length());
+    return path.mid(_path.length());
 }
 
 void GameData::getTfcTextures()
