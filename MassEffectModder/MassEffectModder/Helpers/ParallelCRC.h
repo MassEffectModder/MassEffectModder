@@ -94,7 +94,8 @@ public:
     {
         const int ThreadCost = 256 << 10;
         int threadCount = omp_get_max_threads();
-        if (count <= ThreadCost || threadCount <= 1)
+        // Disable multithreaded CRC for now. it seems slower
+        //if (count <= ThreadCost || threadCount <= 1)
         {
             value = ProcessBlock(value, data, offset, count);
             return;
