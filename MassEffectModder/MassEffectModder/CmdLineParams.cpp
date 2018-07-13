@@ -22,7 +22,7 @@
 #include <QCoreApplication>
 
 #include "Exceptions/SignalHandler.h"
-#include "Helpers/Misc.h"
+#include "Helpers/MiscHelpers.h"
 
 #include "CmdLineParams.h"
 #include "CmdLineTools.h"

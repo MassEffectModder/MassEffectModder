@@ -20,7 +20,7 @@
  */
 
 #include "Exceptions/SignalHandler.h"
-#include "Helpers/Misc.h"
+#include "Helpers/MiscHelpers.h"
 
 #include "CmdLineTools.h"
 #include "ConfigIni.h"

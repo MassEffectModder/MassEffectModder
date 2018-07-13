@@ -28,7 +28,7 @@
 
 #include "Exceptions/SignalHandler.h"
 #include "Helpers/Logs.h"
-#include "Helpers/Misc.h"
+#include "Helpers/MiscHelpers.h"
 #include "GameData.h"
 
 #include "CmdLineParams.h"

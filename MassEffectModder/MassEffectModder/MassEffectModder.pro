@@ -10,20 +10,28 @@ TEMPLATE = app
 
 SOURCES += \
     Exceptions/SignalHandler.cpp \
-    Helpers/Logs.cpp \
-    Helpers/Misc.cpp \
     Helpers/FileStream.cpp \
+    Helpers/Logs.cpp \
     Helpers/MemoryStream.cpp \
+    Helpers/MiscHelpers.cpp \
     Helpers/Stream.cpp \
-    Main.cpp \
     CmdLineParams.cpp \
     CmdLineTools.cpp \
+    ConfigIni.cpp \
+    DLC.cpp \
+    Image.cpp \
+    ImageDDS.cpp \
     GameData.cpp \
+    Main.cpp \
+    Misc.cpp \
     Package.cpp \
     Texture.cpp \
+    TextureEmptyMips.cpp \
+    TextureProcess.cpp \
     TextureProps.cpp \
-    TreeScan.cpp \
-    ConfigIni.cpp
+    TextureReplace.cpp \
+    TOCFile.cpp \
+    TreeScan.cpp
 
 PRECOMPILED_HEADER = Precompiled.h
 
@@ -31,20 +39,30 @@ HEADERS += \
     Exceptions/Backtrace.h \
     Exceptions/Exception.h \
     Exceptions/SignalHandler.h \
-    Helpers/Logs.h \
-    Helpers/Misc.h \
     Helpers/FileStream.h \
+    Helpers/Logs.h \
     Helpers/MemoryStream.h \
+    Helpers/MiscHelpers.h \
     Helpers/Stream.h \
     Helpers/ParallelCRC.h \
     CmdLineParams.h \
     CmdLineTools.h \
-    GameData.h \
-    Package.h \
     ConfigIni.h \
+    DLC.h \
+    Image.h \
+    ImageDDS.h \
+    GameData.h \
+    MD5BadEntries.h \
+    MD5ModEntries.h \
+    Misc.h \
     MemTypes.h \
+    Package.h \
     Texture.h \
+    TextureEmptyMips.h \
+    TextureProcess.h \
     TextureProps.h \
+    TextureReplace.h \
+    TOCFile.h \
     TreeScan.h \
     Version.h
 
@@ -115,6 +133,8 @@ win32 {
     # And assuming msys64 is main directory of msys2 64bit installation.
     # It should be /mingw64/lib/binutils but doesn't work in Qt env.
     QMAKE_LIBDIR += c:/msys64/mingw64/lib/binutils
+
+    RC_FILE = Resources/appicon.rc
 }
 
 linux {

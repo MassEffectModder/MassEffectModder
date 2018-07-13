@@ -22,7 +22,7 @@
 #include <QFileInfo>
 
 #include "Exceptions/SignalHandler.h"
-#include "Helpers/Misc.h"
+#include "Helpers/MiscHelpers.h"
 #include "Helpers/Logs.h"
 #include "Helpers/ParallelCRC.h"
 #include "Wrappers.h"
