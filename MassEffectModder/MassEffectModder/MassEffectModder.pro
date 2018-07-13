@@ -29,6 +29,7 @@ PRECOMPILED_HEADER = Precompiled.h
 
 HEADERS += \
     Exceptions/Backtrace.h \
+    Exceptions/Exception.h \
     Exceptions/SignalHandler.h \
     Helpers/Logs.h \
     Helpers/Misc.h \

@@ -19,31 +19,21 @@
  *
  */
 
-// C includes
+#ifndef EXCEPTION_H
+#define EXCEPTION_H
 
-#if defined __cplusplus
-
-// C++ includes
-
-#include <cstdlib>
-#include <cstring>
-
-#include <QtGlobal>
-#include <QCoreApplication>
-#include <QCommandLineParser>
-#include <QDir>
-#include <QFile>
-#include <QFileInfo>
-#include <QDirIterator>
-#include <QSettings>
-#include <QStandardPaths>
-#include <QDateTime>
-#include <QSysInfo>
-#include <QString>
-#include <QList>
-#include <QStringList>
-
-#include "Exceptions/Exception.h"
-
+#ifndef NDEBUG
+#define TRAP __asm__ volatile("int $3"); exit(1);
+#else
+#define TRAP
 #endif
 
+#ifdef NDEBUG
+[[ noreturn ]]
+#endif
+void Exception(const char *file, const char *func, int line, const char *msg = nullptr);
+
+#define CRASH_MSG(msg) { Exception(__FILE__, __PRETTY_FUNCTION__, __LINE__, msg); TRAP }
+#define CRASH(msg) { Exception(__FILE__, __PRETTY_FUNCTION__, __LINE__); TRAP }
+
+#endif
