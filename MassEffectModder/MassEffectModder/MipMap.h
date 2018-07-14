@@ -19,34 +19,34 @@
  *
  */
 
-#ifndef MEM_TYPES_H
-#define MEM_TYPES_H
+#ifndef MIPMAP_H
+#define MIPMAP_H
 
-typedef enum
+#include "MemTypes.h"
+#include "Helpers/ByteBuffer.h"
+
+class MipMap
 {
-    UNKNOWN_TYPE = 0,
-    ME1_TYPE,
-    ME2_TYPE,
-    ME3_TYPE
-} MeType;
+private:
 
-typedef enum
-{
-    UnknownPixelFormat, DXT1, DXT3, DXT5, ATI2, V8U8, ARGB, RGB, G8
-} PixelFormat;
+    ByteBuffer buffer;
+    int width;
+    int height;
+    int origWidth;
+    int origHeight;
 
-typedef enum
-{
-    UnknownImageFormat, DDS, PNG, BMP, TGA, JPEG
-} ImageFormat;
+public:
 
-#define textureMapBinTag      0x5054454D
-#define textureMapBinVersion  2
-#define TextureModTag         0x444F4D54
-#define TextureModVersion     2
-#define FileTextureTag        0x53444446
-#define FileBinTag            0x4E494246
-#define MEMI_TAG              0x494D454D
-#define MEMendFileMarker      "ThisIsMEMEndOfFileMarker"
+    MipMap(ByteBuffer data, int w, int h, PixelFormat format);
+    ~MipMap() { buffer.Free(); }
+    static int getBufferSize(int w, int h, PixelFormat format);
+    ByteBuffer getData() { return buffer; }
+    int getWidth() { return width; }
+    int getHeight() { return height; }
+    int getOrigWidth() { return origWidth; }
+    int getOrigHeight() { return origHeight; }
+
+
+};
 
 #endif

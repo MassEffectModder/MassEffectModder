@@ -36,27 +36,43 @@ MemoryStream::MemoryStream()
     position = 0;
 }
 
-MemoryStream::MemoryStream(const quint8 *buffer, qint64 count)
+MemoryStream::MemoryStream(ByteBuffer buffer)
 {
-    internalBuffer = static_cast<quint8 *>(malloc(static_cast<size_t>(count)));
+    internalBuffer = static_cast<quint8 *>(malloc(static_cast<size_t>(buffer.size())));
     if (internalBuffer == nullptr)
     {
         CRASH_MSG("MemoryStream: out of memory");
     }
-    memcpy(internalBuffer, buffer, count);
-    internalBufferSize = length = count;
+    internalBufferSize = length = buffer.size();
+    memcpy(internalBuffer, buffer.ptr(), length);
     position = 0;
 }
 
-MemoryStream::MemoryStream(const quint8 *buffer, qint64 offset, qint64 count)
+MemoryStream::MemoryStream(ByteBuffer buffer, qint64 offset)
 {
-    internalBuffer = static_cast<quint8 *>(malloc(static_cast<size_t>(count)));
+    internalBuffer = static_cast<quint8 *>(malloc(static_cast<size_t>(buffer.size())));
     if (internalBuffer == nullptr)
     {
         CRASH_MSG("MemoryStream: out of memory");
     }
-    memcpy(internalBuffer, buffer + offset, count);
+    internalBufferSize = length = buffer.size();
+    memcpy(internalBuffer, buffer.ptr() + offset, length);
+    position = 0;
+}
+
+MemoryStream::MemoryStream(ByteBuffer buffer, qint64 offset, qint64 count)
+{
+    internalBuffer = static_cast<quint8 *>(malloc(static_cast<size_t>(count)));
+    if (internalBuffer == nullptr )
+    {
+        CRASH_MSG("MemoryStream: out of memory");
+    }
+    if ((offset + count) > buffer.size())
+    {
+        CRASH_MSG("MemoryStream: out of range");
+    }
     internalBufferSize = length = count;
+    memcpy(internalBuffer, buffer.ptr() + offset, length);
     position = 0;
 }
 
@@ -65,11 +81,10 @@ MemoryStream::~MemoryStream()
     free(internalBuffer);
 }
 
-quint8 *MemoryStream::ToArray(qint64 &count)
+ByteBuffer MemoryStream::ToArray()
 {
-    auto buffer = new quint8[length];
-    memcpy(buffer, internalBuffer, length);
-    count = length;
+    ByteBuffer buffer = ByteBuffer(length);
+    memcpy(buffer.ptr(), internalBuffer, length);
     return buffer;
 }
 
@@ -130,6 +145,7 @@ void MemoryStream::ReadStringASCII(QString &str, qint64 count)
     buffer[count] = 0;
     ReadToBuffer(reinterpret_cast<quint8 *>(buffer), count);
     str = QString(buffer);
+
     delete[] buffer;
 }
 
@@ -170,7 +186,7 @@ void MemoryStream::ReadStringUnicode16Null(QString &str)
 void MemoryStream::WriteStringASCII(const QString &str)
 {
     std::string string = str.toStdString();
-    char *s = const_cast<char *>(string.c_str());
+    auto s = const_cast<char *>(string.c_str());
     WriteFromBuffer(reinterpret_cast<quint8 *>(s), string.length());
 }
 

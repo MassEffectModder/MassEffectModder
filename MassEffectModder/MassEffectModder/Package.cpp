@@ -35,16 +35,16 @@ Package::~Package()
 {
     for (int i = 0; i < exportsTable.count(); i++)
     {
-        delete[] exportsTable[i].raw;
-        delete[] exportsTable[i].newData;
+        exportsTable[i].raw.Free();
+        exportsTable[i].newData.Free();
     }
     for (int i = 0; i < importsTable.count(); i++)
     {
-        delete[] importsTable[i].raw;
+        importsTable[i].raw.Free();
     }
     for (int i = 0; i < extraNamesTable.count(); i++)
     {
-        delete[] extraNamesTable[i].raw;
+        extraNamesTable[i].raw.Free();
     }
 
     DisposeCache();
@@ -346,29 +346,29 @@ void Package::getData(uint offset, uint length, Stream *outputStream, quint8 *ou
     }
 }
 
-quint8 *Package::getExportData(int id)
+ByteBuffer Package::getExportData(int id)
 {
-    const ExportEntry& exp = exportsTable[id];
+    ExportEntry& exp = exportsTable[id];
     uint length = exp.getDataSize();
-    auto data = new quint8[length];
-    if (exp.newData != nullptr)
-        memcpy(data, exp.newData, length);
+    auto data = ByteBuffer(length);
+    if (exp.newData.ptr() != nullptr)
+        memcpy(data.ptr(), exp.newData.ptr(), length);
     else
-        getData(exp.getDataOffset(), exp.getDataSize(), nullptr, data);
+        getData(exp.getDataOffset(), exp.getDataSize(), nullptr, data.ptr());
 
     return data;
 }
 
-void Package::setExportData(int id, quint8 *data, quint32 dataSize)
+void Package::setExportData(int id, ByteBuffer data)
 {
     ExportEntry exp = exportsTable.at(id);
-    if (dataSize > exp.getDataSize())
+    if (data.size() > exp.getDataSize())
     {
         exp.setDataOffset(exportsEndOffset);
-        exportsEndOffset = exp.getDataOffset() + dataSize;
+        exportsEndOffset = exp.getDataOffset() + data.size();
     }
-    exp.setDataSize(dataSize);
-    delete[] exp.newData;
+    exp.setDataSize(data.size());
+    exp.newData.Free();
     exp.newData = data;
     exportsTable.replace(id, exp);
     modified = true;
@@ -376,18 +376,18 @@ void Package::setExportData(int id, quint8 *data, quint32 dataSize)
 
 void Package::MoveExportDataToEnd(int id)
 {
-    quint8 *data = getExportData(id);
+    ByteBuffer data = getExportData(id);
     ExportEntry exp = exportsTable[id];
     exp.setDataOffset(exportsEndOffset);
     exportsEndOffset = exp.getDataSize() + exp.getDataSize();
 
-    delete[] exp.newData;
+    exp.newData.Free();
     exp.newData = data;
     exportsTable.replace(id, exp);
     modified = true;
 }
 
-static bool compareExportsDataOffset(const Package::ExportEntry &e1, const Package::ExportEntry &e2)
+static bool compareExportsDataOffset(Package::ExportEntry &e1, Package::ExportEntry &e2)
 {
     return e1.getDataOffset() < e2.getDataOffset();
 }
@@ -586,15 +586,13 @@ void Package::loadExtraNames(Stream &input, bool rawMode)
         {
             if (len < 0)
             {
-                entry.rawSize = -len * 2;
-                entry.raw = new quint8[entry.rawSize];
-                input.ReadToBuffer(entry.raw, entry.rawSize);
+                entry.raw = ByteBuffer(-len * 2);
+                input.ReadToBuffer(entry.raw.ptr(), entry.raw.size());
             }
             else
             {
-                entry.rawSize = len;
-                entry.raw = new quint8[len];
-                input.ReadToBuffer(entry.raw, len);
+                entry.raw = ByteBuffer(len);
+                input.ReadToBuffer(entry.raw.ptr(), len);
             }
         }
         else
@@ -608,7 +606,6 @@ void Package::loadExtraNames(Stream &input, bool rawMode)
             {
                 input.ReadStringASCII(name, len);
             }
-            entry.raw = nullptr;
             entry.name = name;
         }
         extraNamesTable.push_back(entry);
@@ -623,10 +620,10 @@ void Package::saveExtraNames(Stream &output, bool rawMode)
         if (rawMode)
         {
             if (packageFileVersion == packageFileVersionME3)
-                output.WriteInt32(-(extraNamesTable[c].rawSize / 2));
+                output.WriteInt32(-(extraNamesTable[c].raw.size() / 2));
             else
-                output.WriteInt32(extraNamesTable[c].rawSize);
-            output.WriteFromBuffer(extraNamesTable[c].raw, extraNamesTable[c].rawSize);
+                output.WriteInt32(extraNamesTable[c].raw.size());
+            output.WriteFromBuffer(extraNamesTable[c].raw.ptr(), extraNamesTable[c].raw.size());
         }
         else
         {
@@ -664,9 +661,8 @@ void Package::loadImports(Stream &input)
 
         long len = input.Position() - start;
         input.JumpTo(start);
-        entry.raw = new quint8[len];
-        entry.rawSize = len;
-        input.ReadToBuffer(entry.raw, len);
+        entry.raw = ByteBuffer(len);
+        input.ReadToBuffer(entry.raw.ptr(), len);
 
         importsTable.push_back(entry);
     }
@@ -702,7 +698,7 @@ void Package::saveImports(Stream &output)
     {
         for (int i = 0; i < importsTable.count(); i++)
         {
-            output.WriteFromBuffer(importsTable[i].raw, importsTable[i].rawSize);
+            output.WriteFromBuffer(importsTable[i].raw.ptr(), importsTable[i].raw.size());
         }
     }
 }
@@ -725,16 +721,15 @@ void Package::loadExports(Stream &input)
 
         long len = input.Position() - start;
         input.JumpTo(start);
-        entry.raw = new quint8[len];
-        entry.rawSize = len;
-        input.ReadToBuffer(entry.raw, len);
+        entry.raw = ByteBuffer(len);
+        entry.newData = ByteBuffer();
+        input.ReadToBuffer(entry.raw.ptr(), len);
 
         if ((entry.getDataOffset() + entry.getDataSize()) > exportsEndOffset)
             exportsEndOffset = entry.getDataOffset() + entry.getDataSize();
 
         entry.objectName = namesTable[entry.getObjectNameId()].name;
         entry.id = i;
-        entry.newData = nullptr;
         exportsTable.push_back(entry);
     }
 }
@@ -753,7 +748,7 @@ void Package::saveExports(Stream &output)
 {
     for (int i = 0; i < exportsTable.count(); i++)
     {
-        output.WriteFromBuffer(exportsTable[i].raw, exportsTable[i].rawSize);
+        output.WriteFromBuffer(exportsTable[i].raw.ptr(), exportsTable[i].raw.size());
     }
 }
 
@@ -920,16 +915,16 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
 
     for (uint i = 0; i < getExportsCount(); i++)
     {
-        const ExportEntry& exp = sortedExports[i];
+        ExportEntry& exp = sortedExports[i];
         uint dataLeft;
         tempOutput.JumpTo(exp.getDataOffset());
         if (i + 1 == getExportsCount())
             dataLeft = exportsEndOffset - exp.getDataOffset() - exp.getDataSize();
         else
             dataLeft = sortedExports[i + 1].ExportEntry::getDataOffset() - exp.getDataOffset() - exp.getDataSize();
-        if (exp.newData != nullptr)
+        if (exp.newData.ptr() != nullptr)
         {
-            tempOutput.WriteFromBuffer(exp.newData, exp.getDataSize());
+            tempOutput.WriteFromBuffer(exp.newData.ptr(), exp.getDataSize());
         }
         else
         {
@@ -1006,7 +1001,7 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
         chunk.uncomprOffset = (uint)dataOffset;
         for (uint i = 0; i < getExportsCount(); i++)
         {
-            const ExportEntry& exp = sortedExports[i];
+            ExportEntry& exp = sortedExports[i];
             uint dataSize;
             if (i + 1 == getExportsCount())
                 dataSize = exportsEndOffset - exp.getDataOffset();

@@ -19,7 +19,24 @@
  *
  */
 
-#ifndef IMAGE_DDS_H
-#define IMAGE_DDS_H
+#ifndef BYTE_BUFFER_H
+#define BYTE_BUFFER_H
+
+struct ByteBuffer
+{
+private:
+
+    quint8 *_ptr;
+    qint64 _size;
+
+public:
+
+    ByteBuffer() { _ptr = nullptr; _size = 0; }
+    ByteBuffer(quint64 size) { _ptr = new quint8[size]; _size = size; }
+    ByteBuffer(quint8 *ptr, quint64 size) { _ptr = ptr, _size = size; }
+    void Free() { delete _ptr; }
+    quint8 *ptr() { return _ptr; }
+    qint64 size() { return _size; }
+};
 
 #endif

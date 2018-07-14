@@ -116,8 +116,7 @@ public:
         int linkId;
         int objectNameId;
         QString objectName;
-        quint8 *raw;
-        quint32 rawSize;
+        ByteBuffer raw;
     };
 
     struct ExportEntry
@@ -130,43 +129,42 @@ public:
             DataOffsetOffset = 36,
         };
 
-        quint8 *raw;
-        quint32 rawSize;
-        quint8 *newData;
+        ByteBuffer raw;
+        ByteBuffer newData;
         //ulong objectFlags; // not used - save RAM
         uint id;
 
-        inline int getClassId() const
+        inline int getClassId()
         {
-            return *reinterpret_cast<int *>(&raw[ClassIdOffset]);
+            return *reinterpret_cast<int *>(&raw.ptr()[ClassIdOffset]);
         }
         //QString className; // not used - save RAM
         //int classParentId; // not used - save RAM
-        inline int getLinkId() const
+        inline int getLinkId()
         {
-            return *reinterpret_cast<int *>(&raw[LinkIdOffset]);
+            return *reinterpret_cast<int *>(&raw.ptr()[LinkIdOffset]);
         }
-        inline int getObjectNameId() const
+        inline int getObjectNameId()
         {
-            return *reinterpret_cast<int *>(&raw[ObjectNameIdOffset]);
+            return *reinterpret_cast<int *>(&raw.ptr()[ObjectNameIdOffset]);
         }
         QString objectName;
         //int suffixNameId; // not used - save RAM
-        inline uint getDataSize() const
+        inline uint getDataSize()
         {
-            return *reinterpret_cast<int *>(&raw[DataSizeOffset]);
+            return *reinterpret_cast<int *>(&raw.ptr()[DataSizeOffset]);
         }
-        inline void setDataSize(uint size) const
+        inline void setDataSize(uint size)
         {
-            *reinterpret_cast<int *>(&raw[DataSizeOffset]) = size;
+            *reinterpret_cast<int *>(&raw.ptr()[DataSizeOffset]) = size;
         }
-        inline uint getDataOffset() const
+        inline uint getDataOffset()
         {
-            return *reinterpret_cast<int *>(&raw[DataOffsetOffset]);
+            return *reinterpret_cast<int *>(&raw.ptr()[DataOffsetOffset]);
         }
-        inline void setDataOffset(uint offset) const
+        inline void setDataOffset(uint offset)
         {
-            *reinterpret_cast<int *>(&raw[DataOffsetOffset]) = offset;
+            *reinterpret_cast<int *>(&raw.ptr()[DataOffsetOffset]) = offset;
         }
     };
 
@@ -179,8 +177,7 @@ public:
     struct ExtraNameEntry
     {
         QString name;
-        quint8 *raw;
-        quint32 rawSize;
+        ByteBuffer raw;
     };
 
     QList<NameEntry> namesTable;
@@ -379,8 +376,8 @@ public:
     int getClassNameId(int id);
     QString resolvePackagePath(int id);
     void getData(uint offset, uint length, Stream *outputStream = nullptr, quint8 *outputBuffer = nullptr);
-    quint8 *getExportData(int id);
-    void setExportData(int id, quint8 *data, quint32 dataSize);
+    ByteBuffer getExportData(int id);
+    void setExportData(int id, ByteBuffer data);
     void MoveExportDataToEnd(int id);
     void SortExportsTableByDataOffset(const QList<ExportEntry> &list, QList<ExportEntry> &sortedExports);
     bool ReserveSpaceBeforeExportData(int space);

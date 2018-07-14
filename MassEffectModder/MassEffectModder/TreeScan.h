@@ -46,7 +46,7 @@ struct FoundTexture
     QString name;
     uint crc;
     QList<MatchedTexture> *list;
-    //PixelFormat pixfmt;
+    PixelFormat pixfmt;
     TexProperty::TextureTypes flags;
     int width, height;
 };

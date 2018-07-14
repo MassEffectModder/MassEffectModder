@@ -31,19 +31,19 @@
 #include "GameData.h"
 #include "MemTypes.h"
 
-TexProperty::TexProperty(Package &pkg, quint8 *data)
+TexProperty::TexProperty(Package &pkg, ByteBuffer data)
 {
     package = &pkg;
-    headerData = *reinterpret_cast<quint32 *>(data);
-    getProperty(data, 4);
+    headerData = *reinterpret_cast<quint32 *>(data.ptr());
+    getProperty(data.ptr(), 4);
 }
 
 TexProperty::~TexProperty()
 {
     for (int i = 0; i < texPropertyList.count(); i++)
     {
-        delete[] texPropertyList[i].valueRaw;
-        delete[] texPropertyList[i].valueStruct;
+        texPropertyList[i].valueRaw.Free();
+        texPropertyList[i].valueStruct.Free();
     }
 }
 
@@ -94,11 +94,10 @@ void TexProperty::getProperty(quint8 *data, int offset)
 
         nextOffset = valueRawPos + size;
     }
-    texProperty.valueRaw = new quint8[size];
-    texProperty.valueRawLength = size;
-    texProperty.valueStruct = nullptr;
+    texProperty.valueRaw = ByteBuffer(size);
+    texProperty.valueStruct = ByteBuffer();
     texProperty.fetched = false;
-    memcpy(texProperty.valueRaw, data + valueRawPos, size);
+    memcpy(texProperty.valueRaw.ptr(), data + valueRawPos, size);
     texPropertyList.push_back(texProperty);
 
     if (nextOffset != offset)
@@ -139,45 +138,44 @@ void TexProperty::fetchValue(int index)
         return;
     if (texProperty.type == "IntProperty")
     {
-        texProperty.valueInt = *reinterpret_cast<qint32 *>(texProperty.valueRaw + 0);
+        texProperty.valueInt = *reinterpret_cast<qint32 *>(texProperty.valueRaw.ptr() + 0);
     }
     else if (texProperty.type == "ByteProperty")
     {
         if (GameData::gameType == MeType::ME3_TYPE)
         {
-            texProperty.valueNameType = package->getName(*reinterpret_cast<qint32 *>(texProperty.valueRaw + 0));
-            texProperty.valueName = package->getName(*reinterpret_cast<qint32 *>(texProperty.valueRaw + 8));
-            texProperty.valueInt = *reinterpret_cast<qint32 *>(texProperty.valueRaw + 12);
+            texProperty.valueNameType = package->getName(*reinterpret_cast<qint32 *>(texProperty.valueRaw.ptr() + 0));
+            texProperty.valueName = package->getName(*reinterpret_cast<qint32 *>(texProperty.valueRaw.ptr() + 8));
+            texProperty.valueInt = *reinterpret_cast<qint32 *>(texProperty.valueRaw.ptr() + 12);
         }
         else
         {
-            texProperty.valueName = package->getName(*reinterpret_cast<qint32 *>(texProperty.valueRaw + 0));
-            texProperty.valueInt = *reinterpret_cast<qint32 *>(texProperty.valueRaw + 4);
+            texProperty.valueName = package->getName(*reinterpret_cast<qint32 *>(texProperty.valueRaw.ptr() + 0));
+            texProperty.valueInt = *reinterpret_cast<qint32 *>(texProperty.valueRaw.ptr()  + 4);
         }
     }
     else if (texProperty.type == "BoolProperty")
     {
-        texProperty.valueBool = texProperty.valueRaw[0] != 0;
+        texProperty.valueBool = texProperty.valueRaw.ptr()[0] != 0;
     }
     else if (texProperty.type == "StrProperty")
     {
     }
     else if (texProperty.type == "FloatProperty")
     {
-        texProperty.valueFloat = *reinterpret_cast<qint32 *>(texProperty.valueRaw + 0);
+        texProperty.valueFloat = *reinterpret_cast<qint32 *>(texProperty.valueRaw.ptr() + 0);
     }
     else if (texProperty.type == "NameProperty")
     {
-        texProperty.valueName = package->getName(*reinterpret_cast<qint32 *>(texProperty.valueRaw + 0));
-        texProperty.valueInt = *reinterpret_cast<qint32 *>(texProperty.valueRaw + 4);
+        texProperty.valueName = package->getName(*reinterpret_cast<qint32 *>(texProperty.valueRaw.ptr() + 0));
+        texProperty.valueInt = *reinterpret_cast<qint32 *>(texProperty.valueRaw.ptr() + 4);
     }
     else if (texProperty.type == "StructProperty")
     {
-        texProperty.valueName = package->getName(*reinterpret_cast<qint32 *>(texProperty.valueRaw + 0));
-        texProperty.valueInt = *reinterpret_cast<qint32 *>(texProperty.valueRaw + 4);
-        texProperty.valueStructLength = texProperty.valueRawLength - 8;
-        texProperty.valueStruct = new quint8[texProperty.valueStructLength];
-        memcpy(texProperty.valueStruct, texProperty.valueRaw + 8, texProperty.valueRawLength);
+        texProperty.valueName = package->getName(*reinterpret_cast<qint32 *>(texProperty.valueRaw.ptr() + 0));
+        texProperty.valueInt = *reinterpret_cast<qint32 *>(texProperty.valueRaw.ptr() + 4);
+        texProperty.valueStruct = ByteBuffer(texProperty.valueRaw.size() - 8);
+        memcpy(texProperty.valueStruct.ptr(), texProperty.valueRaw.ptr() + 8, texProperty.valueStruct.size());
     }
     else
         CRASH("");
@@ -277,8 +275,7 @@ void TexProperty::setIntValue(const QString &name, int value)
     }
     else
     {
-        texProperty.valueRaw = new quint8[sizeof(int)];
-        texProperty.valueRawLength = sizeof(int);
+        texProperty.valueRaw = ByteBuffer(sizeof(int));
         texProperty.type = "IntProperty";
         if (!package->existsNameId(texProperty.type))
             package->addName(texProperty.type);
@@ -289,7 +286,7 @@ void TexProperty::setIntValue(const QString &name, int value)
     texProperty.name = name;
     texProperty.fetched = true;
 
-    memcpy(texProperty.valueRaw, &value, sizeof(int));
+    memcpy(texProperty.valueRaw.ptr(), &value, sizeof(int));
     texProperty.valueInt = value;
     if (exists(name))
     {
@@ -324,8 +321,7 @@ void TexProperty::setFloatValue(const QString &name, float value)
     }
     else
     {
-        texProperty.valueRaw = new quint8[sizeof(float)];
-        texProperty.valueRawLength = sizeof(float);
+        texProperty.valueRaw = ByteBuffer(sizeof(float));
         texProperty.type = "FloatProperty";
         if (!package->existsNameId(texProperty.type))
             package->addName(texProperty.type);
@@ -336,7 +332,7 @@ void TexProperty::setFloatValue(const QString &name, float value)
     texProperty.name = name;
     texProperty.fetched = true;
 
-    memcpy(texProperty.valueRaw, &value, sizeof(float));
+    memcpy(texProperty.valueRaw.ptr(), &value, sizeof(float));
     texProperty.valueFloat = value;
     if (exists(name))
     {
@@ -374,13 +370,11 @@ void TexProperty::setByteValue(const QString &name, const QString &valueName,
     {
         if (GameData::gameType == MeType::ME3_TYPE)
         {
-            texProperty.valueRawLength = 16;
-            texProperty.valueRaw = new quint8[texProperty.valueRawLength];
+            texProperty.valueRaw = ByteBuffer(16);
         }
         else
         {
-            texProperty.valueRawLength = 8;
-            texProperty.valueRaw = new quint8[texProperty.valueRawLength];
+            texProperty.valueRaw = ByteBuffer(8);
         }
         texProperty.type = "ByteProperty";
         if (!package->existsNameId(texProperty.type))
@@ -400,15 +394,15 @@ void TexProperty::setByteValue(const QString &name, const QString &valueName,
             package->addName(valueNameType);
         int nameTypeId = package->getNameId(valueNameType);
         int nameId = package->getNameId(valueName);
-        memcpy(texProperty.valueRaw, &nameTypeId, sizeof(int));
-        memcpy(texProperty.valueRaw + 8, &nameId, sizeof(int));
-        memcpy(texProperty.valueRaw + 12, &valueInt, sizeof(int));
+        memcpy(texProperty.valueRaw.ptr(), &nameTypeId, sizeof(int));
+        memcpy(texProperty.valueRaw.ptr() + 8, &nameId, sizeof(int));
+        memcpy(texProperty.valueRaw.ptr() + 12, &valueInt, sizeof(int));
     }
     else
     {
         int nameId = package->getNameId(valueName);
-        memcpy(texProperty.valueRaw + 8, &nameId, sizeof(int));
-        memcpy(texProperty.valueRaw + 4, &valueInt, sizeof(int));
+        memcpy(texProperty.valueRaw.ptr() + 8, &nameId, sizeof(int));
+        memcpy(texProperty.valueRaw.ptr() + 4, &valueInt, sizeof(int));
     }
     texProperty.valueName = valueName;
     texProperty.valueInt = valueInt;
@@ -447,13 +441,11 @@ void TexProperty::setBoolValue(const QString &name, bool value)
     {
         if (GameData::gameType == MeType::ME3_TYPE)
         {
-            texProperty.valueRawLength = 1;
-            texProperty.valueRaw = new quint8[texProperty.valueRawLength ];
+            texProperty.valueRaw = ByteBuffer(1);
         }
         else
         {
-            texProperty.valueRawLength = 4;
-            texProperty.valueRaw = new quint8[texProperty.valueRawLength];
+            texProperty.valueRaw = ByteBuffer(4);
         }
         texProperty.type = "BoolProperty";
         if (!package->existsNameId(texProperty.type))
@@ -466,9 +458,9 @@ void TexProperty::setBoolValue(const QString &name, bool value)
     texProperty.fetched = true;
 
     if (value)
-        texProperty.valueRaw[0] = 1;
+        texProperty.valueRaw.ptr()[0] = 1;
     else
-        texProperty.valueRaw[0] = 0;
+        texProperty.valueRaw.ptr()[0] = 0;
     texProperty.valueBool = value;
 
     if (exists(name))
@@ -504,8 +496,7 @@ void TexProperty::setNameValue(const QString &name, const QString &valueName, in
     }
     else
     {
-        texProperty.valueRawLength = 8;
-        texProperty.valueRaw = new quint8[texProperty.valueRawLength];
+        texProperty.valueRaw = ByteBuffer(8);
         texProperty.type = "NameProperty";
         if (!package->existsNameId(texProperty.type))
             package->addName(texProperty.type);
@@ -520,8 +511,8 @@ void TexProperty::setNameValue(const QString &name, const QString &valueName, in
         package->addName(valueName);
 
     int nameId = package->getNameId(valueName);
-    memcpy(texProperty.valueRaw, &nameId, sizeof(int));
-    memcpy(texProperty.valueRaw + 4, &valueInt, sizeof(int));
+    memcpy(texProperty.valueRaw.ptr(), &nameId, sizeof(int));
+    memcpy(texProperty.valueRaw.ptr() + 4, &valueInt, sizeof(int));
     texProperty.valueName = valueName;
     texProperty.valueInt = valueInt;
 
@@ -540,8 +531,7 @@ void TexProperty::setNameValue(const QString &name, const QString &valueName, in
         texPropertyList.push_front(texProperty);
 }
 
-void TexProperty::setStructValue(const QString &name, const QString &valueName, const quint8 *valueStruct,
-                                 int valueStructLength)
+void TexProperty::setStructValue(const QString &name, const QString &valueName, ByteBuffer valueStruct)
 {
     TexPropertyEntry texProperty;
     if (exists(name))
@@ -557,7 +547,7 @@ void TexProperty::setStructValue(const QString &name, const QString &valueName, 
         }
         fetchValue(index);
         texProperty = texPropertyList[index];
-        if (texProperty.type != "StructProperty" || texProperty.valueStructLength != valueStructLength)
+        if (texProperty.type != "StructProperty" || texProperty.valueStruct.size() != valueStruct.size())
             CRASH("");
     }
     else
@@ -575,10 +565,10 @@ void TexProperty::setStructValue(const QString &name, const QString &valueName, 
         package->addName(valueName);
 
     int nameId = package->getNameId(valueName);
-    memcpy(texProperty.valueRaw, &nameId, sizeof(int));
-    memcpy(texProperty.valueRaw + 8, valueStruct, valueStructLength);
+    memcpy(texProperty.valueRaw.ptr(), &nameId, sizeof(int));
+    memcpy(texProperty.valueRaw.ptr() + 8, valueStruct.ptr(), valueStruct.size());
     texProperty.valueName = valueName;
-    memcpy(texProperty.valueStruct, valueStruct, valueStructLength);
+    memcpy(texProperty.valueStruct.ptr(), valueStruct.ptr(), valueStruct.size());
 
     if (exists(name))
     {
@@ -595,7 +585,7 @@ void TexProperty::setStructValue(const QString &name, const QString &valueName, 
         texPropertyList.push_front(texProperty);
 }
 
-quint8 *TexProperty::toArray(qint64 &length)
+ByteBuffer TexProperty::toArray()
 {
     MemoryStream mem;
     mem.WriteUInt32(headerData);
@@ -607,7 +597,7 @@ quint8 *TexProperty::toArray(qint64 &length)
             break;
         mem.WriteInt32(package->getNameId(texPropertyList[i].type));
         mem.WriteInt32(0); // skip
-        int size = texPropertyList[i].valueRawLength;
+        int size = texPropertyList[i].valueRaw.size();
         if (texPropertyList[i].type == "StructProperty")
         {
             size -= 8;
@@ -623,8 +613,8 @@ quint8 *TexProperty::toArray(qint64 &length)
         }
         mem.WriteInt32(size);
         mem.WriteInt32(texPropertyList[i].index);
-        mem.WriteFromBuffer(texPropertyList[i].valueRaw, texPropertyList[i].valueRawLength);
+        mem.WriteFromBuffer(texPropertyList[i].valueRaw.ptr(), texPropertyList[i].valueRaw.size());
     }
 
-    return mem.ToArray(length);
+    return mem.ToArray();
 }

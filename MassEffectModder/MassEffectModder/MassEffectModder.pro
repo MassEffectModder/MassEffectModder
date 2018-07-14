@@ -1,5 +1,4 @@
-QT += core
-QT -= gui
+QT += core gui
 
 CONFIG += c++14 static precompile_header console
 CONFIG -= app_bundle
@@ -21,8 +20,10 @@ SOURCES += \
     DLC.cpp \
     Image.cpp \
     ImageDDS.cpp \
+    ImageTGA.cpp \
     GameData.cpp \
     Main.cpp \
+    MipMap.cpp \
     Misc.cpp \
     Package.cpp \
     Texture.cpp \
@@ -39,6 +40,7 @@ HEADERS += \
     Exceptions/Backtrace.h \
     Exceptions/Exception.h \
     Exceptions/SignalHandler.h \
+    Helpers/ByteBuffer.h \
     Helpers/FileStream.h \
     Helpers/Logs.h \
     Helpers/MemoryStream.h \
@@ -50,11 +52,12 @@ HEADERS += \
     ConfigIni.h \
     DLC.h \
     Image.h \
-    ImageDDS.h \
     GameData.h \
     MD5BadEntries.h \
     MD5ModEntries.h \
     Misc.h \
+    MipMap.h \
+    MipMaps.h \
     MemTypes.h \
     Package.h \
     Texture.h \

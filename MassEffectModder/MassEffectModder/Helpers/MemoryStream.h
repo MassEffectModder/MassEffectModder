@@ -25,6 +25,7 @@
 #include <QtGlobal>
 
 #include "Helpers/Stream.h"
+#include "Helpers/ByteBuffer.h"
 
 class MemoryStream : public Stream
 {
@@ -43,8 +44,9 @@ private:
 public:
 
     MemoryStream();
-    MemoryStream(const quint8 *buffer, qint64 count);
-    MemoryStream(const quint8 *buffer, qint64 offset, qint64 count);
+    MemoryStream(ByteBuffer buffer);
+    MemoryStream(ByteBuffer buffer, qint64 offset);
+    MemoryStream(ByteBuffer buffer, qint64 offset, qint64 count);
     ~MemoryStream() override;
 
     qint64 Length() override { return length; }
@@ -52,7 +54,7 @@ public:
 
     void Flush() override {}
     void Close() override {}
-    quint8 *ToArray(qint64 &count);
+    ByteBuffer ToArray();
 
     void CopyFrom(Stream *stream, qint64 count, qint64 bufferSize = 10000) override;
     void ReadToBuffer(quint8 *buffer, qint64 count) override;

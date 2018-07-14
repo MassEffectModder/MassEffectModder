@@ -30,5 +30,6 @@ void ConsoleSync();
 QString BaseName(const QString &path);
 QString DirName(const QString &path);
 QString BaseNameWithoutExt(const QString &path);
+QString GetFileExtension(const QString &path);
 
 #endif

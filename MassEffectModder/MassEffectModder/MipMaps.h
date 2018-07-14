@@ -19,34 +19,10 @@
  *
  */
 
-#ifndef MEM_TYPES_H
-#define MEM_TYPES_H
+#ifndef MIPMAPS_H
+#define MIPMAPS_H
 
-typedef enum
-{
-    UNKNOWN_TYPE = 0,
-    ME1_TYPE,
-    ME2_TYPE,
-    ME3_TYPE
-} MeType;
+#include "MemTypes.h"
 
-typedef enum
-{
-    UnknownPixelFormat, DXT1, DXT3, DXT5, ATI2, V8U8, ARGB, RGB, G8
-} PixelFormat;
-
-typedef enum
-{
-    UnknownImageFormat, DDS, PNG, BMP, TGA, JPEG
-} ImageFormat;
-
-#define textureMapBinTag      0x5054454D
-#define textureMapBinVersion  2
-#define TextureModTag         0x444F4D54
-#define TextureModVersion     2
-#define FileTextureTag        0x53444446
-#define FileBinTag            0x4E494246
-#define MEMI_TAG              0x494D454D
-#define MEMendFileMarker      "ThisIsMEMEndOfFileMarker"
 
 #endif

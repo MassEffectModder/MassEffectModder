@@ -43,10 +43,8 @@ public:
         int valueInt;
         float valueFloat;
         bool valueBool;
-        quint8 *valueRaw;
-        int valueRawLength;
-        quint8 *valueStruct;
-        int valueStructLength;
+        ByteBuffer valueRaw;
+        ByteBuffer valueStruct;
         int index;
         bool fetched;
     };
@@ -70,7 +68,7 @@ private:
 
 public:
 
-    TexProperty(Package &pkg, quint8 *data);
+    TexProperty(Package &pkg, ByteBuffer data);
     ~TexProperty();
     TexPropertyEntry getProperty(const QString &name);
     void fetchValue(const QString &name);
@@ -83,8 +81,8 @@ public:
     void setByteValue(const QString &name, const QString &valueName, const QString &valueNameType, int valueInt = 0);
     void setBoolValue(const QString &name, bool value);
     void setNameValue(const QString &name, const QString &valueName, int valueInt = 0);
-    void setStructValue(const QString &name, const QString &valueName, const quint8 *valueStruct, int valueStructLength);
-    quint8 *toArray(qint64 &length);
+    void setStructValue(const QString &name, const QString &valueName, ByteBuffer valueStruct);
+    ByteBuffer toArray();
 };
 
 #endif

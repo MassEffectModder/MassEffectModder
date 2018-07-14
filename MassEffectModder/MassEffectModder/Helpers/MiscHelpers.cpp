@@ -92,3 +92,8 @@ QString BaseNameWithoutExt(const QString &path)
         return str;
     return name;
 }
+
+QString GetFileExtension(const QString &path)
+{
+    return path.section('.', -1);
+}

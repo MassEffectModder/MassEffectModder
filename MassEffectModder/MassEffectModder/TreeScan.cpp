@@ -28,6 +28,7 @@
 #include "Package.h"
 #include "ConfigIni.h"
 #include "GameData.h"
+#include "Image.h"
 #include "MemTypes.h"
 
 int TreeScan::PrepareListOfTextures(MeType gameId, bool ipc)
@@ -225,8 +226,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, bool ipc)
         fs->WriteUInt32(mem.Length());
         quint8 *compressed = nullptr;
         uint compressedSize = 0;
-        qint64 tmpLen = 0;
-        ZlibCompress(mem.ToArray(tmpLen), mem.Length(), &compressed, &compressedSize);
+        ZlibCompress(mem.ToArray().ptr(), mem.Length(), &compressed, &compressedSize);
         fs->WriteUInt32(compressedSize);
         fs->WriteFromBuffer(compressed, compressedSize);
     }
@@ -262,16 +262,16 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> *textures, const 
 
     for (int i = 0; i < package.exportsTable.count(); i++)
     {
-        const Package::ExportEntry& exp = package.exportsTable[i];
+        Package::ExportEntry& exp = package.exportsTable[i];
         int id = package.getClassNameId(exp.getClassId());
         if (id == package.nameIdTexture2D ||
             id == package.nameIdLightMapTexture2D ||
             id == package.nameIdShadowMapTexture2D ||
             id == package.nameIdTextureFlipBook)
         {
-            quint8 *exportData = package.getExportData(i);
-            auto texture = new Texture(package, i, exportData, exp.getDataSize());
-            delete[] exportData;
+            ByteBuffer exportData = package.getExportData(i);
+            auto texture = new Texture(package, i, exportData);
+            exportData.Free();
             if (!texture->hasImageData())
             {
                 delete texture;
@@ -376,7 +376,7 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> *textures, const 
                 {
                     foundTex.width = texture->getTopMipmap().width;
                     foundTex.height = texture->getTopMipmap().height;
-                    //foundTex.pixfmt = Image.getPixelFormatType(texture->properties->getProperty("Format").valueName);
+                    foundTex.pixfmt = Image::getPixelFormatType(texture->properties->getProperty("Format").valueName);
                     if (texture->properties->exists("CompressionSettings"))
                     {
                         QString cmp = texture->properties->getProperty("CompressionSettings").valueName;
