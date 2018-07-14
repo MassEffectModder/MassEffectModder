@@ -110,7 +110,7 @@ public:
 
         int numTasks = threadCount;
         int lastBlockSize = count - (bytesPerThread * numTasks);
-        auto crc = new uint[numTasks];
+        uint crc[numTasks];
 
         omp_set_num_threads(numTasks);
         #pragma omp parallel for
@@ -129,15 +129,13 @@ public:
                 len = lastBlockSize;
             value = Combine(value, crc[i], len);
         }
-        delete[] crc;
     }
 
     static int Compute(const unsigned char *data, int offset, int count)
     {
-        auto crc = new ParallelCRC();
-        crc->Update(data, offset, count);
-        int crcValue = crc->getValue();
-        delete crc;
+        auto crc = ParallelCRC();
+        crc.Update(data, offset, count);
+        int crcValue = crc.getValue();
         return crcValue;
     }
 
