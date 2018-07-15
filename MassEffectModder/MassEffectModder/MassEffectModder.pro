@@ -64,7 +64,6 @@ HEADERS += \
     Package.h \
     Texture.h \
     TextureEmptyMips.h \
-    TextureProcess.h \
     TextureProps.h \
     TextureReplace.h \
     TOCFile.h \

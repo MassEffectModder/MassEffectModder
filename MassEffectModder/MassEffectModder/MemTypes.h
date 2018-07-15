@@ -45,7 +45,9 @@ typedef enum
 #define TextureModTag         0x444F4D54
 #define TextureModVersion     2
 #define FileTextureTag        0x53444446
-#define FileBinTag            0x4E494246
+#define FileTextureTag2       0x53444443
+#define FileBinaryTag         0x4E494246
+#define FileXdeltaTag         0x4E494258
 #define MEMI_TAG              0x494D454D
 #define MEMendFileMarker      "ThisIsMEMEndOfFileMarker"
 

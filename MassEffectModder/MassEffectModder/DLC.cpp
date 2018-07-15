@@ -192,7 +192,7 @@ void ME3DLC::extract(QString &SFARfilename, QString &outPath, bool ipc, int &cur
                 {
                     blockBytesLeft.push_back(bytesLeft);
                     int compressedBlockSize = blockSizes[filesList[i].compressedBlockSizesIndex + j];
-                    int uncompressedBlockSize = (int)qMin((uint)bytesLeft, maxBlockSize);
+                    int uncompressedBlockSize = qMin((int)bytesLeft, (int)maxBlockSize);
                     if (compressedBlockSize == 0)
                     {
                         compressedBlockSize = (int)maxBlockSize;
@@ -202,6 +202,7 @@ void ME3DLC::extract(QString &SFARfilename, QString &outPath, bool ipc, int &cur
                     bytesLeft -= uncompressedBlockSize;
                 }
 
+                #pragma omp parallel for
                 for (uint j = 0; j < filesList[i].numBlocks; j++)
                 {
                     int compressedBlockSize = blockSizes[filesList[i].compressedBlockSizesIndex + j];

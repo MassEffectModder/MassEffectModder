@@ -23,6 +23,26 @@
 #define MIPMAPS_H
 
 #include "MemTypes.h"
+#include "Helpers/ByteBuffer.h"
+#include "Helpers/Stream.h"
 
+struct FileMod
+{
+    uint tag;
+    QString name;
+    long offset;
+    long size;
+};
+
+class MipMaps
+{
+
+public:
+
+    static Stream *compressData(ByteBuffer inputData);
+    static ByteBuffer decompressData(Stream *stream, long compressedSize);
+    void extractTextureToPng(QString &outputFile, QString &packagePath, int exportID);
+
+};
 
 #endif
