@@ -18,3 +18,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
+#include "Misc.h"
+
+static bool generateModsMd5Entries = false;
+static bool generateMd5Entries = false;
+

@@ -22,6 +22,8 @@ SOURCES += \
     ImageDDS.cpp \
     ImageTGA.cpp \
     GameData.cpp \
+    MD5BadEntries.cpp \
+    MD5ModEntries.cpp \
     Main.cpp \
     MipMap.cpp \
     Misc.cpp \

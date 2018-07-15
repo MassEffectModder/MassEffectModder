@@ -22,4 +22,8 @@
 #ifndef MD5_MOD_ENTRIES_H
 #define MD5_MOD_ENTRIES_H
 
+#include "Misc.h"
+
+extern MD5ModFileEntry modsEntries[];
+
 #endif

@@ -176,7 +176,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, bool ipc)
         {
             mem.WriteInt16(texture.width);
             mem.WriteInt16(texture.height);
-            //mem.WriteByte(texture.pixfmt);
+            mem.WriteByte(texture.pixfmt);
             mem.WriteByte(texture.flags);
 
             mem.WriteInt16(texture.list->count());
@@ -205,7 +205,8 @@ int TreeScan::PrepareListOfTextures(MeType gameId, bool ipc)
             {
                 mem.WriteInt32(m.linkToMaster);
                 mem.WriteInt32(m.path.length());
-                mem.WriteStringASCII(m.path);
+                QString path = m.path;
+                mem.WriteStringASCII(path.replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive));
             }
         }
     }

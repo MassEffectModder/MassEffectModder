@@ -22,4 +22,22 @@
 #ifndef MISC_H
 #define MISC_H
 
+struct MD5FileEntry
+{
+    QString path;
+    quint8 md5[16];
+    int size;
+};
+
+struct MD5ModFileEntry
+{
+    const char *path;
+    const quint8 md5[16];
+    const char *modName;
+};
+
+class Misc
+{
+};
+
 #endif
