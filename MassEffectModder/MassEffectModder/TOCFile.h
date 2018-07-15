@@ -22,4 +22,25 @@
 #ifndef TOC_FILE_H
 #define TOC_FILE_H
 
+#define TOCTag 0x3AB70C13 // TOC tag
+
+class TOCBinFile
+{
+    struct FileEntry
+    {
+        uint size;
+        QString path;
+    };
+
+private:
+
+    static void GenerateMainTocBinFile();
+    static void GenerateDLCsTocBinFiles();
+    static void CreateTocBinFile(QString &path, QList<FileEntry> filesList);
+
+public:
+
+    static void UpdateAllTOCBinFiles();
+};
+
 #endif
