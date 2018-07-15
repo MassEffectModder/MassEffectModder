@@ -113,10 +113,22 @@ void FileStream::ReadToBuffer(quint8 *buffer, qint64 count)
     CheckFileIOErrorStatus();
 }
 
+ByteBuffer FileStream::ReadToBuffer(qint64 count)
+{
+    ByteBuffer buffer = ByteBuffer(count);
+    ReadToBuffer(buffer.ptr(), count);
+    return buffer;
+}
+
 void FileStream::WriteFromBuffer(quint8 *buffer, qint64 count)
 {
     file->write(reinterpret_cast<char *>(buffer), count);
     CheckFileIOErrorStatus();
+}
+
+void FileStream::WriteFromBuffer(ByteBuffer buffer)
+{
+    WriteFromBuffer(buffer.ptr(), buffer.size());
 }
 
 void FileStream::ReadStringASCII(QString &str, qint64 count)

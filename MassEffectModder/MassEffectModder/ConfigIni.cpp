@@ -50,7 +50,7 @@ ConfigIni::ConfigIni(const QString &iniPath)
         QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
                 "/MassEffectModder";
         if (!QDir(path).exists())
-            QDir(path).mkpath(path);
+            QDir().mkpath(path);
 #if defined(_WIN32)
         settings = nullptr;
         _iniPath = path + "/MassEffectModder.ini";

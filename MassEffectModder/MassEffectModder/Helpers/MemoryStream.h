@@ -47,6 +47,9 @@ public:
     MemoryStream(ByteBuffer buffer);
     MemoryStream(ByteBuffer buffer, qint64 offset);
     MemoryStream(ByteBuffer buffer, qint64 offset, qint64 count);
+    MemoryStream(QString &filename, qint64 offset, qint64 count);
+    MemoryStream(QString &filename, qint64 count);
+    MemoryStream(QString &filename);
     ~MemoryStream() override;
 
     qint64 Length() override { return length; }
@@ -58,7 +61,9 @@ public:
 
     void CopyFrom(Stream *stream, qint64 count, qint64 bufferSize = 10000) override;
     void ReadToBuffer(quint8 *buffer, qint64 count) override;
+    ByteBuffer ReadToBuffer(qint64 count) override;
     void WriteFromBuffer(quint8 *buffer, qint64 count) override;
+    void WriteFromBuffer(ByteBuffer buffer) override;
     void ReadStringASCII(QString &str, qint64 count) override;
     void ReadStringASCIINull(QString &str) override;
     void ReadStringUnicode16(QString &str, qint64 count) override;

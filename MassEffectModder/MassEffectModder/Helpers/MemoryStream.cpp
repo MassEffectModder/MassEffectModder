@@ -76,6 +76,69 @@ MemoryStream::MemoryStream(ByteBuffer buffer, qint64 offset, qint64 count)
     position = 0;
 }
 
+MemoryStream::MemoryStream(QString &filename, qint64 offset, qint64 count)
+{
+    auto file = new QFile(filename);
+    if (!file->open(QIODevice::ReadOnly))
+        CRASH_MSG((QString("Failed to open file: ") + filename + " Error: " + file->errorString()).toStdString().c_str());
+
+    internalBuffer = static_cast<quint8 *>(malloc(static_cast<size_t>(count)));
+    if (internalBuffer == nullptr )
+    {
+        CRASH_MSG("MemoryStream: out of memory");
+    }
+    if ((offset + count) > file->size())
+    {
+        CRASH_MSG("MemoryStream: out of range");
+    }
+
+    file->seek(offset);
+    file->read(reinterpret_cast<char *>(internalBuffer), count);
+    delete file;
+
+    internalBufferSize = length = count;
+    position = 0;
+}
+
+MemoryStream::MemoryStream(QString &filename, qint64 count)
+{
+    auto file = new QFile(filename);
+    if (!file->open(QIODevice::ReadOnly))
+        CRASH_MSG((QString("Failed to open file: ") + filename + " Error: " + file->errorString()).toStdString().c_str());
+
+    internalBuffer = static_cast<quint8 *>(malloc(static_cast<size_t>(count)));
+    if (internalBuffer == nullptr )
+    {
+        CRASH_MSG("MemoryStream: out of memory");
+    }
+
+    file->read(reinterpret_cast<char *>(internalBuffer), count);
+    delete file;
+
+    internalBufferSize = length = count;
+    position = 0;
+}
+
+MemoryStream::MemoryStream(QString &filename)
+{
+    auto file = new QFile(filename);
+    if (!file->open(QIODevice::ReadOnly))
+        CRASH_MSG((QString("Failed to open file: ") + filename + " Error: " + file->errorString()).toStdString().c_str());
+
+    qint64 count = file->size();
+    internalBuffer = static_cast<quint8 *>(malloc(static_cast<size_t>(count)));
+    if (internalBuffer == nullptr )
+    {
+        CRASH_MSG("MemoryStream: out of memory");
+    }
+
+    file->read(reinterpret_cast<char *>(internalBuffer), count);
+    delete file;
+
+    internalBufferSize = length = count;
+    position = 0;
+}
+
 MemoryStream::~MemoryStream()
 {
     free(internalBuffer);
@@ -119,6 +182,13 @@ void MemoryStream::ReadToBuffer(quint8 *buffer, qint64 count)
     position += count;
 }
 
+ByteBuffer MemoryStream::ReadToBuffer(qint64 count)
+{
+    ByteBuffer buffer = ByteBuffer(count);
+    ReadToBuffer(buffer.ptr(), count);
+    return buffer;
+}
+
 void MemoryStream::WriteFromBuffer(quint8 *buffer, qint64 count)
 {
     qint64 newPosition = position + count;
@@ -136,6 +206,11 @@ void MemoryStream::WriteFromBuffer(quint8 *buffer, qint64 count)
         length = newPosition;
     memcpy(internalBuffer + position, buffer, static_cast<size_t>(count));
     position += count;
+}
+
+void MemoryStream::WriteFromBuffer(ByteBuffer buffer)
+{
+    WriteFromBuffer(buffer.ptr(), buffer.size());
 }
 
 void MemoryStream::ReadStringASCII(QString &str, qint64 count)

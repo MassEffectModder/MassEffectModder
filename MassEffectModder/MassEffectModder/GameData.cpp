@@ -54,7 +54,7 @@ void GameData::ScanGameFiles(bool force)
                 while (iterator.hasNext())
                 {
                     iterator.next();
-                    if (gameType == MeType::ME3_TYPE && iterator.filePath().contains("Default.sfar", Qt::CaseInsensitive))
+                    if (gameType == MeType::ME3_TYPE && iterator.filePath().endsWith("Default.sfar", Qt::CaseInsensitive))
                         isValid = true;
                     packages.push_back(iterator.filePath().mid(pathLen));
                 }

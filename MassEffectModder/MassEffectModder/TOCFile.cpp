@@ -87,7 +87,7 @@ void TOCBinFile::GenerateDLCsTocBinFiles()
             while (iterator.hasNext())
             {
                 iterator.next();
-                if (iterator.filePath().contains("Mount.dlc", Qt::CaseInsensitive))
+                if (iterator.filePath().endsWith("Mount.dlc", Qt::CaseInsensitive))
                 {
                     isValid = true;
                     break;

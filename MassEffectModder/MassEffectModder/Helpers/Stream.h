@@ -24,6 +24,8 @@
 
 #include <QtGlobal>
 
+#include "Helpers/ByteBuffer.h"
+
 class QString;
 
 typedef enum
@@ -53,7 +55,9 @@ public:
 
     virtual void CopyFrom(Stream *stream, qint64 count, qint64 bufferSize = 10000) = 0;
     virtual void ReadToBuffer(quint8 *buffer, qint64 count) = 0;
+    virtual ByteBuffer ReadToBuffer(qint64 count) = 0;
     virtual void WriteFromBuffer(quint8 *buffer, qint64 count) = 0;
+    virtual void WriteFromBuffer(ByteBuffer buffer) = 0;
     virtual void ReadStringASCII(QString &str, qint64 count) = 0;
     virtual void ReadStringASCIINull(QString &str) = 0;
     virtual void ReadStringUnicode16(QString &str, qint64 count) = 0;
