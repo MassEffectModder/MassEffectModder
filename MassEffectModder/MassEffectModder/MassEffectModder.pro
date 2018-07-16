@@ -28,6 +28,7 @@ SOURCES += \
     MipMap.cpp \
     Misc.cpp \
     Package.cpp \
+    Resources.cpp \
     Texture.cpp \
     TextureEmptyMips.cpp \
     TextureProcess.cpp \
@@ -62,6 +63,7 @@ HEADERS += \
     MipMaps.h \
     MemTypes.h \
     Package.h \
+    Resources.h \
     Texture.h \
     TextureEmptyMips.h \
     TextureProps.h \
@@ -71,6 +73,9 @@ HEADERS += \
     Version.h
 
 DEFINES += QT_DEPRECATED_WARNINGS
+
+RESOURCES = Resources.qrc
+QMAKE_RESOURCE_FLAGS += --no-compress
 
 precompile_header:!isEmpty(PRECOMPILED_HEADER) {
     DEFINES += USING_PCH

@@ -29,12 +29,79 @@
 #include "ConfigIni.h"
 #include "GameData.h"
 #include "Image.h"
+#include "Resources.h"
 #include "MemTypes.h"
 
-int TreeScan::PrepareListOfTextures(MeType gameId, bool ipc)
+static bool generateBuiltinMapFiles = false; // change to true to enable map files generation
+
+void TreeScan::loadTexturesMap(MeType gameId, Resources *resources, QList<FoundTexture> *textures)
 {
-    treeScan = nullptr;
-    auto *textures = new QList<FoundTexture>();
+    QStringList pkgs;
+    if (gameId == MeType::ME1_TYPE)
+        pkgs = resources->tablePkgsME1;
+    else if (gameId == MeType::ME2_TYPE)
+        pkgs = resources->tablePkgsME2;
+    else
+        pkgs = resources->tablePkgsME3;
+
+    FileStream *tmp = new FileStream(QString(":/Resources/me%1map.bin").arg((int)gameId), FileMode::Open);
+    if (tmp->ReadUInt32() != 0x504D5443)
+        CRASH();
+    ByteBuffer decompressed = ByteBuffer(tmp->ReadInt32());
+    ByteBuffer compressed = tmp->ReadToBuffer(tmp->ReadUInt32());
+    uint dstLen = decompressed.size();
+    ZlibDecompress(compressed.ptr(), compressed.size(), decompressed.ptr(), &dstLen);
+    if (decompressed.size() != dstLen)
+        CRASH();
+    delete tmp;
+
+    Stream *fs = new MemoryStream(decompressed);
+    fs->Skip(8);
+    uint countTexture = fs->ReadUInt32();
+    for (uint i = 0; i < countTexture; i++)
+    {
+        FoundTexture texture{};
+        int len = fs->ReadByte();
+        fs->ReadStringASCII(texture.name, len);
+        texture.crc = fs->ReadUInt32();
+        texture.width = fs->ReadInt16();
+        texture.height = fs->ReadInt16();
+        texture.pixfmt = (PixelFormat)fs->ReadByte();
+        texture.flags = (TexProperty::TextureTypes)fs->ReadByte();
+        int countPackages = fs->ReadInt16();
+        texture.list = new QList<MatchedTexture>();
+        for (int k = 0; k < countPackages; k++)
+        {
+            MatchedTexture matched{};
+            matched.exportID = fs->ReadInt32();
+            if (gameId == MeType::ME1_TYPE)
+            {
+                matched.linkToMaster = fs->ReadInt16();
+                if (matched.linkToMaster != -1)
+                {
+                    matched.slave = true;
+                    fs->ReadStringASCIINull(matched.basePackageName);
+                }
+            }
+            matched.removeEmptyMips = fs->ReadByte() != 0;
+            matched.numMips = fs->ReadByte();
+            matched.path = pkgs[fs->ReadInt16()];
+            matched.packageName = BaseNameWithoutExt(matched.path).toUpper();
+            texture.list->push_back(matched);
+        }
+        textures->push_back(texture);
+    }
+}
+
+int TreeScan::PrepareListOfTextures(MeType gameId, Resources *resources, QList<FoundTexture> *textures, bool ipc)
+{
+    QStringList pkgs;
+    if (gameId == MeType::ME1_TYPE)
+        pkgs = resources->tablePkgsME1;
+    else if (gameId == MeType::ME2_TYPE)
+        pkgs = resources->tablePkgsME2;
+    else
+        pkgs = resources->tablePkgsME3;
 
     QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
             "/MassEffectModder";
@@ -199,7 +266,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, bool ipc)
                 }
                 mem.WriteByte(m.removeEmptyMips ? 1 : 0);
                 mem.WriteByte(m.numMips);
-                mem.WriteInt16(pkgs->indexOf(m.path));
+                mem.WriteInt16(pkgs.indexOf(m.path));
             }
             else
             {
@@ -236,8 +303,6 @@ int TreeScan::PrepareListOfTextures(MeType gameId, bool ipc)
         fs->CopyFrom(&mem, mem.Length());
     }
     delete fs;
-
-    treeScan = textures;
 
     return 0;
 }

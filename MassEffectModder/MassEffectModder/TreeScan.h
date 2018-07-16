@@ -24,6 +24,7 @@
 
 #include "MemTypes.h"
 #include "TextureProps.h"
+#include "Resources.h"
 
 struct MatchedTexture
 {
@@ -55,18 +56,14 @@ class TreeScan
 {
 private:
 
-    bool generateBuiltinMapFiles = false; // change to true to enable map files generation
-    QStringList *pkgs = nullptr;
-
-    void FindTextures(MeType gameId, QList<FoundTexture> *textures, const QString &packagePath, bool modified, bool ipc);
+    static void FindTextures(MeType gameId, QList<FoundTexture> *textures, const QString &packagePath, bool modified, bool ipc);
 
 public:
 
-    QList<FoundTexture> *treeScan = nullptr;
-
     TreeScan() = default;
-    int PrepareListOfTextures(MeType gameId, bool ipc);
-    void ReleaseTreeScan(QList<FoundTexture> *textures);
+    static void loadTexturesMap(MeType gameId, Resources *resources, QList<FoundTexture> *textures);
+    static void ReleaseTreeScan(QList<FoundTexture> *textures);
+    static int PrepareListOfTextures(MeType gameId, Resources *resources, QList<FoundTexture> *textures, bool ipc);
 };
 
 

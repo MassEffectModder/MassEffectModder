@@ -24,12 +24,12 @@
 
 #include "CmdLineTools.h"
 #include "ConfigIni.h"
+#include "Resources.h"
 #include "TreeScan.h"
 #include "GameData.h"
 #include "MemTypes.h"
 
 static QList<FoundTexture> *textures = nullptr;
-static TreeScan *treeScan = nullptr;
 
 static bool CheckGamePath()
 {
@@ -67,12 +67,13 @@ int ScanTextures(MeType gameId, bool ipc)
 
     ConsoleWrite("Scan textures started...");
 
-    treeScan = new TreeScan();
-    errorCode = treeScan->PrepareListOfTextures(gameId, ipc);
-    textures = treeScan->treeScan;
-    treeScan->ReleaseTreeScan(textures);
+    auto resources = new Resources();
+    resources->loadMD5Tables();
+    textures = new QList<FoundTexture>();
+    errorCode = TreeScan::PrepareListOfTextures(gameId, resources, textures, ipc);
+    TreeScan::ReleaseTreeScan(textures);
     delete textures;
-    delete treeScan;
+    delete resources;
 
     ConsoleWrite("Scan textures finished.\n");
 
