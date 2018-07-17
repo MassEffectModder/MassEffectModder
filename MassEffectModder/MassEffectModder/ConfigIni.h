@@ -22,8 +22,6 @@
 #ifndef CONFIG_INI_H
 #define CONFIG_INI_H
 
-#include <QString>
-
 class QSettings;
 
 class ConfigIni

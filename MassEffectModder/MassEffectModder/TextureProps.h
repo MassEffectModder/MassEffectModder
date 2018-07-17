@@ -22,13 +22,10 @@
 #ifndef TEXTURE_PROPS_H
 #define TEXTURE_PROPS_H
 
-#include <QString>
-#include <QList>
+#include "Helpers/FileStream.h"
+#include "Helpers/MemoryStream.h"
 
-#include <Helpers/FileStream.h>
-#include <Helpers/MemoryStream.h>
-
-#include <Package.h>
+#include "Package.h"
 
 class TexProperty
 {

@@ -25,9 +25,6 @@
 #include "MemTypes.h"
 #include "ConfigIni.h"
 
-#include <QString>
-#include <QStringList>
-
 class GameData
 {
 private:

@@ -22,9 +22,6 @@
 #ifndef PACKAGE_H
 #define PACKAGE_H
 
-#include <QString>
-#include <QList>
-
 #include <Helpers/FileStream.h>
 #include <Helpers/MemoryStream.h>
 

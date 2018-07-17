@@ -32,10 +32,10 @@ private:
 
 public:
 
-    MD5FileEntry *entriesME1{};
-    MD5FileEntry *entriesME1PL{};
-    MD5FileEntry *entriesME2{};
-    MD5FileEntry *entriesME3{};
+    QList<MD5FileEntry> entriesME1;
+    QList<MD5FileEntry> entriesME1PL;
+    QList<MD5FileEntry> entriesME2;
+    QList<MD5FileEntry> entriesME3;
     QStringList tablePkgsME1;
     QStringList tablePkgsME1PL;
     QStringList tablePkgsME2;

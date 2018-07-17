@@ -27,8 +27,6 @@
 #include "Helpers/Stream.h"
 #include "Helpers/ByteBuffer.h"
 
-#include <QList>
-
 #define DDS_TAG                  0x20534444
 #define DDS_HEADER_dwSize        124
 #define DDS_PIXELFORMAT_dwSize   32

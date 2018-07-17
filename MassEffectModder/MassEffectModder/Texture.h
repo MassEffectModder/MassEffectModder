@@ -22,14 +22,11 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include <QString>
-#include <QList>
+#include "Helpers/FileStream.h"
+#include "Helpers/MemoryStream.h"
 
-#include <Helpers/FileStream.h>
-#include <Helpers/MemoryStream.h>
-
-#include <Package.h>
-#include <TextureProps.h>
+#include "Package.h"
+#include "TextureProps.h"
 
 class Texture
 {

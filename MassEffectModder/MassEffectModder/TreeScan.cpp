@@ -96,12 +96,22 @@ void TreeScan::loadTexturesMap(MeType gameId, Resources *resources, QList<FoundT
 int TreeScan::PrepareListOfTextures(MeType gameId, Resources *resources, QList<FoundTexture> *textures, bool ipc)
 {
     QStringList pkgs;
+    QList<MD5FileEntry> md5Entries;
     if (gameId == MeType::ME1_TYPE)
+    {
         pkgs = resources->tablePkgsME1;
+        md5Entries = resources->entriesME1;
+    }
     else if (gameId == MeType::ME2_TYPE)
+    {
         pkgs = resources->tablePkgsME2;
+        md5Entries = resources->entriesME2;
+    }
     else
+    {
         pkgs = resources->tablePkgsME3;
+        md5Entries = resources->entriesME3;
+    }
 
     QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
             "/MassEffectModder";
@@ -115,7 +125,151 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources *resources, QList<F
         ConsoleSync();
     }
 
+    if (!g_GameData->FullScanME1Game)
+    {
+        g_GameData->packageFiles.sort(Qt::CaseInsensitive);
+        int count = g_GameData->packageFiles.count();
+        for (int i = 0; i < count; i++)
+        {
+            QString str = g_GameData->packageFiles[i];
+            if (str.contains("_IT.") ||
+                str.contains("_FR.") ||
+                str.contains("_ES.") ||
+                str.contains("_DE.") ||
+                str.contains("_RA.") ||
+                str.contains("_RU.") ||
+                str.contains("_PLPC.") ||
+                str.contains("_DEU.") ||
+                str.contains("_FRA.") ||
+                str.contains("_ITA.") ||
+                str.contains("_POL."))
+            {
+                g_GameData->packageFiles.push_back(str);
+                g_GameData->packageFiles.removeAt(i--);
+                count--;
+            }
+        }
+    }
 
+    if (!generateBuiltinMapFiles && !g_GameData->FullScanME1Game)
+    {
+        QStringList addedFiles;
+        QStringList modifiedFiles;
+
+        loadTexturesMap(gameId, resources, textures);
+
+        QStringList sortedFiles;
+        for (int i = 0; i < g_GameData->packageFiles.count(); i++)
+        {
+            sortedFiles.push_back(g_GameData->RelativeGameData(g_GameData->packageFiles[i]).toLower());
+        }
+        sortedFiles.sort(Qt::CaseInsensitive);
+
+        for (int k = 0; k < textures->count(); k++)
+        {
+            for (int t = 0; t < textures->at(k).list->count(); t++)
+            {
+                QString pkgPath = textures->at(k).list->at(t).path;
+                if (std::binary_search(sortedFiles.begin(), sortedFiles.end(), pkgPath))
+                    continue;
+                MatchedTexture f = textures->at(k).list->at(t);
+                f.path = "";
+                textures->at(k).list->replace(t, f);
+            }
+        }
+
+        if (ipc)
+        {
+            ConsoleWrite("[IPC]STAGE_CONTEXT STAGE_SCAN");
+            ConsoleSync();
+        }
+        for (int i = 0; i < g_GameData->packageFiles.count(); i++)
+        {
+            int index = -1;
+            bool modified = true;
+            bool foundPkg = false;
+            QString package = g_GameData->RelativeGameData(g_GameData->packageFiles[i]).toLower();
+            long packageSize = QFile(g_GameData->packageFiles[i]).size();
+            for (int p = 0; p < md5Entries.count(); p++)
+            {
+                if (package == md5Entries[p].path.toLower())
+                {
+                    foundPkg = true;
+                    if (packageSize == md5Entries[p].size)
+                    {
+                        modified = false;
+                        break;
+                    }
+                    index = p;
+                }
+            }
+            if (foundPkg && modified)
+                modifiedFiles.push_back(md5Entries[index].path);
+            else if (!foundPkg)
+                addedFiles.push_back(g_GameData->RelativeGameData(g_GameData->packageFiles[i]));
+        }
+
+        int lastProgress = -1;
+        int totalPackages = modifiedFiles.count() + addedFiles.count();
+        int currentPackage = 0;
+        if (ipc)
+        {
+            ConsoleWrite("[IPC]STAGE_WEIGHT STAGE_SCAN " +
+                QString::number(((float)totalPackages / g_GameData->packageFiles.count())));
+            ConsoleSync();
+        }
+        for (int i = 0; i < modifiedFiles.count(); i++, currentPackage++)
+        {
+            if (ipc)
+            {
+                ConsoleWrite("[IPC]PROCESSING_FILE " + modifiedFiles[i]);
+                int newProgress = currentPackage * 100 / totalPackages;
+                if (lastProgress != newProgress)
+                {
+                    ConsoleWrite("[IPC]TASK_PROGRESS " + QString::number(newProgress));
+                    lastProgress = newProgress;
+                }
+                ConsoleSync();
+            }
+            FindTextures(gameId, textures, modifiedFiles[i], true, ipc);
+        }
+
+        for (int i = 0; i < addedFiles.count(); i++, currentPackage++)
+        {
+            if (ipc)
+            {
+                ConsoleWrite("[IPC]PROCESSING_FILE " + addedFiles[i]);
+                int newProgress = currentPackage * 100 / totalPackages;
+                if (lastProgress != newProgress)
+                {
+                    ConsoleWrite("[IPC]TASK_PROGRESS " + QString::number(newProgress));
+                    lastProgress = newProgress;
+                }
+                ConsoleSync();
+            }
+            FindTextures(gameId, textures, addedFiles[i], false, ipc);
+        }
+
+        for (int k = 0; k < textures->count(); k++)
+        {
+            bool found = false;
+            for (int t = 0; t < textures->at(k).list->count(); t++)
+            {
+                if (textures->at(k).list->at(t).path != "")
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                textures->at(k).list->clear();
+                textures->removeAt(k);
+                k--;
+            }
+        }
+    }
+    else
     {
         int lastProgress = -1;
         for (int i = 0; i < g_GameData->packageFiles.count(); i++)
@@ -126,7 +280,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources *resources, QList<F
                 int newProgress = i * 100 / g_GameData->packageFiles.count();
                 if (lastProgress != newProgress)
                 {
-                    ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + newProgress);
+                    ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + QString::number(newProgress));
                     lastProgress = newProgress;
                 }
                 ConsoleSync();

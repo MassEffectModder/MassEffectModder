@@ -48,12 +48,13 @@ void Resources::loadMD5Tables()
         tablePkgsME1.push_back(pkg);
     }
     count = tmp2->ReadInt32();
-    entriesME1 = new MD5FileEntry[count];
     for (int l = 0; l < count; l++)
     {
-        entriesME1[l].path = tablePkgsME1[tmp2->ReadInt32()];
-        entriesME1[l].size = tmp2->ReadInt32();
-        tmp2->ReadToBuffer(entriesME1[l].md5, 16);
+        MD5FileEntry entry{};
+        entry.path = tablePkgsME1[tmp2->ReadInt32()];
+        entry.size = tmp2->ReadInt32();
+        tmp2->ReadToBuffer(entry.md5, 16);
+        entriesME1.push_back(entry);
     }
     delete tmp2;
     decompressed.Free();
@@ -79,12 +80,13 @@ void Resources::loadMD5Tables()
         tablePkgsME1PL.push_back(pkg);
     }
     count = tmp2->ReadInt32();
-    entriesME1PL = new MD5FileEntry[count];
     for (int l = 0; l < count; l++)
     {
-        entriesME1PL[l].path = tablePkgsME1PL[tmp2->ReadInt32()];
-        entriesME1PL[l].size = tmp2->ReadInt32();
-        tmp2->ReadToBuffer(entriesME1PL[l].md5, 16);
+        MD5FileEntry entry{};
+        entry.path = tablePkgsME1PL[tmp2->ReadInt32()];
+        entry.size = tmp2->ReadInt32();
+        tmp2->ReadToBuffer(entry.md5, 16);
+        entriesME1PL.push_back(entry);
     }
     delete tmp2;
     decompressed.Free();
@@ -110,12 +112,13 @@ void Resources::loadMD5Tables()
         tablePkgsME2.push_back(pkg);
     }
     count = tmp2->ReadInt32();
-    entriesME2 = new MD5FileEntry[count];
     for (int l = 0; l < count; l++)
     {
-        entriesME2[l].path = tablePkgsME2[tmp2->ReadInt32()];
-        entriesME2[l].size = tmp2->ReadInt32();
-        tmp2->ReadToBuffer(entriesME2[l].md5, 16);
+        MD5FileEntry entry{};
+        entry.path = tablePkgsME2[tmp2->ReadInt32()];
+        entry.size = tmp2->ReadInt32();
+        tmp2->ReadToBuffer(entry.md5, 16);
+        entriesME2.push_back(entry);
     }
     delete tmp2;
     decompressed.Free();
@@ -141,12 +144,13 @@ void Resources::loadMD5Tables()
         tablePkgsME3.push_back(pkg);
     }
     count = tmp2->ReadInt32();
-    entriesME3 = new MD5FileEntry[count];
     for (int l = 0; l < count; l++)
     {
-        entriesME3[l].path = tablePkgsME3[tmp2->ReadInt32()];
-        entriesME3[l].size = tmp2->ReadInt32();
-        tmp2->ReadToBuffer(entriesME3[l].md5, 16);
+        MD5FileEntry entry{};
+        entry.path = tablePkgsME3[tmp2->ReadInt32()];
+        entry.size = tmp2->ReadInt32();
+        tmp2->ReadToBuffer(entry.md5, 16);
+        entriesME3.push_back(entry);
     }
     delete tmp2;
     decompressed.Free();
@@ -164,9 +168,10 @@ void Resources::unloadMD5Tables()
     tablePkgsME1PL.clear();
     tablePkgsME2.clear();
     tablePkgsME3.clear();
-    delete[] entriesME1;
-    delete[] entriesME2;
-    delete[] entriesME3;
+    entriesME1.clear();
+    entriesME1PL.clear();
+    entriesME2.clear();
+    entriesME3.clear();
 
     MD5tablesLoaded = false;
 }
