@@ -19,13 +19,6 @@
  *
  */
 
-#include <QCoreApplication>
-#include <QDir>
-#include <QFile>
-#include <QDateTime>
-#include <QSysInfo>
-#include <QStringList>
-
 #include "Exceptions/SignalHandler.h"
 #include "Helpers/Logs.h"
 #include "Helpers/MiscHelpers.h"

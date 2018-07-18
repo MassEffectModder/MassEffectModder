@@ -25,9 +25,6 @@
 #include "Helpers/FileStream.h"
 #include "Helpers/MiscHelpers.h"
 
-#include <utility>
-#include <QImage>
-
 Image::Image(QString &fileName, ImageFormat format)
 {
     if (format == ImageFormat::UnknownImageFormat)

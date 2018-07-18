@@ -23,8 +23,6 @@
 #include "Helpers/MemoryStream.h"
 #include "Wrappers.h"
 
-#include <omp.h>
-
 void Image::LoadImageDDS(Stream *stream)
 {
     if (stream->ReadUInt32() != DDS_TAG)

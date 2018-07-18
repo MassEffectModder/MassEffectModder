@@ -19,15 +19,6 @@
  *
  */
 
-#include <QCommandLineParser>
-#include <QCommandLineOption>
-
-#include <cstdlib>
-#include <cstring>
-
-#include <QString>
-#include <QDateTime>
-
 #include "Logs.h"
 
 Logs::Logs() :

@@ -19,10 +19,7 @@
  *
  */
 
-#include <QString>
-#include <QFile>
-
-#include <Helpers/MemoryStream.h>
+#include "Helpers/MemoryStream.h"
 
 MemoryStream::MemoryStream()
 {

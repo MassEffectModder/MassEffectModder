@@ -19,8 +19,6 @@
  *
  */
 
-#include <QString>
-
 #if defined(_WIN32)
 #include <windows.h>
 #elif defined(__APPLE__)

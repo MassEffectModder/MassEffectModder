@@ -22,11 +22,6 @@
 #ifndef LOGS_H
 #define LOGS_H
 
-#include <mutex>
-#include <cstring>
-
-class QString;
-
 class Logs
 {
 private:

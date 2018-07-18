@@ -26,9 +26,6 @@
 #include "GameData.h"
 #include "Wrappers.h"
 
-#include <QCryptographicHash>
-#include <QTextStream>
-
 int ME3DLC::getNumberOfFiles(QString &path)
 {
     if (!QFile(path).exists())

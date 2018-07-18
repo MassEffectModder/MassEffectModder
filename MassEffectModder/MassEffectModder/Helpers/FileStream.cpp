@@ -19,10 +19,7 @@
  *
  */
 
-#include <QString>
-#include <QFile>
-
-#include <Helpers/FileStream.h>
+#include "Helpers/FileStream.h"
 
 void FileStream::CheckFileIOErrorStatus()
 {

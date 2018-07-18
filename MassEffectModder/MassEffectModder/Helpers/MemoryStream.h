@@ -22,8 +22,6 @@
 #ifndef MEMORYSTREAM_H
 #define MEMORYSTREAM_H
 
-#include <QtGlobal>
-
 #include "Helpers/Stream.h"
 #include "Helpers/ByteBuffer.h"
 

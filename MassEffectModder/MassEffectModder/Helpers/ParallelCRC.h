@@ -32,9 +32,6 @@
 #ifndef PARALLEL_CRC_H
 #define PARALLEL_CRC_H
 
-#include <omp.h>
-#include <cstring>
-
 static const uint kCrcPoly = 0xEDB88320;
 static const uint kInitial = 0xFFFFFFFF;
 static const int CRC_NUM_TABLES = 8;

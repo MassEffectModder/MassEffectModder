@@ -21,11 +21,6 @@
 
 #include "GameData.h"
 
-#include <QSettings>
-#include <QStandardPaths>
-#include <QDir>
-#include <QDirIterator>
-
 MeType GameData::gameType = UNKNOWN_TYPE;
 
 void GameData::ScanGameFiles(bool force)

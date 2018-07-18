@@ -27,6 +27,8 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <utility>
+#include <mutex>
 
 #include <QtGlobal>
 #include <QCoreApplication>
@@ -42,6 +44,13 @@
 #include <QString>
 #include <QList>
 #include <QStringList>
+#include <QImage>
+#include <QCryptographicHash>
+#include <QTextStream>
+#include <QCommandLineParser>
+#include <QCommandLineOption>
+
+#include <omp.h>
 
 #include "Exceptions/Exception.h"
 

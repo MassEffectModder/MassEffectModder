@@ -22,11 +22,7 @@
 #ifndef STREAM_H
 #define STREAM_H
 
-#include <QtGlobal>
-
 #include "Helpers/ByteBuffer.h"
-
-class QString;
 
 typedef enum
 {

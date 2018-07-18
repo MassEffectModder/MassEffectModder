@@ -22,8 +22,6 @@
 #ifndef FILESTREAM_H
 #define FILESTREAM_H
 
-#include <QtGlobal>
-
 #include "Helpers/Stream.h"
 
 typedef enum

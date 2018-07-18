@@ -21,10 +21,6 @@
 
 #include "ConfigIni.h"
 
-#include <QSettings>
-#include <QStandardPaths>
-#include <QDir>
-
 #if defined(_WIN32)
 #include <windows.h>
 #endif

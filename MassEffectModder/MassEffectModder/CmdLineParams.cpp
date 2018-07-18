@@ -19,8 +19,6 @@
  *
  */
 
-#include <QCoreApplication>
-
 #include "Exceptions/SignalHandler.h"
 #include "Helpers/MiscHelpers.h"
 

@@ -22,8 +22,6 @@
 #ifndef MISC_HELPERS_H
 #define MISC_HELPERS_H
 
-#include <QString>
-
 int DetectAmountMemoryGB();
 void ConsoleWrite(const QString &message);
 void ConsoleSync();
