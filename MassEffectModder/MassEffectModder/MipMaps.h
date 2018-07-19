@@ -23,6 +23,7 @@
 #define MIPMAPS_H
 
 #include "MemTypes.h"
+#include "TreeScan.h"
 #include "Helpers/ByteBuffer.h"
 #include "Helpers/Stream.h"
 
@@ -34,8 +35,19 @@ struct FileMod
     long size;
 };
 
+struct RemoveMipsEntry
+{
+    QString pkgPath;
+    QList<int> exportIDs;
+};
+
+
 class MipMaps
 {
+private:
+
+    QList<QString> pkgsToRepack;
+    QList<QString> pkgsToMarker;
 
 public:
 
@@ -43,6 +55,14 @@ public:
     static ByteBuffer decompressData(Stream *stream, long compressedSize);
     void extractTextureToPng(QString &outputFile, QString &packagePath, int exportID);
 
+    QList<RemoveMipsEntry> *prepareListToRemove(QList<FoundTexture> *textures);
+    void removeMipMapsME1(int phase, QList<FoundTexture> *textures, bool ipc);
+    void removeMipMapsME1(int phase, QList<FoundTexture> *textures, Package &package,
+                          QList<RemoveMipsEntry> *list, int removeEntry, bool ipc);
+    void removeMipMapsME2ME3(QList<FoundTexture> *textures, bool ipc, bool repack);
+    void removeMipMapsME2ME3(Package &package,
+                             QList<RemoveMipsEntry> *list, int removeEntry, bool repack);
 };
+
 
 #endif

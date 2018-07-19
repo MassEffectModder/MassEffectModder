@@ -356,6 +356,17 @@ bool Texture::existMipmap(int width, int height)
     return false;
 }
 
+void Texture::removeEmptyMips()
+{
+    for (int l = 0; l < mipMapsList.count(); l++)
+    {
+        if (mipMapsList[l].storageType == StorageTypes::empty)
+        {
+            mipMapsList.removeAt(l--);
+        }
+    }
+}
+
 const Texture::MipMap& Texture::getMipmap(int width, int height)
 {
     for (int l = 0; l < mipMapsList.count(); l++)

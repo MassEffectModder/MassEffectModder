@@ -101,6 +101,7 @@ public:
     const ByteBuffer getTopImageData();
     const ByteBuffer getMipMapDataByIndex(int index);
     const ByteBuffer getMipMapData(MipMap &mipmap);
+    void removeEmptyMips();
     bool hasEmptyMips();
     int numNotEmptyMips();
     const ByteBuffer toArray(uint pccTextureDataOffset, bool updateOffset = true);
