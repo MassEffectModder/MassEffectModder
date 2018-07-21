@@ -47,7 +47,7 @@ Texture::Texture(Package &package, int exportId, ByteBuffer data, bool fixDim)
     int numMipMaps = textureData->ReadInt32();
     for (int l = 0; l < numMipMaps; l++)
     {
-        MipMap mipmap{};
+        TextureMipMap mipmap{};
         mipmap.storageType = (StorageTypes)textureData->ReadInt32();
         mipmap.uncompressedSize = textureData->ReadInt32();
         mipmap.compressedSize = textureData->ReadInt32();
@@ -155,7 +155,7 @@ Texture::~Texture()
     }
 }
 
-void Texture::replaceMipMaps(QList<MipMap> &newMipMaps)
+void Texture::replaceMipMaps(const QList<TextureMipMap> &newMipMaps)
 {
     for (int l = 0; l < mipMapsList.count(); l++)
     {
@@ -173,7 +173,7 @@ void Texture::replaceMipMaps(QList<MipMap> &newMipMaps)
     textureData->WriteInt32(newMipMaps.count());
     for (int l = 0; l < newMipMaps.count(); l++)
     {
-        MipMap mipmap = mipMapsList[l];
+        TextureMipMap mipmap = mipMapsList[l];
         textureData->WriteUInt32(mipmap.storageType);
         textureData->WriteInt32(mipmap.uncompressedSize);
         textureData->WriteInt32(mipmap.compressedSize);
@@ -190,10 +190,10 @@ void Texture::replaceMipMaps(QList<MipMap> &newMipMaps)
     }
 }
 
-const ByteBuffer Texture::compressTexture(ByteBuffer inputData, StorageTypes type, qint64 &compressedSize)
+const ByteBuffer Texture::compressTexture(ByteBuffer inputData, StorageTypes type)
 {
     MemoryStream ouputStream;
-    compressedSize = 0;
+    qint64 compressedSize = 0;
     uint dataBlockLeft = inputData.size();
     uint newNumBlocks = (inputData.size() + maxBlockSize - 1) / maxBlockSize;
     QList<Package::ChunkBlock> blocks{};
@@ -320,7 +320,7 @@ uint Texture::getCrcData(ByteBuffer data)
     return (uint)~ParallelCRC::Compute(data.ptr(), data.size());
 }
 
-uint Texture::getCrcMipmap(MipMap &mipmap)
+uint Texture::getCrcMipmap(TextureMipMap &mipmap)
 {
     ByteBuffer data = getMipMapData(mipmap);
     if (data.ptr() == nullptr)
@@ -336,7 +336,7 @@ uint Texture::getCrcTopMipmap()
     return getCrcData(data);
 }
 
-const Texture::MipMap& Texture::getTopMipmap()
+const Texture::TextureMipMap& Texture::getTopMipmap()
 {
     for (int l = 0; l < mipMapsList.count(); l++)
     {
@@ -367,7 +367,7 @@ void Texture::removeEmptyMips()
     }
 }
 
-const Texture::MipMap& Texture::getMipmap(int width, int height)
+const Texture::TextureMipMap& Texture::getMipmap(int width, int height)
 {
     for (int l = 0; l < mipMapsList.count(); l++)
     {
@@ -390,7 +390,7 @@ const ByteBuffer Texture::getTopImageData()
     if (mipMapData.ptr() != nullptr)
         return mipMapData;
 
-    MipMap m = getTopMipmap();
+    TextureMipMap m = getTopMipmap();
     return getMipMapData(m);
 }
 
@@ -402,7 +402,7 @@ const ByteBuffer Texture::getMipMapDataByIndex(int index)
     return getMipMapData(mipMapsList[index]);
 }
 
-const ByteBuffer Texture::getMipMapData(MipMap &mipmap)
+const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
 {
     switch (mipmap.storageType)
     {
@@ -453,7 +453,7 @@ const ByteBuffer Texture::getMipMapData(MipMap &mipmap)
                     {
                         QStringList files = QDir(g_GameData->bioGamePath(), archive + ".tfc", QDir::NoSort, QDir::Files | QDir::NoSymLinks).entryList();
                         if (files.count() == 1)
-                            filename = files[0];
+                            filename = files.first();
                         else if (files.count() == 0)
                         {
                             DLCArchiveFile = DirName(DLCArchiveFile) + "/Textures_" +
@@ -509,7 +509,7 @@ const ByteBuffer Texture::toArray(uint pccTextureDataOffset, bool updateOffset)
     newData.WriteInt32(mipMapsList.count());
     for (int l = 0; l < mipMapsList.count(); l++)
     {
-        MipMap mipmap = mipMapsList[l];
+        TextureMipMap mipmap = mipMapsList[l];
         newData.WriteInt32(mipmap.storageType);
         newData.WriteInt32(mipmap.uncompressedSize);
         newData.WriteInt32(mipmap.compressedSize);

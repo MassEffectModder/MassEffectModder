@@ -98,8 +98,8 @@ private:
 
 public:
 
-    QList<MipMap> getMipMaps() { return mipMaps; }
-    PixelFormat getPixelFormat() { return  pixelFormat; }
+    QList<MipMap>& getMipMaps() { return mipMaps; }
+    PixelFormat getPixelFormat() { return pixelFormat; }
 
     Image(QString &fileName, ImageFormat format = ImageFormat::UnknownImageFormat);
     Image(Stream *stream, ImageFormat format);

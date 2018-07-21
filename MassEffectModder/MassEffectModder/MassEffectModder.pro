@@ -66,7 +66,6 @@ HEADERS += \
     Resources.h \
     Texture.h \
     TextureProps.h \
-    TextureReplace.h \
     TOCFile.h \
     TreeScan.h \
     Version.h

@@ -45,8 +45,6 @@ public:
     int getHeight() { return height; }
     int getOrigWidth() { return origWidth; }
     int getOrigHeight() { return origHeight; }
-
-
 };
 
 #endif

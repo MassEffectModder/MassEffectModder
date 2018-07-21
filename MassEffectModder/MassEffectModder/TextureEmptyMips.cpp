@@ -185,7 +185,7 @@ void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> *textures, Package
             }
             for (int t = 0; t < texture->mipMapsList.count(); t++)
             {
-                Texture::MipMap mipmap = texture->mipMapsList[t];
+                Texture::TextureMipMap mipmap = texture->mipMapsList[t];
                 if (mipmap.storageType == Texture::StorageTypes::extLZO ||
                     mipmap.storageType == Texture::StorageTypes::extZlib ||
                     mipmap.storageType == Texture::StorageTypes::extUnc)

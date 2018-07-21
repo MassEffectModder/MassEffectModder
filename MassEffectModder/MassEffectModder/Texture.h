@@ -67,7 +67,7 @@ public:
         empty = StorageFlags::externalFile | StorageFlags::unused,           // ME1, ME2, ME3
     };
 
-    struct MipMap
+    struct TextureMipMap
     {
         StorageTypes storageType = StorageTypes::empty;
         int uncompressedSize{};
@@ -79,7 +79,7 @@ public:
         ByteBuffer newData;
     };
 
-    QList<MipMap> mipMapsList;
+    QList<TextureMipMap> mipMapsList;
     TexProperty *properties;
     QString packageName;
     QString basePackageName;
@@ -88,19 +88,19 @@ public:
 
     Texture(Package &package, int exportId, ByteBuffer data, bool fixDim = true);
     ~Texture();
-    void replaceMipMaps(QList<MipMap> &newMipMaps);
-    const ByteBuffer compressTexture(ByteBuffer inputData, StorageTypes type, qint64 &compressedSize);
+    void replaceMipMaps(const QList<TextureMipMap> &newMipMaps);
+    const ByteBuffer compressTexture(ByteBuffer inputData, StorageTypes type);
     const ByteBuffer decompressTexture(MemoryStream &stream, StorageTypes type, int uncompressedSize, int compressedSize);
     uint getCrcData(ByteBuffer data);
-    uint getCrcMipmap(MipMap &mipmap);
+    uint getCrcMipmap(TextureMipMap &mipmap);
     uint getCrcTopMipmap();
-    const MipMap& getTopMipmap();
+    const TextureMipMap& getTopMipmap();
     bool existMipmap(int width, int height);
-    const MipMap& getMipmap(int width, int height);
+    const TextureMipMap& getMipmap(int width, int height);
     bool hasImageData();
     const ByteBuffer getTopImageData();
     const ByteBuffer getMipMapDataByIndex(int index);
-    const ByteBuffer getMipMapData(MipMap &mipmap);
+    const ByteBuffer getMipMapData(TextureMipMap &mipmap);
     void removeEmptyMips();
     bool hasEmptyMips();
     int numNotEmptyMips();

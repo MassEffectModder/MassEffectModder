@@ -397,10 +397,8 @@ public:
     void loadGuids(Stream &input);
     void saveGuids(Stream &output);
     bool SaveToFile(bool forceCompressed = false, bool forceDecompressed = false, bool appendMarker = true);
-    void Dispose();
     void DisposeCache();
     void ReleaseChunks();
-
 };
 
 #endif

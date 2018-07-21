@@ -498,7 +498,7 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> *textures, const 
                 continue;
             }
 
-            const Texture::MipMap& mipmap = texture->getTopMipmap();
+            const Texture::TextureMipMap& mipmap = texture->getTopMipmap();
             QString name = package.exportsTable.at(i).objectName;
             MatchedTexture matchTexture;
             matchTexture.exportID = i;

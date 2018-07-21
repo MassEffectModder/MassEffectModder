@@ -24,6 +24,8 @@
 
 #include "MemTypes.h"
 #include "TreeScan.h"
+#include "Image.h"
+#include "Texture.h"
 #include "Helpers/ByteBuffer.h"
 #include "Helpers/Stream.h"
 
@@ -41,6 +43,63 @@ struct RemoveMipsEntry
     QList<int> exportIDs;
 };
 
+struct TFCTexture
+{
+    quint8 guid[16];
+    QString name;
+};
+
+struct ModEntry
+{
+    QString packagePath;
+    int exportId;
+
+    QString textureName;
+    uint textureCrc;
+    bool markConvert;
+    Image *cacheImage;
+    QList<ByteBuffer> cacheCprMipmaps;
+    QMap<int, QList<Texture::TextureMipMap>> masterTextures;
+    QList<Texture::TextureMipMap> arcTexture;
+    quint8 arcTfcGuid[16];
+    QString arcTfcName;
+    bool arcTfcDLC;
+    QList<Texture::TextureMipMap> cprTexture;
+    int instance;
+
+    bool binaryModType;
+    ByteBuffer binaryModData;
+
+    QString memPath;
+    long memEntryOffset;
+    long memEntrySize;
+};
+
+struct MapTexturesToMod
+{
+    QString packagePath;
+    int modIndex;
+    int texturesIndex;
+    int listIndex;
+};
+
+struct MapPackagesToModEntry
+{
+    int modIndex;
+    int texturesIndex;
+    int listIndex;
+};
+
+struct MapPackagesToMod
+{
+    QString packagePath;
+    QList<MapPackagesToModEntry> textures;
+    long usage;
+    int instances;
+    long weight;
+    bool slave;
+    RemoveMipsEntry *removeMips;
+};
 
 class MipMaps
 {
@@ -48,6 +107,7 @@ private:
 
     QList<QString> pkgsToRepack;
     QList<QString> pkgsToMarker;
+    QList<ModEntry> modsToReplace;
 
 public:
 
@@ -62,7 +122,13 @@ public:
     void removeMipMapsME2ME3(QList<FoundTexture> *textures, bool ipc, bool repack);
     void removeMipMapsME2ME3(Package &package,
                              QList<RemoveMipsEntry> *list, int removeEntry, bool repack);
-};
 
+
+    PixelFormat changeTextureType(PixelFormat gamePixelFormat, PixelFormat texturePixelFormat, Texture *texture);
+    QString replaceTextures(QList<MapPackagesToMod> *map, QList<FoundTexture> *textures,
+        bool repack, bool appendMarker, bool verify, bool removeMips, bool ipc);
+    QString replaceModsFromList(QList<FoundTexture> *textures,
+        bool repack, bool appendMarker, bool verify, bool removeMips, bool ipc);
+};
 
 #endif

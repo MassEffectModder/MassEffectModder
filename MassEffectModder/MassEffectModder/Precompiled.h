@@ -49,6 +49,7 @@
 #include <QTextStream>
 #include <QCommandLineParser>
 #include <QCommandLineOption>
+#include <QMap>
 
 #include <omp.h>
 
