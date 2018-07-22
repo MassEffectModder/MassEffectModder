@@ -214,7 +214,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources *resources, QList<F
         int currentPackage = 0;
         if (ipc)
         {
-            ConsoleWrite("[IPC]STAGE_WEIGHT STAGE_SCAN " +
+            ConsoleWrite(QString("[IPC]STAGE_WEIGHT STAGE_SCAN ") +
                 QString::number(((float)totalPackages / g_GameData->packageFiles.count())));
             ConsoleSync();
         }
@@ -222,11 +222,11 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources *resources, QList<F
         {
             if (ipc)
             {
-                ConsoleWrite("[IPC]PROCESSING_FILE " + modifiedFiles[i]);
+                ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + modifiedFiles[i]);
                 int newProgress = currentPackage * 100 / totalPackages;
                 if (lastProgress != newProgress)
                 {
-                    ConsoleWrite("[IPC]TASK_PROGRESS " + QString::number(newProgress));
+                    ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + QString::number(newProgress));
                     lastProgress = newProgress;
                 }
                 ConsoleSync();
@@ -238,11 +238,11 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources *resources, QList<F
         {
             if (ipc)
             {
-                ConsoleWrite("[IPC]PROCESSING_FILE " + addedFiles[i]);
+                ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + addedFiles[i]);
                 int newProgress = currentPackage * 100 / totalPackages;
                 if (lastProgress != newProgress)
                 {
-                    ConsoleWrite("[IPC]TASK_PROGRESS " + QString::number(newProgress));
+                    ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + QString::number(newProgress));
                     lastProgress = newProgress;
                 }
                 ConsoleSync();
@@ -470,12 +470,12 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> *textures, const 
     {
         if (ipc)
         {
-            ConsoleWrite("[IPC]ERROR Issue opening package file: " + packagePath);
+            ConsoleWrite(QString("[IPC]ERROR Issue opening package file: ") + packagePath);
             ConsoleSync();
         }
         else
         {
-            ConsoleWrite("ERROR: Issue opening package file: " + packagePath);
+            ConsoleWrite(QString("ERROR: Issue opening package file: ") + packagePath);
         }
         return;
     }
@@ -525,12 +525,12 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> *textures, const 
             {
                 if (ipc)
                 {
-                    ConsoleWrite("[IPC]ERROR Texture " + exp.objectName + " is broken in package: " + packagePath + ", skipping...");
+                    ConsoleWrite(QString("[IPC]ERROR Texture ") + exp.objectName + " is broken in package: " + packagePath + ", skipping...");
                     ConsoleSync();
                 }
                 else
                 {
-                    ConsoleWrite("Error: Texture " + exp.objectName + " is broken in package: " + packagePath + ", skipping...");
+                    ConsoleWrite(QString("Error: Texture ") + exp.objectName + " is broken in package: " + packagePath + ", skipping...");
                 }
                 delete texture;
                 continue;

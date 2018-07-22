@@ -712,3 +712,5 @@ Mod_ME2NoMiniGames,
 },
 
 };
+
+const int modsEntriesSize = sizeof (modsEntries) / sizeof (MD5ModFileEntry);

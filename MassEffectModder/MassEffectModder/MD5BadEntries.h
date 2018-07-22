@@ -25,5 +25,6 @@
 #include "Misc.h"
 
 extern MD5ModFileEntry badMOD[];
+extern const int badMODSize;
 
 #endif

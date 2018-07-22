@@ -23,8 +23,10 @@
 #include <windows.h>
 #elif defined(__APPLE__)
 #include <sys/sysctl.h>
+#include <unistd.h>
 #elif defined(__linux__)
 #include <sys/sysinfo.h>
+#include <unistd.h>
 #else
 #error not supported system!
 #endif
@@ -94,4 +96,26 @@ QString BaseNameWithoutExt(const QString &path)
 QString GetFileExtension(const QString &path)
 {
     return path.section('.', -1);
+}
+
+bool DetectAdminRights()
+{
+    bool status;
+
+#if defined(_WIN32)
+    SID_IDENTIFIER_AUTHORITY authority = SECURITY_NT_AUTHORITY;
+    PSID sid;
+    status = AllocateAndInitializeSid(&authority, 2, SECURITY_BUILTIN_DOMAIN_RID,
+                                      DOMAIN_ALIAS_RID_ADMINS, 0, 0, 0, 0, 0, 0, &sid);
+    if (status)
+    {
+        if (!CheckTokenMembership(NULL, sid, &status))
+            status = false;
+        FreeSid(sid);
+    }
+#else
+    status = (geteuid() == 0);
+#endif
+
+    return status;
 }

@@ -38,6 +38,9 @@ public:
     static MeType gameType;
     QStringList gameFiles;
     QStringList packageFiles;
+    QStringList packageMainFiles;
+    QStringList packageDLCFiles;
+    QStringList sfarFiles;
     QStringList tfcFiles;
     bool FullScanME1Game;
     bool DLCDataCacheDone = false;
@@ -48,6 +51,7 @@ public:
     const QString MainData();
     const QString bioGamePath();
     const QString DLCData();
+    const QString DLCDataSuffix();
     const QString RelativeGameData(QString &path);
     const QString GameExePath();
     const QString GameUserPath();

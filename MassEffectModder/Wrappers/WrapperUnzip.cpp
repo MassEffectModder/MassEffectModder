@@ -57,7 +57,7 @@ static unsigned char tpfPassword[] =
 unsigned char tpfXorKey[2] = { 0xA4, 0x3F };
 int gXor = 0;
 
-void *ZipOpenFromFile(const void *path, unsigned long *numEntries, int tpf)
+void *ZipOpenFromFile(const void *path, int *numEntries, int tpf)
 {
     UnzipHandle *unzipHandle;
     int result;
@@ -87,7 +87,7 @@ void *ZipOpenFromFile(const void *path, unsigned long *numEntries, int tpf)
     return static_cast<void *>(unzipHandle);
 }
 
-void *ZipOpenFromMem(unsigned char *src, unsigned long srcLen, unsigned long *numEntries, int tpf)
+void *ZipOpenFromMem(unsigned char *src, unsigned long srcLen, int *numEntries, int tpf)
 {
     UnzipHandle *unzipHandle;
     int result;
@@ -123,20 +123,23 @@ void *ZipOpenFromMem(unsigned char *src, unsigned long srcLen, unsigned long *nu
     return static_cast<void *>(unzipHandle);
 }
 
-int ZipGetCurrentFileInfo(void *handle, char *fileName, unsigned long sizeOfFileName, unsigned long *dstLen)
+int ZipGetCurrentFileInfo(void *handle, char **fileName, int *sizeOfFileName, unsigned long *dstLen)
 {
     auto unzipHandle = static_cast<UnzipHandle *>(handle);
     int result;
     char f[256];
 
-    if (unzipHandle == nullptr || sizeOfFileName == 0 || dstLen == nullptr)
+    if (unzipHandle == nullptr || sizeOfFileName == nullptr || dstLen == nullptr)
         return -1;
 
-    result = unzGetCurrentFileInfo(unzipHandle->file, &unzipHandle->curFileInfo, f, sizeOfFileName, nullptr, 0, nullptr, 0);
+    *sizeOfFileName = sizeof(f);
+    result = unzGetCurrentFileInfo(unzipHandle->file, &unzipHandle->curFileInfo, f, *sizeOfFileName, nullptr, 0, nullptr, 0);
     if (result != UNZ_OK)
         return result;
 
-    strcpy(fileName, f);
+    *fileName = new char[*sizeOfFileName];
+    strcpy(*fileName, f);
+    *sizeOfFileName = strlen(*fileName);
     *dstLen = unzipHandle->curFileInfo.uncompressed_size;
 
     return 0;

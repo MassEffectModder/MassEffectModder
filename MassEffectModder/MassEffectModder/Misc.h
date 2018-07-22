@@ -22,12 +22,11 @@
 #ifndef MISC_H
 #define MISC_H
 
-struct MD5FileEntry
-{
-    QString path;
-    quint8 md5[16];
-    int size;
-};
+#include "Helpers/ByteBuffer.h"
+#include "MemTypes.h"
+#include "Texture.h"
+#include "TreeScan.h"
+#include "Resources.h"
 
 struct MD5ModFileEntry
 {
@@ -36,8 +35,47 @@ struct MD5ModFileEntry
     const char *modName;
 };
 
+struct BinaryMod
+{
+    QString packagePath;
+    int exportId;
+    ByteBuffer data;
+    int binaryModType;
+    QString textureName;
+    uint textureCrc;
+    bool markConvert;
+    long offset;
+    long size;
+};
+
 class Misc
 {
+public:
+
+    static bool ApplyLAAForME1Exe();
+    static bool ChangeProductNameForME1Exe();
+    static bool checkWriteAccessDir(const QString &path);
+    static bool checkWriteAccessFile(QString &path);
+    static bool isRunAsAdministrator();
+    static bool CheckAndCorrectAccessToGame();
+    static long getDiskFreeSpace(QString &path);
+    static long getDirectorySize(QString &dir);
+    static QString getBytesFormat(long size);
+    static void startTimer();
+    static long stopTimer();
+    static QString getTimerFormat(long time);
+    static int ParseLegacyMe3xScriptMod(QList<FoundTexture> *textures, QString &script, QString &textureName);
+    static void ParseME3xBinaryScriptMod(QString &script, QString &package, int &expId, QString &path);
+    static PixelFormat changeTextureType(PixelFormat gamePixelFormat, PixelFormat texturePixelFormat,
+                                         TexProperty::TextureTypes flags);
+    static bool convertDataModtoMem(QString &inputDir, QString &memFilePath,
+                                    MeType gameId, QList<FoundTexture> *textures, bool markToConvert,
+                                    bool onlyIndividual, bool ipc);
+    static QByteArray calculateMD5(QString &filePath);
+    static QStringList *detectMods();
+    static QStringList *detectBrokenMod();
+    static bool unpackSFARisNeeded();
+    static bool checkGameFiles(MeType gameType, Resources *resources, QString &errors, QStringList *mods, bool ipc);
 };
 
 #endif

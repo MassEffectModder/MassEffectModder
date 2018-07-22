@@ -25,5 +25,6 @@
 #include "Misc.h"
 
 extern MD5ModFileEntry modsEntries[];
+extern const int modsEntriesSize;
 
 #endif

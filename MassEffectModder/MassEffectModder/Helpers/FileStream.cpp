@@ -117,6 +117,14 @@ ByteBuffer FileStream::ReadToBuffer(qint64 count)
     return buffer;
 }
 
+ByteBuffer FileStream::ReadToBuffer()
+{
+    qint64 count = file->size();
+    ByteBuffer buffer = ByteBuffer(count);
+    ReadToBuffer(buffer.ptr(), count);
+    return buffer;
+}
+
 void FileStream::WriteFromBuffer(quint8 *buffer, qint64 count)
 {
     file->write(reinterpret_cast<char *>(buffer), count);

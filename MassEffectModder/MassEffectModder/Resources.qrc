@@ -7,6 +7,5 @@
     <file>Resources/me1map.bin</file>
     <file>Resources/me2map.bin</file>
     <file>Resources/me3map.bin</file>
-    <file>Resources/PermissionsGranter.exe</file>
 </qresource>
 </RCC>

@@ -19,38 +19,19 @@
  *
  */
 
-#ifndef RESOURCES_H
-#define RESOURCES_H
+#ifndef LOD_SETTINGS_H
+#define LOD_SETTINGS_H
 
-#include "Helpers/ByteBuffer.h"
+#include "MemTypes.h"
+#include "ConfigIni.h"
 
-struct MD5FileEntry
+class LODSettings
 {
-    QString path;
-    quint8 md5[16];
-    int size;
-};
-
-class Resources
-{
-private:
-    bool MD5tablesLoaded = false;
-
-public:
-
-    QList<MD5FileEntry> entriesME1;
-    QList<MD5FileEntry> entriesME1PL;
-    QList<MD5FileEntry> entriesME2;
-    QList<MD5FileEntry> entriesME3;
-    QStringList tablePkgsME1;
-    QStringList tablePkgsME1PL;
-    QStringList tablePkgsME2;
-    QStringList tablePkgsME3;
-
-    ~Resources() { unloadMD5Tables(); }
-    void loadMD5Tables();
-    void unloadMD5Tables();
-    void prepareGranter();
+    static void readLOD(MeType gameId, ConfigIni *engineConf, QString &log);
+    static void readLODIpc(MeType gameId, ConfigIni *engineConf);
+    static void updateLOD(MeType gameId, ConfigIni *engineConf);
+    static void removeLOD(MeType gameId, ConfigIni *engineConf);
+    static void updateGFXSettings(MeType gameId, ConfigIni *engineConf, bool softShadowsME1, bool meuitmMode);
 };
 
 #endif

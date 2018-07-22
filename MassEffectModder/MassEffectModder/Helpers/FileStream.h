@@ -64,6 +64,7 @@ public:
     void CopyFrom(Stream *stream, qint64 count, qint64 bufferSize = 10000) override;
     void ReadToBuffer(quint8 *buffer, qint64 count) override;
     ByteBuffer ReadToBuffer(qint64 count) override;
+    ByteBuffer ReadToBuffer();
     void WriteFromBuffer(quint8 *buffer, qint64 count) override;
     void WriteFromBuffer(ByteBuffer buffer) override;
     void ReadStringASCII(QString &str, qint64 count) override;

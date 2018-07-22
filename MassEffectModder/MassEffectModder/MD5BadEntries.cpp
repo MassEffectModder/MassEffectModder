@@ -101,3 +101,5 @@ Bad_NoSharedCooldown,
 },
 
 };
+
+const int badMODSize = sizeof (badMOD) / sizeof (MD5ModFileEntry);

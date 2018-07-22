@@ -31,9 +31,9 @@ int LzmaDecompress(BYTE *src, UINT32 src_len, BYTE *dst, UINT32 *dst_len);
 int LzoDecompress(BYTE *src, UINT32 src_len, BYTE *dst, UINT32 *dst_len);
 int LzoCompress(BYTE *src, UINT32 src_len, BYTE **dst, UINT32 *dst_len);
 
-void *ZipOpenFromFile(const void *path, UINT64 *numEntries, int tpf);
-void *ZipOpenFromMem(BYTE *src, UINT64 srcLen, UINT64 *numEntries, int tpf);
-int ZipGetCurrentFileInfo(void *handle, char *fileName, UINT64 sizeOfFileName, UINT64 *dstLen);
+void *ZipOpenFromFile(const void *path, int *numEntries, int tpf);
+void *ZipOpenFromMem(BYTE *src, UINT64 srcLen, int *numEntries, int tpf);
+int ZipGetCurrentFileInfo(void *handle, char **fileName, int *sizeOfFileName, UINT64 *dstLen);
 int ZipGoToFirstFile(void *handle);
 int ZipGoToNextFile(void *handle);
 int ZipLocateFile(void *handle, const char *filename);

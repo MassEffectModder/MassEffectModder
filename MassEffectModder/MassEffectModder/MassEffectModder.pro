@@ -22,6 +22,7 @@ SOURCES += \
     ImageDDS.cpp \
     ImageTGA.cpp \
     GameData.cpp \
+    LODSettings.cpp \
     MD5BadEntries.cpp \
     MD5ModEntries.cpp \
     Main.cpp \
@@ -56,6 +57,7 @@ HEADERS += \
     DLC.h \
     Image.h \
     GameData.h \
+    LODSettings.h \
     MD5BadEntries.h \
     MD5ModEntries.h \
     Misc.h \
