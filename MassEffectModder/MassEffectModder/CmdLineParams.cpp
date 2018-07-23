@@ -51,6 +51,7 @@ int ProcessArguments()
     int cmd = CmdType::UNKNOWN;
     MeType gameId = MeType::UNKNOWN_TYPE;
     bool ipc = false;
+    CmdLineTools tools;
 
     const QStringList args = QCoreApplication::arguments();
     for (int l = 0; l < args.count(); l++)
@@ -93,7 +94,7 @@ int ProcessArguments()
                 errorCode = -1;
                 break;
             }
-            errorCode = ScanTextures(gameId, ipc);
+            errorCode = tools.scanTextures(gameId, ipc);
             break;
     }
 

@@ -62,7 +62,7 @@ QList<RemoveMipsEntry> *MipMaps::prepareListToRemove(QList<FoundTexture> *textur
     return list;
 }
 
-void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> *textures, bool ipc)
+void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> *textures, QStringList *pkgsToMarker, bool ipc)
 {
     int lastProgress = -1;
 
@@ -104,13 +104,14 @@ void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> *textures, bool ip
             return;
         }
 
-        removeMipMapsME1(phase, textures, package, list, i, ipc);
+        removeMipMapsME1(phase, textures, package, list, pkgsToMarker, i, ipc);
     }
     delete  list;
 }
 
 void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> *textures, Package &package,
-                               QList<RemoveMipsEntry> *list, int removeEntry, bool ipc)
+                               QList<RemoveMipsEntry> *list, QStringList *pkgsToMarker,
+                               int removeEntry, bool ipc)
 {
     for (int l = 0; l < list->at(removeEntry).exportIDs.count(); l++)
     {
@@ -222,11 +223,12 @@ void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> *textures, Package
     }
     if (package.SaveToFile(false, false, true))
     {
-        pkgsToMarker.removeOne(package.packagePath);
+        pkgsToMarker->removeOne(package.packagePath);
     }
 }
 
-void MipMaps::removeMipMapsME2ME3(QList<FoundTexture> *textures, bool ipc, bool repack)
+void MipMaps::removeMipMapsME2ME3(QList<FoundTexture> *textures, QStringList *pkgsToMarker,
+                                  QStringList *pkgsToRepack, bool ipc, bool repack)
 {
     int lastProgress = -1;
     QList<RemoveMipsEntry> *list = prepareListToRemove(textures);
@@ -271,12 +273,14 @@ void MipMaps::removeMipMapsME2ME3(QList<FoundTexture> *textures, bool ipc, bool 
             return;
         }
 
-        removeMipMapsME2ME3(package, list, i, repack);
+        removeMipMapsME2ME3(package, list, pkgsToMarker, pkgsToRepack, i, repack);
     }
     delete  list;
 }
 
-void MipMaps::removeMipMapsME2ME3(Package &package, QList<RemoveMipsEntry> *list, int removeEntry, bool repack)
+void MipMaps::removeMipMapsME2ME3(Package &package, QList<RemoveMipsEntry> *list,
+                                  QStringList *pkgsToMarker, QStringList *pkgsToRepack,
+                                  int removeEntry, bool repack)
 {
     for (int l = 0; l < list->at(removeEntry).exportIDs.count(); l++)
     {
@@ -305,7 +309,7 @@ void MipMaps::removeMipMapsME2ME3(Package &package, QList<RemoveMipsEntry> *list
     if (package.SaveToFile(repack, false, true))
     {
         if (repack)
-            pkgsToRepack.removeOne(package.packagePath);
-        pkgsToMarker.removeOne(package.packagePath);
+            pkgsToRepack->removeOne(package.packagePath);
+        pkgsToMarker->removeOne(package.packagePath);
     }
 }

@@ -86,11 +86,140 @@ void TreeScan::loadTexturesMap(MeType gameId, Resources *resources, QList<FoundT
             matched.removeEmptyMips = fs->ReadByte() != 0;
             matched.numMips = fs->ReadByte();
             matched.path = pkgs[fs->ReadInt16()];
+            matched.path.replace(QChar('\\'), QChar('/'));
             matched.packageName = BaseNameWithoutExt(matched.path).toUpper();
             texture.list->push_back(matched);
         }
         textures->push_back(texture);
     }
+}
+
+bool TreeScan::loadTexturesMapFile(QString &path, QList<FoundTexture> *textures, bool ipc)
+{
+    if (!QFile(path).exists())
+    {
+        if (ipc)
+        {
+            ConsoleWrite("[IPC]ERROR_TEXTURE_MAP_MISSING");
+            ConsoleSync();
+        }
+        else
+        {
+            ConsoleWrite("Missing textures scan file!");
+        }
+        return false;
+    }
+
+    bool foundRemoved = false;
+    bool foundAdded = false;
+
+    FileStream fs = FileStream(path, FileMode::Open, FileAccess::ReadOnly);
+    uint tag = fs.ReadUInt32();
+    uint version = fs.ReadUInt32();
+    if (tag != textureMapBinTag || version != textureMapBinVersion)
+    {
+        if (ipc)
+        {
+            ConsoleWrite("[IPC]ERROR_TEXTURE_MAP_WRONG");
+            ConsoleSync();
+        }
+        else
+        {
+            ConsoleWrite("Detected wrong or old version of textures scan file!");
+        }
+        return false;
+    }
+
+    uint countTexture = fs.ReadUInt32();
+    for (uint i = 0; i < countTexture; i++)
+    {
+        FoundTexture texture{};
+        int len = fs.ReadInt32();
+        fs.ReadStringASCII(texture.name, len);
+        texture.crc = fs.ReadUInt32();
+        uint countPackages = fs.ReadUInt32();
+        texture.list = new QList<MatchedTexture>();
+        for (uint k = 0; k < countPackages; k++)
+        {
+            MatchedTexture matched{};
+            matched.exportID = fs.ReadInt32();
+            matched.linkToMaster = fs.ReadInt32();
+            len = fs.ReadInt32();
+            fs.ReadStringASCII(matched.path, len);
+            matched.path.replace(QChar('\\'), QChar('/'));
+            texture.list->push_back(matched);
+        }
+        textures->push_back(texture);
+    }
+
+    QStringList packages = QStringList();
+    int numPackages = fs.ReadInt32();
+    for (int i = 0; i < numPackages; i++)
+    {
+        int len = fs.ReadInt32();
+        QString pkgPath;
+        fs.ReadStringASCII(pkgPath, len);
+        pkgPath.replace(QChar('\\'), QChar('/'));
+        packages.push_back(pkgPath);
+    }
+
+    for (int i = 0; i < packages.count(); i++)
+    {
+        bool found = false;
+        for (int s = 0; s < g_GameData->packageFiles.count(); s++)
+        {
+            if (g_GameData->packageFiles[s].compare(packages[i], Qt::CaseInsensitive) == 0)
+            {
+                found = true;
+                break;
+            }
+        }
+        if (!found)
+        {
+            if (ipc)
+            {
+                ConsoleWrite(QString("[IPC]ERROR_REMOVED_FILE ") + packages[i]);
+                ConsoleSync();
+            }
+            else
+            {
+                ConsoleWrite(QString("Removed file since last game data scan: ") + packages[i]);
+            }
+            foundRemoved = true;
+        }
+    }
+    if (!ipc && foundRemoved)
+        ConsoleWrite("Above files removed since last game data scan.");
+
+    for (int i = 0; i < g_GameData->packageFiles.count(); i++)
+    {
+        bool found = false;
+        for (int s = 0; s < packages.count(); s++)
+        {
+            if (packages[s].compare(g_GameData->packageFiles[i], Qt::CaseInsensitive) == 0)
+            {
+                found = true;
+                break;
+            }
+        }
+        if (!found)
+        {
+            if (ipc)
+            {
+                ConsoleWrite(QString("[IPC]ERROR_ADDED_FILE ") + g_GameData->packageFiles[i]);
+                ConsoleSync();
+            }
+            else
+            {
+                ConsoleWrite(QString("File: ") + g_GameData->packageFiles[i]);
+            }
+            foundAdded = true;
+        }
+    }
+    if (!ipc && foundAdded)
+        ConsoleWrite("Above files added since last game data scan.");
+
+    return !foundRemoved && !foundAdded;
 }
 
 int TreeScan::PrepareListOfTextures(MeType gameId, Resources *resources, QList<FoundTexture> *textures, bool ipc)

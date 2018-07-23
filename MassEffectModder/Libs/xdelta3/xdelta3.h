@@ -40,6 +40,10 @@
 #include <string.h>
 #include <sys/types.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /****************************************************************/
 
 /* Default configured value of stream->winsize.  If the program
@@ -1380,5 +1384,9 @@ void xd3_blksize_add (xoff_t *blkno,
 #endif
 
 #define SIZEOF_ARRAY(x) (sizeof(x) / sizeof(x[0]))
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _XDELTA3_H_ */
