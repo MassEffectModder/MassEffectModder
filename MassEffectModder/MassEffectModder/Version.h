@@ -23,6 +23,6 @@
 #define VERSION_H
 
 #define APP_NAME "MEM"
-#define MEM_VERSION "400"
+#define MEM_VERSION "200"
 
 #endif
