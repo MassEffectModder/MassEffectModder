@@ -106,10 +106,10 @@ public:
 
     struct ImportEntry
     {
-        //int packageFileId;
-        //QString packageFile; // not used - save RAM
+        int packageFileId;
+        QString packageFile;
         int classId;
-        //QString className; // not used - save RAM
+        QString className;
         int linkId;
         int objectNameId;
         QString objectName;
@@ -128,15 +128,15 @@ public:
 
         ByteBuffer raw;
         ByteBuffer newData;
-        //ulong objectFlags; // not used - save RAM
+        ulong objectFlags;
         uint id;
 
         inline int getClassId()
         {
             return *reinterpret_cast<int *>(&raw.ptr()[ClassIdOffset]);
         }
-        //QString className; // not used - save RAM
-        //int classParentId; // not used - save RAM
+        QString className;
+        int classParentId;
         inline int getLinkId()
         {
             return *reinterpret_cast<int *>(&raw.ptr()[LinkIdOffset]);
@@ -146,7 +146,7 @@ public:
             return *reinterpret_cast<int *>(&raw.ptr()[ObjectNameIdOffset]);
         }
         QString objectName;
-        //int suffixNameId; // not used - save RAM
+        int suffixNameId;
         inline uint getDataSize()
         {
             return *reinterpret_cast<int *>(&raw.ptr()[DataSizeOffset]);

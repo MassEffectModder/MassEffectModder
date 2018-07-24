@@ -235,8 +235,8 @@ int Package::Open(const QString &filename, bool headerOnly)
             loadGuids(*packageStream);
     }
 
-    //loadImportsNames(); // not used by tool
-    //loadExportsNames(); // not used by tool
+    loadImportsNames();
+    loadExportsNames();
 
     return 0;
 }
@@ -647,8 +647,8 @@ void Package::loadImports(Stream &input)
         ImportEntry entry;
 
         long start = input.Position();
-        input.SkipInt32(); // entry.packageFileId = input.ReadInt32(); // not used, save RAM
-        //entry.packageFile = namesTable[packageFileId].name; // not used, save RAM
+        entry.packageFileId = input.ReadInt32();
+        entry.packageFile = namesTable[entry.packageFileId].name;
         input.SkipInt32(); // const 0
         entry.classId = input.ReadInt32();
         input.SkipInt32(); // const 0
@@ -672,7 +672,7 @@ void Package::loadImportsNames()
     for (uint i = 0; i < getImportsCount(); i++)
     {
         ImportEntry entry = importsTable[i];
-        //entry.className = getClassName(entry.classId); // disabled for now - save RAM
+        entry.className = getClassName(entry.classId);
         importsTable[i] = entry;
     }
 }
@@ -736,9 +736,9 @@ void Package::loadExportsNames()
 {
     for (uint i = 0; i < getExportsCount(); i++)
     {
-        //ExportEntry entry = exportsTable[i];
-        //entry.className = getClassName(entry.classId); // disabled for now - save RAM
-        //exportsTable[i] = entry;
+        ExportEntry entry = exportsTable[i];
+        entry.className = getClassName(entry.getClassId());
+        exportsTable[i] = entry;
     }
 }
 
