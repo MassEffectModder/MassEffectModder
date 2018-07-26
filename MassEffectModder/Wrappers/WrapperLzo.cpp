@@ -21,6 +21,8 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <memory>
+
 #include <lzo/lzo1x.h>
 
 int LzoDecompress(unsigned char *src, unsigned int src_len, unsigned char *dst, unsigned int *dst_len)
@@ -45,29 +47,25 @@ int LzoCompress(unsigned char *src, unsigned int src_len, unsigned char **dst, u
     if (status != LZO_E_OK)
         return status;
 
-    auto wrkmem = static_cast<unsigned char *>(malloc(LZO1X_1_15_MEM_COMPRESS));
+    std::unique_ptr<unsigned char> wrkmem (new unsigned char[LZO1X_1_15_MEM_COMPRESS]);
     if (wrkmem == nullptr)
         return LZO_E_OUT_OF_MEMORY;
-    memset(wrkmem, 0, LZO1X_1_15_MEM_COMPRESS);
+    memset(wrkmem.get(), 0, LZO1X_1_15_MEM_COMPRESS);
 
-    auto tmpBuffer = static_cast<unsigned char *>(malloc(src_len + LZO1X_1_15_MEM_COMPRESS));
+    std::unique_ptr<unsigned char> tmpBuffer (new unsigned char[src_len + LZO1X_1_15_MEM_COMPRESS]);
     if (tmpBuffer == nullptr)
     {
-        free(wrkmem);
         return LZO_E_OUT_OF_MEMORY;
     }
-    memset(tmpBuffer, 0, src_len + LZO1X_1_15_MEM_COMPRESS);
+    memset(tmpBuffer.get(), 0, src_len + LZO1X_1_15_MEM_COMPRESS);
 
-    status = lzo1x_1_15_compress(src, src_len, tmpBuffer, &len, wrkmem);
+    status = lzo1x_1_15_compress(src, src_len, tmpBuffer.get(), &len, wrkmem.get());
     if (status == LZO_E_OK)
     {
         *dst = new unsigned char[len];
-        memcpy(*dst, tmpBuffer, len);
+        memcpy(*dst, tmpBuffer.get(), len);
         *dst_len = static_cast<unsigned int>(len);
     }
-
-    free(tmpBuffer);
-    free(wrkmem);
 
     return status;
 }

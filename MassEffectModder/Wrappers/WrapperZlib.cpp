@@ -27,6 +27,7 @@
 
 #include <zlib.h>
 #include <cstring>
+#include <memory>
 
 int ZlibDecompress(unsigned char *src, unsigned int src_len, unsigned char *dst, unsigned int *dst_len)
 {
@@ -44,20 +45,18 @@ int ZlibDecompress(unsigned char *src, unsigned int src_len, unsigned char *dst,
 int ZlibCompress(unsigned char *src, unsigned int src_len, unsigned char **dst, unsigned int *dst_len, int compression_level)
 {
     int tmpBufLen = (src_len * 2) + 128;
-    auto tmpbuf = new unsigned char[tmpBufLen];
+    std::unique_ptr<unsigned char> tmpbuf (new unsigned char[tmpBufLen]);
     uLongf len = tmpBufLen;
 
     int status = compress2(static_cast<Bytef *>(*dst), &len, static_cast<Bytef *>(src), static_cast<uLong>(src_len), compression_level);
     if (status == Z_OK)
     {
         *dst = new unsigned char[len];
-        memcpy(*dst, tmpbuf, len);
+        memcpy(*dst, tmpbuf.get(), len);
         *dst_len = static_cast<unsigned int>(len);
     }
     else
         *dst_len = 0;
-
-    delete[] tmpbuf;
 
     return status;
 }

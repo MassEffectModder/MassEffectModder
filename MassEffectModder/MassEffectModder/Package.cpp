@@ -981,7 +981,7 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
 
     packageStream->Close();
 
-    auto fs = new FileStream(packagePath, FileMode::Create, FileAccess::WriteOnly);
+    std::unique_ptr<FileStream> fs (new FileStream(packagePath, FileMode::Create, FileAccess::WriteOnly));
     if (fs == nullptr)
         CRASH_MSG(QString("Failed to write to file: %1").arg(packagePath).toStdString().c_str());
 
@@ -1106,7 +1106,6 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
         QString str = MEMendFileMarker;
         fs->WriteStringASCII(str);
     }
-    delete fs;
 
     return true;
 }

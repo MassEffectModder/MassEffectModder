@@ -29,6 +29,7 @@
 #include <cstring>
 #include <utility>
 #include <mutex>
+#include <memory>
 
 #include <QtGlobal>
 #include <QCoreApplication>

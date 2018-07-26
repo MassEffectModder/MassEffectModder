@@ -67,8 +67,8 @@ bool Misc::ChangeProductNameForME1Exe()
         // search for "ProductName Mass Effect"
         quint8 pattern[] = { 0x50, 0, 0x72, 0, 0x6F, 0, 0x64, 0, 0x75, 0, 0x63, 0, 0x74, 0, 0x4E, 0, 0x61, 0, 0x6D, 0, 0x65, 0, 0, 0, 0, 0,
                            0x4D, 0, 0x61, 0, 0x73, 0, 0x73, 0, 0x20, 0, 0x45, 0, 0x66, 0, 0x66, 0, 0x65, 0, 0x63, 0, 0x74, 0 };
-        FileStream *fs = new FileStream(g_GameData->GameExePath(), FileMode::Open, FileAccess::ReadWrite);
-        ByteBuffer buffer = fs->ReadToBuffer();
+        FileStream fs = FileStream(g_GameData->GameExePath(), FileMode::Open, FileAccess::ReadWrite);
+        ByteBuffer buffer = fs.ReadToBuffer();
         quint8 *ptr = buffer.ptr();
         int pos = -1;
         for (int i = 0; i < buffer.size(); i++)
@@ -94,8 +94,8 @@ bool Misc::ChangeProductNameForME1Exe()
         if (pos != -1)
         {
             // replace to "Mass_Effect"
-            fs->JumpTo(pos + 34);
-            fs->WriteByte(0x5f);
+            fs.JumpTo(pos + 34);
+            fs.WriteByte(0x5f);
             ConsoleWrite(QString("Patching ME1 for Product Name: ") + g_GameData->GameExePath());
         }
         else
@@ -103,7 +103,6 @@ bool Misc::ChangeProductNameForME1Exe()
             ConsoleWrite(QString("Specific Product Name not found or already changed: ") + g_GameData->GameExePath());
         }
         buffer.Free();
-        delete fs;
         return true;
     }
 
@@ -113,9 +112,8 @@ bool Misc::ChangeProductNameForME1Exe()
 
 bool Misc::checkWriteAccessDir(const QString &path)
 {
-    auto file = new QFile(path + "/test-mem-writefile");
+    std::unique_ptr<QFile> file (new QFile("/test-mem-writefile"));
     bool status = file->open(QIODevice::ReadWrite);
-    delete file;
     if (status)
         QFile(path + "/test-mem-writefile").remove();
     return status;
@@ -123,9 +121,8 @@ bool Misc::checkWriteAccessDir(const QString &path)
 
 bool Misc::checkWriteAccessFile(QString &path)
 {
-    auto file = new QFile(path);
+    std::unique_ptr<QFile> file (new QFile(path));
     bool status = file->open(QIODevice::ReadWrite);
-    delete file;
     return status;
 }
 
@@ -381,17 +378,17 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
     ulong dstLen = 0;
     QStringList ddsList;
     int numEntries = 0;
-    FileStream *outFs;
 
     QList<BinaryMod> mods = QList<BinaryMod>();
     QList<FileMod> modFiles = QList<FileMod>();
 
     if (QFile(memFilePath).exists())
         QFile(memFilePath).remove();
-    outFs = new FileStream(memFilePath, FileMode::Create, FileAccess::WriteOnly);
-    outFs->WriteUInt32(TextureModTag);
-    outFs->WriteUInt32(TextureModVersion);
-    outFs->WriteInt64(0); // filled later
+
+    FileStream outFs = FileStream(memFilePath, FileMode::Create, FileAccess::WriteOnly);
+    outFs.WriteUInt32(TextureModTag);
+    outFs.WriteUInt32(TextureModVersion);
+    outFs.WriteInt64(0); // filled later
 
     int lastProgress = -1;
     for (int n = 0; n < list.count(); n++)
@@ -466,33 +463,33 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                 fileMod.size = fs.ReadInt64();
                 long prevPos = fs.Position();
                 fs.JumpTo(fileMod.offset);
-                fileMod.offset = outFs->Position();
+                fileMod.offset = outFs.Position();
                 if (fileMod.tag == FileTextureTag || fileMod.tag == FileTextureTag2)
                 {
                     QString str;
                     fs.ReadStringASCIINull(str);
-                    outFs->WriteStringASCIINull(str);
+                    outFs.WriteStringASCIINull(str);
                     fs.ReadStringASCIINull(str);
-                    outFs->WriteStringASCIINull(str);
+                    outFs.WriteStringASCIINull(str);
                 }
                 else if (fileMod.tag == FileBinaryTag)
                 {
-                    outFs->WriteInt32(fs.ReadInt32());
+                    outFs.WriteInt32(fs.ReadInt32());
                     QString str;
                     fs.ReadStringASCIINull(str);
-                    outFs->WriteStringASCIINull(str);
+                    outFs.WriteStringASCIINull(str);
                 }
                 else if (fileMod.tag == FileXdeltaTag)
                 {
-                    outFs->WriteInt32(fs.ReadInt32());
+                    outFs.WriteInt32(fs.ReadInt32());
                     QString str;
                     fs.ReadStringASCIINull(str);
-                    outFs->WriteStringASCIINull(str);
+                    outFs.WriteStringASCIINull(str);
                 }
                 else
                     CRASH();
 
-                outFs->CopyFrom(&fs, fileMod.size);
+                outFs.CopyFrom(&fs, fileMod.size);
                 fs.JumpTo(prevPos);
                 modFiles.push_back(fileMod);
             }
@@ -1181,7 +1178,7 @@ failed:
             FileMod fileMod{};
             Stream *dst = MipMaps::compressData(mods[l].data);
             dst->SeekBegin();
-            fileMod.offset = outFs->Position();
+            fileMod.offset = outFs.Position();
             fileMod.size = dst->Length();
 
             if (mods[l].binaryModType == 1)
@@ -1199,8 +1196,8 @@ failed:
                 fileMod.name += QString::number(BaseName(mods[l].packagePath).size()) + "-" + BaseName(mods[l].packagePath) +
                         "-E" + QString::number(mods[l].exportId) + ".bin";
 
-                outFs->WriteInt32(mods[l].exportId);
-                outFs->WriteStringASCIINull(mods[l].packagePath);
+                outFs.WriteInt32(mods[l].exportId);
+                outFs.WriteStringASCIINull(mods[l].packagePath);
             }
             else if (mods[l].binaryModType == 2)
             {
@@ -1217,8 +1214,8 @@ failed:
                 fileMod.name += QString::number(BaseName(mods[l].packagePath).size()) + "-" + BaseName(mods[l].packagePath) +
                         "-E" + QString::number(mods[l].exportId) + ".xdelta";
 
-                outFs->WriteInt32(mods[l].exportId);
-                outFs->WriteStringASCIINull(mods[l].packagePath);
+                outFs.WriteInt32(mods[l].exportId);
+                outFs.WriteStringASCIINull(mods[l].packagePath);
             }
             else
             {
@@ -1227,10 +1224,10 @@ failed:
                 else
                     fileMod.tag = FileTextureTag;
                 fileMod.name = mods[l].textureName + QString::number(mods[l].textureCrc, 16).prepend("_0x") + ".dds";
-                outFs->WriteStringASCIINull(mods[l].textureName);
-                outFs->WriteUInt32(mods[l].textureCrc);
+                outFs.WriteStringASCIINull(mods[l].textureName);
+                outFs.WriteUInt32(mods[l].textureCrc);
             }
-            outFs->CopyFrom(dst, dst->Length());
+            outFs.CopyFrom(dst, dst->Length());
             delete dst;
             modFiles.push_back(fileMod);
         }
@@ -1239,7 +1236,7 @@ failed:
 
     if (modFiles.count() == 0)
     {
-        outFs->Close();
+        outFs.Close();
         if (QFile(memFilePath).exists())
             QFile(memFilePath).remove();
         if (ipc)
@@ -1250,23 +1247,21 @@ failed:
         return false;
     }
 
-    long pos = outFs->Position();
-    outFs->SeekBegin();
-    outFs->WriteUInt32(TextureModTag);
-    outFs->WriteUInt32(TextureModVersion);
-    outFs->WriteInt64(pos);
-    outFs->JumpTo(pos);
-    outFs->WriteUInt32((uint)gameId);
-    outFs->WriteInt32(modFiles.count());
+    long pos = outFs.Position();
+    outFs.SeekBegin();
+    outFs.WriteUInt32(TextureModTag);
+    outFs.WriteUInt32(TextureModVersion);
+    outFs.WriteInt64(pos);
+    outFs.JumpTo(pos);
+    outFs.WriteUInt32((uint)gameId);
+    outFs.WriteInt32(modFiles.count());
     for (int i = 0; i < modFiles.count(); i++)
     {
-        outFs->WriteUInt32(modFiles[i].tag);
-        outFs->WriteStringASCIINull(modFiles[i].name);
-        outFs->WriteInt64(modFiles[i].offset);
-        outFs->WriteInt64(modFiles[i].size);
+        outFs.WriteUInt32(modFiles[i].tag);
+        outFs.WriteStringASCIINull(modFiles[i].name);
+        outFs.WriteInt64(modFiles[i].offset);
+        outFs.WriteInt64(modFiles[i].size);
     }
-
-    outFs->Close();
 
     return true;
 }
@@ -1387,7 +1382,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources *resources, QString &errors
     allFilesCount += g_GameData->tfcFiles.count();
 
     mods->clear();
-    FileStream *fs = nullptr;
+    FileStream *fs;
     if (generateModsMd5Entries)
         fs = new FileStream("MD5ModFileEntry" + QString::number((int)gameType) + ".cs", FileMode::Create, FileAccess::WriteOnly);
     if (generateMd5Entries)

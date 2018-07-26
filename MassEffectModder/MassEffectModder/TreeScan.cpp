@@ -44,18 +44,17 @@ void TreeScan::loadTexturesMap(MeType gameId, Resources *resources, QList<FoundT
     else
         pkgs = resources->tablePkgsME3;
 
-    FileStream *tmp = new FileStream(QString(":/Resources/me%1map.bin").arg((int)gameId), FileMode::Open);
-    if (tmp->ReadUInt32() != 0x504D5443)
+    FileStream tmp = FileStream(QString(":/Resources/me%1map.bin").arg((int)gameId), FileMode::Open);
+    if (tmp.ReadUInt32() != 0x504D5443)
         CRASH();
-    ByteBuffer decompressed = ByteBuffer(tmp->ReadInt32());
-    ByteBuffer compressed = tmp->ReadToBuffer(tmp->ReadUInt32());
+    ByteBuffer decompressed = ByteBuffer(tmp.ReadInt32());
+    ByteBuffer compressed = tmp.ReadToBuffer(tmp.ReadUInt32());
     uint dstLen = decompressed.size();
     ZlibDecompress(compressed.ptr(), compressed.size(), decompressed.ptr(), &dstLen);
     if (decompressed.size() != dstLen)
         CRASH();
-    delete tmp;
 
-    Stream *fs = new MemoryStream(decompressed);
+    std::unique_ptr<Stream> fs (new MemoryStream(decompressed));
     fs->Skip(8);
     uint countTexture = fs->ReadUInt32();
     for (uint i = 0; i < countTexture; i++)
@@ -507,7 +506,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources *resources, QList<F
     if (QFile(filename).exists())
         QFile(filename).remove();
 
-    auto fs = new FileStream(filename, FileMode::Create, FileAccess::WriteOnly);
+    auto fs = FileStream(filename, FileMode::Create, FileAccess::WriteOnly);
     MemoryStream mem;
     mem.WriteUInt32(textureMapBinTag);
     mem.WriteUInt32(textureMapBinVersion);
@@ -573,19 +572,19 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources *resources, QList<F
 
     if (generateBuiltinMapFiles)
     {
-        fs->WriteUInt32(0x504D5443);
-        fs->WriteUInt32(mem.Length());
+        fs.WriteUInt32(0x504D5443);
+        fs.WriteUInt32(mem.Length());
         quint8 *compressed = nullptr;
         uint compressedSize = 0;
         ZlibCompress(mem.ToArray().ptr(), mem.Length(), &compressed, &compressedSize);
-        fs->WriteUInt32(compressedSize);
-        fs->WriteFromBuffer(compressed, compressedSize);
+        fs.WriteUInt32(compressedSize);
+        fs.WriteFromBuffer(compressed, compressedSize);
+        delete[] compressed;
     }
     else
     {
-        fs->CopyFrom(&mem, mem.Length());
+        fs.CopyFrom(&mem, mem.Length());
     }
-    delete fs;
 
     return 0;
 }

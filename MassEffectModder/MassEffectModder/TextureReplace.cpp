@@ -699,8 +699,8 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> *textures, QStringList 
         }
     }
 
-    auto map = new QList<MapTexturesToMod>();
-    auto mapSlaves = new QList<MapTexturesToMod>();
+    std::unique_ptr<QList<MapTexturesToMod>> map (new QList<MapTexturesToMod>());
+    std::unique_ptr<QList<MapTexturesToMod>> mapSlaves (new QList<MapTexturesToMod>());
 
     for (int k = 0; k < textures->count(); k++)
     {
@@ -738,7 +738,8 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> *textures, QStringList 
     }
 
     std::sort(map->begin(), map->end(), comparePaths);
-    auto mapPackages = new QList<MapPackagesToMod>();
+
+    std::unique_ptr<QList<MapPackagesToMod>> mapPackages (new QList<MapPackagesToMod>());
     QString previousPath;
     int packagesIndex = -1;
     for (int i = 0; i < map->count(); i++)
@@ -868,7 +869,7 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> *textures, QStringList 
             ConsoleWrite("Installing texture mods...");
         }
 
-        errors += replaceTextures(mapPackages, textures, pkgsToMarker, pkgsToRepack, modsToReplace,
+        errors += replaceTextures(mapPackages.get(), textures, pkgsToMarker, pkgsToRepack, modsToReplace,
                                   repack, appendMarker, verify, removeMips, ipc);
     }
 

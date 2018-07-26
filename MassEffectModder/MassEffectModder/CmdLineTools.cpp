@@ -53,8 +53,7 @@ int CmdLineTools::scanTextures(MeType gameId, bool ipc)
     int errorCode;
 
     auto configIni = ConfigIni{};
-    auto *gameData = g_GameData;
-    gameData->Init(gameId, &configIni);
+    g_GameData->Init(gameId, &configIni);
 
     if (!CheckGamePath())
     {
@@ -65,20 +64,19 @@ int CmdLineTools::scanTextures(MeType gameId, bool ipc)
     {
     }
 
-    gameData->getPackages();
+    g_GameData->getPackages();
 
     if (gameId != MeType::ME1_TYPE)
-        gameData->getTfcTextures();
+        g_GameData->getTfcTextures();
 
     ConsoleWrite("Scan textures started...");
 
-    auto textures = new QList<FoundTexture>();
-    auto resources = new Resources();
-    resources->loadMD5Tables();
-    errorCode = TreeScan::PrepareListOfTextures(gameId, resources, textures, ipc);
-    TreeScan::ReleaseTreeScan(textures);
-    delete textures;
-    delete resources;
+    QList<FoundTexture> textures;
+    Resources resources;
+
+    resources.loadMD5Tables();
+    errorCode = TreeScan::PrepareListOfTextures(gameId, &resources, &textures, ipc);
+    TreeScan::ReleaseTreeScan(&textures);
 
     ConsoleWrite("Scan textures finished.\n");
 
@@ -128,13 +126,11 @@ bool CmdLineTools::applyModTag(MeType gameId, int MeuitmV, int AlotV)
 
 bool CmdLineTools::ConvertToMEM(MeType gameId, QString &inputDir, QString &memFile, bool markToConvert, bool ipc)
 {
-    auto textures = new QList<FoundTexture>();
-    auto resources = new Resources();
-    resources->loadMD5Tables();
-    TreeScan::loadTexturesMap(gameId, resources, textures);
-    bool status = Misc::convertDataModtoMem(inputDir, memFile, gameId, textures, markToConvert, false, ipc);
-    delete resources;
-    delete textures;
+    QList<FoundTexture> textures;
+    Resources resources;
+    resources.loadMD5Tables();
+    TreeScan::loadTexturesMap(gameId, &resources, &textures);
+    bool status = Misc::convertDataModtoMem(inputDir, memFile, gameId, &textures, markToConvert, false, ipc);
     return status;
 }
 
@@ -220,26 +216,21 @@ bool CmdLineTools::convertGameTexture(QString &inputFile, QString &outputFile, Q
 
 bool CmdLineTools::convertGameImage(MeType gameId, QString &inputFile, QString &outputFile, bool markToConvert)
 {
-    auto textures = new QList<FoundTexture>();
-    auto resources = new Resources();
-    resources->loadMD5Tables();
+    QList<FoundTexture> textures;
+    Resources resources;
+    resources.loadMD5Tables();
 
-    TreeScan::loadTexturesMap(gameId, resources, textures);
-    bool status = convertGameTexture(inputFile, outputFile, textures, markToConvert);
-
-    delete resources;
-    delete textures;
-
-    return status;
+    TreeScan::loadTexturesMap(gameId, &resources, &textures);
+    return convertGameTexture(inputFile, outputFile, &textures, markToConvert);
 }
 
 bool CmdLineTools::convertGameImages(MeType gameId, QString &inputDir, QString &outputDir, bool markToConvert)
 {
-    auto textures = new QList<FoundTexture>();
-    auto resources = new Resources();
-    resources->loadMD5Tables();
+    QList<FoundTexture> textures;
+    Resources resources;
+    resources.loadMD5Tables();
 
-    TreeScan::loadTexturesMap(gameId, resources, textures);
+    TreeScan::loadTexturesMap(gameId, &resources, &textures);
 
     QStringList list;
     list += QDir(inputDir, "*.dds", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
@@ -257,12 +248,9 @@ bool CmdLineTools::convertGameImages(MeType gameId, QString &inputDir, QString &
     foreach (QString file, list)
     {
         QString outputFile = outputDir + BaseNameWithoutExt(file) + ".dds";
-        if (!convertGameTexture(file, outputFile, textures, markToConvert))
+        if (!convertGameTexture(file, outputFile, &textures, markToConvert))
             status = false;
     }
-
-    delete resources;
-    delete textures;
 
     return status;
 }
@@ -407,11 +395,11 @@ failed:
 
 bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputDir, bool ipc)
 {
-    auto textures = new QList<FoundTexture>();
-    auto resources = new Resources();
-    resources->loadMD5Tables();
+    QList<FoundTexture> textures;
+    Resources resources;
+    resources.loadMD5Tables();
 
-    TreeScan::loadTexturesMap(gameId, resources, textures);
+    TreeScan::loadTexturesMap(gameId, &resources, &textures);
 
     ConsoleWrite("Extract MOD files started...");
 
@@ -500,7 +488,7 @@ bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputD
             else
             {
                 QString textureName = desc.split(QChar(' ')).last();
-                int index = Misc::ParseLegacyMe3xScriptMod(textures, scriptLegacy, textureName);
+                int index = Misc::ParseLegacyMe3xScriptMod(&textures, scriptLegacy, textureName);
                 if (index == -1)
                 {
                     len = fs.ReadInt32();
@@ -510,7 +498,7 @@ bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputD
                     status = false;
                     continue;
                 }
-                textureCrc = textures->at(index).crc;
+                textureCrc = textures.at(index).crc;
                 len = fs.ReadInt32();
                 QString newFile = outputMODdir + "/" + textureName + QString::number(textureCrc, 16).append("_0x") + ".dds";
                 if (QFile(newFile).exists())
@@ -522,20 +510,17 @@ bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputD
         }
     }
 
-    delete resources;
-    delete textures;
-
     ConsoleWrite("Extract MOD files completed.");
     return status;
 }
 
 bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputDir, bool ipc)
 {
-    auto textures = new QList<FoundTexture>();
-    auto resources = new Resources();
-    resources->loadMD5Tables();
+    QList<FoundTexture> textures;
+    Resources resources;
+    resources.loadMD5Tables();
 
-    TreeScan::loadTexturesMap(gameId, resources, textures);
+    TreeScan::loadTexturesMap(gameId, &resources, &textures);
 
     ConsoleWrite("Extract MEM files started...");
 
@@ -742,9 +727,6 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
         }
     }
 
-    delete resources;
-    delete textures;
-
     ConsoleWrite("Extract MEM mod files completed.");
     return true;
 }
@@ -840,11 +822,12 @@ bool CmdLineTools::CheckGameData(MeType gameId, bool ipc)
         return false;
     }
     QString errors;
-    QStringList modList = QStringList();
-    auto resources = new Resources();
-    resources->loadMD5Tables();
+    QStringList modList;
+    Resources resources;
 
-    bool vanilla = Misc::checkGameFiles(gameId, resources, errors, &modList, ipc);
+    resources.loadMD5Tables();
+
+    bool vanilla = Misc::checkGameFiles(gameId, &resources, errors, &modList, ipc);
 
     if (!ipc)
     {
@@ -868,7 +851,6 @@ bool CmdLineTools::CheckGameData(MeType gameId, bool ipc)
         ConsoleWrite(errors);
     }
 
-    delete resources;
     return vanilla;
 }
 
@@ -884,7 +866,7 @@ bool CmdLineTools::CheckForMarkers(MeType gameId, bool ipc)
 
     g_GameData->getPackages();
 
-    QStringList packages = QStringList();
+    QStringList packages;
     for (int i = 0; i < g_GameData->packageFiles.count(); i++)
     {
         packages.push_back(g_GameData->packageFiles[i]);
@@ -1121,8 +1103,8 @@ void CmdLineTools::RepackME23(MeType gameId, bool modded, bool ipc)
 
 bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool repack, bool guiInstaller)
 {
-    auto mipMaps = MipMaps();
-    auto resources = Resources();
+    Resources resources;
+    MipMaps mipMaps;
     resources.loadMD5Tables();
     ConfigIni configIni = ConfigIni();
     g_GameData->Init(gameId, &configIni);
@@ -1219,7 +1201,7 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool 
             pkgsToRepack.removeOne(g_GameData->GamePath() + "/BioGame/CookedPC/BIOC_Materials.pcc");
     }
 
-    auto textures = new QList<FoundTexture>();
+    QList<FoundTexture> textures;
 
     if (!modded)
     {
@@ -1232,7 +1214,7 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool 
         else if (GameData::gameType == MeType::ME2_TYPE)
             pkgsToMarker.removeOne(g_GameData->GamePath() + "/BioGame/CookedPC/BIOC_Materials.pcc");
 
-        ScanTextures(gameId, &resources, textures, ipc);
+        ScanTextures(gameId, &resources, &textures, ipc);
     }
 
 
@@ -1248,17 +1230,17 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool 
         QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
                 "/MassEffectModder";
         QString mapFile = path + QString("/me%1map.bin").arg((int)gameId);
-        if (!TreeScan::loadTexturesMapFile(mapFile, textures, ipc))
+        if (!TreeScan::loadTexturesMapFile(mapFile, &textures, ipc))
             return false;
     }
 
     QString tfcName;
     QByteArray guid;
-    applyMods(&modFiles, textures, &mipMaps, repack, modded, ipc, tfcName, guid);
+    applyMods(&modFiles, &textures, &mipMaps, repack, modded, ipc, tfcName, guid);
 
 
     if (!modded)
-        RemoveMipmaps(&mipMaps, textures, &pkgsToMarker, &pkgsToRepack, ipc, repack);
+        RemoveMipmaps(&mipMaps, &textures, &pkgsToMarker, &pkgsToRepack, ipc, repack);
 
 
     if (repack)
@@ -1301,8 +1283,8 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool 
 
 bool CmdLineTools::applyMEMSpecialModME3(MeType gameId, QString &memFile, QString &tfcName, QByteArray &guid)
 {
-    auto mipMaps = MipMaps();
-    auto resources = Resources();
+    Resources resources;
+    MipMaps mipMaps;
     resources.loadMD5Tables();
     ConfigIni configIni = ConfigIni();
     g_GameData->Init(gameId, &configIni);
@@ -1315,23 +1297,21 @@ bool CmdLineTools::applyMEMSpecialModME3(MeType gameId, QString &memFile, QStrin
     g_GameData->getPackages();
     g_GameData->getTfcTextures();
 
-    auto textures = new QList<FoundTexture>();
+    QList<FoundTexture> textures;
 
     QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
             "/MassEffectModder";
     QString mapFile = path + QString("/me%1map.bin").arg((int)gameId);
-    if (!TreeScan::loadTexturesMapFile(mapFile, textures, false))
+    if (!TreeScan::loadTexturesMapFile(mapFile, &textures, false))
     {
-        delete textures;
         return false;
     }
 
     QStringList memFiles = QStringList();
     memFiles.push_back(memFile);
 
-    applyMods(&memFiles, textures, &mipMaps, false, false, false, tfcName, guid);
+    applyMods(&memFiles, &textures, &mipMaps, false, false, false, tfcName, guid);
 
-    delete textures;
     return true;
 }
 
@@ -1852,8 +1832,8 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image *image, QList<MatchedTextur
 
 bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool png, QString &textureTfcFilter)
 {
-    auto mipMaps = MipMaps();
-    auto resources = Resources();
+    Resources resources;
+    MipMaps mipMaps;
     resources.loadMD5Tables();
     ConfigIni configIni = ConfigIni();
     g_GameData->Init(gameId, &configIni);
@@ -1867,26 +1847,25 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
     if (gameId != MeType::ME1_TYPE)
         g_GameData->getTfcTextures();
 
-    auto textures = new QList<FoundTexture>();
+    QList<FoundTexture> textures;
 
     QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
             "/MassEffectModder";
     QString mapFile = path + QString("/me%1map.bin").arg((int)gameId);
-    if (!TreeScan::loadTexturesMapFile(mapFile, textures, false))
+    if (!TreeScan::loadTexturesMapFile(mapFile, &textures, false))
     {
-        delete textures;
         return false;
     }
 
     if (!QDir(outputDir).exists())
         QDir().mkpath(outputDir);
 
-    for (int i = 0; i < textures->count(); i++)
+    for (int i = 0; i < textures.count(); i++)
     {
         int index = -1;
-        for (int s = 0; s < textures->at(i).list->count(); s++)
+        for (int s = 0; s < textures.at(i).list->count(); s++)
         {
-            if (textures->at(i).list->at(s).path != "")
+            if (textures.at(i).list->at(s).path != "")
             {
                 index = s;
                 break;
@@ -1894,39 +1873,38 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
         }
         if (png)
         {
-            QString outputFile = outputDir + "/" + textures->at(i).name +
-                    QString::number(textures->at(i).crc, 16).append("_0x") + ".png";
-            QString packagePath = g_GameData->GamePath() + textures->at(i).list->at(index).path;
-            mipMaps.extractTextureToPng(outputFile, packagePath, textures->at(i).list->at(index).exportID);
+            QString outputFile = outputDir + "/" + textures.at(i).name +
+                    QString::number(textures.at(i).crc, 16).append("_0x") + ".png";
+            QString packagePath = g_GameData->GamePath() + textures.at(i).list->at(index).path;
+            mipMaps.extractTextureToPng(outputFile, packagePath, textures.at(i).list->at(index).exportID);
         }
         else
         {
-            QString outputFile = outputDir + "/" + textures->at(i).name +
-                    QString::number(textures->at(i).crc, 16).append("_0x") + ".dds";
-            QString packagePath = g_GameData->GamePath() + textures->at(i).list->at(index).path;
+            QString outputFile = outputDir + "/" + textures.at(i).name +
+                    QString::number(textures.at(i).crc, 16).append("_0x") + ".dds";
+            QString packagePath = g_GameData->GamePath() + textures.at(i).list->at(index).path;
             Package package;
             package.Open(packagePath);
-            int exportID = textures->at(i).list->at(index).exportID;
-            Texture *texture = new Texture(package, exportID, package.getExportData(exportID));
-            if (textureTfcFilter != "" && texture->properties->exists("TextureFileCacheName"))
+            int exportID = textures.at(i).list->at(index).exportID;
+            Texture texture = Texture(package, exportID, package.getExportData(exportID));
+            if (textureTfcFilter != "" && texture.properties->exists("TextureFileCacheName"))
             {
-                QString archive = texture->properties->getProperty("TextureFileCacheName").valueName;
+                QString archive = texture.properties->getProperty("TextureFileCacheName").valueName;
                 if (archive != textureTfcFilter)
                     continue;
             }
-            texture->removeEmptyMips();
+            texture.removeEmptyMips();
             QList<MipMap> mipmaps = QList<MipMap>();
-            PixelFormat pixelFormat = Image::getPixelFormatType(texture->properties->getProperty("Format").valueName);
-            for (int k = 0; k < texture->mipMapsList.count(); k++)
+            PixelFormat pixelFormat = Image::getPixelFormatType(texture.properties->getProperty("Format").valueName);
+            for (int k = 0; k < texture.mipMapsList.count(); k++)
             {
-                ByteBuffer data = texture->getMipMapDataByIndex(k);
+                ByteBuffer data = texture.getMipMapDataByIndex(k);
                 if (data.ptr() == nullptr)
                 {
                     continue;
                 }
-                mipmaps.push_back(MipMap(data, texture->mipMapsList[k].width, texture->mipMapsList[k].height, pixelFormat));
+                mipmaps.push_back(MipMap(data, texture.mipMapsList[k].width, texture.mipMapsList[k].height, pixelFormat));
             }
-            delete texture;
             Image image = Image(mipmaps, pixelFormat);
             if (QFile(outputFile).exists())
                 QFile(outputFile).remove();
@@ -1941,7 +1919,7 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
 
 bool CmdLineTools::CheckTextures(MeType gameId, bool ipc)
 {
-    auto resources = Resources();
+    Resources resources;
     resources.loadMD5Tables();
     ConfigIni configIni = ConfigIni();
     g_GameData->Init(gameId, &configIni);
@@ -1955,14 +1933,13 @@ bool CmdLineTools::CheckTextures(MeType gameId, bool ipc)
     if (gameId != MeType::ME1_TYPE)
         g_GameData->getTfcTextures();
 
-    auto textures = new QList<FoundTexture>();
+    QList<FoundTexture> textures;
 
     QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
             "/MassEffectModder";
     QString mapFile = path + QString("/me%1map.bin").arg((int)gameId);
-    if (!TreeScan::loadTexturesMapFile(mapFile, textures, false))
+    if (!TreeScan::loadTexturesMapFile(mapFile, &textures, false))
     {
-        delete textures;
         return false;
     }
 
@@ -2016,9 +1993,8 @@ bool CmdLineTools::CheckTextures(MeType gameId, bool ipc)
                 id == package.nameIdShadowMapTexture2D ||
                 id == package.nameIdTextureFlipBook)
             {
-                Texture *texture = new Texture(package, e, package.getExportData(e));
-                if (texture == nullptr)
-                {
+                Texture texture = Texture(package, e, package.getExportData(e));
+/*                {
                     if (ipc)
                     {
                         ConsoleWrite(QString("[IPC]ERROR_TEXTURE_SCAN_DIAGNOSTIC Error reading texture data for texture: ") +
@@ -2033,11 +2009,11 @@ bool CmdLineTools::CheckTextures(MeType gameId, bool ipc)
                                      g_GameData->packageFiles[i]);
                     }
                     continue;
-                }
-                if (!texture->hasImageData())
+                }*/
+                if (!texture.hasImageData())
                     continue;
 
-                if (texture->hasEmptyMips())
+                if (texture.hasEmptyMips())
                 {
                     if (ipc)
                     {
@@ -2055,9 +2031,9 @@ bool CmdLineTools::CheckTextures(MeType gameId, bool ipc)
                     continue;
                 }
 
-                for (int m = 0; m < texture->mipMapsList.count(); m++)
+                for (int m = 0; m < texture.mipMapsList.count(); m++)
                 {
-                    ByteBuffer data = texture->getMipMapDataByIndex(m);
+                    ByteBuffer data = texture.getMipMapDataByIndex(m);
                     if (data.ptr() == nullptr)
                     {
                         if (ipc)
@@ -2076,7 +2052,6 @@ bool CmdLineTools::CheckTextures(MeType gameId, bool ipc)
                         continue;
                     }
                 }
-                delete texture;
             }
         }
     }

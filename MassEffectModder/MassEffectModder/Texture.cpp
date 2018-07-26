@@ -479,7 +479,7 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
             if (mipmap.storageType == StorageTypes::extLZO || mipmap.storageType == StorageTypes::extZlib)
             {
                 MemoryStream tmpStream;
-                tmpStream.CopyFrom(fs, mipmap.compressedSize);
+                tmpStream.CopyFrom(&fs, mipmap.compressedSize);
                 tmpStream.SeekBegin();
                 mipMapData.Free();
                 mipMapData = decompressTexture(tmpStream, mipmap.storageType, mipmap.uncompressedSize, mipmap.compressedSize);

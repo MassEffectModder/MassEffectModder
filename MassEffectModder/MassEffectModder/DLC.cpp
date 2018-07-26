@@ -94,16 +94,15 @@ void ME3DLC::loadHeader(Stream *stream)
             int compressedBlockSize = blockSizes[filesList[i].compressedBlockSizesIndex];
             quint32 dstLen = filesList[i].uncomprSize;
             auto inBuf = stream->ReadToBuffer(compressedBlockSize);
-            auto outBuf = new char[dstLen];
-            LzmaDecompress(inBuf.ptr(), inBuf.size(), reinterpret_cast<quint8 *>(outBuf), &dstLen);
+            std::unique_ptr<char> outBuf (new char[dstLen]);
+            LzmaDecompress(inBuf.ptr(), inBuf.size(), reinterpret_cast<quint8 *>(outBuf.get()), &dstLen);
             if (dstLen != filesList[i].uncomprSize)
                 CRASH();
 
             inBuf.Free();
-            QByteArray outArray = QByteArray(outBuf, dstLen);
-            delete[] outBuf;
+            QByteArray outArray = QByteArray(outBuf.get(), dstLen);
 
-            QTextStream *filenamesStream = new QTextStream(outArray);
+            std::unique_ptr<QTextStream> filenamesStream (new QTextStream(outArray));
             while (!filenamesStream->atEnd())
             {
                 QString name = filenamesStream->readLine();
@@ -131,7 +130,7 @@ void ME3DLC::extract(QString &SFARfilename, QString &outPath, bool ipc, int &cur
     if (!QFile(SFARfilename).exists())
         CRASH_MSG("filename missing");
 
-    auto stream = reinterpret_cast<Stream *>(new MemoryStream(SFARfilename));
+    std::unique_ptr<Stream> stream (new MemoryStream(SFARfilename));
 
     QFile::remove(SFARfilename);
 
@@ -147,7 +146,7 @@ void ME3DLC::extract(QString &SFARfilename, QString &outPath, bool ipc, int &cur
         outputFile.WriteUInt32(LZMATag);
     }
 
-    loadHeader(stream);
+    loadHeader(stream.get());
 
     int lastProgress = -1;
     for (uint i = 0; i < filesCount; i++, currentProgress++)
@@ -177,7 +176,7 @@ void ME3DLC::extract(QString &SFARfilename, QString &outPath, bool ipc, int &cur
             stream->JumpTo(filesList[i].dataOffset);
             if (filesList[i].compressedBlockSizesIndex == -1)
             {
-                outputFile.CopyFrom(stream, filesList[i].uncomprSize);
+                outputFile.CopyFrom(stream.get(), filesList[i].uncomprSize);
             }
             else
             {
@@ -230,8 +229,6 @@ void ME3DLC::extract(QString &SFARfilename, QString &outPath, bool ipc, int &cur
             }
         }
     }
-
-    delete stream;
 }
 
 void ME3DLC::unpackAllDLC(bool ipc)

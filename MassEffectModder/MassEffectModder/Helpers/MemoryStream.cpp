@@ -75,7 +75,7 @@ MemoryStream::MemoryStream(ByteBuffer buffer, qint64 offset, qint64 count)
 
 MemoryStream::MemoryStream(QString &filename, qint64 offset, qint64 count)
 {
-    auto file = new QFile(filename);
+    std::unique_ptr<QFile> file (new QFile(filename));
     if (!file->open(QIODevice::ReadOnly))
         CRASH_MSG((QString("Failed to open file: ") + filename + " Error: " + file->errorString()).toStdString().c_str());
 
@@ -91,7 +91,6 @@ MemoryStream::MemoryStream(QString &filename, qint64 offset, qint64 count)
 
     file->seek(offset);
     file->read(reinterpret_cast<char *>(internalBuffer), count);
-    delete file;
 
     internalBufferSize = length = count;
     position = 0;
@@ -99,7 +98,7 @@ MemoryStream::MemoryStream(QString &filename, qint64 offset, qint64 count)
 
 MemoryStream::MemoryStream(QString &filename, qint64 count)
 {
-    auto file = new QFile(filename);
+    std::unique_ptr<QFile> file (new QFile(filename));
     if (!file->open(QIODevice::ReadOnly))
         CRASH_MSG((QString("Failed to open file: ") + filename + " Error: " + file->errorString()).toStdString().c_str());
 
@@ -110,7 +109,6 @@ MemoryStream::MemoryStream(QString &filename, qint64 count)
     }
 
     file->read(reinterpret_cast<char *>(internalBuffer), count);
-    delete file;
 
     internalBufferSize = length = count;
     position = 0;
@@ -118,7 +116,7 @@ MemoryStream::MemoryStream(QString &filename, qint64 count)
 
 MemoryStream::MemoryStream(QString &filename)
 {
-    auto file = new QFile(filename);
+    std::unique_ptr<QFile> file (new QFile(filename));
     if (!file->open(QIODevice::ReadOnly))
         CRASH_MSG((QString("Failed to open file: ") + filename + " Error: " + file->errorString()).toStdString().c_str());
 
@@ -130,7 +128,6 @@ MemoryStream::MemoryStream(QString &filename)
     }
 
     file->read(reinterpret_cast<char *>(internalBuffer), count);
-    delete file;
 
     internalBufferSize = length = count;
     position = 0;
@@ -156,16 +153,14 @@ void MemoryStream::CopyFrom(Stream *stream, qint64 count, qint64 bufferSize)
     if (count < 0)
         CRASH();
 
-    auto *buffer = new quint8[static_cast<unsigned long>(bufferSize)];
+    std::unique_ptr<quint8> buffer (new quint8[static_cast<unsigned long>(bufferSize)]);
     do
     {
         qint64 size = qMin(bufferSize, count);
-        stream->ReadToBuffer(buffer, size);
-        WriteFromBuffer(buffer, size);
+        stream->ReadToBuffer(buffer.get(), size);
+        WriteFromBuffer(buffer.get(), size);
         count -= size;
     } while (count != 0);
-
-    delete[] buffer;
 }
 
 void MemoryStream::ReadToBuffer(quint8 *buffer, qint64 count)
@@ -212,13 +207,11 @@ void MemoryStream::WriteFromBuffer(ByteBuffer buffer)
 
 void MemoryStream::ReadStringASCII(QString &str, qint64 count)
 {
-    auto *buffer = new char[static_cast<size_t>(count) + 1];
+    std::unique_ptr<char> buffer (new char[static_cast<size_t>(count) + 1]);
 
-    buffer[count] = 0;
-    ReadToBuffer(reinterpret_cast<quint8 *>(buffer), count);
-    str = QString(buffer);
-
-    delete[] buffer;
+    buffer.get()[count] = 0;
+    ReadToBuffer(reinterpret_cast<quint8 *>(buffer.get()), count);
+    str = QString(buffer.get());
 }
 
 void MemoryStream::ReadStringASCIINull(QString &str)
