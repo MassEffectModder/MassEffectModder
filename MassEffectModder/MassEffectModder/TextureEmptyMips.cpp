@@ -116,16 +116,15 @@ void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> *textures, Package
     for (int l = 0; l < list->at(removeEntry).exportIDs.count(); l++)
     {
         int exportID = list->at(removeEntry).exportIDs[l];
-        Texture *texture = new Texture(package, exportID, package.getExportData(exportID), false);
-        if (!texture->hasEmptyMips())
+        Texture texture = Texture(package, exportID, package.getExportData(exportID), false);
+        if (!texture.hasEmptyMips())
         {
-            delete texture;
             continue;
         }
-        texture->removeEmptyMips();
-        texture->properties->setIntValue("SizeX", texture->mipMapsList.first().width);
-        texture->properties->setIntValue("SizeY", texture->mipMapsList.first().height);
-        texture->properties->setIntValue("MipTailBaseIdx", texture->mipMapsList.count() - 1);
+        texture.removeEmptyMips();
+        texture.properties->setIntValue("SizeX", texture.mipMapsList.first().width);
+        texture.properties->setIntValue("SizeY", texture.mipMapsList.first().height);
+        texture.properties->setIntValue("MipTailBaseIdx", texture.mipMapsList.count() - 1);
 
         int foundListEntry = -1;
         int foundTextureEntry = -1;
@@ -156,7 +155,6 @@ void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> *textures, Package
                 ConsoleWrite(QString("Error: Texture ") + package.exportsTable[exportID].objectName +
                              " not found in package: " + list->at(removeEntry).pkgPath + ", skipping...\n");
             }
-            delete texture;
             continue;
         }
 
@@ -165,12 +163,11 @@ void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> *textures, Package
         {
             if (phase == 1)
             {
-                delete texture;
                 continue;
             }
 
             const MatchedTexture& foundMasterTex = textures->at(foundTextureEntry).list->at(m.linkToMaster);
-            if (texture->mipMapsList.count() != foundMasterTex.masterDataOffset->count())
+            if (texture.mipMapsList.count() != foundMasterTex.masterDataOffset->count())
             {
                 if (ipc)
                 {
@@ -181,18 +178,17 @@ void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> *textures, Package
                 {
                     ConsoleWrite(QString("Error: Texture ") + package.exportsTable[exportID].objectName + " in package: " + foundMasterTex.path + " has wrong reference, skipping...\n");
                 }
-                delete texture;
                 continue;
             }
-            for (int t = 0; t < texture->mipMapsList.count(); t++)
+            for (int t = 0; t < texture.mipMapsList.count(); t++)
             {
-                Texture::TextureMipMap mipmap = texture->mipMapsList[t];
+                Texture::TextureMipMap mipmap = texture.mipMapsList[t];
                 if (mipmap.storageType == Texture::StorageTypes::extLZO ||
                     mipmap.storageType == Texture::StorageTypes::extZlib ||
                     mipmap.storageType == Texture::StorageTypes::extUnc)
                 {
                     mipmap.dataOffset = foundMasterTex.masterDataOffset->at(t);
-                    texture->mipMapsList[t] = mipmap;
+                    texture.mipMapsList[t] = mipmap;
                 }
             }
         }
@@ -200,9 +196,9 @@ void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> *textures, Package
         uint packageDataOffset;
         {
             MemoryStream newData{};
-            newData.WriteFromBuffer(texture->properties->toArray());
+            newData.WriteFromBuffer(texture.properties->toArray());
             packageDataOffset = package.exportsTable[exportID].getDataOffset() + (uint)newData.Position();
-            newData.WriteFromBuffer(texture->toArray(packageDataOffset));
+            newData.WriteFromBuffer(texture.toArray(packageDataOffset));
             package.setExportData(exportID, newData.ToArray());
         }
 
@@ -211,15 +207,14 @@ void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> *textures, Package
             if (phase == 2)
                 CRASH();
             m.masterDataOffset = new QList<uint>();
-            for (int t = 0; t < texture->mipMapsList.count(); t++)
+            for (int t = 0; t < texture.mipMapsList.count(); t++)
             {
-                m.masterDataOffset->push_back(packageDataOffset + texture->mipMapsList[t].internalOffset);
+                m.masterDataOffset->push_back(packageDataOffset + texture.mipMapsList[t].internalOffset);
             }
         }
 
         m.removeEmptyMips = false;
         textures->at(foundTextureEntry).list->replace(foundListEntry, m);
-        delete texture;
     }
     if (package.SaveToFile(false, false, true))
     {
@@ -285,25 +280,23 @@ void MipMaps::removeMipMapsME2ME3(Package &package, QList<RemoveMipsEntry> *list
     for (int l = 0; l < list->at(removeEntry).exportIDs.count(); l++)
     {
         int exportID = list->at(removeEntry).exportIDs[l];
-        Texture *texture = new Texture(package, exportID, package.getExportData(exportID), false);
-        if (!texture->hasEmptyMips())
+        Texture texture = Texture(package, exportID, package.getExportData(exportID), false);
+        if (!texture.hasEmptyMips())
         {
-            delete texture;
             continue;
         }
-        texture->removeEmptyMips();
-        texture->properties->setIntValue("SizeX", texture->mipMapsList.first().width);
-        texture->properties->setIntValue("SizeY", texture->mipMapsList.first().height);
-        texture->properties->setIntValue("MipTailBaseIdx", texture->mipMapsList.count() - 1);
+        texture.removeEmptyMips();
+        texture.properties->setIntValue("SizeX", texture.mipMapsList.first().width);
+        texture.properties->setIntValue("SizeY", texture.mipMapsList.first().height);
+        texture.properties->setIntValue("MipTailBaseIdx", texture.mipMapsList.count() - 1);
 
         {
             MemoryStream newData{};
-            newData.WriteFromBuffer(texture->properties->toArray());
-            newData.WriteFromBuffer(texture->toArray(package.exportsTable[exportID].getDataOffset() +
+            newData.WriteFromBuffer(texture.properties->toArray());
+            newData.WriteFromBuffer(texture.toArray(package.exportsTable[exportID].getDataOffset() +
                                                      (uint)newData.Position()));
             package.setExportData(exportID, newData.ToArray());
         }
-        delete texture;
     }
 
     if (package.SaveToFile(repack, false, true))
