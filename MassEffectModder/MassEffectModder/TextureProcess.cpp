@@ -132,10 +132,10 @@ void MipMaps::extractTextureToPng(QString &outputFile, QString &packagePath, int
 {
     Package package = Package();
     package.Open(packagePath);
-    Texture *texture = new Texture(package, exportID, package.getExportData(exportID));
-    PixelFormat format = Image::getPixelFormatType(texture->properties->getProperty("Format").valueName);
-    Texture::TextureMipMap mipmap = texture->getTopMipmap();
-    ByteBuffer data = texture->getTopImageData();
+    Texture texture = Texture(package, exportID, package.getExportData(exportID));
+    PixelFormat format = Image::getPixelFormatType(texture.properties->getProperty("Format").valueName);
+    Texture::TextureMipMap mipmap = texture.getTopMipmap();
+    ByteBuffer data = texture.getTopImageData();
     if (data.ptr() != nullptr)
     {
         if (QFile(outputFile).exists())
@@ -143,5 +143,4 @@ void MipMaps::extractTextureToPng(QString &outputFile, QString &packagePath, int
         Image::saveToPng(data.ptr(), mipmap.width, mipmap.height, format, outputFile);
         data.Free();
     }
-    delete texture;
 }
