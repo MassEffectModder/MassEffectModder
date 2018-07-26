@@ -197,19 +197,20 @@ const ByteBuffer Texture::compressTexture(ByteBuffer inputData, StorageTypes typ
     uint dataBlockLeft = inputData.size();
     uint newNumBlocks = (inputData.size() + maxBlockSize - 1) / maxBlockSize;
     QList<Package::ChunkBlock> blocks{};
-    auto inputStream = new MemoryStream(inputData);
-    // skip blocks header and table - filled later
-    ouputStream.Seek(SizeOfChunk + SizeOfChunkBlock * newNumBlocks, SeekOrigin::Begin);
-
-    for (uint b = 0; b < newNumBlocks; b++)
     {
-        Package::ChunkBlock block{};
-        block.uncomprSize = qMin((uint)maxBlockSize, dataBlockLeft);
-        dataBlockLeft -= block.uncomprSize;
-        inputStream->ReadToBuffer(block.uncompressedBuffer, block.uncomprSize);
-        blocks.push_back(block);
+        auto inputStream = MemoryStream(inputData);
+        // skip blocks header and table - filled later
+        ouputStream.Seek(SizeOfChunk + SizeOfChunkBlock * newNumBlocks, SeekOrigin::Begin);
+
+        for (uint b = 0; b < newNumBlocks; b++)
+        {
+            Package::ChunkBlock block{};
+            block.uncomprSize = qMin((uint)maxBlockSize, dataBlockLeft);
+            dataBlockLeft -= block.uncomprSize;
+            inputStream.ReadToBuffer(block.uncompressedBuffer, block.uncomprSize);
+            blocks.push_back(block);
+        }
     }
-    delete inputStream;
 
     #pragma omp parallel for
     for (int b = 0; b < blocks.count(); b++)
@@ -469,12 +470,12 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
                 }
             }
 
-            auto fs = new FileStream(filename, FileMode::Open, FileAccess::ReadOnly);
-            if (!fs->isOpen())
+            auto fs = FileStream(filename, FileMode::Open, FileAccess::ReadOnly);
+            if (!fs.isOpen())
             {
                 CRASH_MSG((QString("Problem with access to file: ") + filename).toStdString().c_str());
             }
-            fs->JumpTo(mipmap.dataOffset);
+            fs.JumpTo(mipmap.dataOffset);
             if (mipmap.storageType == StorageTypes::extLZO || mipmap.storageType == StorageTypes::extZlib)
             {
                 MemoryStream tmpStream;
@@ -487,9 +488,8 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
             {
                 mipMapData.Free();
                 mipMapData = ByteBuffer(mipmap.uncompressedSize);
-                fs->ReadToBuffer(mipMapData.ptr(), mipmap.uncompressedSize);
+                fs.ReadToBuffer(mipMapData.ptr(), mipmap.uncompressedSize);
             }
-            delete fs;
             break;
         }
     case StorageTypes::empty:
