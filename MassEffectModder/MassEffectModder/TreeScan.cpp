@@ -54,37 +54,37 @@ void TreeScan::loadTexturesMap(MeType gameId, Resources *resources, QList<FoundT
     if (decompressed.size() != dstLen)
         CRASH();
 
-    std::unique_ptr<Stream> fs (new MemoryStream(decompressed));
-    fs->Skip(8);
-    uint countTexture = fs->ReadUInt32();
+    auto fs = MemoryStream(decompressed);
+    fs.Skip(8);
+    uint countTexture = fs.ReadUInt32();
     for (uint i = 0; i < countTexture; i++)
     {
         FoundTexture texture{};
-        int len = fs->ReadByte();
-        fs->ReadStringASCII(texture.name, len);
-        texture.crc = fs->ReadUInt32();
-        texture.width = fs->ReadInt16();
-        texture.height = fs->ReadInt16();
-        texture.pixfmt = (PixelFormat)fs->ReadByte();
-        texture.flags = (TexProperty::TextureTypes)fs->ReadByte();
-        int countPackages = fs->ReadInt16();
+        int len = fs.ReadByte();
+        fs.ReadStringASCII(texture.name, len);
+        texture.crc = fs.ReadUInt32();
+        texture.width = fs.ReadInt16();
+        texture.height = fs.ReadInt16();
+        texture.pixfmt = (PixelFormat)fs.ReadByte();
+        texture.flags = (TexProperty::TextureTypes)fs.ReadByte();
+        int countPackages = fs.ReadInt16();
         texture.list = new QList<MatchedTexture>();
         for (int k = 0; k < countPackages; k++)
         {
             MatchedTexture matched{};
-            matched.exportID = fs->ReadInt32();
+            matched.exportID = fs.ReadInt32();
             if (gameId == MeType::ME1_TYPE)
             {
-                matched.linkToMaster = fs->ReadInt16();
+                matched.linkToMaster = fs.ReadInt16();
                 if (matched.linkToMaster != -1)
                 {
                     matched.slave = true;
-                    fs->ReadStringASCIINull(matched.basePackageName);
+                    fs.ReadStringASCIINull(matched.basePackageName);
                 }
             }
-            matched.removeEmptyMips = fs->ReadByte() != 0;
-            matched.numMips = fs->ReadByte();
-            matched.path = pkgs[fs->ReadInt16()];
+            matched.removeEmptyMips = fs.ReadByte() != 0;
+            matched.numMips = fs.ReadByte();
+            matched.path = pkgs[fs.ReadInt16()];
             matched.path.replace(QChar('\\'), QChar('/'));
             matched.packageName = BaseNameWithoutExt(matched.path).toUpper();
             texture.list->push_back(matched);
