@@ -44,6 +44,7 @@ private:
     ByteBuffer mipMapData;
     ByteBuffer restOfData;
     QString packagePath;
+    TexProperty *properties;
 
 public:
 
@@ -80,7 +81,6 @@ public:
     };
 
     QList<TextureMipMap> mipMapsList;
-    TexProperty *properties;
     QString packageName;
     QString basePackageName;
     bool slave{};
@@ -91,6 +91,7 @@ public:
     void replaceMipMaps(const QList<TextureMipMap> &newMipMaps);
     const ByteBuffer compressTexture(ByteBuffer inputData, StorageTypes type);
     const ByteBuffer decompressTexture(MemoryStream &stream, StorageTypes type, int uncompressedSize, int compressedSize);
+    TexProperty *getProperties() { return properties; }
     uint getCrcData(ByteBuffer data);
     uint getCrcMipmap(TextureMipMap &mipmap);
     uint getCrcTopMipmap();

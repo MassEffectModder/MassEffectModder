@@ -122,9 +122,9 @@ void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> *textures, Package
             continue;
         }
         texture.removeEmptyMips();
-        texture.properties->setIntValue("SizeX", texture.mipMapsList.first().width);
-        texture.properties->setIntValue("SizeY", texture.mipMapsList.first().height);
-        texture.properties->setIntValue("MipTailBaseIdx", texture.mipMapsList.count() - 1);
+        texture.getProperties()->setIntValue("SizeX", texture.mipMapsList.first().width);
+        texture.getProperties()->setIntValue("SizeY", texture.mipMapsList.first().height);
+        texture.getProperties()->setIntValue("MipTailBaseIdx", texture.mipMapsList.count() - 1);
 
         int foundListEntry = -1;
         int foundTextureEntry = -1;
@@ -196,7 +196,7 @@ void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> *textures, Package
         uint packageDataOffset;
         {
             MemoryStream newData{};
-            newData.WriteFromBuffer(texture.properties->toArray());
+            newData.WriteFromBuffer(texture.getProperties()->toArray());
             packageDataOffset = package.exportsTable[exportID].getDataOffset() + (uint)newData.Position();
             newData.WriteFromBuffer(texture.toArray(packageDataOffset));
             package.setExportData(exportID, newData.ToArray());
@@ -286,13 +286,13 @@ void MipMaps::removeMipMapsME2ME3(Package &package, QList<RemoveMipsEntry> *list
             continue;
         }
         texture.removeEmptyMips();
-        texture.properties->setIntValue("SizeX", texture.mipMapsList.first().width);
-        texture.properties->setIntValue("SizeY", texture.mipMapsList.first().height);
-        texture.properties->setIntValue("MipTailBaseIdx", texture.mipMapsList.count() - 1);
+        texture.getProperties()->setIntValue("SizeX", texture.mipMapsList.first().width);
+        texture.getProperties()->setIntValue("SizeY", texture.mipMapsList.first().height);
+        texture.getProperties()->setIntValue("MipTailBaseIdx", texture.mipMapsList.count() - 1);
 
         {
             MemoryStream newData{};
-            newData.WriteFromBuffer(texture.properties->toArray());
+            newData.WriteFromBuffer(texture.getProperties()->toArray());
             newData.WriteFromBuffer(texture.toArray(package.exportsTable[exportID].getDataOffset() +
                                                      (uint)newData.Position()));
             package.setExportData(exportID, newData.ToArray());

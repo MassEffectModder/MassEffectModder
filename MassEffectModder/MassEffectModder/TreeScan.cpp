@@ -645,7 +645,7 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> *textures, const 
                 if (matchTexture.slave)
                     matchTexture.mipmapOffset = mipmap.dataOffset;
                 else
-                    matchTexture.mipmapOffset = exp.getDataOffset() + texture->properties->propertyEndOffset + mipmap.internalOffset;
+                    matchTexture.mipmapOffset = exp.getDataOffset() + texture->getProperties()->propertyEndOffset + mipmap.internalOffset;
             }
 
             uint crc = texture->getCrcTopMipmap();
@@ -724,10 +724,10 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> *textures, const 
                 {
                     foundTex.width = texture->getTopMipmap().width;
                     foundTex.height = texture->getTopMipmap().height;
-                    foundTex.pixfmt = Image::getPixelFormatType(texture->properties->getProperty("Format").valueName);
-                    if (texture->properties->exists("CompressionSettings"))
+                    foundTex.pixfmt = Image::getPixelFormatType(texture->getProperties()->getProperty("Format").valueName);
+                    if (texture->getProperties()->exists("CompressionSettings"))
                     {
-                        QString cmp = texture->properties->getProperty("CompressionSettings").valueName;
+                        QString cmp = texture->getProperties()->getProperty("CompressionSettings").valueName;
                         if (cmp == "TC_OneBitAlpha")
                             foundTex.flags = TexProperty::TextureTypes::OneBitAlpha;
                         else if (cmp == "TC_Displacementmap")

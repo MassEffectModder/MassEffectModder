@@ -60,54 +60,54 @@ PixelFormat MipMaps::changeTextureType(PixelFormat gamePixelFormat, PixelFormat 
         (texturePixelFormat == PixelFormat::RGB || texturePixelFormat == PixelFormat::ARGB ||
          texturePixelFormat == PixelFormat::ATI2 || texturePixelFormat == PixelFormat::V8U8))
     {
-        if (texturePixelFormat == PixelFormat::ARGB && texture->properties->exists("CompressionSettings") &&
-            texture->properties->getProperty("CompressionSettings").valueName == "TC_OneBitAlpha")
+        if (texturePixelFormat == PixelFormat::ARGB && texture->getProperties()->exists("CompressionSettings") &&
+            texture->getProperties()->getProperty("CompressionSettings").valueName == "TC_OneBitAlpha")
         {
             gamePixelFormat = PixelFormat::ARGB;
-            texture->properties->setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
-            texture->properties->removeProperty("CompressionSettings");
+            texture->getProperties()->setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
+            texture->getProperties()->removeProperty("CompressionSettings");
         }
         else if (texturePixelFormat == PixelFormat::ATI2 &&
-            texture->properties->exists("CompressionSettings") &&
-            texture->properties->getProperty("CompressionSettings").valueName == "TC_Normalmap")
+            texture->getProperties()->exists("CompressionSettings") &&
+            texture->getProperties()->getProperty("CompressionSettings").valueName == "TC_Normalmap")
         {
             gamePixelFormat = PixelFormat::ATI2;
-            texture->properties->setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
-            texture->properties->setByteValue("CompressionSettings", "TC_NormalmapHQ", "TextureCompressionSettings");
+            texture->getProperties()->setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
+            texture->getProperties()->setByteValue("CompressionSettings", "TC_NormalmapHQ", "TextureCompressionSettings");
         }
         else if (GameData::gameType != MeType::ME3_TYPE && texturePixelFormat == PixelFormat::ARGB &&
-            texture->properties->exists("CompressionSettings") &&
-            (texture->properties->getProperty("CompressionSettings").valueName == "TC_Normalmap" ||
-            texture->properties->getProperty("CompressionSettings").valueName == "TC_NormalmapHQ"))
+            texture->getProperties()->exists("CompressionSettings") &&
+            (texture->getProperties()->getProperty("CompressionSettings").valueName == "TC_Normalmap" ||
+            texture->getProperties()->getProperty("CompressionSettings").valueName == "TC_NormalmapHQ"))
         {
             gamePixelFormat = PixelFormat::ARGB;
-            texture->properties->setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
-            texture->properties->setByteValue("CompressionSettings", "TC_Normalmap", "TextureCompressionSettings");
+            texture->getProperties()->setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
+            texture->getProperties()->setByteValue("CompressionSettings", "TC_Normalmap", "TextureCompressionSettings");
         }
         else if ((gamePixelFormat == PixelFormat::DXT5 || gamePixelFormat == PixelFormat::DXT1) &&
             (texturePixelFormat == PixelFormat::ARGB || texturePixelFormat == PixelFormat::RGB) &&
-            !texture->properties->exists("CompressionSettings"))
+            !texture->getProperties()->exists("CompressionSettings"))
         {
             gamePixelFormat = PixelFormat::ARGB;
-            texture->properties->setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
+            texture->getProperties()->setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
         }
         else if (GameData::gameType == MeType::ME3_TYPE && gamePixelFormat == PixelFormat::DXT5 &&
             texturePixelFormat == PixelFormat::ARGB &&
-            texture->properties->exists("CompressionSettings") &&
-            texture->properties->getProperty("CompressionSettings").valueName == "TC_NormalmapAlpha")
+            texture->getProperties()->exists("CompressionSettings") &&
+            texture->getProperties()->getProperty("CompressionSettings").valueName == "TC_NormalmapAlpha")
         {
             gamePixelFormat = PixelFormat::ARGB;
-            texture->properties->setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
+            texture->getProperties()->setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
         }
         else if (GameData::gameType == MeType::ME3_TYPE && gamePixelFormat == PixelFormat::DXT1 &&
             texturePixelFormat == PixelFormat::V8U8 &&
-            texture->properties->exists("CompressionSettings") &&
-            (texture->properties->getProperty("CompressionSettings").valueName == "TC_Normalmap" ||
-            texture->properties->getProperty("CompressionSettings").valueName == "TC_NormalmapHQ"))
+            texture->getProperties()->exists("CompressionSettings") &&
+            (texture->getProperties()->getProperty("CompressionSettings").valueName == "TC_Normalmap" ||
+            texture->getProperties()->getProperty("CompressionSettings").valueName == "TC_NormalmapHQ"))
         {
             gamePixelFormat = PixelFormat::V8U8;
-            texture->properties->setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
-            texture->properties->setByteValue("CompressionSettings", "TC_NormalmapUncompressed", "TextureCompressionSettings");
+            texture->getProperties()->setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
+            texture->getProperties()->setByteValue("CompressionSettings", "TC_NormalmapUncompressed", "TextureCompressionSettings");
         }
     }
 
@@ -167,7 +167,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> *map, QList<FoundTextur
             MatchedTexture matched = textures->at(entryMap.texturesIndex).list->at(entryMap.listIndex);
             ModEntry mod = modsToReplace->at(entryMap.modIndex);
             Texture texture = Texture(package, matched.exportID, package.getExportData(matched.exportID));
-            QString fmt = texture.properties->getProperty("Format").valueName;
+            QString fmt = texture.getProperties()->getProperty("Format").valueName;
             PixelFormat pixelFormat = Image::getPixelFormatType(fmt);
             texture.removeEmptyMips();
 
@@ -206,8 +206,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> *map, QList<FoundTextur
             {
                 bool dxt1HasAlpha = false;
                 quint8 dxt1Threshold = 128;
-                if (pixelFormat == PixelFormat::DXT1 && texture.properties->exists("CompressionSettings") &&
-                    texture.properties->getProperty("CompressionSettings").valueName == "TC_OneBitAlpha")
+                if (pixelFormat == PixelFormat::DXT1 && texture.getProperties()->exists("CompressionSettings") &&
+                    texture.getProperties()->getProperty("CompressionSettings").valueName == "TC_OneBitAlpha")
                 {
                     dxt1HasAlpha = true;
                     if (image->getPixelFormat() == PixelFormat::ARGB ||
@@ -278,8 +278,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> *map, QList<FoundTextur
             if (skip)
                 continue;
 
-            if (!texture.properties->exists("LODGroup"))
-                texture.properties->setByteValue("LODGroup", "TEXTUREGROUP_Character", "TextureGroup", 1025);
+            if (!texture.getProperties()->exists("LODGroup"))
+                texture.getProperties()->setByteValue("LODGroup", "TEXTUREGROUP_Character", "TextureGroup", 1025);
 
             if (mod.cacheCprMipmaps.count() == 0)
             {
@@ -327,12 +327,12 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> *map, QList<FoundTextur
                         }
                         else if (GameData::gameType == MeType::ME2_TYPE || GameData::gameType == MeType::ME3_TYPE)
                         {
-                            if (texture.properties->exists("TextureFileCacheName"))
+                            if (texture.getProperties()->exists("TextureFileCacheName"))
                             {
                                 if (texture.mipMapsList.count() < 6)
                                 {
                                     mipmap.storageType = Texture::StorageTypes::pccUnc;
-                                    texture.properties->setBoolValue("NeverStream", true);
+                                    texture.getProperties()->setBoolValue("NeverStream", true);
                                 }
                                 else
                                 {
@@ -373,9 +373,9 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> *map, QList<FoundTextur
             bool newTfcFile = false;
             bool oldSpace = true;
             QString archiveFile;
-            if (texture.properties->exists("TextureFileCacheName"))
+            if (texture.getProperties()->exists("TextureFileCacheName"))
             {
-                QString archive = texture.properties->getProperty("TextureFileCacheName").valueName;
+                QString archive = texture.getProperties()->getProperty("TextureFileCacheName").valueName;
                 if (mod.arcTfcDLC && mod.arcTfcName != archive)
                     mod.arcTexture.clear();
 
@@ -449,8 +449,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> *map, QList<FoundTextur
                             archiveFile = g_GameData->MainData() + "/" + newGuid.name + ".tfc";
                             if (!QFile(archiveFile).exists())
                             {
-                                texture.properties->setNameValue("TextureFileCacheName", newGuid.name);
-                                texture.properties->setStructValue("TFCFileGuid", "Guid",
+                                texture.getProperties()->setNameValue("TextureFileCacheName", newGuid.name);
+                                texture.getProperties()->setStructValue("TFCFileGuid", "Guid",
                                                                     ByteBuffer(const_cast<quint8 *>(newGuid.guid), 16));
                                 FileStream fs = FileStream(archiveFile, FileMode::Create, FileAccess::WriteOnly);
                                 fs.WriteFromBuffer(const_cast<quint8 *>(guid.guid), 16);
@@ -461,8 +461,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> *map, QList<FoundTextur
                             fileLength = QFile(archiveFile).exists();
                             if (fileLength + 0x5000000 < 0x80000000)
                             {
-                                texture.properties->setNameValue("TextureFileCacheName", newGuid.name);
-                                texture.properties->setStructValue("TFCFileGuid", "Guid",
+                                texture.getProperties()->setNameValue("TextureFileCacheName", newGuid.name);
+                                texture.getProperties()->setStructValue("TFCFileGuid", "Guid",
                                                                     ByteBuffer(const_cast<quint8 *>(newGuid.guid), 16));
                                 break;
                             }
@@ -474,8 +474,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> *map, QList<FoundTextur
                 }
                 else
                 {
-                    texture.properties->setNameValue("TextureFileCacheName", mod.arcTfcName);
-                    texture.properties->setStructValue("TFCFileGuid", "Guid", ByteBuffer(mod.arcTfcGuid, 16));
+                    texture.getProperties()->setNameValue("TextureFileCacheName", mod.arcTfcName);
+                    texture.getProperties()->setStructValue("TFCFileGuid", "Guid", ByteBuffer(mod.arcTfcGuid, 16));
                 }
             }
 
@@ -564,21 +564,21 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> *map, QList<FoundTextur
             }
 
             texture.replaceMipMaps(mipmaps);
-            texture.properties->setIntValue("SizeX", texture.mipMapsList.first().width);
-            texture.properties->setIntValue("SizeY", texture.mipMapsList.first().height);
-            if (texture.properties->exists("MipTailBaseIdx"))
-                texture.properties->setIntValue("MipTailBaseIdx", texture.mipMapsList.count() - 1);
+            texture.getProperties()->setIntValue("SizeX", texture.mipMapsList.first().width);
+            texture.getProperties()->setIntValue("SizeY", texture.mipMapsList.first().height);
+            if (texture.getProperties()->exists("MipTailBaseIdx"))
+                texture.getProperties()->setIntValue("MipTailBaseIdx", texture.mipMapsList.count() - 1);
 
             {
                 MemoryStream newData{};
-                newData.WriteFromBuffer(texture.properties->toArray());
+                newData.WriteFromBuffer(texture.getProperties()->toArray());
                 newData.WriteFromBuffer(texture.toArray(0, false)); // filled later
                 package.setExportData(matched.exportID, newData.ToArray());
             }
 
             {
                 MemoryStream newData{};
-                newData.WriteFromBuffer(texture.properties->toArray());
+                newData.WriteFromBuffer(texture.getProperties()->toArray());
                 newData.WriteFromBuffer(texture.toArray(package.exportsTable[matched.exportID].getDataOffset() + (uint)newData.Position()));
                 package.setExportData(matched.exportID, newData.ToArray());
             }
@@ -593,8 +593,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> *map, QList<FoundTextur
                 if (triggerCacheArc)
                 {
                     mod.arcTexture = texture.mipMapsList;
-                    memcpy(mod.arcTfcGuid, texture.properties->getProperty("TFCFileGuid").valueStruct.ptr(), 0);
-                    mod.arcTfcName = texture.properties->getProperty("TextureFileCacheName").valueName;
+                    memcpy(mod.arcTfcGuid, texture.getProperties()->getProperty("TFCFileGuid").valueStruct.ptr(), 0);
+                    mod.arcTfcName = texture.getProperties()->getProperty("TextureFileCacheName").valueName;
                 }
             }
 
