@@ -56,15 +56,15 @@ class TreeScan
 {
 private:
 
-    static void FindTextures(MeType gameId, QList<FoundTexture> *textures, const QString &packagePath, bool modified, bool ipc);
+    static void FindTextures(MeType gameId, QList<FoundTexture> &textures, const QString &packagePath, bool modified, bool ipc);
 
 public:
 
     TreeScan() = default;
-    static void loadTexturesMap(MeType gameId, Resources *resources, QList<FoundTexture> *textures);
-    static bool loadTexturesMapFile(QString &path, QList<FoundTexture> *textures, bool ipc);
-    static void ReleaseTreeScan(QList<FoundTexture> *textures);
-    static int PrepareListOfTextures(MeType gameId, Resources *resources, QList<FoundTexture> *textures, bool ipc);
+    static void loadTexturesMap(MeType gameId, Resources &resources, QList<FoundTexture> &textures);
+    static bool loadTexturesMapFile(QString &path, QList<FoundTexture> &textures, bool ipc);
+    static void ReleaseTreeScan(QList<FoundTexture> &textures);
+    static int PrepareListOfTextures(MeType gameId, Resources &resources, QList<FoundTexture> &textures, bool ipc);
 };
 
 

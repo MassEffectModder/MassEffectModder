@@ -54,81 +54,81 @@ static const TFCTexture guids[] =
 };
 
 
-PixelFormat MipMaps::changeTextureType(PixelFormat gamePixelFormat, PixelFormat texturePixelFormat, Texture *texture)
+PixelFormat MipMaps::changeTextureType(PixelFormat gamePixelFormat, PixelFormat texturePixelFormat, Texture &texture)
 {
     if ((gamePixelFormat == PixelFormat::DXT5 || gamePixelFormat == PixelFormat::DXT1 || gamePixelFormat == PixelFormat::ATI2) &&
         (texturePixelFormat == PixelFormat::RGB || texturePixelFormat == PixelFormat::ARGB ||
          texturePixelFormat == PixelFormat::ATI2 || texturePixelFormat == PixelFormat::V8U8))
     {
-        if (texturePixelFormat == PixelFormat::ARGB && texture->getProperties()->exists("CompressionSettings") &&
-            texture->getProperties()->getProperty("CompressionSettings").valueName == "TC_OneBitAlpha")
+        if (texturePixelFormat == PixelFormat::ARGB && texture.getProperties()->exists("CompressionSettings") &&
+            texture.getProperties()->getProperty("CompressionSettings").valueName == "TC_OneBitAlpha")
         {
             gamePixelFormat = PixelFormat::ARGB;
-            texture->getProperties()->setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
-            texture->getProperties()->removeProperty("CompressionSettings");
+            texture.getProperties()->setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
+            texture.getProperties()->removeProperty("CompressionSettings");
         }
         else if (texturePixelFormat == PixelFormat::ATI2 &&
-            texture->getProperties()->exists("CompressionSettings") &&
-            texture->getProperties()->getProperty("CompressionSettings").valueName == "TC_Normalmap")
+            texture.getProperties()->exists("CompressionSettings") &&
+            texture.getProperties()->getProperty("CompressionSettings").valueName == "TC_Normalmap")
         {
             gamePixelFormat = PixelFormat::ATI2;
-            texture->getProperties()->setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
-            texture->getProperties()->setByteValue("CompressionSettings", "TC_NormalmapHQ", "TextureCompressionSettings");
+            texture.getProperties()->setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
+            texture.getProperties()->setByteValue("CompressionSettings", "TC_NormalmapHQ", "TextureCompressionSettings");
         }
         else if (GameData::gameType != MeType::ME3_TYPE && texturePixelFormat == PixelFormat::ARGB &&
-            texture->getProperties()->exists("CompressionSettings") &&
-            (texture->getProperties()->getProperty("CompressionSettings").valueName == "TC_Normalmap" ||
-            texture->getProperties()->getProperty("CompressionSettings").valueName == "TC_NormalmapHQ"))
+            texture.getProperties()->exists("CompressionSettings") &&
+            (texture.getProperties()->getProperty("CompressionSettings").valueName == "TC_Normalmap" ||
+            texture.getProperties()->getProperty("CompressionSettings").valueName == "TC_NormalmapHQ"))
         {
             gamePixelFormat = PixelFormat::ARGB;
-            texture->getProperties()->setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
-            texture->getProperties()->setByteValue("CompressionSettings", "TC_Normalmap", "TextureCompressionSettings");
+            texture.getProperties()->setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
+            texture.getProperties()->setByteValue("CompressionSettings", "TC_Normalmap", "TextureCompressionSettings");
         }
         else if ((gamePixelFormat == PixelFormat::DXT5 || gamePixelFormat == PixelFormat::DXT1) &&
             (texturePixelFormat == PixelFormat::ARGB || texturePixelFormat == PixelFormat::RGB) &&
-            !texture->getProperties()->exists("CompressionSettings"))
+            !texture.getProperties()->exists("CompressionSettings"))
         {
             gamePixelFormat = PixelFormat::ARGB;
-            texture->getProperties()->setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
+            texture.getProperties()->setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
         }
         else if (GameData::gameType == MeType::ME3_TYPE && gamePixelFormat == PixelFormat::DXT5 &&
             texturePixelFormat == PixelFormat::ARGB &&
-            texture->getProperties()->exists("CompressionSettings") &&
-            texture->getProperties()->getProperty("CompressionSettings").valueName == "TC_NormalmapAlpha")
+            texture.getProperties()->exists("CompressionSettings") &&
+            texture.getProperties()->getProperty("CompressionSettings").valueName == "TC_NormalmapAlpha")
         {
             gamePixelFormat = PixelFormat::ARGB;
-            texture->getProperties()->setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
+            texture.getProperties()->setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
         }
         else if (GameData::gameType == MeType::ME3_TYPE && gamePixelFormat == PixelFormat::DXT1 &&
             texturePixelFormat == PixelFormat::V8U8 &&
-            texture->getProperties()->exists("CompressionSettings") &&
-            (texture->getProperties()->getProperty("CompressionSettings").valueName == "TC_Normalmap" ||
-            texture->getProperties()->getProperty("CompressionSettings").valueName == "TC_NormalmapHQ"))
+            texture.getProperties()->exists("CompressionSettings") &&
+            (texture.getProperties()->getProperty("CompressionSettings").valueName == "TC_Normalmap" ||
+            texture.getProperties()->getProperty("CompressionSettings").valueName == "TC_NormalmapHQ"))
         {
             gamePixelFormat = PixelFormat::V8U8;
-            texture->getProperties()->setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
-            texture->getProperties()->setByteValue("CompressionSettings", "TC_NormalmapUncompressed", "TextureCompressionSettings");
+            texture.getProperties()->setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
+            texture.getProperties()->setByteValue("CompressionSettings", "TC_NormalmapUncompressed", "TextureCompressionSettings");
         }
     }
 
     return gamePixelFormat;
 }
 
-QString MipMaps::replaceTextures(QList<MapPackagesToMod> *map, QList<FoundTexture> *textures,
-                                 QStringList *pkgsToMarker, QStringList *pkgsToRepack,
-                                 QList<ModEntry> *modsToReplace, bool repack,
+QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTexture> &textures,
+                                 QStringList &pkgsToMarker, QStringList &pkgsToRepack,
+                                 QList<ModEntry> &modsToReplace, bool repack,
                                  bool appendMarker, bool verify, bool removeMips, bool ipc)
 {
     QString errors = "";
     int lastProgress = -1;
     ulong memorySize = DetectAmountMemoryGB();
 
-    for (int e = 0; e < map->count(); e++)
+    for (int e = 0; e < map.count(); e++)
     {
         if (ipc)
         {
-            ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + map->at(e).packagePath);
-            int newProgress = (e + 1) * 100 / map->count();
+            ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + map.at(e).packagePath);
+            int newProgress = (e + 1) * 100 / map.count();
             if (lastProgress != newProgress)
             {
                 ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + QString::number(newProgress));
@@ -138,34 +138,34 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> *map, QList<FoundTextur
         }
         else
         {
-            ConsoleWrite(QString("Package: ") + QString::number(e + 1) + " of " + QString::number(map->count()) +
-                         " started: " + map->at(e).packagePath);
+            ConsoleWrite(QString("Package: ") + QString::number(e + 1) + " of " + QString::number(map.count()) +
+                         " started: " + map.at(e).packagePath);
         }
 
         Package package{};
-        if (package.Open(g_GameData->GamePath() + map->at(e).packagePath) != 0)
+        if (package.Open(g_GameData->GamePath() + map.at(e).packagePath) != 0)
         {
             if (ipc)
             {
-                ConsoleWrite(QString("[IPC]ERROR Issue opening package file: ") + map->at(e).packagePath);
+                ConsoleWrite(QString("[IPC]ERROR Issue opening package file: ") + map.at(e).packagePath);
                 ConsoleSync();
             }
             else
             {
                 QString err;
                 err += "---- Start --------------------------------------------\n";
-                err += "Issue opening package file: " + map->at(e).packagePath + "\n";
+                err += "Issue opening package file: " + map.at(e).packagePath + "\n";
                 err += "---- End ----------------------------------------------\n\n";
                 ConsoleWrite(err);
             }
             continue;
         }
 
-        for (int p = 0; p < map->at(e).textures.count(); p++)
+        for (int p = 0; p < map.at(e).textures.count(); p++)
         {
-            MapPackagesToModEntry entryMap = map->at(e).textures[p];
-            MatchedTexture matched = textures->at(entryMap.texturesIndex).list->at(entryMap.listIndex);
-            ModEntry mod = modsToReplace->at(entryMap.modIndex);
+            MapPackagesToModEntry entryMap = map.at(e).textures[p];
+            MatchedTexture matched = textures.at(entryMap.texturesIndex).list->at(entryMap.listIndex);
+            ModEntry mod = modsToReplace.at(entryMap.modIndex);
             Texture texture = Texture(package, matched.exportID, package.getExportData(matched.exportID));
             QString fmt = texture.getProperties()->getProperty("Format").valueName;
             PixelFormat pixelFormat = Image::getPixelFormatType(fmt);
@@ -176,9 +176,9 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> *map, QList<FoundTextur
             {
                 FileStream fs = FileStream(mod.memPath, FileMode::Open, FileAccess::ReadOnly);
                 fs.JumpTo(mod.memEntryOffset);
-                ByteBuffer data = decompressData(&fs, mod.memEntrySize);
+                ByteBuffer data = decompressData(fs, mod.memEntrySize);
                 image = new Image(data, ImageFormat::DDS);
-                if (memorySize > 8 || modsToReplace->count() == 1)
+                if (memorySize > 8 || modsToReplace.count() == 1)
                     mod.cacheImage = image;
             }
 
@@ -197,7 +197,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> *map, QList<FoundTextur
 
             PixelFormat newPixelFormat = pixelFormat;
             if (mod.markConvert)
-                newPixelFormat = changeTextureType(pixelFormat, image->getPixelFormat(), &texture);
+                newPixelFormat = changeTextureType(pixelFormat, image->getPixelFormat(), texture);
 
             if (!image->checkDDSHaveAllMipmaps() ||
                 (texture.mipMapsList.count() > 1 && image->getMipMaps().count() <= 1) ||
@@ -218,7 +218,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> *map, QList<FoundTextur
                     }
                 }
                 image->correctMips(newPixelFormat, dxt1HasAlpha, dxt1Threshold);
-                if (memorySize > 8 || modsToReplace->count() == 1)
+                if (memorySize > 8 || modsToReplace.count() == 1)
                     mod.cacheImage = image;
             }
 
@@ -599,13 +599,13 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> *map, QList<FoundTextur
             }
 
             matched.removeEmptyMips = false;
-            if (!map->at(e).slave)
+            if (!map.at(e).slave)
             {
-                for (int r = 0; r < map->at(e).removeMips->exportIDs.count(); r++)
+                for (int r = 0; r < map.at(e).removeMips->exportIDs.count(); r++)
                 {
-                    if (map->at(e).removeMips->exportIDs[r] == matched.exportID)
+                    if (map.at(e).removeMips->exportIDs[r] == matched.exportID)
                     {
-                        map->at(e).removeMips->exportIDs.removeAt(r);
+                        map.at(e).removeMips->exportIDs.removeAt(r);
                         break;
                     }
                 }
@@ -631,16 +631,16 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> *map, QList<FoundTextur
                 }
             }
 
-            if (memorySize <= 6 && mod.cacheCprMipmaps.count() != 0 && modsToReplace->count() != 1)
+            if (memorySize <= 6 && mod.cacheCprMipmaps.count() != 0 && modsToReplace.count() != 1)
             {
                 mod.cacheCprMipmaps.clear();
             }
 
-            modsToReplace->replace(entryMap.modIndex, mod);
-            textures->at(entryMap.texturesIndex).list->replace(entryMap.listIndex, matched);
+            modsToReplace.replace(entryMap.modIndex, mod);
+            textures.at(entryMap.texturesIndex).list->replace(entryMap.listIndex, matched);
         }
 
-        if (removeMips && !map->at(e).slave)
+        if (removeMips && !map.at(e).slave)
         {
             if (GameData::gameType == MeType::ME1_TYPE)
                 removeMipMapsME1(1, textures, pkgsToMarker, ipc);
@@ -652,9 +652,9 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> *map, QList<FoundTextur
             if (package.SaveToFile(repack, false, appendMarker))
             {
                 if (repack)
-                    pkgsToRepack->removeOne(package.packagePath);
+                    pkgsToRepack.removeOne(package.packagePath);
                 if (appendMarker)
-                    pkgsToMarker->removeOne(package.packagePath);
+                    pkgsToMarker.removeOne(package.packagePath);
             }
         }
     }
@@ -667,8 +667,8 @@ static bool comparePaths(MapTexturesToMod &e1, MapTexturesToMod &e2)
     return e1.packagePath.compare(e2.packagePath, Qt::CaseInsensitive);
 }
 
-QString MipMaps::replaceModsFromList(QList<FoundTexture> *textures, QStringList *pkgsToMarker,
-                                     QStringList *pkgsToRepack, QList<ModEntry> *modsToReplace,
+QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList &pkgsToMarker,
+                                     QStringList &pkgsToRepack, QList<ModEntry> &modsToReplace,
                                      bool repack, bool appendMarker, bool verify, bool removeMips, bool ipc)
 {
     QString errors;
@@ -680,34 +680,34 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> *textures, QStringList 
     }
 
     // Remove duplicates
-    for (int i = 0; i < modsToReplace->count(); i++)
+    for (int i = 0; i < modsToReplace.count(); i++)
     {
-        ModEntry mod = modsToReplace->at(i);
+        ModEntry mod = modsToReplace.at(i);
         for (int l = 0; l < i; l++)
         {
             if (mod.binaryModType)
                 binaryMods = true;
-            if ((mod.textureCrc != 0 && mod.textureCrc == modsToReplace->at(l).textureCrc) ||
-                (mod.binaryModType && modsToReplace->at(l).binaryModType &&
-                mod.exportId == modsToReplace->at(l).exportId &&
-                mod.packagePath.compare(modsToReplace->at(l).packagePath) == 0))
+            if ((mod.textureCrc != 0 && mod.textureCrc == modsToReplace.at(l).textureCrc) ||
+                (mod.binaryModType && modsToReplace.at(l).binaryModType &&
+                mod.exportId == modsToReplace.at(l).exportId &&
+                mod.packagePath.compare(modsToReplace.at(l).packagePath) == 0))
             {
-                modsToReplace->removeAt(l);
+                modsToReplace.removeAt(l);
                 i--;
                 break;
             }
         }
     }
 
-    std::unique_ptr<QList<MapTexturesToMod>> map (new QList<MapTexturesToMod>());
-    std::unique_ptr<QList<MapTexturesToMod>> mapSlaves (new QList<MapTexturesToMod>());
+    QList<MapTexturesToMod> map = QList<MapTexturesToMod>();
+    QList<MapTexturesToMod> mapSlaves = QList<MapTexturesToMod>();
 
-    for (int k = 0; k < textures->count(); k++)
+    for (int k = 0; k < textures.count(); k++)
     {
         int index = -1;
-        for (int t = 0; t < modsToReplace->count(); t++)
+        for (int t = 0; t < modsToReplace.count(); t++)
         {
-            if (textures->at(k).crc == modsToReplace->at(t).textureCrc)
+            if (textures.at(k).crc == modsToReplace.at(t).textureCrc)
             {
                 index = t;
                 break;
@@ -716,112 +716,112 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> *textures, QStringList 
         if (index == -1)
             continue;
 
-        for (int t = 0; t < textures->at(k).list->count(); t++)
+        for (int t = 0; t < textures.at(k).list->count(); t++)
         {
-            if (textures->at(k).list->at(t).path == "")
+            if (textures.at(k).list->at(t).path == "")
                 continue;
 
             MapTexturesToMod entry{};
-            entry.packagePath = textures->at(k).list->at(t).path;
+            entry.packagePath = textures.at(k).list->at(t).path;
             entry.modIndex = index;
             entry.listIndex = t;
             entry.texturesIndex = k;
-            if (GameData::gameType == MeType::ME1_TYPE && textures->at(k).list->at(t).linkToMaster != -1)
-                mapSlaves->push_back(entry);
+            if (GameData::gameType == MeType::ME1_TYPE && textures.at(k).list->at(t).linkToMaster != -1)
+                mapSlaves.push_back(entry);
             else
-                map->push_back(entry);
+                map.push_back(entry);
 
-            ModEntry mod = modsToReplace->at(index);
+            ModEntry mod = modsToReplace.at(index);
             mod.instance++;
-            modsToReplace->replace(index, mod);
+            modsToReplace.replace(index, mod);
         }
     }
 
-    std::sort(map->begin(), map->end(), comparePaths);
+    std::sort(map.begin(), map.end(), comparePaths);
 
-    std::unique_ptr<QList<MapPackagesToMod>> mapPackages (new QList<MapPackagesToMod>());
+    auto mapPackages = QList<MapPackagesToMod>();
     QString previousPath;
     int packagesIndex = -1;
-    for (int i = 0; i < map->count(); i++)
+    for (int i = 0; i < map.count(); i++)
     {
         MapPackagesToModEntry entry{};
-        entry.modIndex = map->at(i).modIndex;
-        entry.texturesIndex = map->at(i).texturesIndex;
-        entry.listIndex = map->at(i).listIndex;
-        QString path = map->at(i).packagePath.toLower();
+        entry.modIndex = map.at(i).modIndex;
+        entry.texturesIndex = map.at(i).texturesIndex;
+        entry.listIndex = map.at(i).listIndex;
+        QString path = map.at(i).packagePath.toLower();
         if (previousPath == path)
         {
-            MapPackagesToMod mapEntry = mapPackages->at(packagesIndex);
-            mapEntry.usage += modsToReplace->at(map->at(i).modIndex).memEntrySize;
-            mapEntry.instances += modsToReplace->at(map->at(i).modIndex).instance;
+            MapPackagesToMod mapEntry = mapPackages.at(packagesIndex);
+            mapEntry.usage += modsToReplace.at(map.at(i).modIndex).memEntrySize;
+            mapEntry.instances += modsToReplace.at(map.at(i).modIndex).instance;
             mapEntry.textures.push_back(entry);
-            mapPackages->replace(packagesIndex, mapEntry);
+            mapPackages.replace(packagesIndex, mapEntry);
         }
         else
         {
             MapPackagesToMod mapEntry{};
             mapEntry.textures.push_back(entry);
-            mapEntry.packagePath = map->at(i).packagePath;
-            mapEntry.usage = modsToReplace->at(map->at(i).modIndex).memEntrySize;
-            mapEntry.instances = modsToReplace->at(map->at(i).modIndex).instance;
-            mapEntry.removeMips->pkgPath = map->at(i).packagePath;
-            previousPath = map->at(i).packagePath.toLower();
-            mapPackages->push_back(mapEntry);
+            mapEntry.packagePath = map.at(i).packagePath;
+            mapEntry.usage = modsToReplace.at(map.at(i).modIndex).memEntrySize;
+            mapEntry.instances = modsToReplace.at(map.at(i).modIndex).instance;
+            mapEntry.removeMips->pkgPath = map.at(i).packagePath;
+            previousPath = map.at(i).packagePath.toLower();
+            mapPackages.push_back(mapEntry);
             packagesIndex++;
         }
     }
-    map->clear();
+    map.clear();
 
-    std::sort(mapSlaves->begin(), mapSlaves->end(), comparePaths);
+    std::sort(mapSlaves.begin(), mapSlaves.end(), comparePaths);
     previousPath = "";
-    for (int i = 0; i < mapSlaves->count(); i++)
+    for (int i = 0; i < mapSlaves.count(); i++)
     {
         MapPackagesToModEntry entry{};
-        entry.modIndex = mapSlaves->at(i).modIndex;
-        entry.texturesIndex = mapSlaves->at(i).texturesIndex;
-        entry.listIndex = mapSlaves->at(i).listIndex;
-        QString path = mapSlaves->at(i).packagePath.toLower();
+        entry.modIndex = mapSlaves.at(i).modIndex;
+        entry.texturesIndex = mapSlaves.at(i).texturesIndex;
+        entry.listIndex = mapSlaves.at(i).listIndex;
+        QString path = mapSlaves.at(i).packagePath.toLower();
         if (previousPath == path)
         {
-            MapPackagesToMod mapEntry = mapPackages->at(packagesIndex);
-            mapEntry.usage += modsToReplace->at(mapSlaves->at(i).modIndex).memEntrySize;
-            mapEntry.instances = modsToReplace->at(mapSlaves->at(i).modIndex).instance;
+            MapPackagesToMod mapEntry = mapPackages.at(packagesIndex);
+            mapEntry.usage += modsToReplace.at(mapSlaves.at(i).modIndex).memEntrySize;
+            mapEntry.instances = modsToReplace.at(mapSlaves.at(i).modIndex).instance;
             mapEntry.textures.push_back(entry);
-            mapPackages->replace(packagesIndex, mapEntry);
+            mapPackages.replace(packagesIndex, mapEntry);
         }
         else
         {
             MapPackagesToMod mapEntry{};
             mapEntry.textures.push_back(entry);
-            mapEntry.packagePath = mapSlaves->at(i).packagePath;
-            mapEntry.usage = modsToReplace->at(mapSlaves->at(i).modIndex).memEntrySize;
-            mapEntry.instances = modsToReplace->at(mapSlaves->at(i).modIndex).instance;
+            mapEntry.packagePath = mapSlaves.at(i).packagePath;
+            mapEntry.usage = modsToReplace.at(mapSlaves.at(i).modIndex).memEntrySize;
+            mapEntry.instances = modsToReplace.at(mapSlaves.at(i).modIndex).instance;
             mapEntry.slave = true;
-            previousPath = mapSlaves->at(i).packagePath.toLower();
-            mapPackages->push_back(mapEntry);
+            previousPath = mapSlaves.at(i).packagePath.toLower();
+            mapPackages.push_back(mapEntry);
             packagesIndex++;
         }
     }
-    mapSlaves->clear();
+    mapSlaves.clear();
 
     if (removeMips)
     {
-        for (int k = 0; k < textures->count(); k++)
+        for (int k = 0; k < textures.count(); k++)
         {
-            for (int t = 0; t < textures->at(k).list->count(); t++)
+            for (int t = 0; t < textures.at(k).list->count(); t++)
             {
-                if (textures->at(k).list->at(t).path == "")
+                if (textures.at(k).list->at(t).path == "")
                     continue;
-                if (!textures->at(k).list->at(t).slave && textures->at(k).list->at(t).removeEmptyMips)
+                if (!textures.at(k).list->at(t).slave && textures.at(k).list->at(t).removeEmptyMips)
                 {
-                    for (int e = 0; e < mapPackages->count(); e++)
+                    for (int e = 0; e < mapPackages.count(); e++)
                     {
-                        if (!mapPackages->at(e).slave && mapPackages->at(e).packagePath == textures->at(k).list->at(t).path)
+                        if (!mapPackages.at(e).slave && mapPackages.at(e).packagePath == textures.at(k).list->at(t).path)
                         {
-                            mapPackages->at(e).removeMips->exportIDs.push_back(textures->at(k).list->at(t).exportID);
-                            MatchedTexture f = textures->at(k).list->at(t);
+                            mapPackages.at(e).removeMips->exportIDs.push_back(textures.at(k).list->at(t).exportID);
+                            MatchedTexture f = textures.at(k).list->at(t);
                             f.removeEmptyMips = false;
-                            textures->at(k).list->replace(t, f);
+                            textures.at(k).list->replace(t, f);
                             break;
                         }
                     }
@@ -837,9 +837,9 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> *textures, QStringList 
             ConsoleWrite("Installing binary mods...");
         }
 
-        for (int i = 0; i < modsToReplace->count(); i++)
+        for (int i = 0; i < modsToReplace.count(); i++)
         {
-            ModEntry mod = modsToReplace->at(i);
+            ModEntry mod = modsToReplace.at(i);
             if (mod.binaryModType)
             {
                 QString path = g_GameData->GamePath() + mod.packagePath;
@@ -854,26 +854,26 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> *textures, QStringList 
                 if (pkg.SaveToFile(repack, false, appendMarker))
                 {
                     if (repack)
-                        pkgsToRepack->removeOne(pkg.packagePath);
+                        pkgsToRepack.removeOne(pkg.packagePath);
                     if (appendMarker)
-                        pkgsToMarker->removeOne(pkg.packagePath);
+                        pkgsToMarker.removeOne(pkg.packagePath);
                 }
             }
         }
     }
 
-    if (mapPackages->count() != 0)
+    if (mapPackages.count() != 0)
     {
         if (!ipc)
         {
             ConsoleWrite("Installing texture mods...");
         }
 
-        errors += replaceTextures(mapPackages.get(), textures, pkgsToMarker, pkgsToRepack, modsToReplace,
+        errors += replaceTextures(mapPackages, textures, pkgsToMarker, pkgsToRepack, modsToReplace,
                                   repack, appendMarker, verify, removeMips, ipc);
     }
 
-    modsToReplace->clear();
+    modsToReplace.clear();
 
     return errors;
 }

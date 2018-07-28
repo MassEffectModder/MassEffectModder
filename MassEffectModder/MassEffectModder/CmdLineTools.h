@@ -37,9 +37,9 @@ private:
     QList<ModEntry> modsToReplace;
 
     bool detectMod(MeType gameId);
-    bool ScanTextures(MeType gameId, Resources *resources, QList<FoundTexture> *textures, bool ipc);
-    bool RemoveMipmaps(MipMaps *mipMaps, QList<FoundTexture> *textures,
-                       QStringList *pkgsToMarker, QStringList *pkgsToRepack,
+    bool ScanTextures(MeType gameId, Resources &resources, QList<FoundTexture> &textures, bool ipc);
+    bool RemoveMipmaps(MipMaps &mipMaps, QList<FoundTexture> &textures,
+                       QStringList &pkgsToMarker, QStringList &pkgsToRepack,
                        bool ipc, bool repack = false);
     void RepackME23(MeType gameId, bool modded, bool ipc);
 
@@ -68,9 +68,9 @@ public:
     void AddMarkers(bool ipc);
     bool InstallMods(MeType gameId, QString &inputDir, bool ipc, bool repack, bool guiInstaller);
     bool applyMEMSpecialModME3(MeType gameId, QString &memFile, QString &tfcName, QByteArray &guid);
-    bool applyMods(QStringList *files, QList<FoundTexture> *textures, MipMaps *mipMaps, bool repack,
+    bool applyMods(QStringList &files, QList<FoundTexture> &textures, MipMaps &mipMaps, bool repack,
                    bool modded, bool ipc, QString &tfcName, QByteArray &guid, bool special = false);
-    void replaceTextureSpecialME3Mod(Image *image, QList<MatchedTexture> *list, QString &textureName,
+    void replaceTextureSpecialME3Mod(Image &image, QList<MatchedTexture> &list, QString &textureName,
                                      QString &tfcName, QByteArray &guid);
     bool extractAllTextures(MeType gameId, QString &outputDir, bool png, QString &textureTfcFilter);
     bool CheckTextures(MeType gameId, bool ipc);

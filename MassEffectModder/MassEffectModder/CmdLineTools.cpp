@@ -75,8 +75,8 @@ int CmdLineTools::scanTextures(MeType gameId, bool ipc)
     Resources resources;
 
     resources.loadMD5Tables();
-    errorCode = TreeScan::PrepareListOfTextures(gameId, &resources, &textures, ipc);
-    TreeScan::ReleaseTreeScan(&textures);
+    errorCode = TreeScan::PrepareListOfTextures(gameId, resources, textures, ipc);
+    TreeScan::ReleaseTreeScan(textures);
 
     ConsoleWrite("Scan textures finished.\n");
 
@@ -129,7 +129,7 @@ bool CmdLineTools::ConvertToMEM(MeType gameId, QString &inputDir, QString &memFi
     QList<FoundTexture> textures;
     Resources resources;
     resources.loadMD5Tables();
-    TreeScan::loadTexturesMap(gameId, &resources, &textures);
+    TreeScan::loadTexturesMap(gameId, resources, textures);
     bool status = Misc::convertDataModtoMem(inputDir, memFile, gameId, &textures, markToConvert, false, ipc);
     return status;
 }
@@ -220,7 +220,7 @@ bool CmdLineTools::convertGameImage(MeType gameId, QString &inputFile, QString &
     Resources resources;
     resources.loadMD5Tables();
 
-    TreeScan::loadTexturesMap(gameId, &resources, &textures);
+    TreeScan::loadTexturesMap(gameId, resources, textures);
     return convertGameTexture(inputFile, outputFile, &textures, markToConvert);
 }
 
@@ -230,7 +230,7 @@ bool CmdLineTools::convertGameImages(MeType gameId, QString &inputDir, QString &
     Resources resources;
     resources.loadMD5Tables();
 
-    TreeScan::loadTexturesMap(gameId, &resources, &textures);
+    TreeScan::loadTexturesMap(gameId, resources, textures);
 
     QStringList list;
     list += QDir(inputDir, "*.dds", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
@@ -399,7 +399,7 @@ bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputD
     Resources resources;
     resources.loadMD5Tables();
 
-    TreeScan::loadTexturesMap(gameId, &resources, &textures);
+    TreeScan::loadTexturesMap(gameId, resources, textures);
 
     ConsoleWrite("Extract MOD files started...");
 
@@ -520,7 +520,7 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
     Resources resources;
     resources.loadMD5Tables();
 
-    TreeScan::loadTexturesMap(gameId, &resources, &textures);
+    TreeScan::loadTexturesMap(gameId, resources, textures);
 
     ConsoleWrite("Extract MEM files started...");
 
@@ -653,7 +653,7 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
                 lastProgress = newProgress;
             }
 
-            dst = MipMaps::decompressData(&fs, size);
+            dst = MipMaps::decompressData(fs, size);
             dstLen = dst.size();
 
             if (modFiles[i].tag == FileTextureTag)
@@ -1021,7 +1021,7 @@ void CmdLineTools::AddMarkers(bool ipc)
     ConsoleWrite("Adding markers finished.");
 }
 
-bool CmdLineTools::ScanTextures(MeType gameId, Resources *resources, QList<FoundTexture> *textures, bool ipc)
+bool CmdLineTools::ScanTextures(MeType gameId, Resources &resources, QList<FoundTexture> &textures, bool ipc)
 {
     ConsoleWrite("Scan textures started...");
     TreeScan::PrepareListOfTextures(gameId, resources, textures, ipc);
@@ -1030,8 +1030,8 @@ bool CmdLineTools::ScanTextures(MeType gameId, Resources *resources, QList<Found
     return true;
 }
 
-bool CmdLineTools::RemoveMipmaps(MipMaps *mipMaps, QList<FoundTexture> *textures,
-                                 QStringList *pkgsToMarker, QStringList *pkgsToRepack,
+bool CmdLineTools::RemoveMipmaps(MipMaps &mipMaps, QList<FoundTexture> &textures,
+                                 QStringList &pkgsToMarker, QStringList &pkgsToRepack,
                                  bool ipc, bool repack)
 {
     ConsoleWrite("Remove mipmaps started...");
@@ -1043,12 +1043,12 @@ bool CmdLineTools::RemoveMipmaps(MipMaps *mipMaps, QList<FoundTexture> *textures
 
     if (GameData::gameType == MeType::ME1_TYPE)
     {
-        mipMaps->removeMipMapsME1(1, textures, pkgsToMarker, ipc);
-        mipMaps->removeMipMapsME1(2, textures, pkgsToMarker, ipc);
+        mipMaps.removeMipMapsME1(1, textures, pkgsToMarker, ipc);
+        mipMaps.removeMipMapsME1(2, textures, pkgsToMarker, ipc);
     }
     else
     {
-        mipMaps->removeMipMapsME2ME3(textures, pkgsToMarker, pkgsToRepack, ipc, repack);
+        mipMaps.removeMipMapsME2ME3(textures, pkgsToMarker, pkgsToRepack, ipc, repack);
     }
 
     ConsoleWrite("Remove mipmaps finished.\n");
@@ -1214,7 +1214,7 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool 
         else if (GameData::gameType == MeType::ME2_TYPE)
             pkgsToMarker.removeOne(g_GameData->GamePath() + "/BioGame/CookedPC/BIOC_Materials.pcc");
 
-        ScanTextures(gameId, &resources, &textures, ipc);
+        ScanTextures(gameId, resources, textures, ipc);
     }
 
 
@@ -1230,17 +1230,17 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool 
         QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
                 "/MassEffectModder";
         QString mapFile = path + QString("/me%1map.bin").arg((int)gameId);
-        if (!TreeScan::loadTexturesMapFile(mapFile, &textures, ipc))
+        if (!TreeScan::loadTexturesMapFile(mapFile, textures, ipc))
             return false;
     }
 
     QString tfcName;
     QByteArray guid;
-    applyMods(&modFiles, &textures, &mipMaps, repack, modded, ipc, tfcName, guid);
+    applyMods(modFiles, textures, mipMaps, repack, modded, ipc, tfcName, guid);
 
 
     if (!modded)
-        RemoveMipmaps(&mipMaps, &textures, &pkgsToMarker, &pkgsToRepack, ipc, repack);
+        RemoveMipmaps(mipMaps, textures, pkgsToMarker, pkgsToRepack, ipc, repack);
 
 
     if (repack)
@@ -1302,7 +1302,7 @@ bool CmdLineTools::applyMEMSpecialModME3(MeType gameId, QString &memFile, QStrin
     QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
             "/MassEffectModder";
     QString mapFile = path + QString("/me%1map.bin").arg((int)gameId);
-    if (!TreeScan::loadTexturesMapFile(mapFile, &textures, false))
+    if (!TreeScan::loadTexturesMapFile(mapFile, textures, false))
     {
         return false;
     }
@@ -1310,12 +1310,12 @@ bool CmdLineTools::applyMEMSpecialModME3(MeType gameId, QString &memFile, QStrin
     QStringList memFiles = QStringList();
     memFiles.push_back(memFile);
 
-    applyMods(&memFiles, &textures, &mipMaps, false, false, false, tfcName, guid);
+    applyMods(memFiles, textures, mipMaps, false, false, false, tfcName, guid);
 
     return true;
 }
 
-bool CmdLineTools::applyMods(QStringList *files, QList<FoundTexture> *textures, MipMaps *mipMaps, bool repack,
+bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, MipMaps &mipMaps, bool repack,
                              bool modded, bool ipc, QString &tfcName, QByteArray &guid, bool special)
 {
     bool status = true;
@@ -1323,34 +1323,34 @@ bool CmdLineTools::applyMods(QStringList *files, QList<FoundTexture> *textures, 
     int totalNumberOfMods = 0;
     int currentNumberOfTotalMods = 1;
 
-    for (int i = 0; i < files->count(); i++)
+    for (int i = 0; i < files.count(); i++)
     {
-        if (QFile(files->at(i)).size() == 0)
+        if (QFile(files.at(i)).size() == 0)
         {
             if (ipc)
             {
-                ConsoleWrite(QString("[IPC]ERROR MEM mod file has 0 length: ") + files->at(i));
+                ConsoleWrite(QString("[IPC]ERROR MEM mod file has 0 length: ") + files.at(i));
                 ConsoleSync();
             }
             else
             {
-                ConsoleWrite(QString("MEM mod file has 0 length: ") + files->at(i));
+                ConsoleWrite(QString("MEM mod file has 0 length: ") + files.at(i));
             }
             continue;
         }
-        FileStream fs = FileStream(files->at(i), FileMode::Open, FileAccess::ReadOnly);
+        FileStream fs = FileStream(files.at(i), FileMode::Open, FileAccess::ReadOnly);
         uint tag = fs.ReadUInt32();
         uint version = fs.ReadUInt32();
         if (tag != TextureModTag || version != TextureModVersion)
         {
             if (ipc)
             {
-                ConsoleWrite(QString("[IPC]ERROR MEM mod file has wrong header: ") + files->at(i));
+                ConsoleWrite(QString("[IPC]ERROR MEM mod file has wrong header: ") + files.at(i));
                 ConsoleSync();
             }
             else
             {
-                ConsoleWrite(QString("MEM mod file has wrong header: ") + files->at(i));
+                ConsoleWrite(QString("MEM mod file has wrong header: ") + files.at(i));
             }
             continue;
         }
@@ -1359,41 +1359,41 @@ bool CmdLineTools::applyMods(QStringList *files, QList<FoundTexture> *textures, 
         totalNumberOfMods += fs.ReadInt32();
     }
 
-    for (int i = 0; i < files->count(); i++)
+    for (int i = 0; i < files.count(); i++)
     {
         if (ipc)
         {
-            ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + files->at(i));
+            ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + files.at(i));
             ConsoleSync();
         }
         else
         {
             if (special)
                 ConsoleWrite(QString("Installing mod: ") + QString::number(i + 1) + " of " +
-                             QString::number(files->count()) + " - " + BaseName(files->at(i)));
+                             QString::number(files.count()) + " - " + BaseName(files.at(i)));
             else
                 ConsoleWrite(QString("Preparing mod: ") + QString::number(i + 1) + " of " +
-                             QString::number(files->count()) + " - " + BaseName(files->at(i)));
+                             QString::number(files.count()) + " - " + BaseName(files.at(i)));
         }
 
-        FileStream fs = FileStream(files->at(i), FileMode::Open, FileAccess::ReadOnly);
+        FileStream fs = FileStream(files.at(i), FileMode::Open, FileAccess::ReadOnly);
         uint tag = fs.ReadUInt32();
         uint version = fs.ReadUInt32();
         if (tag != TextureModTag || version != TextureModVersion)
         {
             if (version != TextureModVersion)
             {
-                ConsoleWrite(QString("File ") + files->at(i) +
+                ConsoleWrite(QString("File ") + files.at(i) +
                              " was made with an older version of MEM, skipping...");
             }
             else
             {
-                ConsoleWrite(QString("File ") + files->at(i) +
+                ConsoleWrite(QString("File ") + files.at(i) +
                              " is not a valid MEM mod, skipping...");
             }
             if (ipc)
             {
-                ConsoleWrite(QString("[IPC]ERROR MEM mod file has wrong header: ") + files->at(i));
+                ConsoleWrite(QString("[IPC]ERROR MEM mod file has wrong header: ") + files.at(i));
                 ConsoleSync();
             }
             continue;
@@ -1406,12 +1406,12 @@ bool CmdLineTools::applyMods(QStringList *files, QList<FoundTexture> *textures, 
         {
             if (ipc)
             {
-                ConsoleWrite(QString("[IPC]ERROR MEM mod valid for this game, skipping... ") + files->at(i));
+                ConsoleWrite(QString("[IPC]ERROR MEM mod valid for this game, skipping... ") + files.at(i));
                 ConsoleSync();
             }
             else
             {
-                ConsoleWrite(QString("File ") + files->at(i) +
+                ConsoleWrite(QString("File ") + files.at(i) +
                              " is not a MEM mod valid for this game, skipping...");
             }
             continue;
@@ -1466,17 +1466,17 @@ bool CmdLineTools::applyMods(QStringList *files, QList<FoundTexture> *textures, 
 
             if (modFiles[l].tag == FileBinaryTag || modFiles[l].tag == FileXdeltaTag)
             {
-                dst = MipMaps::decompressData(&fs, size);
+                dst = MipMaps::decompressData(fs, size);
             }
 
             if (modFiles[l].tag == FileTextureTag || modFiles[l].tag == FileTextureTag2)
             {
                 FoundTexture f;
-                for (int s = 0; s < textures->count(); s++)
+                for (int s = 0; s < textures.count(); s++)
                 {
-                    if (textures->at(s).crc == crc)
+                    if (textures.at(s).crc == crc)
                     {
-                        f = textures->at(s);
+                        f = textures.at(s);
                         break;
                     }
                 }
@@ -1484,9 +1484,9 @@ bool CmdLineTools::applyMods(QStringList *files, QList<FoundTexture> *textures, 
                 {
                     if (special)
                     {
-                        dst = MipMaps::decompressData(&fs, size);
+                        dst = MipMaps::decompressData(fs, size);
                         Image image = Image(dst, ImageFormat::DDS);
-                        replaceTextureSpecialME3Mod(&image, f.list, f.name, tfcName, guid);
+                        replaceTextureSpecialME3Mod(image, *f.list, f.name, tfcName, guid);
                     }
                     else
                     {
@@ -1495,7 +1495,7 @@ bool CmdLineTools::applyMods(QStringList *files, QList<FoundTexture> *textures, 
                         entry.textureName = f.name;
                         if (modFiles[l].tag == FileTextureTag2)
                             entry.markConvert = true;
-                        entry.memPath = files->at(i);
+                        entry.memPath = files.at(i);
                         entry.memEntryOffset = fs.Position();
                         entry.memEntrySize = size;
                         modsToReplace.push_back(entry);
@@ -1554,7 +1554,7 @@ bool CmdLineTools::applyMods(QStringList *files, QList<FoundTexture> *textures, 
     }
 
     if (!special)
-        mipMaps->replaceModsFromList(textures, &pkgsToMarker, &pkgsToRepack, &modsToReplace,
+        mipMaps.replaceModsFromList(textures, pkgsToMarker, pkgsToRepack, modsToReplace,
                                      repack, !modded, false, !modded, ipc);
 
     modsToReplace.clear();
@@ -1564,14 +1564,14 @@ bool CmdLineTools::applyMods(QStringList *files, QList<FoundTexture> *textures, 
     return status;
 }
 
-void CmdLineTools::replaceTextureSpecialME3Mod(Image *image, QList<MatchedTexture> *list,
+void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTexture> &list,
                                                QString &textureName, QString &tfcName, QByteArray &guid)
 {
     Texture *arcTexture, *cprTexture;
 
-    for (int n = 0; n < list->count(); n++)
+    for (int n = 0; n < list.count(); n++)
     {
-        MatchedTexture nodeTexture = list->at(n);
+        MatchedTexture nodeTexture = list.at(n);
         if (nodeTexture.path == "")
             continue;
         Package package;
@@ -1581,7 +1581,7 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image *image, QList<MatchedTextur
         PixelFormat pixelFormat = Image::getPixelFormatType(fmt);
         texture->removeEmptyMips();
 
-        if (image->getMipMaps().first().getOrigWidth() / image->getMipMaps().first().getHeight() !=
+        if (image.getMipMaps().first().getOrigWidth() / image.getMipMaps().first().getHeight() !=
             texture->mipMapsList.first().width / texture->mipMapsList.first().height)
         {
             ConsoleWrite(QString("Error in texture: ") + textureName +
@@ -1589,9 +1589,9 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image *image, QList<MatchedTextur
             break;
         }
 
-        if (!image->checkDDSHaveAllMipmaps() ||
-            (texture->mipMapsList.count() > 1 && image->getMipMaps().count() <= 1) ||
-            image->getPixelFormat() != pixelFormat)
+        if (!image.checkDDSHaveAllMipmaps() ||
+            (texture->mipMapsList.count() > 1 && image.getMipMaps().count() <= 1) ||
+            image.getPixelFormat() != pixelFormat)
         {
             bool dxt1HasAlpha = false;
             quint8 dxt1Threshold = 128;
@@ -1601,37 +1601,37 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image *image, QList<MatchedTextur
                     texture->getProperties()->getProperty("CompressionSettings").valueName == "TC_OneBitAlpha")
                 {
                     dxt1HasAlpha = true;
-                    if (image->getPixelFormat() == PixelFormat::ARGB ||
-                        image->getPixelFormat() == PixelFormat::DXT3 ||
-                        image->getPixelFormat() == PixelFormat::DXT5)
+                    if (image.getPixelFormat() == PixelFormat::ARGB ||
+                        image.getPixelFormat() == PixelFormat::DXT3 ||
+                        image.getPixelFormat() == PixelFormat::DXT5)
                     {
                         ConsoleWrite(QString("Warning for texture: ") + textureName +
                                      ". This texture converted from full alpha to binary alpha.");
                     }
                 }
             }
-            image->correctMips(pixelFormat, dxt1HasAlpha, dxt1Threshold);
+            image.correctMips(pixelFormat, dxt1HasAlpha, dxt1Threshold);
         }
 
         // remove lower mipmaps from source image which not exist in game data
-        for (int t = 0; t < image->getMipMaps().count(); t++)
+        for (int t = 0; t < image.getMipMaps().count(); t++)
         {
-            if (image->getMipMaps()[t].getOrigWidth() <= texture->mipMapsList.first().width &&
-                image->getMipMaps()[t].getOrigHeight() <= texture->mipMapsList.first().height &&
+            if (image.getMipMaps()[t].getOrigWidth() <= texture->mipMapsList.first().width &&
+                image.getMipMaps()[t].getOrigHeight() <= texture->mipMapsList.first().height &&
                 texture->mipMapsList.count() > 1)
             {
                 bool found = false;
-                for (int m = t; m < image->getMipMaps().count(); m++)
+                for (int m = t; m < image.getMipMaps().count(); m++)
                 {
-                    if (!(texture->mipMapsList.at(m).width == image->getMipMaps()[t].getOrigWidth() &&
-                          texture->mipMapsList.at(m).height == image->getMipMaps()[t].getOrigHeight()))
+                    if (!(texture->mipMapsList.at(m).width == image.getMipMaps()[t].getOrigWidth() &&
+                          texture->mipMapsList.at(m).height == image.getMipMaps()[t].getOrigHeight()))
                     {
                         found = true;;
                     }
                 }
                 if (!found)
                 {
-                    image->getMipMaps().removeAt(t--);
+                    image.getMipMaps().removeAt(t--);
                 }
             }
         }
@@ -1640,14 +1640,14 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image *image, QList<MatchedTextur
         // reuse lower mipmaps from game data which not exist in source image
         for (int t = 0; t < texture->mipMapsList.count(); t++)
         {
-            if (texture->mipMapsList[t].width <= image->getMipMaps().first().getOrigWidth() &&
-                texture->mipMapsList[t].height <= image->getMipMaps().first().getOrigHeight())
+            if (texture->mipMapsList[t].width <= image.getMipMaps().first().getOrigWidth() &&
+                texture->mipMapsList[t].height <= image.getMipMaps().first().getOrigHeight())
             {
                 bool found = false;
-                for (int m = t; m < image->getMipMaps().count(); m++)
+                for (int m = t; m < image.getMipMaps().count(); m++)
                 {
-                    if (!(texture->mipMapsList.at(m).width == image->getMipMaps()[t].getOrigWidth() &&
-                          texture->mipMapsList.at(m).height == image->getMipMaps()[t].getOrigHeight()))
+                    if (!(texture->mipMapsList.at(m).width == image.getMipMaps()[t].getOrigWidth() &&
+                          texture->mipMapsList.at(m).height == image.getMipMaps()[t].getOrigHeight()))
                     {
                         found = true;;
                     }
@@ -1662,7 +1662,7 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image *image, QList<MatchedTextur
                         break;
                     }
                     MipMap mipmap = MipMap(data, texture->mipMapsList[t].width, texture->mipMapsList[t].height, pixelFormat);
-                    image->getMipMaps().push_back(mipmap);
+                    image.getMipMaps().push_back(mipmap);
                 }
             }
         }
@@ -1687,11 +1687,11 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image *image, QList<MatchedTextur
         }
 
         auto mipmaps = QList<Texture::TextureMipMap>();
-        for (int m = 0; m < image->getMipMaps().count(); m++)
+        for (int m = 0; m < image.getMipMaps().count(); m++)
         {
             Texture::TextureMipMap mipmap;
-            mipmap.width = image->getMipMaps()[m].getOrigWidth();
-            mipmap.height = image->getMipMaps()[m].getOrigHeight();
+            mipmap.width = image.getMipMaps()[m].getOrigWidth();
+            mipmap.height = image.getMipMaps()[m].getOrigHeight();
             if (texture->existMipmap(mipmap.width, mipmap.height))
                 mipmap.storageType = texture->getMipmap(mipmap.width, mipmap.height).storageType;
             else
@@ -1722,13 +1722,13 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image *image, QList<MatchedTextur
             if (mipmap.storageType == Texture::StorageTypes::pccLZO)
                 mipmap.storageType = Texture::StorageTypes::pccZlib;
 
-            mipmap.uncompressedSize = image->getMipMaps()[m].getData().size();
+            mipmap.uncompressedSize = image.getMipMaps()[m].getData().size();
             if (mipmap.storageType == Texture::StorageTypes::extZlib ||
                 mipmap.storageType == Texture::StorageTypes::extLZO)
             {
                 if (cprTexture == nullptr || (cprTexture != nullptr && mipmap.storageType != cprTexture->mipMapsList[m].storageType))
                 {
-                    mipmap.newData = texture->compressTexture(image->getMipMaps()[m].getData(), mipmap.storageType);
+                    mipmap.newData = texture->compressTexture(image.getMipMaps()[m].getData(), mipmap.storageType);
                     triggerCacheCpr = true;
                 }
                 else
@@ -1746,7 +1746,7 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image *image, QList<MatchedTextur
                 mipmap.storageType == Texture::StorageTypes::extUnc)
             {
                 mipmap.compressedSize = mipmap.uncompressedSize;
-                mipmap.newData = image->getMipMaps()[m].getData();
+                mipmap.newData = image.getMipMaps()[m].getData();
             }
             if (mipmap.storageType == Texture::StorageTypes::extZlib ||
                 mipmap.storageType == Texture::StorageTypes::extLZO ||
@@ -1785,8 +1785,8 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image *image, QList<MatchedTextur
                 }
             }
 
-            mipmap.width = image->getMipMaps()[m].getWidth();
-            mipmap.height = image->getMipMaps()[m].getHeight();
+            mipmap.width = image.getMipMaps()[m].getWidth();
+            mipmap.height = image.getMipMaps()[m].getHeight();
             mipmaps.push_back(mipmap);
             if (texture->mipMapsList.count() == 1)
                 break;
@@ -1852,7 +1852,7 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
     QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
             "/MassEffectModder";
     QString mapFile = path + QString("/me%1map.bin").arg((int)gameId);
-    if (!TreeScan::loadTexturesMapFile(mapFile, &textures, false))
+    if (!TreeScan::loadTexturesMapFile(mapFile, textures, false))
     {
         return false;
     }
@@ -1938,7 +1938,7 @@ bool CmdLineTools::CheckTextures(MeType gameId, bool ipc)
     QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
             "/MassEffectModder";
     QString mapFile = path + QString("/me%1map.bin").arg((int)gameId);
-    if (!TreeScan::loadTexturesMapFile(mapFile, &textures, false))
+    if (!TreeScan::loadTexturesMapFile(mapFile, textures, false))
     {
         return false;
     }

@@ -81,10 +81,10 @@ Stream *MipMaps::compressData(ByteBuffer inputData)
     return ouputStream;
 }
 
-ByteBuffer MipMaps::decompressData(Stream *stream, long compressedSize)
+ByteBuffer MipMaps::decompressData(Stream &stream, long compressedSize)
 {
-    uint compressedChunkSize = stream->ReadUInt32();
-    uint uncompressedChunkSize = stream->ReadUInt32();
+    uint compressedChunkSize = stream.ReadUInt32();
+    uint uncompressedChunkSize = stream.ReadUInt32();
     ByteBuffer data = ByteBuffer(uncompressedChunkSize);
     uint blocksCount = (uncompressedChunkSize + Package::maxBlockSize - 1) / Package::maxBlockSize;
     if ((compressedChunkSize + Package::SizeOfChunk + Package::SizeOfChunkBlock * blocksCount) != compressedSize)
@@ -94,8 +94,8 @@ ByteBuffer MipMaps::decompressData(Stream *stream, long compressedSize)
     for (uint b = 0; b < blocksCount; b++)
     {
         Package::ChunkBlock block{};
-        block.comprSize = stream->ReadUInt32();
-        block.uncomprSize = stream->ReadUInt32();
+        block.comprSize = stream.ReadUInt32();
+        block.uncomprSize = stream.ReadUInt32();
         blocks.push_back(block);
     }
 
@@ -103,7 +103,7 @@ ByteBuffer MipMaps::decompressData(Stream *stream, long compressedSize)
     {
         Package::ChunkBlock block = blocks[b];
         block.compressedBuffer = new quint8[block.comprSize];
-        stream->ReadToBuffer(block.compressedBuffer, block.comprSize);
+        stream.ReadToBuffer(block.compressedBuffer, block.comprSize);
         block.uncompressedBuffer = new quint8[Package::maxBlockSize * 2];
         blocks[b] = block;
     }

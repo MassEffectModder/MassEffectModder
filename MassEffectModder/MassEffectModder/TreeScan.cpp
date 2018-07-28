@@ -34,15 +34,15 @@
 
 static bool generateBuiltinMapFiles = false; // change to true to enable map files generation
 
-void TreeScan::loadTexturesMap(MeType gameId, Resources *resources, QList<FoundTexture> *textures)
+void TreeScan::loadTexturesMap(MeType gameId, Resources &resources, QList<FoundTexture> &textures)
 {
     QStringList pkgs;
     if (gameId == MeType::ME1_TYPE)
-        pkgs = resources->tablePkgsME1;
+        pkgs = resources.tablePkgsME1;
     else if (gameId == MeType::ME2_TYPE)
-        pkgs = resources->tablePkgsME2;
+        pkgs = resources.tablePkgsME2;
     else
-        pkgs = resources->tablePkgsME3;
+        pkgs = resources.tablePkgsME3;
 
     FileStream tmp = FileStream(QString(":/Resources/me%1map.bin").arg((int)gameId), FileMode::Open);
     if (tmp.ReadUInt32() != 0x504D5443)
@@ -89,11 +89,11 @@ void TreeScan::loadTexturesMap(MeType gameId, Resources *resources, QList<FoundT
             matched.packageName = BaseNameWithoutExt(matched.path).toUpper();
             texture.list->push_back(matched);
         }
-        textures->push_back(texture);
+        textures.push_back(texture);
     }
 }
 
-bool TreeScan::loadTexturesMapFile(QString &path, QList<FoundTexture> *textures, bool ipc)
+bool TreeScan::loadTexturesMapFile(QString &path, QList<FoundTexture> &textures, bool ipc)
 {
     if (!QFile(path).exists())
     {
@@ -148,7 +148,7 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<FoundTexture> *textures,
             matched.path.replace(QChar('\\'), QChar('/'));
             texture.list->push_back(matched);
         }
-        textures->push_back(texture);
+        textures.push_back(texture);
     }
 
     QStringList packages = QStringList();
@@ -221,24 +221,24 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<FoundTexture> *textures,
     return !foundRemoved && !foundAdded;
 }
 
-int TreeScan::PrepareListOfTextures(MeType gameId, Resources *resources, QList<FoundTexture> *textures, bool ipc)
+int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<FoundTexture> &textures, bool ipc)
 {
     QStringList pkgs;
     QList<MD5FileEntry> md5Entries;
     if (gameId == MeType::ME1_TYPE)
     {
-        pkgs = resources->tablePkgsME1;
-        md5Entries = resources->entriesME1;
+        pkgs = resources.tablePkgsME1;
+        md5Entries = resources.entriesME1;
     }
     else if (gameId == MeType::ME2_TYPE)
     {
-        pkgs = resources->tablePkgsME2;
-        md5Entries = resources->entriesME2;
+        pkgs = resources.tablePkgsME2;
+        md5Entries = resources.entriesME2;
     }
     else
     {
-        pkgs = resources->tablePkgsME3;
-        md5Entries = resources->entriesME3;
+        pkgs = resources.tablePkgsME3;
+        md5Entries = resources.entriesME3;
     }
 
     QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
@@ -293,16 +293,16 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources *resources, QList<F
         }
         sortedFiles.sort(Qt::CaseInsensitive);
 
-        for (int k = 0; k < textures->count(); k++)
+        for (int k = 0; k < textures.count(); k++)
         {
-            for (int t = 0; t < textures->at(k).list->count(); t++)
+            for (int t = 0; t < textures.at(k).list->count(); t++)
             {
-                QString pkgPath = textures->at(k).list->at(t).path;
+                QString pkgPath = textures.at(k).list->at(t).path;
                 if (std::binary_search(sortedFiles.begin(), sortedFiles.end(), pkgPath))
                     continue;
-                MatchedTexture f = textures->at(k).list->at(t);
+                MatchedTexture f = textures.at(k).list->at(t);
                 f.path = "";
-                textures->at(k).list->replace(t, f);
+                textures.at(k).list->replace(t, f);
             }
         }
 
@@ -378,12 +378,12 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources *resources, QList<F
             FindTextures(gameId, textures, addedFiles[i], false, ipc);
         }
 
-        for (int k = 0; k < textures->count(); k++)
+        for (int k = 0; k < textures.count(); k++)
         {
             bool found = false;
-            for (int t = 0; t < textures->at(k).list->count(); t++)
+            for (int t = 0; t < textures.at(k).list->count(); t++)
             {
-                if (textures->at(k).list->at(t).path != "")
+                if (textures.at(k).list->at(t).path != "")
                 {
                     found = true;
                     break;
@@ -391,8 +391,8 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources *resources, QList<F
             }
             if (!found)
             {
-                textures->at(k).list->clear();
-                textures->removeAt(k);
+                textures.at(k).list->clear();
+                textures.removeAt(k);
                 k--;
             }
         }
@@ -425,26 +425,26 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources *resources, QList<F
 
     if (gameId == MeType::ME1_TYPE)
     {
-        for (int k = 0; k < textures->count(); k++)
+        for (int k = 0; k < textures.count(); k++)
         {
-            for (int t = 0; t < textures->at(k).list->count(); t++)
+            for (int t = 0; t < textures.at(k).list->count(); t++)
             {
-                uint mipmapOffset = textures->at(k).list->at(t).mipmapOffset;
-                if (textures->at(k).list->at(t).slave)
+                uint mipmapOffset = textures.at(k).list->at(t).mipmapOffset;
+                if (textures.at(k).list->at(t).slave)
                 {
-                    MatchedTexture slaveTexture = textures->at(k).list->at(t);
+                    MatchedTexture slaveTexture = textures.at(k).list->at(t);
                     QString basePkgName = slaveTexture.basePackageName;
                     if (basePkgName == BaseNameWithoutExt(slaveTexture.path).toUpper())
                         CRASH();
-                    for (int j = 0; j < textures->at(k).list->count(); j++)
+                    for (int j = 0; j < textures.at(k).list->count(); j++)
                     {
-                        if (!textures->at(k).list->at(j).slave &&
-                           textures->at(k).list->at(j).mipmapOffset == mipmapOffset &&
-                           textures->at(k).list->at(j).packageName == basePkgName)
+                        if (!textures.at(k).list->at(j).slave &&
+                           textures.at(k).list->at(j).mipmapOffset == mipmapOffset &&
+                           textures.at(k).list->at(j).packageName == basePkgName)
                         {
                             slaveTexture.linkToMaster = j;
                             slaveTexture.slave = true;
-                            textures->at(k).list->replace(t, slaveTexture);
+                            textures.at(k).list->replace(t, slaveTexture);
                             break;
                         }
                     }
@@ -452,10 +452,10 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources *resources, QList<F
             }
 
             bool foundWeakSlave = false;
-            for (int w = 0; w < textures->at(k).list->count(); w++)
+            for (int w = 0; w < textures.at(k).list->count(); w++)
             {
-                if (!textures->at(k).list->at(w).slave &&
-                     textures->at(k).list->at(w).weakSlave)
+                if (!textures.at(k).list->at(w).slave &&
+                     textures.at(k).list->at(w).weakSlave)
                 {
                     foundWeakSlave = true;
                 }
@@ -463,37 +463,37 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources *resources, QList<F
             if (foundWeakSlave)
             {
                 auto *texList = new QList<MatchedTexture>();
-                for (int t = 0; t < textures->at(k).list->count(); t++)
+                for (int t = 0; t < textures.at(k).list->count(); t++)
                 {
-                    MatchedTexture tex = textures->at(k).list->at(t);
+                    MatchedTexture tex = textures.at(k).list->at(t);
                     if (tex.weakSlave)
                         texList->push_back(tex);
                     else
                         texList->push_front(tex);
                 }
-                FoundTexture f = textures->at(k);
+                FoundTexture f = textures.at(k);
                 delete f.list;
                 f.list = texList;
-                textures->replace(k, f);
-                if (textures->at(k).list->first().weakSlave)
+                textures.replace(k, f);
+                if (textures.at(k).list->first().weakSlave)
                     continue;
 
-                for (int t = 0; t < textures->at(k).list->count(); t++)
+                for (int t = 0; t < textures.at(k).list->count(); t++)
                 {
-                    if (textures->at(k).list->at(t).weakSlave)
+                    if (textures.at(k).list->at(t).weakSlave)
                     {
-                        MatchedTexture slaveTexture = textures->at(k).list->at(t);
+                        MatchedTexture slaveTexture = textures.at(k).list->at(t);
                         QString basePkgName = slaveTexture.basePackageName;
                         if (basePkgName == BaseNameWithoutExt(slaveTexture.path).toUpper())
                             CRASH();
-                        for (int j = 0; j < textures->at(k).list->count(); j++)
+                        for (int j = 0; j < textures.at(k).list->count(); j++)
                         {
-                            if (!textures->at(k).list->at(j).weakSlave &&
-                               textures->at(k).list->at(j).packageName == basePkgName)
+                            if (!textures.at(k).list->at(j).weakSlave &&
+                               textures.at(k).list->at(j).packageName == basePkgName)
                             {
                                 slaveTexture.linkToMaster = j;
                                 slaveTexture.slave = true;
-                                textures->at(k).list->replace(t, slaveTexture);
+                                textures.at(k).list->replace(t, slaveTexture);
                                 break;
                             }
                         }
@@ -510,11 +510,11 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources *resources, QList<F
     MemoryStream mem;
     mem.WriteUInt32(textureMapBinTag);
     mem.WriteUInt32(textureMapBinVersion);
-    mem.WriteInt32(textures->count());
+    mem.WriteInt32(textures.count());
 
-    for (int i = 0; i < textures->count(); i++)
+    for (int i = 0; i < textures.count(); i++)
     {
-        const FoundTexture& texture = textures->at(i);
+        const FoundTexture& texture = textures.at(i);
         if (generateBuiltinMapFiles)
             mem.WriteByte(texture.name.length());
         else
@@ -589,7 +589,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources *resources, QList<F
     return 0;
 }
 
-void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> *textures, const QString &packagePath,
+void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> &textures, const QString &packagePath,
                             bool modified, bool ipc)
 {
     Package package;
@@ -665,11 +665,11 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> *textures, const 
             }
 
             FoundTexture foundTexName = {};
-            for (int k = 0; k < textures->count(); k++)
+            for (int k = 0; k < textures.count(); k++)
             {
-                if (textures->at(k).crc == crc)
+                if (textures.at(k).crc == crc)
                 {
-                    foundTexName = textures->at(k);
+                    foundTexName = textures.at(k);
                     break;
                 }
             }
@@ -696,17 +696,17 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> *textures, const 
             {
                 if (modified)
                 {
-                    for (int k = 0; k < textures->count(); k++)
+                    for (int k = 0; k < textures.count(); k++)
                     {
                         bool found = false;
-                        for (int t = 0; t < textures->at(k).list->count(); t++)
+                        for (int t = 0; t < textures.at(k).list->count(); t++)
                         {
-                            if (textures->at(k).list->at(t).exportID == i &&
-                                textures->at(k).list->at(t).path.toLower() == packagePathLower)
+                            if (textures.at(k).list->at(t).exportID == i &&
+                                textures.at(k).list->at(t).path.toLower() == packagePathLower)
                             {
-                                MatchedTexture f = textures->at(k).list->at(t);
+                                MatchedTexture f = textures.at(k).list->at(t);
                                 f.path = "";
-                                textures->at(k).list->replace(t, f);
+                                textures.at(k).list->replace(t, f);
                                 found = true;
                                 break;
                             }
@@ -751,18 +751,18 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> *textures, const 
                         foundTex.flags = TexProperty::TextureTypes::Normal;
                     }
                 }
-                textures->push_back(foundTex);
+                textures.push_back(foundTex);
             }
             delete texture;
         }
     }
 }
 
-void TreeScan::ReleaseTreeScan(QList<FoundTexture> *textures)
+void TreeScan::ReleaseTreeScan(QList<FoundTexture> &textures)
 {
-    for (int k = 0; k < textures->count(); k++)
+    for (int k = 0; k < textures.count(); k++)
     {
-        const FoundTexture& t = textures->at(k);
+        const FoundTexture& t = textures.at(k);
         for (int e = 0; e < t.list->count(); e++)
         {
             const MatchedTexture& m = t.list->at(e);
