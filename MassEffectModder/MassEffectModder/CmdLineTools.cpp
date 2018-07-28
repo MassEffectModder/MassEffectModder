@@ -1088,7 +1088,7 @@ void CmdLineTools::RepackME23(MeType gameId, bool modded, bool ipc)
         }
         auto package = new Package();
         package->Open(g_GameData->GamePath() + pkgsToRepack[i], true);
-        if (!package->compressed || (package->compressed &&
+        if (!package->getCompressedFlag() || (package->getCompressedFlag() &&
              package->compressionType != Package::CompressionType::Zlib))
         {
             delete package;

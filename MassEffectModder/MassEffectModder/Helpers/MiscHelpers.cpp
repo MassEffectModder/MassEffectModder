@@ -105,11 +105,12 @@ bool DetectAdminRights()
 #if defined(_WIN32)
     SID_IDENTIFIER_AUTHORITY authority = SECURITY_NT_AUTHORITY;
     PSID sid;
-    status = AllocateAndInitializeSid(&authority, 2, SECURITY_BUILTIN_DOMAIN_RID,
+    BOOL state = AllocateAndInitializeSid(&authority, 2, SECURITY_BUILTIN_DOMAIN_RID,
                                       DOMAIN_ALIAS_RID_ADMINS, 0, 0, 0, 0, 0, 0, &sid);
-    if (status)
+    status = state;
+    if (state)
     {
-        if (!CheckTokenMembership(NULL, sid, &status))
+        if (!CheckTokenMembership(NULL, sid, &state))
             status = false;
         FreeSid(sid);
     }

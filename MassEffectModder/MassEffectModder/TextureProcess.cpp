@@ -84,7 +84,8 @@ ByteBuffer MipMaps::decompressData(Stream &stream, long compressedSize)
     uint uncompressedChunkSize = stream.ReadUInt32();
     ByteBuffer data = ByteBuffer(uncompressedChunkSize);
     uint blocksCount = (uncompressedChunkSize + Package::maxBlockSize - 1) / Package::maxBlockSize;
-    if ((compressedChunkSize + Package::SizeOfChunk + Package::SizeOfChunkBlock * blocksCount) != compressedSize)
+    if ((compressedChunkSize + Package::SizeOfChunk + Package::SizeOfChunkBlock * blocksCount) !=
+            (uint)compressedSize)
         CRASH_MSG("not match");
 
     QList<Package::ChunkBlock> blocks{};

@@ -70,9 +70,9 @@ void ME3DLC::loadHeader(Stream *stream)
         stream->ReadToBuffer(file.filenameHash, 16);
         file.compressedBlockSizesIndex = stream->ReadInt32();
         file.uncomprSize = stream->ReadUInt32();
-        file.uncomprSize |= (long)stream->ReadByte() << 32;
+        stream->ReadByte();
         file.dataOffset = stream->ReadUInt32();
-        file.dataOffset |= (long)stream->ReadByte() << 32;
+        stream->ReadByte();
         file.numBlocks = (uint)((file.uncomprSize + maxBlockSize - 1) / maxBlockSize);
         filesList.push_back(file);
         numBlockSizes += file.numBlocks;
@@ -96,7 +96,7 @@ void ME3DLC::loadHeader(Stream *stream)
             auto inBuf = stream->ReadToBuffer(compressedBlockSize);
             std::unique_ptr<char[]> outBuf (new char[dstLen]);
             LzmaDecompress(inBuf.ptr(), inBuf.size(), reinterpret_cast<quint8 *>(outBuf.get()), &dstLen);
-            if (dstLen != filesList[i].uncomprSize)
+            if (dstLen != (quint32)filesList[i].uncomprSize)
                 CRASH();
 
             inBuf.Free();
