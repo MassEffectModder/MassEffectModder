@@ -57,7 +57,7 @@ public:
     void Close() override {}
     ByteBuffer ToArray();
 
-    void CopyFrom(Stream *stream, qint64 count, qint64 bufferSize = 10000) override;
+    void CopyFrom(Stream &stream, qint64 count, qint64 bufferSize = 10000) override;
     void ReadToBuffer(quint8 *buffer, qint64 count) override;
     ByteBuffer ReadToBuffer(qint64 count) override;
     void WriteFromBuffer(quint8 *buffer, qint64 count) override;

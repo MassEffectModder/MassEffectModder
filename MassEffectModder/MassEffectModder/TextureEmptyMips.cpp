@@ -24,10 +24,8 @@
 #include "Texture.h"
 #include "Helpers/MiscHelpers.h"
 
-QList<RemoveMipsEntry> *MipMaps::prepareListToRemove(QList<FoundTexture> &textures)
+void MipMaps::prepareListToRemove(QList<FoundTexture> &textures, QList<RemoveMipsEntry> &list)
 {
-    auto list = new QList<RemoveMipsEntry>();
-
     for (int k = 0; k < textures.count(); k++)
     {
         for (int t = 0; t < textures.at(k).list.count(); t++)
@@ -37,14 +35,14 @@ QList<RemoveMipsEntry> *MipMaps::prepareListToRemove(QList<FoundTexture> &textur
             if (textures.at(k).list.at(t).removeEmptyMips)
             {
                 bool found = false;
-                for (int e = 0; e < list->count(); e++)
+                for (int e = 0; e < list.count(); e++)
                 {
-                    if (list->at(e).pkgPath == textures.at(k).list.at(t).path)
+                    if (list[e].pkgPath == textures[k].list[t].path)
                     {
-                        RemoveMipsEntry entry = list->at(e);
-                        int exportId = textures.at(k).list.at(t).exportID;
+                        RemoveMipsEntry entry = list[e];
+                        int exportId = textures[k].list[t].exportID;
                         entry.exportIDs.push_back(exportId);
-                        list->replace(e, entry);
+                        list.replace(e, entry);
                         found = true;
                         break;
                     }
@@ -52,30 +50,29 @@ QList<RemoveMipsEntry> *MipMaps::prepareListToRemove(QList<FoundTexture> &textur
                 if (found)
                     continue;
                 RemoveMipsEntry entry{};
-                entry.pkgPath = textures.at(k).list.at(t).path;
-                entry.exportIDs.push_back(textures.at(k).list.at(t).exportID);
-                list->push_back(entry);
+                entry.pkgPath = textures[k].list[t].path;
+                entry.exportIDs.push_back(textures[k].list[t].exportID);
+                list.push_back(entry);
             }
         }
     }
-
-    return list;
 }
 
 void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> &textures, QStringList &pkgsToMarker, bool ipc)
 {
     int lastProgress = -1;
 
-    QList<RemoveMipsEntry> *list = prepareListToRemove(textures);
+    QList<RemoveMipsEntry> list;
+    prepareListToRemove(textures, list);
     QString path = "/BioGame/CookedPC/testVolumeLight_VFX.upk";
-    for (int i = 0; i < list->count(); i++)
+    for (int i = 0; i < list.count(); i++)
     {
-        if (path.compare(list->at(i).pkgPath, Qt::CaseInsensitive))
+        if (path.compare(list[i].pkgPath, Qt::CaseInsensitive))
             continue;
 
         if (ipc)
         {
-            int newProgress = (list->count() * (phase - 1) + i + 1) * 100 / (list->count() * 2);
+            int newProgress = (list.count() * (phase - 1) + i + 1) * 100 / (list.count() * 2);
             if (lastProgress != newProgress)
             {
                 ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + QString::number(newProgress));
@@ -85,28 +82,26 @@ void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> &textures, QString
         }
 
         Package package{};
-        if (package.Open(g_GameData->GamePath() + list->at(i).pkgPath) != 0)
+        if (package.Open(g_GameData->GamePath() + list[i].pkgPath) != 0)
         {
             if (ipc)
             {
-                ConsoleWrite(QString("[IPC]ERROR Issue opening package file: ") + list->at(i).pkgPath);
+                ConsoleWrite(QString("[IPC]ERROR Issue opening package file: ") + list[i].pkgPath);
                 ConsoleSync();
             }
             else
             {
                 QString err;
                 err += "---- Start --------------------------------------------\n";
-                err += "Issue opening package file: " + list->at(i).pkgPath + "\n";
+                err += "Issue opening package file: " + list[i].pkgPath + "\n";
                 err += "---- End ----------------------------------------------\n\n";
                 ConsoleWrite(err);
             }
-            delete  list;
             return;
         }
 
-        removeMipMapsME1(phase, textures, package, *list, pkgsToMarker, i, ipc);
+        removeMipMapsME1(phase, textures, package, list, pkgsToMarker, i, ipc);
     }
-    delete  list;
 }
 
 void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> &textures, Package &package,
@@ -226,20 +221,21 @@ void MipMaps::removeMipMapsME2ME3(QList<FoundTexture> &textures, QStringList &pk
                                   QStringList &pkgsToRepack, bool ipc, bool repack)
 {
     int lastProgress = -1;
-    QList<RemoveMipsEntry> *list = prepareListToRemove(textures);
+    QList<RemoveMipsEntry> list;
+    prepareListToRemove(textures, list);
     QString path;
     if (GameData::gameType == MeType::ME2_TYPE)
     {
         path = g_GameData->GamePath() + "/BioGame/CookedPC/BIOC_Materials.pcc";
     }
-    for (int i = 0; i < list->count(); i++)
+    for (int i = 0; i < list.count(); i++)
     {
-        if (path.compare(list->at(i).pkgPath, Qt::CaseInsensitive))
+        if (path.compare(list[i].pkgPath, Qt::CaseInsensitive))
             continue;
 
         if (ipc)
         {
-            int newProgress = (i + 1) * 100 / list->count();
+            int newProgress = (i + 1) * 100 / list.count();
             if (lastProgress != newProgress)
             {
                 ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + QString::number(newProgress));
@@ -249,28 +245,26 @@ void MipMaps::removeMipMapsME2ME3(QList<FoundTexture> &textures, QStringList &pk
         }
 
         Package package{};
-        if (package.Open(g_GameData->GamePath() + list->at(i).pkgPath) != 0)
+        if (package.Open(g_GameData->GamePath() + list[i].pkgPath) != 0)
         {
             if (ipc)
             {
-                ConsoleWrite(QString("[IPC]ERROR Issue opening package file: ") + list->at(i).pkgPath);
+                ConsoleWrite(QString("[IPC]ERROR Issue opening package file: ") + list[i].pkgPath);
                 ConsoleSync();
             }
             else
             {
                 QString err;
                 err += "---- Start --------------------------------------------\n";
-                err += "Issue opening package file: " + list->at(i).pkgPath + "\n";
+                err += "Issue opening package file: " + list[i].pkgPath + "\n";
                 err += "---- End ----------------------------------------------\n\n";
                 ConsoleWrite(err);
             }
-            delete  list;
             return;
         }
 
-        removeMipMapsME2ME3(package, *list, pkgsToMarker, pkgsToRepack, i, repack);
+        removeMipMapsME2ME3(package, list, pkgsToMarker, pkgsToRepack, i, repack);
     }
-    delete  list;
 }
 
 void MipMaps::removeMipMapsME2ME3(Package &package, QList<RemoveMipsEntry> &list,

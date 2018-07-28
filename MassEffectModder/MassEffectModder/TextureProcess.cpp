@@ -27,9 +27,8 @@
 #include "Helpers/FileStream.h"
 #include "Helpers/MemoryStream.h"
 
-Stream *MipMaps::compressData(ByteBuffer inputData)
+void MipMaps::compressData(ByteBuffer inputData, Stream &ouputStream)
 {
-    auto ouputStream = new MemoryStream();
     uint compressedSize = 0;
     uint dataBlockLeft = inputData.size();
     uint newNumBlocks = ((uint)inputData.size() + Package::maxBlockSize - 1) / Package::maxBlockSize;
@@ -37,7 +36,7 @@ Stream *MipMaps::compressData(ByteBuffer inputData)
     {
         MemoryStream inputStream = MemoryStream(inputData);
         // skip blocks header and table - filled later
-        ouputStream->JumpTo(Package::SizeOfChunk + Package::SizeOfChunkBlock * newNumBlocks);
+        ouputStream.JumpTo(Package::SizeOfChunk + Package::SizeOfChunkBlock * newNumBlocks);
 
         for (uint b = 0; b < newNumBlocks; b++)
         {
@@ -63,22 +62,20 @@ Stream *MipMaps::compressData(ByteBuffer inputData)
     for (int b = 0; b < blocks.count(); b++)
     {
         Package::ChunkBlock block = blocks[b];
-        ouputStream->WriteFromBuffer(block.compressedBuffer, (int)block.comprSize);
+        ouputStream.WriteFromBuffer(block.compressedBuffer, (int)block.comprSize);
         compressedSize += block.comprSize;
         delete[] block.uncompressedBuffer;
         delete[] block.compressedBuffer;
     }
 
-    ouputStream->SeekBegin();
-    ouputStream->WriteUInt32(compressedSize);
-    ouputStream->WriteInt32(inputData.size());
+    ouputStream.SeekBegin();
+    ouputStream.WriteUInt32(compressedSize);
+    ouputStream.WriteInt32(inputData.size());
     foreach (Package::ChunkBlock block, blocks)
     {
-        ouputStream->WriteUInt32(block.comprSize);
-        ouputStream->WriteUInt32(block.uncomprSize);
+        ouputStream.WriteUInt32(block.comprSize);
+        ouputStream.WriteUInt32(block.uncomprSize);
     }
-
-    return ouputStream;
 }
 
 ByteBuffer MipMaps::decompressData(Stream &stream, long compressedSize)

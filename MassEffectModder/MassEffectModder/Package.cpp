@@ -325,7 +325,7 @@ void Package::getData(uint offset, uint length, Stream *outputStream, quint8 *ou
             }
             chunkCache->JumpTo(startInChunk);
             if (outputStream)
-                outputStream->CopyFrom(chunkCache, bytesLeftInChunk);
+                outputStream->CopyFrom(*chunkCache, bytesLeftInChunk);
             if (outputBuffer)
                 chunkCache->ReadToBuffer(outputBuffer + pos, bytesLeftInChunk);
             pos += bytesLeftInChunk;
@@ -338,7 +338,7 @@ void Package::getData(uint offset, uint length, Stream *outputStream, quint8 *ou
     {
         packageStream->JumpTo(offset);
         if (outputStream)
-            outputStream->CopyFrom(packageStream, length);
+            outputStream->CopyFrom(*packageStream, length);
         if (outputBuffer)
             packageStream->ReadToBuffer(outputBuffer, length);
     }
@@ -542,12 +542,12 @@ void Package::saveNames(Stream &output)
         if (getCompressedFlag())
         {
             packageData->JumpTo(getNamesOffset());
-            output.CopyFrom(packageData, namesTableEnd - getNamesOffset());
+            output.CopyFrom(*packageData, namesTableEnd - getNamesOffset());
         }
         else
         {
             packageStream->JumpTo(getNamesOffset());
-            output.CopyFrom(packageStream, namesTableEnd - getNamesOffset());
+            output.CopyFrom(*packageStream, namesTableEnd - getNamesOffset());
         }
     }
     else
@@ -684,12 +684,12 @@ void Package::saveImports(Stream &output)
         if (getCompressedFlag())
         {
             packageData->JumpTo(getImportsOffset());
-            output.CopyFrom(packageData, importsTableEnd - getImportsOffset());
+            output.CopyFrom(*packageData, importsTableEnd - getImportsOffset());
         }
         else
         {
             packageStream->JumpTo(getImportsOffset());
-            output.CopyFrom(packageStream, importsTableEnd - getImportsOffset());
+            output.CopyFrom(*packageStream, importsTableEnd - getImportsOffset());
         }
     }
     else
@@ -988,7 +988,7 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
     if (!getCompressedFlag())
     {
         tempOutput.SeekBegin();
-        fs->CopyFrom(&tempOutput, tempOutput.Length());
+        fs->CopyFrom(tempOutput, tempOutput.Length());
     }
     else
     {

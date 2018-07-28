@@ -105,11 +105,11 @@ class MipMaps
 {
 public:
 
-    static Stream *compressData(ByteBuffer inputData);
+    static void compressData(ByteBuffer inputData, Stream &ouputStream);
     static ByteBuffer decompressData(Stream &stream, long compressedSize);
     void extractTextureToPng(QString &outputFile, QString &packagePath, int exportID);
 
-    QList<RemoveMipsEntry> *prepareListToRemove(QList<FoundTexture> &textures);
+    void prepareListToRemove(QList<FoundTexture> &textures, QList<RemoveMipsEntry> &list);
     void removeMipMapsME1(int phase, QList<FoundTexture> &textures, QStringList &pkgsToMarker, bool ipc);
     void removeMipMapsME1(int phase, QList<FoundTexture> &textures, Package &package,
                           QList<RemoveMipsEntry> &list, QStringList &pkgsToMarker, int removeEntry, bool ipc);

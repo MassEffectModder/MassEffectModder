@@ -49,7 +49,7 @@ public:
     virtual void Flush() = 0;
     virtual void Close() = 0;
 
-    virtual void CopyFrom(Stream *stream, qint64 count, qint64 bufferSize = 10000) = 0;
+    virtual void CopyFrom(Stream &stream, qint64 count, qint64 bufferSize = 10000) = 0;
     virtual void ReadToBuffer(quint8 *buffer, qint64 count) = 0;
     virtual ByteBuffer ReadToBuffer(qint64 count) = 0;
     virtual void WriteFromBuffer(quint8 *buffer, qint64 count) = 0;

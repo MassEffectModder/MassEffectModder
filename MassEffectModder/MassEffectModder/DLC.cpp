@@ -176,7 +176,7 @@ void ME3DLC::extract(QString &SFARfilename, QString &outPath, bool ipc, int &cur
             stream->JumpTo(filesList[i].dataOffset);
             if (filesList[i].compressedBlockSizesIndex == -1)
             {
-                outputFile.CopyFrom(stream.get(), filesList[i].uncomprSize);
+                outputFile.CopyFrom(*stream, filesList[i].uncomprSize);
             }
             else
             {

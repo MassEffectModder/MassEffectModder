@@ -479,7 +479,7 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
             if (mipmap.storageType == StorageTypes::extLZO || mipmap.storageType == StorageTypes::extZlib)
             {
                 MemoryStream tmpStream;
-                tmpStream.CopyFrom(&fs, mipmap.compressedSize);
+                tmpStream.CopyFrom(fs, mipmap.compressedSize);
                 tmpStream.SeekBegin();
                 mipMapData.Free();
                 mipMapData = decompressTexture(tmpStream, mipmap.storageType, mipmap.uncompressedSize, mipmap.compressedSize);
@@ -519,7 +519,7 @@ const ByteBuffer Texture::toArray(uint pccTextureDataOffset, bool updateOffset)
             textureData->JumpTo(mipmap.internalOffset);
             if (updateOffset)
                 mipmap.internalOffset = newData.Position();
-            newData.CopyFrom(textureData, mipmap.uncompressedSize);
+            newData.CopyFrom(*textureData, mipmap.uncompressedSize);
         }
         else if (mipmap.storageType == StorageTypes::pccLZO ||
             mipmap.storageType == StorageTypes::pccZlib)
@@ -529,7 +529,7 @@ const ByteBuffer Texture::toArray(uint pccTextureDataOffset, bool updateOffset)
             textureData->JumpTo(mipmap.internalOffset);
             if (updateOffset)
                 mipmap.internalOffset = newData.Position();
-            newData.CopyFrom(textureData, mipmap.compressedSize);
+            newData.CopyFrom(*textureData, mipmap.compressedSize);
         }
         else
         {

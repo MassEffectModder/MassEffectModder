@@ -582,7 +582,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
     }
     else
     {
-        fs.CopyFrom(&mem, mem.Length());
+        fs.CopyFrom(mem, mem.Length());
     }
 
     return 0;

@@ -489,7 +489,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                 else
                     CRASH();
 
-                outFs.CopyFrom(&fs, fileMod.size);
+                outFs.CopyFrom(fs, fileMod.size);
                 fs.JumpTo(prevPos);
                 modFiles.push_back(fileMod);
             }
@@ -1176,7 +1176,8 @@ failed:
         for (int l = 0; l < mods.count(); l++)
         {
             FileMod fileMod{};
-            Stream *dst = MipMaps::compressData(mods[l].data);
+            std::unique_ptr<Stream> dst (new MemoryStream());
+            MipMaps::compressData(mods[l].data, *dst);
             dst->SeekBegin();
             fileMod.offset = outFs.Position();
             fileMod.size = dst->Length();
@@ -1227,8 +1228,7 @@ failed:
                 outFs.WriteStringASCIINull(mods[l].textureName);
                 outFs.WriteUInt32(mods[l].textureCrc);
             }
-            outFs.CopyFrom(dst, dst->Length());
-            delete dst;
+            outFs.CopyFrom(*dst, dst->Length());
             modFiles.push_back(fileMod);
         }
         mods.clear();

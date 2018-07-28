@@ -481,7 +481,7 @@ bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputD
                 if (QFile(outputFile).exists())
                     QFile(outputFile).remove();
                 FileStream fs2 = FileStream(outputFile, FileMode::Create);
-                fs2.CopyFrom(&fs, len);
+                fs2.CopyFrom(fs, len);
                 ConsoleWrite(outputFile);
             }
             else
@@ -503,7 +503,7 @@ bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputD
                 if (QFile(newFile).exists())
                     QFile(newFile).remove();
                 FileStream fs2 = FileStream(newFile, FileMode::Create);
-                fs2.CopyFrom(&fs, len);
+                fs2.CopyFrom(fs, len);
                 ConsoleWrite(newFile);
             }
         }

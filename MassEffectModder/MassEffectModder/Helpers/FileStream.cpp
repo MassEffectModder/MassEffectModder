@@ -84,7 +84,7 @@ void FileStream::Close()
     file->close();
 }
 
-void FileStream::CopyFrom(Stream *stream, qint64 count, qint64 bufferSize)
+void FileStream::CopyFrom(Stream &stream, qint64 count, qint64 bufferSize)
 {
     if (count == 0)
         return;
@@ -96,7 +96,7 @@ void FileStream::CopyFrom(Stream *stream, qint64 count, qint64 bufferSize)
     do
     {
         qint64 size = qMin(bufferSize, count);
-        stream->ReadToBuffer(buffer.get(), size);
+        stream.ReadToBuffer(buffer.get(), size);
         WriteFromBuffer(buffer.get(), size);
         count -= size;
     } while (count != 0);
