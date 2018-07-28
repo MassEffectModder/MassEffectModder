@@ -293,12 +293,12 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
             }
 
             if (verify)
-                matched.crcs = new QList<uint>();
+                matched.crcs.clear();
             auto mipmaps = QList<Texture::TextureMipMap>();
             for (int m = 0; m < image->getMipMaps().count(); m++)
             {
                 if (verify)
-                    matched.crcs->push_back(texture.getCrcData(image->getMipMaps()[m].getData()));
+                    matched.crcs.push_back(texture.getCrcData(image->getMipMaps()[m].getData()));
                 Texture::TextureMipMap mipmap;
                 mipmap.width = image->getMipMaps()[m].getOrigWidth();
                 mipmap.height = image->getMipMaps()[m].getOrigHeight();

@@ -167,7 +167,7 @@ void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> &textures, Package
             }
 
             const MatchedTexture& foundMasterTex = textures.at(foundTextureEntry).list->at(m.linkToMaster);
-            if (texture.mipMapsList.count() != foundMasterTex.masterDataOffset->count())
+            if (texture.mipMapsList.count() != foundMasterTex.masterDataOffset.count())
             {
                 if (ipc)
                 {
@@ -187,7 +187,7 @@ void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> &textures, Package
                     mipmap.storageType == Texture::StorageTypes::extZlib ||
                     mipmap.storageType == Texture::StorageTypes::extUnc)
                 {
-                    mipmap.dataOffset = foundMasterTex.masterDataOffset->at(t);
+                    mipmap.dataOffset = foundMasterTex.masterDataOffset.at(t);
                     texture.mipMapsList[t] = mipmap;
                 }
             }
@@ -206,10 +206,10 @@ void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> &textures, Package
         {
             if (phase == 2)
                 CRASH();
-            m.masterDataOffset = new QList<uint>();
+            m.masterDataOffset.clear();
             for (int t = 0; t < texture.mipMapsList.count(); t++)
             {
-                m.masterDataOffset->push_back(packageDataOffset + texture.mipMapsList[t].internalOffset);
+                m.masterDataOffset.push_back(packageDataOffset + texture.mipMapsList[t].internalOffset);
             }
         }
 

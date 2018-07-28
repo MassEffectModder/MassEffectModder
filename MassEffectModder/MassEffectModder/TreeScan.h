@@ -36,8 +36,8 @@ struct MatchedTexture
     QString path;
     int linkToMaster;
     uint mipmapOffset;
-    QList<uint> *crcs;
-    QList<uint> *masterDataOffset;
+    QList<uint> crcs;
+    QList<uint> masterDataOffset;
     bool removeEmptyMips;
     int numMips;
 };
