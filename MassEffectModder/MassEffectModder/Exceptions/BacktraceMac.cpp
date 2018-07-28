@@ -29,7 +29,7 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
 {
     void *callstack[MAX_CALLSTACK];
     char moduleName[1024], address[50];
-    std::unique_ptr<char> sourceFunc (new char[1024]);
+    std::unique_ptr<char[]> sourceFunc (new char[1024]);
     int offset, status, count = 0;
 
     int numberTraces = backtrace(static_cast<void **>(callstack), MAX_CALLSTACK);

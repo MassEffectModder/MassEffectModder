@@ -400,7 +400,7 @@ g_GameData->FullScanME1Game = true;
     else
     {
         int lastProgress = -1;
-        for (int i = 0; i < g_GameData->packageFiles.count(); i++)
+        for (int i = 0; i < 1/*g_GameData->packageFiles.count()*/; i++)
         {
             if (ipc)
             {

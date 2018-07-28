@@ -513,7 +513,7 @@ ByteBuffer Image::compressMipmap(PixelFormat dstFormat, const quint8 *src, int w
         partSize = h / 4 / cores;
     }
 
-    std::unique_ptr<int> range (new int[cores + 1]);
+    std::unique_ptr<int[]> range (new int[cores + 1]);
 
     for (int p = 1; p <= cores; p++)
         range.get()[p] = (partSize * p);
@@ -585,7 +585,7 @@ ByteBuffer Image::decompressMipmap(PixelFormat srcFormat, const quint8 *src, int
         partSize = h / 4 / cores;
     }
 
-    std::unique_ptr<int> range (new int[cores + 1]);
+    std::unique_ptr<int[]> range (new int[cores + 1]);
 
     for (int p = 1; p <= cores; p++)
         range.get()[p] = (partSize * p);

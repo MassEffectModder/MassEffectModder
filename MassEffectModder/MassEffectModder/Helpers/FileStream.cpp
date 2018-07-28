@@ -92,7 +92,7 @@ void FileStream::CopyFrom(Stream &stream, qint64 count, qint64 bufferSize)
     if (count < 0)
         CRASH();
 
-    std::unique_ptr<quint8> buffer (new quint8[static_cast<unsigned long>(bufferSize)]);
+    std::unique_ptr<quint8[]> buffer (new quint8[static_cast<unsigned long>(bufferSize)]);
     do
     {
         qint64 size = qMin(bufferSize, count);
@@ -136,7 +136,7 @@ void FileStream::WriteFromBuffer(ByteBuffer buffer)
 
 void FileStream::ReadStringASCII(QString &str, qint64 count)
 {
-    std::unique_ptr<char> buffer (new char[static_cast<size_t>(count) + 1]);
+    std::unique_ptr<char[]> buffer (new char[static_cast<size_t>(count) + 1]);
 
     buffer.get()[count] = 0;
     file->read(buffer.get(), count);

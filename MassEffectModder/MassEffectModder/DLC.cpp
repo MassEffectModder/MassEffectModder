@@ -94,7 +94,7 @@ void ME3DLC::loadHeader(Stream *stream)
             int compressedBlockSize = blockSizes[filesList[i].compressedBlockSizesIndex];
             quint32 dstLen = filesList[i].uncomprSize;
             auto inBuf = stream->ReadToBuffer(compressedBlockSize);
-            std::unique_ptr<char> outBuf (new char[dstLen]);
+            std::unique_ptr<char[]> outBuf (new char[dstLen]);
             LzmaDecompress(inBuf.ptr(), inBuf.size(), reinterpret_cast<quint8 *>(outBuf.get()), &dstLen);
             if (dstLen != filesList[i].uncomprSize)
                 CRASH();
