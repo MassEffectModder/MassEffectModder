@@ -95,7 +95,7 @@ QString Package::resolvePackagePath(int id)
     return s;
 }
 
-int Package::Open(const QString &filename, bool headerOnly)
+int Package::Open(const QString &filename, bool headerOnly, bool fullLoad)
 {
     packagePath = filename;
 
