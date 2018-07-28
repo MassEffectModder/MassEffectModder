@@ -29,9 +29,8 @@ class GameData
 {
 private:
     QString _path;
-    ConfigIni *_configIni{};
 
-    void InternalInit(MeType type, ConfigIni *configIni, bool force);
+    void InternalInit(MeType type, ConfigIni &configIni, bool force);
     void ScanGameFiles(bool force);
 
 public:
@@ -45,8 +44,8 @@ public:
     bool FullScanME1Game;
     bool DLCDataCacheDone = false;
 
-    void Init(MeType type, ConfigIni *configIni);
-    void Init(MeType type, ConfigIni *configIni, bool force);
+    void Init(MeType type, ConfigIni &configIni);
+    void Init(MeType type, ConfigIni &configIni, bool force);
     QString GamePath() { return _path; }
     const QString MainData();
     const QString bioGamePath();

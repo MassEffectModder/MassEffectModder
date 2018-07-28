@@ -164,23 +164,22 @@ void GameData::ScanGameFiles(bool force)
     }
 }
 
-void GameData::Init(MeType type, ConfigIni *configIni)
+void GameData::Init(MeType type, ConfigIni &configIni)
 {
     InternalInit(type, configIni, false);
 }
 
-void GameData::Init(MeType type, ConfigIni *configIni, bool force = false)
+void GameData::Init(MeType type, ConfigIni &configIni, bool force = false)
 {
     InternalInit(type, configIni, force);
 }
 
-void GameData::InternalInit(MeType type, ConfigIni *configIni, bool force = false)
+void GameData::InternalInit(MeType type, ConfigIni &configIni, bool force = false)
 {
     gameType = type;
-    _configIni = configIni;
 
     QString key = QString("ME%1").arg(static_cast<int>(gameType));
-    QString path = configIni->Read(key, "GameDataPath");
+    QString path = configIni.Read(key, "GameDataPath");
     if (path != "" && !force)
     {
         _path = QDir::cleanPath(path);
@@ -225,7 +224,7 @@ void GameData::InternalInit(MeType type, ConfigIni *configIni, bool force = fals
         configIni->Write(key,
                    _path.replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameDataPath");
 #else
-        _configIni->Write(key, _path, "GameDataPath");
+        configIni.Write(key, _path, "GameDataPath");
 #endif
 
     ScanGameFiles(force);

@@ -53,7 +53,7 @@ int CmdLineTools::scanTextures(MeType gameId, bool ipc)
     int errorCode;
 
     auto configIni = ConfigIni{};
-    g_GameData->Init(gameId, &configIni);
+    g_GameData->Init(gameId, configIni);
 
     if (!CheckGamePath())
     {
@@ -733,7 +733,7 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
 bool CmdLineTools::ApplyME1LAAPatch()
 {
     ConfigIni configIni{};
-    g_GameData->Init(MeType::ME1_TYPE, &configIni);
+    g_GameData->Init(MeType::ME1_TYPE, configIni);
     if (g_GameData->GamePath() == "" || !QDir(g_GameData->GamePath()).exists())
     {
         ConsoleWrite("Error: Could not found the game!");
@@ -753,7 +753,7 @@ bool CmdLineTools::ApplyME1LAAPatch()
 bool CmdLineTools::ApplyLODAndGfxSettings(MeType gameId, bool softShadowsME1, bool meuitmMode)
 {
     ConfigIni configIni{};
-    g_GameData->Init(gameId, &configIni);
+    g_GameData->Init(gameId, configIni);
 
     if (g_GameData->GamePath() == "" || !QDir(g_GameData->GamePath()).exists())
     {
@@ -775,7 +775,7 @@ bool CmdLineTools::ApplyLODAndGfxSettings(MeType gameId, bool softShadowsME1, bo
 bool CmdLineTools::RemoveLODSettings(MeType gameId)
 {
     ConfigIni configIni{};
-    g_GameData->Init(gameId, &configIni);
+    g_GameData->Init(gameId, configIni);
 
     QString path = g_GameData->EngineConfigIniPath();
     bool exist = QFile(path).exists();
@@ -790,7 +790,7 @@ bool CmdLineTools::RemoveLODSettings(MeType gameId)
 bool CmdLineTools::PrintLODSettings(MeType gameId, bool ipc)
 {
     ConfigIni configIni{};
-    g_GameData->Init(gameId, &configIni);
+    g_GameData->Init(gameId, configIni);
 
     QString path = g_GameData->EngineConfigIniPath();
     bool exist = QFile(path).exists();
@@ -814,7 +814,7 @@ bool CmdLineTools::PrintLODSettings(MeType gameId, bool ipc)
 bool CmdLineTools::CheckGameData(MeType gameId, bool ipc)
 {
     ConfigIni configIni{};
-    g_GameData->Init(gameId, &configIni);
+    g_GameData->Init(gameId, configIni);
     if (g_GameData->GamePath() == "" || !QDir(g_GameData->GamePath()).exists())
     {
         ConsoleWrite("Error: Could not found the game!");
@@ -856,7 +856,7 @@ bool CmdLineTools::CheckGameData(MeType gameId, bool ipc)
 bool CmdLineTools::CheckForMarkers(MeType gameId, bool ipc)
 {
     ConfigIni configIni{};
-    g_GameData->Init(gameId, &configIni);
+    g_GameData->Init(gameId, configIni);
     if (g_GameData->GamePath() == "" || !QDir(g_GameData->GamePath()).exists())
     {
         ConsoleWrite("Error: Could not found the game!");
@@ -911,7 +911,7 @@ bool CmdLineTools::CheckForMarkers(MeType gameId, bool ipc)
 bool CmdLineTools::DetectBadMods(MeType gameId, bool ipc)
 {
     ConfigIni configIni{};
-    g_GameData->Init(gameId, &configIni);
+    g_GameData->Init(gameId, configIni);
     if (g_GameData->GamePath() == "" || !QDir(g_GameData->GamePath()).exists())
     {
         ConsoleWrite("Error: Could not found the game!");
@@ -944,7 +944,7 @@ bool CmdLineTools::DetectBadMods(MeType gameId, bool ipc)
 bool CmdLineTools::DetectMods(MeType gameId, bool ipc)
 {
     ConfigIni configIni{};
-    g_GameData->Init(gameId, &configIni);
+    g_GameData->Init(gameId, configIni);
     if (g_GameData->GamePath() == "" || !QDir(g_GameData->GamePath()).exists())
     {
         ConsoleWrite("Error: Could not found the game!");
@@ -1106,7 +1106,7 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool 
     MipMaps mipMaps;
     resources.loadMD5Tables();
     ConfigIni configIni = ConfigIni();
-    g_GameData->Init(gameId, &configIni);
+    g_GameData->Init(gameId, configIni);
     if (g_GameData->GamePath() == "" || !QDir(g_GameData->GamePath()).exists())
     {
         ConsoleWrite("Error: Could not found the game!");
@@ -1286,7 +1286,7 @@ bool CmdLineTools::applyMEMSpecialModME3(MeType gameId, QString &memFile, QStrin
     MipMaps mipMaps;
     resources.loadMD5Tables();
     ConfigIni configIni = ConfigIni();
-    g_GameData->Init(gameId, &configIni);
+    g_GameData->Init(gameId, configIni);
     if (g_GameData->GamePath() == "" || !QDir(g_GameData->GamePath()).exists())
     {
         ConsoleWrite("Error: Could not found the game!");
@@ -1835,7 +1835,7 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
     MipMaps mipMaps;
     resources.loadMD5Tables();
     ConfigIni configIni = ConfigIni();
-    g_GameData->Init(gameId, &configIni);
+    g_GameData->Init(gameId, configIni);
     if (g_GameData->GamePath() == "" || !QDir(g_GameData->GamePath()).exists())
     {
         ConsoleWrite("Error: Could not found the game!");
@@ -1921,7 +1921,7 @@ bool CmdLineTools::CheckTextures(MeType gameId, bool ipc)
     Resources resources;
     resources.loadMD5Tables();
     ConfigIni configIni = ConfigIni();
-    g_GameData->Init(gameId, &configIni);
+    g_GameData->Init(gameId, configIni);
     if (g_GameData->GamePath() == "" || !QDir(g_GameData->GamePath()).exists())
     {
         ConsoleWrite("Error: Could not found the game!");
@@ -2062,7 +2062,7 @@ bool CmdLineTools::CheckTextures(MeType gameId, bool ipc)
 bool CmdLineTools::checkGameFilesAfter(MeType gameType, bool ipc)
 {
     ConfigIni configIni = ConfigIni();
-    g_GameData->Init(gameType, &configIni);
+    g_GameData->Init(gameType, configIni);
     if (g_GameData->GamePath() == "" || !QDir(g_GameData->GamePath()).exists())
     {
         ConsoleWrite("Error: Could not found the game!");
@@ -2140,7 +2140,7 @@ bool CmdLineTools::checkGameFilesAfter(MeType gameType, bool ipc)
 bool CmdLineTools::detectsMismatchPackagesAfter(MeType gameType, bool ipc)
 {
     ConfigIni configIni = ConfigIni();
-    g_GameData->Init(gameType, &configIni);
+    g_GameData->Init(gameType, configIni);
     if (g_GameData->GamePath() == "" || !QDir(g_GameData->GamePath()).exists())
     {
         ConsoleWrite("Error: Could not found the game!");
