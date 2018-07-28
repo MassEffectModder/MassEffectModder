@@ -400,7 +400,7 @@ void GameData::getTfcTextures()
 
 void GameData::getPackages()
 {
-    if (gameFiles.count() == 0)
+    if (packageFiles.count() == 0)
     {
         FullScanME1Game = false;
         ScanGameFiles(false);

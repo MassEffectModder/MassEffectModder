@@ -35,7 +35,6 @@ private:
 
 public:
     static MeType gameType;
-    QStringList gameFiles;
     QStringList packageFiles;
     QStringList packageMainFiles;
     QStringList packageDLCFiles;
