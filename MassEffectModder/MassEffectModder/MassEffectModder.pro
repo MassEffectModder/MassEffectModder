@@ -150,7 +150,7 @@ linux {
     # libomp need to be compiled from sources
     OMP_PATH=/usr/local/libomp
     QMAKE_CXXFLAGS += -fopenmp -I$$OMP_PATH/include
-    LIBS += -L$$OMP_PATH/lib -lomp
+    LIBS += -L$$OMP_PATH/lib -lomp -ldl
 
     # WA: PCH file clash with targer file name
     PRECOMPILED_DIR = ".pch"
