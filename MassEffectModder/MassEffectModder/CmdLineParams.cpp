@@ -734,11 +734,5 @@ int ProcessArguments()
         break;
     }
 
-    if (errorCode != 0)
-    {
-        DisplayHelp();
-        return errorCode;
-    }
-
     return errorCode;
 }
