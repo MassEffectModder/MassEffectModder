@@ -918,25 +918,25 @@ bool CmdLineTools::DetectBadMods(MeType gameId, bool ipc)
         return false;
     }
 
-    QStringList *badMods = Misc::detectBrokenMod();
-    if (badMods->count() != 0)
+    QStringList badMods;
+    Misc::detectBrokenMod(badMods);
+    if (badMods.count() != 0)
     {
         if (!ipc)
             ConsoleWrite("Error: Detected not compatible mods: \n\n");
-        for (int l = 0; l < badMods->count(); l++)
+        for (int l = 0; l < badMods.count(); l++)
         {
             if (ipc)
             {
-                ConsoleWrite("[IPC]ERROR " + badMods->at(l));
+                ConsoleWrite("[IPC]ERROR " + badMods[l]);
                 ConsoleSync();
             }
             else
             {
-                ConsoleWrite(badMods->at(l));
+                ConsoleWrite(badMods[l]);
             }
         }
     }
-    delete badMods;
 
     return true;
 }
@@ -951,21 +951,22 @@ bool CmdLineTools::DetectMods(MeType gameId, bool ipc)
         return false;
     }
 
-    QStringList *mods = Misc::detectMods();
-    if (mods->count() != 0)
+    QStringList mods;
+    Misc::detectMods(mods);
+    if (mods.count() != 0)
     {
         if (!ipc)
             ConsoleWrite("Detected compatible mods:");
-        for (int l = 0; l < mods->count(); l++)
+        for (int l = 0; l < mods.count(); l++)
         {
             if (ipc)
             {
-                ConsoleWrite("[IPC]MOD " + mods->at(l));
+                ConsoleWrite("[IPC]MOD " + mods[l]);
                 ConsoleSync();
             }
             else
             {
-                ConsoleWrite(mods->at(l));
+                ConsoleWrite(mods[l]);
             }
         }
     }
@@ -1130,18 +1131,17 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool 
             return false;
         }
 
-        QStringList *badMods = Misc::detectBrokenMod();
-        if (badMods->count() != 0)
+        QStringList badMods;
+        Misc::detectBrokenMod(badMods);
+        if (badMods.count() != 0)
         {
             ConsoleWrite("Error: Detected not compatible mods:\n");
-            for (int l = 0; l < badMods->count(); l++)
+            for (int l = 0; l < badMods.count(); l++)
             {
-                ConsoleWrite(badMods->at(l));
+                ConsoleWrite(badMods[l]);
             }
-            delete badMods;
             return false;
         }
-        delete badMods;
     }
 
     if (gameId == MeType::ME1_TYPE)

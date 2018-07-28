@@ -1271,10 +1271,8 @@ QByteArray Misc::calculateMD5(QString &filePath)
     return QCryptographicHash::hash(QFile(filePath).readAll(), QCryptographicHash::Md5);
 }
 
-QStringList *Misc::detectMods()
+void Misc::detectMods(QStringList &mods)
 {
-    auto mods = new QStringList();
-
     for (int l = 0; l < modsEntriesSize; l++)
     {
         QString path = g_GameData->GamePath() + modsEntries[l].path;
@@ -1284,26 +1282,22 @@ QStringList *Misc::detectMods()
         if (memcmp(md5.data(), modsEntries[l].md5, 16) == 0)
         {
             bool found = false;
-            for (int s = 0; s < mods->count(); s++)
+            for (int s = 0; s < mods.count(); s++)
             {
-                if (mods->at(s).compare(modsEntries[l].modName) == 0)
+                if (mods[s].compare(modsEntries[l].modName) == 0)
                 {
                     found = true;
                     break;
                 }
             }
             if (!found)
-                mods->push_back(modsEntries[l].modName);
+                mods.push_back(modsEntries[l].modName);
         }
     }
-
-    return mods;
 }
 
-QStringList *Misc::detectBrokenMod()
+void Misc::detectBrokenMod(QStringList &mods)
 {
-    auto mods = new QStringList();
-
     for (int l = 0; l < badMODSize; l++)
     {
         QString path = g_GameData->GamePath() + badMOD[l].path;
@@ -1313,20 +1307,18 @@ QStringList *Misc::detectBrokenMod()
         if (memcmp(md5.data(), badMOD[l].md5, 16) == 0)
         {
             bool found = false;
-            for (int s = 0; s < mods->count(); s++)
+            for (int s = 0; s < mods.count(); s++)
             {
-                if (mods->at(s).compare(badMOD[l].modName) == 0)
+                if (mods[s].compare(badMOD[l].modName) == 0)
                 {
                     found = true;
                     break;
                 }
             }
             if (!found)
-                mods->push_back(badMOD[l].modName);
+                mods.push_back(badMOD[l].modName);
         }
     }
-
-    return mods;
 }
 
 bool Misc::unpackSFARisNeeded()

@@ -72,8 +72,8 @@ public:
                                     MeType gameId, QList<FoundTexture> &textures, bool markToConvert,
                                     bool onlyIndividual, bool ipc);
     static QByteArray calculateMD5(QString &filePath);
-    static QStringList *detectMods();
-    static QStringList *detectBrokenMod();
+    static void detectMods(QStringList &mods);
+    static void detectBrokenMod(QStringList &mods);
     static bool unpackSFARisNeeded();
     static bool checkGameFiles(MeType gameType, Resources &resources, QString &errors, QStringList &mods, bool ipc);
 };
