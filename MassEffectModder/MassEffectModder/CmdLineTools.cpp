@@ -766,8 +766,8 @@ bool CmdLineTools::ApplyLODAndGfxSettings(MeType gameId, bool softShadowsME1, bo
     if (!exist)
         QDir().mkpath(DirName(path));
     ConfigIni engineConf = ConfigIni(path);
-    LODSettings::updateLOD(gameId, &engineConf);
-    LODSettings::updateGFXSettings(gameId, &engineConf, softShadowsME1, meuitmMode);
+    LODSettings::updateLOD(gameId, engineConf);
+    LODSettings::updateGFXSettings(gameId, engineConf, softShadowsME1, meuitmMode);
 
     return true;
 }
@@ -782,7 +782,7 @@ bool CmdLineTools::RemoveLODSettings(MeType gameId)
     if (!exist)
         return true;
     ConfigIni engineConf = ConfigIni(path);
-    LODSettings::removeLOD(gameId, &engineConf);
+    LODSettings::removeLOD(gameId, engineConf);
 
     return true;
 }
@@ -799,12 +799,12 @@ bool CmdLineTools::PrintLODSettings(MeType gameId, bool ipc)
     ConfigIni engineConf = ConfigIni(path);
     if (ipc)
     {
-        LODSettings::readLODIpc(gameId, &engineConf);
+        LODSettings::readLODIpc(gameId, engineConf);
     }
     else
     {
         QString log;
-        LODSettings::readLOD(gameId, &engineConf, log);
+        LODSettings::readLOD(gameId, engineConf, log);
         ConsoleWrite(log);
     }
 
@@ -1261,8 +1261,8 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool 
         if (!exist)
             QDir().mkpath(DirName(path));
         ConfigIni engineConf = ConfigIni(path);
-        LODSettings::updateLOD(gameId, &engineConf);
-        LODSettings::updateGFXSettings(gameId, &engineConf, false, false);
+        LODSettings::updateLOD(gameId, engineConf);
+        LODSettings::updateGFXSettings(gameId, engineConf, false, false);
         ConsoleWrite("Updating LODs and other settings finished");
     }
 
