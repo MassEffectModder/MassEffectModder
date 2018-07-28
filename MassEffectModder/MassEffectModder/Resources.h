@@ -50,7 +50,6 @@ public:
     ~Resources() { unloadMD5Tables(); }
     void loadMD5Tables();
     void unloadMD5Tables();
-    void prepareGranter();
 };
 
 #endif

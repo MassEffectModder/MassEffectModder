@@ -32,7 +32,7 @@ void Resources::loadMD5Tables()
     ByteBuffer decompressed;
     ByteBuffer compressed;
     {
-        auto tmp = FileStream(":/Resources/MD5EntriesME1.bin", FileMode::Open);
+        auto tmp = FileStream(":/Resources/MD5EntriesME1.bin", FileMode::Open, FileAccess::ReadOnly);
         tmp.SkipInt32();
         decompressed = ByteBuffer(tmp.ReadInt32());
         compressed = tmp.ReadToBuffer((uint)tmp.Length() - 8);
@@ -67,7 +67,7 @@ void Resources::loadMD5Tables()
 
 
     {
-        FileStream tmp = FileStream(":/Resources/MD5EntriesME1PL.bin", FileMode::Open);
+        FileStream tmp = FileStream(":/Resources/MD5EntriesME1PL.bin", FileMode::Open, FileAccess::ReadOnly);
         tmp.SkipInt32();
         decompressed = ByteBuffer(tmp.ReadInt32());
         compressed = tmp.ReadToBuffer((uint)tmp.Length() - 8);
@@ -101,7 +101,7 @@ void Resources::loadMD5Tables()
 
 
     {
-        FileStream tmp = FileStream(":/Resources/MD5EntriesME2.bin", FileMode::Open);
+        FileStream tmp = FileStream(":/Resources/MD5EntriesME2.bin", FileMode::Open, FileAccess::ReadOnly);
         tmp.SkipInt32();
         decompressed = ByteBuffer(tmp.ReadInt32());
         compressed = tmp.ReadToBuffer((uint)tmp.Length() - 8);
@@ -135,7 +135,7 @@ void Resources::loadMD5Tables()
 
 
     {
-        FileStream tmp = FileStream(":/Resources/MD5EntriesME3.bin", FileMode::Open);
+        FileStream tmp = FileStream(":/Resources/MD5EntriesME3.bin", FileMode::Open, FileAccess::ReadOnly);
         tmp.SkipInt32();
         decompressed = ByteBuffer(tmp.ReadInt32());
         compressed = tmp.ReadToBuffer((uint)tmp.Length() - 8);
@@ -185,16 +185,4 @@ void Resources::unloadMD5Tables()
     entriesME3.clear();
 
     MD5tablesLoaded = false;
-}
-
-void Resources::prepareGranter()
-{
-    QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
-            "/MassEffectModder";
-    if (!QDir(path).exists())
-        QDir().mkpath(path);
-
-    QFile *resource = new QFile(":/Resources/PermissionsGranter.exe");
-    resource->copy(path + "/PermissionsGranter.exe");
-    delete resource;
 }
