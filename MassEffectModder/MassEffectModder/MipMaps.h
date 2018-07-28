@@ -98,7 +98,7 @@ struct MapPackagesToMod
     int instances;
     long weight;
     bool slave;
-    RemoveMipsEntry *removeMips;
+    RemoveMipsEntry removeMips;
 };
 
 class MipMaps

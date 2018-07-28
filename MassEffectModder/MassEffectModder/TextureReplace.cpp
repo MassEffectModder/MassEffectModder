@@ -599,13 +599,13 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
             }
 
             matched.removeEmptyMips = false;
-            if (!map.at(e).slave)
+            if (!map[e].slave)
             {
-                for (int r = 0; r < map.at(e).removeMips->exportIDs.count(); r++)
+                for (int r = 0; r < map[e].removeMips.exportIDs.count(); r++)
                 {
-                    if (map.at(e).removeMips->exportIDs[r] == matched.exportID)
+                    if (map[e].removeMips.exportIDs[r] == matched.exportID)
                     {
-                        map.at(e).removeMips->exportIDs.removeAt(r);
+                        map[e].removeMips.exportIDs.removeAt(r);
                         break;
                     }
                 }
@@ -640,7 +640,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
             textures[entryMap.texturesIndex].list[entryMap.listIndex] = matched;
         }
 
-        if (removeMips && !map.at(e).slave)
+        if (removeMips && !map[e].slave)
         {
             if (GameData::gameType == MeType::ME1_TYPE)
                 removeMipMapsME1(1, textures, pkgsToMarker, ipc);
@@ -764,7 +764,7 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList 
             mapEntry.packagePath = map.at(i).packagePath;
             mapEntry.usage = modsToReplace.at(map.at(i).modIndex).memEntrySize;
             mapEntry.instances = modsToReplace.at(map.at(i).modIndex).instance;
-            mapEntry.removeMips->pkgPath = map.at(i).packagePath;
+            mapEntry.removeMips.pkgPath = map.at(i).packagePath;
             previousPath = map.at(i).packagePath.toLower();
             mapPackages.push_back(mapEntry);
             packagesIndex++;
@@ -818,7 +818,7 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList 
                     {
                         if (!mapPackages[e].slave && mapPackages.at(e).packagePath == textures[k].list[t].path)
                         {
-                            mapPackages[e].removeMips->exportIDs.push_back(textures[k].list[t].exportID);
+                            mapPackages[e].removeMips.exportIDs.push_back(textures[k].list[t].exportID);
                             MatchedTexture f = textures[k].list[t];
                             f.removeEmptyMips = false;
                             textures[k].list[t] = f;
