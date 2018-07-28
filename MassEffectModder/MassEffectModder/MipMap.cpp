@@ -40,7 +40,7 @@ MipMap::MipMap(ByteBuffer src, int w, int h, PixelFormat format)
         CRASH_MSG("data size is not valid");
 
     buffer = ByteBuffer(src.size());
-    memcmp(buffer.ptr(), src.ptr(), src.size());
+    memcpy(buffer.ptr(), src.ptr(), src.size());
 }
 
 int MipMap::getBufferSize(int w, int h, PixelFormat format)
