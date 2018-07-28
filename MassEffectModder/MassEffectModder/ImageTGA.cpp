@@ -21,15 +21,15 @@
 
 #include "Image.h"
 
-void Image::LoadImageTGA(Stream *stream)
+void Image::LoadImageTGA(Stream &stream)
 {
-    int idLength = stream->ReadByte();
+    int idLength = stream.ReadByte();
 
-    int colorMapType = stream->ReadByte();
+    int colorMapType = stream.ReadByte();
     if (colorMapType != 0)
         CRASH_MSG("indexed TGA not supported!");
 
-    int imageType = stream->ReadByte();
+    int imageType = stream.ReadByte();
     if (imageType != 2 && imageType != 10)
         CRASH_MSG("only RGB TGA supported!");
 
@@ -37,23 +37,23 @@ void Image::LoadImageTGA(Stream *stream)
     if (imageType == 10)
         compressed = true;
 
-    stream->SkipInt16(); // color map first entry index
-    stream->SkipInt16(); // color map length
-    stream->Skip(1); // color map entry size
-    stream->SkipInt16(); // x origin
-    stream->SkipInt16(); // y origin
+    stream.SkipInt16(); // color map first entry index
+    stream.SkipInt16(); // color map length
+    stream.Skip(1); // color map entry size
+    stream.SkipInt16(); // x origin
+    stream.SkipInt16(); // y origin
 
-    int imageWidth = stream->ReadInt16();
-    int imageHeight = stream->ReadInt16();
+    int imageWidth = stream.ReadInt16();
+    int imageHeight = stream.ReadInt16();
     if (!checkPowerOfTwo(imageWidth) ||
         !checkPowerOfTwo(imageHeight))
         CRASH_MSG("dimensions not power of two");
 
-    int imageDepth = stream->ReadByte();
+    int imageDepth = stream.ReadByte();
     if (imageDepth != 32 && imageDepth != 24)
         CRASH_MSG("only 24 and 32 bits TGA supported!");
 
-    int imageDesc = stream->ReadByte();
+    int imageDesc = stream.ReadByte();
     if ((imageDesc & 0x10) != 0)
         CRASH_MSG("origin right not supported in TGA!");
 
@@ -61,7 +61,7 @@ void Image::LoadImageTGA(Stream *stream)
     if ((imageDesc & 0x20) != 0)
         downToTop = false;
 
-    stream->Skip(idLength);
+    stream.Skip(idLength);
 
     auto buffer = ByteBuffer(imageWidth * imageHeight * 4);
     quint8 *ptr = buffer.ptr();
@@ -74,7 +74,7 @@ void Image::LoadImageTGA(Stream *stream)
         {
             if (count == 0 && repeat == 0)
             {
-                quint8 code = stream->ReadByte();
+                quint8 code = stream.ReadByte();
                 if ((code & 0x80) != 0)
                     repeat = (code & 0x7F) + 1;
                 else
@@ -85,11 +85,11 @@ void Image::LoadImageTGA(Stream *stream)
                 quint8 pixelR, pixelG, pixelB, pixelA;
                 if (repeat != 0)
                 {
-                    pixelR = stream->ReadByte();
-                    pixelG = stream->ReadByte();
-                    pixelB = stream->ReadByte();
+                    pixelR = stream.ReadByte();
+                    pixelG = stream.ReadByte();
+                    pixelB = stream.ReadByte();
                     if (imageDepth == 32)
-                        pixelA = stream->ReadByte();
+                        pixelA = stream.ReadByte();
                     else
                         pixelA = 0xFF;
                     for (; w < imageWidth && repeat > 0; w++, repeat--)
@@ -104,11 +104,11 @@ void Image::LoadImageTGA(Stream *stream)
                 {
                     for (; w < imageWidth && count > 0; w++, count--)
                     {
-                        ptr[pos++] = stream->ReadByte();
-                        ptr[pos++] = stream->ReadByte();
-                        ptr[pos++] = stream->ReadByte();
+                        ptr[pos++] = stream.ReadByte();
+                        ptr[pos++] = stream.ReadByte();
+                        ptr[pos++] = stream.ReadByte();
                         if (imageDepth == 32)
-                            ptr[pos++] = stream->ReadByte();
+                            ptr[pos++] = stream.ReadByte();
                         else
                             ptr[pos++] = 0xFF;
                     }
@@ -130,11 +130,11 @@ void Image::LoadImageTGA(Stream *stream)
         {
             for (int w = 0; w < imageWidth; w++)
             {
-                ptr[pos++] = stream->ReadByte();
-                ptr[pos++] = stream->ReadByte();
-                ptr[pos++] = stream->ReadByte();
+                ptr[pos++] = stream.ReadByte();
+                ptr[pos++] = stream.ReadByte();
+                ptr[pos++] = stream.ReadByte();
                 if (imageDepth == 32)
-                    ptr[pos++] = stream->ReadByte();
+                    ptr[pos++] = stream.ReadByte();
                 else
                     ptr[pos++] = 0xFF;
             }

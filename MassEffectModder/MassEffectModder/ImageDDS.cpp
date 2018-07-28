@@ -23,41 +23,41 @@
 #include "Helpers/MemoryStream.h"
 #include "Wrappers.h"
 
-void Image::LoadImageDDS(Stream *stream)
+void Image::LoadImageDDS(Stream &stream)
 {
-    if (stream->ReadUInt32() != DDS_TAG)
+    if (stream.ReadUInt32() != DDS_TAG)
         CRASH_MSG("not DDS tag");
 
-    if (stream->ReadInt32() != DDS_HEADER_dwSize)
+    if (stream.ReadInt32() != DDS_HEADER_dwSize)
         CRASH_MSG("wrong DDS header dwSize");
 
-    DDSflags = stream->ReadUInt32();
+    DDSflags = stream.ReadUInt32();
 
-    int dwHeight = stream->ReadInt32();
-    int dwWidth = stream->ReadInt32();
+    int dwHeight = stream.ReadInt32();
+    int dwWidth = stream.ReadInt32();
     if (!checkPowerOfTwo(dwWidth) ||
         !checkPowerOfTwo(dwHeight))
         CRASH_MSG("dimensions not power of two");
 
-    stream->Skip(8); // dwPitchOrLinearSize, dwDepth
+    stream.Skip(8); // dwPitchOrLinearSize, dwDepth
 
-    int dwMipMapCount = stream->ReadInt32();
+    int dwMipMapCount = stream.ReadInt32();
     if (dwMipMapCount == 0)
         dwMipMapCount = 1;
 
-    stream->Skip(11 * 4); // dwReserved1
-    stream->SkipInt32(); // ppf.dwSize
+    stream.Skip(11 * 4); // dwReserved1
+    stream.SkipInt32(); // ppf.dwSize
 
-    ddsPixelFormat.flags = stream->ReadUInt32();
-    ddsPixelFormat.fourCC = stream->ReadUInt32();
+    ddsPixelFormat.flags = stream.ReadUInt32();
+    ddsPixelFormat.fourCC = stream.ReadUInt32();
     if ((ddsPixelFormat.flags & DDPF_FOURCC) != 0 && ddsPixelFormat.fourCC == FOURCC_DX10_TAG)
         CRASH_MSG("DX10 DDS format not supported");
 
-    ddsPixelFormat.bits = stream->ReadUInt32();
-    ddsPixelFormat.Rmask = stream->ReadUInt32();
-    ddsPixelFormat.Gmask = stream->ReadUInt32();
-    ddsPixelFormat.Bmask = stream->ReadUInt32();
-    ddsPixelFormat.Amask = stream->ReadUInt32();
+    ddsPixelFormat.bits = stream.ReadUInt32();
+    ddsPixelFormat.Rmask = stream.ReadUInt32();
+    ddsPixelFormat.Gmask = stream.ReadUInt32();
+    ddsPixelFormat.Bmask = stream.ReadUInt32();
+    ddsPixelFormat.Amask = stream.ReadUInt32();
 
     switch (ddsPixelFormat.fourCC)
     {
@@ -134,7 +134,7 @@ void Image::LoadImageDDS(Stream *stream)
         default:
             CRASH_MSG("Not supported DDS format");
     }
-    stream->Skip(5 * 4); // dwCaps, dwCaps2, dwCaps3, dwCaps4, dwReserved2
+    stream.Skip(5 * 4); // dwCaps, dwCaps2, dwCaps3, dwCaps4, dwReserved2
 
     for (int i = 0; i < dwMipMapCount; i++)
     {
@@ -161,7 +161,7 @@ void Image::LoadImageDDS(Stream *stream)
 
         int size = MipMap::getBufferSize(w, h, pixelFormat);
         ByteBuffer tempData = ByteBuffer(size);
-        stream->ReadToBuffer(tempData.ptr(), size);
+        stream.ReadToBuffer(tempData.ptr(), size);
 
         mipMaps.push_back(MipMap(tempData, origW, origH, pixelFormat));
     }
@@ -314,49 +314,49 @@ ByteBuffer Image::StoreMipToDDS(ByteBuffer src, PixelFormat format, int w, int h
     return stream.ToArray();
 }
 
-void Image::StoreImageToDDS(Stream *stream, PixelFormat format)
+void Image::StoreImageToDDS(Stream &stream, PixelFormat format)
 {
-    stream->WriteUInt32(DDS_TAG);
-    stream->WriteInt32(DDS_HEADER_dwSize);
-    stream->WriteUInt32(DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_MIPMAPCOUNT | DDSD_PIXELFORMAT | DDSD_LINEARSIZE);
-    stream->WriteInt32(mipMaps[0].getHeight());
-    stream->WriteInt32(mipMaps[0].getWidth());
+    stream.WriteUInt32(DDS_TAG);
+    stream.WriteInt32(DDS_HEADER_dwSize);
+    stream.WriteUInt32(DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_MIPMAPCOUNT | DDSD_PIXELFORMAT | DDSD_LINEARSIZE);
+    stream.WriteInt32(mipMaps[0].getHeight());
+    stream.WriteInt32(mipMaps[0].getWidth());
 
     int dataSize = 0;
     for (int i = 0; i < mipMaps.count(); i++)
         dataSize += MipMap::getBufferSize(mipMaps[i].getWidth(), mipMaps[i].getHeight(),
                                          format == PixelFormat::UnknownPixelFormat ? pixelFormat : format);
-    stream->WriteInt32(dataSize);
+    stream.WriteInt32(dataSize);
 
-    stream->WriteUInt32(0); // dwDepth
-    stream->WriteInt32(mipMaps.count());
-    stream->WriteZeros(44); // dwReserved1
+    stream.WriteUInt32(0); // dwDepth
+    stream.WriteInt32(mipMaps.count());
+    stream.WriteZeros(44); // dwReserved1
 
-    stream->WriteInt32(DDS_PIXELFORMAT_dwSize);
+    stream.WriteInt32(DDS_PIXELFORMAT_dwSize);
     DDS_PF pixfmt = getDDSPixelFormat(format == PixelFormat::UnknownPixelFormat ? pixelFormat : format);
-    stream->WriteUInt32(pixfmt.flags);
-    stream->WriteUInt32(pixfmt.fourCC);
-    stream->WriteUInt32(pixfmt.bits);
-    stream->WriteUInt32(pixfmt.Rmask);
-    stream->WriteUInt32(pixfmt.Gmask);
-    stream->WriteUInt32(pixfmt.Bmask);
-    stream->WriteUInt32(pixfmt.Amask);
+    stream.WriteUInt32(pixfmt.flags);
+    stream.WriteUInt32(pixfmt.fourCC);
+    stream.WriteUInt32(pixfmt.bits);
+    stream.WriteUInt32(pixfmt.Rmask);
+    stream.WriteUInt32(pixfmt.Gmask);
+    stream.WriteUInt32(pixfmt.Bmask);
+    stream.WriteUInt32(pixfmt.Amask);
 
-    stream->WriteInt32(DDSCAPS_COMPLEX | DDSCAPS_MIPMAP | DDSCAPS_TEXTURE);
-    stream->WriteUInt32(0); // dwCaps2
-    stream->WriteUInt32(0); // dwCaps3
-    stream->WriteUInt32(0); // dwCaps4
-    stream->WriteUInt32(0); // dwReserved2
+    stream.WriteInt32(DDSCAPS_COMPLEX | DDSCAPS_MIPMAP | DDSCAPS_TEXTURE);
+    stream.WriteUInt32(0); // dwCaps2
+    stream.WriteUInt32(0); // dwCaps3
+    stream.WriteUInt32(0); // dwCaps4
+    stream.WriteUInt32(0); // dwReserved2
     for (int i = 0; i < mipMaps.count(); i++)
     {
-        stream->WriteFromBuffer(mipMaps[i].getData().ptr(), mipMaps[i].getData().size());
+        stream.WriteFromBuffer(mipMaps[i].getData().ptr(), mipMaps[i].getData().size());
     }
 }
 
 ByteBuffer Image::StoreImageToDDS()
 {
     MemoryStream stream;
-    StoreImageToDDS(&stream);
+    StoreImageToDDS(stream);
     return stream.ToArray();
 }
 

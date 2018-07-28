@@ -80,10 +80,10 @@ private:
 
     ImageFormat DetectImageByFilename(const QString &fileName);
     ImageFormat DetectImageByExtension(const QString &extension);
-    void LoadImageFromStream(Stream *stream, ImageFormat format);
+    void LoadImageFromStream(Stream &stream, ImageFormat format);
     void LoadImageFromBuffer(ByteBuffer data, ImageFormat format);
-    void LoadImageDDS(Stream *stream);
-    void LoadImageTGA(Stream *stream);
+    void LoadImageDDS(Stream &stream);
+    void LoadImageTGA(Stream &stream);
     static void clearAlphaFromARGB(quint8 *data, int w, int h);
     static ByteBuffer RGBToARGB(const quint8 *src, int w, int h);
     static ByteBuffer ARGBtoRGB(const quint8 *src, int w, int h);
@@ -102,11 +102,11 @@ public:
     PixelFormat getPixelFormat() { return pixelFormat; }
 
     Image(QString &fileName, ImageFormat format = ImageFormat::UnknownImageFormat);
-    Image(Stream *stream, ImageFormat format);
-    Image(Stream *stream, const QString &extension);
+    Image(Stream &stream, ImageFormat format);
+    Image(Stream &stream, const QString &extension);
     Image(ByteBuffer data, ImageFormat format);
     Image(ByteBuffer data, const QString &extension);
-    Image(QList<MipMap> mipmaps, PixelFormat pixelFmt);
+    Image(QList<MipMap> &mipmaps, PixelFormat pixelFmt);
     static ByteBuffer convertRawToARGB(const quint8 *src, int w, int h, PixelFormat format, bool clearAlpha = false);
     static ByteBuffer convertRawToRGB(const quint8 *src, int w, int h, PixelFormat format);
     static QImage *convertRawToBitmapARGB(const quint8 *src, int w, int h, PixelFormat format);
@@ -146,7 +146,7 @@ public:
     Image *convertToARGB();
     Image *convertToRGB();
     static ByteBuffer StoreMipToDDS(ByteBuffer src, PixelFormat format, int w, int h);
-    void StoreImageToDDS(Stream *stream, PixelFormat format = PixelFormat::UnknownPixelFormat);
+    void StoreImageToDDS(Stream &stream, PixelFormat format = PixelFormat::UnknownPixelFormat);
     ByteBuffer StoreImageToDDS();
 };
 

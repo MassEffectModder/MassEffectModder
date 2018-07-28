@@ -1908,7 +1908,7 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
             if (QFile(outputFile).exists())
                 QFile(outputFile).remove();
             FileStream fs = FileStream(outputFile, FileMode::Create, FileAccess::WriteOnly);
-            image.StoreImageToDDS(&fs);
+            image.StoreImageToDDS(fs);
         }
     }
 

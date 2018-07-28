@@ -36,7 +36,7 @@ Image::Image(QString &fileName, ImageFormat format)
         case ImageFormat::TGA:
         {
             auto file = FileStream(fileName, FileMode::Open, FileAccess::ReadOnly);
-            LoadImageFromStream(&file, format);
+            LoadImageFromStream(file, format);
             return;
         }
         case ImageFormat::BMP:
@@ -57,7 +57,7 @@ Image::Image(QString &fileName, ImageFormat format)
     CRASH_MSG("not supported format");
 }
 
-Image::Image(Stream *stream, ImageFormat format)
+Image::Image(Stream &stream, ImageFormat format)
 {
     switch (format)
     {
@@ -77,7 +77,7 @@ Image::Image(Stream *stream, ImageFormat format)
     CRASH_MSG("not supported format");
 }
 
-Image::Image(Stream *stream, const QString &extension)
+Image::Image(Stream &stream, const QString &extension)
 {
     ImageFormat format = DetectImageByExtension(extension);
     switch (format)
@@ -106,7 +106,7 @@ Image::Image(ByteBuffer data, ImageFormat format)
         case ImageFormat::TGA:
         {
             auto mem = MemoryStream(data);
-            LoadImageFromStream(&mem, format);
+            LoadImageFromStream(mem, format);
             return;
         }
         case ImageFormat::BMP:
@@ -132,7 +132,7 @@ Image::Image(ByteBuffer data, const QString &extension)
         case ImageFormat::TGA:
         {
             auto mem = MemoryStream(data);
-            LoadImageFromStream(&mem, format);
+            LoadImageFromStream(mem, format);
             break;
         }
         case ImageFormat::BMP:
@@ -149,7 +149,7 @@ Image::Image(ByteBuffer data, const QString &extension)
     CRASH();
 }
 
-Image::Image(QList<MipMap> mipmaps, PixelFormat pixelFmt)
+Image::Image(QList<MipMap> &mipmaps, PixelFormat pixelFmt)
 {
     mipMaps = std::move(mipmaps);
     pixelFormat = pixelFmt;
@@ -177,7 +177,7 @@ ImageFormat Image::DetectImageByExtension(const QString &extension)
     return ImageFormat::UnknownImageFormat;
 }
 
-void Image::LoadImageFromStream(Stream *stream, ImageFormat format)
+void Image::LoadImageFromStream(Stream &stream, ImageFormat format)
 {
     mipMaps.clear();
 
