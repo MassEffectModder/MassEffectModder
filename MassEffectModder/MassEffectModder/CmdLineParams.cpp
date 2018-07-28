@@ -523,7 +523,7 @@ int ProcessArguments()
         }
         if (!output.endsWith(".dds", Qt::CaseInsensitive))
         {
-            ConsoleWrite("Error: output file is not dds: " + output);
+            ConsoleWrite(QString("Error: output file is not dds: ") + output);
             errorCode = -1;
             break;
         }

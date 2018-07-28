@@ -928,7 +928,7 @@ bool CmdLineTools::DetectBadMods(MeType gameId, bool ipc)
         {
             if (ipc)
             {
-                ConsoleWrite("[IPC]ERROR " + badMods[l]);
+                ConsoleWrite(QString("[IPC]ERROR ") + badMods[l]);
                 ConsoleSync();
             }
             else
@@ -961,7 +961,7 @@ bool CmdLineTools::DetectMods(MeType gameId, bool ipc)
         {
             if (ipc)
             {
-                ConsoleWrite("[IPC]MOD " + mods[l]);
+                ConsoleWrite(QString("[IPC]MOD ") + mods[l]);
                 ConsoleSync();
             }
             else

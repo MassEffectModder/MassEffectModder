@@ -135,7 +135,7 @@ bool Misc::CheckAndCorrectAccessToGame()
 {
     if (!checkWriteAccessDir(g_GameData->MainData()))
     {
-        ConsoleWrite("MEM has not write access to game folders:\n" +
+        ConsoleWrite(QString("MEM has not write access to game folders:\n") +
                      g_GameData->MainData());
         return false;
     }
