@@ -1566,7 +1566,7 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
 void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTexture> &list,
                                                QString &textureName, QString &tfcName, QByteArray &guid)
 {
-    Texture *arcTexture, *cprTexture;
+    Texture *arcTexture = nullptr, *cprTexture = nullptr;
 
     for (int n = 0; n < list.count(); n++)
     {
