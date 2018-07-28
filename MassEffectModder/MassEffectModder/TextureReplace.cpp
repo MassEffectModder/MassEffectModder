@@ -440,7 +440,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     }
 
                     quint32 fileLength = QFile(archiveFile).size();
-                    if (!oldSpace && fileLength + 0x5000000L > 0x80000000L)
+                    if (!oldSpace && fileLength + 0x5000000UL > 0x80000000UL)
                     {
                         archiveFile = "";
                         for (const auto & guid : guids)
@@ -459,7 +459,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                             }
 
                             fileLength = QFile(archiveFile).exists();
-                            if (fileLength + 0x5000000 < 0x80000000L)
+                            if (fileLength + 0x5000000UL < 0x80000000UL)
                             {
                                 texture.getProperties().setNameValue("TextureFileCacheName", newGuid.name);
                                 texture.getProperties().setStructValue("TFCFileGuid", "Guid",
