@@ -64,18 +64,18 @@ public:
     static void startTimer();
     static long stopTimer();
     static QString getTimerFormat(long time);
-    static int ParseLegacyMe3xScriptMod(QList<FoundTexture> *textures, QString &script, QString &textureName);
+    static int ParseLegacyMe3xScriptMod(QList<FoundTexture> &textures, QString &script, QString &textureName);
     static void ParseME3xBinaryScriptMod(QString &script, QString &package, int &expId, QString &path);
     static PixelFormat changeTextureType(PixelFormat gamePixelFormat, PixelFormat texturePixelFormat,
                                          TexProperty::TextureTypes flags);
     static bool convertDataModtoMem(QString &inputDir, QString &memFilePath,
-                                    MeType gameId, QList<FoundTexture> *textures, bool markToConvert,
+                                    MeType gameId, QList<FoundTexture> &textures, bool markToConvert,
                                     bool onlyIndividual, bool ipc);
     static QByteArray calculateMD5(QString &filePath);
     static QStringList *detectMods();
     static QStringList *detectBrokenMod();
     static bool unpackSFARisNeeded();
-    static bool checkGameFiles(MeType gameType, Resources *resources, QString &errors, QStringList *mods, bool ipc);
+    static bool checkGameFiles(MeType gameType, Resources &resources, QString &errors, QStringList &mods, bool ipc);
 };
 
 #endif

@@ -191,7 +191,7 @@ QString Misc::getTimerFormat(long time)
     return QString("%1 hours - %2 min - %3 sec").arg(hours).arg(minutes).arg(seconds);
 }
 
-int Misc::ParseLegacyMe3xScriptMod(QList<FoundTexture> *textures, QString &script, QString &textureName)
+int Misc::ParseLegacyMe3xScriptMod(QList<FoundTexture> &textures, QString &script, QString &textureName)
 {
     QString match;
     QRegExp parts = QRegExp("pccs.Add[(]\"[A-z,0-9/,..]*\"");
@@ -207,17 +207,17 @@ int Misc::ParseLegacyMe3xScriptMod(QList<FoundTexture> *textures, QString &scrip
             if (exportId != 0)
             {
                 textureName = textureName.toLower();
-                for (int i = 0; i < textures->count(); i++)
+                for (int i = 0; i < textures.count(); i++)
                 {
-                    if (textures->at(i).name.toLower() == textureName)
+                    if (textures[i].name.toLower() == textureName)
                     {
-                        for (int l = 0; l < textures->at(i).list->count(); l++)
+                        for (int l = 0; l < textures[i].list.count(); l++)
                         {
-                            if (textures->at(i).list->at(l).path == "")
+                            if (textures[i].list[l].path == "")
                                 continue;
-                            if (textures->at(i).list->at(l).exportID == exportId)
+                            if (textures[i].list[l].exportID == exportId)
                             {
-                                QString pkg = textures->at(i).list->at(l).path.split(QChar('\\')).last().split(QChar('.')).first().toLower();
+                                QString pkg = textures[i].list[l].path.split(QChar('\\')).last().split(QChar('.')).first().toLower();
                                 if (pkg == packageName)
                                 {
                                     return i;
@@ -227,15 +227,15 @@ int Misc::ParseLegacyMe3xScriptMod(QList<FoundTexture> *textures, QString &scrip
                     }
                 }
                 // search again but without name match
-                for (int i = 0; i < textures->count(); i++)
+                for (int i = 0; i < textures.count(); i++)
                 {
-                    for (int l = 0; l < textures->at(i).list->count(); l++)
+                    for (int l = 0; l < textures[i].list.count(); l++)
                     {
-                        if (textures->at(i).list->at(l).path == "")
+                        if (textures[i].list[l].path == "")
                             continue;
-                        if (textures->at(i).list->at(l).exportID == exportId)
+                        if (textures[i].list[l].exportID == exportId)
                         {
-                            QString pkg = textures->at(i).list->at(l).path.split(QChar('\\')).last().split(QChar('.')).first().toLower();
+                            QString pkg = textures[i].list[l].path.split(QChar('\\')).last().split(QChar('.')).first().toLower();
                             if (pkg == packageName)
                             {
                                 return i;
@@ -248,15 +248,15 @@ int Misc::ParseLegacyMe3xScriptMod(QList<FoundTexture> *textures, QString &scrip
         else
         {
             textureName = textureName.toLower();
-            for (int i = 0; i < textures->count(); i++)
+            for (int i = 0; i < textures.count(); i++)
             {
-                if (textures->at(i).name.toLower() == textureName)
+                if (textures[i].name.toLower() == textureName)
                 {
-                    for (int l = 0; l < textures->at(i).list->count(); l++)
+                    for (int l = 0; l < textures[i].list.count(); l++)
                     {
-                        if (textures->at(i).list->at(l).path == "")
+                        if (textures[i].list[l].path == "")
                             continue;
-                        QString pkg = textures->at(i).list->at(l).path.split(QChar('\\')).last().split(QChar('.')).first().toLower();
+                        QString pkg = textures[i].list[l].path.split(QChar('\\')).last().split(QChar('.')).first().toLower();
                         if (pkg == packageName)
                         {
                             return i;
@@ -348,7 +348,7 @@ PixelFormat Misc::changeTextureType(PixelFormat gamePixelFormat, PixelFormat tex
 }
 
 bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
-    MeType gameId, QList<FoundTexture> *textures, bool markToConvert, bool onlyIndividual, bool ipc)
+    MeType gameId, QList<FoundTexture> &textures, bool markToConvert, bool onlyIndividual, bool ipc)
 {
     ConsoleWrite("Mods conversion started...");
 
@@ -564,7 +564,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                         }
                         continue;
                     }
-                    FoundTexture f = textures->at(index);
+                    FoundTexture f = textures[index];
                     mod.textureCrc = f.crc;
                     mod.textureName = f.name;
                     mod.binaryModType = 0;
@@ -596,11 +596,11 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                         newPixelFormat = changeTextureType(pixelFormat, image.getPixelFormat(), f.flags);
 
                     int numMips = 0;
-                    for (int s = 0; s < f.list->count(); s++)
+                    for (int s = 0; s < f.list.count(); s++)
                     {
-                        if (f.list->at(s).path != "")
+                        if (f.list[s].path != "")
                         {
-                            numMips = f.list->at(s).numMips;
+                            numMips = f.list[s].numMips;
                         }
                     }
                     if (!image.checkDDSHaveAllMipmaps() ||
@@ -786,11 +786,11 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                 }
 
                 FoundTexture f;
-                for (int s = 0; s < textures->count(); s++)
+                for (int s = 0; s < textures.count(); s++)
                 {
-                    if (textures->at(s).crc == crc)
+                    if (textures[s].crc == crc)
                     {
-                        f = textures->at(s);
+                        f = textures[s];
                         break;
                     }
                 }
@@ -851,11 +851,11 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                     newPixelFormat = changeTextureType(pixelFormat, image.getPixelFormat(), f.flags);
 
                 int numMips = 0;
-                for (int s = 0; s < f.list->count(); s++)
+                for (int s = 0; s < f.list.count(); s++)
                 {
-                    if (f.list->at(s).path != "")
+                    if (f.list[s].path != "")
                     {
-                        numMips = f.list->at(s).numMips;
+                        numMips = f.list[s].numMips;
                     }
                 }
                 if (!image.checkDDSHaveAllMipmaps() ||
@@ -962,11 +962,11 @@ failed:
             }
 
             FoundTexture f;
-            for (int s = 0; s < textures->count(); s++)
+            for (int s = 0; s < textures.count(); s++)
             {
-                if (textures->at(s).crc == crc)
+                if (textures[s].crc == crc)
                 {
-                    f = textures->at(s);
+                    f = textures[s];
                     break;
                 }
             }
@@ -1000,11 +1000,11 @@ failed:
                 newPixelFormat = changeTextureType(pixelFormat, image.getPixelFormat(), f.flags);
 
             int numMips = 0;
-            for (int s = 0; s < f.list->count(); s++)
+            for (int s = 0; s < f.list.count(); s++)
             {
-                if (f.list->at(s).path != "")
+                if (f.list[s].path != "")
                 {
-                    numMips = f.list->at(s).numMips;
+                    numMips = f.list[s].numMips;
                 }
             }
             if (!image.checkDDSHaveAllMipmaps() ||
@@ -1101,11 +1101,11 @@ failed:
             }
 
             FoundTexture f;
-            for (int s = 0; s < textures->count(); s++)
+            for (int s = 0; s < textures.count(); s++)
             {
-                if (textures->at(s).crc == crc)
+                if (textures[s].crc == crc)
                 {
-                    f = textures->at(s);
+                    f = textures[s];
                     break;
                 }
             }
@@ -1356,23 +1356,23 @@ bool Misc::unpackSFARisNeeded()
     return false;
 }
 
-bool Misc::checkGameFiles(MeType gameType, Resources *resources, QString &errors, QStringList *mods, bool ipc)
+bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors, QStringList &mods, bool ipc)
 {
     bool vanilla = true;
     QList<MD5FileEntry> entries;
 
     if (gameType == MeType::ME1_TYPE)
     {
-        entries += resources->entriesME1;
-        entries += resources->entriesME1PL;
+        entries += resources.entriesME1;
+        entries += resources.entriesME1PL;
     }
     else if (gameType == MeType::ME2_TYPE)
     {
-        entries += resources->entriesME2;
+        entries += resources.entriesME2;
     }
     else if (gameType == MeType::ME3_TYPE)
     {
-        entries += resources->entriesME3;
+        entries += resources.entriesME3;
     }
 
     int allFilesCount = g_GameData->packageMainFiles.count();
@@ -1381,7 +1381,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources *resources, QString &errors
     allFilesCount += g_GameData->sfarFiles.count();
     allFilesCount += g_GameData->tfcFiles.count();
 
-    mods->clear();
+    mods.clear();
     FileStream *fs;
     if (generateModsMd5Entries)
         fs = new FileStream("MD5ModFileEntry" + QString::number((int)gameType) + ".cs", FileMode::Create, FileAccess::WriteOnly);
@@ -1421,16 +1421,16 @@ bool Misc::checkGameFiles(MeType gameType, Resources *resources, QString &errors
             {
                 found = true;
                 bool found2 = false;
-                for (int s = 0; s < mods->count(); s++)
+                for (int s = 0; s < mods.count(); s++)
                 {
-                    if (mods->at(s).compare(modsEntries[p].modName) == 0)
+                    if (mods[s].compare(modsEntries[p].modName) == 0)
                     {
                         found2 = true;
                         break;
                     }
                 }
                 if (!found2)
-                    mods->push_back(modsEntries[p].modName);
+                    mods.push_back(modsEntries[p].modName);
                 break;
             }
         }
@@ -1549,16 +1549,16 @@ bool Misc::checkGameFiles(MeType gameType, Resources *resources, QString &errors
             {
                 found = true;
                 bool found2 = false;
-                for (int s = 0; s < mods->count(); s++)
+                for (int s = 0; s < mods.count(); s++)
                 {
-                    if (mods->at(s).compare(modsEntries[p].modName) == 0)
+                    if (mods[s].compare(modsEntries[p].modName) == 0)
                     {
                         found2 = true;
                         break;
                     }
                 }
                 if (!found2)
-                    mods->push_back(modsEntries[p].modName);
+                    mods.push_back(modsEntries[p].modName);
                 break;
             }
         }
