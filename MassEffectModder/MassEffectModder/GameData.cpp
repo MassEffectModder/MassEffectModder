@@ -389,24 +389,6 @@ const QString GameData::RelativeGameData(QString &path)
     return path.mid(_path.length());
 }
 
-void GameData::getTfcTextures()
-{
-    if (tfcFiles.count() != 0)
-        return;
-
-    if (packageFiles.count() == 0)
-        ScanGameFiles(false);
-}
-
-void GameData::getPackages()
-{
-    if (packageFiles.count() == 0)
-    {
-        FullScanME1Game = false;
-        ScanGameFiles(false);
-    }
-}
-
 void GameData::ClosePackagesList()
 {
     packageFiles.clear();

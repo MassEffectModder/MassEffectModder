@@ -64,11 +64,6 @@ int CmdLineTools::scanTextures(MeType gameId, bool ipc)
     {
     }
 
-    g_GameData->getPackages();
-
-    if (gameId != MeType::ME1_TYPE)
-        g_GameData->getTfcTextures();
-
     ConsoleWrite("Scan textures started...");
 
     QList<FoundTexture> textures;
@@ -863,8 +858,6 @@ bool CmdLineTools::CheckForMarkers(MeType gameId, bool ipc)
         return false;
     }
 
-    g_GameData->getPackages();
-
     QStringList packages;
     for (int i = 0; i < g_GameData->packageFiles.count(); i++)
     {
@@ -1184,10 +1177,6 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool 
         ConsoleWrite("Unpacking DLCs finished.\n");
     }
 
-    g_GameData->getPackages();
-    if (gameId != MeType::ME1_TYPE)
-        g_GameData->getTfcTextures();
-
     if (repack)
     {
         for (int i = 0; i < g_GameData->packageFiles.count(); i++)
@@ -1292,9 +1281,6 @@ bool CmdLineTools::applyMEMSpecialModME3(MeType gameId, QString &memFile, QStrin
         ConsoleWrite("Error: Could not found the game!");
         return false;
     }
-
-    g_GameData->getPackages();
-    g_GameData->getTfcTextures();
 
     QList<FoundTexture> textures;
 
@@ -1842,10 +1828,6 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
         return false;
     }
 
-    g_GameData->getPackages();
-    if (gameId != MeType::ME1_TYPE)
-        g_GameData->getTfcTextures();
-
     QList<FoundTexture> textures;
 
     QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
@@ -1927,10 +1909,6 @@ bool CmdLineTools::CheckTextures(MeType gameId, bool ipc)
         ConsoleWrite("Error: Could not found the game!");
         return false;
     }
-
-    g_GameData->getPackages();
-    if (gameId != MeType::ME1_TYPE)
-        g_GameData->getTfcTextures();
 
     QList<FoundTexture> textures;
 
@@ -2069,8 +2047,6 @@ bool CmdLineTools::checkGameFilesAfter(MeType gameType, bool ipc)
         return false;
     }
 
-    g_GameData->getPackages();
-
     ConsoleWrite("\nChecking for vanilla files after textures installation...");
     QString path;
     if (GameData::gameType == MeType::ME1_TYPE)
@@ -2146,8 +2122,6 @@ bool CmdLineTools::detectsMismatchPackagesAfter(MeType gameType, bool ipc)
         ConsoleWrite("Error: Could not found the game!");
         return false;
     }
-
-    g_GameData->getPackages();
 
     QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
             "/MassEffectModder";

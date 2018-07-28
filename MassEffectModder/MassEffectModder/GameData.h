@@ -55,8 +55,6 @@ public:
     const QString GameUserPath();
     const QString ConfigIniPath();
     const QString EngineConfigIniPath();
-    void getTfcTextures();
-    void getPackages();
     void ClosePackagesList();
 };
 
