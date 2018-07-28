@@ -235,8 +235,11 @@ int Package::Open(const QString &filename, bool headerOnly)
             loadGuids(*packageStream);
     }
 
-    loadImportsNames();
-    loadExportsNames();
+    if (fullLoad)
+    {
+        loadImportsNames();
+        loadExportsNames();
+    }
 
     return 0;
 }

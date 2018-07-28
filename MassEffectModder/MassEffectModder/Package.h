@@ -367,7 +367,7 @@ public:
 
     Package() = default;
     ~Package();
-    int Open(const QString &filename, bool headerOnly = false);
+    int Open(const QString &filename, bool headerOnly = false, bool fullLoad = false);
     bool isName(int id);
     QString getClassName(int id);
     int getClassNameId(int id);
