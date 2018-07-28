@@ -44,21 +44,10 @@ void GameData::ScanGameFiles(bool force)
                     continue;
                 if (path.endsWith(".upk", Qt::CaseInsensitive))
                     packageMainFiles.push_back(path);
-                if (path.endsWith(".u", Qt::CaseInsensitive))
+                else if (path.endsWith(".u", Qt::CaseInsensitive))
                     packageMainFiles.push_back(path);
-                if (path.endsWith(".sfm", Qt::CaseInsensitive))
+                else if (path.endsWith(".sfm", Qt::CaseInsensitive))
                     packageMainFiles.push_back(path);
-
-                if (path.indexOf(QRegExp("*_PLPC.*", Qt::CaseInsensitive, QRegExp::Wildcard)) != -1)
-                    FullScanME1Game = true;
-                else if (path.indexOf(QRegExp("*_CS.*", Qt::CaseInsensitive, QRegExp::Wildcard)) != -1)
-                    FullScanME1Game = true;
-                else if (path.indexOf(QRegExp("*_HU.*", Qt::CaseInsensitive, QRegExp::Wildcard)) != -1)
-                    FullScanME1Game = true;
-                else if (path.indexOf(QRegExp("*_RU.*", Qt::CaseInsensitive, QRegExp::Wildcard)) != -1)
-                    FullScanME1Game = true;
-                else if (path.indexOf(QRegExp("*_RA.*", Qt::CaseInsensitive, QRegExp::Wildcard)) != -1)
-                    FullScanME1Game = true;
             }
             else if (gameType == MeType::ME2_TYPE)
             {
@@ -106,27 +95,17 @@ void GameData::ScanGameFiles(bool force)
                     {
                         if (path.endsWith(".upk", Qt::CaseInsensitive))
                             packages.push_back(path);
-                        if (path.endsWith(".u", Qt::CaseInsensitive))
+                        else if (path.endsWith(".u", Qt::CaseInsensitive))
                             packages.push_back(path);
-                        if (path.endsWith(".sfm", Qt::CaseInsensitive))
+                        else if (path.endsWith(".sfm", Qt::CaseInsensitive))
                             packages.push_back(path);
 
-                        if (path.indexOf(QRegExp("*_PLPC.*", Qt::CaseInsensitive, QRegExp::Wildcard)) != -1)
-                            FullScanME1Game = true;
-                        else if (path.indexOf(QRegExp("*_CS.*", Qt::CaseInsensitive, QRegExp::Wildcard)) != -1)
-                            FullScanME1Game = true;
-                        else if (path.indexOf(QRegExp("*_HU.*", Qt::CaseInsensitive, QRegExp::Wildcard)) != -1)
-                            FullScanME1Game = true;
-                        else if (path.indexOf(QRegExp("*_RU.*", Qt::CaseInsensitive, QRegExp::Wildcard)) != -1)
-                            FullScanME1Game = true;
-                        else if (path.indexOf(QRegExp("*_RA.*", Qt::CaseInsensitive, QRegExp::Wildcard)) != -1)
-                            FullScanME1Game = true;
                     }
                     else if (gameType == MeType::ME2_TYPE)
                     {
                         if (path.endsWith(".pcc", Qt::CaseInsensitive))
                             packages.push_back(path);
-                        if (path.endsWith(".tfc", Qt::CaseInsensitive))
+                        else if (path.endsWith(".tfc", Qt::CaseInsensitive))
                             tfcFiles.push_back(path);
                     }
                     else if (gameType == MeType::ME3_TYPE)
@@ -135,9 +114,9 @@ void GameData::ScanGameFiles(bool force)
                             continue;
                         if (path.endsWith(".pcc", Qt::CaseInsensitive))
                             packages.push_back(path);
-                        if (path.endsWith(".tfc", Qt::CaseInsensitive))
+                        else if (path.endsWith(".tfc", Qt::CaseInsensitive))
                             tfcFiles.push_back(path);
-                        if (path.endsWith(".sfar", Qt::CaseInsensitive))
+                        else if (path.endsWith(".sfar", Qt::CaseInsensitive))
                         {
                             sfarFiles.push_back(path);
                             isValid = true;
@@ -161,6 +140,39 @@ void GameData::ScanGameFiles(bool force)
 
         packageFiles += packageMainFiles;
         packageFiles += packageDLCFiles;
+
+        if (gameType == MeType::ME1_TYPE && !FullScanME1Game)
+        {
+            for (int i = 0; i < packageFiles.count(); i++)
+            {
+                QString path = packageFiles[i];
+                if (path.contains("_PLPC.", Qt::CaseInsensitive))
+                {
+                    FullScanME1Game = true;
+                    break;
+                }
+                if (path.contains("_CS.", Qt::CaseInsensitive))
+                {
+                    FullScanME1Game = true;
+                    break;
+                }
+                if (path.contains("_HU.", Qt::CaseInsensitive))
+                {
+                    FullScanME1Game = true;
+                    break;
+                }
+                if (path.contains("_RU.", Qt::CaseInsensitive))
+                {
+                    FullScanME1Game = true;
+                    break;
+                }
+                if (path.contains("_RA.", Qt::CaseInsensitive))
+                {
+                    FullScanME1Game = true;
+                    break;
+                }
+            }
+        }
     }
 }
 

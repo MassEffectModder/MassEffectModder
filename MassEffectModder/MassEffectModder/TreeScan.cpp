@@ -252,7 +252,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
         ConsoleWrite("[IPC]STAGE_CONTEXT STAGE_PRESCAN");
         ConsoleSync();
     }
-
+g_GameData->FullScanME1Game = true;
     if (!g_GameData->FullScanME1Game)
     {
         g_GameData->packageFiles.sort(Qt::CaseInsensitive);
