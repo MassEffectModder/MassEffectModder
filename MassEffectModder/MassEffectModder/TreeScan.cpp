@@ -31,6 +31,8 @@
 #include "Image.h"
 #include "Resources.h"
 #include "MemTypes.h"
+#include "TOCFile.h"
+#include "MipMaps.h"
 
 static bool generateBuiltinMapFiles = false; // change to true to enable map files generation
 
@@ -221,7 +223,9 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<FoundTexture> &textures,
     return !foundRemoved && !foundAdded;
 }
 
-int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<FoundTexture> &textures, bool ipc)
+int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<FoundTexture> &textures,
+                                    QStringList &pkgsToMarker, QStringList &pkgsToRepack, MipMaps &mipMaps,
+                                    bool ipc, bool repack)
 {
     QStringList pkgs;
     QList<MD5FileEntry> md5Entries;
@@ -583,6 +587,23 @@ g_GameData->FullScanME1Game = true;
     else
     {
         fs.CopyFrom(mem, mem.Length());
+    }
+
+    if (!generateBuiltinMapFiles)
+    {
+        if (GameData::gameType == MeType::ME1_TYPE)
+        {
+            mipMaps.removeMipMapsME1(1, textures, pkgsToMarker, ipc);
+            mipMaps.removeMipMapsME1(2, textures, pkgsToMarker, ipc);
+        }
+        else
+        {
+            mipMaps.removeMipMapsME2ME3(textures, pkgsToMarker, pkgsToRepack, ipc, repack);
+        }
+        if (GameData::gameType == MeType::ME3_TYPE)
+        {
+            TOCBinFile::UpdateAllTOCBinFiles();
+        }
     }
 
     return 0;

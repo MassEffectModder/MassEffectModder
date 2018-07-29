@@ -67,9 +67,13 @@ int CmdLineTools::scanTextures(MeType gameId, bool ipc)
 
     QList<FoundTexture> textures;
     Resources resources;
+    MipMaps mipMaps;
+    QStringList pkgsToMarkers;
+    QStringList pkgsToRepack;
 
     resources.loadMD5Tables();
-    errorCode = TreeScan::PrepareListOfTextures(gameId, resources, textures, ipc);
+    errorCode = TreeScan::PrepareListOfTextures(gameId, resources, textures,
+                                                pkgsToMarkers, pkgsToRepack, mipMaps, ipc, false);
 
     ConsoleWrite("Scan textures finished.\n");
 
@@ -1013,10 +1017,12 @@ void CmdLineTools::AddMarkers(bool ipc)
     ConsoleWrite("Adding markers finished.");
 }
 
-bool CmdLineTools::ScanTextures(MeType gameId, Resources &resources, QList<FoundTexture> &textures, bool ipc)
+bool CmdLineTools::ScanTextures(MeType gameId, Resources &resources, QList<FoundTexture> &textures,
+                                QStringList &pkgsToMarker, QStringList &pkgsToRepack, MipMaps &mipMaps,
+                                bool ipc, bool repack)
 {
     ConsoleWrite("Scan textures started...");
-    TreeScan::PrepareListOfTextures(gameId, resources, textures, ipc);
+    TreeScan::PrepareListOfTextures(gameId, resources, textures, pkgsToMarker, pkgsToRepack, mipMaps, ipc, repack);
     ConsoleWrite("Scan textures finished.\n");
 
     return true;
@@ -1201,7 +1207,7 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool 
         else if (GameData::gameType == MeType::ME2_TYPE)
             pkgsToMarker.removeOne(g_GameData->GamePath() + "/BioGame/CookedPC/BIOC_Materials.pcc");
 
-        ScanTextures(gameId, resources, textures, ipc);
+        ScanTextures(gameId, resources, textures, pkgsToMarker, pkgsToRepack, mipMaps, ipc, repack);
     }
 
 
