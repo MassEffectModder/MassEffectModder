@@ -35,7 +35,6 @@
 #include "TOCFile.h"
 #include "Texture.h"
 #include "MemTypes.h"
-#include "Version.h"
 
 static bool CheckGamePath()
 {

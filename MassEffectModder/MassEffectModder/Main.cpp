@@ -25,7 +25,6 @@
 #include "GameData.h"
 
 #include "CmdLineParams.h"
-#include "Version.h"
 
 int runQtApplication(int argc, char *argv[])
 {

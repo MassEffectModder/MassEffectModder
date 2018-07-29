@@ -27,7 +27,6 @@
 #include "ConfigIni.h"
 #include "GameData.h"
 #include "MemTypes.h"
-#include "Version.h"
 
 void DisplayHelp()
 {

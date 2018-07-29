@@ -22,6 +22,8 @@
 #ifndef MEM_TYPES_H
 #define MEM_TYPES_H
 
+#define APP_NAME "MEM"
+
 typedef enum
 {
     UNKNOWN_TYPE = 0,

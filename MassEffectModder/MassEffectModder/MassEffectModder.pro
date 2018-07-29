@@ -69,10 +69,12 @@ HEADERS += \
     Texture.h \
     TextureProps.h \
     TOCFile.h \
-    TreeScan.h \
-    Version.h
+    TreeScan.h
+
+include(Version.pri)
 
 DEFINES += QT_DEPRECATED_WARNINGS
+DEFINES += MEM_VERSION=\\\"$$VERSION\\\"
 
 RESOURCES = Resources.qrc
 QMAKE_RESOURCE_FLAGS += --no-compress
@@ -143,8 +145,6 @@ win32 {
     # And assuming msys64 is main directory of msys2 64bit installation.
     # It should be /mingw64/lib/binutils but doesn't work in Qt env.
     QMAKE_LIBDIR += c:/msys64/mingw64/lib/binutils
-
-    RC_FILE = Resources/appicon.rc
 }
 
 linux {
