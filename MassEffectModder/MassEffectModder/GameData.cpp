@@ -65,8 +65,6 @@ void GameData::ScanGameFiles(bool force)
             }
         }
 
-        packageMainFiles.sort(Qt::CaseInsensitive);
-
         if (QDir(DLCData()).exists())
         {
             QStringList DLCs = QDir(DLCData(), "DLC_*", QDir::NoSort, QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
@@ -108,9 +106,6 @@ void GameData::ScanGameFiles(bool force)
                     packageDLCFiles += packages;
                 }
             }
-
-            packageDLCFiles.sort(Qt::CaseInsensitive);
-            tfcFiles.sort(Qt::CaseInsensitive);
         }
 
 
