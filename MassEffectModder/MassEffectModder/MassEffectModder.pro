@@ -84,6 +84,7 @@ precompile_header:!isEmpty(PRECOMPILED_HEADER) {
 QMAKE_CXXFLAGS += -g
 
 win32-g++: {
+    QMAKE_LFLAGS_RELEASE="-Wl,--relax,--gc-sections"
     Release:PRE_TARGETDEPS += $$OUT_PWD/../Wrappers/release/libWrappers.a
     Debug:PRE_TARGETDEPS += $$OUT_PWD/../Wrappers/debug/libWrappers.a
 } else:unix: {
