@@ -664,7 +664,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
 
 static bool comparePaths(MapTexturesToMod &e1, MapTexturesToMod &e2)
 {
-    return e1.packagePath.compare(e2.packagePath, Qt::CaseInsensitive);
+    return e1.packagePath.compare(e2.packagePath, Qt::CaseInsensitive) < 0;
 }
 
 QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList &pkgsToMarker,

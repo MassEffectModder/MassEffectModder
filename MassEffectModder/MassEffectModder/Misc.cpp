@@ -370,7 +370,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
     list2 += QDir(inputDir, "*.tga", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
     list2 += QDir(inputDir, "*.jpg", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
     list2 += QDir(inputDir, "*.jpeg", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
-    list2.sort(Qt::CaseInsensitive);
+    std::sort(list2.begin(), list2.end(), compareByAscii);
     list.append(list2);
 
     int result;

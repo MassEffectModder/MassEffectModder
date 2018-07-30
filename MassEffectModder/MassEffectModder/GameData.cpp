@@ -23,6 +23,11 @@
 
 MeType GameData::gameType = UNKNOWN_TYPE;
 
+bool compareByAscii(const QString &e1, const QString &e2)
+{
+    return e1.compare(e2, Qt::CaseInsensitive) < 0;
+}
+
 void GameData::ScanGameFiles(bool force)
 {
     if (force)
@@ -106,6 +111,8 @@ void GameData::ScanGameFiles(bool force)
                     packageDLCFiles += packages;
                 }
             }
+
+            std::sort(tfcFiles.begin(), tfcFiles.end(), compareByAscii);
         }
 
 
@@ -122,6 +129,7 @@ void GameData::ScanGameFiles(bool force)
             packageFiles += packageDLCFiles.filter(QRegExp("*.pcc", Qt::CaseInsensitive, QRegExp::Wildcard));
         }
 
+        std::sort(packageFiles.begin(), packageFiles.end(), compareByAscii);
 
         if (gameType == MeType::ME1_TYPE && !FullScanME1Game)
         {

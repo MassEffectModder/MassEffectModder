@@ -259,7 +259,6 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
 g_GameData->FullScanME1Game = true;
     if (!g_GameData->FullScanME1Game)
     {
-        g_GameData->packageFiles.sort(Qt::CaseInsensitive);
         int count = g_GameData->packageFiles.count();
         for (int i = 0; i < count; i++)
         {
@@ -295,7 +294,7 @@ g_GameData->FullScanME1Game = true;
         {
             sortedFiles.push_back(g_GameData->RelativeGameData(g_GameData->packageFiles[i]).toLower());
         }
-        sortedFiles.sort(Qt::CaseInsensitive);
+        std::sort(sortedFiles.begin(), sortedFiles.end(), compareByAscii);
 
         for (int k = 0; k < textures.count(); k++)
         {

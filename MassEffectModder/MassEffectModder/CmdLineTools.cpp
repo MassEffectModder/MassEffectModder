@@ -236,7 +236,7 @@ bool CmdLineTools::convertGameImages(MeType gameId, QString &inputDir, QString &
     list += QDir(inputDir, "*.tga", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
     list += QDir(inputDir, "*.jpg", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
     list += QDir(inputDir, "*.jpeg", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
-    list.sort(Qt::CaseInsensitive);
+    std::sort(list.begin(), list.end(), compareByAscii);
 
     if (!QDir(outputDir).exists())
         QDir().mkpath(outputDir);
@@ -312,7 +312,7 @@ bool CmdLineTools::extractTPF(QString &inputDir, QString &outputDir, bool ipc)
     ulong dstLen = 0;
     int numEntries = 0;
     QStringList list = QDir(inputDir, "*.tpf", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
-    list.sort(Qt::CaseInsensitive);
+    std::sort(list.begin(), list.end(), compareByAscii);
 
     if (!QDir(outputDir).exists())
         QDir().mkpath(outputDir);
@@ -404,7 +404,7 @@ bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputD
     ulong numEntries = 0;
     QStringList list;
     list += QDir(inputDir, "*.mod", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
-    list.sort(Qt::CaseInsensitive);
+    std::sort(list.begin(), list.end(), compareByAscii);
 
     if (!QDir(outputDir).exists())
         QDir().mkpath(outputDir);
@@ -523,7 +523,7 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
 
     QStringList list;
     list += QDir(inputDir, "*.mem", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
-    list.sort(Qt::CaseInsensitive);
+    std::sort(list.begin(), list.end(), compareByAscii);
 
     if (!QDir(outputDir).exists())
         QDir().mkpath(outputDir);
