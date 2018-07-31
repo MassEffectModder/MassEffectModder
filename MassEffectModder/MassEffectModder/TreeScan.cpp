@@ -567,7 +567,7 @@ g_GameData->FullScanME1Game = true;
         for (int i = 0; i < g_GameData->packageFiles.count(); i++)
         {
             mem.WriteInt32(g_GameData->packageFiles[i].length());
-            mem.WriteStringASCII(g_GameData->packageFiles[i]);
+            mem.WriteStringASCII(g_GameData->packageFiles[i].replace(QChar('/'), QChar('\\')));
         }
     }
     mem.SeekBegin();
