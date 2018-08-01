@@ -301,7 +301,7 @@ g_GameData->FullScanME1Game = true;
             for (int t = 0; t < textures[k].list.count(); t++)
             {
                 QString pkgPath = textures[k].list.at(t).path;
-                if (std::binary_search(sortedFiles.begin(), sortedFiles.end(), pkgPath))
+                if (std::binary_search(sortedFiles.begin(), sortedFiles.end(), pkgPath, compareByAscii))
                     continue;
                 MatchedTexture f = textures[k].list.at(t);
                 f.path = "";
