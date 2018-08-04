@@ -50,7 +50,7 @@ static void getFilename(char *dst, const char *src)
         if (*ptr == '/' || *ptr == '\\')
             offset = ptr - src + 1;
     }
-    strncpy(dst, src + offset, 1024);
+    strncpy(dst, src + offset, 1024 - 1);
 }
 
 #ifdef NDEBUG

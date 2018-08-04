@@ -32,8 +32,8 @@
 int getInfoFromModule(char *moduleFilePath, DWORD64 offset, char *sourceFile,
     char *sourceFunc, unsigned int *sourceLine)
 {
-    bfd *bfdHandle = bfd_openr(moduleFilePath, NULL);
-    if (bfdHandle == NULL)
+    bfd *bfdHandle = bfd_openr(moduleFilePath, nullptr);
+    if (bfdHandle == nullptr)
         return -1;
 
     if (!bfd_check_format(bfdHandle, bfd_object))
@@ -59,10 +59,12 @@ int getInfoFromModule(char *moduleFilePath, DWORD64 offset, char *sourceFile,
 
     bfd_symbol *symbolsTable;
     unsigned int unused;
-    long int numberSymbols = bfd_read_minisymbols(bfdHandle, FALSE, (void **)&symbolsTable, &unused);
+    long int numberSymbols = bfd_read_minisymbols(bfdHandle, FALSE,
+                                                  reinterpret_cast<void **>(&symbolsTable), &unused);
     if (numberSymbols == 0)
     {
-        numberSymbols = bfd_read_minisymbols(bfdHandle, TRUE, (void **)&symbolsTable, &unused);
+        numberSymbols = bfd_read_minisymbols(bfdHandle, TRUE,
+                                             reinterpret_cast<void **>(&symbolsTable), &unused);
         if (numberSymbols <= 0)
         {
             bfd_close(bfdHandle);
@@ -80,7 +82,7 @@ int getInfoFromModule(char *moduleFilePath, DWORD64 offset, char *sourceFile,
             if (offset >= address && offset < address + sectionSize)
             {
                 const char *filename = nullptr, *function = nullptr;
-                if (bfd_find_nearest_line(bfdHandle, section, (bfd_symbol **)symbolsTable,
+                if (bfd_find_nearest_line(bfdHandle, section, reinterpret_cast<bfd_symbol **>(symbolsTable),
                     offset - address, &filename, &function, sourceLine))
                 {
                     if (filename)
@@ -108,7 +110,7 @@ static void getFilename(char *dst, const char *src)
         if (*ptr == '/' || *ptr == '\\')
             offset = ptr - src + 1;
     }
-    strncpy(dst, src + offset, MAX_PATH);
+    strncpy(dst, src + offset, MAX_PATH - 1);
 }
 
 bool GetBackTrace(std::string &output, bool crashMode = true)
@@ -116,7 +118,7 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
     bfd_init();
 
     char symbolInfo[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)];
-    PSYMBOL_INFO symbol = (PSYMBOL_INFO)symbolInfo;
+    auto symbol = reinterpret_cast<PSYMBOL_INFO>(symbolInfo);
     symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
     symbol->MaxNameLen = MAX_SYM_NAME;
 
@@ -135,12 +137,12 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
     stackFrame.AddrStack.Mode = AddrModeFlat;
 
     HANDLE process = GetCurrentProcess();
-    SymInitialize(process, NULL, TRUE);
+    SymInitialize(process, nullptr, TRUE);
 
     int count = 0;
     int current = -1;
     while (StackWalk64(IMAGE_FILE_MACHINE_AMD64, process, GetCurrentThread(), &stackFrame, &context,
-        NULL, SymFunctionTableAccess64, SymGetModuleBase64, NULL))
+        nullptr, SymFunctionTableAccess64, SymGetModuleBase64, nullptr))
     {
         current++;
         int status = -1;
@@ -150,11 +152,12 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
         char moduleFilePath[MAX_PATH], tmpBuffer[MAX_PATH];
 
         DWORD64 moduleBase = SymGetModuleBase64(process, stackFrame.AddrPC.Offset);
-        if (moduleBase && GetModuleFileNameA((HINSTANCE)moduleBase, moduleFilePath, MAX_PATH))
+        if (moduleBase && GetModuleFileNameA(reinterpret_cast<HINSTANCE>(moduleBase), moduleFilePath, MAX_PATH))
         {
             moduleName = moduleFilePath;
             status = getInfoFromModule(moduleFilePath, stackFrame.AddrPC.Offset,
-                                       (char *)&sourceFile, (char *)&sourceFunc, &sourceLine);
+                                       reinterpret_cast<char *>(&sourceFile),
+                                       reinterpret_cast<char *>(&sourceFunc), &sourceLine);
         }
         if (moduleName)
             getFilename(moduleFilePath, moduleName);

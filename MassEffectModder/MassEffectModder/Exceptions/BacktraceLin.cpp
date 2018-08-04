@@ -33,7 +33,7 @@ static void getFilename(char *dst, const char *src)
         if (*ptr == '/' || *ptr == '\\')
             offset = ptr - src + 1;
     }
-    strncpy(static_cast<char *>(dst), src + offset, 1024);
+    strncpy(static_cast<char *>(dst), src + offset, 1024 - 1);
 }
 
 #define MAX_CALLSTACK 100
