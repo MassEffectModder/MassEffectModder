@@ -461,6 +461,7 @@ g_GameData->FullScanME1Game = true;
                      textures[k].list[w].weakSlave)
                 {
                     foundWeakSlave = true;
+                    break;
                 }
             }
             if (foundWeakSlave)
@@ -476,7 +477,7 @@ g_GameData->FullScanME1Game = true;
                 }
                 FoundTexture f = textures.at(k);
                 f.list = texList;
-                textures.replace(k, f);
+                textures[k] = f;
                 if (textures[k].list.first().weakSlave)
                     continue;
 
