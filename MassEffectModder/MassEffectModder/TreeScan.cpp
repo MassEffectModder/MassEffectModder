@@ -475,7 +475,7 @@ g_GameData->FullScanME1Game = true;
                     else
                         texList.push_front(tex);
                 }
-                FoundTexture f = textures.at(k);
+                FoundTexture f = textures[k];
                 f.list = texList;
                 textures[k] = f;
                 if (textures[k].list.first().weakSlave)
