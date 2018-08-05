@@ -178,7 +178,7 @@ void GameData::InternalInit(MeType type, ConfigIni &configIni, bool force = fals
     }
 
 #if defined(_WIN32)
-    QString registryKey = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\BioWare\\Mass Effect";
+    QString registryKey = R"(HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\BioWare\Mass Effect)";
     QString entry = "Path";
 
     if (type == MeType::ME2_TYPE)
