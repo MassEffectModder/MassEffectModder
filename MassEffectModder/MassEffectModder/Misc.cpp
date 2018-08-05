@@ -164,16 +164,15 @@ QString getBytesFormat(long size)
     return  QString::number(size / 1024.0 / 1024 / 1024.0, 'f', 2) + " GB";
 }
 
-static QTimer timer;
+static QElapsedTimer timer;
 void Misc::startTimer()
 {
     timer.start();
 }
 
-long Misc::stopTimer()
+long Misc::elapsedTime()
 {
-    timer.stop();
-    return timer.interval();
+    return timer.elapsed();
 }
 
 QString Misc::getTimerFormat(long time)

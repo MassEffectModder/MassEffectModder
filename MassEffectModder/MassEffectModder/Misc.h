@@ -62,7 +62,7 @@ public:
     static long getDirectorySize(QString &dir);
     static QString getBytesFormat(long size);
     static void startTimer();
-    static long stopTimer();
+    static long elapsedTime();
     static QString getTimerFormat(long time);
     static int ParseLegacyMe3xScriptMod(QList<FoundTexture> &textures, QString &script, QString &textureName);
     static void ParseME3xBinaryScriptMod(QString &script, QString &package, int &expId, QString &path);

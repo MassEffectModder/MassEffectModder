@@ -72,8 +72,11 @@ int CmdLineTools::scanTextures(MeType gameId, bool ipc)
     QStringList pkgsToRepack;
 
     resources.loadMD5Tables();
+    Misc::startTimer();
     errorCode = TreeScan::PrepareListOfTextures(gameId, resources, textures,
                                                 pkgsToMarkers, pkgsToRepack, mipMaps, ipc, false);
+    long elapsed = Misc::elapsedTime();
+    ConsoleWrite(Misc::getTimerFormat(elapsed));
 
     ConsoleWrite("Scan textures finished.\n");
 

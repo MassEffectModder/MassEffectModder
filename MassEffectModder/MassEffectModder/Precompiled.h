@@ -51,9 +51,9 @@
 #include <QCommandLineParser>
 #include <QCommandLineOption>
 #include <QMap>
-#include <QTimer>
 #include <QStorageInfo>
 #include <QRegExp>
+#include <QElapsedTimer>
 
 #include <omp.h>
 
