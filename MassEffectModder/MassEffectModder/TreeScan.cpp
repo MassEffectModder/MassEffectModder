@@ -654,8 +654,6 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> &textures, const 
             matchTexture.packageName = texture->packageName;
             matchTexture.removeEmptyMips = texture->hasEmptyMips();
             matchTexture.numMips = texture->numNotEmptyMips();
-            matchTexture.crcs.clear();
-            matchTexture.masterDataOffset.clear();
             if (gameId == MeType::ME1_TYPE)
             {
                 matchTexture.basePackageName = texture->basePackageName;
@@ -684,12 +682,12 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> &textures, const 
                 continue;
             }
 
-            FoundTexture foundTexName = {};
+            FoundTexture foundTexName;
             for (int k = 0; k < textures.count(); k++)
             {
-                if (textures.at(k).crc == crc)
+                if (textures[k].crc == crc)
                 {
-                    foundTexName = textures.at(k);
+                    foundTexName = textures[k];
                     break;
                 }
             }
@@ -698,13 +696,20 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> &textures, const 
             {
                 if (modified)
                 {
+                    bool found = false;
                     for (int s = 0; s < foundTexName.list.count(); s++)
                     {
                         if (foundTexName.list[s].exportID == i &&
-                            foundTexName.list[s].path.toLower() == packagePathLower)
+                            foundTexName.list[s].path.compare(packagePathLower, Qt::CaseInsensitive) == 0)
                         {
-                            continue;
+                            found = true;
+                            break;
                         }
+                    }
+                    if (found)
+                    {
+                        delete texture;
+                        continue;
                     }
                 }
                 if (matchTexture.slave || gameId != MeType::ME1_TYPE)
@@ -722,7 +727,7 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> &textures, const 
                         for (int t = 0; t < textures[k].list.count(); t++)
                         {
                             if (textures[k].list[t].exportID == i &&
-                                textures[k].list[t].path.toLower() == packagePathLower)
+                                textures[k].list[t].path.compare(packagePathLower, Qt::CaseInsensitive) == 0)
                             {
                                 MatchedTexture f = textures[k].list[t];
                                 f.path = "";
@@ -736,7 +741,6 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> &textures, const 
                     }
                 }
                 FoundTexture foundTex;
-                foundTex.list = QList<MatchedTexture>();
                 foundTex.list.push_back(matchTexture);
                 foundTex.name = name;
                 foundTex.crc = crc;
