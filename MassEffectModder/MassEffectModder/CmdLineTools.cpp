@@ -751,7 +751,7 @@ bool CmdLineTools::ApplyME1LAAPatch()
     return true;
 }
 
-bool CmdLineTools::ApplyLODAndGfxSettings(MeType gameId, bool softShadowsME1, bool meuitmMode)
+bool CmdLineTools::ApplyLODAndGfxSettings(MeType gameId, bool softShadowsME1, bool meuitmMode, bool limit2k)
 {
     ConfigIni configIni{};
     g_GameData->Init(gameId, configIni);
@@ -767,7 +767,7 @@ bool CmdLineTools::ApplyLODAndGfxSettings(MeType gameId, bool softShadowsME1, bo
     if (!exist)
         QDir().mkpath(DirName(path));
     ConfigIni engineConf = ConfigIni(path);
-    LODSettings::updateLOD(gameId, engineConf);
+    LODSettings::updateLOD(gameId, engineConf, limit2k);
     LODSettings::updateGFXSettings(gameId, engineConf, softShadowsME1, meuitmMode);
 
     return true;
@@ -1102,7 +1102,8 @@ void CmdLineTools::RepackME23(MeType gameId, bool modded, bool ipc)
     ConsoleWrite("Repack finished.\n");
 }
 
-bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool repack, bool guiInstaller)
+bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool repack,
+                               bool guiInstaller, bool limit2k)
 {
     Resources resources;
     MipMaps mipMaps;
@@ -1258,7 +1259,7 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool 
         if (!exist)
             QDir().mkpath(DirName(path));
         ConfigIni engineConf = ConfigIni(path);
-        LODSettings::updateLOD(gameId, engineConf);
+        LODSettings::updateLOD(gameId, engineConf, limit2k);
         LODSettings::updateGFXSettings(gameId, engineConf, false, false);
         ConsoleWrite("Updating LODs and other settings finished");
     }

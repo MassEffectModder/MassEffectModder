@@ -50,7 +50,7 @@ void DisplayHelp()
     ConsoleWrite("  --check-for-markers --gameid <game id> [--ipc]\n");
     ConsoleWrite("     Check game data for markers.\n");
     ConsoleWrite("");
-    ConsoleWrite("  --install-mods --gameid <game id> --input <input dir> [--repack] [--ipc] [--alot-mode]\n");
+    ConsoleWrite("  --install-mods --gameid <game id> --input <input dir> [--repack] [--ipc] [--alot-mode] [--limit-2k]\n");
     ConsoleWrite("     Install MEM mods from input directory.\n");
     ConsoleWrite("");
     ConsoleWrite("  --apply-me1-laa\n");
@@ -62,7 +62,7 @@ void DisplayHelp()
     ConsoleWrite("  --detect-bad-mods --gameid <game id> [--ipc]\n");
     ConsoleWrite("     Detect not compatibe mods.\n");
     ConsoleWrite("");
-    ConsoleWrite("  --apply-lods-gfx --gameid <game id> [--soft-shadows-mode] [--meuitm-mode]\n");
+    ConsoleWrite("  --apply-lods-gfx --gameid <game id> [--soft-shadows-mode] [--meuitm-mode] [--limit-2k]\n");
     ConsoleWrite("     Update LODs and GFX settings.\n");
     ConsoleWrite("");
     ConsoleWrite("  --remove-lods --gameid <game id>\n");
@@ -286,6 +286,11 @@ QStringList convertLegacyArguments()
                 if (args[a] == "-meuitm-mode")
                     retArgs.append("--meuitm-mode");
             }
+            for (int a = 0; a < args.count(); a++)
+            {
+                if (args[a] == "-limit2k")
+                    retArgs.append("--limit-2k");
+            }
             retArgs.append("--ipc");
         }
     }
@@ -373,6 +378,7 @@ int ProcessArguments()
     bool repackMode = false;
     bool meuitmMode = false;
     bool softShadowsMods = false;
+    bool limit2k = false;
     QString input, output, threshold, format, tfcName, guid;
     CmdLineTools tools;
 
@@ -463,6 +469,8 @@ int ProcessArguments()
             softShadowsMods = true;
         else if (arg == "--meuitm-mode")
             meuitmMode = true;
+        else if (arg == "--limit-2k")
+            limit2k = true;
         else if (arg == "--threshold" && hasValue(args, l))
         {
             threshold = args[l + 1];
@@ -550,7 +558,7 @@ int ProcessArguments()
             errorCode = -1;
             break;
         }
-        if (!tools.InstallMods(gameId, input, ipc, repackMode, guiMode))
+        if (!tools.InstallMods(gameId, input, ipc, repackMode, guiMode, limit2k))
             errorCode = -1;
         break;
     case CmdType::EXTRACT_MOD:
@@ -610,7 +618,7 @@ int ProcessArguments()
             errorCode = -1;
             break;
         }
-        if (!tools.ApplyLODAndGfxSettings(gameId, softShadowsMods, meuitmMode))
+        if (!tools.ApplyLODAndGfxSettings(gameId, softShadowsMods, meuitmMode, limit2k))
             errorCode = -1;
         break;
     case CmdType::PRINT_LODS:

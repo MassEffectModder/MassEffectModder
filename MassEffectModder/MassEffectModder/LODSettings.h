@@ -32,7 +32,7 @@ public:
 
     static void readLOD(MeType gameId, ConfigIni &engineConf, QString &log);
     static void readLODIpc(MeType gameId, ConfigIni &engineConf);
-    static void updateLOD(MeType gameId, ConfigIni &engineConf);
+    static void updateLOD(MeType gameId, ConfigIni &engineConf, bool limit2k);
     static void removeLOD(MeType gameId, ConfigIni &engineConf);
     static void updateGFXSettings(MeType gameId, ConfigIni &engineConf, bool softShadowsME1, bool meuitmMode);
 };

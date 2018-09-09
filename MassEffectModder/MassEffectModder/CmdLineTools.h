@@ -60,7 +60,7 @@ public:
     bool extractMOD(MeType gameId, QString &inputDir, QString &outputDir, bool ipc);
     bool extractMEM(MeType gameId, QString &inputDir, QString &outputDir, bool ipc);
     bool ApplyME1LAAPatch();
-    bool ApplyLODAndGfxSettings(MeType gameId, bool softShadowsME1, bool meuitmMode);
+    bool ApplyLODAndGfxSettings(MeType gameId, bool softShadowsME1, bool meuitmMode, bool limit2k);
     bool RemoveLODSettings(MeType gameId);
     bool PrintLODSettings(MeType gameId, bool ipc);
     bool CheckGameData(MeType gameId, bool ipc);
@@ -68,7 +68,8 @@ public:
     bool DetectBadMods(MeType gameId, bool ipc);
     bool DetectMods(MeType gameId, bool ipc);
     void AddMarkers(bool ipc);
-    bool InstallMods(MeType gameId, QString &inputDir, bool ipc, bool repack, bool guiInstaller);
+    bool InstallMods(MeType gameId, QString &inputDir, bool ipc, bool repack,
+                     bool guiInstaller, bool limit2k);
     bool applyMEMSpecialModME3(MeType gameId, QString &memFile, QString &tfcName, QByteArray &guid);
     bool applyMods(QStringList &files, QList<FoundTexture> &textures, MipMaps &mipMaps, bool repack,
                    bool modded, bool ipc, QString &tfcName, QByteArray &guid, bool special = false);
