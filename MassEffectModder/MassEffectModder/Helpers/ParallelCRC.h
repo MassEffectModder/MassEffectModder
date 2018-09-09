@@ -36,8 +36,6 @@ static const uint kCrcPoly = 0xEDB88320;
 static const uint kInitial = 0xFFFFFFFF;
 static const int CRC_NUM_TABLES = 8;
 static uint Table[256 * CRC_NUM_TABLES];
-static uint even_cache[32];
-static uint odd_cache[32];
 
 static bool initialized = false;
 
@@ -74,8 +72,6 @@ public:
                 Table[i] = Table[r & 0xFF] ^ (r >> 8);
             }
 
-            Prepare_even_odd_Cache();
-
             initialized = true;
         }
 
@@ -89,43 +85,7 @@ public:
 
     void Update(const unsigned char *data, int offset, int count)
     {
-        const int ThreadCost = 256 << 10;
-        int threadCount = omp_get_max_threads();
-        // Disable multithreaded CRC for now. it seems slower
-        //if (count <= ThreadCost || threadCount <= 1)
-        {
-            value = ProcessBlock(value, data, offset, count);
-            return;
-        }
-
-        int bytesPerThread = (count + threadCount - 1) / threadCount;
-        while (bytesPerThread < (ThreadCost >> 1))
-        {
-            bytesPerThread = (count + threadCount - 1) / threadCount;
-            threadCount--;
-        };
-
-        int numTasks = threadCount;
-        int lastBlockSize = count - (bytesPerThread * numTasks);
-        uint crc[numTasks];
-
-        omp_set_num_threads(numTasks);
-        #pragma omp parallel for
-        for (int i = 0; i < numTasks; i++)
-        {
-            uint len = bytesPerThread;
-            if (lastBlockSize != 0 && (i + 1) == numTasks)
-                len = lastBlockSize;
-            crc[i] = ProcessBlock(kInitial, data, offset + (bytesPerThread * i), len);
-        }
-
-        for (int i = 0; i < numTasks; i++)
-        {
-            uint len = bytesPerThread;
-            if (lastBlockSize != 0 && (i + 1) == numTasks)
-                len = lastBlockSize;
-            value = Combine(value, crc[i], len);
-        }
+        value = ProcessBlock(value, data, offset, count);
     }
 
     static int Compute(const unsigned char *data, int offset, int count)
@@ -142,48 +102,6 @@ public:
     }
 
 private:
-
-    /*
-     * CRC values combining algorithm.
-     * Taken from DotNetZip project sources (http://dotnetzip.codeplex.com/)
-     */
-
-    static uint Combine(uint crc1, uint crc2, int length2)
-    {
-        if (length2 <= 0) return crc1;
-        if (crc1 == kInitial) return crc2;
-
-        uint even[32];
-        uint odd[32];
-        memcpy(even, even_cache, sizeof(even));
-        memcpy(odd, odd_cache, sizeof(odd));
-
-        crc1 = ~crc1;
-        crc2 = ~crc2;
-
-        auto len2 = (uint)length2;
-
-        // apply len2 zeros to crc1 (first square will put the operator for one
-        // zero byte, eight zero bits, in even)
-        do
-        {
-            // apply zeros operator for this bit of len2
-            gf2_matrix_square(even, odd);
-
-            if ((len2 & 1) != 0) crc1 = gf2_matrix_times(even, crc1);
-            len2 >>= 1;
-
-            if (len2 == 0) break;
-
-            // another iteration of the loop with odd and even swapped
-            gf2_matrix_square(odd, even);
-            if ((len2 & 1) != 0) crc1 = gf2_matrix_times(odd, crc1);
-            len2 >>= 1;
-        } while (len2 != 0);
-
-        crc1 ^= crc2;
-        return ~crc1;
-    }
 
     static uint ProcessBlock(uint crc, const unsigned char *data, int offset, int count)
     {
@@ -224,38 +142,6 @@ private:
             crc = (crc >> 8) ^ Table[(unsigned char)crc ^ data[offset++]];
 
         return crc;
-    }
-
-    static void Prepare_even_odd_Cache()
-    {
-        // put operator for one zero bit in odd
-        odd_cache[0] = kCrcPoly;  // the CRC-32 polynomial
-        for (int i = 1; i < 32; i++) odd_cache[i] = 1U << (i - 1);
-
-        // put operator for two zero bits in even
-        gf2_matrix_square(even_cache, odd_cache);
-
-        // put operator for four zero bits in odd
-        gf2_matrix_square(odd_cache, even_cache);
-    }
-
-    static uint gf2_matrix_times(const uint *matrix, uint vec)
-    {
-        uint sum = 0;
-        int i = 0;
-        while (vec != 0)
-        {
-            if ((vec & 1) != 0) sum ^= matrix[i];
-            vec >>= 1;
-            i++;
-        }
-        return sum;
-    }
-
-    static void gf2_matrix_square(uint *square, uint *mat)
-    {
-        for (int i = 0; i < 32; i++)
-            square[i] = gf2_matrix_times(mat, mat[i]);
     }
 };
 
