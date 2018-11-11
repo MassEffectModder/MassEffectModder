@@ -22,7 +22,7 @@
 #include "Exceptions/SignalHandler.h"
 #include "Helpers/MiscHelpers.h"
 #include "Helpers/Logs.h"
-#include "Helpers/ParallelCRC.h"
+#include "Helpers/OptimizedCRC.h"
 #include "Wrappers.h"
 
 #include "Package.h"
@@ -317,8 +317,8 @@ uint Texture::getCrcData(ByteBuffer data)
     if (data.ptr() == nullptr)
         return 0;
     if (properties->getProperty("Format").valueName == "PF_NormalMap_HQ") // only ME1 and ME2
-        return (uint)~ParallelCRC::Compute(data.ptr(), 0, data.size() / 2);
-    return (uint)~ParallelCRC::Compute(data.ptr(), data.size());
+        return (uint)~OptimizedCRC::Compute(data.ptr(), 0, data.size() / 2);
+    return (uint)~OptimizedCRC::Compute(data.ptr(), data.size());
 }
 
 uint Texture::getCrcMipmap(TextureMipMap &mipmap)

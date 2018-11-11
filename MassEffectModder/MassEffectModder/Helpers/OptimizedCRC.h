@@ -1,6 +1,6 @@
 /*
 
- C++ port of C# ParallelCRC
+ C++ port of C# OptimizedCRC
  Copyright (c) 2018 Pawel Kolodziejski
 
 */
@@ -29,8 +29,8 @@
 
 */
 
-#ifndef PARALLEL_CRC_H
-#define PARALLEL_CRC_H
+#ifndef OPTIMIZED_CRC_H
+#define OPTIMIZED_CRC_H
 
 static const uint kCrcPoly = 0xEDB88320;
 static const uint kInitial = 0xFFFFFFFF;
@@ -39,7 +39,7 @@ static uint Table[256 * CRC_NUM_TABLES];
 
 static bool initialized = false;
 
-class ParallelCRC
+class OptimizedCRC
 {
 private:
 
@@ -47,12 +47,12 @@ private:
 
 public:
 
-    ParallelCRC()
+    OptimizedCRC()
     {
         Init();
     }
 
-    ~ParallelCRC() = default;
+    ~OptimizedCRC() = default;
 
     void Init()
     {
@@ -90,7 +90,7 @@ public:
 
     static int Compute(const unsigned char *data, int offset, int count)
     {
-        auto crc = ParallelCRC();
+        auto crc = OptimizedCRC();
         crc.Update(data, offset, count);
         int crcValue = crc.getValue();
         return crcValue;
@@ -105,10 +105,6 @@ private:
 
     static uint ProcessBlock(uint crc, const unsigned char *data, int offset, int count)
     {
-        /*
-         * A copy of Optimized implementation.
-         */
-
         if (count < 0) throw;
         if (count == 0) return crc;
 

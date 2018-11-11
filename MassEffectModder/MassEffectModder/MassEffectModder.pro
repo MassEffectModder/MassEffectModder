@@ -50,7 +50,7 @@ HEADERS += \
     Helpers/MemoryStream.h \
     Helpers/MiscHelpers.h \
     Helpers/Stream.h \
-    Helpers/ParallelCRC.h \
+    Helpers/OptimizedCRC.h \
     CmdLineParams.h \
     CmdLineTools.h \
     ConfigIni.h \
