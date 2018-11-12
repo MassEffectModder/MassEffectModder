@@ -75,7 +75,8 @@ public:
                    bool modded, bool ipc, QString &tfcName, QByteArray &guid, bool special = false);
     void replaceTextureSpecialME3Mod(Image &image, QList<MatchedTexture> &list, QString &textureName,
                                      QString &tfcName, QByteArray &guid);
-    bool extractAllTextures(MeType gameId, QString &outputDir, bool png, QString &textureTfcFilter);
+    bool extractAllTextures(MeType gameId, QString &outputDir, bool png,
+                            bool pccOnly, bool tfcOnly, QString &textureTfcFilter);
     bool CheckTextures(MeType gameId, bool ipc);
     bool checkGameFilesAfter(MeType gameType, bool ipc = false);
     bool detectsMismatchPackagesAfter(MeType gameType, bool ipc = false);

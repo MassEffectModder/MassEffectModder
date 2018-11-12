@@ -1824,7 +1824,8 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTextur
     delete arcTexture;
 }
 
-bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool png, QString &textureTfcFilter)
+bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool png,
+                                      bool pccOnly, bool tfcOnly, QString &textureTfcFilter)
 {
     Resources resources;
     MipMaps mipMaps;
@@ -1861,31 +1862,53 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
                 break;
             }
         }
+        QString outputFile = outputDir + "/" + textures.at(i).name +
+                QString::number(textures.at(i).crc, 16).append("_0x");
         if (png)
         {
-            QString outputFile = outputDir + "/" + textures.at(i).name +
-                    QString::number(textures.at(i).crc, 16).append("_0x") + ".png";
-            QString packagePath = g_GameData->GamePath() + textures.at(i).list.at(index).path;
-            mipMaps.extractTextureToPng(outputFile, packagePath, textures.at(i).list.at(index).exportID);
+            outputFile += ".png";
         }
         else
         {
-            QString outputFile = outputDir + "/" + textures.at(i).name +
-                    QString::number(textures.at(i).crc, 16).append("_0x") + ".dds";
-            QString packagePath = g_GameData->GamePath() + textures.at(i).list.at(index).path;
-            Package package;
-            package.Open(packagePath);
-            int exportID = textures.at(i).list.at(index).exportID;
-            Texture texture = Texture(package, exportID, package.getExportData(exportID));
-            if (textureTfcFilter != "" && texture.getProperties().exists("TextureFileCacheName"))
+            outputFile += ".dds";
+        }
+        QString packagePath = g_GameData->GamePath() + textures.at(i).list.at(index).path;
+        Package package;
+        package.Open(packagePath);
+        int exportID = textures.at(i).list.at(index).exportID;
+        Texture texture = Texture(package, exportID, package.getExportData(exportID));
+        bool tfcPropExists = texture.getProperties().exists("TextureFileCacheName");
+        if (pccOnly && tfcPropExists)
+        {
+            continue;
+        }
+        if (tfcOnly && !tfcPropExists)
+        {
+            continue;
+        }
+        if (!pccOnly && !tfcOnly && textureTfcFilter != "" && tfcPropExists)
+        {
+            QString archive = texture.getProperties().getProperty("TextureFileCacheName").valueName;
+            if (archive != textureTfcFilter)
+                continue;
+        }
+        PixelFormat pixelFormat = Image::getPixelFormatType(texture.getProperties().getProperty("Format").valueName);
+        if (png)
+        {
+            Texture::TextureMipMap mipmap = texture.getTopMipmap();
+            ByteBuffer data = texture.getTopImageData();
+            if (data.ptr() != nullptr)
             {
-                QString archive = texture.getProperties().getProperty("TextureFileCacheName").valueName;
-                if (archive != textureTfcFilter)
-                    continue;
+                if (QFile(outputFile).exists())
+                    QFile(outputFile).remove();
+                Image::saveToPng(data.ptr(), mipmap.width, mipmap.height, pixelFormat, outputFile);
+                data.Free();
             }
+        }
+        else
+        {
             texture.removeEmptyMips();
             QList<MipMap> mipmaps = QList<MipMap>();
-            PixelFormat pixelFormat = Image::getPixelFormatType(texture.getProperties().getProperty("Format").valueName);
             for (int k = 0; k < texture.mipMapsList.count(); k++)
             {
                 ByteBuffer data = texture.getMipMapDataByIndex(k);

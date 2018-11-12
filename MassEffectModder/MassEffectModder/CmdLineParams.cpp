@@ -158,15 +158,20 @@ void DisplayHelp()
     ConsoleWrite("     output pixel format: DXT1 (no alpha), DXT1a (alpha), DXT3, DXT5, ATI2, V8U8, G8, RGBA, RGB");
     ConsoleWrite("     For DXT1a you have to set the alpha threshold (0-255). 128 is suggested as a default value.");
     ConsoleWrite("");
-    ConsoleWrite("  --extract-all-dds --gameid <game id> --output <output dir> [-tfc-name <filter name>]\n");
+    ConsoleWrite("  --extract-all-dds --gameid <game id> --output <output dir> [--tfc-name <filter name|--pcc-only|--tfc-only>]\n");
     ConsoleWrite("     game id: 1 for ME1, 2 for ME2, 3 for ME3");
     ConsoleWrite("     output dir: directory where textures converted to DDS are placed");
     ConsoleWrite("     TFC filter name: it will filter only textures stored in specific TFC file.");
+    ConsoleWrite("     Or option: -pcc-only to extract only textures stored in packages.");
+    ConsoleWrite("     Or option: -tfc-only to extract only textures stored in TFC files.");
     ConsoleWrite("     Textures are extracted as they are in game data, only DDS header is added.");
     ConsoleWrite("");
-    ConsoleWrite("  --extract-all-png --gameid <game id> --output <output dir>\n");
+    ConsoleWrite("  --extract-all-png --gameid <game id> --output <output dir> [--tfc-name <filter name>|--pcc-only|--tfc-only]\n");
     ConsoleWrite("     game id: 1 for ME1, 2 for ME2, 3 for ME3");
     ConsoleWrite("     output dir: directory where textures converted to PNG are placed");
+    ConsoleWrite("     TFC filter name: it will filter only textures stored in specific TFC file.");
+    ConsoleWrite("     Or option: -pcc-only to extract only textures stored in packages.");
+    ConsoleWrite("     Or option: -tfc-only to extract only textures stored in TFC files.");
     ConsoleWrite("     Textures are extracted with only top mipmap.");
     ConsoleWrite("");
     ConsoleWrite("  --dlc-mod-textures --gameid <game id> --input <mem file> [--tfc-name <tfc name>] [--guid <guid in 16 hex digits>]\n");
@@ -379,6 +384,8 @@ int ProcessArguments()
     bool meuitmMode = false;
     bool softShadowsMods = false;
     bool limit2k = false;
+    bool pccOnly = false;
+    bool tfcOnly = false;
     QString input, output, threshold, format, tfcName, guid;
     CmdLineTools tools;
 
@@ -471,6 +478,10 @@ int ProcessArguments()
             meuitmMode = true;
         else if (arg == "--limit-2k")
             limit2k = true;
+        else if (arg == "--pcc-only" && !tfcOnly)
+            pccOnly = true;
+        else if (arg == "--tfc-only" && !pccOnly)
+            tfcOnly = true;
         else if (arg == "--threshold" && hasValue(args, l))
         {
             threshold = args[l + 1];
@@ -479,7 +490,8 @@ int ProcessArguments()
         {
             format = args[l + 1];
         }
-        else if (arg == "--tfc-name" && hasValue(args, l))
+        else if (arg == "--tfc-name" && hasValue(args, l) &&
+                !pccOnly && !tfcOnly)
         {
             tfcName = args[l + 1];
         }
@@ -692,7 +704,7 @@ int ProcessArguments()
             errorCode = -1;
             break;
         }
-        if (!tools.extractAllTextures(gameId, output, false, tfcName))
+        if (!tools.extractAllTextures(gameId, output, false, pccOnly, tfcOnly, tfcName))
             errorCode = -1;
         break;
     case CmdType::EXTRACT_ALL_PNG:
@@ -702,7 +714,7 @@ int ProcessArguments()
             errorCode = -1;
             break;
         }
-        if (!tools.extractAllTextures(gameId, output, true, tfcName))
+        if (!tools.extractAllTextures(gameId, output, true, pccOnly, tfcOnly, tfcName))
             errorCode = -1;
         break;
     case CmdType::DLC_MOD_TEXTURES:
