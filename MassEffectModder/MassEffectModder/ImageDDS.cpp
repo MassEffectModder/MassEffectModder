@@ -508,6 +508,7 @@ ByteBuffer Image::compressMipmap(PixelFormat dstFormat, const quint8 *src, int w
     }
     else
     {
+        cores = returnPowerOfTwo(cores);
         if ((cores * 4 * 4) > h)
             cores = h / 4 / 4;
         partSize = h / 4 / cores;
@@ -580,6 +581,7 @@ ByteBuffer Image::decompressMipmap(PixelFormat srcFormat, const quint8 *src, int
     }
     else
     {
+        cores = returnPowerOfTwo(cores);
         if ((cores * 4 * 4) > h)
             cores = h / 4 / 4;
         partSize = h / 4 / cores;

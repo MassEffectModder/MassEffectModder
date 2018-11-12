@@ -24,6 +24,7 @@
 #include "Texture.h"
 #include "Package.h"
 #include "Helpers/MiscHelpers.h"
+#include "Helpers/Logs.h"
 
 static const TFCTexture guids[] =
 {
@@ -403,7 +404,10 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                                     archiveFile = g_GameData->MainData() + "/Textures.tfc";
                             }
                             else
-                                CRASH();
+                            {
+                                g_logs->printMsg(QString("More instances of TFC file: ") + archive + ".tfc");
+                                archiveFile = files.first();
+                            }
                         }
                     }
                     else

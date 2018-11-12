@@ -116,6 +116,7 @@ public:
     static PixelFormat getPixelFormatType(const QString &format);
     static QString getEngineFormatType(PixelFormat format);
     static bool checkPowerOfTwo(int n);
+    static int returnPowerOfTwo(int n);
 
     // DDS
 private:

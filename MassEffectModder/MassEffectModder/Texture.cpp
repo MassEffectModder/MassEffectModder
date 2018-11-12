@@ -254,7 +254,10 @@ const ByteBuffer Texture::decompressTexture(MemoryStream &stream, StorageTypes t
     auto data = ByteBuffer(uncompressedSize);
     uint blockTag = stream.ReadUInt32();
     if (blockTag != textureTag)
-        CRASH();
+    {
+        g_logs->printMsg(QString("Data texture tag wrong!"));
+        return ByteBuffer();
+    }
     uint blockSize = stream.ReadUInt32();
     if (blockSize != maxBlockSize)
         CRASH();
@@ -285,6 +288,7 @@ const ByteBuffer Texture::decompressTexture(MemoryStream &stream, StorageTypes t
         blocks[b] = block;
     }
 
+    bool errorFlag = false;
     #pragma omp parallel for
     for (int b = 0; b < blocks.count(); b++)
     {
@@ -297,8 +301,14 @@ const ByteBuffer Texture::decompressTexture(MemoryStream &stream, StorageTypes t
         else
             CRASH_MSG("Compression type not expected!");
         if (dstLen != block.uncomprSize)
-            CRASH_MSG("Decompressed data size not expected!");
+            errorFlag = true;
     };
+
+    if (errorFlag)
+    {
+        g_logs->printMsg(QString("ERROR: Decompressed data size not expected!"));
+        return ByteBuffer();
+    }
 
     int dstPos = 0;
     for (int b = 0; b < blocks.count(); b++)
@@ -421,6 +431,11 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
             textureData->JumpTo(mipmap.internalOffset);
             mipMapData.Free();
             mipMapData = decompressTexture(*textureData, mipmap.storageType, mipmap.uncompressedSize, mipmap.compressedSize);
+            if (mipMapData.ptr() == nullptr)
+            {
+                g_logs->printMsg(QString("StorageType: ") + mipmap.storageType +
+                    "\nInternal offset: " + mipmap.internalOffset);
+            }
             break;
         }
     case StorageTypes::extUnc:
@@ -439,7 +454,10 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
                     }
                 }
                 if (filename == "")
-                    CRASH_MSG((QString("File not found in game: ") + basePackageName + ".*").toStdString().c_str());
+                {
+                    g_logs->printMsg((QString("File not found in game: ") + basePackageName + ".*").toStdString().c_str());
+                    return ByteBuffer();
+                }
             }
             else
             {
@@ -453,9 +471,12 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
                     else if (!QFile(filename).exists())
                     {
                         QStringList files = QDir(g_GameData->bioGamePath(), archive + ".tfc", QDir::NoSort, QDir::Files | QDir::NoSymLinks).entryList();
-                        if (files.count() == 1)
+                        if (files.count() != 1)
+                        {
+                            g_logs->printMsg(QString("More instances of TFC file: ") + archive + ".tfc");
                             filename = files.first();
-                        else if (files.count() == 0)
+                        }
+                        else if (files.count() == 1)
                         {
                             DLCArchiveFile = DirName(DLCArchiveFile) + "/Textures_" +
                                     BaseName(DirName(DirName(packagePath))) + ".tfc";
@@ -465,7 +486,10 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
                                 filename = g_GameData->MainData() + "/Textures.tfc";
                         }
                         else
-                            CRASH();
+                        {
+                            g_logs->printMsg(QString("TFC File Not Found: ") + archive + ".tfc");
+                            return ByteBuffer();
+                        }
                     }
                 }
             }
@@ -473,7 +497,10 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
             auto fs = FileStream(filename, FileMode::Open, FileAccess::ReadOnly);
             if (!fs.isOpen())
             {
-                CRASH_MSG((QString("Problem with access to file: ") + filename).toStdString().c_str());
+                g_logs->printMsg(QString("File: " + filename +
+                    "\nStorageType: " + mipmap.storageType + "\n" +
+                    "\nExternal file offset: " + mipmap.dataOffset));
+                return ByteBuffer();
             }
             fs.JumpTo(mipmap.dataOffset);
             if (mipmap.storageType == StorageTypes::extLZO || mipmap.storageType == StorageTypes::extZlib)
@@ -483,6 +510,14 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
                 tmpStream.SeekBegin();
                 mipMapData.Free();
                 mipMapData = decompressTexture(tmpStream, mipmap.storageType, mipmap.uncompressedSize, mipmap.compressedSize);
+                if (mipMapData.ptr() == nullptr)
+                {
+                    g_logs->printMsg(QString("File: ") + filename +
+                        "\nTFC: " + properties->getProperty("TextureFileCacheName").valueName +
+                        "\nStorageType: " + mipmap.storageType +
+                        "\nExternal file offset: " + mipmap.dataOffset);
+                    return ByteBuffer();
+                }
             }
             else
             {
