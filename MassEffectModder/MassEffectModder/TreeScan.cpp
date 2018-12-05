@@ -256,7 +256,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
         ConsoleWrite("[IPC]STAGE_CONTEXT STAGE_PRESCAN");
         ConsoleSync();
     }
-g_GameData->FullScanME1Game = true;
+
     if (!g_GameData->FullScanME1Game)
     {
         int count = g_GameData->packageFiles.count();
@@ -466,7 +466,7 @@ g_GameData->FullScanME1Game = true;
             }
             if (foundWeakSlave)
             {
-                auto texList = QList<MatchedTexture>();
+                QList<MatchedTexture> texList;
                 for (int t = 0; t < textures[k].list.count(); t++)
                 {
                     MatchedTexture tex = textures[k].list[t];
