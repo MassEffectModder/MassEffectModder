@@ -285,8 +285,8 @@ const QString GameData::DLCDataSuffix()
     switch (gameType)
     {
         case MeType::ME1_TYPE:
-            return "/CookedPC";
         case MeType::ME2_TYPE:
+            return "/CookedPC";
         case MeType::ME3_TYPE:
             return "/CookedPCConsole";
         case MeType::UNKNOWN_TYPE:
