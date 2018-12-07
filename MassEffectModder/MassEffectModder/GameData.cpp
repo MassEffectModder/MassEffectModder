@@ -51,7 +51,7 @@ void GameData::ScanGameFiles(bool force)
             }
             else if (gameType == MeType::ME3_TYPE)
             {
-                if (path.indexOf(QRegExp("*guidcache*", Qt::CaseInsensitive, QRegExp::Wildcard)) != -1)
+                if (path.contains("guidcache", Qt::CaseInsensitive))
                     continue;
             }
             packageMainFiles.push_back(path);
@@ -83,7 +83,6 @@ void GameData::ScanGameFiles(bool force)
                 {
                     iterator.next();
                     QString path = iterator.filePath().mid(pathLen);
-                    packages.push_back(path);
                     if (gameType == MeType::ME2_TYPE)
                     {
                         if (path.endsWith(".tfc", Qt::CaseInsensitive))
@@ -91,7 +90,7 @@ void GameData::ScanGameFiles(bool force)
                     }
                     else if (gameType == MeType::ME3_TYPE)
                     {
-                        if (path.indexOf(QRegExp("*guidcache*", Qt::CaseInsensitive, QRegExp::Wildcard)) != -1)
+                        if (path.contains("guidcache", Qt::CaseInsensitive))
                             continue;
                         if (path.endsWith(".tfc", Qt::CaseInsensitive))
                             tfcFiles.push_back(path);
@@ -101,6 +100,7 @@ void GameData::ScanGameFiles(bool force)
                             isValid = true;
                         }
                     }
+                    packages.push_back(path);
                 }
                 if (gameType == MeType::ME3_TYPE)
                 {
