@@ -456,30 +456,22 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
                 filename = g_GameData->MainData() + "/" + archive + ".tfc";
                 if (packagePath.contains("/DLC", Qt::CaseInsensitive))
                 {
-                    QString DLCArchiveFile = DirName(packagePath) + "/" +archive + ".tfc";
+                    QString DLCArchiveFile = DirName(packagePath) + "/" + archive + ".tfc";
                     if (QFile(DLCArchiveFile).exists())
                         filename = DLCArchiveFile;
                     else if (!QFile(filename).exists())
                     {
-                        QStringList files = QDir(g_GameData->bioGamePath(), archive + ".tfc", QDir::NoSort, QDir::Files | QDir::NoSymLinks).entryList();
-                        if (files.count() != 1)
+                        QStringList files = g_GameData->tfcFiles.filter(QRegExp("*" + archive + ".tfc",
+                                                                                Qt::CaseInsensitive, QRegExp::Wildcard));
+                        if (files.count() == 1)
+                            DLCArchiveFile = g_GameData->GamePath() + files.first();
+                        else if (files.count() == 0)
                         {
-                            g_logs->printMsg(QString("More instances of TFC file: ") + archive + ".tfc");
-                            filename = files.first();
-                        }
-                        else if (files.count() == 1)
-                        {
-                            DLCArchiveFile = DirName(DLCArchiveFile) + "/Textures_" +
-                                    BaseName(DirName(DirName(packagePath))) + ".tfc";
-                            if (QFile(DLCArchiveFile).exists())
-                                filename = DLCArchiveFile;
-                            else
-                                filename = g_GameData->MainData() + "/Textures.tfc";
+                            CRASH_MSG((QString("TFC file not found: ") + archive + ".tfc").toStdString().c_str());
                         }
                         else
                         {
-                            g_logs->printMsg(QString("TFC File Not Found: ") + archive + ".tfc");
-                            return ByteBuffer();
+                            CRASH_MSG((QString("More instances of TFC file: ") + archive + ".tfc").toStdString().c_str());
                         }
                     }
                 }

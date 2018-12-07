@@ -391,22 +391,20 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                             archiveFile = DLCArchiveFile;
                         else if (!QFile(archiveFile).exists())
                         {
-                            QStringList files = QDir(g_GameData->bioGamePath(), archive + ".tfc", QDir::NoSort, QDir::Files | QDir::NoSymLinks).entryList();
+                            QStringList files = g_GameData->tfcFiles.filter(QRegExp("*" + archive + ".tfc",
+                                                                                    Qt::CaseInsensitive, QRegExp::Wildcard));
                             if (files.count() == 1)
-                                archiveFile = files.first();
+                                archiveFile = g_GameData->GamePath() + files.first();
                             else if (files.count() == 0)
                             {
-                                DLCArchiveFile = DirName(DLCArchiveFile) + "/Textures_" +
-                                        BaseName(DirName(DirName(matched.path))) + ".tfc";
-                                if (QFile(DLCArchiveFile).exists())
-                                    archiveFile = DLCArchiveFile;
-                                else
-                                    archiveFile = g_GameData->MainData() + "/Textures.tfc";
+                                FileStream fs = FileStream(archiveFile, FileMode::Create, FileAccess::WriteOnly);
+                                fs.WriteFromBuffer(texture.getProperties().getProperty("TFCFileGuid").valueStruct);
+                                archiveFile = DLCArchiveFile;
+                                newTfcFile = true;
                             }
                             else
                             {
-                                g_logs->printMsg(QString("More instances of TFC file: ") + archive + ".tfc");
-                                archiveFile = files.first();
+                                CRASH_MSG((QString("More instances of TFC file: ") + archive + ".tfc").toStdString().c_str());
                             }
                         }
                     }
@@ -557,7 +555,9 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                         {
                             if (mod.arcTexture[m].width != mipmap.width ||
                                 mod.arcTexture[m].height != mipmap.height)
+                            {
                                 CRASH();
+                            }
                             mipmap.dataOffset = mod.arcTexture[m].dataOffset;
                         }
                     }
@@ -597,7 +597,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 if (triggerCacheArc)
                 {
                     mod.arcTexture = texture.mipMapsList;
-                    memcpy(mod.arcTfcGuid, texture.getProperties().getProperty("TFCFileGuid").valueStruct.ptr(), 0);
+                    memcpy(mod.arcTfcGuid, texture.getProperties().getProperty("TFCFileGuid").valueStruct.ptr(), 16);
                     mod.arcTfcName = texture.getProperties().getProperty("TextureFileCacheName").valueName;
                 }
             }
