@@ -9,6 +9,7 @@ TEMPLATE = app
 
 SOURCES += \
     Exceptions/SignalHandler.cpp \
+	Helpers/Crc32.cpp \
     Helpers/FileStream.cpp \
     Helpers/Logs.cpp \
     Helpers/MemoryStream.cpp \
@@ -45,12 +46,12 @@ HEADERS += \
     Exceptions/Exception.h \
     Exceptions/SignalHandler.h \
     Helpers/ByteBuffer.h \
+	Helpers/Crc32.h \
     Helpers/FileStream.h \
     Helpers/Logs.h \
     Helpers/MemoryStream.h \
     Helpers/MiscHelpers.h \
     Helpers/Stream.h \
-    Helpers/OptimizedCRC.h \
     CmdLineParams.h \
     CmdLineTools.h \
     ConfigIni.h \
