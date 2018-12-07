@@ -103,7 +103,7 @@ Texture::Texture(Package &package, int exportId, ByteBuffer data, bool fixDim)
     restOfData = ByteBuffer(textureData->Length() - textureData->Position());
     textureData->ReadToBuffer(restOfData.ptr(), textureData->Length() - textureData->Position());
 
-    packagePath = g_GameData->RelativeGameData(package.packagePath);
+    packagePath = package.packagePath;
     packageName = BaseNameWithoutExt(packagePath).toUpper();
     if (GameData::gameType == MeType::ME1_TYPE)
     {
@@ -129,14 +129,12 @@ Texture::Texture(Package &package, int exportId, ByteBuffer data, bool fixDim)
         {
             if (baseName != "" && !properties->exists("NeverStream"))
             {
-                for (int i = 0; i < g_GameData->packageFiles.count(); i++)
+                if (std::binary_search(g_GameData->packageUpperNames.begin(),
+                                       g_GameData->packageUpperNames.end(),
+                                       baseName, compareByAscii))
                 {
-                    if (baseName.compare(BaseNameWithoutExt(g_GameData->packageFiles[i]), Qt::CaseInsensitive) == 0)
-                    {
-                        basePackageName = baseName;
-                        weakSlave = true;
-                        break;
-                    }
+                    basePackageName = baseName;
+                    weakSlave = true;
                 }
             }
         }
@@ -249,7 +247,7 @@ const ByteBuffer Texture::compressTexture(ByteBuffer inputData, StorageTypes typ
     return ouputStream.ToArray();
 }
 
-const ByteBuffer Texture::decompressTexture(MemoryStream &stream, StorageTypes type, int uncompressedSize, int compressedSize)
+const ByteBuffer Texture::decompressTexture(Stream &stream, StorageTypes type, int uncompressedSize, int compressedSize)
 {
     auto data = ByteBuffer(uncompressedSize);
     uint blockTag = stream.ReadUInt32();
@@ -421,8 +419,7 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
         {
             textureData->JumpTo(mipmap.internalOffset);
             mipMapData.Free();
-            mipMapData = ByteBuffer(mipmap.uncompressedSize);
-            textureData->ReadToBuffer(mipMapData.ptr(), mipmap.uncompressedSize);
+            mipMapData = textureData->ReadToBuffer(mipmap.uncompressedSize);
             break;
         }
     case StorageTypes::pccLZO:
@@ -430,7 +427,7 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
         {
             textureData->JumpTo(mipmap.internalOffset);
             mipMapData.Free();
-            mipMapData = decompressTexture(*textureData, mipmap.storageType, mipmap.uncompressedSize, mipmap.compressedSize);
+            mipMapData = decompressTexture(dynamic_cast<Stream &>(*textureData), mipmap.storageType, mipmap.uncompressedSize, mipmap.compressedSize);
             if (mipMapData.ptr() == nullptr)
             {
                 g_logs->printMsg(QString("StorageType: ") + mipmap.storageType +
@@ -445,19 +442,13 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
             QString filename;
             if (GameData::gameType == MeType::ME1_TYPE)
             {
-                for (int i = 0; i < g_GameData->packageFiles.count(); i++)
-                {
-                    if (basePackageName.compare(BaseNameWithoutExt(g_GameData->packageFiles[i]), Qt::CaseInsensitive) == 0)
-                    {
-                        filename = g_GameData->GamePath() + g_GameData->packageFiles[i];
-                        break;
-                    }
-                }
-                if (filename == "")
+                auto found = g_GameData->mapPackageUpperNames.find(basePackageName);
+                if (found.key() == "")
                 {
                     g_logs->printMsg((QString("File not found in game: ") + basePackageName + ".*").toStdString().c_str());
                     return ByteBuffer();
                 }
+                filename = g_GameData->GamePath() + g_GameData->packageFiles[found.value()];
             }
             else
             {
@@ -505,11 +496,8 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
             fs.JumpTo(mipmap.dataOffset);
             if (mipmap.storageType == StorageTypes::extLZO || mipmap.storageType == StorageTypes::extZlib)
             {
-                MemoryStream tmpStream;
-                tmpStream.CopyFrom(fs, mipmap.compressedSize);
-                tmpStream.SeekBegin();
                 mipMapData.Free();
-                mipMapData = decompressTexture(tmpStream, mipmap.storageType, mipmap.uncompressedSize, mipmap.compressedSize);
+                mipMapData = decompressTexture(dynamic_cast<Stream &>(fs), mipmap.storageType, mipmap.uncompressedSize, mipmap.compressedSize);
                 if (mipMapData.ptr() == nullptr)
                 {
                     g_logs->printMsg(QString("File: ") + filename +
@@ -522,8 +510,7 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
             else
             {
                 mipMapData.Free();
-                mipMapData = ByteBuffer(mipmap.uncompressedSize);
-                fs.ReadToBuffer(mipMapData.ptr(), mipmap.uncompressedSize);
+                mipMapData = fs.ReadToBuffer(mipmap.uncompressedSize);
             }
             break;
         }

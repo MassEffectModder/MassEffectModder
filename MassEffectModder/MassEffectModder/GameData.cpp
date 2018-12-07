@@ -20,6 +20,7 @@
  */
 
 #include "GameData.h"
+#include "Helpers/MiscHelpers.h"
 
 MeType GameData::gameType = UNKNOWN_TYPE;
 
@@ -130,6 +131,15 @@ void GameData::ScanGameFiles(bool force)
         }
 
         std::sort(packageFiles.begin(), packageFiles.end(), compareByAscii);
+
+        if (gameType == MeType::ME1_TYPE)
+        {
+            for (int i = 0; i < packageFiles.count(); i++)
+            {
+                mapPackageUpperNames.insert(BaseNameWithoutExt(packageFiles[i]).toUpper(), i);
+                packageUpperNames += BaseNameWithoutExt(packageFiles[i]).toUpper();
+            }
+        }
 
         if (gameType == MeType::ME1_TYPE && !FullScanME1Game)
         {
@@ -369,6 +379,7 @@ void GameData::ClosePackagesList()
     packageMainFiles.clear();
     packageDLCFiles.clear();
     tfcFiles.clear();
+    packageUpperNames.clear();
 }
 
 GameData *g_GameData;

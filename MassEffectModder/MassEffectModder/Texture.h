@@ -90,7 +90,7 @@ public:
     ~Texture();
     void replaceMipMaps(const QList<TextureMipMap> &newMipMaps);
     const ByteBuffer compressTexture(ByteBuffer inputData, StorageTypes type);
-    const ByteBuffer decompressTexture(MemoryStream &stream, StorageTypes type, int uncompressedSize, int compressedSize);
+    const ByteBuffer decompressTexture(Stream &stream, StorageTypes type, int uncompressedSize, int compressedSize);
     TexProperty& getProperties() { return *properties; }
     uint getCrcData(ByteBuffer data);
     uint getCrcMipmap(TextureMipMap &mipmap);
