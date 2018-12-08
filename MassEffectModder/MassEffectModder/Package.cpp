@@ -518,6 +518,8 @@ void Package::loadNames(Stream &input)
         {
             input.ReadStringASCII(entry.name, len);
         }
+        if (entry.name.endsWith('\0'))
+            entry.name.chop(1);
 
         if (nameIdTexture2D == -1 && entry.name == "Texture2D")
             nameIdTexture2D = i;
