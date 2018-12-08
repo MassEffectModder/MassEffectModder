@@ -1828,7 +1828,6 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
                                       bool pccOnly, bool tfcOnly, QString &textureTfcFilter)
 {
     Resources resources;
-    MipMaps mipMaps;
     resources.loadMD5Tables();
     ConfigIni configIni = ConfigIni();
     g_GameData->Init(gameId, configIni);

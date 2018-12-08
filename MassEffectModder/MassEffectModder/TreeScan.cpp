@@ -49,7 +49,7 @@ void TreeScan::loadTexturesMap(MeType gameId, Resources &resources, QList<FoundT
     FileStream tmp = FileStream(QString(":/Resources/me%1map.bin").arg((int)gameId), FileMode::Open, FileAccess::ReadOnly);
     if (tmp.ReadUInt32() != 0x504D5443)
         CRASH();
-    ByteBuffer decompressed = ByteBuffer(tmp.ReadInt32());
+    auto decompressed = ByteBuffer(tmp.ReadInt32());
     ByteBuffer compressed = tmp.ReadToBuffer(tmp.ReadUInt32());
     uint dstLen = decompressed.size();
     ZlibDecompress(compressed.ptr(), compressed.size(), decompressed.ptr(), &dstLen);
