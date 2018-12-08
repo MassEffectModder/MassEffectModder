@@ -9,7 +9,7 @@ TEMPLATE = app
 
 SOURCES += \
     Exceptions/SignalHandler.cpp \
-	Helpers/Crc32.cpp \
+    Helpers/Crc32.cpp \
     Helpers/FileStream.cpp \
     Helpers/Logs.cpp \
     Helpers/MemoryStream.cpp \
@@ -46,7 +46,7 @@ HEADERS += \
     Exceptions/Exception.h \
     Exceptions/SignalHandler.h \
     Helpers/ByteBuffer.h \
-	Helpers/Crc32.h \
+    Helpers/Crc32.h \
     Helpers/FileStream.h \
     Helpers/Logs.h \
     Helpers/MemoryStream.h \
