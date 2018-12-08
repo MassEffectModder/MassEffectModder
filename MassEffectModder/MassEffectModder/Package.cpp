@@ -610,6 +610,8 @@ void Package::loadExtraNames(Stream &input, bool rawMode)
                 input.ReadStringASCII(name, len);
             }
             entry.name = name;
+            if (entry.name.endsWith('\0'))
+                entry.name.chop(1);
         }
         extraNamesTable.push_back(entry);
     }
