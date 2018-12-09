@@ -309,8 +309,6 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
         QStringList addedFiles;
         QStringList modifiedFiles;
 
-        return 0;
-
         if (ipc)
         {
             ConsoleWrite("[IPC]STAGE_CONTEXT STAGE_SCAN");
