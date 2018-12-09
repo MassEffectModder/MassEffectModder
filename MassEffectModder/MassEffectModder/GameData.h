@@ -54,7 +54,7 @@ public:
     const QString bioGamePath();
     const QString DLCData();
     const QString DLCDataSuffix();
-    const QString RelativeGameData(QString &path);
+    const QString RelativeGameData(const QString &path);
     const QString GameExePath();
     const QString GameUserPath();
     const QString ConfigIniPath();

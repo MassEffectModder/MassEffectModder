@@ -97,7 +97,7 @@ QString Package::resolvePackagePath(int id)
 
 int Package::Open(const QString &filename, bool headerOnly, bool fullLoad)
 {
-    packagePath = filename;
+    packagePath = g_GameData->RelativeGameData(filename);
 
     if (!QFile(filename).exists())
     {
@@ -988,7 +988,8 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
 
     packageStream->Close();
 
-    std::unique_ptr<FileStream> fs (new FileStream(packagePath, FileMode::Create, FileAccess::WriteOnly));
+    std::unique_ptr<FileStream> fs (new FileStream(g_GameData->GamePath() + packagePath,
+                                                   FileMode::Create, FileAccess::WriteOnly));
     if (fs == nullptr)
         CRASH_MSG(QString("Failed to write to file: %1").arg(packagePath).toStdString().c_str());
 

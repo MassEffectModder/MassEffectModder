@@ -362,7 +362,7 @@ const QString GameData::EngineConfigIniPath()
     CRASH();
 }
 
-const QString GameData::RelativeGameData(QString &path)
+const QString GameData::RelativeGameData(const QString &path)
 {
     if (_path == "")
         CRASH_MSG("Game path not set!");
