@@ -257,6 +257,28 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
         ConsoleSync();
     }
 
+    if (!generateBuiltinMapFiles && !g_GameData->FullScanME1Game)
+    {
+        loadTexturesMap(gameId, resources, textures);
+
+        for (int k = 0; k < textures.count(); k++)
+        {
+            for (int t = 0; t < textures[k].list.count(); t++)
+            {
+                QString pkgPath = textures[k].list[t].path;
+                if (std::binary_search(g_GameData->packageFiles.begin(),
+                                       g_GameData->packageFiles.end(),
+                                       pkgPath, compareByAscii))
+                {
+                    continue;
+                }
+                MatchedTexture f = textures[k].list[t];
+                f.path = "";
+                textures[k].list[t] = f;
+            }
+        }
+    }
+
     if (!g_GameData->FullScanME1Game)
     {
         int count = g_GameData->packageFiles.count();
@@ -287,27 +309,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
         QStringList addedFiles;
         QStringList modifiedFiles;
 
-        loadTexturesMap(gameId, resources, textures);
-
-        QStringList sortedFiles;
-        for (int i = 0; i < g_GameData->packageFiles.count(); i++)
-        {
-            sortedFiles.push_back(g_GameData->RelativeGameData(g_GameData->packageFiles[i]).toLower());
-        }
-        std::sort(sortedFiles.begin(), sortedFiles.end(), compareByAscii);
-
-        for (int k = 0; k < textures.count(); k++)
-        {
-            for (int t = 0; t < textures[k].list.count(); t++)
-            {
-                QString pkgPath = textures[k].list[t].path;
-                if (std::binary_search(sortedFiles.begin(), sortedFiles.end(), pkgPath, compareByAscii))
-                    continue;
-                MatchedTexture f = textures[k].list[t];
-                f.path = "";
-                textures[k].list[t] = f;
-            }
-        }
+        return 0;
 
         if (ipc)
         {
@@ -590,7 +592,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
     }
 
     if (!generateBuiltinMapFiles)
-    {
+    {/*
         if (GameData::gameType == MeType::ME1_TYPE)
         {
             mipMaps.removeMipMapsME1(1, textures, pkgsToMarker, ipc);
@@ -603,7 +605,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
         if (GameData::gameType == MeType::ME3_TYPE)
         {
             TOCBinFile::UpdateAllTOCBinFiles();
-        }
+        }*/
     }
 
     return 0;
