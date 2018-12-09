@@ -1443,7 +1443,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
         int index = -1;
         for (int p = 0; p < entries.count(); p++)
         {
-            if (g_GameData->RelativeGameData(g_GameData->packageMainFiles[l]).compare(entries[p].path, Qt::CaseInsensitive) == 0)
+            if (g_GameData->packageMainFiles[l].compare(entries[p].path, Qt::CaseInsensitive) == 0)
             {
                 if (generateMd5Entries)
                 {
@@ -1469,7 +1469,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
 
         if (generateModsMd5Entries)
         {
-            fs->WriteStringASCII(QString("new MD5ModFileEntry\n{\npath = @\"") + g_GameData->RelativeGameData(g_GameData->packageMainFiles[l]) + "\",\nmd5 = new byte[] { ");
+            fs->WriteStringASCII(QString("new MD5ModFileEntry\n{\npath = @\"") + g_GameData->packageMainFiles[l] + "\",\nmd5 = new byte[] { ");
             for (int i = 0; i < md5.count(); i++)
             {
                 fs->WriteStringASCII(QString::number(md5[i], 16));
@@ -1478,7 +1478,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
         }
         if (generateMd5Entries)
         {
-            fs->WriteStringASCII(QString("new MD5FileEntry\n{\npath = @\"") + g_GameData->RelativeGameData(g_GameData->packageMainFiles[l]) + "\",\nmd5 = new byte[] { ");
+            fs->WriteStringASCII(QString("new MD5FileEntry\n{\npath = @\"") + g_GameData->packageMainFiles[l] + "\",\nmd5 = new byte[] { ");
             for (int i = 0; i < md5.count(); i++)
             {
                 fs->WriteStringASCII(QString::number(md5[i], 16));
@@ -1571,7 +1571,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
         int index = -1;
         for (int p = 0; p < entries.count(); p++)
         {
-            if (g_GameData->RelativeGameData(g_GameData->packageDLCFiles[l]).compare(entries[p].path, Qt::CaseInsensitive) == 0)
+            if (g_GameData->packageDLCFiles[l].compare(entries[p].path, Qt::CaseInsensitive) == 0)
             {
                 if (generateMd5Entries)
                 {
@@ -1597,7 +1597,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
 
         if (generateModsMd5Entries)
         {
-            fs->WriteStringASCII(QString("new MD5ModFileEntry\n{\npath = @\"") + g_GameData->RelativeGameData(g_GameData->packageDLCFiles[l]) + "\",\nmd5 = new byte[] { ");
+            fs->WriteStringASCII(QString("new MD5ModFileEntry\n{\npath = @\"") + g_GameData->packageDLCFiles[l] + "\",\nmd5 = new byte[] { ");
             for (int i = 0; i < md5.count(); i++)
             {
                 fs->WriteStringASCII(QString::number(md5[i], 16));
@@ -1606,7 +1606,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
         }
         if (generateMd5Entries)
         {
-            fs->WriteStringASCII(QString("new MD5FileEntry\n{\npath = @\"") + g_GameData->RelativeGameData(g_GameData->packageDLCFiles[l]) + "\",\nmd5 = new byte[] { ");
+            fs->WriteStringASCII(QString("new MD5FileEntry\n{\npath = @\"") + g_GameData->packageDLCFiles[l] + "\",\nmd5 = new byte[] { ");
             for (int i = 0; i < md5.count(); i++)
             {
                 fs->WriteStringASCII(QString::number(md5[i], 16));
@@ -1665,7 +1665,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
         int index = -1;
         for (int p = 0; p < entries.count(); p++)
         {
-            if (g_GameData->RelativeGameData(g_GameData->sfarFiles[l]).compare(entries[p].path, Qt::CaseInsensitive) == 0)
+            if (g_GameData->sfarFiles[l].compare(entries[p].path, Qt::CaseInsensitive) == 0)
             {
                 index = p;
                 break;
@@ -1726,7 +1726,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
         int index = -1;
         for (int p = 0; p < entries.count(); p++)
         {
-            if (g_GameData->RelativeGameData(g_GameData->tfcFiles[l]).compare(entries[p].path, Qt::CaseInsensitive) == 0)
+            if (g_GameData->tfcFiles[l].compare(entries[p].path, Qt::CaseInsensitive) == 0)
             {
                 index = p;
                 break;

@@ -319,7 +319,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
             int index = -1;
             bool modified = true;
             bool foundPkg = false;
-            QString package = g_GameData->RelativeGameData(g_GameData->packageFiles[i]).toLower();
+            QString package = g_GameData->packageFiles[i].toLower();
             long packageSize = QFile(g_GameData->packageFiles[i]).size();
             for (int p = 0; p < md5Entries.count(); p++)
             {
@@ -337,7 +337,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
             if (foundPkg && modified)
                 modifiedFiles.push_back(md5Entries[index].path);
             else if (!foundPkg)
-                addedFiles.push_back(g_GameData->RelativeGameData(g_GameData->packageFiles[i]));
+                addedFiles.push_back(g_GameData->packageFiles[i]);
         }
 
         int lastProgress = -1;
