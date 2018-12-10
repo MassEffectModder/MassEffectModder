@@ -643,6 +643,7 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> &textures, const 
             matchTexture.packageName = texture->packageName;
             matchTexture.removeEmptyMips = texture->hasEmptyMips();
             matchTexture.numMips = texture->numNotEmptyMips();
+            matchTexture.linkToMaster = 0;
             if (gameId == MeType::ME1_TYPE)
             {
                 matchTexture.basePackageName = texture->basePackageName;
