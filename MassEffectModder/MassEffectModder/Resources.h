@@ -29,6 +29,11 @@ struct MD5FileEntry
     QString path;
     quint8 md5[16];
     int size;
+
+    bool operator< ( const MD5FileEntry& e ) const
+    {
+        return path.compare(e.path, Qt::CaseSensitive) < 0;
+    }
 };
 
 class Resources
@@ -38,8 +43,25 @@ private:
 
 public:
 
+    static bool SortComparePath(MD5FileEntry &e1, MD5FileEntry &e2)
+    {
+        return e1.path.compare(e2.path, Qt::CaseSensitive) < 0;
+    }
+
+    struct ComparePath
+    {
+        bool operator() (const MD5FileEntry& e, const QString& key)
+        {
+            return e.path.compare(key, Qt::CaseSensitive) < 0;
+        }
+
+        bool operator() (const QString& key, const MD5FileEntry& e)
+        {
+            return e.path.compare(key, Qt::CaseSensitive) < 0;
+        }
+    };
+
     QList<MD5FileEntry> entriesME1;
-    QList<MD5FileEntry> entriesME1PL;
     QList<MD5FileEntry> entriesME2;
     QList<MD5FileEntry> entriesME3;
     QStringList tablePkgsME1;

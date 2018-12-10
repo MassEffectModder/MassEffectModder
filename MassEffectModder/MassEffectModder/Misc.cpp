@@ -1355,7 +1355,6 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
     if (gameType == MeType::ME1_TYPE)
     {
         entries += resources.entriesME1;
-        entries += resources.entriesME1PL;
     }
     else if (gameType == MeType::ME2_TYPE)
     {

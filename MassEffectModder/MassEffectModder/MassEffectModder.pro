@@ -46,6 +46,7 @@ HEADERS += \
     Exceptions/Exception.h \
     Exceptions/SignalHandler.h \
     Helpers/ByteBuffer.h \
+    Helpers/BinarySearch.h \
     Helpers/Crc32.h \
     Helpers/FileStream.h \
     Helpers/Logs.h \

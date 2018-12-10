@@ -263,6 +263,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
 
         for (int k = 0; k < textures.count(); k++)
         {
+            bool found = false;
             for (int t = 0; t < textures[k].list.count(); t++)
             {
                 QString pkgPath = textures[k].list[t].path;
@@ -270,11 +271,18 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
                                        g_GameData->packageFiles.end(),
                                        pkgPath, compareByAscii))
                 {
+                    found = true;
                     continue;
                 }
                 MatchedTexture f = textures[k].list[t];
                 f.path = "";
                 textures[k].list[t] = f;
+            }
+            if (!found)
+            {
+                textures[k].list.clear();
+                textures.removeAt(k);
+                k--;
             }
         }
     }
@@ -314,28 +322,28 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
             ConsoleWrite("[IPC]STAGE_CONTEXT STAGE_SCAN");
             ConsoleSync();
         }
+
         for (int i = 0; i < g_GameData->packageFiles.count(); i++)
         {
-            int index = -1;
             bool modified = true;
             bool foundPkg = false;
             QString package = g_GameData->packageFiles[i].toLower();
-            long packageSize = QFile(g_GameData->packageFiles[i]).size();
-            for (int p = 0; p < md5Entries.count(); p++)
+            long packageSize = QFile(g_GameData->GamePath() + g_GameData->packageFiles[i]).size();
+            auto range = std::equal_range(md5Entries.begin(), md5Entries.end(),
+                                          package, Resources::ComparePath());
+            for (auto it = range.first; it != range.second; it++)
             {
-                if (package == md5Entries[p].path.toLower())
+                if (it->path.compare(package, Qt::CaseSensitive) != 0)
+                    break;
+                foundPkg = true;
+                if (packageSize == it->size)
                 {
-                    foundPkg = true;
-                    if (packageSize == md5Entries[p].size)
-                    {
-                        modified = false;
-                        break;
-                    }
-                    index = p;
+                    modified = false;
+                    break;
                 }
             }
             if (foundPkg && modified)
-                modifiedFiles.push_back(md5Entries[index].path);
+                modifiedFiles.push_back(g_GameData->packageFiles[i]);
             else if (!foundPkg)
                 addedFiles.push_back(g_GameData->packageFiles[i]);
         }
@@ -379,25 +387,6 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
                 ConsoleSync();
             }
             FindTextures(gameId, textures, addedFiles[i], false, ipc);
-        }
-
-        for (int k = 0; k < textures.count(); k++)
-        {
-            bool found = false;
-            for (int t = 0; t < textures[k].list.count(); t++)
-            {
-                if (textures[k].list[t].path != "")
-                {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found)
-            {
-                textures[k].list.clear();
-                textures.removeAt(k);
-                k--;
-            }
         }
     }
     else
@@ -590,7 +579,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
     }
 
     if (!generateBuiltinMapFiles)
-    {/*
+    {
         if (GameData::gameType == MeType::ME1_TYPE)
         {
             mipMaps.removeMipMapsME1(1, textures, pkgsToMarker, ipc);
@@ -603,7 +592,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
         if (GameData::gameType == MeType::ME3_TYPE)
         {
             TOCBinFile::UpdateAllTOCBinFiles();
-        }*/
+        }
     }
 
     return 0;

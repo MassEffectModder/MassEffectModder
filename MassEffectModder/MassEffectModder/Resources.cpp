@@ -56,7 +56,7 @@ void Resources::loadMD5Tables()
         for (int l = 0; l < count; l++)
         {
             MD5FileEntry entry{};
-            entry.path = tablePkgsME1[tmp.ReadInt32()];
+            entry.path = tablePkgsME1[tmp.ReadInt32()].toLower();
             entry.size = tmp.ReadInt32();
             tmp.ReadToBuffer(entry.md5, 16);
             entriesME1.push_back(entry);
@@ -90,11 +90,12 @@ void Resources::loadMD5Tables()
         for (int l = 0; l < count; l++)
         {
             MD5FileEntry entry{};
-            entry.path = tablePkgsME1PL[tmp.ReadInt32()];
+            entry.path = tablePkgsME1PL[tmp.ReadInt32()].toLower();
             entry.size = tmp.ReadInt32();
             tmp.ReadToBuffer(entry.md5, 16);
-            entriesME1PL.push_back(entry);
+            entriesME1.push_back(entry);
         }
+        std::sort(entriesME1.begin(), entriesME1.end(), SortComparePath);
     }
     decompressed.Free();
     compressed.Free();
@@ -124,11 +125,12 @@ void Resources::loadMD5Tables()
         for (int l = 0; l < count; l++)
         {
             MD5FileEntry entry{};
-            entry.path = tablePkgsME2[tmp.ReadInt32()];
+            entry.path = tablePkgsME2[tmp.ReadInt32()].toLower();
             entry.size = tmp.ReadInt32();
             tmp.ReadToBuffer(entry.md5, 16);
             entriesME2.push_back(entry);
         }
+        std::sort(entriesME2.begin(), entriesME2.end(), SortComparePath);
     }
     decompressed.Free();
     compressed.Free();
@@ -158,11 +160,12 @@ void Resources::loadMD5Tables()
         for (int l = 0; l < count; l++)
         {
             MD5FileEntry entry{};
-            entry.path = tablePkgsME3[tmp.ReadInt32()];
+            entry.path = tablePkgsME3[tmp.ReadInt32()].toLower();
             entry.size = tmp.ReadInt32();
             tmp.ReadToBuffer(entry.md5, 16);
             entriesME3.push_back(entry);
         }
+        std::sort(entriesME3.begin(), entriesME3.end(), SortComparePath);
     }
     decompressed.Free();
     compressed.Free();
@@ -180,7 +183,6 @@ void Resources::unloadMD5Tables()
     tablePkgsME2.clear();
     tablePkgsME3.clear();
     entriesME1.clear();
-    entriesME1PL.clear();
     entriesME2.clear();
     entriesME3.clear();
 

@@ -443,7 +443,7 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
             if (GameData::gameType == MeType::ME1_TYPE)
             {
                 auto found = g_GameData->mapPackageUpperNames.find(basePackageName);
-                if (found.key() == "")
+                if (found.key().length() == 0)
                 {
                     g_logs->printMsg((QString("File not found in game: ") + basePackageName + ".*").toStdString().c_str());
                     return ByteBuffer();
