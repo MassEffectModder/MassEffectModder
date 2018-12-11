@@ -467,7 +467,8 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
                             filename = g_GameData->GamePath() + files.first();
                         else if (files.count() == 0)
                         {
-                            CRASH_MSG((QString("TFC file not found: ") + archive + ".tfc").toStdString().c_str());
+                            g_logs->printMsg((QString("TFC file not found: ") + archive + ".tfc").toStdString().c_str());
+                            return ByteBuffer();
                         }
                         else
                         {
