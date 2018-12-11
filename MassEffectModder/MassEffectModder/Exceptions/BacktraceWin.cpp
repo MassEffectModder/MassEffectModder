@@ -180,7 +180,7 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
                   strcmp(sourceFunc, "mainCRTStartup") == 0 ||
                   strcmp(sourceFunc, "WinMainCRTStartup") == 0)
                 continue;
-            sprintf(tmpBuffer, "#%02d  0x%016llx %s in ", count, stackFrame.AddrPC.Offset, moduleName);
+            sprintf(tmpBuffer, "#%02d  ", count);
             output += tmpBuffer;
             char *name = cplus_demangle(sourceFunc, DMGL_PARAMS | DMGL_ANSI | DMGL_VERBOSE | DMGL_TYPES);
             if (name)
@@ -206,7 +206,7 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
             if (strcmp(sourceFile, "BaseThreadInitThunk") == 0 ||
                 strcmp(sourceFile, "RtlUserThreadStart") == 0)
                 continue;
-            sprintf(tmpBuffer, "#%02d  0x%016llx %s at %s\n", count, stackFrame.AddrPC.Offset, moduleName, sourceFile);
+            sprintf(tmpBuffer, "#%02d  %s\n", count, sourceFile);
             output += tmpBuffer;
         }
         count++;
