@@ -370,6 +370,12 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
                 }
                 ConsoleSync();
             }
+            else
+            {
+                ConsoleWrite(QString("Package ") + QString::number(currentPackage + 1) + "/" +
+                                     QString::number(totalPackages) + " : " +
+                                     modifiedFiles[i]);
+            }
             FindTextures(gameId, textures, modifiedFiles[i], true, ipc);
         }
 
@@ -385,6 +391,12 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
                     lastProgress = newProgress;
                 }
                 ConsoleSync();
+            }
+            else
+            {
+                ConsoleWrite(QString("Package ") + QString::number(currentPackage + 1) + "/" +
+                                     QString::number(totalPackages) + " : " +
+                                     addedFiles[i]);
             }
             FindTextures(gameId, textures, addedFiles[i], false, ipc);
         }
