@@ -42,8 +42,8 @@ public:
     QStringList packageDLCFiles;
     QStringList sfarFiles;
     QStringList tfcFiles;
-    QStringList packageUpperNames;
-    QMap<QString, int> mapPackageUpperNames;
+    QStringList packageME1UpperNames;
+    QMap<QString, int> mapME1PackageUpperNames;
     bool FullScanME1Game;
     bool DLCDataCacheDone = false;
 

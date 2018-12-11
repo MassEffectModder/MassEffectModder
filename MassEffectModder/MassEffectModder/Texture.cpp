@@ -129,8 +129,8 @@ Texture::Texture(Package &package, int exportId, ByteBuffer data, bool fixDim)
         {
             if (baseName != "" && !properties->exists("NeverStream"))
             {
-                if (std::binary_search(g_GameData->packageUpperNames.begin(),
-                                       g_GameData->packageUpperNames.end(),
+                if (std::binary_search(g_GameData->packageME1UpperNames.begin(),
+                                       g_GameData->packageME1UpperNames.end(),
                                        baseName, compareByAscii))
                 {
                     basePackageName = baseName;
@@ -442,7 +442,7 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
             QString filename;
             if (GameData::gameType == MeType::ME1_TYPE)
             {
-                auto found = g_GameData->mapPackageUpperNames.find(basePackageName);
+                auto found = g_GameData->mapME1PackageUpperNames.find(basePackageName);
                 if (found.key().length() == 0)
                 {
                     g_logs->printMsg((QString("File not found in game: ") + basePackageName + ".*").toStdString().c_str());

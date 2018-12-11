@@ -162,8 +162,8 @@ void GameData::ScanGameFiles(bool force)
         {
             for (int i = 0; i < packageFiles.count(); i++)
             {
-                mapPackageUpperNames.insert(BaseNameWithoutExt(packageFiles[i]).toUpper(), i);
-                packageUpperNames += BaseNameWithoutExt(packageFiles[i]).toUpper();
+                mapME1PackageUpperNames.insert(BaseNameWithoutExt(packageFiles[i]).toUpper(), i);
+                packageME1UpperNames += BaseNameWithoutExt(packageFiles[i]).toUpper();
             }
         }
 
@@ -405,7 +405,8 @@ void GameData::ClosePackagesList()
     packageMainFiles.clear();
     packageDLCFiles.clear();
     tfcFiles.clear();
-    packageUpperNames.clear();
+    mapME1PackageUpperNames.clear();
+    packageME1UpperNames.clear();
 }
 
 GameData *g_GameData;
