@@ -456,7 +456,7 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
                 filename = g_GameData->MainData() + "/" + archive + ".tfc";
                 if (packagePath.contains("/DLC", Qt::CaseInsensitive))
                 {
-                    QString DLCArchiveFile = DirName(packagePath) + "/" + archive + ".tfc";
+                    QString DLCArchiveFile = g_GameData->GamePath() + DirName(packagePath) + "/" + archive + ".tfc";
                     if (QFile(DLCArchiveFile).exists())
                         filename = DLCArchiveFile;
                     else if (!QFile(filename).exists())
@@ -464,7 +464,7 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
                         QStringList files = g_GameData->tfcFiles.filter(QRegExp("*" + archive + ".tfc",
                                                                                 Qt::CaseInsensitive, QRegExp::Wildcard));
                         if (files.count() == 1)
-                            DLCArchiveFile = g_GameData->GamePath() + files.first();
+                            filename = g_GameData->GamePath() + files.first();
                         else if (files.count() == 0)
                         {
                             CRASH_MSG((QString("TFC file not found: ") + archive + ".tfc").toStdString().c_str());
