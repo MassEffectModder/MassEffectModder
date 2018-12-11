@@ -31,7 +31,7 @@ private:
 
     enum BufferSize
     {
-        bufferMargin = 10000,
+        initialBufferSize = 10000,
     };
 
     qint64 length;
