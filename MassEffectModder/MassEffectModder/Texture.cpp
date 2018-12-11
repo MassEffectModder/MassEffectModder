@@ -494,7 +494,6 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
                 if (mipMapData.ptr() == nullptr)
                 {
                     g_logs->printMsg(QString("File: ") + filename +
-                        "\nTFC: " + properties->getProperty("TextureFileCacheName").valueName +
                         "\nStorageType: " + mipmap.storageType +
                         "\nExternal file offset: " + mipmap.dataOffset);
                     return ByteBuffer();
