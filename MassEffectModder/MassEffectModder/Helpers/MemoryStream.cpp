@@ -374,18 +374,6 @@ void MemoryStream::Seek(qint64 offset, SeekOrigin origin)
         {
             CRASH_MSG("MemoryStream: out of stream");
         }
-        else if (offset > internalBufferSize)
-        {
-            int newInternalBufferSize = internalBufferSize * 2;
-            internalBufferSize = offset + newInternalBufferSize;
-            internalBuffer = reinterpret_cast<quint8 *>(std::realloc(internalBuffer, static_cast<size_t>(internalBufferSize)));
-            if (internalBuffer == nullptr)
-            {
-                CRASH_MSG("MemoryStream: out of memory");
-            }
-            memset(internalBuffer + offset, 0, static_cast<size_t>(newInternalBufferSize));
-            length = offset;
-        }
         position = offset;
         break;
     }
@@ -396,19 +384,6 @@ void MemoryStream::Seek(qint64 offset, SeekOrigin origin)
         {
             CRASH_MSG("MemoryStream: out of stream");
         }
-        else if (newOffset > internalBufferSize)
-        {
-            int newInternalBufferSize = internalBufferSize * 2;
-            internalBufferSize = newOffset + newInternalBufferSize;
-            internalBuffer = reinterpret_cast<quint8 *>(std::realloc(internalBuffer, static_cast<size_t>(internalBufferSize)));
-            if (internalBuffer == nullptr)
-            {
-                CRASH_MSG("MemoryStream: out of memory");
-            }
-            memset(internalBuffer + newOffset, 0, static_cast<size_t>(newInternalBufferSize));
-        }
-        if (newOffset > length)
-            length = newOffset;
         position = newOffset;
         break;
     }
@@ -419,19 +394,6 @@ void MemoryStream::Seek(qint64 offset, SeekOrigin origin)
         {
             CRASH_MSG("MemoryStream: out of stream");
         }
-        else if (newOffset > internalBufferSize)
-        {
-            int newInternalBufferSize = internalBufferSize * 2;
-            internalBufferSize = newOffset + newInternalBufferSize;
-            internalBuffer = reinterpret_cast<quint8 *>(std::realloc(internalBuffer, static_cast<size_t>(internalBufferSize)));
-            if (internalBuffer == nullptr)
-            {
-                CRASH_MSG("MemoryStream: out of memory");
-            }
-            memset(internalBuffer + newOffset, 0, static_cast<size_t>(newInternalBufferSize));
-        }
-        if (newOffset > length)
-            length = newOffset;
         position = newOffset;
         break;
     }
