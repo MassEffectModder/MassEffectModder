@@ -119,15 +119,41 @@ void GameData::ScanGameFiles(bool force)
 
         if (gameType == MeType::ME1_TYPE)
         {
-            packageFiles = packageMainFiles.filter(QRegExp("*.u", Qt::CaseInsensitive, QRegExp::Wildcard));
-            packageFiles += packageMainFiles.filter(QRegExp("*.sfm", Qt::CaseInsensitive, QRegExp::Wildcard));
-            packageFiles += packageDLCFiles.filter(QRegExp("*.u", Qt::CaseInsensitive, QRegExp::Wildcard));
-            packageFiles += packageDLCFiles.filter(QRegExp("*.sfm", Qt::CaseInsensitive, QRegExp::Wildcard));
+            for (int i = 0; i < packageMainFiles.count(); i++)
+            {
+                if (packageMainFiles[i].endsWith(".u", Qt::CaseInsensitive) ||
+                    packageMainFiles[i].endsWith(".upk", Qt::CaseInsensitive) ||
+                    packageMainFiles[i].endsWith(".sfm", Qt::CaseInsensitive))
+                {
+                    packageFiles += packageMainFiles[i];
+                }
+            }
+            for (int i = 0; i < packageDLCFiles.count(); i++)
+            {
+                if (packageDLCFiles[i].endsWith(".u", Qt::CaseInsensitive) ||
+                    packageDLCFiles[i].endsWith(".upk", Qt::CaseInsensitive) ||
+                    packageDLCFiles[i].endsWith(".sfm", Qt::CaseInsensitive))
+                {
+                    packageFiles += packageDLCFiles[i];
+                }
+            }
         }
         else
         {
-            packageFiles = packageMainFiles.filter(QRegExp("*.pcc", Qt::CaseInsensitive, QRegExp::Wildcard));
-            packageFiles += packageDLCFiles.filter(QRegExp("*.pcc", Qt::CaseInsensitive, QRegExp::Wildcard));
+            for (int i = 0; i < packageMainFiles.count(); i++)
+            {
+                if (packageMainFiles[i].endsWith(".pcc", Qt::CaseInsensitive))
+                {
+                    packageFiles += packageMainFiles[i];
+                }
+            }
+            for (int i = 0; i < packageDLCFiles.count(); i++)
+            {
+                if (packageDLCFiles[i].endsWith(".pcc", Qt::CaseInsensitive))
+                {
+                    packageFiles += packageDLCFiles[i];
+                }
+            }
         }
 
         std::sort(packageFiles.begin(), packageFiles.end(), compareByAscii);
