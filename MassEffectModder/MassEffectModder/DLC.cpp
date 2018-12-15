@@ -114,6 +114,7 @@ void ME3DLC::loadHeader(Stream *stream)
                         FileEntry f = filesList[l];
                         f.filenamePath = name;
                         filesList[l] = f;
+                        break;
                     }
                 }
             }
