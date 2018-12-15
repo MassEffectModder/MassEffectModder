@@ -27,6 +27,8 @@
 #include "ConfigIni.h"
 #include "GameData.h"
 #include "MemTypes.h"
+#include "TOCFile.h"
+#include "DLC.h"
 
 void DisplayHelp()
 {
@@ -36,6 +38,9 @@ void DisplayHelp()
     ConsoleWrite("");
     ConsoleWrite("  --scan --gameid <game id> [--ipc]");
     ConsoleWrite("     Scan game data for textures.");
+    ConsoleWrite("");
+    ConsoleWrite("  --update-toc");
+    ConsoleWrite("     Update TOC files in ME3.");
     ConsoleWrite("");
     ConsoleWrite("  --check-game-data-after --gameid <game id> [--ipc]\n");
     ConsoleWrite("     Check game data for mods installed after textures installation.\n");
@@ -398,6 +403,10 @@ int ProcessArguments()
             cmd = CmdType::HELP;
         if (arg == "--scan")
             cmd = CmdType::SCAN;
+        if (arg == "--update-toc")
+            cmd = CmdType::UPDATE_TOC;
+        if (arg == "--upack-dlcs")
+            cmd = CmdType::UNPACK_DLCS;
         if (arg == "--convert-to-mem")
             cmd = CmdType::CONVERT_TO_MEM;
         if (arg == "--convert-game-image")
@@ -523,6 +532,32 @@ int ProcessArguments()
         }
         errorCode = tools.scanTextures(gameId, ipc);
         break;
+    case CmdType::UPDATE_TOC:
+    {
+        ConfigIni configIni = ConfigIni();
+        g_GameData->Init(MeType::ME3_TYPE, configIni);
+        if (g_GameData->GamePath() == "" || !QDir(g_GameData->GamePath()).exists())
+        {
+            ConsoleWrite("Error: Could not found the game!");
+            errorCode = -1;
+            break;
+        }
+        TOCBinFile::UpdateAllTOCBinFiles();
+        break;
+    }
+    case CmdType::UNPACK_DLCS:
+    {
+        ConfigIni configIni = ConfigIni();
+        g_GameData->Init(MeType::ME3_TYPE, configIni);
+        if (g_GameData->GamePath() == "" || !QDir(g_GameData->GamePath()).exists())
+        {
+            ConsoleWrite("Error: Could not found the game!");
+            errorCode = -1;
+            break;
+        }
+        ME3DLC::unpackAllDLC(false);
+        break;
+    }
     case CmdType::CONVERT_TO_MEM:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
