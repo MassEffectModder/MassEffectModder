@@ -601,7 +601,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
         fs.WriteUInt32(mem.Length());
         quint8 *compressed = nullptr;
         uint compressedSize = 0;
-        ZlibCompress(mem.ToArray().ptr(), mem.Length(), &compressed, &compressedSize);
+        ZlibCompress(mem.ToArray().ptr(), mem.Length(), &compressed, &compressedSize, 9);
         fs.WriteUInt32(compressedSize);
         fs.WriteFromBuffer(compressed, compressedSize);
         delete[] compressed;
