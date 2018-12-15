@@ -43,6 +43,9 @@ void DisplayHelp()
     ConsoleWrite("  --update-toc");
     ConsoleWrite("     Update TOC files in ME3.");
     ConsoleWrite("");
+    ConsoleWrite("  --unpack-dlcs");
+    ConsoleWrite("     Unpack ME3 DLCs.");
+    ConsoleWrite("");
     ConsoleWrite("  --check-game-data-after --gameid <game id> [--ipc]\n");
     ConsoleWrite("     Check game data for mods installed after textures installation.\n");
     ConsoleWrite("");
@@ -406,7 +409,7 @@ int ProcessArguments()
             cmd = CmdType::SCAN;
         if (arg == "--update-toc")
             cmd = CmdType::UPDATE_TOC;
-        if (arg == "--upack-dlcs")
+        if (arg == "--unpack-dlcs")
             cmd = CmdType::UNPACK_DLCS;
         if (arg == "--convert-to-mem")
             cmd = CmdType::CONVERT_TO_MEM;
