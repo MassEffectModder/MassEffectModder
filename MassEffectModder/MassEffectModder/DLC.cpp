@@ -121,30 +121,14 @@ void ME3DLC::loadHeader(Stream *stream)
             break;
         }
     }
-    if (filenamesIndex == -1)
-        CRASH_MSG("filenames entry not found");
 }
 
-void ME3DLC::extract(QString &SFARfilename, QString &outPath, bool ipc, int &currentProgress, int totalNumber)
+void ME3DLC::extract(QString &SFARfilename, bool ipc, int &currentProgress, int totalNumber)
 {
     if (!QFile(SFARfilename).exists())
         CRASH_MSG("filename missing");
 
     std::unique_ptr<Stream> stream (new MemoryStream(SFARfilename));
-
-    QFile::remove(SFARfilename);
-
-    {
-        FileStream outputFile = FileStream(SFARfilename, FileMode::Create, FileAccess::WriteOnly);
-        outputFile.WriteUInt32(SfarTag);
-        outputFile.WriteUInt32(SfarVersion);
-        outputFile.WriteUInt32(HeaderSize);
-        outputFile.WriteUInt32(HeaderSize);
-        outputFile.WriteUInt32(0);
-        outputFile.WriteUInt32(HeaderSize);
-        outputFile.WriteUInt32((uint)MaxBlockSize);
-        outputFile.WriteUInt32(LZMATag);
-    }
 
     loadHeader(stream.get());
 
@@ -153,7 +137,7 @@ void ME3DLC::extract(QString &SFARfilename, QString &outPath, bool ipc, int &cur
     {
         if ((uint)filenamesIndex == i)
             continue;
-        if (filesList[i].filenamePath == "")
+        if (filesList[i].filenamePath.length() == 0)
             CRASH_MSG("filename missing");
 
         if (ipc)
@@ -167,12 +151,10 @@ void ME3DLC::extract(QString &SFARfilename, QString &outPath, bool ipc, int &cur
             }
         }
 
-        int pos = filesList[i].filenamePath.indexOf(R"(\BIOGame\DLC\)", Qt::CaseInsensitive);
-        QString filename = filesList[i].filenamePath.mid(pos + QString(R"(\BIOGame\DLC\)").length());
-        QString dir = DirName(outPath);
-        QDir().mkpath(dir + filename);
+        QString filename = filesList[i].filenamePath.mid(QString(R"(BIOGame/DLC/)").length());
+        QDir().mkpath(g_GameData->DLCData() + DirName(filename));
         {
-            FileStream outputFile = FileStream(dir + filename, FileMode::Create, FileAccess::WriteOnly);
+            FileStream outputFile = FileStream(g_GameData->DLCData() + filename, FileMode::Create, FileAccess::WriteOnly);
             stream->JumpTo(filesList[i].dataOffset);
             if (filesList[i].compressedBlockSizesIndex == -1)
             {
@@ -194,7 +176,7 @@ void ME3DLC::extract(QString &SFARfilename, QString &outPath, bool ipc, int &cur
                         compressedBlockSize = (int)maxBlockSize;
                     }
                     compressedBlockBuffers.push_back(stream->ReadToBuffer(compressedBlockSize));
-                    uncompressedBlockBuffers.push_back(ByteBuffer());
+                    uncompressedBlockBuffers.push_back(ByteBuffer(uncompressedBlockSize));
                     bytesLeft -= uncompressedBlockSize;
                 }
 
@@ -204,7 +186,6 @@ void ME3DLC::extract(QString &SFARfilename, QString &outPath, bool ipc, int &cur
                     int compressedBlockSize = blockSizes[filesList[i].compressedBlockSizesIndex + j];
                     if (compressedBlockSize == 0 || compressedBlockSize == blockBytesLeft[j])
                     {
-                        uncompressedBlockBuffers[j] = compressedBlockBuffers[j];
                     }
                     else
                     {
@@ -229,6 +210,17 @@ void ME3DLC::extract(QString &SFARfilename, QString &outPath, bool ipc, int &cur
             }
         }
     }
+
+    QFile::remove(SFARfilename);
+    FileStream outputFile = FileStream(SFARfilename, FileMode::Create, FileAccess::WriteOnly);
+    outputFile.WriteUInt32(SfarTag);
+    outputFile.WriteUInt32(SfarVersion);
+    outputFile.WriteUInt32(HeaderSize);
+    outputFile.WriteUInt32(HeaderSize);
+    outputFile.WriteUInt32(0);
+    outputFile.WriteUInt32(HeaderSize);
+    outputFile.WriteUInt32((uint)MaxBlockSize);
+    outputFile.WriteUInt32(LZMATag);
 }
 
 void ME3DLC::unpackAllDLC(bool ipc)
@@ -242,7 +234,7 @@ void ME3DLC::unpackAllDLC(bool ipc)
     foreach (QString DLCDir, DLCs)
     {
         QDirIterator iterator(g_GameData->DLCData() + "/" + DLCDir, QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
-        bool isValid = false;
+        bool isValid = true;
         QString sfarFile;
         while (iterator.hasNext())
         {
@@ -286,14 +278,16 @@ void ME3DLC::unpackAllDLC(bool ipc)
 
     for (int i = 0; i < sfarFiles.count(); i++)
     {
-        QString DLCname = BaseName(DirName(DirName(sfarFiles[i])));
-        QString outPath = g_GameData->DLCData() + "/" + DLCname;
         ME3DLC dlc = ME3DLC();
         if (ipc)
         {
-            ConsoleWrite("[IPC]PROCESSING_FILE " + sfarFiles[i]);
+            ConsoleWrite("[IPC]PROCESSING_FILE " + g_GameData->RelativeGameData(sfarFiles[i]));
             ConsoleSync();
         }
-        dlc.extract(sfarFiles[i], outPath, ipc, currentProgress, totalNumFiles);
+        else
+        {
+            ConsoleWrite("Unpacking SFAR: " + g_GameData->RelativeGameData(sfarFiles[i]));
+        }
+        dlc.extract(sfarFiles[i], ipc, currentProgress, totalNumFiles);
     }
 }
