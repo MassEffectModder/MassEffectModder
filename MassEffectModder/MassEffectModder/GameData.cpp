@@ -165,6 +165,7 @@ void GameData::ScanGameFiles(bool force)
                 mapME1PackageUpperNames.insert(BaseNameWithoutExt(packageFiles[i]).toUpper(), i);
                 packageME1UpperNames += BaseNameWithoutExt(packageFiles[i]).toUpper();
             }
+            std::sort(packageME1UpperNames.begin(), packageME1UpperNames.end(), compareByAscii);
         }
 
         if (gameType == MeType::ME1_TYPE && !FullScanME1Game)
