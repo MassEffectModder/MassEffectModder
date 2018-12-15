@@ -71,7 +71,7 @@ void ConsoleSync()
 QString BaseName(const QString &path)
 {
     const QString str = path.section('/', -1, -1);
-    if (str == "")
+    if (str.length() == 0)
         return path;
     return str;
 }
@@ -79,7 +79,7 @@ QString BaseName(const QString &path)
 QString DirName(const QString &path)
 {
     const QString str = path.section('/', 0, -2);
-    if (str == "")
+    if (str.length() == 0)
         return path;
     return str;
 }
@@ -88,7 +88,7 @@ QString BaseNameWithoutExt(const QString &path)
 {
     const QString str = BaseName(path);
     const QString name = str.section('.', 0, 0);
-    if (name == "")
+    if (name.length() == 0)
         return str;
     return name;
 }

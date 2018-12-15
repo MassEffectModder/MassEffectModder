@@ -539,7 +539,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
 
     for (int i = 0; i < textures.count(); i++)
     {
-        const FoundTexture& texture = textures.at(i);
+        const FoundTexture& texture = textures[i];
         if (generateBuiltinMapFiles)
             mem.WriteByte(texture.name.length());
         else

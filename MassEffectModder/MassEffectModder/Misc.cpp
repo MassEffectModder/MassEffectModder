@@ -212,7 +212,7 @@ int Misc::ParseLegacyMe3xScriptMod(QList<FoundTexture> &textures, QString &scrip
                     {
                         for (int l = 0; l < textures[i].list.count(); l++)
                         {
-                            if (textures[i].list[l].path == "")
+                            if (textures[i].list[l].path.length() == 0)
                                 continue;
                             if (textures[i].list[l].exportID == exportId)
                             {
@@ -230,7 +230,7 @@ int Misc::ParseLegacyMe3xScriptMod(QList<FoundTexture> &textures, QString &scrip
                 {
                     for (int l = 0; l < textures[i].list.count(); l++)
                     {
-                        if (textures[i].list[l].path == "")
+                        if (textures[i].list[l].path.length() == 0)
                             continue;
                         if (textures[i].list[l].exportID == exportId)
                         {
@@ -253,7 +253,7 @@ int Misc::ParseLegacyMe3xScriptMod(QList<FoundTexture> &textures, QString &scrip
                 {
                     for (int l = 0; l < textures[i].list.count(); l++)
                     {
-                        if (textures[i].list[l].path == "")
+                        if (textures[i].list[l].path.length() == 0)
                             continue;
                         QString pkg = textures[i].list[l].path.split(QChar('\\')).last().split(QChar('.')).first().toLower();
                         if (pkg == packageName)
@@ -522,7 +522,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                 if (desc.contains("Binary Replacement", Qt::CaseInsensitive))
                 {
                     ParseME3xBinaryScriptMod(scriptLegacy, package, mod.exportId, path);
-                    if (mod.exportId == -1 || package == "" || path == "")
+                    if (mod.exportId == -1 || package.length() == 0 || path.length() == 0)
                     {
                         len = fs.ReadInt32();
                         fs.Skip(len);
@@ -597,7 +597,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                     int numMips = 0;
                     for (int s = 0; s < f.list.count(); s++)
                     {
-                        if (f.list[s].path != "")
+                        if (f.list[s].path.length() != 0)
                         {
                             numMips = f.list[s].numMips;
                         }
@@ -670,7 +670,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                 CRASH();
             QString tmpExp = filename.mid(posStr);
             mod.exportId = tmpExp.midRef(0).toInt();
-            if (dlcName != "")
+            if (dlcName.length() != 0)
             {
                 if (gameId == MeType::ME1_TYPE)
                     mod.packagePath = QString("\\DLC\\") + dlcName + "\\CookedPC\\" + pkgName;
@@ -852,7 +852,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                 int numMips = 0;
                 for (int s = 0; s < f.list.count(); s++)
                 {
-                    if (f.list[s].path != "")
+                    if (f.list[s].path.length() != 0)
                     {
                         numMips = f.list[s].numMips;
                     }
@@ -1001,7 +1001,7 @@ failed:
             int numMips = 0;
             for (int s = 0; s < f.list.count(); s++)
             {
-                if (f.list[s].path != "")
+                if (f.list[s].path.length() != 0)
                 {
                     numMips = f.list[s].numMips;
                 }

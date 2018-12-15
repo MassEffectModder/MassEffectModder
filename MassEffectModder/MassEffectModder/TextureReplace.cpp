@@ -128,7 +128,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
     {
         if (ipc)
         {
-            ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + map.at(e).packagePath);
+            ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + map[e].packagePath);
             int newProgress = (e + 1) * 100 / map.count();
             if (lastProgress != newProgress)
             {
@@ -140,33 +140,33 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
         else
         {
             ConsoleWrite(QString("Package: ") + QString::number(e + 1) + " of " + QString::number(map.count()) +
-                         " started: " + map.at(e).packagePath);
+                         " started: " + map[e].packagePath);
         }
 
         Package package{};
-        if (package.Open(g_GameData->GamePath() + map.at(e).packagePath) != 0)
+        if (package.Open(g_GameData->GamePath() + map[e].packagePath) != 0)
         {
             if (ipc)
             {
-                ConsoleWrite(QString("[IPC]ERROR Issue opening package file: ") + map.at(e).packagePath);
+                ConsoleWrite(QString("[IPC]ERROR Issue opening package file: ") + map[e].packagePath);
                 ConsoleSync();
             }
             else
             {
                 QString err;
                 err += "---- Start --------------------------------------------\n";
-                err += "Issue opening package file: " + map.at(e).packagePath + "\n";
+                err += "Issue opening package file: " + map[e].packagePath + "\n";
                 err += "---- End ----------------------------------------------\n\n";
                 ConsoleWrite(err);
             }
             continue;
         }
 
-        for (int p = 0; p < map.at(e).textures.count(); p++)
+        for (int p = 0; p < map[e].textures.count(); p++)
         {
-            MapPackagesToModEntry entryMap = map.at(e).textures[p];
-            MatchedTexture matched = textures[entryMap.texturesIndex].list.at(entryMap.listIndex);
-            ModEntry mod = modsToReplace.at(entryMap.modIndex);
+            MapPackagesToModEntry entryMap = map[e].textures[p];
+            MatchedTexture matched = textures[entryMap.texturesIndex].list[entryMap.listIndex];
+            ModEntry mod = modsToReplace[entryMap.modIndex];
             Texture texture = Texture(package, matched.exportID, package.getExportData(matched.exportID));
             QString fmt = texture.getProperties().getProperty("Format").valueName;
             PixelFormat pixelFormat = Image::getPixelFormatType(fmt);
@@ -233,8 +233,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     bool found = false;
                     for (int m = t; m < image->getMipMaps().count(); m++)
                     {
-                        if (!(texture.mipMapsList.at(m).width == image->getMipMaps()[t].getOrigWidth() &&
-                              texture.mipMapsList.at(m).height == image->getMipMaps()[t].getOrigHeight()))
+                        if (!(texture.mipMapsList[m].width == image->getMipMaps()[t].getOrigWidth() &&
+                              texture.mipMapsList[m].height == image->getMipMaps()[t].getOrigHeight()))
                         {
                             found = true;;
                         }
@@ -256,8 +256,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     bool found = false;
                     for (int m = t; m < image->getMipMaps().count(); m++)
                     {
-                        if (!(texture.mipMapsList.at(m).width == image->getMipMaps()[t].getOrigWidth() &&
-                              texture.mipMapsList.at(m).height == image->getMipMaps()[t].getOrigHeight()))
+                        if (!(texture.mipMapsList[m].width == image->getMipMaps()[t].getOrigWidth() &&
+                              texture.mipMapsList[m].height == image->getMipMaps()[t].getOrigHeight()))
                         {
                             found = true;;
                         }
@@ -470,7 +470,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                             }
                             archiveFile = "";
                         }
-                        if (archiveFile == "")
+                        if (archiveFile.length() == 0)
                             CRASH_MSG("No free TFC texture file!");
                     }
                 }
@@ -686,15 +686,15 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList 
     // Remove duplicates
     for (int i = 0; i < modsToReplace.count(); i++)
     {
-        ModEntry mod = modsToReplace.at(i);
+        ModEntry mod = modsToReplace[i];
         for (int l = 0; l < i; l++)
         {
             if (mod.binaryModType)
                 binaryMods = true;
-            if ((mod.textureCrc != 0 && mod.textureCrc == modsToReplace.at(l).textureCrc) ||
-                (mod.binaryModType && modsToReplace.at(l).binaryModType &&
-                mod.exportId == modsToReplace.at(l).exportId &&
-                mod.packagePath.compare(modsToReplace.at(l).packagePath) == 0))
+            if ((mod.textureCrc != 0 && mod.textureCrc == modsToReplace[l].textureCrc) ||
+                (mod.binaryModType && modsToReplace[l].binaryModType &&
+                mod.exportId == modsToReplace[l].exportId &&
+                mod.packagePath.compare(modsToReplace[l].packagePath) == 0))
             {
                 modsToReplace.removeAt(l);
                 i--;
@@ -711,7 +711,7 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList 
         int index = -1;
         for (int t = 0; t < modsToReplace.count(); t++)
         {
-            if (textures.at(k).crc == modsToReplace.at(t).textureCrc)
+            if (textures[k].crc == modsToReplace[t].textureCrc)
             {
                 index = t;
                 break;
@@ -722,7 +722,7 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList 
 
         for (int t = 0; t < textures[k].list.count(); t++)
         {
-            if (textures[k].list[t].path == "")
+            if (textures[k].list[t].path.length() == 0)
                 continue;
 
             MapTexturesToMod entry{};
@@ -735,7 +735,7 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList 
             else
                 map.push_back(entry);
 
-            ModEntry mod = modsToReplace.at(index);
+            ModEntry mod = modsToReplace[index];
             mod.instance++;
             modsToReplace.replace(index, mod);
         }
@@ -749,15 +749,15 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList 
     for (int i = 0; i < map.count(); i++)
     {
         MapPackagesToModEntry entry{};
-        entry.modIndex = map.at(i).modIndex;
-        entry.texturesIndex = map.at(i).texturesIndex;
-        entry.listIndex = map.at(i).listIndex;
-        QString path = map.at(i).packagePath.toLower();
+        entry.modIndex = map[i].modIndex;
+        entry.texturesIndex = map[i].texturesIndex;
+        entry.listIndex = map[i].listIndex;
+        QString path = map[i].packagePath.toLower();
         if (previousPath == path)
         {
-            MapPackagesToMod mapEntry = mapPackages.at(packagesIndex);
-            mapEntry.usage += modsToReplace.at(map.at(i).modIndex).memEntrySize;
-            mapEntry.instances += modsToReplace.at(map.at(i).modIndex).instance;
+            MapPackagesToMod mapEntry = mapPackages[packagesIndex];
+            mapEntry.usage += modsToReplace[map[i].modIndex].memEntrySize;
+            mapEntry.instances += modsToReplace[map[i].modIndex].instance;
             mapEntry.textures.push_back(entry);
             mapPackages.replace(packagesIndex, mapEntry);
         }
@@ -765,11 +765,11 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList 
         {
             MapPackagesToMod mapEntry{};
             mapEntry.textures.push_back(entry);
-            mapEntry.packagePath = map.at(i).packagePath;
-            mapEntry.usage = modsToReplace.at(map.at(i).modIndex).memEntrySize;
-            mapEntry.instances = modsToReplace.at(map.at(i).modIndex).instance;
-            mapEntry.removeMips.pkgPath = map.at(i).packagePath;
-            previousPath = map.at(i).packagePath.toLower();
+            mapEntry.packagePath = map[i].packagePath;
+            mapEntry.usage = modsToReplace[map[i].modIndex].memEntrySize;
+            mapEntry.instances = modsToReplace[map[i].modIndex].instance;
+            mapEntry.removeMips.pkgPath = map[i].packagePath;
+            previousPath = map[i].packagePath.toLower();
             mapPackages.push_back(mapEntry);
             packagesIndex++;
         }
@@ -781,15 +781,15 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList 
     for (int i = 0; i < mapSlaves.count(); i++)
     {
         MapPackagesToModEntry entry{};
-        entry.modIndex = mapSlaves.at(i).modIndex;
-        entry.texturesIndex = mapSlaves.at(i).texturesIndex;
-        entry.listIndex = mapSlaves.at(i).listIndex;
-        QString path = mapSlaves.at(i).packagePath.toLower();
+        entry.modIndex = mapSlaves[i].modIndex;
+        entry.texturesIndex = mapSlaves[i].texturesIndex;
+        entry.listIndex = mapSlaves[i].listIndex;
+        QString path = mapSlaves[i].packagePath.toLower();
         if (previousPath == path)
         {
-            MapPackagesToMod mapEntry = mapPackages.at(packagesIndex);
-            mapEntry.usage += modsToReplace.at(mapSlaves.at(i).modIndex).memEntrySize;
-            mapEntry.instances = modsToReplace.at(mapSlaves.at(i).modIndex).instance;
+            MapPackagesToMod mapEntry = mapPackages[packagesIndex];
+            mapEntry.usage += modsToReplace[mapSlaves[i].modIndex].memEntrySize;
+            mapEntry.instances = modsToReplace[mapSlaves[i].modIndex].instance;
             mapEntry.textures.push_back(entry);
             mapPackages.replace(packagesIndex, mapEntry);
         }
@@ -797,11 +797,11 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList 
         {
             MapPackagesToMod mapEntry{};
             mapEntry.textures.push_back(entry);
-            mapEntry.packagePath = mapSlaves.at(i).packagePath;
-            mapEntry.usage = modsToReplace.at(mapSlaves.at(i).modIndex).memEntrySize;
-            mapEntry.instances = modsToReplace.at(mapSlaves.at(i).modIndex).instance;
+            mapEntry.packagePath = mapSlaves[i].packagePath;
+            mapEntry.usage = modsToReplace[mapSlaves[i].modIndex].memEntrySize;
+            mapEntry.instances = modsToReplace[mapSlaves[i].modIndex].instance;
             mapEntry.slave = true;
-            previousPath = mapSlaves.at(i).packagePath.toLower();
+            previousPath = mapSlaves[i].packagePath.toLower();
             mapPackages.push_back(mapEntry);
             packagesIndex++;
         }
@@ -814,13 +814,13 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList 
         {
             for (int t = 0; t < textures[k].list.count(); t++)
             {
-                if (textures[k].list[t].path == "")
+                if (textures[k].list[t].path.length() == 0)
                     continue;
                 if (!textures[k].list[t].slave && textures[k].list[t].removeEmptyMips)
                 {
                     for (int e = 0; e < mapPackages.count(); e++)
                     {
-                        if (!mapPackages[e].slave && mapPackages.at(e).packagePath == textures[k].list[t].path)
+                        if (!mapPackages[e].slave && mapPackages[e].packagePath == textures[k].list[t].path)
                         {
                             mapPackages[e].removeMips.exportIDs.push_back(textures[k].list[t].exportID);
                             MatchedTexture f = textures[k].list[t];
@@ -843,7 +843,7 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList 
 
         for (int i = 0; i < modsToReplace.count(); i++)
         {
-            ModEntry mod = modsToReplace.at(i);
+            ModEntry mod = modsToReplace[i];
             if (mod.binaryModType)
             {
                 QString path = g_GameData->GamePath() + mod.packagePath;

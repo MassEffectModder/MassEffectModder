@@ -121,13 +121,13 @@ Texture::Texture(Package &package, int exportId, ByteBuffer data, bool fixDim)
         if (found)
         {
             basePackageName = baseName;
-            if (basePackageName == "")
+            if (basePackageName.length() == 0)
                 CRASH();
             slave = true;
         }
         else
         {
-            if (baseName != "" && !properties->exists("NeverStream"))
+            if (baseName.length() != 0 && !properties->exists("NeverStream"))
             {
                 if (std::binary_search(g_GameData->packageME1UpperNames.begin(),
                                        g_GameData->packageME1UpperNames.end(),

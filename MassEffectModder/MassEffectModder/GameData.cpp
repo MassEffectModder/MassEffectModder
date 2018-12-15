@@ -203,7 +203,7 @@ void GameData::InternalInit(MeType type, ConfigIni &configIni, bool force = fals
 
     QString key = QString("ME%1").arg(static_cast<int>(gameType));
     QString path = configIni.Read(key, "GameDataPath");
-    if (path != "" && !force)
+    if (path.length() != 0 && !force)
     {
         _path = QDir::cleanPath(path);
         if (QFile(GameExePath()).exists())
@@ -228,7 +228,7 @@ void GameData::InternalInit(MeType type, ConfigIni &configIni, bool force = fals
 
     QSettings settings(registryKey, QSettings::NativeFormat);
     path = settings.value(entry, "").toString();
-    if (path != "" && !force)
+    if (path.length() != 0 && !force)
     {
         _path = QDir::cleanPath(path);
         if (QFile(GameExePath()).exists())
@@ -242,7 +242,7 @@ void GameData::InternalInit(MeType type, ConfigIni &configIni, bool force = fals
     }
 #endif
 
-    if (_path != "")
+    if (_path.length() != 0)
 #if defined(_WIN32)
         configIni.Write(key,
                    _path.replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameDataPath");
@@ -255,7 +255,7 @@ void GameData::InternalInit(MeType type, ConfigIni &configIni, bool force = fals
 
 const QString GameData::bioGamePath()
 {
-    if (_path == "")
+    if (_path.length() == 0)
         CRASH_MSG("Game path not set!");
 
     switch (gameType)
@@ -290,7 +290,7 @@ const QString GameData::MainData()
 
 const QString GameData::DLCData()
 {
-    if (_path == "")
+    if (_path.length() == 0)
         CRASH_MSG("Game path not set!");
 
     switch (gameType)
@@ -325,7 +325,7 @@ const QString GameData::DLCDataSuffix()
 
 const QString GameData::GameExePath()
 {
-    if (_path == "")
+    if (_path.length() == 0)
         CRASH_MSG("Game path not set!");
 
     switch (gameType)
@@ -345,7 +345,7 @@ const QString GameData::GameExePath()
 
 const QString GameData::GameUserPath()
 {
-    if (_path == "")
+    if (_path.length() == 0)
         CRASH_MSG("Game path not set!");
 
     QString path = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).first() + "/BioWare/Mass Effect";
@@ -391,7 +391,7 @@ const QString GameData::EngineConfigIniPath()
 
 const QString GameData::RelativeGameData(const QString &path)
 {
-    if (_path == "")
+    if (_path.length() == 0)
         CRASH_MSG("Game path not set!");
 
     if (!path.contains(_path.toLower(), Qt::CaseInsensitive))

@@ -81,14 +81,14 @@ QString Package::resolvePackagePath(int id)
     if (id > 0 && id < exportsTable.count())
     {
         s += resolvePackagePath(exportsTable[id - 1].getLinkId());
-        if (s != "")
+        if (s.length() != 0)
             s += ".";
         s += exportsTable[id - 1].objectName;
     }
     else if (id < 0 && -id < importsTable.count())
     {
         s += resolvePackagePath(importsTable[-id - 1].linkId);
-        if (s != "")
+        if (s.length() != 0)
             s += ".";
         s += importsTable[-id - 1].objectName;
     }
@@ -252,7 +252,7 @@ void Package::getData(uint offset, uint length, Stream *outputStream, quint8 *ou
         uint bytesLeft = length;
         for (int c = 0; c < chunks.count(); c++)
         {
-            Chunk chunk = chunks.at(c);
+            Chunk chunk = chunks[c];
             if (chunk.uncomprOffset + chunk.uncomprSize <= offset)
                 continue;
             uint startInChunk;
@@ -295,7 +295,7 @@ void Package::getData(uint offset, uint length, Stream *outputStream, quint8 *ou
 
                 for (int b = 0; b < blocks.count(); b++)
                 {
-                    ChunkBlock block = blocks.at(b);
+                    ChunkBlock block = blocks[b];
                     block.compressedBuffer = new quint8[block.comprSize];
                     packageStream->ReadToBuffer(block.compressedBuffer, block.comprSize);
                     block.uncompressedBuffer = new quint8[maxBlockSize * 2];
@@ -362,7 +362,7 @@ ByteBuffer Package::getExportData(int id)
 
 void Package::setExportData(int id, ByteBuffer data)
 {
-    ExportEntry exp = exportsTable.at(id);
+    ExportEntry exp = exportsTable[id];
     if (data.size() > exp.getDataSize())
     {
         exp.setDataOffset(exportsEndOffset);
@@ -1062,7 +1062,7 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
             #pragma omp parallel for
             for (int b = 0; b < chunk.blocks.count(); b++)
             {
-                ChunkBlock block = chunk.blocks.at(b);
+                ChunkBlock block = chunk.blocks[b];
                 if (targetCompression == CompressionType::LZO)
                     LzoCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize);
                 else if (targetCompression == CompressionType::Zlib)
@@ -1076,7 +1076,7 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
 
             for (uint b = 0; b < newNumBlocks; b++)
             {
-                ChunkBlock block = chunk.blocks.at(b);
+                ChunkBlock block = chunk.blocks[b];
                 fs->WriteFromBuffer(block.compressedBuffer, block.comprSize);
                 chunk.comprSize += block.comprSize;
             }

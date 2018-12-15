@@ -252,7 +252,7 @@ void ME3DLC::unpackAllDLC(bool ipc)
                 break;
             }
         }
-        if (!isValid || sfarFile == "")
+        if (!isValid || sfarFile.length() == 0)
         {
             continue;
         }

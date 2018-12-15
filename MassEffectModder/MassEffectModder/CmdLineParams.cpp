@@ -540,7 +540,7 @@ int ProcessArguments()
     {
         ConfigIni configIni = ConfigIni();
         g_GameData->Init(MeType::ME3_TYPE, configIni);
-        if (g_GameData->GamePath() == "" || !QDir(g_GameData->GamePath()).exists())
+        if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
         {
             ConsoleWrite("Error: Could not found the game!");
             errorCode = -1;
@@ -553,7 +553,7 @@ int ProcessArguments()
     {
         ConfigIni configIni = ConfigIni();
         g_GameData->Init(MeType::ME3_TYPE, configIni);
-        if (g_GameData->GamePath() == "" || !QDir(g_GameData->GamePath()).exists())
+        if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
         {
             ConsoleWrite("Error: Could not found the game!");
             errorCode = -1;
@@ -766,7 +766,7 @@ int ProcessArguments()
             errorCode = -1;
             break;
         }
-        if (tfcName == "")
+        if (tfcName.length() == 0)
         {
             ConsoleWrite("TFC name param missing!");
             errorCode = -1;
@@ -775,7 +775,7 @@ int ProcessArguments()
         quint8 guidArray[16];
         memset(guidArray, 0, 16);
         QByteArray array;
-        if (guid != "")
+        if (guid.length() != 0)
         {
             for (int i = 0; i < 32; i += 2)
             {

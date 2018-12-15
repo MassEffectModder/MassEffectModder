@@ -32,7 +32,7 @@ ConfigIni::ConfigIni()
 
 ConfigIni::ConfigIni(const QString &iniPath)
 {
-    if (iniPath != "")
+    if (iniPath.length() != 0)
     {
 #if defined(_WIN32)
         settings = nullptr;
@@ -79,7 +79,7 @@ QString ConfigIni::Read(const QString &key, const QString &section)
 
 bool ConfigIni::Write(const QString &key, const QString &value, const QString &section)
 {
-    if (!valid || key == "" || section == ""
+    if (!valid || key.length() == 0 || section.length() == 0
 #if !defined(_WIN32)
             || !settings->isWritable()
 #endif
@@ -103,7 +103,7 @@ bool ConfigIni::Write(const QString &key, const QString &value, const QString &s
 
 bool ConfigIni::DeleteKey(const QString &key, const QString &section)
 {
-    if (!valid || key == "" || section == ""
+    if (!valid || key.length() == 0 || section.length() == 0
 #if !defined(_WIN32)
             || !settings->isWritable()
 #endif
