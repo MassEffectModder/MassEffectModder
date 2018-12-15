@@ -33,40 +33,40 @@ void TOCBinFile::UpdateAllTOCBinFiles()
 
 void TOCBinFile::GenerateMainTocBinFile()
 {
-    QStringList MainFiles;
+    QStringList files;
     int pathLen = g_GameData->GamePath().length();
     QDirIterator MainIterator(g_GameData->MainData(), QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
     while (MainIterator.hasNext())
     {
         MainIterator.next();
-        MainFiles.push_back(MainIterator.filePath().mid(pathLen));
+        if (MainIterator.filePath().endsWith(".pcc", Qt::CaseInsensitive) ||
+            MainIterator.filePath().endsWith(".upk", Qt::CaseInsensitive) ||
+            MainIterator.filePath().endsWith(".tfc", Qt::CaseInsensitive) ||
+            MainIterator.filePath().endsWith(".tlk", Qt::CaseInsensitive) ||
+            MainIterator.filePath().endsWith(".afc", Qt::CaseInsensitive) ||
+            MainIterator.filePath().endsWith(".cnd", Qt::CaseInsensitive) ||
+            MainIterator.filePath().endsWith(".txt", Qt::CaseInsensitive) ||
+            MainIterator.filePath().endsWith(".bin", Qt::CaseInsensitive))
+        {
+            files.push_back(MainIterator.filePath().mid(pathLen + 1));
+        }
     }
 
-    QStringList MoviesFiles;
     QDirIterator MoviesIterator(g_GameData->bioGamePath() + "/Movies", QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
     while (MoviesIterator.hasNext())
     {
         MoviesIterator.next();
-        MoviesFiles.push_back(MoviesIterator.filePath().mid(pathLen));
+        if (MoviesIterator.filePath().endsWith(".bik", Qt::CaseInsensitive))
+            files.push_back(MoviesIterator.filePath().mid(pathLen + 1));
     }
-
-    QStringList files = MainFiles.filter(QRegExp("*.pcc", Qt::CaseInsensitive, QRegExp::Wildcard));
-    files += MainFiles.filter(QRegExp("*.upk", Qt::CaseInsensitive, QRegExp::Wildcard));
-    files += MainFiles.filter(QRegExp("*.tfc", Qt::CaseInsensitive, QRegExp::Wildcard));
-    files += MainFiles.filter(QRegExp("*.tlk", Qt::CaseInsensitive, QRegExp::Wildcard));
-    files += MainFiles.filter(QRegExp("*.afc", Qt::CaseInsensitive, QRegExp::Wildcard));
-    files += MainFiles.filter(QRegExp("*.cnd", Qt::CaseInsensitive, QRegExp::Wildcard));
-    files += MainFiles.filter(QRegExp("*.txt", Qt::CaseInsensitive, QRegExp::Wildcard));
-    files += MainFiles.filter(QRegExp("*.bin", Qt::CaseInsensitive, QRegExp::Wildcard));
-    files += MoviesFiles.filter(QRegExp("*.bik", Qt::CaseInsensitive, QRegExp::Wildcard));
 
     QList<FileEntry> filesList;
     for (int f = 0; f < files.count(); f++)
     {
         FileEntry file{};
-        if (!files[f].contains("pcconsoletoc.bin", Qt::CaseInsensitive))
-            file.size = QFileInfo(files[f]).size();
-        file.path = files[f].mid(pathLen + 1).replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive);
+        if (!files[f].endsWith("pcconsoletoc.bin", Qt::CaseInsensitive))
+            file.size = QFileInfo(g_GameData->GamePath() + "/" + files[f]).size();
+        file.path = files[f].replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive);
         filesList.push_back(file);
     }
     QString tocFile = g_GameData->bioGamePath() + "/PCConsoleTOC.bin";
@@ -77,11 +77,11 @@ void TOCBinFile::GenerateDLCsTocBinFiles()
 {
     if (QDir(g_GameData->DLCData()).exists())
     {
-        int pathLen = g_GameData->GamePath().length();
+        int pathLen = g_GameData->DLCData().length();
         QStringList DLCs = QDir(g_GameData->DLCData(), "DLC_*", QDir::NoSort, QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
         foreach (QString DLCDir, DLCs)
         {
-            QStringList DLCfiles;
+            QStringList files;
             QDirIterator iterator(g_GameData->DLCData() + "/" + DLCDir, QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
             bool isValid = false;
             while (iterator.hasNext())
@@ -90,33 +90,32 @@ void TOCBinFile::GenerateDLCsTocBinFiles()
                 if (iterator.filePath().endsWith("Mount.dlc", Qt::CaseInsensitive))
                 {
                     isValid = true;
-                    break;
                 }
-                DLCfiles.push_back(iterator.filePath().mid(pathLen));
+                if (iterator.filePath().endsWith(".pcc", Qt::CaseInsensitive) ||
+                    iterator.filePath().endsWith(".upk", Qt::CaseInsensitive) ||
+                    iterator.filePath().endsWith(".tfc", Qt::CaseInsensitive) ||
+                    iterator.filePath().endsWith(".tlk", Qt::CaseInsensitive) ||
+                    iterator.filePath().endsWith(".afc", Qt::CaseInsensitive) ||
+                    iterator.filePath().endsWith(".cnd", Qt::CaseInsensitive) ||
+                    iterator.filePath().endsWith(".bik", Qt::CaseInsensitive) ||
+                    iterator.filePath().endsWith(".txt", Qt::CaseInsensitive) ||
+                    iterator.filePath().endsWith(".bin", Qt::CaseInsensitive))
+                {
+                    files.push_back(iterator.filePath().mid(pathLen + DLCDir.length() + 2));
+                }
             }
             if (!isValid)
             {
-                DLCs.removeOne(DLCDir);
                 continue;
             }
-            QStringList files = DLCfiles.filter(QRegExp("*.pcc", Qt::CaseInsensitive, QRegExp::Wildcard));
-            files += DLCfiles.filter(QRegExp("*.upk", Qt::CaseInsensitive, QRegExp::Wildcard));
-            files += DLCfiles.filter(QRegExp("*.tfc", Qt::CaseInsensitive, QRegExp::Wildcard));
-            files += DLCfiles.filter(QRegExp("*.tlk", Qt::CaseInsensitive, QRegExp::Wildcard));
-            files += DLCfiles.filter(QRegExp("*.afc", Qt::CaseInsensitive, QRegExp::Wildcard));
-            files += DLCfiles.filter(QRegExp("*.cnd", Qt::CaseInsensitive, QRegExp::Wildcard));
-            files += DLCfiles.filter(QRegExp("*.bik", Qt::CaseInsensitive, QRegExp::Wildcard));
-            files += DLCfiles.filter(QRegExp("*.txt", Qt::CaseInsensitive, QRegExp::Wildcard));
-            files += DLCfiles.filter(QRegExp("*.bin", Qt::CaseInsensitive, QRegExp::Wildcard));
 
             QList<FileEntry> filesList;
-            int DLCPathLength = (g_GameData->DLCData() + "/" + DLCDir).size();
             for (int f = 0; f < files.count(); f++)
             {
                 FileEntry file{};
-                if (!files[f].contains("pcconsoletoc.bin", Qt::CaseInsensitive))
-                    file.size = QFileInfo(files[f]).size();
-                file.path = files[f].mid(DLCPathLength + 1).replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive);
+                if (!files[f].endsWith("pcconsoletoc.bin", Qt::CaseInsensitive))
+                    file.size = QFileInfo(g_GameData->DLCData() + "/" + DLCDir + "/" + files[f]).size();
+                file.path = files[f].replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive);
                 filesList.push_back(file);
             }
             QString tocFile = g_GameData->DLCData() + "/" + DLCDir + "/PCConsoleTOC.bin";
