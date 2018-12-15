@@ -29,6 +29,7 @@
 #include "MemTypes.h"
 #include "TOCFile.h"
 #include "DLC.h"
+#include "Misc.h"
 
 void DisplayHelp()
 {
@@ -555,7 +556,10 @@ int ProcessArguments()
             errorCode = -1;
             break;
         }
+        Misc::startTimer();
         ME3DLC::unpackAllDLC(false);
+        long elapsed = Misc::elapsedTime();
+        ConsoleWrite(Misc::getTimerFormat(elapsed));
         break;
     }
     case CmdType::CONVERT_TO_MEM:
