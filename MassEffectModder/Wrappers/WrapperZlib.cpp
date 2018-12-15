@@ -48,7 +48,7 @@ int ZlibCompress(unsigned char *src, unsigned int src_len, unsigned char **dst, 
     std::unique_ptr<unsigned char> tmpbuf (new unsigned char[tmpBufLen]);
     uLongf len = tmpBufLen;
 
-    int status = compress2(static_cast<Bytef *>(*dst), &len, static_cast<Bytef *>(src), static_cast<uLong>(src_len), compression_level);
+    int status = compress2(static_cast<Bytef *>(tmpbuf.get()), &len, static_cast<Bytef *>(src), static_cast<uLong>(src_len), compression_level);
     if (status == Z_OK)
     {
         *dst = new unsigned char[len];
