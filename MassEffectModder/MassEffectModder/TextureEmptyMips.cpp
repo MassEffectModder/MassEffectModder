@@ -67,7 +67,7 @@ void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> &textures, QString
     QString path = "/BioGame/CookedPC/testVolumeLight_VFX.upk";
     for (int i = 0; i < list.count(); i++)
     {
-        if (path.compare(list[i].pkgPath, Qt::CaseInsensitive))
+        if (path.compare(list[i].pkgPath, Qt::CaseInsensitive) == 0)
             continue;
 
         if (ipc)
@@ -230,7 +230,7 @@ void MipMaps::removeMipMapsME2ME3(QList<FoundTexture> &textures, QStringList &pk
     }
     for (int i = 0; i < list.count(); i++)
     {
-        if (path.compare(list[i].pkgPath, Qt::CaseInsensitive))
+        if (path.compare(list[i].pkgPath, Qt::CaseInsensitive) == 0)
             continue;
 
         if (ipc)
