@@ -239,8 +239,7 @@ bool CmdLineTools::convertGameImages(MeType gameId, QString &inputDir, QString &
     list += QDir(inputDir, "*.tga", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
     std::sort(list.begin(), list.end(), compareByAscii);
 
-    if (!QDir(outputDir).exists())
-        QDir().mkpath(outputDir);
+    QDir().mkpath(outputDir);
 
     bool status = true;
     foreach (QString file, list)
@@ -315,8 +314,7 @@ bool CmdLineTools::extractTPF(QString &inputDir, QString &outputDir, bool ipc)
     QStringList list = QDir(inputDir, "*.tpf", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
     std::sort(list.begin(), list.end(), compareByAscii);
 
-    if (!QDir(outputDir).exists())
-        QDir().mkpath(outputDir);
+    QDir().mkpath(outputDir);
 
     foreach (QString file, list)
     {
@@ -330,8 +328,7 @@ bool CmdLineTools::extractTPF(QString &inputDir, QString &outputDir, bool ipc)
             ConsoleWrite(QString("Extract TPF: ") + file);
         }
         QString outputTPFdir = outputDir + "/" + BaseNameWithoutExt(file);
-        if (!QDir(outputTPFdir).exists())
-            QDir().mkpath(outputTPFdir);
+        QDir().mkpath(outputTPFdir);
 
 #if defined(_WIN32)
         wchar_t *name = const_cast<wchar_t *>(file.toStdWString().c_str());
@@ -407,8 +404,7 @@ bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputD
     list += QDir(inputDir, "*.mod", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
     std::sort(list.begin(), list.end(), compareByAscii);
 
-    if (!QDir(outputDir).exists())
-        QDir().mkpath(outputDir);
+    QDir().mkpath(outputDir);
 
     foreach (QString file, list)
     {
@@ -422,8 +418,7 @@ bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputD
             ConsoleWrite(QString("Extract MOD: ") + file);
         }
         QString outputMODdir = outputDir + "\\" + BaseNameWithoutExt(file);
-        if (!QDir(outputMODdir).exists())
-            QDir().mkpath(outputMODdir);
+        QDir().mkpath(outputMODdir);
 
         FileStream fs = FileStream(file, FileMode::Open, FileAccess::ReadOnly);
         uint textureCrc;
@@ -526,8 +521,7 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
     list += QDir(inputDir, "*.mem", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
     std::sort(list.begin(), list.end(), compareByAscii);
 
-    if (!QDir(outputDir).exists())
-        QDir().mkpath(outputDir);
+    QDir().mkpath(outputDir);
 
     int currentNumberOfTotalMods = 1;
     int totalNumberOfMods = 0;
@@ -558,8 +552,7 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
             ConsoleWrite(QString("Extract MEM: ") + relativeFilePath);
         }
         QString outputMODdir = outputDir + "\\" + BaseNameWithoutExt(file);
-        if (!QDir(outputMODdir).exists())
-            QDir().mkpath(outputMODdir);
+        QDir().mkpath(outputMODdir);
 
         FileStream fs = FileStream(file, FileMode::Open, FileAccess::ReadOnly);
         uint tag = fs.ReadUInt32();
@@ -761,9 +754,7 @@ bool CmdLineTools::ApplyLODAndGfxSettings(MeType gameId, bool softShadowsME1, bo
     }
 
     QString path = g_GameData->EngineConfigIniPath();
-    bool exist = QFile(path).exists();
-    if (!exist)
-        QDir().mkpath(DirName(path));
+    QDir().mkpath(DirName(path));
     ConfigIni engineConf = ConfigIni(path);
     LODSettings::updateLOD(gameId, engineConf, limit2k);
     LODSettings::updateGFXSettings(gameId, engineConf, softShadowsME1, meuitmMode);
@@ -1264,9 +1255,7 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool 
 
         ConsoleWrite("Updating LODs and other settings started...");
         QString path = g_GameData->EngineConfigIniPath();
-        bool exist = QFile(path).exists();
-        if (!exist)
-            QDir().mkpath(DirName(path));
+        QDir().mkpath(DirName(path));
         ConfigIni engineConf = ConfigIni(path);
         LODSettings::updateLOD(gameId, engineConf, limit2k);
         LODSettings::updateGFXSettings(gameId, engineConf, false, false);
@@ -1856,8 +1845,7 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
         return false;
     }
 
-    if (!QDir(outputDir).exists())
-        QDir().mkpath(outputDir);
+    QDir().mkpath(outputDir);
 
     for (int i = 0; i < textures.count(); i++)
     {
