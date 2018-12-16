@@ -80,6 +80,12 @@ void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> &textures, QString
                 lastProgress = newProgress;
             }
         }
+        else
+        {
+            ConsoleWrite("Removing empty mipmaps (" + QString::number(phase) + ") " +
+                         QString::number(i + 1) + "/" +
+                         QString::number(list.count()) + " " + list[i].pkgPath);
+        }
 
         Package package{};
         if (package.Open(g_GameData->GamePath() + list[i].pkgPath) != 0)
@@ -242,6 +248,12 @@ void MipMaps::removeMipMapsME2ME3(QList<FoundTexture> &textures, QStringList &pk
                 ConsoleSync();
                 lastProgress = newProgress;
             }
+        }
+        else
+        {
+            ConsoleWrite("Removing empty mipmaps " +
+                         QString::number(i + 1) + "/" +
+                         QString::number(list.count()) + " " + list[i].pkgPath);
         }
 
         Package package{};
