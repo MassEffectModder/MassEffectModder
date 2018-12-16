@@ -870,9 +870,9 @@ bool CmdLineTools::CheckForMarkers(MeType gameId, bool ipc)
         packages.push_back(g_GameData->packageFiles[i]);
     }
     if (GameData::gameType == MeType::ME1_TYPE)
-        packages.removeOne(g_GameData->GamePath() + "/BioGame/CookedPC/testVolumeLight_VFX.upk");
+        packages.removeOne("/BioGame/CookedPC/testVolumeLight_VFX.upk");
     else if (GameData::gameType == MeType::ME2_TYPE)
-        packages.removeOne(g_GameData->GamePath() + "/BioGame/CookedPC/BIOC_Materials.pcc");
+        packages.removeOne("/BioGame/CookedPC/BIOC_Materials.pcc");
 
     int lastProgress = -1;
     for (int i = 0; i < packages.count(); i++)
@@ -1067,7 +1067,7 @@ void CmdLineTools::RepackME23(MeType gameId, bool modded, bool ipc)
     }
 
     if (gameId == MeType::ME2_TYPE)
-        pkgsToRepack.removeOne(g_GameData->GamePath() + "/BioGame/CookedPC/BIOC_Materials.pcc");
+        pkgsToRepack.removeOne("/BioGame/CookedPC/BIOC_Materials.pcc");
     int lastProgress = -1;
     for (int i = 0; i < pkgsToRepack.count(); i++)
     {
@@ -1193,9 +1193,9 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool 
             pkgsToRepack.push_back(g_GameData->packageFiles[i]);
         }
         if (GameData::gameType == MeType::ME1_TYPE)
-            pkgsToRepack.removeOne(g_GameData->GamePath() + "/BioGame/CookedPC/testVolumeLight_VFX.upk");
+            pkgsToRepack.removeOne("/BioGame/CookedPC/testVolumeLight_VFX.upk");
         else if (GameData::gameType == MeType::ME2_TYPE)
-            pkgsToRepack.removeOne(g_GameData->GamePath() + "/BioGame/CookedPC/BIOC_Materials.pcc");
+            pkgsToRepack.removeOne("/BioGame/CookedPC/BIOC_Materials.pcc");
     }
 
     QList<FoundTexture> textures;
@@ -1207,9 +1207,9 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool 
             pkgsToMarker.push_back(g_GameData->packageFiles[i]);
         }
         if (GameData::gameType == MeType::ME1_TYPE)
-            pkgsToMarker.removeOne(g_GameData->GamePath() + "/BioGame/CookedPC/testVolumeLight_VFX.upk");
+            pkgsToMarker.removeOne("/BioGame/CookedPC/testVolumeLight_VFX.upk");
         else if (GameData::gameType == MeType::ME2_TYPE)
-            pkgsToMarker.removeOne(g_GameData->GamePath() + "/BioGame/CookedPC/BIOC_Materials.pcc");
+            pkgsToMarker.removeOne("/BioGame/CookedPC/BIOC_Materials.pcc");
 
         ScanTextures(gameId, resources, textures, pkgsToMarker, pkgsToRepack, mipMaps, ipc, repack, true);
     }
