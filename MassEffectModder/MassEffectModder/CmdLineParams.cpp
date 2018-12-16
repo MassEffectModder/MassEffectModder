@@ -69,10 +69,10 @@ void DisplayHelp()
     ConsoleWrite("     Apply LAA patch to ME1 executable.\n");
     ConsoleWrite("");
     ConsoleWrite("  --detect-mods --gameid <game id> [--ipc]\n");
-    ConsoleWrite("     Detect compatibe mods.\n");
+    ConsoleWrite("     Detect compatible mods.\n");
     ConsoleWrite("");
     ConsoleWrite("  --detect-bad-mods --gameid <game id> [--ipc]\n");
-    ConsoleWrite("     Detect not compatibe mods.\n");
+    ConsoleWrite("     Detect not compatible mods.\n");
     ConsoleWrite("");
     ConsoleWrite("  --apply-lods-gfx --gameid <game id> [--soft-shadows-mode] [--meuitm-mode] [--limit-2k]\n");
     ConsoleWrite("     Update LODs and GFX settings.\n");
