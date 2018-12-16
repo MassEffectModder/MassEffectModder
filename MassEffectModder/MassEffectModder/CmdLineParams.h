@@ -29,6 +29,7 @@ typedef enum : int
     SCAN,
     UPDATE_TOC,
     UNPACK_DLCS,
+    REPACK,
     CONVERT_TO_MEM,
     CONVERT_GAME_IMAGE,
     CONVERT_GAME_IMAGES,

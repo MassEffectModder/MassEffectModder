@@ -43,12 +43,10 @@ private:
     bool RemoveMipmaps(MipMaps &mipMaps, QList<FoundTexture> &textures,
                        QStringList &pkgsToMarker, QStringList &pkgsToRepack,
                        bool ipc, bool repack, bool appendMarker);
-    void RepackME23(MeType gameId, bool modded, bool ipc);
-
 public:
 
     int scanTextures(MeType gameId, bool ipc);
-
+    void RepackME23(MeType gameId, bool modded, bool ipc);
     bool applyModTag(MeType gameId, int MeuitmV, int AlotV);
     bool ConvertToMEM(MeType gameId, QString &inputDir, QString &memFile, bool markToConvert, bool ipc);
     bool convertGameTexture(QString &inputFile, QString &outputFile, QList<FoundTexture> *textures,

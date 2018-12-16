@@ -43,8 +43,11 @@ void DisplayHelp()
     ConsoleWrite("  --update-toc");
     ConsoleWrite("     Update TOC files in ME3.");
     ConsoleWrite("");
-    ConsoleWrite("  --unpack-dlcs");
+    ConsoleWrite("  --unpack-dlcs [--ipc]");
     ConsoleWrite("     Unpack ME3 DLCs.");
+    ConsoleWrite("");
+    ConsoleWrite("  --repack --gameid <game id> [--ipc]");
+    ConsoleWrite("     Repack ME2 or ME3 packages.");
     ConsoleWrite("");
     ConsoleWrite("  --check-game-data-after --gameid <game id> [--ipc]\n");
     ConsoleWrite("     Check game data for mods installed after textures installation.\n");
@@ -560,7 +563,29 @@ int ProcessArguments()
             break;
         }
         Misc::startTimer();
-        ME3DLC::unpackAllDLC(false);
+        ME3DLC::unpackAllDLC(ipc);
+        long elapsed = Misc::elapsedTime();
+        ConsoleWrite(Misc::getTimerFormat(elapsed));
+        break;
+    }
+    case CmdType::REPACK:
+    {
+        if (gameId != MeType::ME2_TYPE && gameId != MeType::ME3_TYPE)
+        {
+            ConsoleWrite("Wrong game id!");
+            errorCode = -1;
+            break;
+        }
+        ConfigIni configIni = ConfigIni();
+        g_GameData->Init(gameId, configIni);
+        if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
+        {
+            ConsoleWrite("Error: Could not found the game!");
+            errorCode = -1;
+            break;
+        }
+        Misc::startTimer();
+        tools.RepackME23(gameId, false, ipc);
         long elapsed = Misc::elapsedTime();
         ConsoleWrite(Misc::getTimerFormat(elapsed));
         break;
