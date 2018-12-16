@@ -39,7 +39,7 @@ typedef enum
 
 typedef enum
 {
-    UnknownImageFormat, DDS, PNG, BMP, TGA, JPEG
+    UnknownImageFormat, DDS, PNG, BMP, TGA
 } ImageFormat;
 
 #define textureMapBinTag      0x5054454D

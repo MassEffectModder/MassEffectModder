@@ -41,7 +41,6 @@ Image::Image(QString &fileName, ImageFormat format)
         }
         case ImageFormat::BMP:
         case ImageFormat::PNG:
-        case ImageFormat::JPEG:
         {
             auto file = FileStream(fileName, FileMode::Open, FileAccess::ReadOnly);
             auto buffer = ByteBuffer(file.Length());
@@ -69,7 +68,6 @@ Image::Image(Stream &stream, ImageFormat format)
         }
         case ImageFormat::BMP:
         case ImageFormat::PNG:
-        case ImageFormat::JPEG:
         case ImageFormat::UnknownImageFormat:
             break;
     }
@@ -90,7 +88,6 @@ Image::Image(Stream &stream, const QString &extension)
         }
         case ImageFormat::BMP:
         case ImageFormat::PNG:
-        case ImageFormat::JPEG:
         case ImageFormat::UnknownImageFormat:
             break;
     }
@@ -111,7 +108,6 @@ Image::Image(ByteBuffer data, ImageFormat format)
         }
         case ImageFormat::BMP:
         case ImageFormat::PNG:
-        case ImageFormat::JPEG:
         {
             LoadImageFromBuffer(data, format);
             return;
@@ -137,7 +133,6 @@ Image::Image(ByteBuffer data, const QString &extension)
         }
         case ImageFormat::BMP:
         case ImageFormat::PNG:
-        case ImageFormat::JPEG:
         {
             LoadImageFromBuffer(data, format);
             return;
@@ -171,8 +166,6 @@ ImageFormat Image::DetectImageByExtension(const QString &extension)
         return ImageFormat::BMP;
     if (ext == ".png")
         return ImageFormat::PNG;
-    if (ext == ".jpg" || ext == ".jpeg")
-        return ImageFormat::JPEG;
 
     return ImageFormat::UnknownImageFormat;
 }
@@ -195,7 +188,6 @@ void Image::LoadImageFromStream(Stream &stream, ImageFormat format)
             }
         case ImageFormat::BMP:
         case ImageFormat::PNG:
-        case ImageFormat::JPEG:
         case ImageFormat::UnknownImageFormat:
             break;
     }
@@ -210,8 +202,6 @@ void Image::LoadImageFromBuffer(ByteBuffer data, ImageFormat format)
     QImage image;
     if (format == ImageFormat::PNG)
         image.loadFromData(data.ptr(), data.size(), "PNG");
-    else if (format == ImageFormat::JPEG)
-        image.loadFromData(data.ptr(), data.size(), "JPG");
     else if (format == ImageFormat::BMP)
         image.loadFromData(data.ptr(), data.size(), "BMP");
     else

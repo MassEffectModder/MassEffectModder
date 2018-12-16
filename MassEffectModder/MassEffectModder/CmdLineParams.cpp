@@ -101,7 +101,7 @@ void DisplayHelp()
     ConsoleWrite("           Naming pattern used for package in base directory:");
     ConsoleWrite("             B<pkg filename length>-<pkg filename>-E<pkg export id>.xdelta");
     ConsoleWrite("             example: B23-BioH_EDI_00_Explore.pcc-E5090.xdelta");
-    ConsoleWrite("        DDS, BMP, TGA, PNG, JPG, JPEG");
+    ConsoleWrite("        DDS, BMP, TGA, PNG, JPG");
     ConsoleWrite("           input format supported for DDS images:");
     ConsoleWrite("              DXT1, DXT3, DTX5, ATI2, V8U8, G8, RGBA, RGB");
     ConsoleWrite("           input format supported for TGA images:");
@@ -114,7 +114,7 @@ void DisplayHelp()
     ConsoleWrite("  --convert-game-image --gameid <game id> --input <input image> <--output output image> [--mark-to-convert]\n");
     ConsoleWrite("     game id: 1 for ME1, 2 for ME2, 3 for ME3");
     ConsoleWrite("     Input file with following extension:");
-    ConsoleWrite("        DDS, BMP, TGA, PNG, JPG, JPEG");
+    ConsoleWrite("        DDS, BMP, TGA, PNG, JPG");
     ConsoleWrite("           input format supported for DDS images:");
     ConsoleWrite("              DXT1, DXT3, DTX5, ATI2, V8U8, G8, RGBA, RGB");
     ConsoleWrite("           input format supported for TGA images:");
@@ -128,7 +128,7 @@ void DisplayHelp()
     ConsoleWrite("     game id: 1 for ME1, 2 for ME2, 3 for ME3");
     ConsoleWrite("     input dir: directory to be converted, containing following file extension(s):");
     ConsoleWrite("        Input files with following extension:");
-    ConsoleWrite("        DDS, BMP, TGA, PNG, JPEG");
+    ConsoleWrite("        DDS, BMP, TGA, PNG");
     ConsoleWrite("           input format supported for DDS images:");
     ConsoleWrite("              DXT1, DXT3, DTX5, ATI2, V8U8, G8, RGBA, RGB");
     ConsoleWrite("           input format supported for TGA images:");
@@ -165,7 +165,7 @@ void DisplayHelp()
     ConsoleWrite("     Textures are extracted as they are in the TPF, no additional modifications are made.");
     ConsoleWrite("");
     ConsoleWrite("  --convert-image --format <output pixel format> [--threshold <dxt1 alpha threshold>] --input <input image> --output <output image>\n");
-    ConsoleWrite("     input image file types: DDS, BMP, TGA, PNG, JPEG");
+    ConsoleWrite("     input image file types: DDS, BMP, TGA, PNG");
     ConsoleWrite("     output image file type: DDS");
     ConsoleWrite("     output pixel format: DXT1 (no alpha), DXT1a (alpha), DXT3, DXT5, ATI2, V8U8, G8, RGBA, RGB");
     ConsoleWrite("     For DXT1a you have to set the alpha threshold (0-255). 128 is suggested as a default value.");

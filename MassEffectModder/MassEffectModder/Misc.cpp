@@ -367,8 +367,6 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
     list2 += QDir(inputDir, "*.png", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
     list2 += QDir(inputDir, "*.bmp", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
     list2 += QDir(inputDir, "*.tga", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
-    list2 += QDir(inputDir, "*.jpg", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
-    list2 += QDir(inputDir, "*.jpeg", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
     std::sort(list2.begin(), list2.end(), compareByAscii);
     list.append(list2);
 
@@ -1046,9 +1044,7 @@ failed:
         else if (
             file.endsWith(".png", Qt::CaseInsensitive) ||
                  file.endsWith(".bmp", Qt::CaseInsensitive) ||
-                 file.endsWith(".tga", Qt::CaseInsensitive) ||
-                 file.endsWith(".jpg", Qt::CaseInsensitive) ||
-                 file.endsWith(".jpeg", Qt::CaseInsensitive))
+                 file.endsWith(".tga", Qt::CaseInsensitive))
         {
             BinaryMod mod{};
             QString filename = BaseNameWithoutExt(file).toLower();
