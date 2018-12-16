@@ -380,7 +380,7 @@ void Package::MoveExportDataToEnd(int id)
     ByteBuffer data = getExportData(id);
     ExportEntry exp = exportsTable[id];
     exp.setDataOffset(exportsEndOffset);
-    exportsEndOffset = exp.getDataSize() + exp.getDataSize();
+    exportsEndOffset = exp.getDataOffset() + exp.getDataSize();
 
     exp.newData.Free();
     exp.newData = data;
