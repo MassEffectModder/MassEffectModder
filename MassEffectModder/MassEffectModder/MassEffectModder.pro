@@ -20,6 +20,7 @@ SOURCES += \
     ConfigIni.cpp \
     DLC.cpp \
     Image.cpp \
+    ImageBMP.cpp \
     ImageDDS.cpp \
     ImageTGA.cpp \
     GameData.cpp \

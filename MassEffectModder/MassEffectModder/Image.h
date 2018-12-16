@@ -58,6 +58,8 @@
 #define BLOCK_SIZE_4X4BPP4       8
 #define BLOCK_SIZE_4X4BPP8       16
 
+#define BMP_TAG                  0x4D42
+
 class Image
 {
     struct DDS_PF
@@ -84,6 +86,7 @@ private:
     void LoadImageFromBuffer(ByteBuffer data, ImageFormat format);
     void LoadImageDDS(Stream &stream);
     void LoadImageTGA(Stream &stream);
+    void LoadImageBMP(Stream &stream);
     static void clearAlphaFromARGB(quint8 *data, int w, int h);
     static ByteBuffer RGBToARGB(const quint8 *src, int w, int h);
     static ByteBuffer ARGBtoRGB(const quint8 *src, int w, int h);

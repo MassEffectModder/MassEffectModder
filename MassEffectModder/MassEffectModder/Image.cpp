@@ -32,6 +32,7 @@ Image::Image(QString &fileName, ImageFormat format)
 
     switch (format)
     {
+        case ImageFormat::BMP:
         case ImageFormat::DDS:
         case ImageFormat::TGA:
         {
@@ -39,7 +40,6 @@ Image::Image(QString &fileName, ImageFormat format)
             LoadImageFromStream(file, format);
             return;
         }
-        case ImageFormat::BMP:
         case ImageFormat::PNG:
         {
             auto file = FileStream(fileName, FileMode::Open, FileAccess::ReadOnly);
@@ -60,13 +60,13 @@ Image::Image(Stream &stream, ImageFormat format)
 {
     switch (format)
     {
+        case ImageFormat::BMP:
         case ImageFormat::DDS:
         case ImageFormat::TGA:
         {
             LoadImageFromStream(stream, format);
             return;
         }
-        case ImageFormat::BMP:
         case ImageFormat::PNG:
         case ImageFormat::UnknownImageFormat:
             break;
@@ -80,13 +80,13 @@ Image::Image(Stream &stream, const QString &extension)
     ImageFormat format = DetectImageByExtension(extension);
     switch (format)
     {
+        case ImageFormat::BMP:
         case ImageFormat::DDS:
         case ImageFormat::TGA:
         {
             LoadImageFromStream(stream, format);
             return;
         }
-        case ImageFormat::BMP:
         case ImageFormat::PNG:
         case ImageFormat::UnknownImageFormat:
             break;
@@ -99,6 +99,7 @@ Image::Image(ByteBuffer data, ImageFormat format)
 {
     switch (format)
     {
+        case ImageFormat::BMP:
         case ImageFormat::DDS:
         case ImageFormat::TGA:
         {
@@ -106,7 +107,6 @@ Image::Image(ByteBuffer data, ImageFormat format)
             LoadImageFromStream(mem, format);
             return;
         }
-        case ImageFormat::BMP:
         case ImageFormat::PNG:
         {
             LoadImageFromBuffer(data, format);
@@ -124,6 +124,7 @@ Image::Image(ByteBuffer data, const QString &extension)
     ImageFormat format = DetectImageByExtension(extension);
     switch (format)
     {
+        case ImageFormat::BMP:
         case ImageFormat::DDS:
         case ImageFormat::TGA:
         {
@@ -131,7 +132,6 @@ Image::Image(ByteBuffer data, const QString &extension)
             LoadImageFromStream(mem, format);
             break;
         }
-        case ImageFormat::BMP:
         case ImageFormat::PNG:
         {
             LoadImageFromBuffer(data, format);
@@ -176,6 +176,11 @@ void Image::LoadImageFromStream(Stream &stream, ImageFormat format)
 
     switch (format)
     {
+        case ImageFormat::BMP:
+            {
+                LoadImageBMP(stream);
+                return;
+            }
         case ImageFormat::DDS:
             {
                 LoadImageDDS(stream);
@@ -186,7 +191,6 @@ void Image::LoadImageFromStream(Stream &stream, ImageFormat format)
                 LoadImageTGA(stream);
                 return;
             }
-        case ImageFormat::BMP:
         case ImageFormat::PNG:
         case ImageFormat::UnknownImageFormat:
             break;
@@ -202,8 +206,6 @@ void Image::LoadImageFromBuffer(ByteBuffer data, ImageFormat format)
     QImage image;
     if (format == ImageFormat::PNG)
         image.loadFromData(data.ptr(), data.size(), "PNG");
-    else if (format == ImageFormat::BMP)
-        image.loadFromData(data.ptr(), data.size(), "BMP");
     else
         CRASH();
 
