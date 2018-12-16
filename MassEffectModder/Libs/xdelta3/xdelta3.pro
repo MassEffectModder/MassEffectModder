@@ -23,6 +23,8 @@ SOURCES = \
     xdelta3_lib.c
 
 QMAKE_CFLAGS +=
+QMAKE_CFLAGS_RELEASE += -g1
+QMAKE_CFLAGS_DEBUG += -g
 
 DEFINES += \
     HAVE_CONFIG_H \

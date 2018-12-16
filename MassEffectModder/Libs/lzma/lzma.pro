@@ -19,3 +19,5 @@ HEADERS += \
     Precomp.h
 
 QMAKE_CFLAGS +=
+QMAKE_CFLAGS_RELEASE += -g1
+QMAKE_CFLAGS_DEBUG += -g

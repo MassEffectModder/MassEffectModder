@@ -85,7 +85,9 @@ precompile_header:!isEmpty(PRECOMPILED_HEADER) {
     DEFINES += USING_PCH
 }
 
-QMAKE_CXXFLAGS += -g
+QMAKE_CXXFLAGS +=
+QMAKE_CXXFLAGS_RELEASE += -g1
+QMAKE_CXXFLAGS_DEBUG += -g
 
 win32-g++: {
     QMAKE_LFLAGS_RELEASE="-Wl,--relax,--gc-sections"

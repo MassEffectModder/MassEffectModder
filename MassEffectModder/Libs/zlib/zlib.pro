@@ -39,5 +39,7 @@ HEADERS += \
     zutil.h
 
 QMAKE_CFLAGS += -Wno-implicit-fallthrough
+QMAKE_CFLAGS_RELEASE += -g1
+QMAKE_CFLAGS_DEBUG += -g
 
 DEFINES += Z_HAVE_UNISTD_H Z_HAVE_STDARG_H
