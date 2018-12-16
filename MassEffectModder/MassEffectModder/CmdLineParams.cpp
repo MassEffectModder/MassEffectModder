@@ -587,7 +587,7 @@ int ProcessArguments()
             break;
         }
         Misc::startTimer();
-        tools.RepackME23(gameId, false, ipc);
+        tools.Repack(gameId, ipc);
         long elapsed = Misc::elapsedTime();
         ConsoleWrite(Misc::getTimerFormat(elapsed));
         break;

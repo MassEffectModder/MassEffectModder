@@ -1057,7 +1057,16 @@ bool CmdLineTools::RemoveMipmaps(MipMaps &mipMaps, QList<FoundTexture> &textures
     return true;
 }
 
-void CmdLineTools::RepackME23(MeType gameId, bool modded, bool ipc)
+void CmdLineTools::Repack(MeType gameId, bool ipc)
+{
+    for (int i = 0; i < g_GameData->packageFiles.count(); i++)
+    {
+        pkgsToRepack.push_back(g_GameData->packageFiles[i]);
+    }
+    RepackME23(gameId, ipc, false);
+}
+
+void CmdLineTools::RepackME23(MeType gameId, bool ipc, bool appendMarker)
 {
     ConsoleWrite("Repack started...");
     if (ipc)
@@ -1078,7 +1087,9 @@ void CmdLineTools::RepackME23(MeType gameId, bool modded, bool ipc)
         }
         else
         {
-            ConsoleWrite(QString("File: ") + pkgsToRepack[i]);
+            ConsoleWrite(QString("Repack " + QString::number(i + 1) + "/" +
+                                 QString::number(pkgsToRepack.count()) +
+                                 " ") + pkgsToRepack[i]);
         }
         int newProgress = (i * 100 / pkgsToRepack.count());
         if (ipc && lastProgress != newProgress)
@@ -1094,8 +1105,8 @@ void CmdLineTools::RepackME23(MeType gameId, bool modded, bool ipc)
         {
             delete package;
             package = new Package();
-            package->Open(pkgsToRepack[i]);
-            package->SaveToFile(true, false, !modded);
+            package->Open(g_GameData->GamePath() + pkgsToRepack[i]);
+            package->SaveToFile(true, false, appendMarker);
         }
         delete package;
     }
@@ -1241,7 +1252,7 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool 
 
 
     if (repack)
-        RepackME23(gameId, modded, ipc);
+        RepackME23(gameId, ipc, !modded);
 
 
     if (!modded)
