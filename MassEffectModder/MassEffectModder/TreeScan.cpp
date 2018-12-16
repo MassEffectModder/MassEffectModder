@@ -622,10 +622,6 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
         {
             mipMaps.removeMipMapsME2ME3(textures, pkgsToMarker, pkgsToRepack, ipc, repack, appendMarker);
         }
-        if (GameData::gameType == MeType::ME3_TYPE)
-        {
-            TOCBinFile::UpdateAllTOCBinFiles();
-        }
     }
 
     return 0;

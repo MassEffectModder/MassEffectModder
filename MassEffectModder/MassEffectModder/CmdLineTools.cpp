@@ -75,6 +75,8 @@ int CmdLineTools::scanTextures(MeType gameId, bool ipc)
     Misc::startTimer();
     errorCode = TreeScan::PrepareListOfTextures(gameId, resources, textures,
                                                 pkgsToMarkers, pkgsToRepack, mipMaps, ipc, false, false);
+    if (GameData::gameType == MeType::ME3_TYPE)
+        TOCBinFile::UpdateAllTOCBinFiles();
     long elapsed = Misc::elapsedTime();
     ConsoleWrite(Misc::getTimerFormat(elapsed));
 
@@ -1053,6 +1055,8 @@ void CmdLineTools::Repack(MeType gameId, bool ipc)
         pkgsToRepack.push_back(g_GameData->packageFiles[i]);
     }
     RepackME23(gameId, ipc, false);
+    if (GameData::gameType == MeType::ME3_TYPE)
+        TOCBinFile::UpdateAllTOCBinFiles();
 }
 
 void CmdLineTools::RepackME23(MeType gameId, bool ipc, bool appendMarker)
