@@ -414,6 +414,8 @@ int ProcessArguments()
             cmd = CmdType::UPDATE_TOC;
         if (arg == "--unpack-dlcs")
             cmd = CmdType::UNPACK_DLCS;
+        if (arg == "--repack")
+            cmd = CmdType::REPACK;
         if (arg == "--convert-to-mem")
             cmd = CmdType::CONVERT_TO_MEM;
         if (arg == "--convert-game-image")
