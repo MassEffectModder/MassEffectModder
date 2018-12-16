@@ -35,8 +35,8 @@ int runQtApplication(int argc, char *argv[])
 
     ConsoleWrite(QString("\nMassEffectModder (MEM) v%1 command line version\n"
                          "Copyright (C) 2014-2018 Pawel Kolodziejski\n"
-                         "This is free software; see the source for copying conditions.\n"
-                         "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n"
+                         "This is free software; see the source for copying conditions.  There is NO.\n"
+                         "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n"
                          ).arg(MEM_VERSION));
 
     return ProcessArguments();
