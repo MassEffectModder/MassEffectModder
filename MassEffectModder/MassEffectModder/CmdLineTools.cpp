@@ -90,18 +90,18 @@ bool CmdLineTools::applyModTag(MeType gameId, int MeuitmV, int AlotV)
     QString path;
     if (gameId == MeType::ME1_TYPE)
     {
-        path = g_GameData->GamePath() + "/BioGame/CookedPC/testVolumeLight_VFX.upk";
+        path = "/BioGame/CookedPC/testVolumeLight_VFX.upk";
     }
     if (gameId == MeType::ME2_TYPE)
     {
-        path = g_GameData->GamePath() + "/BioGame/CookedPC/BIOC_Materials.pcc";
+        path = "/BioGame/CookedPC/BIOC_Materials.pcc";
     }
     if (gameId == MeType::ME3_TYPE)
     {
-        path = g_GameData->GamePath() + "/BIOGame/CookedPCConsole/adv_combat_tutorial_xbox_D_Int.afc";
+        path = "/BIOGame/CookedPCConsole/adv_combat_tutorial_xbox_D_Int.afc";
     }
 
-    FileStream fs = FileStream(path, FileMode::Open, FileAccess::ReadWrite);
+    FileStream fs = FileStream(g_GameData->GamePath() + path, FileMode::Open, FileAccess::ReadWrite);
     fs.Seek(-16, SeekOrigin::End);
     int prevMeuitmV = fs.ReadInt32();
     int prevAlotV = fs.ReadInt32();
@@ -239,7 +239,6 @@ bool CmdLineTools::convertGameImages(MeType gameId, QString &inputDir, QString &
     list += QDir(inputDir, "*.png", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
     list += QDir(inputDir, "*.bmp", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
     list += QDir(inputDir, "*.tga", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
-    std::sort(list.begin(), list.end(), compareByAscii);
 
     QDir().mkpath(outputDir);
 
@@ -314,7 +313,6 @@ bool CmdLineTools::extractTPF(QString &inputDir, QString &outputDir, bool ipc)
     ulong dstLen = 0;
     int numEntries = 0;
     QStringList list = QDir(inputDir, "*.tpf", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
-    std::sort(list.begin(), list.end(), compareByAscii);
 
     QDir().mkpath(outputDir);
 
@@ -402,9 +400,7 @@ bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputD
 
     bool status = true;
     ulong numEntries = 0;
-    QStringList list;
-    list += QDir(inputDir, "*.mod", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
-    std::sort(list.begin(), list.end(), compareByAscii);
+    QStringList list = QDir(inputDir, "*.mod", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
 
     QDir().mkpath(outputDir);
 
@@ -553,7 +549,7 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
         {
             ConsoleWrite(QString("Extract MEM: ") + relativeFilePath);
         }
-        QString outputMODdir = outputDir + "\\" + BaseNameWithoutExt(file);
+        QString outputMODdir = outputDir + "/" + BaseNameWithoutExt(file);
         QDir().mkpath(outputMODdir);
 
         FileStream fs = FileStream(file, FileMode::Open, FileAccess::ReadOnly);
@@ -855,15 +851,19 @@ bool CmdLineTools::CheckForMarkers(MeType gameId, bool ipc)
         return false;
     }
 
+    QString path;
+    if (GameData::gameType == MeType::ME1_TYPE)
+        path = "/BioGame/CookedPC/testVolumeLight_VFX.upk";
+    else if (GameData::gameType == MeType::ME2_TYPE)
+        path = "/BioGame/CookedPC/BIOC_Materials.pcc";
+
     QStringList packages;
     for (int i = 0; i < g_GameData->packageFiles.count(); i++)
     {
+        if (g_GameData->packageFiles[i].contains(path, Qt::CaseInsensitive))
+            continue;
         packages.push_back(g_GameData->packageFiles[i]);
     }
-    if (GameData::gameType == MeType::ME1_TYPE)
-        packages.removeOne("/BioGame/CookedPC/testVolumeLight_VFX.upk");
-    else if (GameData::gameType == MeType::ME2_TYPE)
-        packages.removeOne("/BioGame/CookedPC/BIOC_Materials.pcc");
 
     int lastProgress = -1;
     for (int i = 0; i < packages.count(); i++)
@@ -876,7 +876,7 @@ bool CmdLineTools::CheckForMarkers(MeType gameId, bool ipc)
             lastProgress = newProgress;
         }
 
-        FileStream fs = FileStream(packages[i], FileMode::Open, FileAccess::ReadOnly);
+        FileStream fs = FileStream(g_GameData->GamePath() + packages[i], FileMode::Open, FileAccess::ReadOnly);
         fs.SeekEnd();
         fs.Seek(-sizeof(MEMendFileMarker), SeekOrigin::Current);
         QString marker;
@@ -968,13 +968,13 @@ bool CmdLineTools::detectMod(MeType gameId)
 {
     QString path;
     if (gameId == MeType::ME1_TYPE)
-        path = g_GameData->GamePath() + "/BioGame/CookedPC/testVolumeLight_VFX.upk";
+        path = "/BioGame/CookedPC/testVolumeLight_VFX.upk";
     else if (gameId == MeType::ME2_TYPE)
-        path = g_GameData->GamePath() + "/BioGame/CookedPC/BIOC_Materials.pcc";
+        path = "/BioGame/CookedPC/BIOC_Materials.pcc";
     else
-        path = g_GameData->GamePath() + "/BIOGame/CookedPCConsole/adv_combat_tutorial_xbox_D_Int.afc";
+        path = "/BIOGame/CookedPCConsole/adv_combat_tutorial_xbox_D_Int.afc";
 
-    FileStream fs = FileStream(path, FileMode::Open, FileAccess::ReadOnly);
+    FileStream fs = FileStream(g_GameData->GamePath() + path, FileMode::Open, FileAccess::ReadOnly);
     fs.Seek(-4, SeekOrigin::End);
     return fs.ReadUInt32() == MEMI_TAG;
 }
@@ -997,7 +997,7 @@ void CmdLineTools::AddMarkers(bool ipc)
             ConsoleSync();
             lastProgress = newProgress;
         }
-        FileStream fs = FileStream(pkgsToMarker[i], FileMode::Open, FileAccess::ReadWrite);
+        FileStream fs = FileStream(g_GameData->GamePath() + pkgsToMarker[i], FileMode::Open, FileAccess::ReadWrite);
         fs.SeekEnd();
         fs.Seek(-sizeof(MEMendFileMarker), SeekOrigin::Current);
         QString marker;
@@ -1505,10 +1505,9 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
             }
             else if (modFiles[l].tag == FileBinaryTag)
             {
-                QString path = g_GameData->GamePath() + pkgPath;
-                if (!QFile(path).exists())
+                if (!QFile(g_GameData->GamePath() + pkgPath).exists())
                 {
-                    ConsoleWrite(QString("Warning: File ") + path +
+                    ConsoleWrite(QString("Warning: File ") + pkgPath +
                                  " not exists in your game setup.");
                     continue;
                 }
@@ -1524,20 +1523,22 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
                 QString path = g_GameData->GamePath() + pkgPath;
                 if (!QFile(path).exists())
                 {
-                    ConsoleWrite(QString("Warning: File ") + path +
+                    ConsoleWrite(QString("Warning: File ") + pkgPath +
                                  " not exists in your game setup.");
                     continue;
                 }
                 ModEntry entry{};
-                Package pkg = Package();
+                Package pkg;
                 pkg.Open(path);
                 ByteBuffer src = pkg.getExportData(exportId);
                 ByteBuffer buffer = ByteBuffer(src.size());
                 uint dstLen = 0;
                 int status = XDelta3Decompress(src.ptr(), src.size(), dst.ptr(), dst.size(), buffer.ptr(), &dstLen);
+                src.Free();
                 if (status != 0)
                 {
-                    ConsoleWrite(QString("Warning: Xdelta patch for ") + path + " failed to apply.\n");
+                    ConsoleWrite(QString("Warning: Xdelta patch for ") + pkgPath + " failed to apply.\n");
+                    buffer.Free();
                     continue;
                 }
                 entry.binaryModType = true;
@@ -1872,9 +1873,8 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
         {
             outputFile += ".dds";
         }
-        QString packagePath = g_GameData->GamePath() + textures[i].list[index].path;
         Package package;
-        package.Open(packagePath);
+        package.Open(g_GameData->GamePath() + textures[i].list[index].path);
         int exportID = textures[i].list[index].exportID;
         Texture texture = Texture(package, exportID, package.getExportData(exportID));
         bool tfcPropExists = texture.getProperties().exists("TextureFileCacheName");
@@ -1975,7 +1975,7 @@ bool CmdLineTools::CheckTextures(MeType gameId, bool ipc)
             ConsoleSync();
             lastProgress = newProgress;
         }
-        if (!package.Open(g_GameData->packageFiles[i]))
+        if (!package.Open(g_GameData->GamePath() + g_GameData->packageFiles[i]))
         {
             if (ipc)
             {
@@ -2003,22 +2003,6 @@ bool CmdLineTools::CheckTextures(MeType gameId, bool ipc)
                 id == package.nameIdTextureFlipBook)
             {
                 Texture texture = Texture(package, e, package.getExportData(e));
-/*                {
-                    if (ipc)
-                    {
-                        ConsoleWrite(QString("[IPC]ERROR_TEXTURE_SCAN_DIAGNOSTIC Error reading texture data for texture: ") +
-                                     package.exportsTable[e].objectName + " in package: " +
-                                     g_GameData->packageFiles[i]);
-                        ConsoleSync();
-                    }
-                    else
-                    {
-                        ConsoleWrite(QString("Error: Failed reading texture data for texture: ") +
-                                     package.exportsTable[e].objectName + " in package: " +
-                                     g_GameData->packageFiles[i]);
-                    }
-                    continue;
-                }*/
                 if (!texture.hasImageData())
                     continue;
 
@@ -2094,7 +2078,7 @@ bool CmdLineTools::checkGameFilesAfter(MeType gameType, bool ipc)
     {
         if (path.length() != 0 && g_GameData->packageFiles[i].contains(path, Qt::CaseInsensitive))
             continue;
-        filesToUpdate.push_back(g_GameData->packageFiles[i].toLower());
+        filesToUpdate.push_back(g_GameData->packageFiles[i]);
     }
     int lastProgress = -1;
     for (int i = 0; i < filesToUpdate.count(); i++)
@@ -2106,36 +2090,21 @@ bool CmdLineTools::checkGameFilesAfter(MeType gameType, bool ipc)
             ConsoleSync();
             lastProgress = newProgress;
         }
-        if (QFile(filesToUpdate[i]).exists())
-        {
-            FileStream fs = FileStream(filesToUpdate[i], FileMode::Open, FileAccess::ReadOnly);
-            fs.SeekEnd();
-            fs.Seek(-sizeof(MEMendFileMarker), SeekOrigin::Current);
-            QString marker;
-            fs.ReadStringASCII(marker, sizeof(MEMendFileMarker));
-            if (marker != QString(MEMendFileMarker))
-            {
-                if (ipc)
-                {
-                    ConsoleWrite(QString("[IPC]ERROR_VANILLA_MOD_FILE ") + filesToUpdate[i]);
-                    ConsoleSync();
-                }
-                else
-                {
-                    ConsoleWrite(QString("Replaced file: ") + filesToUpdate[i]);
-                }
-            }
-        }
-        else
+        FileStream fs = FileStream(g_GameData->GamePath() + filesToUpdate[i], FileMode::Open, FileAccess::ReadOnly);
+        fs.SeekEnd();
+        fs.Seek(-sizeof(MEMendFileMarker), SeekOrigin::Current);
+        QString marker;
+        fs.ReadStringASCII(marker, sizeof(MEMendFileMarker));
+        if (marker != QString(MEMendFileMarker))
         {
             if (ipc)
             {
-                ConsoleWrite(QString("[IPC]ERROR The file could not be opened: ") + filesToUpdate[i]);
+                ConsoleWrite(QString("[IPC]ERROR_VANILLA_MOD_FILE ") + filesToUpdate[i]);
                 ConsoleSync();
             }
             else
             {
-                ConsoleWrite(QString("The file could not be opened, skipped: ") + filesToUpdate[i]);
+                ConsoleWrite(QString("Vanilla file: ") + filesToUpdate[i]);
             }
         }
     }

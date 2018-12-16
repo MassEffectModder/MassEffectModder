@@ -367,7 +367,6 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
     list2 += QDir(inputDir, "*.png", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
     list2 += QDir(inputDir, "*.bmp", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
     list2 += QDir(inputDir, "*.tga", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
-    std::sort(list2.begin(), list2.end(), compareByAscii);
     list.append(list2);
 
     int result;
@@ -1041,8 +1040,7 @@ failed:
             mod.markConvert = markToConvert;
             mods.push_back(mod);
         }
-        else if (
-            file.endsWith(".png", Qt::CaseInsensitive) ||
+        else if (file.endsWith(".png", Qt::CaseInsensitive) ||
                  file.endsWith(".bmp", Qt::CaseInsensitive) ||
                  file.endsWith(".tga", Qt::CaseInsensitive))
         {
@@ -1077,8 +1075,8 @@ failed:
                 }
                 continue;
             }
-            QString crcStr = filename.mid(idx + 2, 8);
             bool ok;
+            QString crcStr = filename.mid(idx + 2, 8);
             uint crc = crcStr.toInt(&ok, 16);
             if (crc == 0)
             {
@@ -1435,29 +1433,33 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
         if (found)
             continue;
 
-        int index = -1;
-        for (int p = 0; p < entries.count(); p++)
+        bool foundPkg = false;
+        quint8 md5Entry[16];
+        QString package = g_GameData->packageFiles[l].toLower();
+        auto range = std::equal_range(entries.begin(), entries.end(),
+                                      package, Resources::ComparePath());
+        for (auto it = range.first; it != range.second; it++)
         {
-            if (g_GameData->packageMainFiles[l].compare(entries[p].path, Qt::CaseInsensitive) == 0)
+            if (it->path.compare(package, Qt::CaseSensitive) != 0)
+                break;
+            if (generateMd5Entries)
             {
-                if (generateMd5Entries)
+                if (memcmp(md5.data(), entries[l].md5, 16) == 0)
                 {
-                    if (memcmp(md5.data(), entries[l].md5, 16) == 0)
-                    {
-                        index = p;
-                        break;
-                    }
-                }
-                else
-                {
-                    index = p;
+                    foundPkg = true;
                     break;
                 }
             }
+            else
+            {
+                foundPkg = true;
+                memcpy(md5Entry, entries[l].md5, 16);
+                break;
+            }
         }
-        if (!generateMd5Entries && index == -1)
+        if (!generateMd5Entries && !foundPkg)
             continue;
-        if (generateMd5Entries && index != -1)
+        if (generateMd5Entries && foundPkg)
             continue;
 
         vanilla = false;
@@ -1489,7 +1491,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
                 errors += QString::number(md5[i], 16);
             }
             errors += "\n, expected: ";
-            for (unsigned char i : entries[index].md5)
+            for (unsigned char i : md5Entry)
             {
                 errors += QString::number(i, 16);
             }
@@ -1563,29 +1565,33 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
         if (found)
             continue;
 
-        int index = -1;
-        for (int p = 0; p < entries.count(); p++)
+        bool foundPkg = false;
+        quint8 md5Entry[16];
+        QString package = g_GameData->packageDLCFiles[l].toLower();
+        auto range = std::equal_range(entries.begin(), entries.end(),
+                                      package, Resources::ComparePath());
+        for (auto it = range.first; it != range.second; it++)
         {
-            if (g_GameData->packageDLCFiles[l].compare(entries[p].path, Qt::CaseInsensitive) == 0)
+            if (it->path.compare(package, Qt::CaseSensitive) != 0)
+                break;
+            if (generateMd5Entries)
             {
-                if (generateMd5Entries)
+                if (memcmp(md5.data(), entries[l].md5, 16) == 0)
                 {
-                    if (memcmp(md5.data(), entries[l].md5, 16) == 0)
-                    {
-                        index = p;
-                        break;
-                    }
-                }
-                else
-                {
-                    index = p;
+                    foundPkg = true;
                     break;
                 }
             }
+            else
+            {
+                foundPkg = true;
+                memcpy(md5Entry, entries[l].md5, 16);
+                break;
+            }
         }
-        if (!generateMd5Entries && index == -1)
+        if (!generateMd5Entries && !foundPkg)
             continue;
-        if (generateMd5Entries && index != -1)
+        if (generateMd5Entries && foundPkg)
             continue;
 
         vanilla = false;
@@ -1618,7 +1624,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
                 errors += QString::number(md5[i], 16);
             }
             errors += "\n, expected: ";
-            for (unsigned char i : entries[index].md5)
+            for (unsigned char i : md5Entry)
             {
                 errors += QString::number(i, 16);
             }
