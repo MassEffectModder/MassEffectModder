@@ -108,6 +108,7 @@ Release:LIBS += \
     -L$$OUT_PWD/../Libs/dxtc/release -ldxtc \
     -L$$OUT_PWD/../Libs/lzma/release -llzma \
     -L$$OUT_PWD/../Libs/lzo2/release -llzo2 \
+    -L$$OUT_PWD/../Libs/png/release -lpng \
     -L$$OUT_PWD/../Libs/xdelta3/release -lxdelta3 \
     -L$$OUT_PWD/../Libs/zlib/release -lzlib
 Debug:LIBS += \
@@ -115,6 +116,7 @@ Debug:LIBS += \
     -L$$OUT_PWD/../Libs/dxtc/debug -ldxtc \
     -L$$OUT_PWD/../Libs/lzma/debug -llzma \
     -L$$OUT_PWD/../Libs/lzo2/debug -llzo2 \
+    -L$$OUT_PWD/../Libs/png/debug -lpng \
     -L$$OUT_PWD/../Libs/xdelta3/debug -lxdelta3 \
     -L$$OUT_PWD/../Libs/zlib/debug -lzlib
 } else:unix: {
@@ -123,6 +125,7 @@ LIBS += \
     -L$$OUT_PWD/../Libs/dxtc -ldxtc \
     -L$$OUT_PWD/../Libs/lzma -llzma \
     -L$$OUT_PWD/../Libs/lzo2 -llzo2 \
+    -L$$OUT_PWD/../Libs/png -lpng \
     -L$$OUT_PWD/../Libs/xdelta3 -lxdelta3 \
     -L$$OUT_PWD/../Libs/zlib -lzlib
 }
