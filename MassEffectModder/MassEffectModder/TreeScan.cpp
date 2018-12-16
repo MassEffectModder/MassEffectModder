@@ -225,7 +225,7 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<FoundTexture> &textures,
 
 int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<FoundTexture> &textures,
                                     QStringList &pkgsToMarker, QStringList &pkgsToRepack, MipMaps &mipMaps,
-                                    bool ipc, bool repack)
+                                    bool ipc, bool repack, bool appendMarker)
 {
     QStringList pkgs;
     QList<MD5FileEntry> md5Entries;
@@ -615,12 +615,12 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
     {
         if (GameData::gameType == MeType::ME1_TYPE)
         {
-            mipMaps.removeMipMapsME1(1, textures, pkgsToMarker, ipc);
-            mipMaps.removeMipMapsME1(2, textures, pkgsToMarker, ipc);
+            mipMaps.removeMipMapsME1(1, textures, pkgsToMarker, ipc, appendMarker);
+            mipMaps.removeMipMapsME1(2, textures, pkgsToMarker, ipc, appendMarker);
         }
         else
         {
-            mipMaps.removeMipMapsME2ME3(textures, pkgsToMarker, pkgsToRepack, ipc, repack);
+            mipMaps.removeMipMapsME2ME3(textures, pkgsToMarker, pkgsToRepack, ipc, repack, appendMarker);
         }
         if (GameData::gameType == MeType::ME3_TYPE)
         {

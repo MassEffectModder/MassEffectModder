@@ -647,9 +647,9 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
         if (removeMips && !map[e].slave)
         {
             if (GameData::gameType == MeType::ME1_TYPE)
-                removeMipMapsME1(1, textures, pkgsToMarker, ipc);
+                removeMipMapsME1(1, textures, pkgsToMarker, ipc, appendMarker);
             else
-                removeMipMapsME2ME3(textures, pkgsToMarker, pkgsToRepack, ipc, repack);
+                removeMipMapsME2ME3(textures, pkgsToMarker, pkgsToRepack, ipc, repack, appendMarker);
         }
         else
         {

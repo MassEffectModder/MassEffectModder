@@ -68,7 +68,7 @@ public:
     static bool loadTexturesMapFile(QString &path, QList<FoundTexture> &textures, bool ipc);
     static int PrepareListOfTextures(MeType gameId, Resources &resources, QList<FoundTexture> &textures,
                                      QStringList &pkgsToMarker, QStringList &pkgsToRepack, MipMaps &mipMaps,
-                                     bool ipc, bool repack);
+                                     bool ipc, bool repack, bool appendMarker);
 };
 
 

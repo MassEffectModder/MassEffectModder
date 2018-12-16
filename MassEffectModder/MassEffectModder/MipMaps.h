@@ -110,13 +110,13 @@ public:
     void extractTextureToPng(QString &outputFile, QString &packagePath, int exportID);
 
     void prepareListToRemove(QList<FoundTexture> &textures, QList<RemoveMipsEntry> &list);
-    void removeMipMapsME1(int phase, QList<FoundTexture> &textures, QStringList &pkgsToMarker, bool ipc);
+    void removeMipMapsME1(int phase, QList<FoundTexture> &textures, QStringList &pkgsToMarker, bool ipc, bool appendMarker);
     void removeMipMapsME1(int phase, QList<FoundTexture> &textures, Package &package,
-                          QList<RemoveMipsEntry> &list, QStringList &pkgsToMarker, int removeEntry, bool ipc);
+                          QList<RemoveMipsEntry> &list, QStringList &pkgsToMarker, int removeEntry, bool ipc, bool appendMarker);
     void removeMipMapsME2ME3(QList<FoundTexture> &textures, QStringList &pkgsToMarker,
-                             QStringList &pkgsToRepack, bool ipc, bool repack);
+                             QStringList &pkgsToRepack, bool ipc, bool repack, bool appendMarker);
     void removeMipMapsME2ME3(Package &package, QList<RemoveMipsEntry> &list, QStringList &pkgsToMarker,
-                             QStringList &pkgsToRepack, int removeEntry, bool repack);
+                             QStringList &pkgsToRepack, int removeEntry, bool repack, bool appendMarker);
 
     PixelFormat changeTextureType(PixelFormat gamePixelFormat, PixelFormat texturePixelFormat, Texture &texture);
     QString replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTexture> &textures,

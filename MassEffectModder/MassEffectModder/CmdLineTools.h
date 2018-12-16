@@ -39,10 +39,10 @@ private:
     bool detectMod(MeType gameId);
     bool ScanTextures(MeType gameId, Resources &resources, QList<FoundTexture> &textures,
                       QStringList &pkgsToMarker, QStringList &pkgsToRepack, MipMaps &mipMaps,
-                      bool ipc, bool repack);
+                      bool ipc, bool repack, bool appendMarker);
     bool RemoveMipmaps(MipMaps &mipMaps, QList<FoundTexture> &textures,
                        QStringList &pkgsToMarker, QStringList &pkgsToRepack,
-                       bool ipc, bool repack = false);
+                       bool ipc, bool repack, bool appendMarker);
     void RepackME23(MeType gameId, bool modded, bool ipc);
 
 public:
