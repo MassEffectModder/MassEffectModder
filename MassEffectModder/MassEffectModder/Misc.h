@@ -71,7 +71,7 @@ public:
     static bool convertDataModtoMem(QString &inputDir, QString &memFilePath,
                                     MeType gameId, QList<FoundTexture> &textures, bool markToConvert,
                                     bool onlyIndividual, bool ipc);
-    static QByteArray calculateMD5(QString &filePath);
+    static QByteArray calculateMD5(const QString &filePath);
     static void detectMods(QStringList &mods);
     static void detectBrokenMod(QStringList &mods);
     static bool unpackSFARisNeeded();

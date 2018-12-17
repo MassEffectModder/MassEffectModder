@@ -1262,7 +1262,7 @@ failed:
     return true;
 }
 
-QByteArray Misc::calculateMD5(QString &filePath)
+QByteArray Misc::calculateMD5(const QString &filePath)
 {
     QFile file(filePath);
     if (file.open(QIODevice::ReadOnly))
@@ -1391,7 +1391,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
                 lastProgress = newProgress;
             }
         }
-        QByteArray md5 = calculateMD5(g_GameData->packageMainFiles[l]);
+        QByteArray md5 = calculateMD5(g_GameData->GamePath() + g_GameData->packageMainFiles[l]);
         bool found = false;
         for (int p = 0; p < entries.count(); p++)
         {
@@ -1523,7 +1523,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
                 lastProgress = newProgress;
             }
         }
-        QByteArray md5 = calculateMD5(g_GameData->packageDLCFiles[l]);
+        QByteArray md5 = calculateMD5(g_GameData->GamePath() + g_GameData->packageDLCFiles[l]);
         bool found = false;
         for (int p = 0; p < entries.count(); p++)
         {
@@ -1657,7 +1657,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
                 lastProgress = newProgress;
             }
         }
-        QByteArray md5 = calculateMD5(g_GameData->sfarFiles[l]);
+        QByteArray md5 = calculateMD5(g_GameData->GamePath() + g_GameData->sfarFiles[l]);
         bool found = false;
         for (int p = 0; p < entries.count(); p++)
         {
@@ -1718,7 +1718,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
                 lastProgress = newProgress;
             }
         }
-        QByteArray md5 = calculateMD5(g_GameData->tfcFiles[l]);
+        QByteArray md5 = calculateMD5(g_GameData->GamePath() + g_GameData->tfcFiles[l]);
         bool found = false;
         for (int p = 0; p < entries.count(); p++)
         {
