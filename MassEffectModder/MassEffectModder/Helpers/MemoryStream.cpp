@@ -80,7 +80,7 @@ MemoryStream::MemoryStream(QString &filename, qint64 offset, qint64 count)
         CRASH_MSG((QString("Failed to open file: ") + filename + " Error: " + file.errorString()).toStdString().c_str());
 
     internalBuffer = static_cast<quint8 *>(std::malloc(static_cast<size_t>(count)));
-    if (internalBuffer == nullptr )
+    if (internalBuffer == nullptr)
     {
         CRASH_MSG("MemoryStream: out of memory");
     }
