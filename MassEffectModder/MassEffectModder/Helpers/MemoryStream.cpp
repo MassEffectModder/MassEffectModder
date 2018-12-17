@@ -75,22 +75,22 @@ MemoryStream::MemoryStream(ByteBuffer buffer, qint64 offset, qint64 count)
 
 MemoryStream::MemoryStream(QString &filename, qint64 offset, qint64 count)
 {
-    std::unique_ptr<QFile> file (new QFile(filename));
-    if (!file->open(QIODevice::ReadOnly))
-        CRASH_MSG((QString("Failed to open file: ") + filename + " Error: " + file->errorString()).toStdString().c_str());
+    QFile file(filename);
+    if (!file.open(QIODevice::ReadOnly))
+        CRASH_MSG((QString("Failed to open file: ") + filename + " Error: " + file.errorString()).toStdString().c_str());
 
     internalBuffer = static_cast<quint8 *>(std::malloc(static_cast<size_t>(count)));
     if (internalBuffer == nullptr )
     {
         CRASH_MSG("MemoryStream: out of memory");
     }
-    if ((offset + count) > file->size())
+    if ((offset + count) > file.size())
     {
         CRASH_MSG("MemoryStream: out of range");
     }
 
-    file->seek(offset);
-    file->read(reinterpret_cast<char *>(internalBuffer), count);
+    file.seek(offset);
+    file.read(reinterpret_cast<char *>(internalBuffer), count);
 
     internalBufferSize = length = count;
     position = 0;
@@ -98,9 +98,9 @@ MemoryStream::MemoryStream(QString &filename, qint64 offset, qint64 count)
 
 MemoryStream::MemoryStream(QString &filename, qint64 count)
 {
-    std::unique_ptr<QFile> file (new QFile(filename));
-    if (!file->open(QIODevice::ReadOnly))
-        CRASH_MSG((QString("Failed to open file: ") + filename + " Error: " + file->errorString()).toStdString().c_str());
+    QFile file(filename);
+    if (!file.open(QIODevice::ReadOnly))
+        CRASH_MSG((QString("Failed to open file: ") + filename + " Error: " + file.errorString()).toStdString().c_str());
 
     internalBuffer = static_cast<quint8 *>(std::malloc(static_cast<size_t>(count)));
     if (internalBuffer == nullptr )
@@ -108,7 +108,7 @@ MemoryStream::MemoryStream(QString &filename, qint64 count)
         CRASH_MSG("MemoryStream: out of memory");
     }
 
-    file->read(reinterpret_cast<char *>(internalBuffer), count);
+    file.read(reinterpret_cast<char *>(internalBuffer), count);
 
     internalBufferSize = length = count;
     position = 0;
@@ -116,18 +116,18 @@ MemoryStream::MemoryStream(QString &filename, qint64 count)
 
 MemoryStream::MemoryStream(QString &filename)
 {
-    std::unique_ptr<QFile> file (new QFile(filename));
-    if (!file->open(QIODevice::ReadOnly))
-        CRASH_MSG((QString("Failed to open file: ") + filename + " Error: " + file->errorString()).toStdString().c_str());
+    QFile file(filename);
+    if (!file.open(QIODevice::ReadOnly))
+        CRASH_MSG((QString("Failed to open file: ") + filename + " Error: " + file.errorString()).toStdString().c_str());
 
-    qint64 count = file->size();
+    qint64 count = file.size();
     internalBuffer = static_cast<quint8 *>(std::malloc(static_cast<size_t>(count)));
     if (internalBuffer == nullptr )
     {
         CRASH_MSG("MemoryStream: out of memory");
     }
 
-    file->read(reinterpret_cast<char *>(internalBuffer), count);
+    file.read(reinterpret_cast<char *>(internalBuffer), count);
 
     internalBufferSize = length = count;
     position = 0;

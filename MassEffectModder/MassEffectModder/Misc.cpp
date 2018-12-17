@@ -112,17 +112,20 @@ bool Misc::ChangeProductNameForME1Exe()
 
 bool Misc::checkWriteAccessDir(const QString &path)
 {
-    std::unique_ptr<QFile> file (new QFile("/test-mem-writefile"));
-    bool status = file->open(QIODevice::ReadWrite);
+    QFile file("/test-mem-writefile");
+    bool status = file.open(QIODevice::ReadWrite);
     if (status)
+    {
+        file.close();
         QFile(path + "/test-mem-writefile").remove();
+    }
     return status;
 }
 
 bool Misc::checkWriteAccessFile(QString &path)
 {
-    std::unique_ptr<QFile> file (new QFile(path));
-    bool status = file->open(QIODevice::ReadWrite);
+    QFile file(path);
+    bool status = file.open(QIODevice::ReadWrite);
     return status;
 }
 
@@ -1261,7 +1264,10 @@ failed:
 
 QByteArray Misc::calculateMD5(QString &filePath)
 {
-    return QCryptographicHash::hash(QFile(filePath).readAll(), QCryptographicHash::Md5);
+    QFile file(filePath);
+    if (file.open(QIODevice::ReadOnly))
+        return QCryptographicHash::hash(file.readAll(), QCryptographicHash::Md5);
+    return QByteArray(16, 0);
 }
 
 void Misc::detectMods(QStringList &mods)

@@ -100,12 +100,10 @@ void ME3DLC::loadHeader(Stream *stream)
                 CRASH();
 
             inBuf.Free();
-            QByteArray outArray = QByteArray(outBuf.get(), dstLen);
-
-            std::unique_ptr<QTextStream> filenamesStream (new QTextStream(outArray));
-            while (!filenamesStream->atEnd())
+            QTextStream filenamesStream(QByteArray(outBuf.get(), dstLen));
+            while (!filenamesStream.atEnd())
             {
-                QString name = filenamesStream->readLine();
+                QString name = filenamesStream.readLine();
                 QByteArray hash = QCryptographicHash::hash(name.toLower().toUtf8(), QCryptographicHash::Md5);
                 for (uint l = 0; l < filesCount; l++)
                 {
