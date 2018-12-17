@@ -1365,9 +1365,8 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
         entries += resources.entriesME3;
     }
 
-    int allFilesCount = g_GameData->packageMainFiles.count();
     int progress = 0;
-    allFilesCount += g_GameData->packageDLCFiles.count();
+    int allFilesCount = g_GameData->packageFiles.count();
     allFilesCount += g_GameData->sfarFiles.count();
     allFilesCount += g_GameData->tfcFiles.count();
 
@@ -1379,7 +1378,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
         fs = new FileStream("MD5FileEntry" + QString::number((int)gameType) + ".cs", FileMode::Create, FileAccess::WriteOnly);
 
     int lastProgress = -1;
-    for (int l = 0; l < g_GameData->packageMainFiles.count(); l++)
+    for (int l = 0; l < g_GameData->packageFiles.count(); l++)
     {
         int newProgress = (l + progress) * 100 / allFilesCount;
         if (ipc)
@@ -1391,11 +1390,15 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
                 lastProgress = newProgress;
             }
         }
-        QByteArray md5 = calculateMD5(g_GameData->GamePath() + g_GameData->packageMainFiles[l]);
+        else
+        {
+            ConsoleWrite("Checking: " + g_GameData->packageFiles[l]);
+        }
+        QByteArray md5 = calculateMD5(g_GameData->GamePath() + g_GameData->packageFiles[l]);
         bool found = false;
         for (int p = 0; p < entries.count(); p++)
         {
-            if (memcmp(md5.data(), entries[l].md5, 16) == 0)
+            if (memcmp(md5.data(), entries[p].md5, 16) == 0)
             {
                 found = true;
                 break;
@@ -1407,7 +1410,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
         found = false;
         for (int p = 0; p < modsEntriesSize; p++)
         {
-            if (memcmp(md5.data(), modsEntries[l].md5, 16) == 0)
+            if (memcmp(md5.data(), modsEntries[p].md5, 16) == 0)
             {
                 found = true;
                 bool found2 = false;
@@ -1430,7 +1433,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
         found = false;
         for (int p = 0; p < badMODSize; p++)
         {
-            if (memcmp(md5.data(), badMOD[l].md5, 16) == 0)
+            if (memcmp(md5.data(), badMOD[p].md5, 16) == 0)
             {
                 found = true;
                 break;
@@ -1450,7 +1453,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
                 break;
             if (generateMd5Entries)
             {
-                if (memcmp(md5.data(), entries[l].md5, 16) == 0)
+                if (memcmp(md5.data(), it->md5, 16) == 0)
                 {
                     foundPkg = true;
                     break;
@@ -1459,7 +1462,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
             else
             {
                 foundPkg = true;
-                memcpy(md5Entry, entries[l].md5, 16);
+                memcpy(md5Entry, it->md5, 16);
                 break;
             }
         }
@@ -1472,7 +1475,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
 
         if (generateModsMd5Entries)
         {
-            fs->WriteStringASCII(QString("new MD5ModFileEntry\n{\npath = @\"") + g_GameData->packageMainFiles[l] + "\",\nmd5 = new byte[] { ");
+            fs->WriteStringASCII(QString("new MD5ModFileEntry\n{\npath = @\"") + g_GameData->packageFiles[l] + "\",\nmd5 = new byte[] { ");
             for (int i = 0; i < md5.count(); i++)
             {
                 fs->WriteStringASCII(QString::number(md5[i], 16));
@@ -1481,17 +1484,17 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
         }
         if (generateMd5Entries)
         {
-            fs->WriteStringASCII(QString("new MD5FileEntry\n{\npath = @\"") + g_GameData->packageMainFiles[l] + "\",\nmd5 = new byte[] { ");
+            fs->WriteStringASCII(QString("new MD5FileEntry\n{\npath = @\"") + g_GameData->packageFiles[l] + "\",\nmd5 = new byte[] { ");
             for (int i = 0; i < md5.count(); i++)
             {
                 fs->WriteStringASCII(QString::number(md5[i], 16));
             }
-            fs->WriteStringASCII(QString("},\nsize = ") + QString::number(QFile(g_GameData->packageMainFiles[l]).size()) + ",\n},\n");
+            fs->WriteStringASCII(QString("},\nsize = ") + QString::number(QFile(g_GameData->packageFiles[l]).size()) + ",\n},\n");
         }
 
         if (!generateMd5Entries && !generateModsMd5Entries)
         {
-            errors += "File " + g_GameData->packageMainFiles[l] + " has wrong MD5 checksum: ";
+            errors += "File " + g_GameData->packageFiles[l] + " has wrong MD5 checksum: ";
             for (int i = 0; i < md5.count(); i++)
             {
                 errors += QString::number(md5[i], 16);
@@ -1504,146 +1507,12 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
             errors += "\n";
             if (ipc)
             {
-                ConsoleWrite(QString("[IPC]ERROR ") + g_GameData->packageMainFiles[l]);
+                ConsoleWrite(QString("[IPC]ERROR ") + g_GameData->packageFiles[l]);
                 ConsoleSync();
             }
         }
     }
-    progress += g_GameData->packageMainFiles.count();
-
-    for (int l = 0; l < g_GameData->packageDLCFiles.count(); l++)
-    {
-        if (ipc)
-        {
-            int newProgress = (l + progress) * 100 / allFilesCount;
-            if (lastProgress != newProgress)
-            {
-                ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + QString::number(newProgress));
-                ConsoleSync();
-                lastProgress = newProgress;
-            }
-        }
-        QByteArray md5 = calculateMD5(g_GameData->GamePath() + g_GameData->packageDLCFiles[l]);
-        bool found = false;
-        for (int p = 0; p < entries.count(); p++)
-        {
-            if (memcmp(md5.data(), entries[l].md5, 16) == 0)
-            {
-                found = true;
-                break;
-            }
-        }
-        if (found)
-            continue;
-
-        found = false;
-        for (int p = 0; p < modsEntriesSize; p++)
-        {
-            if (memcmp(md5.data(), modsEntries[l].md5, 16) == 0)
-            {
-                found = true;
-                bool found2 = false;
-                for (int s = 0; s < mods.count(); s++)
-                {
-                    if (mods[s].compare(modsEntries[p].modName) == 0)
-                    {
-                        found2 = true;
-                        break;
-                    }
-                }
-                if (!found2)
-                    mods.push_back(modsEntries[p].modName);
-                break;
-            }
-        }
-        if (found)
-            continue;
-
-        found = false;
-        for (int p = 0; p < badMODSize; p++)
-        {
-            if (memcmp(md5.data(), badMOD[l].md5, 16) == 0)
-            {
-                found = true;
-                break;
-            }
-        }
-        if (found)
-            continue;
-
-        bool foundPkg = false;
-        quint8 md5Entry[16];
-        QString package = g_GameData->packageDLCFiles[l].toLower();
-        auto range = std::equal_range(entries.begin(), entries.end(),
-                                      package, Resources::ComparePath());
-        for (auto it = range.first; it != range.second; it++)
-        {
-            if (it->path.compare(package, Qt::CaseSensitive) != 0)
-                break;
-            if (generateMd5Entries)
-            {
-                if (memcmp(md5.data(), entries[l].md5, 16) == 0)
-                {
-                    foundPkg = true;
-                    break;
-                }
-            }
-            else
-            {
-                foundPkg = true;
-                memcpy(md5Entry, entries[l].md5, 16);
-                break;
-            }
-        }
-        if (!generateMd5Entries && !foundPkg)
-            continue;
-        if (generateMd5Entries && foundPkg)
-            continue;
-
-        vanilla = false;
-
-        if (generateModsMd5Entries)
-        {
-            fs->WriteStringASCII(QString("new MD5ModFileEntry\n{\npath = @\"") + g_GameData->packageDLCFiles[l] + "\",\nmd5 = new byte[] { ");
-            for (int i = 0; i < md5.count(); i++)
-            {
-                fs->WriteStringASCII(QString::number(md5[i], 16));
-            }
-            fs->WriteStringASCII("},\nmodName = \"\",\n},\n");
-        }
-        if (generateMd5Entries)
-        {
-            fs->WriteStringASCII(QString("new MD5FileEntry\n{\npath = @\"") + g_GameData->packageDLCFiles[l] + "\",\nmd5 = new byte[] { ");
-            for (int i = 0; i < md5.count(); i++)
-            {
-                fs->WriteStringASCII(QString::number(md5[i], 16));
-            }
-            fs->WriteStringASCII(QString("},\nsize = ") +
-                                QString::number(QFile(g_GameData->packageDLCFiles[l]).size()) + ",\n},\n");
-        }
-
-        if (!generateMd5Entries && !generateModsMd5Entries)
-        {
-            errors += "File " + g_GameData->packageDLCFiles[l] + " has wrong MD5 checksum: ";
-            for (int i = 0; i < md5.count(); i++)
-            {
-                errors += QString::number(md5[i], 16);
-            }
-            errors += "\n, expected: ";
-            for (unsigned char i : md5Entry)
-            {
-                errors += QString::number(i, 16);
-            }
-            errors += "\n";
-
-            if (ipc)
-            {
-                ConsoleWrite(QString("[IPC]ERROR ") + g_GameData->packageDLCFiles[l]);
-                ConsoleSync();
-            }
-        }
-    }
-    progress += g_GameData->packageDLCFiles.count();
+    progress += g_GameData->packageFiles.count();
 
     for (int l = 0; l < g_GameData->sfarFiles.count(); l++)
     {
@@ -1657,11 +1526,15 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
                 lastProgress = newProgress;
             }
         }
+        else
+        {
+            ConsoleWrite("Checking: " + g_GameData->sfarFiles[l]);
+        }
         QByteArray md5 = calculateMD5(g_GameData->GamePath() + g_GameData->sfarFiles[l]);
         bool found = false;
         for (int p = 0; p < entries.count(); p++)
         {
-            if (memcmp(md5.data(), entries[l].md5, 16) == 0)
+            if (memcmp(md5.data(), entries[p].md5, 16) == 0)
             {
                 found = true;
                 break;
@@ -1718,11 +1591,15 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
                 lastProgress = newProgress;
             }
         }
+        else
+        {
+            ConsoleWrite("Checking: " + g_GameData->tfcFiles[l]);
+        }
         QByteArray md5 = calculateMD5(g_GameData->GamePath() + g_GameData->tfcFiles[l]);
         bool found = false;
         for (int p = 0; p < entries.count(); p++)
         {
-            if (memcmp(md5.data(), entries[l].md5, 16) == 0)
+            if (memcmp(md5.data(), entries[p].md5, 16) == 0)
             {
                 found = true;
                 break;
