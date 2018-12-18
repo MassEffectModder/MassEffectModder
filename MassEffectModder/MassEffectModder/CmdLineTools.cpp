@@ -913,7 +913,7 @@ bool CmdLineTools::DetectBadMods(MeType gameId, bool ipc)
     if (badMods.count() != 0)
     {
         if (!ipc)
-            ConsoleWrite("Error: Detected not compatible mods: \n\n");
+            ConsoleWrite("Error: Detected not compatible mods: \n");
         for (int l = 0; l < badMods.count(); l++)
         {
             if (ipc)
@@ -946,7 +946,7 @@ bool CmdLineTools::DetectMods(MeType gameId, bool ipc)
     if (mods.count() != 0)
     {
         if (!ipc)
-            ConsoleWrite("Detected compatible mods:");
+            ConsoleWrite("Detected mods:");
         for (int l = 0; l < mods.count(); l++)
         {
             if (ipc)
