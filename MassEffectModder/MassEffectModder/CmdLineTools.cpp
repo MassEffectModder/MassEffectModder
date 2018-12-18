@@ -2147,17 +2147,13 @@ bool CmdLineTools::detectsMismatchPackagesAfter(MeType gameType, bool ipc)
     uint countTexture = fs.ReadUInt32();
     for (uint i = 0; i < countTexture; i++)
     {
-        int len = fs.ReadInt32();
-        QString name;
-        fs.ReadStringASCII(name, len);
-        fs.ReadUInt32();
+        fs.Skip(fs.ReadInt32());
+        fs.SkipInt32();
         uint countPackages = fs.ReadUInt32();
         for (uint k = 0; k < countPackages; k++)
         {
-            fs.ReadInt32();
-            fs.ReadInt32();
-            len = fs.ReadInt32();
-            fs.ReadStringASCII(name, len);
+            fs.Skip(8);
+            fs.Skip(fs.ReadInt32());
         }
     }
 
@@ -2165,9 +2161,8 @@ bool CmdLineTools::detectsMismatchPackagesAfter(MeType gameType, bool ipc)
     int numPackages = fs.ReadInt32();
     for (int i = 0; i < numPackages; i++)
     {
-        int len = fs.ReadInt32();
         QString pkgPath;
-        fs.ReadStringASCII(pkgPath, len);
+        fs.ReadStringASCII(pkgPath, fs.ReadInt32());
         pkgPath.replace(QChar('\\'), QChar('/'));
         packages.push_back(pkgPath);
     }
@@ -2183,7 +2178,7 @@ bool CmdLineTools::detectsMismatchPackagesAfter(MeType gameType, bool ipc)
             }
             else
             {
-                ConsoleWrite(QString("File: ") + packages[i]);
+                ConsoleWrite(QString("Removed: ") + packages[i]);
             }
         }
     }
@@ -2201,7 +2196,7 @@ bool CmdLineTools::detectsMismatchPackagesAfter(MeType gameType, bool ipc)
             }
             else
             {
-                ConsoleWrite(QString("File: ") + g_GameData->packageFiles[i]);
+                ConsoleWrite(QString("Added: ") + g_GameData->packageFiles[i]);
             }
         }
     }

@@ -746,6 +746,16 @@ int ProcessArguments()
         if (!tools.checkGameFilesAfter(gameId, ipc))
             errorCode = -1;
         break;
+    case CmdType::CHECK_GAME_DATA_MISMATCH:
+        if (gameId == MeType::UNKNOWN_TYPE)
+        {
+            ConsoleWrite("Wrong game id!");
+            errorCode = -1;
+            break;
+        }
+        if (!tools.detectsMismatchPackagesAfter(gameId, ipc))
+            errorCode = -1;
+        break;
     case CmdType::CHECK_GAME_DATA_VANILLA:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
