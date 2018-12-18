@@ -1975,7 +1975,7 @@ bool CmdLineTools::CheckTextures(MeType gameId, bool ipc)
             ConsoleSync();
             lastProgress = newProgress;
         }
-        if (!package.Open(g_GameData->GamePath() + g_GameData->packageFiles[i]))
+        if (package.Open(g_GameData->GamePath() + g_GameData->packageFiles[i]) != 0)
         {
             if (ipc)
             {
@@ -1986,8 +1986,8 @@ bool CmdLineTools::CheckTextures(MeType gameId, bool ipc)
             else
             {
                 QString err = "";
-                err += "---- Start --------------------------------------------" ;
-                err += "Error opening package file: " + g_GameData->packageFiles[i];
+                err += "---- Start --------------------------------------------\n" ;
+                err += "Error opening package file: " + g_GameData->packageFiles[i] + "\n";
                 err += "---- End ----------------------------------------------\n";
                 ConsoleWrite(err);
             }
@@ -2002,22 +2002,21 @@ bool CmdLineTools::CheckTextures(MeType gameId, bool ipc)
                 id == package.nameIdShadowMapTexture2D ||
                 id == package.nameIdTextureFlipBook)
             {
-                Texture texture = Texture(package, e, package.getExportData(e));
-                if (!texture.hasImageData())
-                    continue;
-
+                ByteBuffer exportData = package.getExportData(e);
+                Texture texture(package, e, exportData);
+                exportData.Free();
                 if (texture.hasEmptyMips())
                 {
                     if (ipc)
                     {
-                        ConsoleWrite(QString("[IPC]ERROR_MIPMAPS_NOT_REMOVED Empty mipmaps not removed in texture: ") +
+                        ConsoleWrite(QString("[IPC]ERROR_MIPMAPS_NOT_REMOVED Empty mipmap not removed in texture: ") +
                                 package.exportsTable[e].objectName + " in package: " +
                                 g_GameData->packageFiles[i]);
                         ConsoleSync();
                     }
                     else
                     {
-                        ConsoleWrite(QString("ERROR: Empty mipmaps not removed in texture: ") +
+                        ConsoleWrite(QString("ERROR: Empty mipmap not removed in texture: ") +
                                 package.exportsTable[e].objectName + " in package: " +
                                 g_GameData->packageFiles[i]);
                     }
@@ -2032,17 +2031,16 @@ bool CmdLineTools::CheckTextures(MeType gameId, bool ipc)
                         if (ipc)
                         {
                             ConsoleWrite(QString("[IPC]ERROR_TEXTURE_SCAN_DIAGNOSTIC Issue opening texture data: ") +
-                                        package.exportsTable[i].objectName + "mipmap: " + m + " in package: " +
+                                        package.exportsTable[e].objectName + "mipmap: " + m + " in package: " +
                                         g_GameData->packageFiles[i]);
                             ConsoleSync();
                         }
                         else
                         {
                             ConsoleWrite(QString("Error: Issue opening texture data: ") +
-                                         package.exportsTable[i].objectName + "mipmap: " + m + " in package: " +
+                                         package.exportsTable[e].objectName + "mipmap: " + m + " in package: " +
                                          g_GameData->packageFiles[i]);
                         }
-                        continue;
                     }
                 }
             }

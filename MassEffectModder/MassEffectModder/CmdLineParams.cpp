@@ -56,7 +56,7 @@ void DisplayHelp()
     ConsoleWrite("     Check game data with md5 database.\n");
     ConsoleWrite("     Scan to detect mods");
     ConsoleWrite("");
-    ConsoleWrite("  --check-game-data-only-vanilla --gameid <game id> [--ipc]\n");
+    ConsoleWrite("  --check-game-data-vanilla --gameid <game id> [--ipc]\n");
     ConsoleWrite("     Check game data with md5 database.\n");
     ConsoleWrite("");
     ConsoleWrite("  --check-for-markers --gameid <game id> [--ipc]\n");
