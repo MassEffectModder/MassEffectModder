@@ -656,36 +656,35 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> &textures, const 
             id == package.nameIdTextureFlipBook)
         {
             ByteBuffer exportData = package.getExportData(i);
-            auto texture = new Texture(package, i, exportData);
+            Texture texture(package, i, exportData);
             exportData.Free();
-            if (!texture->hasImageData())
+            if (!texture.hasImageData())
             {
-                delete texture;
                 continue;
             }
 
-            const Texture::TextureMipMap& mipmap = texture->getTopMipmap();
+            const Texture::TextureMipMap& mipmap = texture.getTopMipmap();
             QString name = exp.objectName;
             MatchedTexture matchTexture;
             matchTexture.exportID = i;
             matchTexture.path = packagePath;
-            matchTexture.packageName = texture->packageName;
-            matchTexture.removeEmptyMips = texture->hasEmptyMips();
-            matchTexture.numMips = texture->numNotEmptyMips();
+            matchTexture.packageName = texture.packageName;
+            matchTexture.removeEmptyMips = texture.hasEmptyMips();
+            matchTexture.numMips = texture.numNotEmptyMips();
             matchTexture.linkToMaster = 0;
             if (gameId == MeType::ME1_TYPE)
             {
-                matchTexture.basePackageName = texture->basePackageName;
-                matchTexture.slave = texture->slave;
-                matchTexture.weakSlave = texture->weakSlave;
+                matchTexture.basePackageName = texture.basePackageName;
+                matchTexture.slave = texture.slave;
+                matchTexture.weakSlave = texture.weakSlave;
                 matchTexture.linkToMaster = -1;
                 if (matchTexture.slave)
                     matchTexture.mipmapOffset = mipmap.dataOffset;
                 else
-                    matchTexture.mipmapOffset = exp.getDataOffset() + texture->getProperties().propertyEndOffset + mipmap.internalOffset;
+                    matchTexture.mipmapOffset = exp.getDataOffset() + texture.getProperties().propertyEndOffset + mipmap.internalOffset;
             }
 
-            uint crc = texture->getCrcTopMipmap();
+            uint crc = texture.getCrcTopMipmap();
             if (crc == 0)
             {
                 if (ipc)
@@ -699,7 +698,6 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> &textures, const 
                     ConsoleWrite(QString("Error: Texture ") + exp.objectName + " is broken in package: " +
                                  packagePath +"\nExport Id: " + QString::number(i + 1) + "\nSkipping...");
                 }
-                delete texture;
                 continue;
             }
 
@@ -730,7 +728,6 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> &textures, const 
                     }
                     if (found)
                     {
-                        delete texture;
                         continue;
                     }
                 }
@@ -768,12 +765,12 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> &textures, const 
                 foundTex.crc = crc;
                 if (generateBuiltinMapFiles)
                 {
-                    foundTex.width = texture->getTopMipmap().width;
-                    foundTex.height = texture->getTopMipmap().height;
-                    foundTex.pixfmt = Image::getPixelFormatType(texture->getProperties().getProperty("Format").valueName);
-                    if (texture->getProperties().exists("CompressionSettings"))
+                    foundTex.width = texture.getTopMipmap().width;
+                    foundTex.height = texture.getTopMipmap().height;
+                    foundTex.pixfmt = Image::getPixelFormatType(texture.getProperties().getProperty("Format").valueName);
+                    if (texture.getProperties().exists("CompressionSettings"))
                     {
-                        QString cmp = texture->getProperties().getProperty("CompressionSettings").valueName;
+                        QString cmp = texture.getProperties().getProperty("CompressionSettings").valueName;
                         if (cmp == "TC_OneBitAlpha")
                             foundTex.flags = TexProperty::TextureTypes::OneBitAlpha;
                         else if (cmp == "TC_Displacementmap")
@@ -799,7 +796,6 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> &textures, const 
                 }
                 textures.push_back(foundTex);
             }
-            delete texture;
         }
     }
 }
