@@ -400,25 +400,25 @@ bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputD
 
     bool status = true;
     ulong numEntries = 0;
-    QStringList list = QDir(inputDir, "*.mod", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
+    auto list = QDir(inputDir, "*.mod", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
 
     QDir().mkpath(outputDir);
 
-    foreach (QString file, list)
+    foreach (QFileInfo file, list)
     {
         if (ipc)
         {
-            ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + file);
+            ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + file.fileName());
             ConsoleSync();
         }
         else
         {
-            ConsoleWrite(QString("Extract MOD: ") + file);
+            ConsoleWrite(QString("Extract MOD: ") + file.fileName());
         }
-        QString outputMODdir = outputDir + "\\" + BaseNameWithoutExt(file);
+        QString outputMODdir = outputDir + "/" + BaseNameWithoutExt(file.fileName());
         QDir().mkpath(outputMODdir);
 
-        FileStream fs = FileStream(file, FileMode::Open, FileAccess::ReadOnly);
+        FileStream fs = FileStream(file.absoluteFilePath(), FileMode::Open, FileAccess::ReadOnly);
         uint textureCrc;
         int len = fs.ReadInt32();
         QString version;
@@ -451,16 +451,16 @@ bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputD
                     len = fs.ReadInt32();
                     fs.Skip(len);
                     ConsoleWrite(QString("Skipping not compatible content, entry: ") +
-                                 QString::number(i + 1) + " - mod: " + file);
+                                 QString::number(i + 1) + " - mod: " + file.fileName());
                     status = false;
                     continue;
                 }
-                path += path + "/" + package;
+                path += "/" + package;
                 len = fs.ReadInt32();
                 QString newFilename;
-                if (path.contains("\\DLC\\"))
+                if (path.contains("/DLC/"))
                 {
-                    QString dlcName = path.split(QChar('\\'))[3];
+                    QString dlcName = path.split(QChar('/'))[3];
                     newFilename = "D" + QString::number(dlcName.size()) + "-" + dlcName + "-";
                 }
                 else
@@ -485,13 +485,13 @@ bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputD
                     len = fs.ReadInt32();
                     fs.Skip(len);
                     ConsoleWrite(QString("Skipping not compatible content, entry: ") +
-                                 QString::number(i + 1) + " - mod: " + file);
+                                 QString::number(i + 1) + " - mod: " + file.fileName());
                     status = false;
                     continue;
                 }
                 textureCrc = textures[index].crc;
                 len = fs.ReadInt32();
-                QString newFile = outputMODdir + "/" + textureName + QString::number(textureCrc, 16).append("_0x") + ".dds";
+                QString newFile = outputMODdir + "/" + textures[index].name + "_0x" + QString::number(textureCrc, 16).toUpper() + ".dds";
                 if (QFile(newFile).exists())
                     QFile(newFile).remove();
                 FileStream fs2 = FileStream(newFile, FileMode::Create);
@@ -648,7 +648,7 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
             if (modFiles[i].tag == FileTextureTag)
             {
                 QString filename = outputMODdir +
-                        BaseName(name + "_" + QString::number(crc, 16).append("0x") +
+                        BaseName(name + "_0x" + QString::number(crc, 16).toUpper() +
                                  ".dds").replace(QChar('\\'), QChar('/'));
                 FileStream output = FileStream(filename, FileMode::Create, FileAccess::ReadWrite);
                 output.WriteFromBuffer(dst.ptr(), dstLen);
@@ -656,7 +656,7 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
             else if (modFiles[i].tag == FileTextureTag2)
             {
                 QString filename = outputMODdir +
-                        BaseName(name + "_" + QString::number(crc, 16).append("0x") +
+                        BaseName(name + "_0x" + QString::number(crc, 16).toUpper() +
                                  "-memconvert.dds").replace(QChar('\\'), QChar('/'));
                 FileStream output = FileStream(filename, FileMode::Create, FileAccess::ReadWrite);
                 output.WriteFromBuffer(dst.ptr(), dstLen);
@@ -1500,7 +1500,7 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
                 else
                 {
                     ConsoleWrite(QString("Texture skipped. Texture ") + name +
-                                 QString::number(crc, 16).append("_0x") + " is not present in your game setup");
+                                 "_0x" + QString::number(crc, 16).toUpper() + " is not present in your game setup");
                 }
             }
             else if (modFiles[l].tag == FileBinaryTag)
@@ -1864,7 +1864,7 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
             }
         }
         QString outputFile = outputDir + "/" + textures[i].name +
-                QString::number(textures[i].crc, 16).append("_0x");
+                "_0x" + QString::number(textures[i].crc, 16).toUpper();
         if (png)
         {
             outputFile += ".png";

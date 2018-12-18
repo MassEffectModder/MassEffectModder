@@ -473,16 +473,21 @@ int ProcessArguments()
             ipc = true;
         else if (arg == "--input" && hasValue(args, l))
         {
-            input = args[l + 1];
-            if (!QDir(input).exists() && !QFile(input).exists())
+            input = args[l + 1].replace('\\', '/');
+            if (input.length() == 0 || !QFile(input).exists())
             {
                 ConsoleWrite("Input path doesn't exists!");
-                input = "";
+                return -1;
             }
         }
         else if (arg == "--output" && hasValue(args, l))
         {
-            output = args[l + 1];
+            output = args[l + 1].replace('\\', '/');
+            if (output.length() == 0 || !QFile(output).exists())
+            {
+                ConsoleWrite("Input path doesn't exists!");
+                return -1;
+            }
         }
         else if (arg == "--mark-to-convert")
             markToConvert = true;

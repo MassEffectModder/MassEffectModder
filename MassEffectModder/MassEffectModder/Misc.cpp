@@ -195,17 +195,17 @@ QString Misc::getTimerFormat(long time)
 
 int Misc::ParseLegacyMe3xScriptMod(QList<FoundTexture> &textures, QString &script, QString &textureName)
 {
-    QString match;
-    QRegExp parts = QRegExp("pccs.Add[(]\"[A-z,0-9/,..]*\"");
-    if (parts.exactMatch(script))
+    QRegularExpression regex("pccs.Add[(]\"[A-z,0-9/,..]*\"");
+    auto match = regex.match(script);
+    if (match.hasMatch())
     {
-        match = parts.capturedTexts().first();
-        QString packageName = match.replace(QChar('/'), QChar('\\')).split(QChar('\"'))[1].split(QChar('\\')).last().split(QChar('.')).first().toLower();
-        parts = QRegExp("IDs.Add[(][0-9]*[)];");
-        if (parts.exactMatch(script))
+        QString packageName = match.captured().replace(QChar('/'), QChar('\\')).split(QChar('\"'))[1].split(QChar('\\')).last().split(QChar('.')).first().toLower();
+
+        regex = QRegularExpression("IDs.Add[(][0-9]*[)];");
+        match = regex.match(script);
+        if (match.hasMatch())
         {
-            match = parts.capturedTexts().first();
-            int exportId = match.split(QChar('('))[1].split(QChar(')')).first().toInt();
+            int exportId = match.captured().split(QChar('('))[1].split(QChar(')')).first().toInt();
             if (exportId != 0)
             {
                 textureName = textureName.toLower();
@@ -219,7 +219,7 @@ int Misc::ParseLegacyMe3xScriptMod(QList<FoundTexture> &textures, QString &scrip
                                 continue;
                             if (textures[i].list[l].exportID == exportId)
                             {
-                                QString pkg = textures[i].list[l].path.split(QChar('\\')).last().split(QChar('.')).first().toLower();
+                                QString pkg = textures[i].list[l].path.split(QChar('/')).last().split(QChar('.')).first().toLower();
                                 if (pkg == packageName)
                                 {
                                     return i;
@@ -237,7 +237,7 @@ int Misc::ParseLegacyMe3xScriptMod(QList<FoundTexture> &textures, QString &scrip
                             continue;
                         if (textures[i].list[l].exportID == exportId)
                         {
-                            QString pkg = textures[i].list[l].path.split(QChar('\\')).last().split(QChar('.')).first().toLower();
+                            QString pkg = textures[i].list[l].path.split(QChar('/')).last().split(QChar('.')).first().toLower();
                             if (pkg == packageName)
                             {
                                 return i;
@@ -258,7 +258,7 @@ int Misc::ParseLegacyMe3xScriptMod(QList<FoundTexture> &textures, QString &scrip
                     {
                         if (textures[i].list[l].path.length() == 0)
                             continue;
-                        QString pkg = textures[i].list[l].path.split(QChar('\\')).last().split(QChar('.')).first().toLower();
+                        QString pkg = textures[i].list[l].path.split(QChar('/')).last().split(QChar('.')).first().toLower();
                         if (pkg == packageName)
                         {
                             return i;
@@ -274,37 +274,38 @@ int Misc::ParseLegacyMe3xScriptMod(QList<FoundTexture> &textures, QString &scrip
 
 void Misc::ParseME3xBinaryScriptMod(QString &script, QString &package, int &expId, QString &path)
 {
-    QString match;
-    QRegExp parts = QRegExp("int objidx = [0-9]*");
-    if (parts.exactMatch(script))
+    QRegularExpression regex("int objidx = [0-9]*");
+    auto match = regex.match(script);
+    if (match.hasMatch())
     {
-        match = parts.capturedTexts().first();
-        expId = match.split(QChar(' ')).last().toInt();
+        expId = match.captured().split(QChar(' ')).last().toInt();
 
-        parts = QRegExp("string filename = \"[A-z,0-9,.]*\";");
-        if (parts.exactMatch(script))
+        regex = QRegularExpression("string filename = \"[A-z,0-9,.]*\";");
+        match = regex.match(script);
+        if (match.hasMatch())
         {
-            match = parts.capturedTexts().first();
-            package = match.split(QChar('\"'))[1].replace("\\\\", "\\");
+            package = match.captured().split(QChar('\"'))[1].replace("\\\\", "\\").replace('\\', '/');
 
-            parts = QRegExp("string pathtarget = ME3Directory.cookedPath;");
-            if (parts.exactMatch(script))
+            regex = QRegularExpression("string pathtarget = ME3Directory.cookedPath;");
+            match = regex.match(script);
+            if (match.hasMatch())
             {
-                path = "/BioGame/CookedPCConsole";
+                path = "/BIOGame/CookedPCConsole";
                 return;
             }
 
-            parts = QRegExp("string pathtarget = Path.GetDirectoryName[(]ME3Directory[.]cookedPath[)];");
-            if (parts.exactMatch(script))
+            regex = QRegularExpression("string pathtarget = Path.GetDirectoryName[(]ME3Directory[.]cookedPath[)];");
+            match = regex.match(script);
+            if (match.hasMatch())
             {
-                path = "/BioGame";
+                path = "/BIOGame";
                 return;
             }
-            parts = QRegExp("string pathtarget = new DirectoryInfo[(]ME3Directory[.]cookedPath[)][.]Parent.FullName [+] \"[A-z,0-9,_,.]*\";");
-            if (parts.exactMatch(script))
+            regex = QRegularExpression("string pathtarget = new DirectoryInfo[(]ME3Directory[.]cookedPath[)][.]Parent.FullName [+] \"[A-z,0-9,_,.]*\";");
+            match = regex.match(script);
+            if (match.hasMatch())
             {
-                match = parts.capturedTexts().first();
-                path = DirName("/BioGame/" + match.split(QChar('\"'))[1]);
+                path = DirName("/BIOGame/" + match.captured().split(QChar('\"'))[1].replace('\\', '/'));
             }
         }
     }
@@ -583,7 +584,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                         }
                         else
                         {
-                            ConsoleWrite(QString("Error in texture: ") + textureName + QString::number(f.crc, 16).prepend("_0x") +
+                            ConsoleWrite(QString("Error in texture: ") + textureName + "_0x" + QString::number(f.crc, 16).toUpper() +
                                 " This texture has wrong aspect ratio, skipping texture, entry: " + (i + 1) +
                                 " - mod: " + relativeFilePath);
                         }
@@ -795,7 +796,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                 }
                 if (f.crc == 0)
                 {
-                    ConsoleWrite(QString("Texture skipped. File ") + filename + QString::number(crc, 16).prepend("_0x") +
+                    ConsoleWrite(QString("Texture skipped. File ") + filename + "_0x" + QString::number(crc, 16).toUpper() +
                         " is not present in your game setup - mod: " + relativeFilePath);
                     ZipGoToNextFile(handle);
                     continue;
@@ -817,7 +818,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                     }
                     else
                     {
-                        ConsoleWrite(QString("Error in texture: ") + textureName + QString::number(crc, 16).prepend("_0x") +
+                        ConsoleWrite(QString("Error in texture: ") + textureName + "_0x" + QString::number(crc, 16).toUpper() +
                             ", skipping texture, entry: " + (i + 1) + " - mod: " + relativeFilePath);
                     }
                     mod.data.Free();
@@ -838,7 +839,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                     }
                     else
                     {
-                        ConsoleWrite(QString("Error in texture: ") + textureName + QString::number(crc, 16).prepend("_0x") +
+                        ConsoleWrite(QString("Error in texture: ") + textureName + "_0x" + QString::number(crc, 16).toUpper() +
                             " This texture has wrong aspect ratio, skipping texture, entry: " + QString::number(i + 1) + " - mod: " + relativeFilePath);
                     }
                     mod.data.Free();
@@ -1220,7 +1221,7 @@ failed:
                     fileMod.tag = FileTextureTag2;
                 else
                     fileMod.tag = FileTextureTag;
-                fileMod.name = mods[l].textureName + QString::number(mods[l].textureCrc, 16).prepend("_0x") + ".dds";
+                fileMod.name = mods[l].textureName + "_0x" + QString::number(mods[l].textureCrc, 16).toUpper() + ".dds";
                 outFs.WriteStringASCIINull(mods[l].textureName);
                 outFs.WriteUInt32(mods[l].textureCrc);
             }

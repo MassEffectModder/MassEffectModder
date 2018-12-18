@@ -52,7 +52,7 @@
 #include <QCommandLineOption>
 #include <QMap>
 #include <QStorageInfo>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QElapsedTimer>
 
 #include <omp.h>
