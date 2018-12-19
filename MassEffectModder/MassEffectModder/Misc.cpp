@@ -357,20 +357,20 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
 
     inputDir.clear();
 
-    QStringList list;
-    QStringList list2;
+    QList<QFileInfo> list;
+    QList<QFileInfo> list2;
     if (!onlyIndividual)
     {
-        list = QDir(inputDir, "*.mem", QDir::SortFlag::IgnoreCase | QDir::SortFlag::Name, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
-        list2 = QDir(inputDir, "*.tpf", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
-        list2 += QDir(inputDir, "*.mod", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
+        list = QDir(inputDir, "*.mem", QDir::SortFlag::IgnoreCase | QDir::SortFlag::Name, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
+        list2 = QDir(inputDir, "*.tpf", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
+        list2 += QDir(inputDir, "*.mod", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
     }
-    list2 += QDir(inputDir, "*.bin", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
-    list2 += QDir(inputDir, "*.xdelta", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
-    list2 += QDir(inputDir, "*.dds", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
-    list2 += QDir(inputDir, "*.png", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
-    list2 += QDir(inputDir, "*.bmp", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
-    list2 += QDir(inputDir, "*.tga", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
+    list2 += QDir(inputDir, "*.bin", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
+    list2 += QDir(inputDir, "*.xdelta", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
+    list2 += QDir(inputDir, "*.dds", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
+    list2 += QDir(inputDir, "*.png", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
+    list2 += QDir(inputDir, "*.bmp", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
+    list2 += QDir(inputDir, "*.tga", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
     list.append(list2);
 
     int result;
@@ -393,7 +393,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
     int lastProgress = -1;
     for (int n = 0; n < list.count(); n++)
     {
-        QString file = list[n];
+        QString file = list[n].absoluteFilePath();
         QString relativeFilePath = file.mid(inputDir.size() + 1);
         if (ipc)
         {
@@ -699,11 +699,12 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
             int indexTpf = -1;
             char *listText;
 #if defined(_WIN32)
-            wchar_t *name = const_cast<wchar_t *>(file.toStdWString().c_str());
+            auto str = file.replace('/', '\\').toStdWString();
+            auto name = str.c_str();
 #else
-            char *name = const_cast<char *>(file.toStdString().c_str());
+            auto name = file.toStdString().c_str();
 #endif
-            void *handle = ZipOpenFromFile(static_cast<void *>(name), &numEntries, 1);
+            void *handle = ZipOpenFromFile(name, &numEntries, 1);
             if (handle == nullptr)
                 goto failed;
             for (int i = 0; i < numEntries; i++)

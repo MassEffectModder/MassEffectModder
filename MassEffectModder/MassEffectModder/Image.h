@@ -104,7 +104,7 @@ public:
     QList<MipMap>& getMipMaps() { return mipMaps; }
     PixelFormat getPixelFormat() { return pixelFormat; }
 
-    Image(QString &fileName, ImageFormat format = ImageFormat::UnknownImageFormat);
+    Image(const QString &fileName, ImageFormat format = ImageFormat::UnknownImageFormat);
     Image(Stream &stream, ImageFormat format);
     Image(Stream &stream, const QString &extension);
     Image(ByteBuffer data, ImageFormat format);

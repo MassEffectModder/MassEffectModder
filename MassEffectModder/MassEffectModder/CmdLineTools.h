@@ -51,7 +51,7 @@ public:
     void Repack(MeType gameId, bool ipc);
     bool applyModTag(MeType gameId, int MeuitmV, int AlotV);
     bool ConvertToMEM(MeType gameId, QString &inputDir, QString &memFile, bool markToConvert, bool ipc);
-    bool convertGameTexture(QString &inputFile, QString &outputFile, QList<FoundTexture> *textures,
+    bool convertGameTexture(const QString &inputFile, QString &outputFile, QList<FoundTexture> *textures,
                             bool markToConvert);
     bool convertGameImage(MeType gameId, QString &inputFile, QString &outputFile, bool markToConvert);
     bool convertGameImages(MeType gameId, QString &inputDir, QString &outputDir, bool markToConvert);

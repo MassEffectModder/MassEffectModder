@@ -136,7 +136,7 @@ bool CmdLineTools::ConvertToMEM(MeType gameId, QString &inputDir, QString &memFi
     return status;
 }
 
-bool CmdLineTools::convertGameTexture(QString &inputFile, QString &outputFile, QList<FoundTexture> *textures,
+bool CmdLineTools::convertGameTexture(const QString &inputFile, QString &outputFile, QList<FoundTexture> *textures,
                                       bool markToConvert)
 {
     QString filename = BaseNameWithoutExt(inputFile).toLower();
@@ -234,19 +234,19 @@ bool CmdLineTools::convertGameImages(MeType gameId, QString &inputDir, QString &
 
     TreeScan::loadTexturesMap(gameId, resources, textures);
 
-    QStringList list;
-    list += QDir(inputDir, "*.dds", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
-    list += QDir(inputDir, "*.png", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
-    list += QDir(inputDir, "*.bmp", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
-    list += QDir(inputDir, "*.tga", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
+    QList<QFileInfo> list;
+    list += QDir(inputDir, "*.dds", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
+    list += QDir(inputDir, "*.png", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
+    list += QDir(inputDir, "*.bmp", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
+    list += QDir(inputDir, "*.tga", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
 
     QDir().mkpath(outputDir);
 
     bool status = true;
-    foreach (QString file, list)
+    foreach (QFileInfo file, list)
     {
-        QString outputFile = outputDir + BaseNameWithoutExt(file) + ".dds";
-        if (!convertGameTexture(file, outputFile, &textures, markToConvert))
+        QString outputFile = outputDir + BaseNameWithoutExt(file.fileName()) + ".dds";
+        if (!convertGameTexture(file.absoluteFilePath(), outputFile, &textures, markToConvert))
             status = false;
     }
 
@@ -516,9 +516,8 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
 
     ConsoleWrite("Extract MEM files started...");
 
-    QStringList list;
-    list += QDir(inputDir, "*.mem", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
-    std::sort(list.begin(), list.end(), compareByAscii);
+    QList<QFileInfo> list;
+    list += QDir(inputDir, "*.mem", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
 
     QDir().mkpath(outputDir);
 
@@ -526,7 +525,7 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
     int totalNumberOfMods = 0;
     for (int i = 0; i < list.count(); i++)
     {
-        FileStream fs = FileStream(list[i], FileMode::Open, FileAccess::ReadOnly);
+        FileStream fs = FileStream(list[i].absoluteFilePath(), FileMode::Open, FileAccess::ReadOnly);
         uint tag = fs.ReadUInt32();
         uint version = fs.ReadUInt32();
         if (tag != TextureModTag || version != TextureModVersion)
@@ -538,9 +537,9 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
 
     int lastProgress = -1;
     inputDir = QDir::cleanPath(inputDir);
-    foreach (QString file, list)
+    foreach (QFileInfo file, list)
     {
-        QString relativeFilePath = file.mid(inputDir.size() + 1);
+        QString relativeFilePath = file.absoluteFilePath().mid(inputDir.size() + 1);
         if (ipc)
         {
             ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + relativeFilePath);
@@ -550,10 +549,10 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
         {
             ConsoleWrite(QString("Extract MEM: ") + relativeFilePath);
         }
-        QString outputMODdir = outputDir + "/" + BaseNameWithoutExt(file);
+        QString outputMODdir = outputDir + "/" + BaseNameWithoutExt(file.fileName());
         QDir().mkpath(outputMODdir);
 
-        FileStream fs = FileStream(file, FileMode::Open, FileAccess::ReadOnly);
+        FileStream fs = FileStream(file.absoluteFilePath(), FileMode::Open, FileAccess::ReadOnly);
         uint tag = fs.ReadUInt32();
         uint version = fs.ReadUInt32();
         if (tag != TextureModTag || version != TextureModVersion)
@@ -1226,7 +1225,12 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool 
         ConsoleWrite("[IPC]STAGE_CONTEXT STAGE_INSTALLTEXTURES");
         ConsoleSync();
     }
-    QStringList modFiles = QDir(inputDir, "*.mem", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
+    auto files = QDir(inputDir, "*.mem", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
+    QStringList modFiles;
+    foreach (QFileInfo file, files)
+    {
+        modFiles.push_back(file.absoluteFilePath());
+    }
     if (modded)
     {
         QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +

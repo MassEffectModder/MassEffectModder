@@ -25,7 +25,7 @@
 #include "Helpers/FileStream.h"
 #include "Helpers/MiscHelpers.h"
 
-Image::Image(QString &fileName, ImageFormat format)
+Image::Image(const QString &fileName, ImageFormat format)
 {
     if (format == ImageFormat::UnknownImageFormat)
         format = DetectImageByFilename(fileName);
