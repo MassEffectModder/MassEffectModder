@@ -474,18 +474,18 @@ int ProcessArguments()
         else if (arg == "--input" && hasValue(args, l))
         {
             input = args[l + 1].replace('\\', '/');
-            if (input.length() == 0 || !QFile(input).exists())
+            if (input.length() == 0)
             {
-                ConsoleWrite("Input path doesn't exists!");
+                ConsoleWrite("Input path param wrong!");
                 return -1;
             }
         }
         else if (arg == "--output" && hasValue(args, l))
         {
             output = args[l + 1].replace('\\', '/');
-            if (output.length() == 0 || !QFile(output).exists())
+            if (output.length() == 0)
             {
-                ConsoleWrite("Input path doesn't exists!");
+                ConsoleWrite("Output path wrong!");
                 return -1;
             }
         }
@@ -604,6 +604,12 @@ int ProcessArguments()
             errorCode = -1;
             break;
         }
+        if (!QDir(input).exists())
+        {
+            ConsoleWrite("Input folder doesn't exists!");
+            errorCode = -1;
+            break;
+        }
         if (!tools.ConvertToMEM(gameId, input, output, markToConvert, ipc))
             errorCode = -1;
         break;
@@ -611,6 +617,12 @@ int ProcessArguments()
         if (gameId == MeType::UNKNOWN_TYPE)
         {
             ConsoleWrite("Wrong game id!");
+            errorCode = -1;
+            break;
+        }
+        if (!QFile(input).exists())
+        {
+            ConsoleWrite("Input file doesn't exists!");
             errorCode = -1;
             break;
         }
@@ -624,6 +636,12 @@ int ProcessArguments()
             errorCode = -1;
         break;
     case CmdType::CONVERT_IMAGE:
+        if (!QFile(input).exists())
+        {
+            ConsoleWrite("Input file doesn't exists!");
+            errorCode = -1;
+            break;
+        }
         if (!tools.convertImage(input, output, format, threshold))
             errorCode = -1;
         break;
@@ -631,6 +649,18 @@ int ProcessArguments()
         if (gameId == MeType::UNKNOWN_TYPE)
         {
             ConsoleWrite("Wrong game id!");
+            errorCode = -1;
+            break;
+        }
+        if (!QDir(input).exists())
+        {
+            ConsoleWrite("Input folder doesn't exists!");
+            errorCode = -1;
+            break;
+        }
+        if (!QDir(output).exists())
+        {
+            ConsoleWrite("Output folder doesn't exists!");
             errorCode = -1;
             break;
         }
@@ -644,6 +674,12 @@ int ProcessArguments()
             errorCode = -1;
             break;
         }
+        if (!QDir(input).exists())
+        {
+            ConsoleWrite("Input folder doesn't exists!");
+            errorCode = -1;
+            break;
+        }
         if (!tools.InstallMods(gameId, input, ipc, repackMode, guiMode, limit2k))
             errorCode = -1;
         break;
@@ -651,6 +687,18 @@ int ProcessArguments()
         if (gameId == MeType::UNKNOWN_TYPE)
         {
             ConsoleWrite("Wrong game id!");
+            errorCode = -1;
+            break;
+        }
+        if (!QDir(input).exists())
+        {
+            ConsoleWrite("Input folder doesn't exists!");
+            errorCode = -1;
+            break;
+        }
+        if (!QDir(output).exists())
+        {
+            ConsoleWrite("Output folder doesn't exists!");
             errorCode = -1;
             break;
         }
@@ -664,6 +712,18 @@ int ProcessArguments()
             errorCode = -1;
             break;
         }
+        if (!QDir(input).exists())
+        {
+            ConsoleWrite("Input folder doesn't exists!");
+            errorCode = -1;
+            break;
+        }
+        if (!QDir(output).exists())
+        {
+            ConsoleWrite("Output folder doesn't exists!");
+            errorCode = -1;
+            break;
+        }
         if (!tools.extractMEM(gameId, input, output, markToConvert))
             errorCode = -1;
         break;
@@ -671,6 +731,18 @@ int ProcessArguments()
         if (gameId == MeType::UNKNOWN_TYPE)
         {
             ConsoleWrite("Wrong game id!");
+            errorCode = -1;
+            break;
+        }
+        if (!QDir(input).exists())
+        {
+            ConsoleWrite("Input folder doesn't exists!");
+            errorCode = -1;
+            break;
+        }
+        if (!QDir(output).exists())
+        {
+            ConsoleWrite("Output folder doesn't exists!");
             errorCode = -1;
             break;
         }
@@ -811,6 +883,12 @@ int ProcessArguments()
         if (tfcName.length() == 0)
         {
             ConsoleWrite("TFC name param missing!");
+            errorCode = -1;
+            break;
+        }
+        if (!QDir(input).exists())
+        {
+            ConsoleWrite("Input folder doesn't exists!");
             errorCode = -1;
             break;
         }
