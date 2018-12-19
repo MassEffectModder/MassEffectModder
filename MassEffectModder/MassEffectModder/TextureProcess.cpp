@@ -61,16 +61,20 @@ bool MipMaps::compressData(ByteBuffer inputData, Stream &ouputStream)
         }
         blocks[b] = block;
     }
-    if (failed)
-        return false;
 
     foreach (Package::ChunkBlock block, blocks)
     {
-        ouputStream.WriteFromBuffer(block.compressedBuffer, (int)block.comprSize);
-        compressedSize += block.comprSize;
+        if (!failed)
+        {
+            ouputStream.WriteFromBuffer(block.compressedBuffer, (int)block.comprSize);
+            compressedSize += block.comprSize;
+        }
         delete[] block.uncompressedBuffer;
         delete[] block.compressedBuffer;
     }
+
+    if (failed)
+        return false;
 
     ouputStream.SeekBegin();
     ouputStream.WriteUInt32(compressedSize);
@@ -125,15 +129,21 @@ ByteBuffer MipMaps::decompressData(Stream &stream, long compressedSize)
             failed = true;
         }
     }
-    if (failed)
-        return ByteBuffer{};
 
     int dstPos = 0;
     foreach (Package::ChunkBlock block, blocks)
     {
-        memcpy(data.ptr() + dstPos, block.uncompressedBuffer, block.uncomprSize);
-        dstPos += block.uncomprSize;
+        if (!failed)
+        {
+            memcpy(data.ptr() + dstPos, block.uncompressedBuffer, block.uncomprSize);
+            dstPos += block.uncomprSize;
+        }
+        delete[] block.uncompressedBuffer;
+        delete[] block.compressedBuffer;
     }
+
+    if (failed)
+        return ByteBuffer{};
 
     return data;
 }

@@ -620,7 +620,6 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
             long size = 0;
             int exportId = -1;
             QString pkgPath;
-            ByteBuffer dst;
             fs.JumpTo(modFiles[i].offset);
             size = modFiles[i].size;
             if (modFiles[i].tag == FileTextureTag || modFiles[i].tag == FileTextureTag2)
@@ -650,7 +649,7 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
                 lastProgress = newProgress;
             }
 
-            dst = MipMaps::decompressData(fs, size);
+            ByteBuffer dst = MipMaps::decompressData(fs, size);
             if (dst.size() == 0)
             {
                 if (ipc)
@@ -731,6 +730,7 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
                     ConsoleWrite(QString("Unknown tag for file: ") + name);
                 }
             }
+            dst.Free();
         }
     }
 
@@ -1552,8 +1552,18 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
                 }
                 ModEntry entry{};
                 Package pkg;
-                pkg.Open(path);
+                if (pkg.Open(path) != 0)
+                {
+                    ConsoleWrite(QString("Failed open package ") + pkgPath);
+                    continue;
+                }
                 ByteBuffer src = pkg.getExportData(exportId);
+                if (src.ptr() == nullptr)
+                {
+                    ConsoleWrite(QString("Failed get data, export id") +
+                                 QString::number(exportId) + ", package: " + pkgPath);
+                    continue;
+                }
                 ByteBuffer buffer = ByteBuffer(src.size());
                 uint dstLen = 0;
                 int status = XDelta3Decompress(src.ptr(), src.size(), dst.ptr(), dst.size(), buffer.ptr(), &dstLen);
@@ -1595,8 +1605,21 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTextur
         if (nodeTexture.path.length() == 0)
             continue;
         Package package;
-        package.Open(g_GameData->GamePath() + nodeTexture.path);
-        Texture *texture = new Texture(package, nodeTexture.exportID, package.getExportData(nodeTexture.exportID));
+        if (package.Open(g_GameData->GamePath() + nodeTexture.path) != 0)
+        {
+            ConsoleWrite(QString("Error: Failed open package: ") + nodeTexture.path);
+            continue;
+        }
+        ByteBuffer exportData = package.getExportData(nodeTexture.exportID);
+        if (exportData.ptr() == nullptr)
+        {
+            ConsoleWrite(QString("Error: Texture ") + textureName + " is broken in package: " +
+                         nodeTexture.path + "\nExport Id: " + QString::number(nodeTexture.exportID + 1) + "\nSkipping...");
+            continue;
+        }
+
+        auto *texture = new Texture(package, nodeTexture.exportID, exportData);
+        exportData.Free();
         QString fmt = texture->getProperties().getProperty("Format").valueName;
         PixelFormat pixelFormat = Image::getPixelFormatType(fmt);
         texture->removeEmptyMips();
@@ -1897,9 +1920,21 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
             outputFile += ".dds";
         }
         Package package;
-        package.Open(g_GameData->GamePath() + textures[i].list[index].path);
+        if (package.Open(g_GameData->GamePath() + textures[i].list[index].path) != 0)
+        {
+            ConsoleWrite(QString("Error: Failed open package: ") + textures[i].list[index].path);
+            continue;
+        }
         int exportID = textures[i].list[index].exportID;
-        Texture texture = Texture(package, exportID, package.getExportData(exportID));
+        ByteBuffer exportData = package.getExportData(exportID);
+        if (exportData.ptr() == nullptr)
+        {
+            ConsoleWrite(QString("Error: Texture ") + textures[i].name + " is broken in package: " +
+                         textures[i].list[index].path + "\nExport Id: " + QString::number(exportID + 1) + "\nSkipping...");
+            continue;
+        }
+        Texture texture = Texture(package, exportID, exportData);
+        exportData.Free();
         bool tfcPropExists = texture.getProperties().exists("TextureFileCacheName");
         if (pccOnly && tfcPropExists)
         {

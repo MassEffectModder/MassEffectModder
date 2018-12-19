@@ -33,8 +33,8 @@ struct FileMod
 {
     uint tag;
     QString name;
-    long offset;
-    long size;
+    qint64 offset;
+    qint64 size;
 };
 
 struct RemoveMipsEntry
@@ -123,7 +123,7 @@ public:
     void removeMipMapsME2ME3(QList<FoundTexture> &textures, QStringList &pkgsToMarker,
                              QStringList &pkgsToRepack, bool ipc, bool repack, bool appendMarker);
     void removeMipMapsME2ME3(Package &package, QList<RemoveMipsEntry> &list, QStringList &pkgsToMarker,
-                             QStringList &pkgsToRepack, int removeEntry, bool repack, bool appendMarker);
+                             QStringList &pkgsToRepack, int removeEntry, bool ipc, bool repack, bool appendMarker);
 
     PixelFormat changeTextureType(PixelFormat gamePixelFormat, PixelFormat texturePixelFormat, Texture &texture);
     QString replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTexture> &textures,

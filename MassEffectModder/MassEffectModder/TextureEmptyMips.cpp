@@ -118,7 +118,24 @@ void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> &textures, Package
     for (int l = 0; l < list[removeEntry].exportIDs.count(); l++)
     {
         int exportID = list[removeEntry].exportIDs[l];
-        Texture texture = Texture(package, exportID, package.getExportData(exportID), false);
+        ByteBuffer exportData = package.getExportData(exportID);
+        if (exportData.ptr() == nullptr)
+        {
+            if (ipc)
+            {
+                ConsoleWrite(QString("[IPC]ERROR Texture is broken in package: ") +
+                             package.packagePath + "\nExport Id: " + QString::number(exportID + 1) + "\nSkipping...");
+                ConsoleSync();
+            }
+            else
+            {
+                ConsoleWrite(QString("Error: Texture is broken in package: ") +
+                             package.packagePath +"\nExport Id: " + QString::number(exportID + 1) + "\nSkipping...");
+            }
+            continue;
+        }
+        Texture texture = Texture(package, exportID, exportData, false);
+        exportData.Free();
         if (!texture.hasEmptyMips())
         {
             continue;
@@ -276,18 +293,35 @@ void MipMaps::removeMipMapsME2ME3(QList<FoundTexture> &textures, QStringList &pk
             return;
         }
 
-        removeMipMapsME2ME3(package, list, pkgsToMarker, pkgsToRepack, i, repack, appendMarker);
+        removeMipMapsME2ME3(package, list, pkgsToMarker, pkgsToRepack, i, ipc, repack, appendMarker);
     }
 }
 
 void MipMaps::removeMipMapsME2ME3(Package &package, QList<RemoveMipsEntry> &list,
                                   QStringList &pkgsToMarker, QStringList &pkgsToRepack,
-                                  int removeEntry, bool repack, bool appendMarker)
+                                  int removeEntry, bool repack, bool ipc, bool appendMarker)
 {
     for (int l = 0; l < list[removeEntry].exportIDs.count(); l++)
     {
         int exportID = list[removeEntry].exportIDs[l];
-        Texture texture = Texture(package, exportID, package.getExportData(exportID), false);
+        ByteBuffer exportData = package.getExportData(exportID);
+        if (exportData.ptr() == nullptr)
+        {
+            if (ipc)
+            {
+                ConsoleWrite(QString("[IPC]ERROR Texture is broken in package: ") +
+                             package.packagePath + "\nExport Id: " + QString::number(exportID + 1) + "\nSkipping...");
+                ConsoleSync();
+            }
+            else
+            {
+                ConsoleWrite(QString("Error: Texture is broken in package: ") +
+                             package.packagePath +"\nExport Id: " + QString::number(exportID + 1) + "\nSkipping...");
+            }
+            continue;
+        }
+        Texture texture = Texture(package, exportID, exportData, false);
+        exportData.Free();
         if (!texture.hasEmptyMips())
         {
             continue;

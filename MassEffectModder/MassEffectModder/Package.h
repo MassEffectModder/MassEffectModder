@@ -372,7 +372,7 @@ public:
     QString getClassName(int id);
     int getClassNameId(int id);
     QString resolvePackagePath(int id);
-    void getData(uint offset, uint length, Stream *outputStream = nullptr, quint8 *outputBuffer = nullptr);
+    bool getData(uint offset, uint length, Stream *outputStream = nullptr, quint8 *outputBuffer = nullptr);
     ByteBuffer getExportData(int id);
     void setExportData(int id, ByteBuffer data);
     void MoveExportDataToEnd(int id);

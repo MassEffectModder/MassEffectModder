@@ -167,7 +167,23 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
             MapPackagesToModEntry entryMap = map[e].textures[p];
             MatchedTexture matched = textures[entryMap.texturesIndex].list[entryMap.listIndex];
             ModEntry mod = modsToReplace[entryMap.modIndex];
-            Texture texture = Texture(package, matched.exportID, package.getExportData(matched.exportID));
+            auto exportData = package.getExportData(matched.exportID);
+            if (exportData.ptr() == nullptr)
+            {
+                if (ipc)
+                {
+                    ConsoleWrite(QString("[IPC]ERROR Texture ") + mod.textureName + " is broken in package: " +
+                                 matched.path + "\nExport Id: " + QString::number(matched.exportID + 1) + "\nSkipping...");
+                    ConsoleSync();
+                }
+                else
+                {
+                    ConsoleWrite(QString("Error: Texture ") + mod.textureName + " is broken in package: " +
+                                 matched.path +"\nExport Id: " + QString::number(matched.exportID + 1) + "\nSkipping...");
+                }
+                continue;
+            }
+            Texture texture = Texture(package, matched.exportID, exportData);
             QString fmt = texture.getProperties().getProperty("Format").valueName;
             PixelFormat pixelFormat = Image::getPixelFormatType(fmt);
             texture.removeEmptyMips();
@@ -853,7 +869,11 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList 
                     continue;
                 }
                 Package pkg{};
-                pkg.Open(path);
+                if (pkg.Open(path) != 0)
+                {
+                    errors += "Warning: Failed open package: " + path + "\n";
+                    continue;
+                }
                 pkg.setExportData(mod.exportId, mod.binaryModData);
                 if (pkg.SaveToFile(repack, false, appendMarker))
                 {

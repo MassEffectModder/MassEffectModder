@@ -192,7 +192,11 @@ int Package::Open(const QString &filename, bool headerOnly, bool fullLoad)
         uint length = getEndOfTablesOffset() - (uint)dataOffset;
         packageData = new MemoryStream();
         packageData->JumpTo(dataOffset);
-        getData((uint)dataOffset, length, packageData);
+        if (!getData((uint)dataOffset, length, packageData))
+        {
+            g_logs->printMsg(QString("Failed get data! %1").arg(filename));
+            return -1;
+        }
     }
 
     if (getCompressedFlag())
@@ -244,7 +248,7 @@ int Package::Open(const QString &filename, bool headerOnly, bool fullLoad)
     return 0;
 }
 
-void Package::getData(uint offset, uint length, Stream *outputStream, quint8 *outputBuffer)
+bool Package::getData(uint offset, uint length, Stream *outputStream, quint8 *outputBuffer)
 {
     if (getCompressedFlag())
     {
@@ -302,6 +306,7 @@ void Package::getData(uint offset, uint length, Stream *outputStream, quint8 *ou
                     blocks.replace(b, block);
                 }
 
+                bool failed = false;
                 #pragma omp parallel for
                 for (int b = 0; b < blocks.count(); b++)
                 {
@@ -312,19 +317,24 @@ void Package::getData(uint offset, uint length, Stream *outputStream, quint8 *ou
                     else if (compressionType == CompressionType::Zlib)
                         ZlibDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen);
                     else
-                        CRASH_MSG("Compression type not expected!");
+                        failed = true;
                     if (dstLen != block.uncomprSize)
-                        CRASH_MSG("Decompressed data size not expected!");
+                        failed = true;
                 }
 
                 for (int b = 0; b < blocks.count(); b++)
                 {
                     ChunkBlock block = blocks[b];
-                    chunkCache->WriteFromBuffer(block.uncompressedBuffer, block.uncomprSize);
+                    if (!failed)
+                    {
+                        chunkCache->WriteFromBuffer(block.uncompressedBuffer, block.uncomprSize);
+                        blocks[b] = block;
+                    }
                     delete[] block.compressedBuffer;
                     delete[] block.uncompressedBuffer;
-                    blocks[b] = block;
                 }
+                if (!failed)
+                    return false;
             }
             chunkCache->JumpTo(startInChunk);
             if (outputStream)
@@ -345,6 +355,8 @@ void Package::getData(uint offset, uint length, Stream *outputStream, quint8 *ou
         if (outputBuffer)
             packageStream->ReadToBuffer(outputBuffer, length);
     }
+
+    return true;
 }
 
 ByteBuffer Package::getExportData(int id)
@@ -355,7 +367,10 @@ ByteBuffer Package::getExportData(int id)
     if (exp.newData.ptr() != nullptr)
         memcpy(data.ptr(), exp.newData.ptr(), length);
     else
-        getData(exp.getDataOffset(), exp.getDataSize(), nullptr, data.ptr());
+    {
+        if (!getData(exp.getDataOffset(), exp.getDataSize(), nullptr, data.ptr()))
+            return {};
+    }
 
     return data;
 }
@@ -933,7 +948,10 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
         }
         else
         {
-            getData(exp.getDataOffset(), exp.getDataSize(), &tempOutput);
+            if (!getData(exp.getDataOffset(), exp.getDataSize(), &tempOutput))
+            {
+                CRASH_MSG("Failed get data!\n");
+            }
         }
         tempOutput.WriteZeros(dataLeft);
     }

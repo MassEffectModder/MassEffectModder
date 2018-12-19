@@ -656,6 +656,22 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> &textures, const 
             id == package.nameIdTextureFlipBook)
         {
             ByteBuffer exportData = package.getExportData(i);
+            if (exportData.ptr() == nullptr)
+            {
+                if (ipc)
+                {
+                    ConsoleWrite(QString("[IPC]ERROR Texture ") + exp.objectName + " is broken in package: " +
+                                 packagePath + "\nExport Id: " + QString::number(i + 1) + "\nSkipping...");
+                    ConsoleSync();
+                }
+                else
+                {
+                    ConsoleWrite(QString("Error: Texture ") + exp.objectName + " is broken in package: " +
+                                 packagePath +"\nExport Id: " + QString::number(i + 1) + "\nSkipping...");
+                }
+                continue;
+            }
+
             Texture texture(package, i, exportData);
             exportData.Free();
             if (!texture.hasImageData())
