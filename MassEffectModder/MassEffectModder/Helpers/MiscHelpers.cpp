@@ -87,7 +87,7 @@ QString DirName(const QString &path)
 QString BaseNameWithoutExt(const QString &path)
 {
     const QString str = BaseName(path);
-    const QString name = str.section('.', 0, 0);
+    const QString name = str.left(str.lastIndexOf("."));
     if (name.length() == 0)
         return str;
     return name;
