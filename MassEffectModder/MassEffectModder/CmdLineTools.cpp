@@ -234,12 +234,14 @@ bool CmdLineTools::convertGameImages(MeType gameId, QString &inputDir, QString &
 
     TreeScan::loadTexturesMap(gameId, resources, textures);
 
+    inputDir = QDir::cleanPath(inputDir);
     QList<QFileInfo> list;
     list += QDir(inputDir, "*.dds", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
     list += QDir(inputDir, "*.png", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
     list += QDir(inputDir, "*.bmp", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
     list += QDir(inputDir, "*.tga", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
 
+    outputDir = QDir::cleanPath(outputDir);
     QDir().mkpath(outputDir);
 
     bool status = true;
@@ -312,8 +314,11 @@ bool CmdLineTools::extractTPF(QString &inputDir, QString &outputDir, bool ipc)
     QString fileName;
     ulong dstLen = 0;
     int numEntries = 0;
+
+    inputDir = QDir::cleanPath(inputDir);
     auto list = QDir(inputDir, "*.tpf", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
 
+    outputDir = QDir::cleanPath(outputDir);
     QDir().mkpath(outputDir);
 
     foreach (QFileInfo file, list)
@@ -401,8 +406,11 @@ bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputD
 
     bool status = true;
     ulong numEntries = 0;
+
+    inputDir = QDir::cleanPath(inputDir);
     auto list = QDir(inputDir, "*.mod", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
 
+    outputDir = QDir::cleanPath(outputDir);
     QDir().mkpath(outputDir);
 
     foreach (QFileInfo file, list)
@@ -516,9 +524,10 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
 
     ConsoleWrite("Extract MEM files started...");
 
-    QList<QFileInfo> list;
-    list += QDir(inputDir, "*.mem", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
+    inputDir = QDir::cleanPath(inputDir);
+    QList<QFileInfo> list = QDir(inputDir, "*.mem", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
 
+    outputDir = QDir::cleanPath(outputDir);
     QDir().mkpath(outputDir);
 
     int currentNumberOfTotalMods = 1;
@@ -536,18 +545,16 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
     }
 
     int lastProgress = -1;
-    inputDir = QDir::cleanPath(inputDir);
     foreach (QFileInfo file, list)
     {
-        QString relativeFilePath = file.absoluteFilePath().mid(inputDir.size() + 1);
         if (ipc)
         {
-            ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + relativeFilePath);
+            ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + file.fileName());
             ConsoleSync();
         }
         else
         {
-            ConsoleWrite(QString("Extract MEM: ") + relativeFilePath);
+            ConsoleWrite(QString("Extract MEM: ") + file.absoluteFilePath());
         }
         QString outputMODdir = outputDir + "/" + BaseNameWithoutExt(file.fileName());
         QDir().mkpath(outputMODdir);
@@ -559,17 +566,17 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
         {
             if (version != TextureModVersion)
             {
-                ConsoleWrite(QString("File ") + relativeFilePath +
+                ConsoleWrite(QString("File ") + file.absoluteFilePath() +
                              " was made with an older version of MEM, skipping...");
             }
             else
             {
-                ConsoleWrite(QString("File ") + relativeFilePath +
+                ConsoleWrite(QString("File ") + file.absoluteFilePath() +
                              " is not a valid MEM mod, skipping...");
             }
             if (ipc)
             {
-                ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + relativeFilePath);
+                ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + file.fileName());
                 ConsoleSync();
             }
             continue;
@@ -582,12 +589,12 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
         {
             if (ipc)
             {
-                ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + relativeFilePath);
+                ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + file.fileName());
                 ConsoleSync();
             }
             else
             {
-                ConsoleWrite(QString("File ") + relativeFilePath +
+                ConsoleWrite(QString("File ") + file.absoluteFilePath() +
                              " is not a MEM mod valid for this game");
             }
             continue;
@@ -630,7 +637,7 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
 
             if (!ipc)
             {
-                ConsoleWrite(QString("Processing MEM mod ") + relativeFilePath +
+                ConsoleWrite(QString("Processing MEM mod ") + file.fileName() +
                         " - File " + QString::number(i + 1) + " of " +
                              QString::number(numFiles) + " - " + name);
             }
@@ -705,7 +712,7 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
             {
                 if (ipc)
                 {
-                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + relativeFilePath);
+                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + file.absoluteFilePath());
                     ConsoleSync();
                 }
                 else
