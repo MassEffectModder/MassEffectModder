@@ -31,17 +31,17 @@ bool MipMaps::compressData(ByteBuffer inputData, Stream &ouputStream)
 {
     uint compressedSize = 0;
     uint dataBlockLeft = inputData.size();
-    uint newNumBlocks = ((uint)inputData.size() + Package::maxBlockSize - 1) / Package::maxBlockSize;
+    uint newNumBlocks = ((uint)inputData.size() + maxBlockSize - 1) / maxBlockSize;
     QList<Package::ChunkBlock> blocks{};
     {
         MemoryStream inputStream = MemoryStream(inputData);
         // skip blocks header and table - filled later
-        ouputStream.JumpTo(Package::SizeOfChunk + Package::SizeOfChunkBlock * newNumBlocks);
+        ouputStream.JumpTo(SizeOfChunk + SizeOfChunkBlock * newNumBlocks);
 
         for (uint b = 0; b < newNumBlocks; b++)
         {
             Package::ChunkBlock block{};
-            block.uncomprSize = qMin((uint)Package::maxBlockSize, dataBlockLeft);
+            block.uncomprSize = qMin((uint)maxBlockSize, dataBlockLeft);
             dataBlockLeft -= block.uncomprSize;
             block.uncompressedBuffer = new quint8[block.uncomprSize];
             inputStream.ReadToBuffer(block.uncompressedBuffer, block.uncomprSize);
@@ -89,9 +89,8 @@ ByteBuffer MipMaps::decompressData(Stream &stream, long compressedSize)
     uint compressedChunkSize = stream.ReadUInt32();
     uint uncompressedChunkSize = stream.ReadUInt32();
     ByteBuffer data = ByteBuffer(uncompressedChunkSize);
-    uint blocksCount = (uncompressedChunkSize + Package::maxBlockSize - 1) / Package::maxBlockSize;
-    if ((compressedChunkSize + Package::SizeOfChunk + Package::SizeOfChunkBlock * blocksCount) !=
-            (uint)compressedSize)
+    uint blocksCount = (uncompressedChunkSize + maxBlockSize - 1) / maxBlockSize;
+    if ((compressedChunkSize + SizeOfChunk + SizeOfChunkBlock * blocksCount) != (uint)compressedSize)
     {
         return ByteBuffer{};
     }
@@ -109,7 +108,7 @@ ByteBuffer MipMaps::decompressData(Stream &stream, long compressedSize)
         Package::ChunkBlock block = blocks[b];
         block.compressedBuffer = new quint8[block.comprSize];
         stream.ReadToBuffer(block.compressedBuffer, block.comprSize);
-        block.uncompressedBuffer = new quint8[Package::maxBlockSize * 2];
+        block.uncompressedBuffer = new quint8[maxBlockSize * 2];
         blocks[b] = block;
     }
 

@@ -617,7 +617,7 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
         {
             QString name;
             uint crc = 0;
-            long size = 0, dstLen = 0;
+            long size = 0;
             int exportId = -1;
             QString pkgPath;
             ByteBuffer dst;
@@ -633,12 +633,13 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
                 name = modFiles[i].name;
                 exportId = fs.ReadInt32();
                 fs.ReadStringASCIINull(pkgPath);
+                pkgPath.replace('\\', '/');
             }
 
             if (!ipc)
             {
                 ConsoleWrite(QString("Processing MEM mod ") + file.fileName() +
-                        " - File " + QString::number(i + 1) + " of " +
+                             " - File " + QString::number(i + 1) + " of " +
                              QString::number(numFiles) + " - " + name);
             }
             int newProgress = currentNumberOfTotalMods * 100 / totalNumberOfMods;
@@ -650,31 +651,43 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
             }
 
             dst = MipMaps::decompressData(fs, size);
-            dstLen = dst.size();
+            if (dst.size() == 0)
+            {
+                if (ipc)
+                {
+                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + file.absoluteFilePath());
+                    ConsoleSync();
+                }
+                else
+                {
+                    ConsoleWrite(QString("Failed decompress data: ") + file.absoluteFilePath());
+                }
+                ConsoleWrite("Extract MEM mod files failed.");
+                return false;
+            }
 
             if (modFiles[i].tag == FileTextureTag)
             {
-                QString filename = outputMODdir +
-                        BaseName(name + "_0x" + QString::number(crc, 16).toUpper() +
-                                 ".dds").replace(QChar('\\'), QChar('/'));
+                QString filename = outputMODdir + "/" +
+                        BaseName(name + "_0x" + QString::number(crc, 16).toUpper() + ".dds");
                 FileStream output = FileStream(filename, FileMode::Create, FileAccess::ReadWrite);
-                output.WriteFromBuffer(dst.ptr(), dstLen);
+                output.WriteFromBuffer(dst);
             }
             else if (modFiles[i].tag == FileTextureTag2)
             {
-                QString filename = outputMODdir +
+                QString filename = outputMODdir + "/" +
                         BaseName(name + "_0x" + QString::number(crc, 16).toUpper() +
-                                 "-memconvert.dds").replace(QChar('\\'), QChar('/'));
+                                 "-memconvert.dds");
                 FileStream output = FileStream(filename, FileMode::Create, FileAccess::ReadWrite);
-                output.WriteFromBuffer(dst.ptr(), dstLen);
+                output.WriteFromBuffer(dst);
             }
             else if (modFiles[i].tag == FileBinaryTag)
             {
                 const QString& path = pkgPath;
                 QString newFilename;
-                if (path.contains("\\DLC\\"))
+                if (path.contains("/DLC/"))
                 {
-                    QString dlcName = path.split('\\')[3];
+                    QString dlcName = path.split('/')[3];
                     newFilename = "D" + QString::number(dlcName.size()) + "-" + dlcName + "-";
                 }
                 else
@@ -682,19 +695,18 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
                     newFilename = "B";
                 }
                 newFilename += QString::number(BaseName(path).size()) +
-                        "-" + BaseName(path) + "-E" +QString::number(exportId) + ".bin";
-                newFilename = outputMODdir + newFilename;
-                newFilename.replace(QChar('\\'), QChar('/'));
+                        "-" + BaseName(path) + "-E" + QString::number(exportId) + ".bin";
+                newFilename = outputMODdir + "/" + newFilename;
                 FileStream output = FileStream(newFilename, FileMode::Create, FileAccess::WriteOnly);
-                output.WriteFromBuffer(dst.ptr(), dstLen);
+                output.WriteFromBuffer(dst);
             }
             else if (modFiles[i].tag == FileXdeltaTag)
             {
                 const QString& path = pkgPath;
                 QString newFilename;
-                if (path.contains("\\DLC\\"))
+                if (path.contains("/DLC/"))
                 {
-                    QString dlcName = path.split('\\')[3];
+                    QString dlcName = path.split('/')[3];
                     newFilename = "D" + QString::number(dlcName.size()) + "-" + dlcName + "-";
                 }
                 else
@@ -703,10 +715,9 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
                 }
                 newFilename += QString::number(BaseName(path).size()) + "-" +
                         BaseName(path) + "-E" + QString::number(exportId) + ".xdelta";
-                newFilename = outputMODdir + newFilename;
-                newFilename.replace(QChar('\\'), QChar('/'));
+                newFilename = outputMODdir + "/" + newFilename;
                 FileStream output = FileStream(newFilename, FileMode::Create, FileAccess::WriteOnly);
-                output.WriteFromBuffer(dst.ptr(), dstLen);
+                output.WriteFromBuffer(dst);
             }
             else
             {

@@ -103,6 +103,13 @@ struct MapPackagesToMod
 
 class MipMaps
 {
+    enum ChunkBlockEnums
+    {
+        SizeOfChunkBlock = 8,
+        SizeOfChunk = 8,
+        maxBlockSize = 0x20000, // 128KB
+    };
+
 public:
 
     static bool compressData(ByteBuffer inputData, Stream &ouputStream);
