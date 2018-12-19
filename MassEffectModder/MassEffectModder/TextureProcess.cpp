@@ -27,7 +27,7 @@
 #include "Helpers/FileStream.h"
 #include "Helpers/MemoryStream.h"
 
-void MipMaps::compressData(ByteBuffer inputData, Stream &ouputStream)
+bool MipMaps::compressData(ByteBuffer inputData, Stream &ouputStream)
 {
     uint compressedSize = 0;
     uint dataBlockLeft = inputData.size();
@@ -49,19 +49,23 @@ void MipMaps::compressData(ByteBuffer inputData, Stream &ouputStream)
         }
     }
 
+    bool failed = false;
     #pragma omp parallel for
     for (int b = 0; b < blocks.count(); b++)
     {
         Package::ChunkBlock block = blocks[b];
         ZlibCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize);
         if (block.comprSize == 0)
-            CRASH_MSG("Compression failed!");
+        {
+            failed = true;
+        }
         blocks[b] = block;
     }
+    if (failed)
+        return false;
 
-    for (int b = 0; b < blocks.count(); b++)
+    foreach (Package::ChunkBlock block, blocks)
     {
-        Package::ChunkBlock block = blocks[b];
         ouputStream.WriteFromBuffer(block.compressedBuffer, (int)block.comprSize);
         compressedSize += block.comprSize;
         delete[] block.uncompressedBuffer;
@@ -76,6 +80,8 @@ void MipMaps::compressData(ByteBuffer inputData, Stream &ouputStream)
         ouputStream.WriteUInt32(block.comprSize);
         ouputStream.WriteUInt32(block.uncomprSize);
     }
+
+    return true;
 }
 
 ByteBuffer MipMaps::decompressData(Stream &stream, long compressedSize)
@@ -86,12 +92,13 @@ ByteBuffer MipMaps::decompressData(Stream &stream, long compressedSize)
     uint blocksCount = (uncompressedChunkSize + Package::maxBlockSize - 1) / Package::maxBlockSize;
     if ((compressedChunkSize + Package::SizeOfChunk + Package::SizeOfChunkBlock * blocksCount) !=
             (uint)compressedSize)
-        CRASH_MSG("not match");
+    {
+        return ByteBuffer{};
+    }
 
     QList<Package::ChunkBlock> blocks{};
-    for (uint b = 0; b < blocksCount; b++)
+    foreach (Package::ChunkBlock block, blocks)
     {
-        Package::ChunkBlock block{};
         block.comprSize = stream.ReadUInt32();
         block.uncomprSize = stream.ReadUInt32();
         blocks.push_back(block);
@@ -106,6 +113,7 @@ ByteBuffer MipMaps::decompressData(Stream &stream, long compressedSize)
         blocks[b] = block;
     }
 
+    bool failed = false;
     #pragma omp parallel for
     for (int b = 0; b < blocks.count(); b++)
     {
@@ -113,14 +121,18 @@ ByteBuffer MipMaps::decompressData(Stream &stream, long compressedSize)
         Package::ChunkBlock block = blocks[b];
         ZlibDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen);
         if (dstLen != block.uncomprSize)
-            CRASH_MSG("Decompressed data size not expected!");
+        {
+            failed = true;
+        }
     }
+    if (failed)
+        return ByteBuffer{};
 
     int dstPos = 0;
-    for (int b = 0; b < blocks.count(); b++)
+    foreach (Package::ChunkBlock block, blocks)
     {
-        memcpy(data.ptr() + dstPos, blocks[b].uncompressedBuffer, blocks[b].uncomprSize);
-        dstPos += blocks[b].uncomprSize;
+        memcpy(data.ptr() + dstPos, block.uncompressedBuffer, block.uncomprSize);
+        dstPos += block.uncomprSize;
     }
 
     return data;

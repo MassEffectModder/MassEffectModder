@@ -105,7 +105,7 @@ class MipMaps
 {
 public:
 
-    static void compressData(ByteBuffer inputData, Stream &ouputStream);
+    static bool compressData(ByteBuffer inputData, Stream &ouputStream);
     static ByteBuffer decompressData(Stream &stream, long compressedSize);
     void extractTextureToPng(QString &outputFile, QString &packagePath, int exportID);
 
