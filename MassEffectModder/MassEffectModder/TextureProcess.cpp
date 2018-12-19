@@ -96,8 +96,9 @@ ByteBuffer MipMaps::decompressData(Stream &stream, long compressedSize)
     }
 
     QList<Package::ChunkBlock> blocks{};
-    foreach (Package::ChunkBlock block, blocks)
+    for (uint b = 0; b < blocksCount; b++)
     {
+        Package::ChunkBlock block{};
         block.comprSize = stream.ReadUInt32();
         block.uncomprSize = stream.ReadUInt32();
         blocks.push_back(block);
