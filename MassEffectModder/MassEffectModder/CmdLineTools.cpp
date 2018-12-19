@@ -312,30 +312,31 @@ bool CmdLineTools::extractTPF(QString &inputDir, QString &outputDir, bool ipc)
     QString fileName;
     ulong dstLen = 0;
     int numEntries = 0;
-    QStringList list = QDir(inputDir, "*.tpf", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
+    auto list = QDir(inputDir, "*.tpf", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
 
     QDir().mkpath(outputDir);
 
-    foreach (QString file, list)
+    foreach (QFileInfo file, list)
     {
         if (ipc)
         {
-            ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + file);
+            ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + file.fileName());
             ConsoleSync();
         }
         else
         {
-            ConsoleWrite(QString("Extract TPF: ") + file);
+            ConsoleWrite(QString("Extract TPF: ") + file.fileName());
         }
-        QString outputTPFdir = outputDir + "/" + BaseNameWithoutExt(file);
+        QString outputTPFdir = outputDir + "/" + BaseNameWithoutExt(file.fileName());
         QDir().mkpath(outputTPFdir);
 
 #if defined(_WIN32)
-        wchar_t *name = const_cast<wchar_t *>(file.toStdWString().c_str());
+        auto str = file.absoluteFilePath().replace('/', '\\').toStdWString();
+        auto name = str.c_str();
 #else
-        char *name = const_cast<char *>(file.toStdString().c_str());
+        auto name = file.absoluteFilePath().toStdString().c_str();
 #endif
-        void *handle = ZipOpenFromFile(static_cast<void *>(name), &numEntries, 1);
+        void *handle = ZipOpenFromFile(name, &numEntries, 1);
         if (handle == nullptr)
             goto failed;
 
@@ -378,7 +379,7 @@ bool CmdLineTools::extractTPF(QString &inputDir, QString &outputDir, bool ipc)
 
 failed:
 
-        ConsoleWrite(QString("TPF file is damaged: ") + file);
+        ConsoleWrite(QString("TPF file is damaged: ") + file.fileName());
         if (handle != nullptr)
             ZipClose(handle);
         handle = nullptr;

@@ -28,6 +28,9 @@
 #include <cstring>
 
 #include <iomemapi.h>
+#if defined(_WIN32)
+#include "iowin32.h"
+#endif
 #include <unzip.h>
 
 #pragma pack(push, 4)
@@ -66,8 +69,14 @@ void *ZipOpenFromFile(const void *path, int *numEntries, int tpf)
     if (unzipHandle == nullptr || numEntries == nullptr)
         return nullptr;
 
+    memset(unzipHandle, 0, sizeof(UnzipHandle));
     gXor = unzipHandle->tpfMode = tpf;
 
+#if defined(_WIN32)
+    fill_win32_filefunc64W(&unzipHandle->api);
+#else
+    fill_fopen64_filefunc(&unzipHandle->api);
+#endif
     unzipHandle->file = unzOpenIoFile(path, &unzipHandle->api);
     if (unzipHandle->file == nullptr)
     {

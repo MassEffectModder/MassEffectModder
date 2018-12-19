@@ -38,7 +38,12 @@ HEADERS += \
     zlib.h \
     zutil.h
 
-QMAKE_CFLAGS += -Wno-implicit-fallthrough
+win32-g++: {
+	SOURCES += iowin32.c
+	HEADERS += iowin32.h
+}
+
+QMAKE_CFLAGS += -Wno-implicit-fallthrough -Wno-unused-parameter -Wno-unused-function -Wno-unused-variable
 QMAKE_CFLAGS_RELEASE += -g1
 QMAKE_CFLAGS_DEBUG += -g
 
