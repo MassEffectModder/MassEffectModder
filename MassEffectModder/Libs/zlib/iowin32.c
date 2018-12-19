@@ -211,7 +211,7 @@ uLong ZCALLBACK win32_read_file_func (voidpf opaque, voidpf stream, void* buf,uL
 
     if (hFile != NULL)
     {
-		unsigned long filePos;
+        unsigned long filePos = 0;
 		if (gXor)
 			filePos = (unsigned long)win32_tell64_file_func(opaque, stream);
 		if (!ReadFile(hFile, buf, size, &ret, NULL))
