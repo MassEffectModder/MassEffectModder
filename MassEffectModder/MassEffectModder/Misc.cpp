@@ -355,8 +355,6 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
 {
     ConsoleWrite("Mods conversion started...");
 
-    inputDir.clear();
-
     QList<QFileInfo> list;
     QList<QFileInfo> list2;
     if (!onlyIndividual)
@@ -1192,7 +1190,8 @@ failed:
                 {
                     fileMod.name = "B";
                 }
-                fileMod.name += QString::number(BaseName(mods[l].packagePath).size()) + "-" + BaseName(mods[l].packagePath) +
+                fileMod.name += QString::number(BaseName(mods[l].packagePath.replace('\\', '/')).size()) +
+                        "-" + BaseName(mods[l].packagePath.replace('\\', '/')) +
                         "-E" + QString::number(mods[l].exportId) + ".bin";
 
                 outFs.WriteInt32(mods[l].exportId);
@@ -1210,7 +1209,8 @@ failed:
                 {
                     fileMod.name = "B";
                 }
-                fileMod.name += QString::number(BaseName(mods[l].packagePath).size()) + "-" + BaseName(mods[l].packagePath) +
+                fileMod.name += QString::number(BaseName(mods[l].packagePath.replace('\\', '/')).size()) +
+                        "-" + BaseName(mods[l].packagePath.replace('\\', '/')) +
                         "-E" + QString::number(mods[l].exportId) + ".xdelta";
 
                 outFs.WriteInt32(mods[l].exportId);
