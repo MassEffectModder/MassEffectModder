@@ -139,7 +139,7 @@ bool CmdLineTools::ConvertToMEM(MeType gameId, QString &inputDir, QString &memFi
 bool CmdLineTools::convertGameTexture(const QString &inputFile, QString &outputFile, QList<FoundTexture> *textures,
                                       bool markToConvert)
 {
-    QString filename = BaseNameWithoutExt(inputFile).toLower();
+    QString filename = BaseNameWithoutExt(inputFile);
     if (!filename.contains("0x"))
     {
         ConsoleWrite(QString("Texture filename not valid: ") + BaseName(inputFile) +

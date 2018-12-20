@@ -914,7 +914,7 @@ failed:
         else if (file.endsWith(".dds", Qt::CaseInsensitive))
         {
             BinaryMod mod{};
-            QString filename = BaseNameWithoutExt(file).toLower();
+            QString filename = BaseNameWithoutExt(file);
             if (!filename.contains("0x", Qt::CaseInsensitive))
             {
                 if (ipc)
@@ -986,7 +986,7 @@ failed:
             PixelFormat pixelFormat = f.pixfmt;
 
             mod.data = fs.ReadToBuffer();
-            Image image = Image(mod.data, ImageFormat::DDS);
+            Image image(mod.data, ImageFormat::DDS);
 
             if (image.getMipMaps().first().getOrigWidth() / image.getMipMaps().first().getOrigHeight() !=
                 f.width / f.height)
@@ -1050,7 +1050,7 @@ failed:
                  file.endsWith(".tga", Qt::CaseInsensitive))
         {
             BinaryMod mod{};
-            QString filename = BaseNameWithoutExt(file).toLower();
+            QString filename = BaseNameWithoutExt(file);
             if (!filename.contains("0x", Qt::CaseInsensitive))
             {
                 if (ipc)
