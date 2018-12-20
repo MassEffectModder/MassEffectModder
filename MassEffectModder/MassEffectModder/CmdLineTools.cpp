@@ -153,9 +153,9 @@ bool CmdLineTools::convertGameTexture(const QString &inputFile, QString &outputF
                      " Texture filename must include texture CRC (0xhhhhhhhh). Skipping texture...");
         return false;
     }
-    QString crcStr = filename.mid(idx + 2, 8);
+    QString crcStr = filename.mid(idx, 10);
     bool ok;
-    uint crc = crcStr.toInt(&ok, 16);
+    uint crc = crcStr.toUInt(&ok, 16);
     if (crc == 0)
     {
         ConsoleWrite(QString("Texture filename not valid: ") + BaseName(inputFile) +

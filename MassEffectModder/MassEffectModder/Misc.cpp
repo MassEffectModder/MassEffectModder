@@ -944,9 +944,9 @@ failed:
                 }
                 continue;
             }
-            QString crcStr = filename.mid(idx + 2, 8);
+            QString crcStr = filename.mid(idx, 10);
             bool ok;
-            uint crc = crcStr.toInt(&ok, 16);
+            uint crc = crcStr.toUInt(&ok, 16);
             if (crc == 0)
             {
                 if (ipc)
@@ -1080,9 +1080,9 @@ failed:
                 }
                 continue;
             }
+            QString crcStr = filename.mid(idx, 10);
             bool ok;
-            QString crcStr = filename.mid(idx + 2, 8);
-            uint crc = crcStr.toInt(&ok, 16);
+            uint crc = crcStr.toUInt(&ok, 16);
             if (crc == 0)
             {
                 if (ipc)
