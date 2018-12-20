@@ -55,7 +55,7 @@ public:
                             bool markToConvert);
     bool convertGameImage(MeType gameId, QString &inputFile, QString &outputFile, bool markToConvert);
     bool convertGameImages(MeType gameId, QString &inputDir, QString &outputDir, bool markToConvert);
-    bool convertImage(QString &inputFile, QString &outputFile, QString &format, QString &threshold);
+    bool convertImage(QString &inputFile, QString &outputFile, QString &format, int dxt1Threshold);
     bool extractTPF(QString &inputDir, QString &outputDir, bool ipc);
     bool extractMOD(MeType gameId, QString &inputDir, QString &outputDir, bool ipc);
     bool extractMEM(MeType gameId, QString &inputDir, QString &outputDir, bool ipc);

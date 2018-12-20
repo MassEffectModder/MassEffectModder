@@ -398,6 +398,7 @@ int ProcessArguments()
     bool limit2k = false;
     bool pccOnly = false;
     bool tfcOnly = false;
+    int thresholdValue = 128;
     QString input, output, threshold, format, tfcName, guid;
     CmdLineTools tools;
 
@@ -508,6 +509,10 @@ int ProcessArguments()
         else if (arg == "--threshold" && hasValue(args, l))
         {
             threshold = args[l + 1];
+            if (threshold.length() != 0)
+            {
+                thresholdValue = threshold.toInt();
+            }
         }
         else if (arg == "--format" && hasValue(args, l))
         {
@@ -642,7 +647,7 @@ int ProcessArguments()
             errorCode = -1;
             break;
         }
-        if (!tools.convertImage(input, output, format, threshold))
+        if (!tools.convertImage(input, output, format, thresholdValue))
             errorCode = -1;
         break;
     case CmdType::CONVERT_GAME_IMAGES:

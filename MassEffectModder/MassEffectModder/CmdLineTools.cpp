@@ -255,19 +255,11 @@ bool CmdLineTools::convertGameImages(MeType gameId, QString &inputDir, QString &
     return status;
 }
 
-bool CmdLineTools::convertImage(QString &inputFile, QString &outputFile, QString &format, QString &threshold)
+bool CmdLineTools::convertImage(QString &inputFile, QString &outputFile, QString &format, int dxt1Threshold)
 {
     format = format.toLower();
     PixelFormat pixFmt;
     bool dxt1HasAlpha = false;
-    quint8 dxt1Threshold = 128;
-    dxt1Threshold = threshold.toInt();
-    if (dxt1Threshold == 0)
-    {
-        ConsoleWrite(QString("Error: wrong threshold for dxt1: ") + threshold);
-        return false;
-    }
-
     if (format == "dxt1")
         pixFmt = PixelFormat::DXT1;
     else if (format == "dxt1a")
