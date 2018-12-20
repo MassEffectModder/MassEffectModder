@@ -36,14 +36,14 @@ Image::Image(const QString &fileName, ImageFormat format)
         case ImageFormat::DDS:
         case ImageFormat::TGA:
         {
-            auto file = FileStream(fileName, FileMode::Open, FileAccess::ReadOnly);
+            FileStream file(fileName, FileMode::Open, FileAccess::ReadOnly);
             LoadImageFromStream(file, format);
             return;
         }
         case ImageFormat::PNG:
         {
-            auto file = FileStream(fileName, FileMode::Open, FileAccess::ReadOnly);
-            auto buffer = ByteBuffer(file.Length());
+            FileStream file(fileName, FileMode::Open, FileAccess::ReadOnly);
+            ByteBuffer buffer(file.Length());
             file.ReadToBuffer(buffer.ptr(), file.Length());
             LoadImageFromBuffer(buffer, format);
             buffer.Free();
@@ -103,8 +103,8 @@ Image::Image(ByteBuffer data, ImageFormat format)
         case ImageFormat::DDS:
         case ImageFormat::TGA:
         {
-            auto mem = MemoryStream(data);
-            LoadImageFromStream(mem, format);
+            MemoryStream stream(data);
+            LoadImageFromStream(stream, format);
             return;
         }
         case ImageFormat::PNG:
@@ -128,8 +128,8 @@ Image::Image(ByteBuffer data, const QString &extension)
         case ImageFormat::DDS:
         case ImageFormat::TGA:
         {
-            auto mem = MemoryStream(data);
-            LoadImageFromStream(mem, format);
+            MemoryStream stream(data);
+            LoadImageFromStream(stream, format);
             break;
         }
         case ImageFormat::PNG:
@@ -216,7 +216,7 @@ void Image::LoadImageFromBuffer(ByteBuffer data, ImageFormat format)
     }
 
     auto image2 = image.convertToFormat(QImage::Format_ARGB32);
-    auto pixels = ByteBuffer(image2.width() * image2.height() * 4);
+    ByteBuffer pixels(image2.width() * image2.height() * 4);
     mipMaps.push_back(MipMap(pixels, image2.width(), image2.height(), PixelFormat::ARGB));
     pixels.Free();
     pixelFormat = PixelFormat::ARGB;
@@ -273,15 +273,15 @@ ByteBuffer Image::convertRawToARGB(const quint8 *src, int w, int h, PixelFormat 
 
 ByteBuffer Image::convertRawToRGB(const quint8 *src, int w, int h, PixelFormat format)
 {
-    ByteBuffer dataARGB = convertRawToARGB(src, w, h, format);
-    ByteBuffer dataRGB = ARGBtoRGB(dataARGB.ptr(), w, h);
+    auto dataARGB = convertRawToARGB(src, w, h, format);
+    auto dataRGB = ARGBtoRGB(dataARGB.ptr(), w, h);
     dataARGB.Free();
     return dataRGB;
 }
 
 QImage *Image::convertRawToBitmapARGB(const quint8 *src, int w, int h, PixelFormat format)
 {
-    ByteBuffer dataARGB = convertRawToARGB(src, w, h, format, true);
+    auto dataARGB = convertRawToARGB(src, w, h, format, true);
     auto bitmap = new QImage(w, h, QImage::Format_ARGB32);
     for (int y = 0; y < bitmap->height(); y++)
     {
@@ -393,7 +393,7 @@ ByteBuffer Image::downscaleARGB(const quint8 *src, int w, int h)
 
     if (w == 1 || h == 1)
     {
-        auto tmpData = ByteBuffer(w * h * 2);
+        ByteBuffer tmpData(w * h * 2);
         quint8 *ptr = tmpData.ptr();
         for (int srcPos = 0, dstPos = 0; dstPos < w * h * 2; srcPos += 8)
         {
@@ -405,7 +405,7 @@ ByteBuffer Image::downscaleARGB(const quint8 *src, int w, int h)
         return tmpData;
     }
 
-    auto tmpData = ByteBuffer(w * h);
+    ByteBuffer tmpData(w * h);
     quint8 *ptr = tmpData.ptr();
     int pitch = w * 4;
     for (int srcPos = 0, dstPos = 0; dstPos < w * h; srcPos += pitch)
@@ -428,7 +428,7 @@ ByteBuffer Image::downscaleRGB(const quint8 *src, int w, int h)
 
     if (w == 1 || h == 1)
     {
-        auto tmpData = ByteBuffer((w * h * 3) / 2);
+        ByteBuffer tmpData((w * h * 3) / 2);
         quint8 *ptr = tmpData.ptr();
         for (int srcPos = 0, dstPos = 0; dstPos < (w * h * 3) / 2; srcPos += 6)
         {
@@ -439,7 +439,7 @@ ByteBuffer Image::downscaleRGB(const quint8 *src, int w, int h)
         return tmpData;
     }
 
-    auto tmpData = ByteBuffer((w * h * 3) / 4);
+    ByteBuffer tmpData((w * h * 3) / 4);
     quint8 *ptr = tmpData.ptr();
     int pitch = w * 3;
     for (int srcPos = 0, dstPos = 0; dstPos < (w * h * 3) / 4; srcPos += pitch)
@@ -457,7 +457,7 @@ ByteBuffer Image::downscaleRGB(const quint8 *src, int w, int h)
 
 void Image::saveToPng(const quint8 *src, int w, int h, PixelFormat format, const QString &filename)
 {
-    QImage *image = convertRawToBitmapARGB(src, w, h, format);
+    auto image = convertRawToBitmapARGB(src, w, h, format);
     image->save(filename);
     delete image;
 }
@@ -526,7 +526,7 @@ ByteBuffer Image::convertToFormat(PixelFormat srcFormat, const quint8 *src, int 
 void Image::correctMips(PixelFormat dstFormat, bool dxt1HasAlpha, quint8 dxt1Threshold)
 {
     MipMap& firstMip = mipMaps.first();
-    ByteBuffer tempData = convertRawToARGB(firstMip.getData().ptr(), firstMip.getWidth(), firstMip.getHeight(), pixelFormat);
+    auto tempData = convertRawToARGB(firstMip.getData().ptr(), firstMip.getWidth(), firstMip.getHeight(), pixelFormat);
 
     int width = firstMip.getOrigWidth();
     int height = firstMip.getOrigHeight();
@@ -536,8 +536,8 @@ void Image::correctMips(PixelFormat dstFormat, bool dxt1HasAlpha, quint8 dxt1Thr
 
     if (dstFormat != pixelFormat || (dstFormat == PixelFormat::DXT1 && !dxt1HasAlpha))
     {
-        ByteBuffer top = convertToFormat(PixelFormat::ARGB,
-                                         tempData.ptr(), width, height, dstFormat, dxt1HasAlpha, dxt1Threshold);
+        auto top = convertToFormat(PixelFormat::ARGB,
+                                   tempData.ptr(), width, height, dstFormat, dxt1HasAlpha, dxt1Threshold);
         mipMaps.removeAt(0);
         mipMaps.push_back(MipMap(top, width, height, dstFormat));
         top.Free();
@@ -589,11 +589,12 @@ void Image::correctMips(PixelFormat dstFormat, bool dxt1HasAlpha, quint8 dxt1Thr
             }
         }
 
-        ByteBuffer tempDataDownscaled = downscaleARGB(tempData.ptr(), prevW, prevH);
+        auto tempDataDownscaled = downscaleARGB(tempData.ptr(), prevW, prevH);
         if (pixelFormat != PixelFormat::ARGB)
         {
-            ByteBuffer converted = convertToFormat(PixelFormat::ARGB, tempDataDownscaled.ptr(), origW, origH, pixelFormat, dxt1HasAlpha, dxt1Threshold);
+            auto converted = convertToFormat(PixelFormat::ARGB, tempDataDownscaled.ptr(), origW, origH, pixelFormat, dxt1HasAlpha, dxt1Threshold);
             mipMaps.push_back(MipMap(converted, origW, origH, pixelFormat));
+            converted.Free();
         }
         else
         {
