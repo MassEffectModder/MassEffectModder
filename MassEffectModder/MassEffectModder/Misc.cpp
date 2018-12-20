@@ -753,8 +753,9 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                 result = ZipGetCurrentFileInfo(handle, &filetmp, &filetmplen, &dstLen);
                 if (result != 0)
                     goto failed;
-                fileName.clear();
-                QString filename = fileName;
+                QString filename(filetmp);
+                delete[] filetmp;
+                filename = BaseName(filename);
                 foreach (QString dds, ddsList)
                 {
                     QString ddsFile = dds.split('|')[1];
@@ -1034,6 +1035,7 @@ failed:
                     }
                 }
                 image.correctMips(newPixelFormat, dxt1HasAlpha, dxt1Threshold);
+                mod.data.Free();
                 mod.data = image.StoreImageToDDS();
             }
 

@@ -160,10 +160,9 @@ void Image::LoadImageDDS(Stream &stream)
         }
 
         int size = MipMap::getBufferSize(w, h, pixelFormat);
-        ByteBuffer tempData = ByteBuffer(size);
-        stream.ReadToBuffer(tempData.ptr(), size);
-
+        ByteBuffer tempData = stream.ReadToBuffer(size);
         mipMaps.push_back(MipMap(tempData, origW, origH, pixelFormat));
+        tempData.Free();
     }
 }
 
