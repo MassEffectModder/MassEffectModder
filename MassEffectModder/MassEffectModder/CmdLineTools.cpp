@@ -375,6 +375,7 @@ bool CmdLineTools::extractTPF(QString &inputDir, QString &outputDir, bool ipc)
                 QFile(outputPath).remove();
             FileStream fs = FileStream(outputPath, FileMode::Create);
             fs.WriteFromBuffer(data);
+            data.Free();
             ConsoleWrite(outputPath);
             ZipGoToNextFile(handle);
         }
