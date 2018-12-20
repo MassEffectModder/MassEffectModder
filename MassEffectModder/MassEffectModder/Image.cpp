@@ -158,13 +158,13 @@ ImageFormat Image::DetectImageByFilename(const QString &fileName)
 ImageFormat Image::DetectImageByExtension(const QString &extension)
 {
     QString ext = extension.toLower();
-    if (ext == ".dds")
+    if (ext == "dds")
         return ImageFormat::DDS;
-    if (ext == ".tga")
+    if (ext == "tga")
         return ImageFormat::TGA;
-    if (ext == ".bmp")
+    if (ext == "bmp")
         return ImageFormat::BMP;
-    if (ext == ".png")
+    if (ext == "png")
         return ImageFormat::PNG;
 
     return ImageFormat::UnknownImageFormat;
