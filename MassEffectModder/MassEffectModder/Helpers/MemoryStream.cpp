@@ -140,7 +140,7 @@ MemoryStream::~MemoryStream()
 
 ByteBuffer MemoryStream::ToArray()
 {
-    ByteBuffer buffer = ByteBuffer(length);
+    ByteBuffer buffer(length);
     memcpy(buffer.ptr(), internalBuffer, length);
     return buffer;
 }
@@ -176,7 +176,7 @@ void MemoryStream::ReadToBuffer(quint8 *buffer, qint64 count)
 
 ByteBuffer MemoryStream::ReadToBuffer(qint64 count)
 {
-    ByteBuffer buffer = ByteBuffer(count);
+    ByteBuffer buffer(count);
     ReadToBuffer(buffer.ptr(), count);
     return buffer;
 }
