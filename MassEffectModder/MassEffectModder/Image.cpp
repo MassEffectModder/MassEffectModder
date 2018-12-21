@@ -603,6 +603,7 @@ void Image::correctMips(PixelFormat dstFormat, bool dxt1HasAlpha, quint8 dxt1Thr
         tempData.Free();
         tempData = tempDataDownscaled;
     }
+    tempData.Free();
 }
 
 PixelFormat Image::getPixelFormatType(const QString &format)
