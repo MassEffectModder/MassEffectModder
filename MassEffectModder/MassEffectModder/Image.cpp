@@ -215,9 +215,9 @@ void Image::LoadImageFromBuffer(ByteBuffer data, ImageFormat format)
         CRASH_MSG("dimensions are not power of two");
     }
 
-    auto image2 = image.convertToFormat(QImage::Format_ARGB32);
-    ByteBuffer pixels(image2.width() * image2.height() * 4);
-    mipMaps.push_back(MipMap(pixels, image2.width(), image2.height(), PixelFormat::ARGB));
+    auto convertedImage = image.convertToFormat(QImage::Format_ARGB32);
+    ByteBuffer pixels(convertedImage.width() * convertedImage.height() * 4);
+    mipMaps.push_back(MipMap(pixels, convertedImage.width(), convertedImage.height(), PixelFormat::ARGB));
     pixels.Free();
     pixelFormat = PixelFormat::ARGB;
 }
@@ -307,7 +307,7 @@ void Image::clearAlphaFromARGB(quint8 *data, int w, int h)
 
 ByteBuffer Image::RGBToARGB(const quint8 *src, int w, int h)
 {
-    auto tmpData = ByteBuffer(w * h * 4);
+    ByteBuffer tmpData(w * h * 4);
     quint8 *ptr = tmpData.ptr();
     for (int i = 0; i < w * h; i++)
     {
@@ -321,7 +321,7 @@ ByteBuffer Image::RGBToARGB(const quint8 *src, int w, int h)
 
 ByteBuffer Image::ARGBtoRGB(const quint8 *src, int w, int h)
 {
-    auto tmpData = ByteBuffer(w * h * 3);
+    ByteBuffer tmpData(w * h * 3);
     quint8 *ptr = tmpData.ptr();
     for (int i = 0; i < w * h; i++)
     {
@@ -334,7 +334,7 @@ ByteBuffer Image::ARGBtoRGB(const quint8 *src, int w, int h)
 
 ByteBuffer Image::V8U8ToARGB(const quint8 *src, int w, int h)
 {
-    auto tmpData = ByteBuffer(w * h * 4);
+    ByteBuffer tmpData(w * h * 4);
     quint8 *ptr = tmpData.ptr();
     for (int i = 0; i < w * h; i++)
     {
@@ -348,7 +348,7 @@ ByteBuffer Image::V8U8ToARGB(const quint8 *src, int w, int h)
 
 ByteBuffer Image::ARGBtoV8U8(const quint8 *src, int w, int h)
 {
-    auto tmpData = ByteBuffer(w * h * 2);
+    ByteBuffer tmpData(w * h * 2);
     quint8 *ptr = tmpData.ptr();
     for (int i = 0; i < w * h; i++)
     {
@@ -360,7 +360,7 @@ ByteBuffer Image::ARGBtoV8U8(const quint8 *src, int w, int h)
 
 ByteBuffer Image::G8ToARGB(const quint8 *src, int w, int h)
 {
-    auto tmpData = ByteBuffer(w * h * 4);
+    ByteBuffer tmpData(w * h * 4);
     quint8 *ptr = tmpData.ptr();
     for (int i = 0; i < w * h; i++)
     {
@@ -375,7 +375,7 @@ ByteBuffer Image::G8ToARGB(const quint8 *src, int w, int h)
 
 ByteBuffer Image::ARGBtoG8(const quint8 *src, int w, int h)
 {
-    auto tmpData = ByteBuffer(w * h);
+    ByteBuffer tmpData(w * h);
     quint8 *ptr = tmpData.ptr();
     for (int i = 0; i < w * h; i++)
     {
@@ -564,7 +564,7 @@ void Image::correctMips(PixelFormat dstFormat, bool dxt1HasAlpha, quint8 dxt1Thr
 
         if (pixelFormat == PixelFormat::ATI2 && (width < 4 || height < 4))
         {
-            auto data = ByteBuffer(MipMap::getBufferSize(width, height, dstFormat));
+            ByteBuffer data(MipMap::getBufferSize(width, height, dstFormat));
             memset(data.ptr(), 0, data.size());
             mipMaps.push_back(MipMap(data, width, height, pixelFormat));
             data.Free();
@@ -581,7 +581,7 @@ void Image::correctMips(PixelFormat dstFormat, bool dxt1HasAlpha, quint8 dxt1Thr
                     width = 4;
                 if (height < 4)
                     height = 4;
-                auto data = ByteBuffer(MipMap::getBufferSize(width, height, dstFormat));
+                ByteBuffer data(MipMap::getBufferSize(width, height, dstFormat));
                 memset(data.ptr(), 0, data.size());
                 mipMaps.push_back(MipMap(data, origW, origH, pixelFormat));
                 data.Free();
