@@ -68,7 +68,7 @@ bool Misc::ChangeProductNameForME1Exe()
         quint8 pattern[] = { 0x50, 0, 0x72, 0, 0x6F, 0, 0x64, 0, 0x75, 0, 0x63, 0, 0x74, 0, 0x4E, 0, 0x61, 0, 0x6D, 0, 0x65, 0, 0, 0, 0, 0,
                            0x4D, 0, 0x61, 0, 0x73, 0, 0x73, 0, 0x20, 0, 0x45, 0, 0x66, 0, 0x66, 0, 0x65, 0, 0x63, 0, 0x74, 0 };
         FileStream fs = FileStream(g_GameData->GameExePath(), FileMode::Open, FileAccess::ReadWrite);
-        ByteBuffer buffer = fs.ReadToBuffer();
+        ByteBuffer buffer = fs.ReadAllToBuffer();
         quint8 *ptr = buffer.ptr();
         int pos = -1;
         for (int i = 0; i < buffer.size(); i++)
@@ -689,7 +689,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                 mod.binaryModType = 1;
             else if (file.endsWith(".xdelta", Qt::CaseInsensitive))
                 mod.binaryModType = 2;
-            mod.data = FileStream(file, FileMode::Open).ReadToBuffer();
+            mod.data = FileStream(file, FileMode::Open).ReadAllToBuffer();
             mods.push_back(mod);
         }
         else if (file.endsWith(".tpf", Qt::CaseInsensitive))
@@ -984,7 +984,7 @@ failed:
             FileStream fs = FileStream(file, FileMode::Open, FileAccess::ReadOnly);
             PixelFormat pixelFormat = f.pixfmt;
 
-            mod.data = fs.ReadToBuffer();
+            mod.data = fs.ReadAllToBuffer();
             Image image(mod.data, ImageFormat::DDS);
 
             if (image.getMipMaps().first().getOrigWidth() / image.getMipMaps().first().getOrigHeight() !=

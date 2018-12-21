@@ -110,17 +110,15 @@ void FileStream::ReadToBuffer(quint8 *buffer, qint64 count)
 
 ByteBuffer FileStream::ReadToBuffer(qint64 count)
 {
-    ByteBuffer buffer = ByteBuffer(count);
+    ByteBuffer buffer(count);
     ReadToBuffer(buffer.ptr(), count);
     return buffer;
 }
 
-ByteBuffer FileStream::ReadToBuffer()
+ByteBuffer FileStream::ReadAllToBuffer()
 {
-    qint64 count = file->size();
-    ByteBuffer buffer = ByteBuffer(count);
-    ReadToBuffer(buffer.ptr(), count);
-    return buffer;
+    SeekBegin();
+    return ReadToBuffer(file->size());
 }
 
 void FileStream::WriteFromBuffer(quint8 *buffer, qint64 count)
