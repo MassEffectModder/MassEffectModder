@@ -130,7 +130,7 @@ Image::Image(ByteBuffer data, const QString &extension)
         {
             MemoryStream stream(data);
             LoadImageFromStream(stream, format);
-            break;
+            return;
         }
         case ImageFormat::PNG:
         {
