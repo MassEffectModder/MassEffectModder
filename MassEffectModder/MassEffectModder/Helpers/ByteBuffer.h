@@ -32,8 +32,18 @@ private:
 public:
 
     ByteBuffer() { _ptr = nullptr; _size = 0; }
-    ByteBuffer(quint64 size) { _ptr = new quint8[size]; _size = size; }
-    ByteBuffer(quint8 *ptr, quint64 size) { _ptr = ptr, _size = size; }
+    ByteBuffer(quint64 size)
+    {
+        _ptr = new quint8[size];
+        _size = size;
+    }
+    ByteBuffer(quint8 *ptr, quint64 size)
+    {
+        _ptr = new quint8[size];
+        _size = size;
+        if (_ptr != nullptr)
+            memcpy(_ptr, ptr, size);
+    }
     void Free() { delete[] _ptr; _ptr = nullptr; }
     quint8 *ptr() { return _ptr; }
     qint64 size() { return _size; }
