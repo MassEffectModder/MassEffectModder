@@ -531,7 +531,7 @@ ByteBuffer Image::compressMipmap(PixelFormat dstFormat, const quint8 *src, int w
     }
 
     int range[cores + 1];
-
+    range[0] = 0;
     for (int p = 1; p <= cores; p++)
         range[p] = (partSize * p);
 
@@ -604,7 +604,7 @@ ByteBuffer Image::decompressMipmap(PixelFormat srcFormat, const quint8 *src, int
     }
 
     int range[cores + 1];
-
+    range[0] = 0;
     for (int p = 1; p <= cores; p++)
         range[p] = (partSize * p);
 
