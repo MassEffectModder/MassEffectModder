@@ -463,14 +463,25 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
                 }
             }
 
-            bool foundWeakSlave = false;
-            for (int w = 0; w < textures[k].list.count(); w++)
+            bool foundSlave = false;
+            for (int s = 0; s < textures[k].list.count(); s++)
             {
-                if (!textures[k].list[w].slave &&
-                     textures[k].list[w].weakSlave)
+                if (textures[k].list[s].slave)
                 {
-                    foundWeakSlave = true;
+                    foundSlave = true;
                     break;
+                }
+            }
+            bool foundWeakSlave = false;
+            if (!foundSlave)
+            {
+                for (int w = 0; w < textures[k].list.count(); w++)
+                {
+                    if (textures[k].list[w].weakSlave)
+                    {
+                        foundWeakSlave = true;
+                        break;
+                    }
                 }
             }
             if (foundWeakSlave)
