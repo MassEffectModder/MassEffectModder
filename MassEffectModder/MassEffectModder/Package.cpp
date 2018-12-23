@@ -317,7 +317,7 @@ bool Package::getData(uint offset, uint length, Stream *outputStream, quint8 *ou
                     else if (compressionType == CompressionType::Zlib)
                         ZlibDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen);
                     else
-                        failed = true;
+                        CRASH_MSG("Compression type not expected!");
                     if (dstLen != block.uncomprSize)
                         failed = true;
                 }
@@ -333,7 +333,7 @@ bool Package::getData(uint offset, uint length, Stream *outputStream, quint8 *ou
                     delete[] block.compressedBuffer;
                     delete[] block.uncompressedBuffer;
                 }
-                if (!failed)
+                if (failed)
                     return false;
             }
             chunkCache->JumpTo(startInChunk);
