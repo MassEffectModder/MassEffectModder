@@ -533,7 +533,7 @@ void Package::loadNames(Stream &input)
         {
             input.ReadStringASCII(entry.name, len);
         }
-        if (entry.name.endsWith('\0'))
+        if (entry.name.endsWith(QChar('\0')))
             entry.name.chop(1);
 
         if (nameIdTexture2D == -1 && entry.name == "Texture2D")
@@ -625,7 +625,7 @@ void Package::loadExtraNames(Stream &input, bool rawMode)
                 input.ReadStringASCII(name, len);
             }
             entry.name = name;
-            if (entry.name.endsWith('\0'))
+            if (entry.name.endsWith(QChar('\0')))
                 entry.name.chop(1);
         }
         extraNamesTable.push_back(entry);
