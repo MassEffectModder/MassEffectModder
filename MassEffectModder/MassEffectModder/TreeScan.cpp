@@ -455,7 +455,6 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
                            textures[k].list[j].packageName == basePkgName)
                         {
                             slaveTexture.linkToMaster = j;
-                            slaveTexture.slave = true;
                             textures[k].list[t] = slaveTexture;
                             break;
                         }
