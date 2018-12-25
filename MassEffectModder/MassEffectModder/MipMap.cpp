@@ -21,7 +21,7 @@
 
 #include "MipMap.h"
 
-MipMap::MipMap(ByteBuffer src, int w, int h, PixelFormat format)
+MipMap::MipMap(const ByteBuffer &src, int w, int h, PixelFormat format)
 {
     width = origWidth = w;
     height = origHeight = h;

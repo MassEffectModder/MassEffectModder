@@ -75,7 +75,7 @@ class Image
 
 private:
 
-    QList<MipMap> mipMaps;
+    QList<MipMap *> mipMaps;
     PixelFormat pixelFormat = PixelFormat::UnknownPixelFormat;
     DDS_PF ddsPixelFormat{};
     uint DDSflags{};
@@ -101,15 +101,16 @@ private:
 
 public:
 
-    QList<MipMap>& getMipMaps() { return mipMaps; }
+    QList<MipMap *>& getMipMaps() { return mipMaps; }
     PixelFormat getPixelFormat() { return pixelFormat; }
 
     Image(const QString &fileName, ImageFormat format = ImageFormat::UnknownImageFormat);
     Image(Stream &stream, ImageFormat format);
     Image(Stream &stream, const QString &extension);
-    Image(ByteBuffer data, ImageFormat format);
-    Image(ByteBuffer data, const QString &extension);
-    Image(QList<MipMap> &mipmaps, PixelFormat pixelFmt);
+    Image(const ByteBuffer &data, ImageFormat format);
+    Image(const ByteBuffer &data, const QString &extension);
+    Image(QList<MipMap *> &mipmaps, PixelFormat pixelFmt);
+    ~Image();
     static ByteBuffer convertRawToARGB(const quint8 *src, int w, int h, PixelFormat format, bool clearAlpha = false);
     static ByteBuffer convertRawToRGB(const quint8 *src, int w, int h, PixelFormat format);
     static QImage *convertRawToBitmapARGB(const quint8 *src, int w, int h, PixelFormat format);
@@ -125,8 +126,10 @@ public:
 private:
 
     static DDS_PF getDDSPixelFormat(PixelFormat format);
-    static void readBlock4X4ARGB(quint8 blockARGB[BLOCK_SIZE_4X4X4], const quint8 *srcARGB, int srcW, int blockX, int blockY);
-    static void writeBlock4X4ARGB(const quint8 blockARGB[BLOCK_SIZE_4X4X4], quint8 *dstARGB, int dstW, int blockX, int blockY);
+    static void readBlock4X4ARGB(quint8 blockARGB[BLOCK_SIZE_4X4X4], const quint8 *srcARGB,
+                                 int srcW, int blockX, int blockY);
+    static void writeBlock4X4ARGB(const quint8 blockARGB[BLOCK_SIZE_4X4X4], quint8 *dstARGB,
+                                  int dstW, int blockX, int blockY);
 
     static void readBlock4X4BPP4(uint block[2], const quint8 *src, int srcW, int blockX, int blockY);
     static void writeBlock4X4BPP4(const uint block[2], quint8 *dst, int dstW, int blockX, int blockY);
@@ -134,14 +137,18 @@ private:
     static void readBlock4X4BPP8(uint block[4], const quint8 *src, int srcW, int blockX, int blockY);
     static void writeBlock4X4BPP8(const uint block[4], quint8 *dst, int dstW, int blockX, int blockY);
 
-    static void readBlock4X4ATI2(quint8 blockDstX[BLOCK_SIZE_4X4BPP8], quint8 blockDstY[BLOCK_SIZE_4X4BPP8],
+    static void readBlock4X4ATI2(quint8 blockDstX[BLOCK_SIZE_4X4BPP8],
+                                 quint8 blockDstY[BLOCK_SIZE_4X4BPP8],
                                  const quint8 *src, int srcW, int blockX, int blockY);
     static void writeBlock4X4ATI2(const uint blockSrcX[2], const uint blockSrcY[2],
                                   quint8 *dst, int dstW, int blockX, int blockY);
 
-    static void writeBlock4X4ARGBATI2(const quint8 blockR[BLOCK_SIZE_4X4BPP8], const quint8 blockG[BLOCK_SIZE_4X4BPP8], quint8 *dstARGB, int srcW, int blockX, int blockY);
+    static void writeBlock4X4ARGBATI2(const quint8 blockR[BLOCK_SIZE_4X4BPP8],
+                                      const quint8 blockG[BLOCK_SIZE_4X4BPP8],
+                                      quint8 *dstARGB, int srcW, int blockX, int blockY);
 
-    static ByteBuffer compressMipmap(PixelFormat dstFormat, const quint8 *src, int w, int h, bool useDXT1Alpha = false, quint8 DXT1Threshold = 128);
+    static ByteBuffer compressMipmap(PixelFormat dstFormat, const quint8 *src, int w, int h,
+                                     bool useDXT1Alpha = false, quint8 DXT1Threshold = 128);
     static ByteBuffer decompressMipmap(PixelFormat srcFormat, const quint8 *src, int w, int h);
 
 public:

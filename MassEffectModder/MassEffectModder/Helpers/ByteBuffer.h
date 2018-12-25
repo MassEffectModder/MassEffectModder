@@ -37,7 +37,7 @@ public:
         _ptr = new quint8[size];
         _size = size;
     }
-    ByteBuffer(quint8 *ptr, quint64 size)
+    ByteBuffer(const quint8 *ptr, quint64 size)
     {
         _ptr = new quint8[size];
         _size = size;
@@ -45,8 +45,8 @@ public:
             memcpy(_ptr, ptr, size);
     }
     void Free() { delete[] _ptr; _ptr = nullptr; }
-    quint8 *ptr() { return _ptr; }
-    qint64 size() { return _size; }
+    quint8 *ptr() const { return _ptr; }
+    qint64 size() const { return _size; }
 };
 
 #endif

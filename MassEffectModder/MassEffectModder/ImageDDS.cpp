@@ -163,7 +163,7 @@ void Image::LoadImageDDS(Stream &stream)
 
         int size = MipMap::getBufferSize(w, h, pixelFormat);
         ByteBuffer tempData = stream.ReadToBuffer(size);
-        mipMaps.push_back(MipMap(tempData, origW, origH, pixelFormat));
+        mipMaps.push_back(new MipMap(tempData, origW, origH, pixelFormat));
         tempData.Free();
     }
 }
@@ -172,13 +172,13 @@ bool Image::checkDDSHaveAllMipmaps()
 {
     if ((DDSflags & DDSD_MIPMAPCOUNT) != 0 && mipMaps.count() > 1)
     {
-        int width = mipMaps[0].getOrigWidth();
-        int height = mipMaps[0].getOrigHeight();
+        int width = mipMaps[0]->getOrigWidth();
+        int height = mipMaps[0]->getOrigHeight();
         for (int i = 0; i < mipMaps.count(); i++)
         {
-            if (mipMaps[i].getOrigWidth() < 4 || mipMaps[i].getOrigHeight() < 4)
+            if (mipMaps[i]->getOrigWidth() < 4 || mipMaps[i]->getOrigHeight() < 4)
                 return true;
-            if (mipMaps[i].getOrigWidth() != width && mipMaps[i].getOrigHeight() != height)
+            if (mipMaps[i]->getOrigWidth() != width && mipMaps[i]->getOrigHeight() != height)
                 return false;
             width /= 2;
             height /= 2;
@@ -193,14 +193,14 @@ Image *Image::convertToARGB()
 {
     for (int i = 0; i < mipMaps.count(); i++)
     {
-        ByteBuffer data = convertRawToARGB(mipMaps[i].getData().ptr(),
-                                           mipMaps[i].getWidth(),
-                                           mipMaps[i].getHeight(),
+        ByteBuffer data = convertRawToARGB(mipMaps[i]->getData().ptr(),
+                                           mipMaps[i]->getWidth(),
+                                           mipMaps[i]->getHeight(),
                                            pixelFormat);
 
-        mipMaps[i] = MipMap(data,
-                            mipMaps[i].getWidth(),
-                            mipMaps[i].getHeight(),
+        mipMaps[i] = new MipMap(data,
+                            mipMaps[i]->getWidth(),
+                            mipMaps[i]->getHeight(),
                             PixelFormat::ARGB);
         data.Free();
     }
@@ -213,13 +213,13 @@ Image *Image::convertToRGB()
 {
     for (int i = 0; i < mipMaps.count(); i++)
     {
-        ByteBuffer data = convertRawToRGB(mipMaps[i].getData().ptr(),
-                                          mipMaps[i].getWidth(),
-                                          mipMaps[i].getHeight(),
+        ByteBuffer data = convertRawToRGB(mipMaps[i]->getData().ptr(),
+                                          mipMaps[i]->getWidth(),
+                                          mipMaps[i]->getHeight(),
                                           pixelFormat);
-        mipMaps[i] = MipMap(data,
-                            mipMaps[i].getWidth(),
-                            mipMaps[i].getHeight(),
+        mipMaps[i] = new MipMap(data,
+                            mipMaps[i]->getWidth(),
+                            mipMaps[i]->getHeight(),
                             PixelFormat::RGB);
         data.Free();
     }
@@ -330,13 +330,13 @@ void Image::StoreImageToDDS(Stream &stream, PixelFormat format)
     stream.WriteUInt32(DDS_TAG);
     stream.WriteInt32(DDS_HEADER_dwSize);
     stream.WriteUInt32(DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_MIPMAPCOUNT | DDSD_PIXELFORMAT | DDSD_LINEARSIZE);
-    stream.WriteInt32(mipMaps[0].getHeight());
-    stream.WriteInt32(mipMaps[0].getWidth());
+    stream.WriteInt32(mipMaps[0]->getHeight());
+    stream.WriteInt32(mipMaps[0]->getWidth());
 
     int dataSize = 0;
     for (int i = 0; i < mipMaps.count(); i++)
-        dataSize += MipMap::getBufferSize(mipMaps[i].getWidth(),
-                                          mipMaps[i].getHeight(),
+        dataSize += MipMap::getBufferSize(mipMaps[i]->getWidth(),
+                                          mipMaps[i]->getHeight(),
                                           format == PixelFormat::UnknownPixelFormat ? pixelFormat : format);
     stream.WriteInt32(dataSize);
 
@@ -361,8 +361,8 @@ void Image::StoreImageToDDS(Stream &stream, PixelFormat format)
     stream.WriteUInt32(0); // dwReserved2
     for (int i = 0; i < mipMaps.count(); i++)
     {
-        stream.WriteFromBuffer(mipMaps[i].getData().ptr(),
-                               mipMaps[i].getData().size());
+        stream.WriteFromBuffer(mipMaps[i]->getData().ptr(),
+                               mipMaps[i]->getData().size());
     }
 }
 
@@ -420,7 +420,7 @@ void Image::writeBlock4X4ARGB(const quint8 blockARGB[BLOCK_SIZE_4X4X4], quint8 *
     }
 }
 
-void Image::readBlock4X4BPP4(uint block[BLOCK_SIZE_4X4BPP4], const quint8 *src, int srcW, int blockX, int blockY)
+void Image::readBlock4X4BPP4(uint block[2], const quint8 *src, int srcW, int blockX, int blockY)
 {
     auto ptr = const_cast<quint8 *>(src);
     int offset = blockY * srcW * 2 + blockX * 2 * sizeof(uint);
@@ -428,7 +428,7 @@ void Image::readBlock4X4BPP4(uint block[BLOCK_SIZE_4X4BPP4], const quint8 *src, 
     block[1] = *reinterpret_cast<uint *>(ptr + offset + 4);
 }
 
-void Image::readBlock4X4BPP8(uint block[BLOCK_SIZE_4X4BPP8], const quint8 *src, int srcW, int blockX, int blockY)
+void Image::readBlock4X4BPP8(uint block[4], const quint8 *src, int srcW, int blockX, int blockY)
 {
     auto ptr = const_cast<quint8 *>(src);
     int offset = blockY * srcW * 4 + blockX * 4 * sizeof(uint);
@@ -438,7 +438,7 @@ void Image::readBlock4X4BPP8(uint block[BLOCK_SIZE_4X4BPP8], const quint8 *src, 
     block[3] = *reinterpret_cast<uint *>(ptr + offset + 12);
 }
 
-void Image::writeBlock4X4BPP4(const uint block[BLOCK_SIZE_4X4BPP4], quint8 *dst, int dstW, int blockX, int blockY)
+void Image::writeBlock4X4BPP4(const uint block[2], quint8 *dst, int dstW, int blockX, int blockY)
 {
     auto ptr = dst;
     int offset = blockY * dstW * 2 + blockX * 2 * sizeof(uint);
@@ -446,7 +446,7 @@ void Image::writeBlock4X4BPP4(const uint block[BLOCK_SIZE_4X4BPP4], quint8 *dst,
     *reinterpret_cast<uint *>(ptr + offset + 4) = block[1];
 }
 
-void Image::writeBlock4X4BPP8(const uint block[BLOCK_SIZE_4X4BPP8], quint8 *dst, int dstW, int blockX, int blockY)
+void Image::writeBlock4X4BPP8(const uint block[4], quint8 *dst, int dstW, int blockX, int blockY)
 {
     auto ptr = dst;
     int offset = blockY * dstW * 4 + blockX * 4 * sizeof(uint);
@@ -485,8 +485,9 @@ void Image::readBlock4X4ATI2(quint8 blockDstX[BLOCK_SIZE_4X4BPP8], quint8 blockD
     }
 }
 
-void Image::writeBlock4X4ARGBATI2(const quint8 *blockR, const quint8 *blockG, quint8 *dstARGB,
-                                     int srcW, int blockX, int blockY)
+void Image::writeBlock4X4ARGBATI2(const quint8 blockR[BLOCK_SIZE_4X4BPP8],
+                                  const quint8 blockG[BLOCK_SIZE_4X4BPP8],
+                                  quint8 *dstARGB, int srcW, int blockX, int blockY)
 {
     int dstPitch = srcW * 4;
     int blockPitch = 4;

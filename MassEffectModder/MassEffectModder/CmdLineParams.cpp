@@ -615,6 +615,12 @@ int ProcessArguments()
             errorCode = -1;
             break;
         }
+        if (!output.endsWith(".mem", Qt::CaseInsensitive))
+        {
+            ConsoleWrite(QString("Error: output file is not mem: ") + output);
+            errorCode = -1;
+            break;
+        }
         if (!tools.ConvertToMEM(gameId, input, output, markToConvert, ipc))
             errorCode = -1;
         break;
@@ -647,6 +653,12 @@ int ProcessArguments()
             errorCode = -1;
             break;
         }
+        if (output.length() == 0)
+        {
+            ConsoleWrite("Output param empty!");
+            errorCode = -1;
+            break;
+        }
         if (!tools.convertImage(input, output, format, thresholdValue))
             errorCode = -1;
         break;
@@ -660,6 +672,12 @@ int ProcessArguments()
         if (!QDir(input).exists())
         {
             ConsoleWrite("Input folder doesn't exists!");
+            errorCode = -1;
+            break;
+        }
+        if (output.length() == 0)
+        {
+            ConsoleWrite("Output param empty!");
             errorCode = -1;
             break;
         }

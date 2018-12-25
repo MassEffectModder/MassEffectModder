@@ -155,7 +155,7 @@ void Image::LoadImageBMP(Stream &stream)
 
     pixelFormat = PixelFormat::ARGB;
 
-    mipMaps.push_back(MipMap(buffer, imageWidth, imageHeight, PixelFormat::ARGB));
+    mipMaps.push_back(new MipMap(buffer, imageWidth, imageHeight, PixelFormat::ARGB));
 
     buffer.Free();
 }

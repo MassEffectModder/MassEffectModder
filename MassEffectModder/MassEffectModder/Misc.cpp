@@ -572,7 +572,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                     PixelFormat pixelFormat = f.pixfmt;
                     Image image = Image(mod.data, ImageFormat::DDS);
 
-                    if (image.getMipMaps().first().getOrigWidth() / image.getMipMaps().first().getOrigHeight() !=
+                    if (image.getMipMaps().first()->getOrigWidth() / image.getMipMaps().first()->getOrigHeight() !=
                         f.width / f.height)
                     {
                         if (ipc)
@@ -828,7 +828,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                 PixelFormat pixelFormat = f.pixfmt;
                 Image image = Image(mod.data, GetFileExtension(filename));
 
-                if (image.getMipMaps().first().getOrigWidth() / image.getMipMaps().first().getOrigHeight() !=
+                if (image.getMipMaps().first()->getOrigWidth() / image.getMipMaps().first()->getOrigHeight() !=
                     f.width / f.height)
                 {
                     ZipGoToNextFile(handle);
@@ -987,7 +987,7 @@ failed:
             mod.data = fs.ReadAllToBuffer();
             Image image(mod.data, ImageFormat::DDS);
 
-            if (image.getMipMaps().first().getOrigWidth() / image.getMipMaps().first().getOrigHeight() !=
+            if (image.getMipMaps().first()->getOrigWidth() / image.getMipMaps().first()->getOrigHeight() !=
                 f.width / f.height)
             {
                 ConsoleWrite(QString("Error in texture: ") + relativeFilePath +
@@ -1120,7 +1120,7 @@ failed:
 
             PixelFormat pixelFormat = f.pixfmt;
             Image image = Image(file, ImageFormat::UnknownImageFormat);
-            if (image.getMipMaps().first().getOrigWidth() / image.getMipMaps().first().getOrigHeight() !=
+            if (image.getMipMaps().first()->getOrigWidth() / image.getMipMaps().first()->getOrigHeight() !=
                 f.width / f.height)
             {
                 if (ipc)

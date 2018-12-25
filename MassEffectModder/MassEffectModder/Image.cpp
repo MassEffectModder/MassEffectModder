@@ -95,7 +95,7 @@ Image::Image(Stream &stream, const QString &extension)
     CRASH_MSG("not supported format");
 }
 
-Image::Image(ByteBuffer data, ImageFormat format)
+Image::Image(const ByteBuffer &data, ImageFormat format)
 {
     switch (format)
     {
@@ -119,7 +119,7 @@ Image::Image(ByteBuffer data, ImageFormat format)
     CRASH();
 }
 
-Image::Image(ByteBuffer data, const QString &extension)
+Image::Image(const ByteBuffer &data, const QString &extension)
 {
     ImageFormat format = DetectImageByExtension(extension);
     switch (format)
@@ -144,10 +144,19 @@ Image::Image(ByteBuffer data, const QString &extension)
     CRASH();
 }
 
-Image::Image(QList<MipMap> &mipmaps, PixelFormat pixelFmt)
+Image::Image(QList<MipMap *> &mipmaps, PixelFormat pixelFmt)
 {
     mipMaps = std::move(mipmaps);
     pixelFormat = pixelFmt;
+}
+
+Image::~Image()
+{
+    foreach(MipMap *mipmap, mipMaps)
+    {
+        mipmap->Free();
+        delete mipmap;
+    }
 }
 
 ImageFormat Image::DetectImageByFilename(const QString &fileName)
@@ -217,7 +226,7 @@ void Image::LoadImageFromBuffer(ByteBuffer data, ImageFormat format)
 
     auto convertedImage = image.convertToFormat(QImage::Format_ARGB32);
     ByteBuffer pixels(convertedImage.width() * convertedImage.height() * 4);
-    mipMaps.push_back(MipMap(pixels, convertedImage.width(), convertedImage.height(), PixelFormat::ARGB));
+    mipMaps.push_back(new MipMap(pixels, convertedImage.width(), convertedImage.height(), PixelFormat::ARGB));
     pixels.Free();
     pixelFormat = PixelFormat::ARGB;
 }
@@ -293,8 +302,8 @@ QImage *Image::convertRawToBitmapARGB(const quint8 *src, int w, int h, PixelForm
 
 QImage *Image::getBitmapARGB()
 {
-    MipMap& mipmap = mipMaps.first();
-    return convertRawToBitmapARGB(mipmap.getData().ptr(), mipmap.getWidth(), mipmap.getHeight(), pixelFormat);
+    MipMap *mipmap = mipMaps.first();
+    return convertRawToBitmapARGB(mipmap->getData().ptr(), mipmap->getWidth(), mipmap->getHeight(), pixelFormat);
 }
 
 void Image::clearAlphaFromARGB(quint8 *data, int w, int h)
@@ -525,21 +534,27 @@ ByteBuffer Image::convertToFormat(PixelFormat srcFormat, const quint8 *src, int 
 
 void Image::correctMips(PixelFormat dstFormat, bool dxt1HasAlpha, quint8 dxt1Threshold)
 {
-    MipMap& firstMip = mipMaps.first();
-    auto tempData = convertRawToARGB(firstMip.getData().ptr(), firstMip.getWidth(), firstMip.getHeight(), pixelFormat);
+    MipMap *firstMip = mipMaps.first();
+    auto tempData = convertRawToARGB(firstMip->getData().ptr(), firstMip->getWidth(), firstMip->getHeight(), pixelFormat);
 
-    int width = firstMip.getOrigWidth();
-    int height = firstMip.getOrigHeight();
+    int width = firstMip->getOrigWidth();
+    int height = firstMip->getOrigHeight();
 
     for (int l = 1; l < mipMaps.count(); l++)
+    {
+        mipMaps.last()->Free();
+        delete mipMaps.last();
         mipMaps.removeLast();
+    }
 
     if (dstFormat != pixelFormat || (dstFormat == PixelFormat::DXT1 && !dxt1HasAlpha))
     {
         auto top = convertToFormat(PixelFormat::ARGB,
                                    tempData.ptr(), width, height, dstFormat, dxt1HasAlpha, dxt1Threshold);
+        mipMaps[0]->Free();
+        delete mipMaps[0];
         mipMaps.removeAt(0);
-        mipMaps.push_back(MipMap(top, width, height, dstFormat));
+        mipMaps.push_back(new MipMap(top, width, height, dstFormat));
         top.Free();
         pixelFormat = dstFormat;
     }
@@ -566,7 +581,7 @@ void Image::correctMips(PixelFormat dstFormat, bool dxt1HasAlpha, quint8 dxt1Thr
         {
             ByteBuffer data(MipMap::getBufferSize(width, height, dstFormat));
             memset(data.ptr(), 0, data.size());
-            mipMaps.push_back(MipMap(data, width, height, pixelFormat));
+            mipMaps.push_back(new MipMap(data, width, height, pixelFormat));
             data.Free();
             continue;
         }
@@ -583,7 +598,7 @@ void Image::correctMips(PixelFormat dstFormat, bool dxt1HasAlpha, quint8 dxt1Thr
                     height = 4;
                 ByteBuffer data(MipMap::getBufferSize(width, height, dstFormat));
                 memset(data.ptr(), 0, data.size());
-                mipMaps.push_back(MipMap(data, origW, origH, pixelFormat));
+                mipMaps.push_back(new MipMap(data, origW, origH, pixelFormat));
                 data.Free();
                 continue;
             }
@@ -593,12 +608,12 @@ void Image::correctMips(PixelFormat dstFormat, bool dxt1HasAlpha, quint8 dxt1Thr
         if (pixelFormat != PixelFormat::ARGB)
         {
             auto converted = convertToFormat(PixelFormat::ARGB, tempDataDownscaled.ptr(), origW, origH, pixelFormat, dxt1HasAlpha, dxt1Threshold);
-            mipMaps.push_back(MipMap(converted, origW, origH, pixelFormat));
+            mipMaps.push_back(new MipMap(converted, origW, origH, pixelFormat));
             converted.Free();
         }
         else
         {
-            mipMaps.push_back(MipMap(tempDataDownscaled, origW, origH, pixelFormat));
+            mipMaps.push_back(new MipMap(tempDataDownscaled, origW, origH, pixelFormat));
         }
         tempData.Free();
         tempData = tempDataDownscaled;
