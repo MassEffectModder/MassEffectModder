@@ -181,6 +181,11 @@ ImageFormat Image::DetectImageByExtension(const QString &extension)
 
 void Image::LoadImageFromStream(Stream &stream, ImageFormat format)
 {
+    foreach(MipMap *mipmap, mipMaps)
+    {
+        mipmap->Free();
+        delete mipmap;
+    }
     mipMaps.clear();
 
     switch (format)
@@ -210,6 +215,11 @@ void Image::LoadImageFromStream(Stream &stream, ImageFormat format)
 
 void Image::LoadImageFromBuffer(ByteBuffer data, ImageFormat format)
 {
+    foreach(MipMap *mipmap, mipMaps)
+    {
+        mipmap->Free();
+        delete mipmap;
+    }
     mipMaps.clear();
 
     QImage image;
