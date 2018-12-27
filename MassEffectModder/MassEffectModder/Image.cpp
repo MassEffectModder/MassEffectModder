@@ -273,8 +273,7 @@ ByteBuffer Image::convertRawToARGB(const quint8 *src, int w, int h, PixelFormat 
             break;
         case PixelFormat::ARGB:
         {
-            tmpPtr = ByteBuffer(w * h * 4);
-            memcpy(tmpPtr.ptr(), src, tmpPtr.size());
+            tmpPtr = ByteBuffer(src, w * h * 4);
             break;
         }
         case PixelFormat::RGB: tmpPtr = RGBToARGB(src, w, h); break;
@@ -550,7 +549,10 @@ void Image::correctMips(PixelFormat dstFormat, bool dxt1HasAlpha, quint8 dxt1Thr
     int width = firstMip->getOrigWidth();
     int height = firstMip->getOrigHeight();
 
-    for (int l = 1; l < mipMaps.count(); l++)
+    int numberToRemove = mipMaps.count() - 1;
+    if (dstFormat != pixelFormat || (dstFormat == PixelFormat::DXT1 && !dxt1HasAlpha))
+        numberToRemove++;
+    for (int l = 0; l < numberToRemove; l++)
     {
         mipMaps.last()->Free();
         delete mipMaps.last();
@@ -561,9 +563,6 @@ void Image::correctMips(PixelFormat dstFormat, bool dxt1HasAlpha, quint8 dxt1Thr
     {
         auto top = convertToFormat(PixelFormat::ARGB,
                                    tempData.ptr(), width, height, dstFormat, dxt1HasAlpha, dxt1Threshold);
-        mipMaps[0]->Free();
-        delete mipMaps[0];
-        mipMaps.removeAt(0);
         mipMaps.push_back(new MipMap(top, width, height, dstFormat));
         top.Free();
         pixelFormat = dstFormat;
