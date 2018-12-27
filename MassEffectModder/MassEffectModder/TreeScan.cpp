@@ -685,7 +685,6 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> &textures, const 
                 }
                 continue;
             }
-
             Texture texture(package, i, exportData);
             exportData.Free();
             if (!texture.hasImageData())
@@ -702,6 +701,7 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> &textures, const 
             matchTexture.removeEmptyMips = texture.hasEmptyMips();
             matchTexture.numMips = texture.numNotEmptyMips();
             matchTexture.linkToMaster = 0;
+            matchTexture.slave = false;
             if (gameId == MeType::ME1_TYPE)
             {
                 matchTexture.basePackageName = texture.basePackageName;
