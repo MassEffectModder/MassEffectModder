@@ -1701,7 +1701,7 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTextur
                         skip = true;
                         break;
                     }
-                    MipMap *mipmap = new MipMap(data, texture->mipMapsList[t].width, texture->mipMapsList[t].height, pixelFormat);
+                    auto *mipmap = new MipMap(data, texture->mipMapsList[t].width, texture->mipMapsList[t].height, pixelFormat);
                     image.getMipMaps().push_back(mipmap);
                 }
             }
