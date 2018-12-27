@@ -1035,9 +1035,9 @@ CMP_FLOAT RefineSSE2(CMP_FLOAT _OutRmpPnts[NUM_CHANNELS][NUM_ENDPOINTS],
                              int _NmrClrs, CMP_BYTE dwNumPoints, CMP_FLOAT* _pfWeights, 
                              CMP_BYTE nRedBits, CMP_BYTE nGreenBits, CMP_BYTE nBlueBits, CMP_BYTE nRefineSteps)
 {
-    ALIGN_16 CMP_FLOAT BlkSSE2[NUM_CHANNELS][MAX_BLOCK];
+    ALIGN_16 CMP_FLOAT BlkSSE2[NUM_CHANNELS][MAX_BLOCK] = {};
     ALIGN_16 CMP_FLOAT Rmp[NUM_CHANNELS][MAX_POINTS];
-    ALIGN_16 CMP_FLOAT RmpErr[MAX_BLOCK][MAX_POINTS];
+    ALIGN_16 CMP_FLOAT RmpErr[MAX_BLOCK][MAX_POINTS] = {};
 
     int SIMDFac = 128 / (sizeof(CMP_FLOAT) * 8);
     int NbrCycls = (_NmrClrs + SIMDFac - 1) / SIMDFac; 
