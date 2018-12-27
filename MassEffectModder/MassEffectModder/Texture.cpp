@@ -31,7 +31,7 @@
 #include "GameData.h"
 #include "MemTypes.h"
 
-Texture::Texture(Package &package, int exportId, ByteBuffer data, bool fixDim)
+Texture::Texture(Package &package, int exportId, const ByteBuffer &data, bool fixDim)
 {
     properties = new TexProperty(package, data);
     if (data.size() == properties->propertyEndOffset)
@@ -188,7 +188,7 @@ void Texture::replaceMipMaps(const QList<TextureMipMap> &newMipMaps)
     }
 }
 
-const ByteBuffer Texture::compressTexture(ByteBuffer inputData, StorageTypes type)
+const ByteBuffer Texture::compressTexture(const ByteBuffer &inputData, StorageTypes type)
 {
     MemoryStream ouputStream;
     qint64 compressedSize = 0;

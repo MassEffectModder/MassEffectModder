@@ -369,13 +369,16 @@ ByteBuffer Package::getExportData(int id)
     else
     {
         if (!getData(exp.getDataOffset(), exp.getDataSize(), nullptr, data.ptr()))
+        {
+            data.Free();
             return {};
+        }
     }
 
     return data;
 }
 
-void Package::setExportData(int id, ByteBuffer data)
+void Package::setExportData(int id, const ByteBuffer &data)
 {
     ExportEntry exp = exportsTable[id];
     if (data.size() > exp.getDataSize())
@@ -385,7 +388,7 @@ void Package::setExportData(int id, ByteBuffer data)
     }
     exp.setDataSize(data.size());
     exp.newData.Free();
-    exp.newData = data;
+    exp.newData = ByteBuffer(data.ptr(), data.size());
     exportsTable.replace(id, exp);
     modified = true;
 }
@@ -944,7 +947,7 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
             dataLeft = sortedExports[i + 1].ExportEntry::getDataOffset() - exp.getDataOffset() - exp.getDataSize();
         if (exp.newData.ptr() != nullptr)
         {
-            tempOutput.WriteFromBuffer(exp.newData.ptr(), exp.getDataSize());
+            tempOutput.WriteFromBuffer(exp.newData);
         }
         else
         {

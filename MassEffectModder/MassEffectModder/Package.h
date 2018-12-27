@@ -374,7 +374,7 @@ public:
     QString resolvePackagePath(int id);
     bool getData(uint offset, uint length, Stream *outputStream = nullptr, quint8 *outputBuffer = nullptr);
     ByteBuffer getExportData(int id);
-    void setExportData(int id, ByteBuffer data);
+    void setExportData(int id, const ByteBuffer &data);
     void MoveExportDataToEnd(int id);
     void SortExportsTableByDataOffset(const QList<ExportEntry> &list, QList<ExportEntry> &sortedExports);
     bool ReserveSpaceBeforeExportData(int space);

@@ -33,8 +33,7 @@
 #endif
 #include <unzip.h>
 
-#pragma pack(push, 4)
-
+#pragma pack(4)
 typedef struct
 {
     zlib_filefunc64_def api;
@@ -44,8 +43,7 @@ typedef struct
     unz_file_info curFileInfo;
     int tpfMode;
 } UnzipHandle;
-
-#pragma pack(pop)
+#pragma pack()
 
 static unsigned char tpfPassword[] =
 {
@@ -241,4 +239,5 @@ void ZipClose(void *handle)
     unzClose(unzipHandle->file);
 
     free(unzipHandle);
+    unzipHandle = nullptr;
 }

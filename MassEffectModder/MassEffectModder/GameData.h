@@ -44,7 +44,7 @@ public:
     QStringList tfcFiles;
     QStringList packageME1UpperNames;
     QMap<QString, int> mapME1PackageUpperNames;
-    bool FullScanME1Game;
+    bool FullScanGame;
     bool DLCDataCacheDone = false;
 
     void Init(MeType type, ConfigIni &configIni);

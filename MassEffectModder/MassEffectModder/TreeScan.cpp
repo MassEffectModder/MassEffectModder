@@ -49,14 +49,16 @@ void TreeScan::loadTexturesMap(MeType gameId, Resources &resources, QList<FoundT
     FileStream tmp = FileStream(QString(":/Resources/me%1map.bin").arg((int)gameId), FileMode::Open, FileAccess::ReadOnly);
     if (tmp.ReadUInt32() != 0x504D5443)
         CRASH();
-    auto decompressed = ByteBuffer(tmp.ReadInt32());
+    ByteBuffer decompressed(tmp.ReadInt32());
     ByteBuffer compressed = tmp.ReadToBuffer(tmp.ReadUInt32());
     uint dstLen = decompressed.size();
     ZlibDecompress(compressed.ptr(), compressed.size(), decompressed.ptr(), &dstLen);
+    compressed.Free();
     if (decompressed.size() != dstLen)
         CRASH();
 
     auto fs = MemoryStream(decompressed);
+    decompressed.Free();
     fs.Skip(8);
     uint countTexture = fs.ReadUInt32();
     for (uint i = 0; i < countTexture; i++)
@@ -257,7 +259,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
         ConsoleSync();
     }
 
-    if (!generateBuiltinMapFiles && !g_GameData->FullScanME1Game)
+    if (!generateBuiltinMapFiles && !g_GameData->FullScanGame)
     {
         loadTexturesMap(gameId, resources, textures);
 
@@ -287,7 +289,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
         }
     }
 
-    if (!g_GameData->FullScanME1Game)
+    if (!g_GameData->FullScanGame)
     {
         int count = g_GameData->packageFiles.count();
         for (int i = 0; i < count; i++)
@@ -320,7 +322,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
         }
     }
 
-    if (!generateBuiltinMapFiles && !g_GameData->FullScanME1Game)
+    if (!generateBuiltinMapFiles && !g_GameData->FullScanGame)
     {
         QStringList addedFiles;
         QStringList modifiedFiles;
@@ -525,7 +527,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
         }
     }
 
-    if (!g_GameData->FullScanME1Game)
+    if (!g_GameData->FullScanGame)
     {
         std::sort(g_GameData->packageFiles.begin(), g_GameData->packageFiles.end(), compareByAscii);
         if (gameId == MeType::ME1_TYPE)
@@ -611,7 +613,9 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
         fs.WriteUInt32(mem.Length());
         quint8 *compressed = nullptr;
         uint compressedSize = 0;
-        ZlibCompress(mem.ToArray().ptr(), mem.Length(), &compressed, &compressedSize, 9);
+        ByteBuffer decompressed = mem.ToArray();
+        ZlibCompress(decompressed.ptr(), mem.Length(), &compressed, &compressedSize, 9);
+        decompressed.Free();
         fs.WriteUInt32(compressedSize);
         fs.WriteFromBuffer(compressed, compressedSize);
         delete[] compressed;

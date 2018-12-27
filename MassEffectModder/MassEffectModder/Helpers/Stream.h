@@ -53,7 +53,7 @@ public:
     virtual void ReadToBuffer(quint8 *buffer, qint64 count) = 0;
     virtual ByteBuffer ReadToBuffer(qint64 count) = 0;
     virtual void WriteFromBuffer(quint8 *buffer, qint64 count) = 0;
-    virtual void WriteFromBuffer(ByteBuffer buffer) = 0;
+    virtual void WriteFromBuffer(const ByteBuffer &buffer) = 0;
     virtual void ReadStringASCII(QString &str, qint64 count) = 0;
     virtual void ReadStringASCIINull(QString &str) = 0;
     virtual void ReadStringUnicode16(QString &str, qint64 count) = 0;

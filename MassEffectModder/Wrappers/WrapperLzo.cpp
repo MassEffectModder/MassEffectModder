@@ -47,25 +47,29 @@ int LzoCompress(unsigned char *src, unsigned int src_len, unsigned char **dst, u
     if (status != LZO_E_OK)
         return status;
 
-    std::unique_ptr<unsigned char> wrkmem (new unsigned char[LZO1X_1_15_MEM_COMPRESS]);
+    unsigned char *wrkmem = new unsigned char[LZO1X_1_15_MEM_COMPRESS];
     if (wrkmem == nullptr)
         return LZO_E_OUT_OF_MEMORY;
-    memset(wrkmem.get(), 0, LZO1X_1_15_MEM_COMPRESS);
+    memset(wrkmem, 0, LZO1X_1_15_MEM_COMPRESS);
 
-    std::unique_ptr<unsigned char> tmpBuffer (new unsigned char[src_len + LZO1X_1_15_MEM_COMPRESS]);
+    unsigned char *tmpBuffer = new unsigned char[src_len + LZO1X_1_15_MEM_COMPRESS];
     if (tmpBuffer == nullptr)
     {
+        delete[] wrkmem;
         return LZO_E_OUT_OF_MEMORY;
     }
-    memset(tmpBuffer.get(), 0, src_len + LZO1X_1_15_MEM_COMPRESS);
+    memset(tmpBuffer, 0, src_len + LZO1X_1_15_MEM_COMPRESS);
 
-    status = lzo1x_1_15_compress(src, src_len, tmpBuffer.get(), &len, wrkmem.get());
+    status = lzo1x_1_15_compress(src, src_len, tmpBuffer, &len, wrkmem);
     if (status == LZO_E_OK)
     {
         *dst = new unsigned char[len];
-        memcpy(*dst, tmpBuffer.get(), len);
+        memcpy(*dst, tmpBuffer, len);
         *dst_len = static_cast<unsigned int>(len);
     }
+
+    delete[] tmpBuffer;
+    delete[] wrkmem;
 
     return status;
 }

@@ -65,7 +65,7 @@ void GameData::ScanGameFiles(bool force)
                 iterator.next();
                 if (iterator.fileName().compare("niebieska_pl.bik") == 0)
                 {
-                    FullScanME1Game = true;
+                    FullScanGame = true;
                     break;
                 }
             }
@@ -168,7 +168,7 @@ void GameData::ScanGameFiles(bool force)
             std::sort(packageME1UpperNames.begin(), packageME1UpperNames.end(), compareByAscii);
         }
 
-        if (gameType == MeType::ME1_TYPE && !FullScanME1Game)
+        if (gameType == MeType::ME1_TYPE && !FullScanGame)
         {
             for (int i = 0; i < packageFiles.count(); i++)
             {
@@ -179,7 +179,7 @@ void GameData::ScanGameFiles(bool force)
                     path.contains("_RU.", Qt::CaseInsensitive) ||
                     path.contains("_RA.", Qt::CaseInsensitive))
                 {
-                    FullScanME1Game = true;
+                    FullScanGame = true;
                     break;
                 }
             }

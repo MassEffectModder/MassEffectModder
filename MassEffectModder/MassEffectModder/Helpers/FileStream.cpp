@@ -127,7 +127,7 @@ void FileStream::WriteFromBuffer(quint8 *buffer, qint64 count)
     CheckFileIOErrorStatus();
 }
 
-void FileStream::WriteFromBuffer(ByteBuffer buffer)
+void FileStream::WriteFromBuffer(const ByteBuffer &buffer)
 {
     WriteFromBuffer(buffer.ptr(), buffer.size());
 }

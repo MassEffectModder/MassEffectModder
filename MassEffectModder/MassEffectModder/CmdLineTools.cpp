@@ -1839,16 +1839,26 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTextur
 
         {
             MemoryStream newData{};
-            newData.WriteFromBuffer(texture->getProperties().toArray());
-            newData.WriteFromBuffer(texture->toArray(0, false)); // filled later
-            package.setExportData(nodeTexture.exportID, newData.ToArray());
+            ByteBuffer buffer = texture->getProperties().toArray();
+            newData.WriteFromBuffer(buffer);
+            buffer.Free();
+            buffer = texture->toArray(0, false);
+            newData.WriteFromBuffer(buffer); // filled later
+            buffer = newData.ToArray();
+            package.setExportData(nodeTexture.exportID, buffer);
+            buffer.Free();
         }
 
         {
             MemoryStream newData{};
-            newData.WriteFromBuffer(texture->getProperties().toArray());
-            newData.WriteFromBuffer(texture->toArray(package.exportsTable[nodeTexture.exportID].getDataOffset() + (uint)newData.Position()));
-            package.setExportData(nodeTexture.exportID, newData.ToArray());
+            ByteBuffer buffer = texture->getProperties().toArray();
+            newData.WriteFromBuffer(buffer);
+            buffer.Free();
+            buffer = texture->toArray(package.exportsTable[nodeTexture.exportID].getDataOffset() + (uint)newData.Position());
+            newData.WriteFromBuffer(buffer);
+            buffer = newData.ToArray();
+            package.setExportData(nodeTexture.exportID, buffer);
+            buffer.Free();
         }
 
         if (triggerCacheCpr)

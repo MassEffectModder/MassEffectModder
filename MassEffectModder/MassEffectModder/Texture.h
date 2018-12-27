@@ -86,10 +86,10 @@ public:
     bool slave{};
     bool weakSlave{};
 
-    Texture(Package &package, int exportId, ByteBuffer data, bool fixDim = true);
+    Texture(Package &package, int exportId, const ByteBuffer &data, bool fixDim = true);
     ~Texture();
     void replaceMipMaps(const QList<TextureMipMap> &newMipMaps);
-    const ByteBuffer compressTexture(ByteBuffer inputData, StorageTypes type);
+    const ByteBuffer compressTexture(const ByteBuffer &inputData, StorageTypes type);
     const ByteBuffer decompressTexture(Stream &stream, StorageTypes type, int uncompressedSize, int compressedSize);
     TexProperty& getProperties() { return *properties; }
     uint getCrcData(ByteBuffer data);

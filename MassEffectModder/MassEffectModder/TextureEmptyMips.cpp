@@ -214,11 +214,17 @@ void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> &textures, Package
 
         uint packageDataOffset;
         {
-            MemoryStream newData{};
-            newData.WriteFromBuffer(texture.getProperties().toArray());
+            ByteBuffer buffer;
+            buffer = texture.getProperties().toArray();
+            MemoryStream newData(buffer);
+            buffer.Free();
             packageDataOffset = package.exportsTable[exportID].getDataOffset() + (uint)newData.Position();
-            newData.WriteFromBuffer(texture.toArray(packageDataOffset));
-            package.setExportData(exportID, newData.ToArray());
+            buffer = texture.toArray(packageDataOffset);
+            newData.WriteFromBuffer(buffer);
+            buffer.Free();
+            buffer = newData.ToArray();
+            package.setExportData(exportID, buffer);
+            buffer.Free();
         }
 
         if (m.linkToMaster == -1)
@@ -333,10 +339,16 @@ void MipMaps::removeMipMapsME2ME3(Package &package, QList<RemoveMipsEntry> &list
 
         {
             MemoryStream newData{};
-            newData.WriteFromBuffer(texture.getProperties().toArray());
-            newData.WriteFromBuffer(texture.toArray(package.exportsTable[exportID].getDataOffset() +
-                                                     (uint)newData.Position()));
-            package.setExportData(exportID, newData.ToArray());
+            ByteBuffer buffer = texture.getProperties().toArray();
+            newData.WriteFromBuffer(buffer);
+            buffer.Free();
+            buffer = texture.toArray(package.exportsTable[exportID].getDataOffset() +
+                                     (uint)newData.Position());
+            newData.WriteFromBuffer(buffer);
+            buffer.Free();
+            buffer = newData.ToArray();
+            package.setExportData(exportID, buffer);
+            buffer.Free();
         }
     }
 

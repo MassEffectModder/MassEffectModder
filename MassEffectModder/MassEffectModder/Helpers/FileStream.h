@@ -66,7 +66,7 @@ public:
     ByteBuffer ReadToBuffer(qint64 count) override;
     ByteBuffer ReadAllToBuffer();
     void WriteFromBuffer(quint8 *buffer, qint64 count) override;
-    void WriteFromBuffer(ByteBuffer buffer) override;
+    void WriteFromBuffer(const ByteBuffer &buffer) override;
     void ReadStringASCII(QString &str, qint64 count) override;
     void ReadStringASCIINull(QString &str) override;
     void ReadStringUnicode16(QString &str, qint64 count) override;

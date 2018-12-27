@@ -29,7 +29,7 @@
 #include "GameData.h"
 #include "MemTypes.h"
 
-TexProperty::TexProperty(Package &pkg, ByteBuffer data)
+TexProperty::TexProperty(Package &pkg, const ByteBuffer &data)
 {
     package = &pkg;
     headerData = *reinterpret_cast<quint32 *>(data.ptr());

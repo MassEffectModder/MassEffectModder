@@ -31,22 +31,47 @@ private:
 
 public:
 
-    ByteBuffer() { _ptr = nullptr; _size = 0; }
+    ByteBuffer()
+    {
+        _ptr = nullptr;
+        _size = 0;
+    }
+
     ByteBuffer(quint64 size)
     {
         _ptr = new quint8[size];
         _size = size;
     }
+
     ByteBuffer(const quint8 *ptr, quint64 size)
     {
         _ptr = new quint8[size];
-        _size = size;
         if (_ptr != nullptr)
+        {
             memcpy(_ptr, ptr, size);
+            _size = size;
+        }
+        else
+        {
+            _size = 0;
+        }
     }
-    void Free() { delete[] _ptr; _ptr = nullptr; }
-    quint8 *ptr() const { return _ptr; }
-    qint64 size() const { return _size; }
+
+    void Free()
+    {
+        delete[] _ptr;
+        _ptr = nullptr;
+    }
+
+    quint8 *ptr() const
+    {
+        return _ptr;
+    }
+
+    qint64 size() const
+    {
+        return _size;
+    }
 };
 
 #endif

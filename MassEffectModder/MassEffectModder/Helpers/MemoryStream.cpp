@@ -33,7 +33,7 @@ MemoryStream::MemoryStream()
     position = 0;
 }
 
-MemoryStream::MemoryStream(ByteBuffer buffer)
+MemoryStream::MemoryStream(const ByteBuffer &buffer)
 {
     internalBuffer = static_cast<quint8 *>(std::malloc(static_cast<size_t>(buffer.size())));
     if (internalBuffer == nullptr)
@@ -45,7 +45,7 @@ MemoryStream::MemoryStream(ByteBuffer buffer)
     position = 0;
 }
 
-MemoryStream::MemoryStream(ByteBuffer buffer, qint64 offset)
+MemoryStream::MemoryStream(const ByteBuffer &buffer, qint64 offset)
 {
     internalBuffer = static_cast<quint8 *>(std::malloc(static_cast<size_t>(buffer.size())));
     if (internalBuffer == nullptr)
@@ -57,7 +57,7 @@ MemoryStream::MemoryStream(ByteBuffer buffer, qint64 offset)
     position = 0;
 }
 
-MemoryStream::MemoryStream(ByteBuffer buffer, qint64 offset, qint64 count)
+MemoryStream::MemoryStream(const ByteBuffer &buffer, qint64 offset, qint64 count)
 {
     internalBuffer = static_cast<quint8 *>(std::malloc(static_cast<size_t>(count)));
     if (internalBuffer == nullptr )
@@ -201,7 +201,7 @@ void MemoryStream::WriteFromBuffer(quint8 *buffer, qint64 count)
     position += count;
 }
 
-void MemoryStream::WriteFromBuffer(ByteBuffer buffer)
+void MemoryStream::WriteFromBuffer(const ByteBuffer &buffer)
 {
     WriteFromBuffer(buffer.ptr(), buffer.size());
 }

@@ -65,7 +65,7 @@ private:
 
 public:
 
-    TexProperty(Package &pkg, ByteBuffer data);
+    TexProperty(Package &pkg, const ByteBuffer &data);
     ~TexProperty();
     TexPropertyEntry getProperty(const QString &name);
     void fetchValue(const QString &name);
