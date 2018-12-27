@@ -43,7 +43,7 @@ win32-g++: {
 	HEADERS += iowin32.h
 }
 
-QMAKE_CFLAGS += -Wno-implicit-fallthrough -Wno-unused-parameter -Wno-unused-function -Wno-unused-variable
+QMAKE_CFLAGS += -O3 -Wno-implicit-fallthrough -Wno-unused-parameter -Wno-unused-function -Wno-unused-variable
 QMAKE_CFLAGS_RELEASE += -g1
 QMAKE_CFLAGS_DEBUG += -g
 

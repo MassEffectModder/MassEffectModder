@@ -20,6 +20,6 @@ HEADERS += \
     lzo_ptr.h \
     lzo_supp.h \
 
-QMAKE_CFLAGS +=
+QMAKE_CFLAGS += -O3
 QMAKE_CFLAGS_RELEASE += -g1
 QMAKE_CFLAGS_DEBUG += -g
