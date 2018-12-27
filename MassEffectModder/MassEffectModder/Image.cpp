@@ -43,8 +43,7 @@ Image::Image(const QString &fileName, ImageFormat format)
         case ImageFormat::PNG:
         {
             FileStream file(fileName, FileMode::Open, FileAccess::ReadOnly);
-            ByteBuffer buffer(file.Length());
-            file.ReadToBuffer(buffer.ptr(), file.Length());
+            ByteBuffer buffer = file.ReadToBuffer(file.Length());
             LoadImageFromBuffer(buffer, format);
             buffer.Free();
             return;
@@ -224,7 +223,10 @@ void Image::LoadImageFromBuffer(ByteBuffer data, ImageFormat format)
 
     QImage image;
     if (format == ImageFormat::PNG)
-        image.loadFromData(data.ptr(), data.size(), "PNG");
+    {
+        if (!image.loadFromData(data.ptr(), data.size(), "PNG"))
+            CRASH_MSG("Failed load PNG");
+    }
     else
         CRASH();
 
@@ -235,7 +237,7 @@ void Image::LoadImageFromBuffer(ByteBuffer data, ImageFormat format)
     }
 
     auto convertedImage = image.convertToFormat(QImage::Format_ARGB32);
-    ByteBuffer pixels(convertedImage.width() * convertedImage.height() * 4);
+    ByteBuffer pixels(convertedImage.bits(), convertedImage.width() * convertedImage.height() * 4);
     mipMaps.push_back(new MipMap(pixels, convertedImage.width(), convertedImage.height(), PixelFormat::ARGB));
     pixels.Free();
     pixelFormat = PixelFormat::ARGB;
