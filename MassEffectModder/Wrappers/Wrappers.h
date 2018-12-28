@@ -46,8 +46,11 @@ int XDelta3Decompress(BYTE *src, UINT32 src_len, BYTE *delta, UINT32 delta_len, 
 int ZlibDecompress(BYTE *src, UINT32 src_len, BYTE *dst, UINT32 *dst_len);
 int ZlibCompress(BYTE *src, UINT32 src_len, BYTE **dst, UINT32 *dst_len, int compression_level = -1);
 
-int PngDecompress();
-int PngCompress();
+int PngRead(BYTE *src, UINT32 srcSize,
+             BYTE **dst, UINT32 *dstSize,
+             UINT32 *width, UINT32 *height);
+int PngWrite(const BYTE *src, BYTE **dst, UINT32 *dstSize,
+              UINT32 width, UINT32 height);
 
 #define BLOCK_SIZE_4X4        16
 #define BLOCK_SIZE_4X4X4      64

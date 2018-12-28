@@ -113,8 +113,6 @@ public:
     ~Image();
     static ByteBuffer convertRawToARGB(const quint8 *src, int w, int h, PixelFormat format, bool clearAlpha = false);
     static ByteBuffer convertRawToRGB(const quint8 *src, int w, int h, PixelFormat format);
-    static QImage *convertRawToBitmapARGB(const quint8 *src, int w, int h, PixelFormat format);
-    QImage *getBitmapARGB();
     static void saveToPng(const quint8 *src, int w, int h, PixelFormat format, const QString &filename);
     void correctMips(PixelFormat dstFormat, bool dxt1HasAlpha = false, quint8 dxt1Threshold = 128);
     static PixelFormat getPixelFormatType(const QString &format);

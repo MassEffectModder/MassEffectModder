@@ -24,6 +24,7 @@
 #include "Helpers/MemoryStream.h"
 #include "Helpers/FileStream.h"
 #include "Helpers/MiscHelpers.h"
+#include "Wrappers.h"
 
 Image::Image(const QString &fileName, ImageFormat format)
 {
@@ -221,24 +222,28 @@ void Image::LoadImageFromBuffer(ByteBuffer data, ImageFormat format)
     }
     mipMaps.clear();
 
-    QImage image;
+    quint8 *imageBuffer;
+    quint32 imageSize, imageWidth, imageHeight;
     if (format == ImageFormat::PNG)
     {
-        if (!image.loadFromData(data.ptr(), data.size(), "PNG"))
+        if (PngRead(data.ptr(), data.size(), &imageBuffer,
+                    &imageSize, &imageWidth, &imageHeight) != 0)
+        {
             CRASH_MSG("Failed load PNG");
+        }
     }
     else
         CRASH();
 
-    if (!checkPowerOfTwo(image.width()) ||
-        !checkPowerOfTwo(image.height()))
+    if (!checkPowerOfTwo(imageWidth) ||
+        !checkPowerOfTwo(imageHeight))
     {
         CRASH_MSG("dimensions are not power of two");
     }
 
-    auto convertedImage = image.convertToFormat(QImage::Format_ARGB32);
-    ByteBuffer pixels(convertedImage.bits(), convertedImage.width() * convertedImage.height() * 4);
-    mipMaps.push_back(new MipMap(pixels, convertedImage.width(), convertedImage.height(), PixelFormat::ARGB));
+    ByteBuffer pixels(imageBuffer, imageSize);
+    delete[] imageBuffer;
+    mipMaps.push_back(new MipMap(pixels, imageWidth, imageHeight, PixelFormat::ARGB));
     pixels.Free();
     pixelFormat = PixelFormat::ARGB;
 }
@@ -297,24 +302,6 @@ ByteBuffer Image::convertRawToRGB(const quint8 *src, int w, int h, PixelFormat f
     auto dataRGB = ARGBtoRGB(dataARGB.ptr(), w, h);
     dataARGB.Free();
     return dataRGB;
-}
-
-QImage *Image::convertRawToBitmapARGB(const quint8 *src, int w, int h, PixelFormat format)
-{
-    auto dataARGB = convertRawToARGB(src, w, h, format, true);
-    auto bitmap = new QImage(w, h, QImage::Format_ARGB32);
-    for (int y = 0; y < bitmap->height(); y++)
-    {
-        memcpy(bitmap->scanLine(y), dataARGB.ptr() + (y * w * 4), bitmap->bytesPerLine());
-    }
-    dataARGB.Free();
-    return bitmap;
-}
-
-QImage *Image::getBitmapARGB()
-{
-    MipMap *mipmap = mipMaps.first();
-    return convertRawToBitmapARGB(mipmap->getData().ptr(), mipmap->getWidth(), mipmap->getHeight(), pixelFormat);
 }
 
 void Image::clearAlphaFromARGB(quint8 *data, int w, int h)
@@ -477,9 +464,15 @@ ByteBuffer Image::downscaleRGB(const quint8 *src, int w, int h)
 
 void Image::saveToPng(const quint8 *src, int w, int h, PixelFormat format, const QString &filename)
 {
-    auto image = convertRawToBitmapARGB(src, w, h, format);
-    image->save(filename);
-    delete image;
+    auto dataARGB = convertRawToARGB(src, w, h, format, true);
+    quint8 *buffer;
+    quint32 bufferSize;
+    if (PngWrite(dataARGB.ptr(), &buffer, &bufferSize, w, h) != 0)
+        CRASH_MSG("Failed to save to PNG");
+    FileStream fs = FileStream(filename, FileMode::Create, FileAccess::WriteOnly);
+    fs.WriteFromBuffer(buffer, bufferSize);
+    free(buffer);
+    dataARGB.Free();
 }
 
 ByteBuffer Image::convertToFormat(PixelFormat srcFormat, const quint8 *src, int w, int h, PixelFormat dstFormat,

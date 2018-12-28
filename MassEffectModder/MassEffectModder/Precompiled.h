@@ -45,7 +45,6 @@
 #include <QString>
 #include <QList>
 #include <QStringList>
-#include <QImage>
 #include <QCryptographicHash>
 #include <QTextStream>
 #include <QCommandLineParser>

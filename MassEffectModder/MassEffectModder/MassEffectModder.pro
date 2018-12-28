@@ -1,4 +1,5 @@
-QT += core gui
+QT += core
+QT -= gui
 
 CONFIG += c++14 static precompile_header console
 CONFIG -= app_bundle
