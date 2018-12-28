@@ -380,6 +380,8 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
     QList<BinaryMod> mods = QList<BinaryMod>();
     QList<FileMod> modFiles = QList<FileMod>();
 
+    QDir().mkpath(DirName(memFilePath));
+
     if (QFile(memFilePath).exists())
         QFile(memFilePath).remove();
 
@@ -391,6 +393,12 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
     int lastProgress = -1;
     for (int n = 0; n < list.count(); n++)
     {
+        foreach (BinaryMod mod, mods)
+        {
+            mod.data.Free();
+        }
+        mods.clear();
+
         QString file = list[n].absoluteFilePath();
         QString relativeFilePath = file.mid(inputDir.size() + 1);
         if (ipc)
@@ -1231,8 +1239,12 @@ failed:
             outFs.CopyFrom(*dst, dst->Length());
             modFiles.push_back(fileMod);
         }
-        mods.clear();
     }
+    foreach (BinaryMod mod, mods)
+    {
+        mod.data.Free();
+    }
+    mods.clear();
 
     if (modFiles.count() == 0)
     {

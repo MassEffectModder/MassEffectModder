@@ -46,8 +46,6 @@ struct BinaryMod
     bool markConvert;
     long offset;
     long size;
-
-    ~BinaryMod() { data.Free(); }
 };
 
 class Misc
