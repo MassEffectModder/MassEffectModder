@@ -1967,7 +1967,6 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
                 if (QFile(outputFile).exists())
                     QFile(outputFile).remove();
                 Image::saveToPng(data.ptr(), mipmap.width, mipmap.height, pixelFormat, outputFile);
-                data.Free();
             }
         }
         else

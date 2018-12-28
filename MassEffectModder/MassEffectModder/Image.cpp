@@ -305,7 +305,7 @@ QImage *Image::convertRawToBitmapARGB(const quint8 *src, int w, int h, PixelForm
     auto bitmap = new QImage(w, h, QImage::Format_ARGB32);
     for (int y = 0; y < bitmap->height(); y++)
     {
-        memcpy(bitmap->scanLine(y), dataARGB.ptr() + w * y, bitmap->bytesPerLine());
+        memcpy(bitmap->scanLine(y), dataARGB.ptr() + (y * w * 4), bitmap->bytesPerLine());
     }
     dataARGB.Free();
     return bitmap;
