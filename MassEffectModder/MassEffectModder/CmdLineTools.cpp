@@ -249,7 +249,7 @@ bool CmdLineTools::convertGameImages(MeType gameId, QString &inputDir, QString &
     bool status = true;
     foreach (QFileInfo file, list)
     {
-        QString outputFile = outputDir + BaseNameWithoutExt(file.fileName()) + ".dds";
+        QString outputFile = outputDir + "/" + BaseNameWithoutExt(file.fileName()) + ".dds";
         if (!convertGameTexture(file.absoluteFilePath(), outputFile, &textures, markToConvert))
             status = false;
     }

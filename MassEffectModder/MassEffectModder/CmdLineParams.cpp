@@ -681,12 +681,6 @@ int ProcessArguments()
             errorCode = -1;
             break;
         }
-        if (!QDir(output).exists())
-        {
-            ConsoleWrite("Output folder doesn't exists!");
-            errorCode = -1;
-            break;
-        }
         if (!tools.convertGameImages(gameId, input, output, markToConvert))
             errorCode = -1;
         break;
