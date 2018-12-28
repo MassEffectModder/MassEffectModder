@@ -877,6 +877,12 @@ int ProcessArguments()
             errorCode = -1;
             break;
         }
+        if (output.length() == 0)
+        {
+            ConsoleWrite("Output param empty!");
+            errorCode = -1;
+            break;
+        }
         if (!tools.extractAllTextures(gameId, output, false, pccOnly, tfcOnly, tfcName))
             errorCode = -1;
         break;
@@ -884,6 +890,12 @@ int ProcessArguments()
         if (gameId == MeType::UNKNOWN_TYPE)
         {
             ConsoleWrite("Wrong game id!");
+            errorCode = -1;
+            break;
+        }
+        if (output.length() == 0)
+        {
+            ConsoleWrite("Output param empty!");
             errorCode = -1;
             break;
         }
