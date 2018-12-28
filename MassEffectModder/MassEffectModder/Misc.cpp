@@ -400,7 +400,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
         mods.clear();
 
         QString file = list[n].absoluteFilePath();
-        QString relativeFilePath = file.mid(inputDir.size() + 1);
+        QString relativeFilePath = file.mid(inputDir.size());
         if (ipc)
         {
             ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + BaseName(file));
