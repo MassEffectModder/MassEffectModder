@@ -280,7 +280,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     }
                     if (!found)
                     {
-                        ByteBuffer data = texture.getMipMapData(texture.mipMapsList[t]);
+                        ByteBuffer data = texture.getRefMipMapData(texture.mipMapsList[t]);
                         if (data.ptr() == nullptr)
                         {
                             errors += QString("Error in game data: ") + matched.path + ", skipping texture...\n";

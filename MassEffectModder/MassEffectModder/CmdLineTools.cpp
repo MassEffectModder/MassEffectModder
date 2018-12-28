@@ -1694,7 +1694,7 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTextur
                 }
                 if (!found)
                 {
-                    ByteBuffer data = texture->getMipMapData(texture->mipMapsList[t]);
+                    ByteBuffer data = texture->getRefMipMapData(texture->mipMapsList[t]);
                     if (data.ptr() == nullptr)
                     {
                         ConsoleWrite(QString("Error in game data: ") + nodeTexture.path + ", skipping texture...");
@@ -1961,7 +1961,7 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
         if (png)
         {
             Texture::TextureMipMap mipmap = texture.getTopMipmap();
-            ByteBuffer data = texture.getTopImageData();
+            ByteBuffer data = texture.getRefTopImageData();
             if (data.ptr() != nullptr)
             {
                 if (QFile(outputFile).exists())
@@ -1975,7 +1975,7 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
             QList<MipMap *> mipmaps = QList<MipMap *>();
             for (int k = 0; k < texture.mipMapsList.count(); k++)
             {
-                ByteBuffer data = texture.getMipMapDataByIndex(k);
+                ByteBuffer data = texture.getRefMipMapDataByIndex(k);
                 if (data.ptr() == nullptr)
                 {
                     continue;
@@ -2089,7 +2089,7 @@ bool CmdLineTools::CheckTextures(MeType gameId, bool ipc)
 
                 for (int m = 0; m < texture.mipMapsList.count(); m++)
                 {
-                    ByteBuffer data = texture.getMipMapDataByIndex(m);
+                    ByteBuffer data = texture.getRefMipMapDataByIndex(m);
                     if (data.ptr() == nullptr)
                     {
                         if (ipc)

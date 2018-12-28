@@ -331,7 +331,7 @@ uint Texture::getCrcData(ByteBuffer data)
 
 uint Texture::getCrcMipmap(TextureMipMap &mipmap)
 {
-    ByteBuffer data = getMipMapData(mipmap);
+    ByteBuffer data = getRefMipMapData(mipmap);
     if (data.ptr() == nullptr)
         return 0;
     return getCrcData(data);
@@ -339,7 +339,7 @@ uint Texture::getCrcMipmap(TextureMipMap &mipmap)
 
 uint Texture::getCrcTopMipmap()
 {
-    ByteBuffer data = getTopImageData();
+    ByteBuffer data = getRefTopImageData();
     if (data.ptr() == nullptr)
         return 0;
     return getCrcData(data);
@@ -391,7 +391,7 @@ bool Texture::hasImageData()
     return mipMapsList.count() != 0;
 }
 
-const ByteBuffer Texture::getTopImageData()
+const ByteBuffer Texture::getRefTopImageData()
 {
     if (mipMapsList.count() == 0)
         return ByteBuffer();
@@ -400,18 +400,18 @@ const ByteBuffer Texture::getTopImageData()
         return mipMapData;
 
     TextureMipMap m = getTopMipmap();
-    return getMipMapData(m);
+    return getRefMipMapData(m);
 }
 
-const ByteBuffer Texture::getMipMapDataByIndex(int index)
+const ByteBuffer Texture::getRefMipMapDataByIndex(int index)
 {
     if (mipMapsList.count() == 0 || index < 0 || index > mipMapsList.count())
         return ByteBuffer();
 
-    return getMipMapData(mipMapsList[index]);
+    return getRefMipMapData(mipMapsList[index]);
 }
 
-const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
+const ByteBuffer Texture::getRefMipMapData(TextureMipMap &mipmap)
 {
     switch (mipmap.storageType)
     {
