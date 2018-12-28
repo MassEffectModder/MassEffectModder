@@ -536,6 +536,7 @@ ByteBuffer Image::compressMipmap(PixelFormat dstFormat, const quint8 *src, int w
     for (int p = 1; p <= cores; p++)
         range[p] = (partSize * p);
 
+    #pragma omp parallel for num_threads(cores)
     for (int p = 0; p < cores; p++)
     {
         for (int y = range[p]; y < range[p + 1]; y++)
@@ -609,6 +610,7 @@ ByteBuffer Image::decompressMipmap(PixelFormat srcFormat, const quint8 *src, int
     for (int p = 1; p <= cores; p++)
         range[p] = (partSize * p);
 
+    #pragma omp parallel for num_threads(cores)
     for (int p = 0; p < cores; p++)
     {
         for (int y = range[p]; y < range[p + 1]; y++)
