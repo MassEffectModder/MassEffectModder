@@ -329,7 +329,7 @@ void FileStream::Seek(qint64 offset, SeekOrigin origin)
         CheckFileIOErrorStatus();
         break;
     case SeekOrigin::End:
-        file->seek(file->size() - offset);
+        file->seek(file->size() + offset);
         CheckFileIOErrorStatus();
         break;
     }
