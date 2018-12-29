@@ -112,7 +112,7 @@ bool Misc::ChangeProductNameForME1Exe()
 
 bool Misc::checkWriteAccessDir(const QString &path)
 {
-    QFile file("/test-mem-writefile");
+    QFile file(path + "/test-mem-writefile");
     bool status = file.open(QIODevice::ReadWrite);
     if (status)
     {
