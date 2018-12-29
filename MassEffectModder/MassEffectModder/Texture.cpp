@@ -149,7 +149,8 @@ Texture::~Texture()
     delete properties;
     for (int i = 0; i < mipMapsList.count(); i++)
     {
-        mipMapsList[i].newData.Free();
+        if (mipMapsList[i].freeNewData)
+            mipMapsList[i].newData.Free();
     }
 }
 
@@ -157,7 +158,8 @@ void Texture::replaceMipMaps(const QList<TextureMipMap> &newMipMaps)
 {
     for (int l = 0; l < mipMapsList.count(); l++)
     {
-        mipMapsList[l].newData.Free();
+        if (mipMapsList[l].freeNewData)
+            mipMapsList[l].newData.Free();
     }
     mipMapsList.clear();
     mipMapsList = newMipMaps;
@@ -182,7 +184,7 @@ void Texture::replaceMipMaps(const QList<TextureMipMap> &newMipMaps)
             mipmap.storageType == StorageTypes::pccZlib)
         {
             mipmap.internalOffset = textureData->Position();
-            textureData->WriteFromBuffer(mipmap.newData.ptr(), mipmap.newData.size());
+            textureData->WriteFromBuffer(mipmap.newData);
         }
         mipMapsList[l] = mipmap;
     }
@@ -205,6 +207,7 @@ const ByteBuffer Texture::compressTexture(const ByteBuffer &inputData, StorageTy
             Package::ChunkBlock block{};
             block.uncomprSize = qMin((uint)maxBlockSize, dataBlockLeft);
             dataBlockLeft -= block.uncomprSize;
+            block.uncompressedBuffer = new quint8[block.uncomprSize];
             inputStream.ReadToBuffer(block.uncompressedBuffer, block.uncomprSize);
             blocks.push_back(block);
         }
@@ -242,6 +245,8 @@ const ByteBuffer Texture::compressTexture(const ByteBuffer &inputData, StorageTy
         const Package::ChunkBlock& block = blocks[b];
         ouputStream.WriteUInt32(block.comprSize);
         ouputStream.WriteUInt32(block.uncomprSize);
+        delete[] block.compressedBuffer;
+        delete[] block.uncompressedBuffer;
     }
 
     return ouputStream.ToArray();

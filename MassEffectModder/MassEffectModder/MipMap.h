@@ -40,7 +40,7 @@ public:
     MipMap(const ByteBuffer &data, int w, int h, PixelFormat format);
     void Free() { buffer.Free(); }
     static int getBufferSize(int w, int h, PixelFormat format);
-    ByteBuffer& getData() { return buffer; }
+    ByteBuffer& getRefData() { return buffer; }
     int getWidth() { return width; }
     int getHeight() { return height; }
     int getOrigWidth() { return origWidth; }

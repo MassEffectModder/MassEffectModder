@@ -1456,11 +1456,12 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
                 fs.ReadStringASCIINull(name);
                 crc = fs.ReadUInt32();
             }
-            else if (modFiles[l].tag == FileBinaryTag)
+            else if (modFiles[l].tag == FileBinaryTag || modFiles[l].tag == FileXdeltaTag)
             {
                 name = modFiles[l].name;
                 exportId = fs.ReadInt32();
                 fs.ReadStringASCIINull(pkgPath);
+                pkgPath = pkgPath.replace('\\', '/');
             }
             else
             {
@@ -1756,13 +1757,14 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTextur
             if (mipmap.storageType == Texture::StorageTypes::pccLZO)
                 mipmap.storageType = Texture::StorageTypes::pccZlib;
 
-            mipmap.uncompressedSize = image.getMipMaps()[m]->getData().size();
+            mipmap.uncompressedSize = image.getMipMaps()[m]->getRefData().size();
             if (mipmap.storageType == Texture::StorageTypes::extZlib ||
                 mipmap.storageType == Texture::StorageTypes::extLZO)
             {
                 if (cprTexture == nullptr || (cprTexture != nullptr && mipmap.storageType != cprTexture->mipMapsList[m].storageType))
                 {
-                    mipmap.newData = texture->compressTexture(image.getMipMaps()[m]->getData(), mipmap.storageType);
+                    mipmap.newData = texture->compressTexture(image.getMipMaps()[m]->getRefData(), mipmap.storageType);
+                    mipmap.freeNewData = true;
                     triggerCacheCpr = true;
                 }
                 else
@@ -1772,7 +1774,9 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTextur
                     {
                         CRASH();
                     }
-                    mipmap.newData = cprTexture->mipMapsList[m].newData;
+                    mipmap.newData = ByteBuffer(cprTexture->mipMapsList[m].newData.ptr(),
+                                                cprTexture->mipMapsList[m].newData.size());
+                    mipmap.freeNewData = true;
                 }
                 mipmap.compressedSize = mipmap.newData.size();
             }
@@ -1780,7 +1784,9 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTextur
                 mipmap.storageType == Texture::StorageTypes::extUnc)
             {
                 mipmap.compressedSize = mipmap.uncompressedSize;
-                mipmap.newData = image.getMipMaps()[m]->getData();
+                mipmap.newData = ByteBuffer(image.getMipMaps()[m]->getRefData().ptr(),
+                                            image.getMipMaps()[m]->getRefData().size());
+                mipmap.freeNewData = true;
             }
             if (mipmap.storageType == Texture::StorageTypes::extZlib ||
                 mipmap.storageType == Texture::StorageTypes::extLZO ||

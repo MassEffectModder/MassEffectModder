@@ -78,6 +78,7 @@ public:
         int width{};
         int height{};
         ByteBuffer newData;
+        bool freeNewData{};
     };
 
     QList<TextureMipMap> mipMapsList;

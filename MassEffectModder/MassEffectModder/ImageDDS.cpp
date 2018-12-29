@@ -193,7 +193,7 @@ Image *Image::convertToARGB()
 {
     for (int i = 0; i < mipMaps.count(); i++)
     {
-        ByteBuffer data = convertRawToARGB(mipMaps[i]->getData().ptr(),
+        ByteBuffer data = convertRawToARGB(mipMaps[i]->getRefData().ptr(),
                                            mipMaps[i]->getWidth(),
                                            mipMaps[i]->getHeight(),
                                            pixelFormat);
@@ -213,7 +213,7 @@ Image *Image::convertToRGB()
 {
     for (int i = 0; i < mipMaps.count(); i++)
     {
-        ByteBuffer data = convertRawToRGB(mipMaps[i]->getData().ptr(),
+        ByteBuffer data = convertRawToRGB(mipMaps[i]->getRefData().ptr(),
                                           mipMaps[i]->getWidth(),
                                           mipMaps[i]->getHeight(),
                                           pixelFormat);
@@ -361,8 +361,8 @@ void Image::StoreImageToDDS(Stream &stream, PixelFormat format)
     stream.WriteUInt32(0); // dwReserved2
     for (int i = 0; i < mipMaps.count(); i++)
     {
-        stream.WriteFromBuffer(mipMaps[i]->getData().ptr(),
-                               mipMaps[i]->getData().size());
+        stream.WriteFromBuffer(mipMaps[i]->getRefData().ptr(),
+                               mipMaps[i]->getRefData().size());
     }
 }
 

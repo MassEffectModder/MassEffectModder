@@ -539,7 +539,7 @@ ByteBuffer Image::convertToFormat(PixelFormat srcFormat, const quint8 *src, int 
 void Image::correctMips(PixelFormat dstFormat, bool dxt1HasAlpha, quint8 dxt1Threshold)
 {
     MipMap *firstMip = mipMaps.first();
-    auto tempData = convertRawToARGB(firstMip->getData().ptr(), firstMip->getWidth(), firstMip->getHeight(), pixelFormat);
+    auto tempData = convertRawToARGB(firstMip->getRefData().ptr(), firstMip->getWidth(), firstMip->getHeight(), pixelFormat);
 
     int width = firstMip->getOrigWidth();
     int height = firstMip->getOrigHeight();

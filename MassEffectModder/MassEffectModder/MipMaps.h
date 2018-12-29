@@ -73,6 +73,23 @@ struct ModEntry
     QString memPath;
     long memEntryOffset;
     long memEntrySize;
+
+    void DeepCopyMipMapsList(QList<Texture::TextureMipMap> &copy,
+                               const QList<Texture::TextureMipMap> &list)
+    {
+        foreach(Texture::TextureMipMap mip, copy)
+        {
+            if (mip.freeNewData)
+                mip.newData.Free();
+        }
+        foreach(Texture::TextureMipMap mip, list)
+        {
+            Texture::TextureMipMap newMip = mip;
+            newMip.newData = ByteBuffer(mip.newData.ptr(), mip.newData.size());
+            newMip.freeNewData = true;
+            copy.append(newMip);
+        }
+    }
 };
 
 struct MapTexturesToMod
