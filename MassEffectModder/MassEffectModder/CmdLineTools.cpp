@@ -989,7 +989,8 @@ bool CmdLineTools::detectMod(MeType gameId)
 
     FileStream fs = FileStream(g_GameData->GamePath() + path, FileMode::Open, FileAccess::ReadOnly);
     fs.Seek(-4, SeekOrigin::End);
-    return fs.ReadUInt32() == MEMI_TAG;
+    auto tag = fs.ReadUInt32();
+    return tag == MEMI_TAG;
 }
 
 void CmdLineTools::AddMarkers(bool ipc)
