@@ -307,20 +307,31 @@ bool Package::getData(uint offset, uint length, Stream *outputStream, quint8 *ou
                 }
 
                 bool failed = false;
-                #pragma omp parallel for
-                for (int b = 0; b < blocks.count(); b++)
+                if (compressionType == CompressionType::LZO)
                 {
-                    const ChunkBlock& block = blocks[b];
-                    uint dstLen = maxBlockSize * 2;
-                    if (compressionType == CompressionType::LZO)
+                    for (int b = 0; b < blocks.count(); b++)
+                    {
+                        const ChunkBlock& block = blocks[b];
+                        uint dstLen = maxBlockSize * 2;
                         LzoDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen);
-                    else if (compressionType == CompressionType::Zlib)
-                        ZlibDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen);
-                    else
-                        CRASH_MSG("Compression type not expected!");
-                    if (dstLen != block.uncomprSize)
-                        failed = true;
+                        if (dstLen != block.uncomprSize)
+                            failed = true;
+                    }
                 }
+                else if (compressionType == CompressionType::Zlib)
+                {
+                    #pragma omp parallel for
+                    for (int b = 0; b < blocks.count(); b++)
+                    {
+                        const ChunkBlock& block = blocks[b];
+                        uint dstLen = maxBlockSize * 2;
+                        ZlibDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen);
+                        if (dstLen != block.uncomprSize)
+                            failed = true;
+                    }
+                }
+                else
+                    CRASH_MSG("Compression type not expected!");
 
                 for (int b = 0; b < blocks.count(); b++)
                 {

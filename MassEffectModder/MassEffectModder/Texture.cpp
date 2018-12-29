@@ -287,20 +287,31 @@ const ByteBuffer Texture::decompressTexture(Stream &stream, StorageTypes type, i
     }
 
     bool errorFlag = false;
-    #pragma omp parallel for
-    for (int b = 0; b < blocks.count(); b++)
+    if (type == StorageTypes::extLZO || type == StorageTypes::pccLZO)
     {
-        uint dstLen = maxBlockSize * 2;
-        Package::ChunkBlock block = blocks[b];
-        if (type == StorageTypes::extLZO || type == StorageTypes::pccLZO)
+        for (int b = 0; b < blocks.count(); b++)
+        {
+            uint dstLen = maxBlockSize * 2;
+            Package::ChunkBlock block = blocks[b];
             LzoDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen);
-        else if (type == StorageTypes::extZlib || type == StorageTypes::pccZlib)
+            if (dstLen != block.uncomprSize)
+                errorFlag = true;
+        }
+    }
+    else if (type == StorageTypes::extZlib || type == StorageTypes::pccZlib)
+    {
+        #pragma omp parallel for
+        for (int b = 0; b < blocks.count(); b++)
+        {
+            uint dstLen = maxBlockSize * 2;
+            Package::ChunkBlock block = blocks[b];
             ZlibDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen);
-        else
-            CRASH_MSG("Compression type not expected!");
-        if (dstLen != block.uncomprSize)
-            errorFlag = true;
-    };
+            if (dstLen != block.uncomprSize)
+                errorFlag = true;
+        }
+    }
+    else
+        CRASH_MSG("Compression type not expected!");
 
     if (errorFlag)
     {
