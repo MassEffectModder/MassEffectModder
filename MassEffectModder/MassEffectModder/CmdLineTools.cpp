@@ -1484,7 +1484,7 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
 
             if (modFiles[l].tag == FileTextureTag || modFiles[l].tag == FileTextureTag2)
             {
-                FoundTexture f;
+                FoundTexture f{};
                 for (int s = 0; s < textures.count(); s++)
                 {
                     if (textures[s].crc == crc)
