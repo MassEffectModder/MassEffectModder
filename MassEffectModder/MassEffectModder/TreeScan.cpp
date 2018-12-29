@@ -625,19 +625,6 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
         fs.CopyFrom(mem, mem.Length());
     }
 
-    if (!generateBuiltinMapFiles)
-    {
-        if (GameData::gameType == MeType::ME1_TYPE)
-        {
-            mipMaps.removeMipMapsME1(1, textures, pkgsToMarker, ipc, appendMarker);
-            mipMaps.removeMipMapsME1(2, textures, pkgsToMarker, ipc, appendMarker);
-        }
-        else
-        {
-            mipMaps.removeMipMapsME2ME3(textures, pkgsToMarker, pkgsToRepack, ipc, repack, appendMarker);
-        }
-    }
-
     return 0;
 }
 
