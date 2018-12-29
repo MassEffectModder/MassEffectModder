@@ -1118,7 +1118,11 @@ void CmdLineTools::RepackME23(MeType gameId, bool ipc, bool appendMarker)
 }
 
 bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool repack,
-                               bool guiInstaller, bool limit2k)
+                               bool guiInstaller, bool
+#if defined(_WIN32)
+                               limit2k
+#endif
+                               )
 {
     Resources resources;
     MipMaps mipMaps;

@@ -66,8 +66,11 @@ public:
     bool DetectBadMods(MeType gameId, bool ipc);
     bool DetectMods(MeType gameId, bool ipc);
     void AddMarkers(bool ipc);
-    bool InstallMods(MeType gameId, QString &inputDir, bool ipc, bool repack,
-                     bool guiInstaller, bool limit2k);
+    bool InstallMods(MeType gameId, QString &inputDir, bool ipc, bool repack, bool guiInstaller, bool
+#if defined(_WIN32)
+                      limit2k
+#endif
+                     );
     bool applyMEMSpecialModME3(MeType gameId, QString &memFile, QString &tfcName, QByteArray &guid);
     bool applyMods(QStringList &files, QList<FoundTexture> &textures, MipMaps &mipMaps, bool repack,
                    bool modded, bool ipc, QString &tfcName, QByteArray &guid, bool special = false);
