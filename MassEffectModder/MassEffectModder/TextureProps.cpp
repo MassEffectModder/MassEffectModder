@@ -399,7 +399,7 @@ void TexProperty::setByteValue(const QString &name, const QString &valueName,
     else
     {
         qint32 nameId = package->getNameId(valueName);
-        memcpy(texProperty.valueRaw.ptr() + 8, &nameId, sizeof(qint32));
+        memcpy(texProperty.valueRaw.ptr() + 0, &nameId, sizeof(qint32));
         memcpy(texProperty.valueRaw.ptr() + 4, &valueInt, sizeof(qint32));
     }
     texProperty.valueName = valueName;
