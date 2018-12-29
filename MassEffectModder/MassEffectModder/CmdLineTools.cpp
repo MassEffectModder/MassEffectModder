@@ -1449,7 +1449,6 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
             long size = 0;
             int exportId = -1;
             QString pkgPath;
-            ByteBuffer dst;
             fs.JumpTo(modFiles[l].offset);
             size = modFiles[l].size;
             if (modFiles[l].tag == FileTextureTag || modFiles[l].tag == FileTextureTag2)
@@ -1477,11 +1476,6 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
                 continue;
             }
 
-            if (modFiles[l].tag == FileBinaryTag || modFiles[l].tag == FileXdeltaTag)
-            {
-                dst = MipMaps::decompressData(fs, size);
-            }
-
             if (modFiles[l].tag == FileTextureTag || modFiles[l].tag == FileTextureTag2)
             {
                 FoundTexture f;
@@ -1497,8 +1491,9 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
                 {
                     if (special)
                     {
-                        dst = MipMaps::decompressData(fs, size);
+                        ByteBuffer dst = MipMaps::decompressData(fs, size);
                         Image image = Image(dst, ImageFormat::DDS);
+                        dst.Free();
                         replaceTextureSpecialME3Mod(image, f.list, f.name, tfcName, guid);
                     }
                     else
@@ -1532,7 +1527,7 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
                 entry.binaryModType = true;
                 entry.packagePath = pkgPath;
                 entry.exportId = exportId;
-                entry.binaryModData = dst;
+                entry.binaryModData = MipMaps::decompressData(fs, size);;
                 modsToReplace.push_back(entry);
             }
             else if (modFiles[l].tag == FileXdeltaTag)
@@ -1558,10 +1553,12 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
                                  QString::number(exportId) + ", package: " + pkgPath);
                     continue;
                 }
+                ByteBuffer dst = MipMaps::decompressData(fs, size);
                 ByteBuffer buffer = ByteBuffer(src.size());
                 uint dstLen = 0;
                 int status = XDelta3Decompress(src.ptr(), src.size(), dst.ptr(), dst.size(), buffer.ptr(), &dstLen);
                 src.Free();
+                dst.Free();
                 if (status != 0)
                 {
                     ConsoleWrite(QString("Warning: Xdelta patch for ") + pkgPath + " failed to apply.\n");
