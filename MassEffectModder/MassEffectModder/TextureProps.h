@@ -37,7 +37,7 @@ public:
         QString name;
         QString valueNameType;
         QString valueName;
-        int valueInt;
+        qint32 valueInt;
         float valueFloat;
         bool valueBool;
         ByteBuffer valueRaw;
@@ -73,11 +73,12 @@ public:
     QString getDisplayString(int index);
     bool exists(const QString &name);
     void removeProperty(const QString &name);
-    void setIntValue(const QString &name, int value);
+    void setIntValue(const QString &name, qint32 value);
     void setFloatValue(const QString &name, float value);
-    void setByteValue(const QString &name, const QString &valueName, const QString &valueNameType, int valueInt = 0);
+    void setByteValue(const QString &name, const QString &valueName,
+                      const QString &valueNameType, qint32 valueInt = 0);
     void setBoolValue(const QString &name, bool value);
-    void setNameValue(const QString &name, const QString &valueName, int valueInt = 0);
+    void setNameValue(const QString &name, const QString &valueName, qint32 valueInt = 0);
     void setStructValue(const QString &name, const QString &valueName, ByteBuffer valueStruct);
     ByteBuffer toArray();
 };

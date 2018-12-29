@@ -161,7 +161,7 @@ void TexProperty::fetchValue(int index)
     }
     else if (texProperty.type == "FloatProperty")
     {
-        texProperty.valueFloat = *reinterpret_cast<qint32 *>(texProperty.valueRaw.ptr() + 0);
+        texProperty.valueFloat = *reinterpret_cast<float *>(texProperty.valueRaw.ptr() + 0);
     }
     else if (texProperty.type == "NameProperty")
     {
@@ -255,7 +255,7 @@ void TexProperty::removeProperty(const QString &name)
     }
 }
 
-void TexProperty::setIntValue(const QString &name, int value)
+void TexProperty::setIntValue(const QString &name, qint32 value)
 {
     TexPropertyEntry texProperty;
     if (exists(name))
@@ -273,7 +273,7 @@ void TexProperty::setIntValue(const QString &name, int value)
     }
     else
     {
-        texProperty.valueRaw = ByteBuffer(sizeof(int));
+        texProperty.valueRaw = ByteBuffer(sizeof(qint32));
         texProperty.type = "IntProperty";
         if (!package->existsNameId(texProperty.type))
             package->addName(texProperty.type);
@@ -284,7 +284,7 @@ void TexProperty::setIntValue(const QString &name, int value)
     texProperty.name = name;
     texProperty.fetched = true;
 
-    memcpy(texProperty.valueRaw.ptr(), &value, sizeof(int));
+    memcpy(texProperty.valueRaw.ptr(), &value, sizeof(qint32));
     texProperty.valueInt = value;
     if (exists(name))
     {
@@ -348,7 +348,7 @@ void TexProperty::setFloatValue(const QString &name, float value)
 }
 
 void TexProperty::setByteValue(const QString &name, const QString &valueName,
-                               const QString &valueNameType, int valueInt)
+                               const QString &valueNameType, qint32 valueInt)
 {
     TexPropertyEntry texProperty;
     if (exists(name))
@@ -390,17 +390,17 @@ void TexProperty::setByteValue(const QString &name, const QString &valueName,
     {
         if (!package->existsNameId(valueNameType))
             package->addName(valueNameType);
-        int nameTypeId = package->getNameId(valueNameType);
-        int nameId = package->getNameId(valueName);
-        memcpy(texProperty.valueRaw.ptr(), &nameTypeId, sizeof(int));
-        memcpy(texProperty.valueRaw.ptr() + 8, &nameId, sizeof(int));
-        memcpy(texProperty.valueRaw.ptr() + 12, &valueInt, sizeof(int));
+        qint32 nameTypeId = package->getNameId(valueNameType);
+        qint32 nameId = package->getNameId(valueName);
+        memcpy(texProperty.valueRaw.ptr(), &nameTypeId, sizeof(qint32));
+        memcpy(texProperty.valueRaw.ptr() + 8, &nameId, sizeof(qint32));
+        memcpy(texProperty.valueRaw.ptr() + 12, &valueInt, sizeof(qint32));
     }
     else
     {
-        int nameId = package->getNameId(valueName);
-        memcpy(texProperty.valueRaw.ptr() + 8, &nameId, sizeof(int));
-        memcpy(texProperty.valueRaw.ptr() + 4, &valueInt, sizeof(int));
+        qint32 nameId = package->getNameId(valueName);
+        memcpy(texProperty.valueRaw.ptr() + 8, &nameId, sizeof(qint32));
+        memcpy(texProperty.valueRaw.ptr() + 4, &valueInt, sizeof(qint32));
     }
     texProperty.valueName = valueName;
     texProperty.valueInt = valueInt;
@@ -476,7 +476,7 @@ void TexProperty::setBoolValue(const QString &name, bool value)
         texPropertyList.push_front(texProperty);
 }
 
-void TexProperty::setNameValue(const QString &name, const QString &valueName, int valueInt)
+void TexProperty::setNameValue(const QString &name, const QString &valueName, qint32 valueInt)
 {
     TexPropertyEntry texProperty;
     if (exists(name))
@@ -508,9 +508,9 @@ void TexProperty::setNameValue(const QString &name, const QString &valueName, in
     if (!package->existsNameId(valueName))
         package->addName(valueName);
 
-    int nameId = package->getNameId(valueName);
-    memcpy(texProperty.valueRaw.ptr(), &nameId, sizeof(int));
-    memcpy(texProperty.valueRaw.ptr() + 4, &valueInt, sizeof(int));
+    qint32 nameId = package->getNameId(valueName);
+    memcpy(texProperty.valueRaw.ptr(), &nameId, sizeof(qint32));
+    memcpy(texProperty.valueRaw.ptr() + 4, &valueInt, sizeof(qint32));
     texProperty.valueName = valueName;
     texProperty.valueInt = valueInt;
 
@@ -562,8 +562,8 @@ void TexProperty::setStructValue(const QString &name, const QString &valueName, 
     if (!package->existsNameId(valueName))
         package->addName(valueName);
 
-    int nameId = package->getNameId(valueName);
-    memcpy(texProperty.valueRaw.ptr(), &nameId, sizeof(int));
+    qint32 nameId = package->getNameId(valueName);
+    memcpy(texProperty.valueRaw.ptr(), &nameId, sizeof(qint32));
     memcpy(texProperty.valueRaw.ptr() + 8, valueStruct.ptr(), valueStruct.size());
     texProperty.valueName = valueName;
     memcpy(texProperty.valueStruct.ptr(), valueStruct.ptr(), valueStruct.size());
