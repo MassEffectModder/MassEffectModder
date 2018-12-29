@@ -210,7 +210,7 @@ QStringList convertLegacyArguments()
         {
             retArgs.append("--check-game-data-after");
             retArgs.append("--gameid");
-            retArgs.append(args[1]);
+            retArgs.append(args[2]);
             retArgs.append("--ipc");
         }
     }
@@ -220,7 +220,7 @@ QStringList convertLegacyArguments()
         {
             retArgs.append("--check-game-data-mismatch");
             retArgs.append("--gameid");
-            retArgs.append(args[1]);
+            retArgs.append(args[2]);
             retArgs.append("--ipc");
         }
     }
@@ -230,7 +230,7 @@ QStringList convertLegacyArguments()
         {
             retArgs.append("--check-game-data-vanilla");
             retArgs.append("--gameid");
-            retArgs.append(args[1]);
+            retArgs.append(args[2]);
             retArgs.append("--ipc");
         }
     }
@@ -240,7 +240,7 @@ QStringList convertLegacyArguments()
         {
             retArgs.append("--check-for-markers");
             retArgs.append("--gameid");
-            retArgs.append(args[1]);
+            retArgs.append(args[2]);
             retArgs.append("--ipc");
         }
     }
@@ -250,9 +250,9 @@ QStringList convertLegacyArguments()
         {
             retArgs.append("--install-mods");
             retArgs.append("--gameid");
-            retArgs.append(args[1]);
-            retArgs.append("--input");
             retArgs.append(args[2]);
+            retArgs.append("--input");
+            retArgs.append(args[3]);
             for (int a = 0; a < args.count(); a++)
             {
                 if (args[a] == "-repack")
@@ -272,7 +272,7 @@ QStringList convertLegacyArguments()
         {
             retArgs.append("--detect-mods");
             retArgs.append("--gameid");
-            retArgs.append(args[1]);
+            retArgs.append(args[2]);
             retArgs.append("--ipc");
         }
     }
@@ -282,7 +282,7 @@ QStringList convertLegacyArguments()
         {
             retArgs.append("--detect-bad-mods");
             retArgs.append("--gameid");
-            retArgs.append(args[1]);
+            retArgs.append(args[2]);
             retArgs.append("--ipc");
         }
     }
@@ -292,7 +292,7 @@ QStringList convertLegacyArguments()
         {
             retArgs.append("--apply-lods-gfx");
             retArgs.append("--gameid");
-            retArgs.append(args[1]);
+            retArgs.append(args[2]);
             for (int a = 0; a < args.count(); a++)
             {
                 if (args[a] == "-soft-shadows-mode")
@@ -317,7 +317,7 @@ QStringList convertLegacyArguments()
         {
             retArgs.append("--remove-lods");
             retArgs.append("--gameid");
-            retArgs.append(args[1]);
+            retArgs.append(args[2]);
             retArgs.append("--ipc");
         }
     }
@@ -327,7 +327,7 @@ QStringList convertLegacyArguments()
         {
             retArgs.append("--print-lods");
             retArgs.append("--gameid");
-            retArgs.append(args[1]);
+            retArgs.append(args[2]);
             retArgs.append("--ipc");
         }
     }
@@ -337,11 +337,11 @@ QStringList convertLegacyArguments()
         {
             retArgs.append("--convert-to-mem");
             retArgs.append("--gameid");
-            retArgs.append(args[1]);
-            retArgs.append("--input");
             retArgs.append(args[2]);
-            retArgs.append("--output");
+            retArgs.append("--input");
             retArgs.append(args[3]);
+            retArgs.append("--output");
+            retArgs.append(args[4]);
             for (int a = 0; a < args.count(); a++)
             {
                 if (args[a] == "--mark-to-convert")
@@ -356,11 +356,11 @@ QStringList convertLegacyArguments()
         {
             retArgs.append("--extract-mod");
             retArgs.append("--gameid");
-            retArgs.append(args[1]);
-            retArgs.append("--input");
             retArgs.append(args[2]);
-            retArgs.append("--output");
+            retArgs.append("--input");
             retArgs.append(args[3]);
+            retArgs.append("--output");
+            retArgs.append(args[4]);
             retArgs.append("--ipc");
         }
     }
@@ -370,9 +370,9 @@ QStringList convertLegacyArguments()
         {
             retArgs.append("--extract-tpf");
             retArgs.append("--input");
-            retArgs.append(args[1]);
-            retArgs.append("--output");
             retArgs.append(args[2]);
+            retArgs.append("--output");
+            retArgs.append(args[3]);
             retArgs.append("--ipc");
         }
     }
