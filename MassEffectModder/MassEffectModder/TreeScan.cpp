@@ -225,9 +225,7 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<FoundTexture> &textures,
     return !foundRemoved && !foundAdded;
 }
 
-int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<FoundTexture> &textures,
-                                    QStringList &pkgsToMarker, QStringList &pkgsToRepack, MipMaps &mipMaps,
-                                    bool ipc, bool repack, bool appendMarker)
+int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<FoundTexture> &textures, bool ipc)
 {
     QStringList pkgs;
     QList<MD5FileEntry> md5Entries;

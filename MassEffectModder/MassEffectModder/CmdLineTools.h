@@ -37,9 +37,7 @@ private:
     QList<ModEntry> modsToReplace;
 
     bool detectMod(MeType gameId);
-    bool ScanTextures(MeType gameId, Resources &resources, QList<FoundTexture> &textures,
-                      QStringList &pkgsToMarker, QStringList &pkgsToRepack, MipMaps &mipMaps,
-                      bool ipc, bool repack, bool appendMarker);
+    bool ScanTextures(MeType gameId, Resources &resources, QList<FoundTexture> &texture, bool ipc);
     bool RemoveMipmaps(MipMaps &mipMaps, QList<FoundTexture> &textures,
                        QStringList &pkgsToMarker, QStringList &pkgsToRepack,
                        bool ipc, bool repack, bool appendMarker);
