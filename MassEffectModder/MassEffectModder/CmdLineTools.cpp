@@ -331,10 +331,10 @@ bool CmdLineTools::extractTPF(QString &inputDir, QString &outputDir, bool ipc)
 
 #if defined(_WIN32)
         auto str = file.absoluteFilePath().replace('/', '\\').toStdWString();
-        auto name = str.c_str();
 #else
-        auto name = file.absoluteFilePath().toStdString().c_str();
+        auto str = file.absoluteFilePath().toStdString();
 #endif
+        auto name = str.c_str();
         void *handle = ZipOpenFromFile(name, &numEntries, 1);
         if (handle == nullptr)
             goto failed;

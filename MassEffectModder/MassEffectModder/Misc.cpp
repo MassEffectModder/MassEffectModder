@@ -607,6 +607,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                         if (f.list[s].path.length() != 0)
                         {
                             numMips = f.list[s].numMips;
+                            break;
                         }
                     }
                     if (!image.checkDDSHaveAllMipmaps() ||
@@ -637,6 +638,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                             }
                         }
                         image.correctMips(newPixelFormat, dxt1HasAlpha, dxt1Threshold);
+                        mod.data.Free();
                         mod.data = image.StoreImageToDDS();
                     }
                 }
@@ -706,10 +708,10 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
             char *listText;
 #if defined(_WIN32)
             auto str = file.replace('/', '\\').toStdWString();
-            auto name = str.c_str();
 #else
-            auto name = file.toStdString().c_str();
+            auto str = file.toStdString();
 #endif
+            auto name = str.c_str();
             void *handle = ZipOpenFromFile(name, &numEntries, 1);
             if (handle == nullptr)
                 goto failed;
@@ -743,7 +745,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
             ddsList = QString(listText).remove(QChar('\r')).split(QChar('\n'));
             delete[] listText;
 
-            result = ZipGoToNextFile(handle);
+            result = ZipGoToFirstFile(handle);
             if (result != 0)
                 goto failed;
 
@@ -763,14 +765,15 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                     goto failed;
                 QString filename(filetmp);
                 delete[] filetmp;
-                filename = BaseName(filename);
                 foreach (QString dds, ddsList)
                 {
+                    if (dds.length() == 0)
+                        continue;
                     QString ddsFile = dds.split('|')[1];
                     if (ddsFile.toLower() != filename.toLower())
                         continue;
                     bool ok;
-                    crc = dds.split('|').first().midRef(2).toInt(&ok, 16);
+                    crc = dds.split('|').first().midRef(2).toUInt(&ok, 16);
                     break;
                 }
                 if (crc == 0)
@@ -793,7 +796,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                     continue;
                 }
 
-                FoundTexture f;
+                FoundTexture f{};
                 for (int s = 0; s < textures.count(); s++)
                 {
                     if (textures[s].crc == crc)
@@ -864,6 +867,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                     if (f.list[s].path.length() != 0)
                     {
                         numMips = f.list[s].numMips;
+                        break;
                     }
                 }
                 if (!image.checkDDSHaveAllMipmaps() ||
@@ -894,16 +898,14 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                         }
                     }
                     image.correctMips(newPixelFormat, dxt1HasAlpha, dxt1Threshold);
+                    mod.data.Free();
                     mod.data = image.StoreImageToDDS();
                 }
                 mod.markConvert = markToConvert;
                 mods.push_back(mod);
                 ZipGoToNextFile(handle);
             }
-            ZipClose(handle);
-            handle = nullptr;
-            continue;
-
+            goto end;
 failed:
             if (ipc)
             {
@@ -914,6 +916,7 @@ failed:
             {
                 ConsoleWrite(QString("Mod is not compatible: ") + relativeFilePath);
             }
+end:
             if (handle != nullptr)
                 ZipClose(handle);
             handle = nullptr;
@@ -969,7 +972,7 @@ failed:
                 continue;
             }
 
-            FoundTexture f;
+            FoundTexture f{};
             for (int s = 0; s < textures.count(); s++)
             {
                 if (textures[s].crc == crc)
@@ -1013,6 +1016,7 @@ failed:
                 if (f.list[s].path.length() != 0)
                 {
                     numMips = f.list[s].numMips;
+                    break;
                 }
             }
             if (!image.checkDDSHaveAllMipmaps() ||
@@ -1106,7 +1110,7 @@ failed:
                 continue;
             }
 
-            FoundTexture f;
+            FoundTexture f{};
             for (int s = 0; s < textures.count(); s++)
             {
                 if (textures[s].crc == crc)
