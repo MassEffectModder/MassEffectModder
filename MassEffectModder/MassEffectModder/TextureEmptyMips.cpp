@@ -107,17 +107,17 @@ void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> &textures, QString
             return;
         }
 
-        removeMipMapsME1(phase, textures, package, list, pkgsToMarker, i, ipc, appendMarker);
+        removeMipMapsME1(phase, textures, package, list[i], pkgsToMarker, ipc, appendMarker);
     }
 }
 
 void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> &textures, Package &package,
-                               QList<RemoveMipsEntry> &list, QStringList &pkgsToMarker,
-                               int removeEntry, bool ipc, bool appendMarker)
+                                 RemoveMipsEntry &removeEntry, QStringList &pkgsToMarker,
+                                 bool ipc, bool appendMarker)
 {
-    for (int l = 0; l < list[removeEntry].exportIDs.count(); l++)
+    for (int l = 0; l < removeEntry.exportIDs.count(); l++)
     {
-        int exportID = list[removeEntry].exportIDs[l];
+        int exportID = removeEntry.exportIDs[l];
         ByteBuffer exportData = package.getExportData(exportID);
         if (exportData.ptr() == nullptr)
         {
@@ -166,13 +166,13 @@ void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> &textures, Package
             if (ipc)
             {
                 ConsoleWrite(QString("[IPC]ERROR Texture ") + package.exportsTable[exportID].objectName +
-                             " not found in tree: " + list[removeEntry].pkgPath + ", skipping...");
+                             " not found in tree: " + removeEntry.pkgPath + ", skipping...");
                 ConsoleSync();
             }
             else
             {
                 ConsoleWrite(QString("Error: Texture ") + package.exportsTable[exportID].objectName +
-                             " not found in package: " + list[removeEntry].pkgPath + ", skipping...\n");
+                             " not found in package: " + removeEntry.pkgPath + ", skipping...\n");
             }
             continue;
         }
@@ -248,7 +248,7 @@ void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> &textures, Package
 }
 
 void MipMaps::removeMipMapsME2ME3(QList<FoundTexture> &textures, QStringList &pkgsToMarker,
-                                  QStringList &pkgsToRepack, bool ipc, bool repack, bool appendMarker)
+                                    QStringList &pkgsToRepack, bool ipc, bool repack, bool appendMarker)
 {
     int lastProgress = -1;
     QList<RemoveMipsEntry> list;
@@ -299,17 +299,17 @@ void MipMaps::removeMipMapsME2ME3(QList<FoundTexture> &textures, QStringList &pk
             return;
         }
 
-        removeMipMapsME2ME3(package, list, pkgsToMarker, pkgsToRepack, i, ipc, repack, appendMarker);
+        removeMipMapsME2ME3(package, list[i], pkgsToMarker, pkgsToRepack, ipc, repack, appendMarker);
     }
 }
 
-void MipMaps::removeMipMapsME2ME3(Package &package, QList<RemoveMipsEntry> &list,
-                                  QStringList &pkgsToMarker, QStringList &pkgsToRepack,
-                                  int removeEntry, bool repack, bool ipc, bool appendMarker)
+void MipMaps::removeMipMapsME2ME3(Package &package, RemoveMipsEntry &removeEntry,
+                                    QStringList &pkgsToMarker, QStringList &pkgsToRepack,
+                                    bool repack, bool ipc, bool appendMarker)
 {
-    for (int l = 0; l < list[removeEntry].exportIDs.count(); l++)
+    for (int l = 0; l < removeEntry.exportIDs.count(); l++)
     {
-        int exportID = list[removeEntry].exportIDs[l];
+        int exportID = removeEntry.exportIDs[l];
         ByteBuffer exportData = package.getExportData(exportID);
         if (exportData.ptr() == nullptr)
         {
