@@ -1276,7 +1276,7 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool 
     {
         if (!applyModTag(gameId, 0, 0))
             ConsoleWrite("Failed applying stamp for installation!");
-
+#if defined(_WIN32)
         ConsoleWrite("Updating LODs and other settings started...");
         QString path = g_GameData->EngineConfigIniPath();
         QDir().mkpath(DirName(path));
@@ -1284,6 +1284,7 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool 
         LODSettings::updateLOD(gameId, engineConf, limit2k);
         LODSettings::updateGFXSettings(gameId, engineConf, false, false);
         ConsoleWrite("Updating LODs and other settings finished");
+#endif
     }
 
     if (gameId == MeType::ME3_TYPE)
