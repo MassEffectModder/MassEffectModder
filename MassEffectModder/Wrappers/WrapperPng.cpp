@@ -45,13 +45,19 @@ static void ReadFunction(png_structp pngStruct, png_bytep buffer, png_size_t cou
 static void WriteFunction(png_structp pngStruct, png_bytep buffer, png_size_t count)
 {
     auto *handle = static_cast<IoHandle *>(png_get_io_ptr(pngStruct));
-    if (handle->bufferPtr)
-        handle->bufferPtr = static_cast<unsigned char *>(realloc(handle->bufferPtr, handle->bufferSize + count));
-    else
+    if (!handle->bufferPtr)
         handle->bufferPtr = static_cast<unsigned char *>(malloc(count));
+    else
+    {
+        png_size_t newPosition = handle->bufferOffset + count;
+        if (newPosition > handle->bufferSize)
+        {
+            handle->bufferSize = newPosition + handle->bufferSize * 2;
+            handle->bufferPtr = static_cast<unsigned char *>(realloc(handle->bufferPtr, handle->bufferSize));
+        }
+    }
     memcpy(handle->bufferPtr + handle->bufferOffset, buffer, count);
     handle->bufferOffset += count;
-    handle->bufferSize += count;
 }
 
 int PngRead(unsigned char *src, unsigned int srcSize,
@@ -199,7 +205,7 @@ int PngWrite(const unsigned char *src, unsigned char **dst, unsigned int *dstSiz
     png_destroy_write_struct(&pngStruct, &pngInfo);
 
     *dst = handle.bufferPtr;
-    *dstSize = handle.bufferSize;
+    *dstSize = handle.bufferOffset;
 
     return 0;
 }
