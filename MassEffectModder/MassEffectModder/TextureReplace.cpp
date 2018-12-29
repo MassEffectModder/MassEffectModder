@@ -122,7 +122,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
 {
     QString errors = "";
     int lastProgress = -1;
-    ulong memorySize = DetectAmountMemoryGB();
+    ulong memorySize = 16;//DetectAmountMemoryGB();
 
     for (int e = 0; e < map.count(); e++)
     {
@@ -614,17 +614,29 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 texture.getProperties().setIntValue("MipTailBaseIdx", texture.mipMapsList.count() - 1);
 
             {
-                MemoryStream newData{};
-                newData.WriteFromBuffer(texture.getProperties().toArray());
-                newData.WriteFromBuffer(texture.toArray(0, false)); // filled later
-                package.setExportData(matched.exportID, newData.ToArray());
+                ByteBuffer buffer = texture.getProperties().toArray();
+                MemoryStream newData(buffer);
+                buffer.Free();
+                buffer = texture.toArray(0, false); // filled later
+                newData.WriteFromBuffer(buffer);
+                buffer.Free();
+                buffer = newData.ToArray();
+                package.setExportData(matched.exportID, buffer);
+                buffer.Free();
             }
 
+            uint packageDataOffset;
             {
-                MemoryStream newData{};
-                newData.WriteFromBuffer(texture.getProperties().toArray());
-                newData.WriteFromBuffer(texture.toArray(package.exportsTable[matched.exportID].getDataOffset() + (uint)newData.Position()));
-                package.setExportData(matched.exportID, newData.ToArray());
+                ByteBuffer buffer = texture.getProperties().toArray();
+                MemoryStream newData(buffer);
+                buffer.Free();
+                packageDataOffset = package.exportsTable[matched.exportID].getDataOffset() + (uint)newData.Position();
+                buffer = texture.toArray(packageDataOffset);
+                newData.WriteFromBuffer(buffer);
+                buffer.Free();
+                buffer = newData.ToArray();
+                package.setExportData(matched.exportID, buffer);
+                buffer.Free();
             }
 
             if (GameData::gameType == MeType::ME1_TYPE)

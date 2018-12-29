@@ -214,8 +214,7 @@ void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> &textures, Package
 
         uint packageDataOffset;
         {
-            ByteBuffer buffer;
-            buffer = texture.getProperties().toArray();
+            ByteBuffer buffer = texture.getProperties().toArray();
             MemoryStream newData(buffer);
             buffer.Free();
             packageDataOffset = package.exportsTable[exportID].getDataOffset() + (uint)newData.Position();
