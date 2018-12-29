@@ -476,17 +476,17 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     if (!oldSpace && fileLength + 0x5000000UL > 0x80000000UL)
                     {
                         archiveFile = "";
-                        for (const auto & guid : guids)
+                        for (const auto & newGuid : guids)
                         {
-                            const TFCTexture& newGuid = guid;
                             archiveFile = g_GameData->MainData() + "/" + newGuid.name + ".tfc";
                             if (!QFile(archiveFile).exists())
                             {
+                                ByteBuffer guid(const_cast<quint8 *>(newGuid.guid), 16);
                                 texture.getProperties().setNameValue("TextureFileCacheName", newGuid.name);
-                                texture.getProperties().setStructValue("TFCFileGuid", "Guid",
-                                                                    ByteBuffer(const_cast<quint8 *>(newGuid.guid), 16));
+                                texture.getProperties().setStructValue("TFCFileGuid", "Guid", guid);
                                 FileStream fs = FileStream(archiveFile, FileMode::Create, FileAccess::WriteOnly);
-                                fs.WriteFromBuffer(const_cast<quint8 *>(guid.guid), 16);
+                                fs.WriteFromBuffer(guid);
+                                guid.Free();
                                 newTfcFile = true;
                                 break;
                             }
@@ -494,9 +494,10 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                             fileLength = QFile(archiveFile).exists();
                             if (fileLength + 0x5000000UL < 0x80000000UL)
                             {
+                                ByteBuffer guid(const_cast<quint8 *>(newGuid.guid), 16);
                                 texture.getProperties().setNameValue("TextureFileCacheName", newGuid.name);
-                                texture.getProperties().setStructValue("TFCFileGuid", "Guid",
-                                                                    ByteBuffer(const_cast<quint8 *>(newGuid.guid), 16));
+                                texture.getProperties().setStructValue("TFCFileGuid", "Guid", guid);
+                                guid.Free();
                                 break;
                             }
                             archiveFile = "";
@@ -507,8 +508,10 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 }
                 else
                 {
+                    ByteBuffer guid(const_cast<quint8 *>(mod.arcTfcGuid), 16);
                     texture.getProperties().setNameValue("TextureFileCacheName", mod.arcTfcName);
-                    texture.getProperties().setStructValue("TFCFileGuid", "Guid", ByteBuffer(mod.arcTfcGuid, 16));
+                    texture.getProperties().setStructValue("TFCFileGuid", "Guid", guid);
+                    guid.Free();
                 }
             }
 
@@ -569,7 +572,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                         mipmap.storageType == Texture::StorageTypes::extLZO ||
                         mipmap.storageType == Texture::StorageTypes::extUnc)
                     {
-                        if (mod.arcTexture.count() != 0)
+                        if (mod.arcTexture.count() == 0)
                         {
                             triggerCacheArc = true;
 
@@ -591,8 +594,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                         }
                         else
                         {
-                            if (mod.arcTexture[m].width != mipmap.width ||
-                                mod.arcTexture[m].height != mipmap.height)
+                            if ((mipmap.width >= 4 && mod.arcTexture[m].width != mipmap.width) ||
+                                (mipmap.height >= 4 && mod.arcTexture[m].height != mipmap.height))
                             {
                                 CRASH();
                             }
