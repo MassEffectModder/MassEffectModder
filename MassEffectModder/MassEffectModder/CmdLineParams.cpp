@@ -236,6 +236,16 @@ QStringList convertLegacyArguments()
             retArgs.append("--ipc");
         }
     }
+    else if (args[1] == "-check-game-data-textures")
+    {
+        if (args.count() > 1)
+        {
+            retArgs.append("--check-game-data-textures");
+            retArgs.append("--gameid");
+            retArgs.append(args[2]);
+            retArgs.append("--ipc");
+        }
+    }
     else if (args[1] == "-check-for-markers")
     {
         if (args.count() > 1)
