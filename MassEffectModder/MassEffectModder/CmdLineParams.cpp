@@ -62,7 +62,8 @@ void DisplayHelp()
     ConsoleWrite("  --check-for-markers --gameid <game id> [--ipc]\n");
     ConsoleWrite("     Check game data for markers.\n");
     ConsoleWrite("");
-    ConsoleWrite("  --install-mods --gameid <game id> --input <input dir> [--repack] [--ipc] [--alot-mode] [--limit-2k]\n");
+    ConsoleWrite("  --install-mods --gameid <game id> --input <input dir> [--repack] [--ipc]\n");
+    ConsoleWrite("  [--alot-mode] [--limit-2k] [--verify]\n");
     ConsoleWrite("     Install MEM mods from input directory.\n");
     ConsoleWrite("");
     ConsoleWrite("  --apply-me1-laa\n");
@@ -186,7 +187,8 @@ void DisplayHelp()
     ConsoleWrite("     Or option: -tfc-only to extract only textures stored in TFC files.");
     ConsoleWrite("     Textures are extracted with only top mipmap.");
     ConsoleWrite("");
-    ConsoleWrite("  --dlc-mod-textures --gameid <game id> --input <mem file> [--tfc-name <tfc name>] [--guid <guid in 16 hex digits>]\n");
+    ConsoleWrite("  --dlc-mod-textures --gameid <game id> --input <mem file>\n");
+    ConsoleWrite("  [--tfc-name <tfc name>] [--guid <guid in 16 hex digits>] [--verify]\n");
     ConsoleWrite("     Replace textures from <mem file> and store in new <tfc name> file.");
     ConsoleWrite("     New TFC name must be added earlier to PCC files.");
     ConsoleWrite("\n");
@@ -398,6 +400,7 @@ int ProcessArguments()
     bool limit2k = false;
     bool pccOnly = false;
     bool tfcOnly = false;
+    bool verify = false;
     int thresholdValue = 128;
     QString input, output, threshold, format, tfcName, guid;
     CmdLineTools tools;
@@ -502,6 +505,8 @@ int ProcessArguments()
             meuitmMode = true;
         else if (arg == "--limit-2k")
             limit2k = true;
+        else if (arg == "--verify")
+            verify = true;
         else if (arg == "--pcc-only" && !tfcOnly)
             pccOnly = true;
         else if (arg == "--tfc-only" && !pccOnly)
@@ -697,7 +702,7 @@ int ProcessArguments()
             errorCode = -1;
             break;
         }
-        if (!tools.InstallMods(gameId, input, ipc, repackMode, guiMode, limit2k))
+        if (!tools.InstallMods(gameId, input, ipc, repackMode, guiMode, verify))
             errorCode = -1;
         break;
     case CmdType::EXTRACT_MOD:
@@ -939,7 +944,7 @@ int ProcessArguments()
             }
             array = QByteArray(reinterpret_cast<char *>(guidArray), 16);
         }
-        if (!tools.applyMEMSpecialModME3(gameId, input, tfcName, array))
+        if (!tools.applyMEMSpecialModME3(gameId, input, tfcName, array, verify))
             errorCode = -1;
         break;
     }

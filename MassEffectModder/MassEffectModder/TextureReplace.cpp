@@ -122,7 +122,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
 {
     QString errors = "";
     int lastProgress = -1;
-    ulong memorySize = 16;//DetectAmountMemoryGB();
+    ulong memorySize = DetectAmountMemoryGB();
 
     for (int e = 0; e < map.count(); e++)
     {
@@ -707,14 +707,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 mod.cacheImage = nullptr;
             }
 
-            if (memorySize <= 6 && mod.cacheCprMipmaps.count() != 0 && modsToReplace.count() != 1)
-            {
-                foreach(ByteBuffer mip, mod.cacheCprMipmaps)
-                {
-                    mip.Free();
-                }
-                mod.cacheCprMipmaps.clear();
-            }
+            if (memorySize <= 8 && modsToReplace.count() != 1)
+                delete image;
 
             modsToReplace.replace(entryMap.modIndex, mod);
             textures[entryMap.texturesIndex].list[entryMap.listIndex] = matched;

@@ -68,14 +68,14 @@ public:
     void AddMarkers(bool ipc);
     bool InstallMods(MeType gameId, QString &inputDir, bool ipc, bool repack, bool guiInstaller, bool
 #if defined(_WIN32)
-                      limit2k
+                     limit2k, bool
 #endif
-                     );
-    bool applyMEMSpecialModME3(MeType gameId, QString &memFile, QString &tfcName, QByteArray &guid);
+                     verify);
+    bool applyMEMSpecialModME3(MeType gameId, QString &memFile, QString &tfcName, QByteArray &guid, bool verify);
     bool applyMods(QStringList &files, QList<FoundTexture> &textures, MipMaps &mipMaps, bool repack,
-                   bool modded, bool ipc, QString &tfcName, QByteArray &guid, bool special = false);
+                   bool modded, bool ipc, QString &tfcName, QByteArray &guid, bool verify = false, bool special = false);
     void replaceTextureSpecialME3Mod(Image &image, QList<MatchedTexture> &list, QString &textureName,
-                                     QString &tfcName, QByteArray &guid);
+                                     QString &tfcName, QByteArray &guid, bool verify);
     bool extractAllTextures(MeType gameId, QString &outputDir, bool png,
                             bool pccOnly, bool tfcOnly, QString &textureTfcFilter);
     bool CheckTextures(MeType gameId, bool ipc);

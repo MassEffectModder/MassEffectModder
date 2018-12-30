@@ -1121,9 +1121,9 @@ void CmdLineTools::RepackME23(MeType gameId, bool ipc, bool appendMarker)
 bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool repack,
                                bool guiInstaller, bool
 #if defined(_WIN32)
-                               limit2k
+                               limit2k, bool
 #endif
-                               )
+                               verify)
 {
     Resources resources;
     MipMaps mipMaps;
@@ -1258,7 +1258,7 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool 
 
     QString tfcName;
     QByteArray guid;
-    applyMods(modFiles, textures, mipMaps, repack, modded, ipc, tfcName, guid);
+    applyMods(modFiles, textures, mipMaps, repack, modded, ipc, tfcName, guid, verify, false);
 
 
     if (!modded)
@@ -1302,7 +1302,7 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool 
     return true;
 }
 
-bool CmdLineTools::applyMEMSpecialModME3(MeType gameId, QString &memFile, QString &tfcName, QByteArray &guid)
+bool CmdLineTools::applyMEMSpecialModME3(MeType gameId, QString &memFile, QString &tfcName, QByteArray &guid, bool verify)
 {
     Resources resources;
     MipMaps mipMaps;
@@ -1328,13 +1328,13 @@ bool CmdLineTools::applyMEMSpecialModME3(MeType gameId, QString &memFile, QStrin
     QStringList memFiles = QStringList();
     memFiles.push_back(memFile);
 
-    applyMods(memFiles, textures, mipMaps, false, false, false, tfcName, guid);
+    applyMods(memFiles, textures, mipMaps, false, false, false, tfcName, guid, verify, true);
 
     return true;
 }
 
 bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, MipMaps &mipMaps, bool repack,
-                             bool modded, bool ipc, QString &tfcName, QByteArray &guid, bool special)
+                             bool modded, bool ipc, QString &tfcName, QByteArray &guid, bool verify, bool special)
 {
     bool status = true;
 
@@ -1500,7 +1500,7 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
                         ByteBuffer dst = MipMaps::decompressData(fs, size);
                         Image image = Image(dst, ImageFormat::DDS);
                         dst.Free();
-                        replaceTextureSpecialME3Mod(image, f.list, f.name, tfcName, guid);
+                        replaceTextureSpecialME3Mod(image, f.list, f.name, tfcName, guid, verify);
                     }
                     else
                     {
@@ -1592,7 +1592,8 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
 }
 
 void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTexture> &list,
-                                               QString &textureName, QString &tfcName, QByteArray &guid)
+                                               QString &textureName, QString &tfcName,
+                                               QByteArray &guid, bool verify)
 {
     Texture *arcTexture = nullptr, *cprTexture = nullptr;
 
@@ -1661,12 +1662,13 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTextur
                 texture->mipMapsList.count() > 1)
             {
                 bool found = false;
-                for (int m = t; m < image.getMipMaps().count(); m++)
+                for (int m = 0; m < texture->mipMapsList.count(); m++)
                 {
                     if (!(texture->mipMapsList[m].width == image.getMipMaps()[t]->getOrigWidth() &&
                           texture->mipMapsList[m].height == image.getMipMaps()[t]->getOrigHeight()))
                     {
-                        found = true;;
+                        found = true;
+                        break;
                     }
                 }
                 if (!found)
@@ -1684,12 +1686,13 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTextur
                 texture->mipMapsList[t].height <= image.getMipMaps().first()->getOrigHeight())
             {
                 bool found = false;
-                for (int m = t; m < image.getMipMaps().count(); m++)
+                for (int m = 0; m < image.getMipMaps().count(); m++)
                 {
-                    if (!(texture->mipMapsList[m].width == image.getMipMaps()[t]->getOrigWidth() &&
-                          texture->mipMapsList[m].height == image.getMipMaps()[t]->getOrigHeight()))
+                    if (!(image.getMipMaps()[m]->getOrigWidth() == texture->mipMapsList[t].width &&
+                          image.getMipMaps()[m]->getOrigHeight() == texture->mipMapsList[t].height))
                     {
-                        found = true;;
+                        found = true;
+                        break;
                     }
                 }
                 if (!found)
@@ -1711,24 +1714,29 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTextur
 
         bool triggerCacheArc = false, triggerCacheCpr = false;
         QString archiveFile;
-        quint8 origGuid[16];
+        quint8 origGuid[16] = {};
         if (texture->getProperties().exists("TextureFileCacheName"))
         {
+            ByteBuffer newGuid(reinterpret_cast<quint8 *>(guid.data()), 16);
             memcpy(origGuid, texture->getProperties().getProperty("TFCFileGuid").valueStruct.ptr(), 16);
             archiveFile = DirName(g_GameData->GamePath() + nodeTexture.path) + "/" + tfcName + ".tfc";
             texture->getProperties().setNameValue("TextureFileCacheName", tfcName);
-            texture->getProperties().setStructValue("TFCFileGuid", "Guid",
-                                                ByteBuffer(reinterpret_cast<quint8 *>(guid.data()), 16));
+            texture->getProperties().setStructValue("TFCFileGuid", "Guid", newGuid);
             if (!QFile(archiveFile).exists())
             {
                 FileStream fs = FileStream(archiveFile, FileMode::Create, FileAccess::WriteOnly);
-                fs.WriteFromBuffer(reinterpret_cast<quint8 *>(guid.data()), 16);
+                fs.WriteFromBuffer(newGuid);
             }
+            newGuid.Free();
         }
 
+        if (verify)
+            nodeTexture.crcs.clear();
         auto mipmaps = QList<Texture::TextureMipMap>();
         for (int m = 0; m < image.getMipMaps().count(); m++)
         {
+            if (verify)
+                nodeTexture.crcs.push_back(texture->getCrcData(image.getMipMaps()[m]->getRefData()));
             Texture::TextureMipMap mipmap;
             mipmap.width = image.getMipMaps()[m]->getOrigWidth();
             mipmap.height = image.getMipMaps()[m]->getOrigHeight();
@@ -1762,6 +1770,12 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTextur
             if (mipmap.storageType == Texture::StorageTypes::pccLZO)
                 mipmap.storageType = Texture::StorageTypes::pccZlib;
 
+            if (arcTexture != nullptr && mipmap.storageType != arcTexture->mipMapsList[m].storageType)
+            {
+                delete arcTexture;
+                arcTexture = nullptr;
+            }
+
             mipmap.uncompressedSize = image.getMipMaps()[m]->getRefData().size();
             if (mipmap.storageType == Texture::StorageTypes::extZlib ||
                 mipmap.storageType == Texture::StorageTypes::extLZO)
@@ -1774,8 +1788,8 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTextur
                 }
                 else
                 {
-                    if (cprTexture->mipMapsList[m].width != mipmap.width ||
-                        cprTexture->mipMapsList[m].height != mipmap.height)
+                    if ((mipmap.width >= 4 && cprTexture->mipMapsList[m].width != mipmap.width) ||
+                        (mipmap.height >= 4 && cprTexture->mipMapsList[m].height != mipmap.height))
                     {
                         CRASH();
                     }
@@ -1799,7 +1813,7 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTextur
             {
                 if (arcTexture == nullptr ||
                     memcmp(arcTexture->getProperties().getProperty("TFCFileGuid").valueStruct.ptr(),
-                    texture->getProperties().getProperty("TFCFileGuid").valueStruct.ptr(), 16) != 0)
+                           texture->getProperties().getProperty("TFCFileGuid").valueStruct.ptr(), 16) != 0)
                 {
                     triggerCacheArc = true;
                     Texture::TextureMipMap oldMipmap = texture->getMipmap(mipmap.width, mipmap.height);
@@ -1821,8 +1835,8 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTextur
                 }
                 else
                 {
-                    if (arcTexture->mipMapsList[m].width != mipmap.width ||
-                        arcTexture->mipMapsList[m].height != mipmap.height)
+                    if ((mipmap.width >= 4 && arcTexture->mipMapsList[m].width != mipmap.width) ||
+                        (mipmap.height >= 4 && arcTexture->mipMapsList[m].height != mipmap.height))
                     {
                         CRASH();
                     }
@@ -1843,24 +1857,26 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTextur
             texture->getProperties().setIntValue("MipTailBaseIdx", texture->mipMapsList.count() - 1);
 
         {
-            MemoryStream newData{};
             ByteBuffer buffer = texture->getProperties().toArray();
+            MemoryStream newData(buffer);
+            buffer.Free();
+            buffer = texture->toArray(0, false); // filled later
             newData.WriteFromBuffer(buffer);
             buffer.Free();
-            buffer = texture->toArray(0, false);
-            newData.WriteFromBuffer(buffer); // filled later
             buffer = newData.ToArray();
             package.setExportData(nodeTexture.exportID, buffer);
             buffer.Free();
         }
 
+        uint packageDataOffset;
         {
-            MemoryStream newData{};
             ByteBuffer buffer = texture->getProperties().toArray();
+            MemoryStream newData(buffer);
+            buffer.Free();
+            packageDataOffset = package.exportsTable[nodeTexture.exportID].getDataOffset() + (uint)newData.Position();
+            buffer = texture->toArray(packageDataOffset);
             newData.WriteFromBuffer(buffer);
             buffer.Free();
-            buffer = texture->toArray(package.exportsTable[nodeTexture.exportID].getDataOffset() + (uint)newData.Position());
-            newData.WriteFromBuffer(buffer);
             buffer = newData.ToArray();
             package.setExportData(nodeTexture.exportID, buffer);
             buffer.Free();
