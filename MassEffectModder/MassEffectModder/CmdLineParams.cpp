@@ -702,8 +702,15 @@ int ProcessArguments()
             errorCode = -1;
             break;
         }
-        if (!tools.InstallMods(gameId, input, ipc, repackMode, guiMode, verify))
+        if (!tools.InstallMods(gameId, input, ipc, repackMode, guiMode,
+#if defined(_WIN32)
+                               limit2k,
+#endif
+                               verify
+                               ))
+        {
             errorCode = -1;
+        }
         break;
     case CmdType::EXTRACT_MOD:
         if (gameId == MeType::UNKNOWN_TYPE)
