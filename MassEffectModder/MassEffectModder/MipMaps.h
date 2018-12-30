@@ -71,7 +71,7 @@ struct ModEntry
     ByteBuffer binaryModData;
 
     QString memPath;
-    long memEntryOffset;
+    quint64 memEntryOffset;
     long memEntrySize;
 
     void DeepCopyMipMapsList(QList<Texture::TextureMipMap> &copy,
