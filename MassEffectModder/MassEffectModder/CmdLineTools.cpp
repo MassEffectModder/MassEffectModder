@@ -890,8 +890,7 @@ bool CmdLineTools::CheckForMarkers(MeType gameId, bool ipc)
         }
 
         FileStream fs = FileStream(g_GameData->GamePath() + packages[i], FileMode::Open, FileAccess::ReadOnly);
-        fs.SeekEnd();
-        fs.Seek(-sizeof(MEMendFileMarker), SeekOrigin::Current);
+        fs.Seek(-sizeof(MEMendFileMarker), SeekOrigin::End);
         QString marker;
         fs.ReadStringASCII(marker, sizeof(MEMendFileMarker));
         if (marker == QString(MEMendFileMarker))
@@ -1012,8 +1011,7 @@ void CmdLineTools::AddMarkers(bool ipc)
             lastProgress = newProgress;
         }
         FileStream fs = FileStream(g_GameData->GamePath() + pkgsToMarker[i], FileMode::Open, FileAccess::ReadWrite);
-        fs.SeekEnd();
-        fs.Seek(-sizeof(MEMendFileMarker), SeekOrigin::Current);
+        fs.Seek(-sizeof(MEMendFileMarker), SeekOrigin::End);
         QString marker;
         fs.ReadStringASCII(marker, sizeof(MEMendFileMarker));
         if (marker != QString(MEMendFileMarker))
@@ -2150,11 +2148,11 @@ bool CmdLineTools::checkGameFilesAfter(MeType gameType, bool ipc)
     QString path;
     if (GameData::gameType == MeType::ME1_TYPE)
     {
-        path = QString("/BioGame/CookedPC/testVolumeLight_VFX.upk").toLower();
+        path = "/BioGame/CookedPC/testVolumeLight_VFX.upk";
     }
     if (GameData::gameType == MeType::ME2_TYPE)
     {
-        path = QString("/BioGame/CookedPC/BIOC_Materials.pcc").toLower();
+        path = "/BioGame/CookedPC/BIOC_Materials.pcc";
     }
     QStringList filesToUpdate = QStringList();
     for (int i = 0; i < g_GameData->packageFiles.count(); i++)
@@ -2174,8 +2172,7 @@ bool CmdLineTools::checkGameFilesAfter(MeType gameType, bool ipc)
             lastProgress = newProgress;
         }
         FileStream fs = FileStream(g_GameData->GamePath() + filesToUpdate[i], FileMode::Open, FileAccess::ReadOnly);
-        fs.SeekEnd();
-        fs.Seek(-sizeof(MEMendFileMarker), SeekOrigin::Current);
+        fs.Seek(-sizeof(MEMendFileMarker), SeekOrigin::End);
         QString marker;
         fs.ReadStringASCII(marker, sizeof(MEMendFileMarker));
         if (marker != QString(MEMendFileMarker))
