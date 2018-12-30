@@ -767,12 +767,6 @@ int ProcessArguments()
             errorCode = -1;
         break;
     case CmdType::EXTRACT_TPF:
-        if (gameId == MeType::UNKNOWN_TYPE)
-        {
-            ConsoleWrite("Wrong game id!");
-            errorCode = -1;
-            break;
-        }
         if (!QDir(input).exists())
         {
             ConsoleWrite("Input folder doesn't exists!");
