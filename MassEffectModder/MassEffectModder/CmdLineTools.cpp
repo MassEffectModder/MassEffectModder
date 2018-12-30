@@ -890,9 +890,9 @@ bool CmdLineTools::CheckForMarkers(MeType gameId, bool ipc)
         }
 
         FileStream fs = FileStream(g_GameData->GamePath() + packages[i], FileMode::Open, FileAccess::ReadOnly);
-        fs.Seek(-sizeof(MEMendFileMarker), SeekOrigin::End);
+        fs.Seek(-MEMMarkerLenght, SeekOrigin::End);
         QString marker;
-        fs.ReadStringASCII(marker, sizeof(MEMendFileMarker));
+        fs.ReadStringASCII(marker, MEMMarkerLenght);
         if (marker == QString(MEMendFileMarker))
         {
             if (ipc)
@@ -1011,13 +1011,14 @@ void CmdLineTools::AddMarkers(bool ipc)
             lastProgress = newProgress;
         }
         FileStream fs = FileStream(g_GameData->GamePath() + pkgsToMarker[i], FileMode::Open, FileAccess::ReadWrite);
-        fs.Seek(-sizeof(MEMendFileMarker), SeekOrigin::End);
+        fs.Seek(-MEMMarkerLenght, SeekOrigin::End);
         QString marker;
-        fs.ReadStringASCII(marker, sizeof(MEMendFileMarker));
-        if (marker != QString(MEMendFileMarker))
+        fs.ReadStringASCII(marker, MEMMarkerLenght);
+        QString str(MEMendFileMarker);
+        if (marker != str)
         {
             fs.SeekEnd();
-            fs.WriteStringASCII(MEMendFileMarker);
+            fs.WriteStringASCII(str);
         }
     }
     ConsoleWrite("Adding markers finished.");
@@ -2172,9 +2173,9 @@ bool CmdLineTools::checkGameFilesAfter(MeType gameType, bool ipc)
             lastProgress = newProgress;
         }
         FileStream fs = FileStream(g_GameData->GamePath() + filesToUpdate[i], FileMode::Open, FileAccess::ReadOnly);
-        fs.Seek(-sizeof(MEMendFileMarker), SeekOrigin::End);
+        fs.Seek(-MEMMarkerLenght, SeekOrigin::End);
         QString marker;
-        fs.ReadStringASCII(marker, sizeof(MEMendFileMarker));
+        fs.ReadStringASCII(marker, MEMMarkerLenght);
         if (marker != QString(MEMendFileMarker))
         {
             if (ipc)

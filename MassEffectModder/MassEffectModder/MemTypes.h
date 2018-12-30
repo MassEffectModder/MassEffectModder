@@ -52,5 +52,6 @@ typedef enum
 #define FileXdeltaTag         0x4E494258
 #define MEMI_TAG              0x494D454D
 #define MEMendFileMarker      "ThisIsMEMEndOfFileMarker"
+#define MEMMarkerLenght       (sizeof(MEMendFileMarker) - 1)
 
 #endif
