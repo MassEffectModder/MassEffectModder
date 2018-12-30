@@ -124,8 +124,11 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
     int lastProgress = -1;
     ulong memorySize = DetectAmountMemoryGB();
     bool lowMode = false;
+    bool veryLowMode = false;
     if (memorySize <= 8 && modsToReplace.count() != 1)
         lowMode = true;
+    if (memorySize <= 6 && modsToReplace.count() != 1)
+        veryLowMode = true;
 
     for (int e = 0; e < map.count(); e++)
     {
@@ -529,7 +532,15 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     {
                         if (matched.linkToMaster == -1)
                         {
-                            mipmap.newData = mod.cacheCprMipmaps[m];
+                            if (veryLowMode && mod.cacheCprMipmaps.count() != 0)
+                            {
+                                mipmap.newData = ByteBuffer(mod.cacheCprMipmaps[m].ptr(), mod.cacheCprMipmaps[m].size());
+                                mipmap.freeNewData = true;
+                            }
+                            else
+                            {
+                                mipmap.newData = mod.cacheCprMipmaps[m];
+                            }
                         }
                         else
                         {
@@ -566,7 +577,15 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     {
                         if (mod.cacheCprMipmaps.count() != image->getMipMaps().count())
                             CRASH();
-                        mipmap.newData = mod.cacheCprMipmaps[m];
+                        if (veryLowMode && mod.cacheCprMipmaps.count() != 0)
+                        {
+                            mipmap.newData = ByteBuffer(mod.cacheCprMipmaps[m].ptr(), mod.cacheCprMipmaps[m].size());
+                            mipmap.freeNewData = true;
+                        }
+                        else
+                        {
+                            mipmap.newData = mod.cacheCprMipmaps[m];
+                        }
                         mipmap.compressedSize = mipmap.newData.size();
                     }
 
@@ -726,6 +745,15 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
 
             if (lowMode)
                 delete image;
+
+            if (veryLowMode && mod.cacheCprMipmaps.count() != 0)
+            {
+                foreach(ByteBuffer mip, mod.cacheCprMipmaps)
+                {
+                    mip.Free();
+                }
+                mod.cacheCprMipmaps.clear();
+            }
 
             modsToReplace.replace(entryMap.modIndex, mod);
             textures[entryMap.texturesIndex].list[entryMap.listIndex] = matched;
