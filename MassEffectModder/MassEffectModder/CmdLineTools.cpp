@@ -1582,7 +1582,7 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
 
     if (!special)
         mipMaps.replaceModsFromList(textures, pkgsToMarker, pkgsToRepack, modsToReplace,
-                                     repack, !modded, false, !modded, ipc);
+                                     repack, !modded, verify, !modded, ipc);
 
     modsToReplace.clear();
 
