@@ -123,6 +123,9 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
     QString errors = "";
     int lastProgress = -1;
     ulong memorySize = DetectAmountMemoryGB();
+    bool lowMode = false;
+    if (memorySize <= 8 && modsToReplace.count() != 1)
+        lowMode = true;
 
     for (int e = 0; e < map.count(); e++)
     {
@@ -197,7 +200,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 ByteBuffer data = decompressData(fs, mod.memEntrySize);
                 image = new Image(data, ImageFormat::DDS);
                 data.Free();
-                if (memorySize > 8 || modsToReplace.count() == 1)
+                if (!lowMode)
                     mod.cacheImage = image;
             }
 
@@ -538,8 +541,15 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     {
                         mipmap.compressedSize = mipmap.uncompressedSize;
                         auto mip = image->getMipMaps()[m]->getRefData();
-                        mipmap.newData = ByteBuffer(mip.ptr(), mip.size());
-                        mipmap.freeNewData = true;
+                        if (lowMode)
+                        {
+                            mipmap.newData = ByteBuffer(mip.ptr(), mip.size());
+                            mipmap.freeNewData = true;
+                        }
+                        else
+                        {
+                            mipmap.newData = mip;
+                        }
                     }
                     if ((mipmap.storageType == Texture::StorageTypes::extLZO ||
                         mipmap.storageType == Texture::StorageTypes::extZlib) && matched.linkToMaster != -1)
@@ -565,8 +575,15 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     {
                         mipmap.compressedSize = mipmap.uncompressedSize;
                         auto mip = image->getMipMaps()[m]->getRefData();
-                        mipmap.newData = ByteBuffer(mip.ptr(), mip.size());
-                        mipmap.freeNewData = true;
+                        if (lowMode)
+                        {
+                            mipmap.newData = ByteBuffer(mip.ptr(), mip.size());
+                            mipmap.freeNewData = true;
+                        }
+                        else
+                        {
+                            mipmap.newData = mip;
+                        }
                     }
                     if (mipmap.storageType == Texture::StorageTypes::extZlib ||
                         mipmap.storageType == Texture::StorageTypes::extLZO ||
@@ -707,7 +724,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 mod.cacheImage = nullptr;
             }
 
-            if (memorySize <= 8 && modsToReplace.count() != 1)
+            if (lowMode)
                 delete image;
 
             modsToReplace.replace(entryMap.modIndex, mod);
