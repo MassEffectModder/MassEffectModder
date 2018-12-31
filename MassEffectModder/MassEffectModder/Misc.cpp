@@ -590,7 +590,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                         }
                         else
                         {
-                            ConsoleWrite(QString("Error in texture: ") + textureName + "_0x" + QString::number(f.crc, 16).toUpper() +
+                            ConsoleWrite(QString("Error in texture: ") + textureName + QString().sprintf("_0x%08X", f.crc) +
                                 " This texture has wrong aspect ratio, skipping texture, entry: " + (i + 1) +
                                 " - mod: " + relativeFilePath);
                         }
@@ -807,7 +807,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                 }
                 if (f.crc == 0)
                 {
-                    ConsoleWrite(QString("Texture skipped. File ") + filename + "_0x" + QString::number(crc, 16).toUpper() +
+                    ConsoleWrite(QString("Texture skipped. File ") + filename + QString().sprintf("_0x%08X", crc) +
                         " is not present in your game setup - mod: " + relativeFilePath);
                     ZipGoToNextFile(handle);
                     continue;
@@ -829,7 +829,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                     }
                     else
                     {
-                        ConsoleWrite(QString("Error in texture: ") + textureName + "_0x" + QString::number(crc, 16).toUpper() +
+                        ConsoleWrite(QString("Error in texture: ") + textureName + QString().sprintf("_0x%08X", crc) +
                             ", skipping texture, entry: " + (i + 1) + " - mod: " + relativeFilePath);
                     }
                     mod.data.Free();
@@ -850,7 +850,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                     }
                     else
                     {
-                        ConsoleWrite(QString("Error in texture: ") + textureName + "_0x" + QString::number(crc, 16).toUpper() +
+                        ConsoleWrite(QString("Error in texture: ") + textureName + QString().sprintf("_0x%08X", crc) +
                             " This texture has wrong aspect ratio, skipping texture, entry: " + QString::number(i + 1) + " - mod: " + relativeFilePath);
                     }
                     mod.data.Free();
@@ -1236,7 +1236,7 @@ end:
                     fileMod.tag = FileTextureTag2;
                 else
                     fileMod.tag = FileTextureTag;
-                fileMod.name = mods[l].textureName + "_0x" + QString::number(mods[l].textureCrc, 16).toUpper() + ".dds";
+                fileMod.name = mods[l].textureName + QString().sprintf("_0x%08X", mods[l].textureCrc) + ".dds";
                 outFs.WriteStringASCIINull(mods[l].textureName);
                 outFs.WriteUInt32(mods[l].textureCrc);
             }

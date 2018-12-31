@@ -495,7 +495,7 @@ bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputD
                 }
                 textureCrc = textures[index].crc;
                 len = fs.ReadInt32();
-                QString newFile = outputMODdir + "/" + textures[index].name + "_0x" + QString::number(textureCrc, 16).toUpper() + ".dds";
+                QString newFile = outputMODdir + "/" + textures[index].name + QString().sprintf("_0x%08X", textureCrc) + ".dds";
                 if (QFile(newFile).exists())
                     QFile(newFile).remove();
                 FileStream fs2 = FileStream(newFile, FileMode::Create);
@@ -663,15 +663,14 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
             if (modFiles[i].tag == FileTextureTag)
             {
                 QString filename = outputMODdir + "/" +
-                        BaseName(name + "_0x" + QString::number(crc, 16).toUpper() + ".dds");
+                        BaseName(name + QString().sprintf("_0x%08X", crc) + ".dds");
                 FileStream output = FileStream(filename, FileMode::Create, FileAccess::ReadWrite);
                 output.WriteFromBuffer(dst);
             }
             else if (modFiles[i].tag == FileTextureTag2)
             {
                 QString filename = outputMODdir + "/" +
-                        BaseName(name + "_0x" + QString::number(crc, 16).toUpper() +
-                                 "-memconvert.dds");
+                        BaseName(name + QString().sprintf("_0x%08X", crc) + "-memconvert.dds");
                 FileStream output = FileStream(filename, FileMode::Create, FileAccess::ReadWrite);
                 output.WriteFromBuffer(dst);
             }
@@ -1517,7 +1516,7 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
                 else
                 {
                     ConsoleWrite(QString("Texture skipped. Texture ") + name +
-                                 "_0x" + QString::number(crc, 16).toUpper() + " is not present in your game setup");
+                                 QString().sprintf("_0x%08X", crc) + " is not present in your game setup");
                 }
             }
             else if (modFiles[l].tag == FileBinaryTag)
@@ -1937,7 +1936,7 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
             }
         }
         QString outputFile = outputDir + "/" + textures[i].name +
-                "_0x" + QString::number(textures[i].crc, 16).toUpper();
+                QString().sprintf("_0x%08X", textures[i].crc);
         if (png)
         {
             outputFile += ".png";
