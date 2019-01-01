@@ -630,6 +630,12 @@ int ProcessArguments()
             errorCode = -1;
             break;
         }
+        if (output.length() == 0)
+        {
+            ConsoleWrite("Output param empty!");
+            errorCode = -1;
+            break;
+        }
         if (!output.endsWith(".mem", Qt::CaseInsensitive))
         {
             ConsoleWrite(QString("Error: output file is not mem: ") + output);
