@@ -79,8 +79,6 @@ QString BaseName(const QString &path)
 QString DirName(const QString &path)
 {
     const QString str = path.section('/', 0, -2);
-    if (str.length() == 0)
-        return path;
     return str;
 }
 
@@ -110,7 +108,7 @@ bool DetectAdminRights()
     status = state;
     if (state)
     {
-        if (!CheckTokenMembership(NULL, sid, &state))
+        if (!CheckTokenMembership(nullptr, sid, &state))
             status = false;
         FreeSid(sid);
     }

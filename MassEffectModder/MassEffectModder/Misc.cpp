@@ -380,7 +380,9 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
     QList<BinaryMod> mods = QList<BinaryMod>();
     QList<FileMod> modFiles = QList<FileMod>();
 
-    QDir().mkpath(DirName(memFilePath));
+    QString dir = DirName(memFilePath);
+    if (dir.length() != 0)
+        QDir().mkpath(DirName(dir));
 
     if (QFile(memFilePath).exists())
         QFile(memFilePath).remove();
