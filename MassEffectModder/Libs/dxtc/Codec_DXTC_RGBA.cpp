@@ -30,11 +30,11 @@
 #define DXTC_OFFSET_ALPHA 0
 #define DXTC_OFFSET_RGB 2
 
-void CompressExplicitAlphaBlock(CMP_BYTE alphaBlock[BLOCK_SIZE_4X4], CMP_DWORD compressedBlock[2]);
-void DecompressExplicitAlphaBlock(CMP_BYTE alphaBlock[BLOCK_SIZE_4X4], CMP_DWORD compressedBlock[2]);
+void CompressExplicitAlphaBlock(CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4], CODEC_DWORD compressedBlock[2]);
+void DecompressExplicitAlphaBlock(CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4], CODEC_DWORD compressedBlock[2]);
 
-void CompressAlphaBlock(CMP_BYTE alphaBlock[BLOCK_SIZE_4X4], CMP_DWORD compressedBlock[2]);
-void DecompressAlphaBlock(CMP_BYTE alphaBlock[BLOCK_SIZE_4X4], CMP_DWORD compressedBlock[2]);
+void CompressAlphaBlock(CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4], CODEC_DWORD compressedBlock[2]);
+void DecompressAlphaBlock(CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4], CODEC_DWORD compressedBlock[2]);
 
 #define ConstructColour(r, g, b)  (((r) << 11) | ((g) << 5) | (b))
 
@@ -45,7 +45,7 @@ Channel Bits
 #define GG 6
 #define BG 5
 
-void CompressRGBBlock(CMP_BYTE rgbBlock[BLOCK_SIZE_4X4X4], CMP_DWORD compressedBlock[2], bool bDXT1 = false, bool bDXT1UseAlpha = false, CMP_BYTE nDXT1AlphaThreshold = 0)
+void CompressRGBBlock(CODEC_BYTE rgbBlock[BLOCK_SIZE_4X4X4], CODEC_DWORD compressedBlock[2], bool bDXT1 = false, bool bDXT1UseAlpha = false, CODEC_BYTE nDXT1AlphaThreshold = 0)
 {
     /*
     ARGB Channel indexes
@@ -55,11 +55,11 @@ void CompressRGBBlock(CMP_BYTE rgbBlock[BLOCK_SIZE_4X4X4], CMP_DWORD compressedB
 
     if (bDXT1)
     {
-        CMP_BYTE nEndpoints[2][3][2];
-        CMP_BYTE nIndices[2][BLOCK_SIZE_4X4];
+        CODEC_BYTE nEndpoints[2][3][2];
+        CODEC_BYTE nIndices[2][BLOCK_SIZE_4X4];
 
-        double fError3 = CompRGBBlock((CMP_DWORD*)rgbBlock, BLOCK_SIZE_4X4, RG, GG, BG, nEndpoints[0], nIndices[0], 3, true, false, 1, NULL, bDXT1UseAlpha, nDXT1AlphaThreshold);
-        double fError4 = (fError3 == 0.0) ? FLT_MAX : CompRGBBlock((CMP_DWORD*)rgbBlock, BLOCK_SIZE_4X4, RG, GG, BG, nEndpoints[1], nIndices[1], 4, true, false, 1, NULL, bDXT1UseAlpha, nDXT1AlphaThreshold);
+        double fError3 = CompRGBBlock((CODEC_DWORD*)rgbBlock, BLOCK_SIZE_4X4, RG, GG, BG, nEndpoints[0], nIndices[0], 3, true, false, 1, NULL, bDXT1UseAlpha, nDXT1AlphaThreshold);
+        double fError4 = (fError3 == 0.0) ? FLT_MAX : CompRGBBlock((CODEC_DWORD*)rgbBlock, BLOCK_SIZE_4X4, RG, GG, BG, nEndpoints[1], nIndices[1], 4, true, false, 1, NULL, bDXT1UseAlpha, nDXT1AlphaThreshold);
 
         unsigned int nMethod = (fError3 <= fError4) ? 0 : 1;
         unsigned int c0 = ConstructColour((nEndpoints[nMethod][RC][0] >> (8 - RG)), (nEndpoints[nMethod][GC][0] >> (8 - GG)), (nEndpoints[nMethod][BC][0] >> (8 - BG)));
@@ -75,10 +75,10 @@ void CompressRGBBlock(CMP_BYTE rgbBlock[BLOCK_SIZE_4X4X4], CMP_DWORD compressedB
     }
     else
     {
-        CMP_BYTE nEndpoints[3][2];
-        CMP_BYTE nIndices[BLOCK_SIZE_4X4];
+        CODEC_BYTE nEndpoints[3][2];
+        CODEC_BYTE nIndices[BLOCK_SIZE_4X4];
 
-        CompRGBBlock((CMP_DWORD*)rgbBlock, BLOCK_SIZE_4X4, RG, GG, BG, nEndpoints, nIndices, 4, true, false, 1, NULL, bDXT1UseAlpha, nDXT1AlphaThreshold);
+        CompRGBBlock((CODEC_DWORD*)rgbBlock, BLOCK_SIZE_4X4, RG, GG, BG, nEndpoints, nIndices, 4, true, false, 1, NULL, bDXT1UseAlpha, nDXT1AlphaThreshold);
 
         unsigned int c0 = ConstructColour((nEndpoints[RC][0] >> (8 - RG)), (nEndpoints[GC][0] >> (8 - GG)), (nEndpoints[BC][0] >> (8 - BG)));
         unsigned int c1 = ConstructColour((nEndpoints[RC][1] >> (8 - RG)), (nEndpoints[GC][1] >> (8 - GG)), (nEndpoints[BC][1] >> (8 - BG)));
@@ -95,16 +95,16 @@ void CompressRGBBlock(CMP_BYTE rgbBlock[BLOCK_SIZE_4X4X4], CMP_DWORD compressedB
 
 // This function decompresses a DXT colour block
 // The block is decompressed to 8 bits per channel
-void DecompressRGBBlock(CMP_BYTE rgbBlock[BLOCK_SIZE_4X4X4], CMP_DWORD compressedBlock[2], bool bDXT1)
+void DecompressRGBBlock(CODEC_BYTE rgbBlock[BLOCK_SIZE_4X4X4], CODEC_DWORD compressedBlock[2], bool bDXT1)
 {
-    CMP_DWORD n0 = compressedBlock[0] & 0xffff;
-    CMP_DWORD n1 = compressedBlock[0] >> 16;
-    CMP_DWORD r0;
-    CMP_DWORD g0;
-    CMP_DWORD b0;
-    CMP_DWORD r1;
-    CMP_DWORD g1;
-    CMP_DWORD b1;
+    CODEC_DWORD n0 = compressedBlock[0] & 0xffff;
+    CODEC_DWORD n1 = compressedBlock[0] >> 16;
+    CODEC_DWORD r0;
+    CODEC_DWORD g0;
+    CODEC_DWORD b0;
+    CODEC_DWORD r1;
+    CODEC_DWORD g1;
+    CODEC_DWORD b1;
 
     r0 = ((n0 & 0xf800) >> 8);
     g0 = ((n0 & 0x07e0) >> 3);
@@ -119,29 +119,29 @@ void DecompressRGBBlock(CMP_BYTE rgbBlock[BLOCK_SIZE_4X4X4], CMP_DWORD compresse
     g0 += (g0 >> 6); g1 += (g1 >> 6);
     b0 += (b0 >> 5); b1 += (b1 >> 5);
 
-    CMP_DWORD c0 = 0xff000000 | (r0 << 16) | (g0 << 8) | b0;
-    CMP_DWORD c1 = 0xff000000 | (r1 << 16) | (g1 << 8) | b1;
+    CODEC_DWORD c0 = 0xff000000 | (r0 << 16) | (g0 << 8) | b0;
+    CODEC_DWORD c1 = 0xff000000 | (r1 << 16) | (g1 << 8) | b1;
 
     if (!bDXT1 || n0 > n1)
     {
-        CMP_DWORD c2 = 0xff000000 | (((2 * r0 + r1 + 1) / 3) << 16) | (((2 * g0 + g1 + 1) / 3) << 8) | (((2 * b0 + b1 + 1) / 3));
-        CMP_DWORD c3 = 0xff000000 | (((2 * r1 + r0 + 1) / 3) << 16) | (((2 * g1 + g0 + 1) / 3) << 8) | (((2 * b1 + b0 + 1) / 3));
+        CODEC_DWORD c2 = 0xff000000 | (((2 * r0 + r1 + 1) / 3) << 16) | (((2 * g0 + g1 + 1) / 3) << 8) | (((2 * b0 + b1 + 1) / 3));
+        CODEC_DWORD c3 = 0xff000000 | (((2 * r1 + r0 + 1) / 3) << 16) | (((2 * g1 + g0 + 1) / 3) << 8) | (((2 * b1 + b0 + 1) / 3));
 
         for (int i = 0; i<16; i++)
         {
             switch ((compressedBlock[1] >> (2 * i)) & 3)
             {
                 case 0:
-                    ((CMP_DWORD*)rgbBlock)[i] = c0;
+                    ((CODEC_DWORD*)rgbBlock)[i] = c0;
                     break;
                 case 1:
-                    ((CMP_DWORD*)rgbBlock)[i] = c1;
+                    ((CODEC_DWORD*)rgbBlock)[i] = c1;
                     break;
                 case 2:
-                    ((CMP_DWORD*)rgbBlock)[i] = c2;
+                    ((CODEC_DWORD*)rgbBlock)[i] = c2;
                     break;
                 case 3:
-                    ((CMP_DWORD*)rgbBlock)[i] = c3;
+                    ((CODEC_DWORD*)rgbBlock)[i] = c3;
                     break;
             }
         }
@@ -149,69 +149,69 @@ void DecompressRGBBlock(CMP_BYTE rgbBlock[BLOCK_SIZE_4X4X4], CMP_DWORD compresse
     else
     {
         // Transparent decode
-        CMP_DWORD c2 = 0xff000000 | (((r0 + r1) / 2) << 16) | (((g0 + g1) / 2) << 8) | (((b0 + b1) / 2));
+        CODEC_DWORD c2 = 0xff000000 | (((r0 + r1) / 2) << 16) | (((g0 + g1) / 2) << 8) | (((b0 + b1) / 2));
 
         for (int i = 0; i<16; i++)
         {
             switch ((compressedBlock[1] >> (2 * i)) & 3)
             {
                 case 0:
-                    ((CMP_DWORD*)rgbBlock)[i] = c0;
+                    ((CODEC_DWORD*)rgbBlock)[i] = c0;
                     break;
                 case 1:
-                    ((CMP_DWORD*)rgbBlock)[i] = c1;
+                    ((CODEC_DWORD*)rgbBlock)[i] = c1;
                     break;
                 case 2:
-                    ((CMP_DWORD*)rgbBlock)[i] = c2;
+                    ((CODEC_DWORD*)rgbBlock)[i] = c2;
                     break;
                 case 3:
-                    ((CMP_DWORD*)rgbBlock)[i] = 0x00000000;
+                    ((CODEC_DWORD*)rgbBlock)[i] = 0x00000000;
                     break;
             }
         }
     }
 }
 
-void CompressRGBABlock(CMP_BYTE rgbaBlock[BLOCK_SIZE_4X4X4], CMP_DWORD compressedBlock[4])
+void CompressRGBABlock(CODEC_BYTE rgbaBlock[BLOCK_SIZE_4X4X4], CODEC_DWORD compressedBlock[4])
 {
-    CMP_BYTE alphaBlock[BLOCK_SIZE_4X4];
-    for(CMP_DWORD i = 0; i < 16; i++)
-        alphaBlock[i] = static_cast<CMP_BYTE>(((CMP_DWORD*)rgbaBlock)[i] >> RGBA8888_OFFSET_A);
+    CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4];
+    for(CODEC_DWORD i = 0; i < 16; i++)
+        alphaBlock[i] = static_cast<CODEC_BYTE>(((CODEC_DWORD*)rgbaBlock)[i] >> RGBA8888_OFFSET_A);
 
     CompressAlphaBlock(alphaBlock, &compressedBlock[DXTC_OFFSET_ALPHA]);
 
     CompressRGBBlock(rgbaBlock, &compressedBlock[DXTC_OFFSET_RGB], false, false);
 }
 
-void DecompressRGBABlock(CMP_BYTE rgbaBlock[BLOCK_SIZE_4X4X4], CMP_DWORD compressedBlock[4])
+void DecompressRGBABlock(CODEC_BYTE rgbaBlock[BLOCK_SIZE_4X4X4], CODEC_DWORD compressedBlock[4])
 {
-    CMP_BYTE alphaBlock[BLOCK_SIZE_4X4];
+    CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4];
 
     DecompressAlphaBlock(alphaBlock, &compressedBlock[DXTC_OFFSET_ALPHA]);
     DecompressRGBBlock(rgbaBlock, &compressedBlock[DXTC_OFFSET_RGB], false);
 
-    for(CMP_DWORD i = 0; i < 16; i++)
-        ((CMP_DWORD*)rgbaBlock)[i] = (alphaBlock[i] << RGBA8888_OFFSET_A) | (((CMP_DWORD*)rgbaBlock)[i] & ~(BYTE_MASK << RGBA8888_OFFSET_A));
+    for(CODEC_DWORD i = 0; i < 16; i++)
+        ((CODEC_DWORD*)rgbaBlock)[i] = (alphaBlock[i] << RGBA8888_OFFSET_A) | (((CODEC_DWORD*)rgbaBlock)[i] & ~(BYTE_MASK << RGBA8888_OFFSET_A));
 }
 
-void CompressRGBABlock_ExplicitAlpha(CMP_BYTE rgbaBlock[BLOCK_SIZE_4X4X4], CMP_DWORD compressedBlock[4])
+void CompressRGBABlock_ExplicitAlpha(CODEC_BYTE rgbaBlock[BLOCK_SIZE_4X4X4], CODEC_DWORD compressedBlock[4])
 {
-    CMP_BYTE alphaBlock[BLOCK_SIZE_4X4];
-    for(CMP_DWORD i = 0; i < 16; i++)
-        alphaBlock[i] = static_cast<CMP_BYTE>(((CMP_DWORD*)rgbaBlock)[i] >> RGBA8888_OFFSET_A);
+    CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4];
+    for(CODEC_DWORD i = 0; i < 16; i++)
+        alphaBlock[i] = static_cast<CODEC_BYTE>(((CODEC_DWORD*)rgbaBlock)[i] >> RGBA8888_OFFSET_A);
 
     CompressExplicitAlphaBlock(alphaBlock, &compressedBlock[DXTC_OFFSET_ALPHA]);
 
     CompressRGBBlock(rgbaBlock, &compressedBlock[DXTC_OFFSET_RGB], false, false);
 }
 
-void DecompressRGBABlock_ExplicitAlpha(CMP_BYTE rgbaBlock[BLOCK_SIZE_4X4X4], CMP_DWORD compressedBlock[4])
+void DecompressRGBABlock_ExplicitAlpha(CODEC_BYTE rgbaBlock[BLOCK_SIZE_4X4X4], CODEC_DWORD compressedBlock[4])
 {
-    CMP_BYTE alphaBlock[BLOCK_SIZE_4X4];
+    CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4];
 
     DecompressExplicitAlphaBlock(alphaBlock, &compressedBlock[DXTC_OFFSET_ALPHA]);
     DecompressRGBBlock(rgbaBlock, &compressedBlock[DXTC_OFFSET_RGB], false);
 
-    for(CMP_DWORD i = 0; i < 16; i++)
-        ((CMP_DWORD*)rgbaBlock)[i] = (alphaBlock[i] << RGBA8888_OFFSET_A) | (((CMP_DWORD*)rgbaBlock)[i] & ~(BYTE_MASK << RGBA8888_OFFSET_A));
+    for(CODEC_DWORD i = 0; i < 16; i++)
+        ((CODEC_DWORD*)rgbaBlock)[i] = (alphaBlock[i] << RGBA8888_OFFSET_A) | (((CODEC_DWORD*)rgbaBlock)[i] & ~(BYTE_MASK << RGBA8888_OFFSET_A));
 }

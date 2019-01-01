@@ -31,11 +31,11 @@
 #include <float.h>
 #include <cmath>
 
-typedef unsigned int        CMP_DWORD;         ///< A 32-bit integer format.
-typedef unsigned short      CMP_WORD;          ///< A 16-bit integer format.
-typedef unsigned char       CMP_BYTE;          ///< An 8-bit integer format.
-typedef char                CMP_CHAR;          ///< An 8-bit char    format.
-typedef float               CMP_FLOAT;         ///< A 32-bit float   format.
+typedef unsigned int        CODEC_DWORD;         ///< A 32-bit integer format.
+typedef unsigned short      CODEC_WORD;          ///< A 16-bit integer format.
+typedef unsigned char       CODEC_BYTE;          ///< An 8-bit integer format.
+typedef char                CODEC_CHAR;          ///< An 8-bit char    format.
+typedef float               CODECFLOAT;         ///< A 32-bit float   format.
 
 #define BLOCK_SIZE_4X4        16
 #define BLOCK_SIZE_4X4X4      64
@@ -55,7 +55,7 @@ typedef float               CMP_FLOAT;         ///< A 32-bit float   format.
 #define BYTE_MAXVAL 255
 #define BYTE_MAX_FLOAT 255.0f
 #define CONVERT_FLOAT_TO_BYTE(f) static_cast<CMP_BYTE>(((f) * BYTE_MAX_FLOAT) + 0.5)
-#define CONVERT_BYTE_TO_FLOAT(b) (b) / BYTE_MAX_FLOAT
+#define CONVERT_BYTE_TO_FLOAT(b) ((b) / BYTE_MAX_FLOAT)
 
 #ifndef max
 #define max(a,b)            (((a) > (b)) ? (a) : (b))

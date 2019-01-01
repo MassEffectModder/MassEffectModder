@@ -31,25 +31,25 @@
 #define _ATIXCODEC_H_
 
 /*------------------------------------------------------------------------------------
-void CompRGBBlock(CMP_FLOAT* block_32,    [IN]  array of the 3 component color vectors (888)
+void CompRGBBlock(CODECFLOAT* block_32,    [IN]  array of the 3 component color vectors (888)
                   CMP_DWORD block_dxtc[2],                [OUT] compressed data in DXT1 for mat
                   int _NbrClrs = BLOCK_SIZE_4X4,            [IN]  actuall number of elements in the array
                   bool _bUseSSE2 = true);                    [IN]  switch to SSE2 implementation
 ------------------------------------------------------------------------------------*/
-CMP_FLOAT CompRGBBlock(CMP_FLOAT* block_32,
-                        CMP_WORD dwBlockSize,
-                        CMP_BYTE nRedBits,
-                        CMP_BYTE nGreenBits,
-                        CMP_BYTE nBlueBits,
-                        CMP_BYTE nEndpoints[3][2],
-                        CMP_BYTE* pcIndices,
-                        CMP_BYTE dwNumPoints,
+CODECFLOAT CompRGBBlock(CODECFLOAT* block_32,
+                        CODEC_WORD dwBlockSize,
+                        CODEC_BYTE nRedBits,
+                        CODEC_BYTE nGreenBits,
+                        CODEC_BYTE nBlueBits,
+                        CODEC_BYTE nEndpoints[3][2],
+                        CODEC_BYTE* pcIndices,
+                        CODEC_BYTE dwNumPoints,
                         bool _bUseSSE2,
                         bool b3DRefinement,
-                        CMP_BYTE nRefinementSteps,
-                        CMP_FLOAT* _pfChannelWeights = NULL,
+                        CODEC_BYTE nRefinementSteps,
+                        CODECFLOAT* _pfChannelWeights = NULL,
                         bool _bUseAlpha = false,
-                        CMP_FLOAT _fAlphaThreshold = 0.5);
+                        CODECFLOAT _fAlphaThreshold = 0.5);
 
 /*------------------------------------------------------------------------------------
 void CompRGBBlock(CMP_DWORD* block_32,    [IN]  array of the 3 component color vectors (888)
@@ -57,24 +57,24 @@ void CompRGBBlock(CMP_DWORD* block_32,    [IN]  array of the 3 component color v
                   int _NbrClrs = BLOCK_SIZE_4X4,            [IN]  actuall number of elements in the array
                   bool _bUseSSE2 = true);                    [IN]  switch to SSE2 implementation
 ------------------------------------------------------------------------------------*/
-CMP_FLOAT CompRGBBlock(CMP_DWORD* block_32,
-                        CMP_WORD dwBlockSize,
-                        CMP_BYTE nRedBits,
-                        CMP_BYTE nGreenBits,
-                        CMP_BYTE nBlueBits,
-                        CMP_BYTE nEndpoints[3][2],
-                        CMP_BYTE* pcIndices,
-                        CMP_BYTE dwNumPoints,
+CODECFLOAT CompRGBBlock(CODEC_DWORD* block_32,
+                        CODEC_WORD dwBlockSize,
+                        CODEC_BYTE nRedBits,
+                        CODEC_BYTE nGreenBits,
+                        CODEC_BYTE nBlueBits,
+                        CODEC_BYTE nEndpoints[3][2],
+                        CODEC_BYTE* pcIndices,
+                        CODEC_BYTE dwNumPoints,
                         bool _bUseSSE2,
                         bool b3DRefinement,
-                        CMP_BYTE nRefinementSteps,
-                        CMP_FLOAT* _pfChannelWeights = NULL,
+                        CODEC_BYTE nRefinementSteps,
+                        CODECFLOAT* _pfChannelWeights = NULL,
                         bool _bUseAlpha = false,
-                        CMP_BYTE _nAlphaThreshold = 128);
+                        CODEC_BYTE _nAlphaThreshold = 128);
 
 /*--------------------------------------------------------------------------------------------
 // input [0,1]
-void CompBlock1X(CMP_FLOAT* _Blk,              [IN] scalar data block (alphas or normals) in float format
+void CompBlock1X(CODECFLOAT* _Blk,              [IN] scalar data block (alphas or normals) in float format
                  CMP_DWORD blockCompressed[2], [OUT] compressed data in DXT5 alpha foramt
                  int _NbrClrs,                    [IN] actual number of elements in the block
                  int _intPrec,                    [IN} integer precision; it applies both to the input data and
@@ -87,11 +87,11 @@ void CompBlock1X(CMP_FLOAT* _Blk,              [IN] scalar data block (alphas or
 
 ---------------------------------------------------------------------------------------------*/
 
-CMP_FLOAT CompBlock1X(CMP_FLOAT* _Blk,
-                       CMP_WORD dwBlockSize,
-                       CMP_BYTE nEndpoints[2],
-                       CMP_BYTE* pcIndices,
-                       CMP_BYTE dwNumPoints,
+CODECFLOAT CompBlock1X(CODECFLOAT* _Blk,
+                       CODEC_WORD dwBlockSize,
+                       CODEC_BYTE nEndpoints[2],
+                       CODEC_BYTE* pcIndices,
+                       CODEC_BYTE dwNumPoints,
                        bool bFixedRampPoints,
                        bool _bUseSSE2 = true,
                        int _intPrec = 8,
@@ -100,7 +100,7 @@ CMP_FLOAT CompBlock1X(CMP_FLOAT* _Blk,
 
 /*--------------------------------------------------------------------------------------------
 // input [0,255]
-void CompBlock1X(CMP_BYTE* _Blk,                [IN] scalar data block (alphas or normals) in 8 bits format
+void CompBlock1X(CODEC_BYTE* _Blk,                [IN] scalar data block (alphas or normals) in 8 bits format
                  CMP_DWORD blockCompressed[2],    [OUT] compressed data in DXT5 alpha foramt
                  int _NbrClrs,                        [IN] actual number of elements in the block
                  int _intPrec,                        [IN] integer precision; it applies both to the input data and
@@ -111,11 +111,11 @@ void CompBlock1X(CMP_BYTE* _Blk,                [IN] scalar data block (alphas o
                 )
 ---------------------------------------------------------------------------------------------*/
 
-CMP_FLOAT CompBlock1X(CMP_BYTE* _Blk,
-                       CMP_WORD dwBlockSize,
-                       CMP_BYTE nEndpoints[2],
-                       CMP_BYTE* pcIndices,
-                       CMP_BYTE dwNumPoints,
+CODECFLOAT CompBlock1X(CODEC_BYTE* _Blk,
+                       CODEC_WORD dwBlockSize,
+                       CODEC_BYTE nEndpoints[2],
+                       CODEC_BYTE* pcIndices,
+                       CODEC_BYTE dwNumPoints,
                        bool bFixedRampPoints,
                        bool _bUseSSE2 = true,
                        int _intPrec = 8,

@@ -27,7 +27,7 @@
 #include "Common.h"
 #include "CompressonatorXCodec.h"
 
-static void EncodeAlphaBlock(CMP_DWORD compressedBlock[2], CMP_BYTE nEndpoints[2], CMP_BYTE nIndices[BLOCK_SIZE_4X4])
+static void EncodeAlphaBlock(CODEC_DWORD compressedBlock[2], CODEC_BYTE nEndpoints[2], CODEC_BYTE nIndices[BLOCK_SIZE_4X4])
 {
     compressedBlock[0] = ((int)nEndpoints[0]) | (((int)nEndpoints[1])<<8);
     compressedBlock[1] = 0;
@@ -46,10 +46,10 @@ static void EncodeAlphaBlock(CMP_DWORD compressedBlock[2], CMP_BYTE nEndpoints[2
     }
 }
 
-void CompressAlphaBlock(CMP_BYTE alphaBlock[BLOCK_SIZE_4X4], CMP_DWORD compressedBlock[2])
+void CompressAlphaBlock(CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4], CODEC_DWORD compressedBlock[2])
 {
-    CMP_BYTE nEndpoints[2][2];
-    CMP_BYTE nIndices[2][BLOCK_SIZE_4X4];
+    CODEC_BYTE nEndpoints[2][2];
+    CODEC_BYTE nIndices[2][BLOCK_SIZE_4X4];
     float fError8 = CompBlock1X(alphaBlock, BLOCK_SIZE_4X4, nEndpoints[0], nIndices[0], 8, false, true, 8, 0, true);
     float fError6 = (fError8 == 0.f) ? FLT_MAX : CompBlock1X(alphaBlock, BLOCK_SIZE_4X4, nEndpoints[1], nIndices[1], 6, true, true, 8, 0, true);
     if (fError8 <= fError6)
@@ -58,30 +58,30 @@ void CompressAlphaBlock(CMP_BYTE alphaBlock[BLOCK_SIZE_4X4], CMP_DWORD compresse
         EncodeAlphaBlock(compressedBlock, nEndpoints[1], nIndices[1]);
 }
 
-static void GetCompressedAlphaRamp(CMP_BYTE alpha[8], CMP_DWORD compressedBlock[2])
+static void GetCompressedAlphaRamp(CODEC_BYTE alpha[8], CODEC_DWORD compressedBlock[2])
 {
-    alpha[0] = (CMP_BYTE)(compressedBlock[0] & 0xff);
-    alpha[1] = (CMP_BYTE)((compressedBlock[0] >> 8) & 0xff);
+    alpha[0] = (CODEC_BYTE)(compressedBlock[0] & 0xff);
+    alpha[1] = (CODEC_BYTE)((compressedBlock[0] >> 8) & 0xff);
 
     if (alpha[0] > alpha[1])
     {
         // 8-alpha block:  derive the other six alphas.
         // Bit code 000 = alpha_0, 001 = alpha_1, others are interpolated.
-        alpha[2] = static_cast<CMP_BYTE>((6 * alpha[0] + 1 * alpha[1] + 3) / 7);    // bit code 010
-        alpha[3] = static_cast<CMP_BYTE>((5 * alpha[0] + 2 * alpha[1] + 3) / 7);    // bit code 011
-        alpha[4] = static_cast<CMP_BYTE>((4 * alpha[0] + 3 * alpha[1] + 3) / 7);    // bit code 100
-        alpha[5] = static_cast<CMP_BYTE>((3 * alpha[0] + 4 * alpha[1] + 3) / 7);    // bit code 101
-        alpha[6] = static_cast<CMP_BYTE>((2 * alpha[0] + 5 * alpha[1] + 3) / 7);    // bit code 110
-        alpha[7] = static_cast<CMP_BYTE>((1 * alpha[0] + 6 * alpha[1] + 3) / 7);    // bit code 111
+        alpha[2] = static_cast<CODEC_BYTE>((6 * alpha[0] + 1 * alpha[1] + 3) / 7);    // bit code 010
+        alpha[3] = static_cast<CODEC_BYTE>((5 * alpha[0] + 2 * alpha[1] + 3) / 7);    // bit code 011
+        alpha[4] = static_cast<CODEC_BYTE>((4 * alpha[0] + 3 * alpha[1] + 3) / 7);    // bit code 100
+        alpha[5] = static_cast<CODEC_BYTE>((3 * alpha[0] + 4 * alpha[1] + 3) / 7);    // bit code 101
+        alpha[6] = static_cast<CODEC_BYTE>((2 * alpha[0] + 5 * alpha[1] + 3) / 7);    // bit code 110
+        alpha[7] = static_cast<CODEC_BYTE>((1 * alpha[0] + 6 * alpha[1] + 3) / 7);    // bit code 111
     }
     else
     {
         // 6-alpha block.
         // Bit code 000 = alpha_0, 001 = alpha_1, others are interpolated.
-        alpha[2] = static_cast<CMP_BYTE>((4 * alpha[0] + 1 * alpha[1] + 2) / 5);  // Bit code 010
-        alpha[3] = static_cast<CMP_BYTE>((3 * alpha[0] + 2 * alpha[1] + 2) / 5);  // Bit code 011
-        alpha[4] = static_cast<CMP_BYTE>((2 * alpha[0] + 3 * alpha[1] + 2) / 5);  // Bit code 100
-        alpha[5] = static_cast<CMP_BYTE>((1 * alpha[0] + 4 * alpha[1] + 2) / 5);  // Bit code 101
+        alpha[2] = static_cast<CODEC_BYTE>((4 * alpha[0] + 1 * alpha[1] + 2) / 5);  // Bit code 010
+        alpha[3] = static_cast<CODEC_BYTE>((3 * alpha[0] + 2 * alpha[1] + 2) / 5);  // Bit code 011
+        alpha[4] = static_cast<CODEC_BYTE>((2 * alpha[0] + 3 * alpha[1] + 2) / 5);  // Bit code 100
+        alpha[5] = static_cast<CODEC_BYTE>((1 * alpha[0] + 4 * alpha[1] + 2) / 5);  // Bit code 101
         alpha[6] = 0;                                      // Bit code 110
         alpha[7] = 255;                                    // Bit code 111
     }
@@ -90,14 +90,14 @@ static void GetCompressedAlphaRamp(CMP_BYTE alpha[8], CMP_DWORD compressedBlock[
 //
 // This function decompresses a block
 //
-void DecompressAlphaBlock(CMP_BYTE alphaBlock[BLOCK_SIZE_4X4], CMP_DWORD compressedBlock[2])
+void DecompressAlphaBlock(CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4], CODEC_DWORD compressedBlock[2])
 {
-    CMP_BYTE alpha[8];
+    CODEC_BYTE alpha[8];
     GetCompressedAlphaRamp(alpha, compressedBlock);
 
     for(int i = 0; i < BLOCK_SIZE_4X4; i++)
     {
-        CMP_DWORD index;
+        CODEC_DWORD index;
         if(i < 5)
             index = (compressedBlock[0] & (0x7 << (16 + (i * 3)))) >> (16 + (i * 3));
         else if(i > 5)
@@ -114,7 +114,7 @@ void DecompressAlphaBlock(CMP_BYTE alphaBlock[BLOCK_SIZE_4X4], CMP_DWORD compres
 
 #define EXPLICIT_ALPHA_PIXEL_MASK 0xf
 #define EXPLICIT_ALPHA_PIXEL_BPP 4
-void CompressExplicitAlphaBlock(CMP_BYTE alphaBlock[BLOCK_SIZE_4X4], CMP_DWORD compressedBlock[2])
+void CompressExplicitAlphaBlock(CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4], CODEC_DWORD compressedBlock[2])
 {
     int i;
     compressedBlock[0] = compressedBlock[1] = 0;
@@ -137,12 +137,12 @@ void CompressExplicitAlphaBlock(CMP_BYTE alphaBlock[BLOCK_SIZE_4X4], CMP_DWORD c
 //
 // This function decompresses an explicit alpha block (DXT3)
 //
-void DecompressExplicitAlphaBlock(CMP_BYTE alphaBlock[BLOCK_SIZE_4X4], CMP_DWORD compressedBlock[2])
+void DecompressExplicitAlphaBlock(CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4], CODEC_DWORD compressedBlock[2])
 {
     for(int i=0;i<16;i++)
     {
         int nBlock = i < 8 ? 0 : 1;
-        CMP_BYTE cAlpha = (CMP_BYTE) ((compressedBlock[nBlock] >> ((i % 8) * EXPLICIT_ALPHA_PIXEL_BPP)) & EXPLICIT_ALPHA_PIXEL_MASK);
-        alphaBlock[i] = (CMP_BYTE) ((cAlpha << EXPLICIT_ALPHA_PIXEL_BPP) | cAlpha);
+        CODEC_BYTE cAlpha = (CODEC_BYTE) ((compressedBlock[nBlock] >> ((i % 8) * EXPLICIT_ALPHA_PIXEL_BPP)) & EXPLICIT_ALPHA_PIXEL_MASK);
+        alphaBlock[i] = (CODEC_BYTE) ((cAlpha << EXPLICIT_ALPHA_PIXEL_BPP) | cAlpha);
     }
 }
