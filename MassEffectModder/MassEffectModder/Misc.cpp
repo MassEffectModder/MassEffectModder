@@ -402,7 +402,6 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
         mods.clear();
 
         QString file = list[n].absoluteFilePath();
-        QString relativeFilePath = file.mid(inputDir.size());
         if (ipc)
         {
             ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + BaseName(file));
@@ -416,7 +415,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
         }
         else
         {
-            ConsoleWrite(QString("File: ") + relativeFilePath);
+            ConsoleWrite(QString("File: ") + BaseName(file));
         }
 
 
@@ -429,15 +428,15 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
             {
                 if (version != TextureModVersion)
                 {
-                    ConsoleWrite(QString("File ") + relativeFilePath + " was made with an older version of MEM, skipping...");
+                    ConsoleWrite(QString("File ") + BaseName(file) + " was made with an older version of MEM, skipping...");
                 }
                 else
                 {
-                    ConsoleWrite(QString("File ") + relativeFilePath + " is not a valid MEM mod, skipping...");
+                    ConsoleWrite(QString("File ") + BaseName(file) + " is not a valid MEM mod, skipping...");
                 }
                 if (ipc)
                 {
-                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + relativeFilePath);
+                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
                     ConsoleSync();
                 }
                 continue;
@@ -451,12 +450,12 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                 {
                     if (ipc)
                     {
-                        ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + relativeFilePath);
+                        ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
                         ConsoleSync();
                     }
                     else
                     {
-                        ConsoleWrite(QString("File ") + relativeFilePath + " is not a MEM mod valid for this game");
+                        ConsoleWrite(QString("File ") + file + " is not a MEM mod valid for this game");
                     }
                     continue;
                 }
@@ -537,13 +536,13 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                         fs.Skip(len);
                         if (ipc)
                         {
-                            ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + relativeFilePath);
+                            ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
                             ConsoleSync();
                         }
                         else
                         {
                             ConsoleWrite(QString("Skipping not compatible content, entry: ") +
-                                         QString::number(i + 1) + " - mod: " + relativeFilePath);
+                                         QString::number(i + 1) + " - mod: " + BaseName(file));
                         }
                         continue;
                     }
@@ -562,13 +561,13 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                         fs.Skip(len);
                         if (ipc)
                         {
-                            ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + relativeFilePath);
+                            ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
                             ConsoleSync();
                         }
                         else
                         {
                             ConsoleWrite(QString("Skipping not compatible content, entry: ") +
-                                         QString::number(i + 1) + " - mod: " + relativeFilePath);
+                                         QString::number(i + 1) + " - mod: " + BaseName(file));
                         }
                         continue;
                     }
@@ -587,14 +586,14 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                     {
                         if (ipc)
                         {
-                            ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + relativeFilePath);
+                            ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
                             ConsoleSync();
                         }
                         else
                         {
                             ConsoleWrite(QString("Error in texture: ") + textureName + QString().sprintf("_0x%08X", f.crc) +
                                 " This texture has wrong aspect ratio, skipping texture, entry: " + (i + 1) +
-                                " - mod: " + relativeFilePath);
+                                " - mod: " + BaseName(file));
                         }
                         continue;
                     }
@@ -785,13 +784,13 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                     {
                         if (ipc)
                         {
-                            ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + relativeFilePath);
+                            ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
                             ConsoleSync();
                         }
                         else
                         {
                             ConsoleWrite(QString("Skipping file: ") + filename + " not found in definition file, entry: " +
-                                (i + 1) + " - mod: " + relativeFilePath);
+                                (i + 1) + " - mod: " + BaseName(file));
                         }
                     }
                     ZipGoToNextFile(handle);
@@ -810,7 +809,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                 if (f.crc == 0)
                 {
                     ConsoleWrite(QString("Texture skipped. File ") + filename + QString().sprintf("_0x%08X", crc) +
-                        " is not present in your game setup - mod: " + relativeFilePath);
+                        " is not present in your game setup - mod: " + BaseName(file));
                     ZipGoToNextFile(handle);
                     continue;
                 }
@@ -826,13 +825,13 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                     ZipGoToNextFile(handle);
                     if (ipc)
                     {
-                        ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + relativeFilePath);
+                        ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
                         ConsoleSync();
                     }
                     else
                     {
                         ConsoleWrite(QString("Error in texture: ") + textureName + QString().sprintf("_0x%08X", crc) +
-                            ", skipping texture, entry: " + (i + 1) + " - mod: " + relativeFilePath);
+                            ", skipping texture, entry: " + (i + 1) + " - mod: " + BaseName(file));
                     }
                     mod.data.Free();
                     continue;
@@ -847,13 +846,13 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                     ZipGoToNextFile(handle);
                     if (ipc)
                     {
-                        ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + relativeFilePath);
+                        ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
                         ConsoleSync();
                     }
                     else
                     {
                         ConsoleWrite(QString("Error in texture: ") + textureName + QString().sprintf("_0x%08X", crc) +
-                            " This texture has wrong aspect ratio, skipping texture, entry: " + QString::number(i + 1) + " - mod: " + relativeFilePath);
+                            " This texture has wrong aspect ratio, skipping texture, entry: " + QString::number(i + 1) + " - mod: " + BaseName(file));
                     }
                     mod.data.Free();
                     continue;
@@ -879,7 +878,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                 {
                     if (ipc)
                     {
-                        ConsoleWrite(QString("[IPC]PROCESSING_FILE Converting ") + relativeFilePath);
+                        ConsoleWrite(QString("[IPC]PROCESSING_FILE Converting ") + BaseName(file));
                         ConsoleSync();
                     }
                     else
@@ -911,12 +910,12 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
 failed:
             if (ipc)
             {
-                ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + relativeFilePath);
+                ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
                 ConsoleSync();
             }
             else
             {
-                ConsoleWrite(QString("Mod is not compatible: ") + relativeFilePath);
+                ConsoleWrite(QString("Mod is not compatible: ") + BaseName(file));
             }
 end:
             if (handle != nullptr)
@@ -931,12 +930,12 @@ end:
             {
                 if (ipc)
                 {
-                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + relativeFilePath);
+                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
                     ConsoleSync();
                 }
                 else
                 {
-                    ConsoleWrite(QString("Texture filename not valid: ") + relativeFilePath +
+                    ConsoleWrite(QString("Texture filename not valid: ") + BaseName(file) +
                                  " Texture filename must include texture CRC (0xhhhhhhhh). Skipping texture...");
                 }
                 continue;
@@ -946,12 +945,12 @@ end:
             {
                 if (ipc)
                 {
-                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + relativeFilePath);
+                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
                     ConsoleSync();
                 }
                 else
                 {
-                    ConsoleWrite(QString("Texture filename not valid: ") + relativeFilePath +
+                    ConsoleWrite(QString("Texture filename not valid: ") + BaseName(file) +
                                  " Texture filename must include texture CRC (0xhhhhhhhh). Skipping texture...");
                 }
                 continue;
@@ -963,12 +962,12 @@ end:
             {
                 if (ipc)
                 {
-                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + relativeFilePath);
+                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
                     ConsoleSync();
                 }
                 else
                 {
-                    ConsoleWrite(QString("Texture filename not valid: ") + relativeFilePath +
+                    ConsoleWrite(QString("Texture filename not valid: ") + BaseName(file) +
                                  " Texture filename must include texture CRC (0xhhhhhhhh). Skipping texture...");
                 }
                 continue;
@@ -985,7 +984,7 @@ end:
             }
             if (f.crc == 0)
             {
-                ConsoleWrite(QString("Texture skipped. Texture ") + relativeFilePath +
+                ConsoleWrite(QString("Texture skipped. Texture ") + BaseName(file) +
                              " is not present in your game setup.");
                 continue;
             }
@@ -1003,7 +1002,7 @@ end:
             if (image.getMipMaps().first()->getOrigWidth() / image.getMipMaps().first()->getOrigHeight() !=
                 f.width / f.height)
             {
-                ConsoleWrite(QString("Error in texture: ") + relativeFilePath +
+                ConsoleWrite(QString("Error in texture: ") + BaseName(file) +
                              " This texture has wrong aspect ratio, skipping texture...");
                 continue;
             }
@@ -1033,7 +1032,7 @@ end:
                 }
                 else
                 {
-                    ConsoleWrite(QString("Converting/correcting texture: ") + relativeFilePath);
+                    ConsoleWrite(QString("Converting/correcting texture: ") + BaseName(file));
                 }
                 bool dxt1HasAlpha = false;
                 quint8 dxt1Threshold = 128;
@@ -1069,12 +1068,12 @@ end:
             {
                 if (ipc)
                 {
-                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + relativeFilePath);
+                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
                     ConsoleSync();
                 }
                 else
                 {
-                    ConsoleWrite(QString("Texture filename not valid: ") + relativeFilePath +
+                    ConsoleWrite(QString("Texture filename not valid: ") + BaseName(file) +
                                  " Texture filename must include texture CRC (0xhhhhhhhh). Skipping texture...");
                 }
                 continue;
@@ -1084,12 +1083,12 @@ end:
             {
                 if (ipc)
                 {
-                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + relativeFilePath);
+                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
                     ConsoleSync();
                 }
                 else
                 {
-                    ConsoleWrite(QString("Texture filename not valid: ") + relativeFilePath +
+                    ConsoleWrite(QString("Texture filename not valid: ") + BaseName(file) +
                                  " Texture filename must include texture CRC (0xhhhhhhhh). Skipping texture...");
                 }
                 continue;
@@ -1101,12 +1100,12 @@ end:
             {
                 if (ipc)
                 {
-                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + relativeFilePath);
+                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
                     ConsoleSync();
                 }
                 else
                 {
-                    ConsoleWrite(QString("Texture filename not valid: ") + relativeFilePath +
+                    ConsoleWrite(QString("Texture filename not valid: ") + BaseName(file) +
                                  " Texture filename must include texture CRC (0xhhhhhhhh). Skipping texture...");
                 }
                 continue;
@@ -1123,7 +1122,7 @@ end:
             }
             if (f.crc == 0)
             {
-                ConsoleWrite(QString("Texture skipped. Texture ") + relativeFilePath +
+                ConsoleWrite(QString("Texture skipped. Texture ") + BaseName(file) +
                              " is not present in your game setup.");
                 continue;
             }
@@ -1139,12 +1138,12 @@ end:
             {
                 if (ipc)
                 {
-                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + relativeFilePath);
+                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
                     ConsoleSync();
                 }
                 else
                 {
-                    ConsoleWrite(QString("Error in texture: ") + relativeFilePath +
+                    ConsoleWrite(QString("Error in texture: ") + BaseName(file) +
                                  " This texture has wrong aspect ratio, skipping texture...");
                 }
                 continue;
@@ -1161,7 +1160,7 @@ end:
             }
             else
             {
-                ConsoleWrite(QString("Converting/correcting texture: ") + relativeFilePath);
+                ConsoleWrite(QString("Converting/correcting texture: ") + BaseName(file));
             }
             bool dxt1HasAlpha = false;
             quint8 dxt1Threshold = 128;
