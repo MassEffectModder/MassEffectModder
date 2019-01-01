@@ -546,7 +546,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                         }
                         continue;
                     }
-                    mod.packagePath = path + package;
+                    mod.packagePath = path + "/" + package;
                     mod.binaryModType = 1;
                     len = fs.ReadInt32();
                     mod.data = fs.ReadToBuffer(len);
