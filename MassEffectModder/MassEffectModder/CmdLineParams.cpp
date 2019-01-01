@@ -735,9 +735,9 @@ int ProcessArguments()
             errorCode = -1;
             break;
         }
-        if (!QDir(output).exists())
+        if (output.length() == 0)
         {
-            ConsoleWrite("Output folder doesn't exists!");
+            ConsoleWrite("Output param empty!");
             errorCode = -1;
             break;
         }
@@ -757,9 +757,9 @@ int ProcessArguments()
             errorCode = -1;
             break;
         }
-        if (!QDir(output).exists())
+        if (output.length() == 0)
         {
-            ConsoleWrite("Output folder doesn't exists!");
+            ConsoleWrite("Output param empty!");
             errorCode = -1;
             break;
         }
@@ -773,9 +773,9 @@ int ProcessArguments()
             errorCode = -1;
             break;
         }
-        if (!QDir(output).exists())
+        if (output.length() == 0)
         {
-            ConsoleWrite("Output folder doesn't exists!");
+            ConsoleWrite("Output param empty!");
             errorCode = -1;
             break;
         }
