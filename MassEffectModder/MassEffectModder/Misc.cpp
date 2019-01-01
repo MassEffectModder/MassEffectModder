@@ -682,18 +682,18 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
             if (dlcName.length() != 0)
             {
                 if (gameId == MeType::ME1_TYPE)
-                    mod.packagePath = QString("\\DLC\\") + dlcName + "\\CookedPC\\" + pkgName;
+                    mod.packagePath = QString("/DLC/") + dlcName + "/CookedPC/" + pkgName;
                 else if (gameId == MeType::ME2_TYPE)
-                    mod.packagePath = QString(R"(\BioGame\DLC\)") + dlcName + "\\CookedPC\\" + pkgName;
+                    mod.packagePath = QString("/BioGame/DLC/") + dlcName + "/CookedPC/" + pkgName;
                 else
-                    mod.packagePath = QString(R"(\BioGame\DLC\)") + dlcName + "\\CookedPCConsole\\" + pkgName;
+                    mod.packagePath = QString("/BioGame/DLC/") + dlcName + "/CookedPCConsole/" + pkgName;
             }
             else
             {
                 if (gameId == MeType::ME1_TYPE || gameId == MeType::ME2_TYPE)
-                    mod.packagePath = QString(R"(\BioGame\CookedPC\)") + pkgName;
+                    mod.packagePath = QString("/BioGame/CookedPC/") + pkgName;
                 else
-                    mod.packagePath = QString(R"(\BIOGame\CookedPCConsole\)") + pkgName;
+                    mod.packagePath = QString("/BIOGame/CookedPCConsole/") + pkgName;
             }
             if (file.endsWith(".bin", Qt::CaseInsensitive))
                 mod.binaryModType = 1;
@@ -1195,40 +1195,40 @@ end:
             if (mods[l].binaryModType == 1)
             {
                 fileMod.tag = FileBinaryTag;
-                if (mods[l].packagePath.contains("\\DLC\\", Qt::CaseInsensitive))
+                if (mods[l].packagePath.contains("/DLC/", Qt::CaseInsensitive))
                 {
-                    QString dlcName = mods[l].packagePath.split(QChar('\\'))[3];
+                    QString dlcName = mods[l].packagePath.split(QChar('/'))[3];
                     fileMod.name = "D" + QString::number(dlcName.size()) + "-" + dlcName + "-";
                 }
                 else
                 {
                     fileMod.name = "B";
                 }
-                fileMod.name += QString::number(BaseName(mods[l].packagePath.replace('\\', '/')).size()) +
-                        "-" + BaseName(mods[l].packagePath.replace('\\', '/')) +
+                fileMod.name += QString::number(BaseName(mods[l].packagePath).size()) +
+                        "-" + BaseName(mods[l].packagePath) +
                         "-E" + QString::number(mods[l].exportId) + ".bin";
 
                 outFs.WriteInt32(mods[l].exportId);
-                outFs.WriteStringASCIINull(mods[l].packagePath);
+                outFs.WriteStringASCIINull(mods[l].packagePath.replace('/', '\\'));
             }
             else if (mods[l].binaryModType == 2)
             {
                 fileMod.tag = FileXdeltaTag;
-                if (mods[l].packagePath.contains("\\DLC\\", Qt::CaseInsensitive))
+                if (mods[l].packagePath.contains("/DLC/", Qt::CaseInsensitive))
                 {
-                    QString dlcName = mods[l].packagePath.split(QChar('\\'))[3];
+                    QString dlcName = mods[l].packagePath.split(QChar('/'))[3];
                     fileMod.name = "D" + QString::number(dlcName.size()) + "-" + dlcName + "-";
                 }
                 else
                 {
                     fileMod.name = "B";
                 }
-                fileMod.name += QString::number(BaseName(mods[l].packagePath.replace('\\', '/')).size()) +
-                        "-" + BaseName(mods[l].packagePath.replace('\\', '/')) +
+                fileMod.name += QString::number(BaseName(mods[l].packagePath).size()) +
+                        "-" + BaseName(mods[l].packagePath) +
                         "-E" + QString::number(mods[l].exportId) + ".xdelta";
 
                 outFs.WriteInt32(mods[l].exportId);
-                outFs.WriteStringASCIINull(mods[l].packagePath);
+                outFs.WriteStringASCIINull(mods[l].packagePath.replace('/', '\\'));
             }
             else
             {
