@@ -54,6 +54,7 @@ HEADERS += \
     Helpers/Logs.h \
     Helpers/MemoryStream.h \
     Helpers/MiscHelpers.h \
+    Helpers/QSort.h \
     Helpers/Stream.h \
     CmdLineParams.h \
     CmdLineTools.h \
