@@ -350,13 +350,18 @@ PixelFormat Misc::changeTextureType(PixelFormat gamePixelFormat, PixelFormat tex
     return gamePixelFormat;
 }
 
+bool compareFileInfoPath(const QFileInfo &e1, const QFileInfo &e2)
+{
+    return e1.absoluteFilePath().compare(e2.absoluteFilePath(), Qt::CaseInsensitive) < 0;
+}
+
 bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
     MeType gameId, QList<FoundTexture> &textures, bool markToConvert, bool onlyIndividual, bool ipc)
 {
     ConsoleWrite("Mods conversion started...");
 
-    QList<QFileInfo> list;
-    QList<QFileInfo> list2;
+    QFileInfoList list;
+    QFileInfoList list2;
     if (!onlyIndividual)
     {
         list = QDir(inputDir, "*.mem", QDir::SortFlag::IgnoreCase | QDir::SortFlag::Name, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
@@ -369,6 +374,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
     list2 += QDir(inputDir, "*.png", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
     list2 += QDir(inputDir, "*.bmp", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
     list2 += QDir(inputDir, "*.tga", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
+    std::sort(list2.begin(), list2.end(), compareFileInfoPath);
     list.append(list2);
 
     int result;
