@@ -60,6 +60,8 @@ void TOCBinFile::GenerateMainTocBinFile()
             files.push_back(MoviesIterator.filePath().mid(pathLen + 1));
     }
 
+    std::sort(files.begin(), files.end(), comparePath);
+
     QList<FileEntry> filesList;
     for (int f = 0; f < files.count(); f++)
     {
@@ -108,6 +110,8 @@ void TOCBinFile::GenerateDLCsTocBinFiles()
             {
                 continue;
             }
+
+            std::sort(files.begin(), files.end(), comparePath);
 
             QList<FileEntry> filesList;
             for (int f = 0; f < files.count(); f++)
