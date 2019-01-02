@@ -269,7 +269,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
                 QString pkgPath = textures[k].list[t].path;
                 if (std::binary_search(g_GameData->packageFiles.begin(),
                                        g_GameData->packageFiles.end(),
-                                       pkgPath, compareByAscii))
+                                       pkgPath, comparePath))
                 {
                     found = true;
                     continue;
@@ -527,7 +527,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
 
     if (!g_GameData->FullScanGame)
     {
-        std::sort(g_GameData->packageFiles.begin(), g_GameData->packageFiles.end(), compareByAscii);
+        std::sort(g_GameData->packageFiles.begin(), g_GameData->packageFiles.end(), comparePath);
         if (gameId == MeType::ME1_TYPE)
         {
             g_GameData->mapME1PackageUpperNames.clear();

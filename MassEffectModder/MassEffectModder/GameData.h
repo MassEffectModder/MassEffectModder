@@ -25,7 +25,7 @@
 #include "MemTypes.h"
 #include "ConfigIni.h"
 
-bool compareByAscii(const QString &e1, const QString &e2);
+bool comparePath(const QString &e1, const QString &e2);
 
 class GameData
 {

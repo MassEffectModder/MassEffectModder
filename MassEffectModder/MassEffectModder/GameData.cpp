@@ -24,7 +24,7 @@
 
 MeType GameData::gameType = UNKNOWN_TYPE;
 
-bool compareByAscii(const QString &e1, const QString &e2)
+bool comparePath(const QString &e1, const QString &e2)
 {
     return e1.compare(e2, Qt::CaseInsensitive) < 0;
 }
@@ -113,7 +113,7 @@ void GameData::ScanGameFiles(bool force)
                 }
             }
 
-            std::sort(tfcFiles.begin(), tfcFiles.end(), compareByAscii);
+            std::sort(tfcFiles.begin(), tfcFiles.end(), comparePath);
         }
 
 
@@ -156,7 +156,7 @@ void GameData::ScanGameFiles(bool force)
             }
         }
 
-        std::sort(packageFiles.begin(), packageFiles.end(), compareByAscii);
+        std::sort(packageFiles.begin(), packageFiles.end(), comparePath);
 
         if (gameType == MeType::ME1_TYPE)
         {
@@ -165,7 +165,7 @@ void GameData::ScanGameFiles(bool force)
                 mapME1PackageUpperNames.insert(BaseNameWithoutExt(packageFiles[i]).toUpper(), i);
                 packageME1UpperNames += BaseNameWithoutExt(packageFiles[i]).toUpper();
             }
-            std::sort(packageME1UpperNames.begin(), packageME1UpperNames.end(), compareByAscii);
+            std::sort(packageME1UpperNames.begin(), packageME1UpperNames.end(), comparePath);
         }
 
         if (gameType == MeType::ME1_TYPE && !FullScanGame)

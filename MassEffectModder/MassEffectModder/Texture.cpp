@@ -131,7 +131,7 @@ Texture::Texture(Package &package, int exportId, const ByteBuffer &data, bool fi
             {
                 if (std::binary_search(g_GameData->packageME1UpperNames.begin(),
                                        g_GameData->packageME1UpperNames.end(),
-                                       baseName, compareByAscii))
+                                       baseName, comparePath))
                 {
                     basePackageName = baseName;
                     weakSlave = true;
