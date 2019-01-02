@@ -25,6 +25,7 @@
 #include "Package.h"
 #include "Helpers/MiscHelpers.h"
 #include "Helpers/Logs.h"
+#include "Helpers/QSort.h"
 
 static const TFCTexture guids[] =
 {
@@ -783,9 +784,21 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
     return errors;
 }
 
-static bool comparePaths(MapTexturesToMod &e1, MapTexturesToMod &e2)
+static int comparePaths(const MapTexturesToMod &e1, const MapTexturesToMod &e2)
 {
-    return e1.packagePath.compare(e2.packagePath, Qt::CaseInsensitive) < 0;
+    if (e1.packagePath.compare(e2.packagePath, Qt::CaseInsensitive) < 0)
+        return -1;
+    if (e1.packagePath.compare(e2.packagePath, Qt::CaseInsensitive) > 0)
+        return 1;
+    if (e1.texturesIndex < e2.texturesIndex)
+        return -1;
+    if (e1.texturesIndex > e2.texturesIndex)
+        return 1;
+    if (e1.listIndex < e2.listIndex)
+        return -1;
+    if (e1.listIndex > e2.listIndex)
+        return 1;
+    return 0;
 }
 
 QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList &pkgsToMarker,
@@ -858,8 +871,7 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList 
         }
     }
 
-    std::sort(map.begin(), map.end(), comparePaths);
-
+    QSort(map, 0, map.count() - 1, comparePaths);
     auto mapPackages = QList<MapPackagesToMod>();
     QString previousPath;
     int packagesIndex = -1;
@@ -893,7 +905,7 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList 
     }
     map.clear();
 
-    std::sort(mapSlaves.begin(), mapSlaves.end(), comparePaths);
+    QSort(mapSlaves, 0, mapSlaves.count() - 1, comparePaths);
     previousPath = "";
     for (int i = 0; i < mapSlaves.count(); i++)
     {
