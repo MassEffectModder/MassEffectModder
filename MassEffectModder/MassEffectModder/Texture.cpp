@@ -570,7 +570,7 @@ const ByteBuffer Texture::toArray(uint pccTextureDataOffset, bool updateOffset)
         mipMapsList[l] = mipmap;
     }
 
-    newData.WriteFromBuffer(restOfData.ptr(), restOfData.size());
+    newData.WriteFromBuffer(restOfData);
 
     return newData.ToArray();
 }
