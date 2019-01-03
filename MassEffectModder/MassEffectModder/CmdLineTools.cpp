@@ -349,12 +349,24 @@ bool CmdLineTools::extractTPF(QString &inputDir, QString &outputDir, bool ipc)
     int numEntries = 0;
 
     inputDir = QDir::cleanPath(inputDir);
-    auto list = QDir(inputDir, "*.tpf",
+    QFileInfoList list;
+    if (inputDir.endsWith(".tpf", Qt::CaseInsensitive))
+    {
+        list.push_back(QFileInfo(inputDir));
+    }
+    else
+    {
+        list = QDir(inputDir, "*.tpf",
                      QDir::SortFlag::Name | QDir::SortFlag::IgnoreCase,
                      QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
+    }
 
     outputDir = QDir::cleanPath(outputDir);
-    QDir().mkpath(outputDir);
+    if (outputDir.length() != 0)
+    {
+        QDir().mkpath(outputDir);
+        outputDir + "/";
+    }
 
     foreach (QFileInfo file, list)
     {
@@ -367,7 +379,7 @@ bool CmdLineTools::extractTPF(QString &inputDir, QString &outputDir, bool ipc)
         {
             ConsoleWrite(QString("Extract TPF: ") + file.fileName());
         }
-        QString outputTPFdir = outputDir + "/" + BaseNameWithoutExt(file.fileName());
+        QString outputTPFdir = outputDir + BaseNameWithoutExt(file.fileName());
         QDir().mkpath(outputTPFdir);
 
 #if defined(_WIN32)
@@ -444,12 +456,24 @@ bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputD
     ulong numEntries = 0;
 
     inputDir = QDir::cleanPath(inputDir);
-    auto list = QDir(inputDir, "*.mod",
+    QFileInfoList list;
+    if (inputDir.endsWith(".mod", Qt::CaseInsensitive))
+    {
+        list.push_back(QFileInfo(inputDir));
+    }
+    else
+    {
+        list = QDir(inputDir, "*.mod",
                      QDir::SortFlag::Name | QDir::SortFlag::IgnoreCase,
                      QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
+    }
 
     outputDir = QDir::cleanPath(outputDir);
-    QDir().mkpath(outputDir);
+    if (outputDir.length() != 0)
+    {
+        QDir().mkpath(outputDir);
+        outputDir + "/";
+    }
 
     foreach (QFileInfo file, list)
     {
@@ -462,7 +486,7 @@ bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputD
         {
             ConsoleWrite(QString("Extract MOD: ") + file.fileName());
         }
-        QString outputMODdir = outputDir + "/" + BaseNameWithoutExt(file.fileName());
+        QString outputMODdir = outputDir + BaseNameWithoutExt(file.fileName());
         QDir().mkpath(outputMODdir);
 
         FileStream fs = FileStream(file.absoluteFilePath(), FileMode::Open, FileAccess::ReadOnly);
@@ -563,12 +587,24 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
     ConsoleWrite("Extract MEM files started...");
 
     inputDir = QDir::cleanPath(inputDir);
-    QList<QFileInfo> list = QDir(inputDir, "*.mem",
+    QFileInfoList list;
+    if (inputDir.endsWith(".mem", Qt::CaseInsensitive))
+    {
+        list.push_back(QFileInfo(inputDir));
+    }
+    else
+    {
+        list = QDir(inputDir, "*.mem",
                                  QDir::SortFlag::Name | QDir::SortFlag::IgnoreCase,
                                  QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
+    }
 
     outputDir = QDir::cleanPath(outputDir);
-    QDir().mkpath(outputDir);
+    if (outputDir.length() != 0)
+    {
+        QDir().mkpath(outputDir);
+        outputDir + "/";
+    }
 
     int currentNumberOfTotalMods = 1;
     int totalNumberOfMods = 0;
@@ -596,7 +632,7 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
         {
             ConsoleWrite(QString("Extract MEM: ") + file.absoluteFilePath());
         }
-        QString outputMODdir = outputDir + "/" + BaseNameWithoutExt(file.fileName());
+        QString outputMODdir = outputDir + BaseNameWithoutExt(file.fileName());
         QDir().mkpath(outputMODdir);
 
         FileStream fs = FileStream(file.absoluteFilePath(), FileMode::Open, FileAccess::ReadOnly);

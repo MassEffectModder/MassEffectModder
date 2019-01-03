@@ -142,9 +142,10 @@ void DisplayHelp()
     ConsoleWrite("           Image filename must include texture CRC (0xhhhhhhhh)");
     ConsoleWrite("     output dir: directory where textures converted to DDS are placed");
     ConsoleWrite("");
-    ConsoleWrite("  --extract-mod --gameid <game id> --input <input dir> --output <output dir> [--ipc]");
+    ConsoleWrite("  --extract-mod --gameid <game id> --input <input dir/file> [--output <output dir>] [--ipc]");
     ConsoleWrite("     game id: 1 for ME1, 2 for ME2, 3 for ME3");
     ConsoleWrite("     input dir: directory of ME3Explorer MOD file(s)");
+    ConsoleWrite("     input file: ME3Explorer MOD file to be extracted");
     ConsoleWrite("     Can extract textures and package export raw data");
     ConsoleWrite("     Naming pattern used for package in DLC:");
     ConsoleWrite("        D<DLC dir length>-<DLC dir>-<pkg filename length>-<pkg filename>-E<pkg export id>.bin");
@@ -153,9 +154,10 @@ void DisplayHelp()
     ConsoleWrite("        B<pkg filename length>-<pkg filename>-E<pkg export id>.bin");
     ConsoleWrite("        example: B23-BioH_EDI_00_Explore.pcc-E5090.bin");
     ConsoleWrite("");
-    ConsoleWrite("  --extract-mem --gameid <game id> --input <input dir> --output <output dir> [--ipc]");
+    ConsoleWrite("  --extract-mem --gameid <game id> --input <input dir/file> [--output <output dir>] [--ipc]");
     ConsoleWrite("     game id: 1 for ME1, 2 for ME2, 3 for ME3");
     ConsoleWrite("     input dir: directory of MEM mod file(s)");
+    ConsoleWrite("     input file: MEM file to be extracted");
     ConsoleWrite("     Can extract textures and package export raw data");
     ConsoleWrite("     Naming pattern used for package in DLC:");
     ConsoleWrite("        D<DLC dir length>-<DLC dir>-<pkg filename length>-<pkg filename>-E<pkg export id>.bin");
@@ -164,8 +166,9 @@ void DisplayHelp()
     ConsoleWrite("        B<pkg filename length>-<pkg filename>-E<pkg export id>.bin");
     ConsoleWrite("        example: B23-BioH_EDI_00_Explore.pcc-E5090.bin");
     ConsoleWrite("");
-    ConsoleWrite("  --extract-tpf --gameid <input dir> --output <output dir> [--ipc]");
+    ConsoleWrite("  --extract-tpf --gameid <input dir/file> [--output <output dir>] [--ipc]");
     ConsoleWrite("     input dir: directory containing the TPF file(s) to be extracted");
+    ConsoleWrite("     input file: TPF file to be extracted");
     ConsoleWrite("     Textures are extracted as they are in the TPF, no additional modifications are made.");
     ConsoleWrite("");
     ConsoleWrite("  --convert-image --format <output pixel format> [--threshold <dxt1 alpha threshold>] --input <input image> --output <output image>");
@@ -749,15 +752,18 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!QDir(input).exists())
+        if (input.endsWith("*.mod", Qt::CaseInsensitive))
+        {
+            if (!QFile(input).exists())
+            {
+                ConsoleWrite("Input file doesn't exists!");
+                errorCode = 1;
+                break;
+            }
+        }
+        else if (!QDir(input).exists())
         {
             ConsoleWrite("Input folder doesn't exists!");
-            errorCode = 1;
-            break;
-        }
-        if (output.length() == 0)
-        {
-            ConsoleWrite("Output param empty!");
             errorCode = 1;
             break;
         }
@@ -771,15 +777,18 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!QDir(input).exists())
+        if (input.endsWith("*.mem", Qt::CaseInsensitive))
+        {
+            if (!QFile(input).exists())
+            {
+                ConsoleWrite("Input file doesn't exists!");
+                errorCode = 1;
+                break;
+            }
+        }
+        else if (!QDir(input).exists())
         {
             ConsoleWrite("Input folder doesn't exists!");
-            errorCode = 1;
-            break;
-        }
-        if (output.length() == 0)
-        {
-            ConsoleWrite("Output param empty!");
             errorCode = 1;
             break;
         }
@@ -787,15 +796,18 @@ int ProcessArguments()
             errorCode = 1;
         break;
     case CmdType::EXTRACT_TPF:
-        if (!QDir(input).exists())
+        if (input.endsWith("*.tpf", Qt::CaseInsensitive))
+        {
+            if (!QFile(input).exists())
+            {
+                ConsoleWrite("Input file doesn't exists!");
+                errorCode = 1;
+                break;
+            }
+        }
+        else if (!QDir(input).exists())
         {
             ConsoleWrite("Input folder doesn't exists!");
-            errorCode = 1;
-            break;
-        }
-        if (output.length() == 0)
-        {
-            ConsoleWrite("Output param empty!");
             errorCode = 1;
             break;
         }
