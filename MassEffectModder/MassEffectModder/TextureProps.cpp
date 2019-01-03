@@ -47,7 +47,7 @@ TexProperty::~TexProperty()
 
 void TexProperty::getProperty(quint8 *data, int offset)
 {
-    TexPropertyEntry texProperty;
+    TexPropertyEntry texProperty{};
     int size, valueRawPos, nextOffset;
 
     texProperty.name = package->getName(*reinterpret_cast<quint32 *>(data + offset));
@@ -257,7 +257,7 @@ void TexProperty::removeProperty(const QString &name)
 
 void TexProperty::setIntValue(const QString &name, qint32 value)
 {
-    TexPropertyEntry texProperty;
+    TexPropertyEntry texProperty{};
     if (exists(name))
     {
         for (int i = 0; i < texPropertyList.count(); i++)
@@ -303,7 +303,7 @@ void TexProperty::setIntValue(const QString &name, qint32 value)
 
 void TexProperty::setFloatValue(const QString &name, float value)
 {
-    TexPropertyEntry texProperty;
+    TexPropertyEntry texProperty{};
     if (exists(name))
     {
         for (int i = 0; i < texPropertyList.count(); i++)
@@ -350,7 +350,7 @@ void TexProperty::setFloatValue(const QString &name, float value)
 void TexProperty::setByteValue(const QString &name, const QString &valueName,
                                const QString &valueNameType, qint32 valueInt)
 {
-    TexPropertyEntry texProperty;
+    TexPropertyEntry texProperty{};
     if (exists(name))
     {
         for (int i = 0; i < texPropertyList.count(); i++)
@@ -421,7 +421,7 @@ void TexProperty::setByteValue(const QString &name, const QString &valueName,
 
 void TexProperty::setBoolValue(const QString &name, bool value)
 {
-    TexPropertyEntry texProperty;
+    TexPropertyEntry texProperty{};
     if (exists(name))
     {
         for (int i = 0; i < texPropertyList.count(); i++)
@@ -478,7 +478,7 @@ void TexProperty::setBoolValue(const QString &name, bool value)
 
 void TexProperty::setNameValue(const QString &name, const QString &valueName, qint32 valueInt)
 {
-    TexPropertyEntry texProperty;
+    TexPropertyEntry texProperty{};
     if (exists(name))
     {
         for (int i = 0; i < texPropertyList.count(); i++)
@@ -531,7 +531,7 @@ void TexProperty::setNameValue(const QString &name, const QString &valueName, qi
 
 void TexProperty::setStructValue(const QString &name, const QString &valueName, ByteBuffer valueStruct)
 {
-    TexPropertyEntry texProperty;
+    TexPropertyEntry texProperty{};
     if (exists(name))
     {
         int index = -1;
