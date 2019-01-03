@@ -1863,8 +1863,9 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTextur
             texture->getProperties().setIntValue("MipTailBaseIdx", texture->mipMapsList.count() - 1);
 
         {
+            MemoryStream newData;
             ByteBuffer buffer = texture->getProperties().toArray();
-            MemoryStream newData(buffer);
+            newData.WriteFromBuffer(buffer);
             buffer.Free();
             buffer = texture->toArray(0, false); // filled later
             newData.WriteFromBuffer(buffer);
@@ -1876,8 +1877,9 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTextur
 
         uint packageDataOffset;
         {
+            MemoryStream newData;
             ByteBuffer buffer = texture->getProperties().toArray();
-            MemoryStream newData(buffer);
+            newData.WriteFromBuffer(buffer);
             buffer.Free();
             packageDataOffset = package.exportsTable[nodeTexture.exportID].getDataOffset() + (uint)newData.Position();
             buffer = texture->toArray(packageDataOffset);

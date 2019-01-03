@@ -654,8 +654,9 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 texture.getProperties().setIntValue("MipTailBaseIdx", texture.mipMapsList.count() - 1);
 
             {
+                MemoryStream newData;
                 ByteBuffer buffer = texture.getProperties().toArray();
-                MemoryStream newData(buffer);
+                newData.WriteFromBuffer(buffer);
                 buffer.Free();
                 buffer = texture.toArray(0, false); // filled later
                 newData.WriteFromBuffer(buffer);
@@ -667,8 +668,9 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
 
             uint packageDataOffset;
             {
+                MemoryStream newData;
                 ByteBuffer buffer = texture.getProperties().toArray();
-                MemoryStream newData(buffer);
+                newData.WriteFromBuffer(buffer);
                 buffer.Free();
                 packageDataOffset = package.exportsTable[matched.exportID].getDataOffset() + (uint)newData.Position();
                 buffer = texture.toArray(packageDataOffset);

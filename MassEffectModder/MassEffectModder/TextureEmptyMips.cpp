@@ -213,8 +213,9 @@ void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> &textures, Package
 
         uint packageDataOffset;
         {
+            MemoryStream newData;
             ByteBuffer buffer = texture.getProperties().toArray();
-            MemoryStream newData(buffer);
+            newData.WriteFromBuffer(buffer);
             buffer.Free();
             packageDataOffset = package.exportsTable[exportID].getDataOffset() + (uint)newData.Position();
             buffer = texture.toArray(packageDataOffset);
@@ -336,7 +337,7 @@ void MipMaps::removeMipMapsME2ME3(Package &package, RemoveMipsEntry &removeEntry
         texture.getProperties().setIntValue("MipTailBaseIdx", texture.mipMapsList.count() - 1);
 
         {
-            MemoryStream newData{};
+            MemoryStream newData;
             ByteBuffer buffer = texture.getProperties().toArray();
             newData.WriteFromBuffer(buffer);
             buffer.Free();
