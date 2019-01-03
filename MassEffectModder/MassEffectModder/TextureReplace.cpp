@@ -256,8 +256,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     bool found = false;
                     for (int m = 0; m < texture.mipMapsList.count(); m++)
                     {
-                        if (!(texture.mipMapsList[m].width == image->getMipMaps()[t]->getOrigWidth() &&
-                              texture.mipMapsList[m].height == image->getMipMaps()[t]->getOrigHeight()))
+                        if (texture.mipMapsList[m].width == image->getMipMaps()[t]->getOrigWidth() &&
+                            texture.mipMapsList[m].height == image->getMipMaps()[t]->getOrigHeight())
                         {
                             found = true;
                             break;
@@ -270,8 +270,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 }
             }
 
-            bool skip = false;
-            // reuse lower mipmaps from game data which not exist in source image
+            // put empty mips if missing
             for (int t = 0; t < texture.mipMapsList.count(); t++)
             {
                 if (texture.mipMapsList[t].width <= image->getMipMaps().first()->getOrigWidth() &&
@@ -280,8 +279,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     bool found = false;
                     for (int m = 0; m < image->getMipMaps().count(); m++)
                     {
-                        if (!(image->getMipMaps()[m]->getOrigWidth() == texture.mipMapsList[t].width &&
-                              image->getMipMaps()[m]->getOrigHeight() == texture.mipMapsList[t].height))
+                        if (image->getMipMaps()[m]->getOrigWidth() == texture.mipMapsList[t].width &&
+                            image->getMipMaps()[m]->getOrigHeight() == texture.mipMapsList[t].height)
                         {
                             found = true;
                             break;
@@ -289,21 +288,11 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     }
                     if (!found)
                     {
-                        ByteBuffer data = texture.getMipMapData(texture.mipMapsList[t]);
-                        if (data.ptr() == nullptr)
-                        {
-                            errors += QString("Error in game data: ") + matched.path + ", skipping texture...\n";
-                            skip = true;
-                            break;
-                        }
-                        auto mipmap = new MipMap(data, texture.mipMapsList[t].width, texture.mipMapsList[t].height, pixelFormat);
-                        data.Free();
+                        auto mipmap = new MipMap(texture.mipMapsList[t].width, texture.mipMapsList[t].height, pixelFormat);
                         image->getMipMaps().push_back(mipmap);
                     }
                 }
             }
-            if (skip)
-                continue;
 
             if (!texture.getProperties().exists("LODGroup"))
                 texture.getProperties().setByteValue("LODGroup", "TEXTUREGROUP_Character", "TextureGroup", 1025);

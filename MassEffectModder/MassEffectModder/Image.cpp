@@ -583,10 +583,7 @@ void Image::correctMips(PixelFormat dstFormat, bool dxt1HasAlpha, quint8 dxt1Thr
 
         if (pixelFormat == PixelFormat::ATI2 && (width < 4 || height < 4))
         {
-            ByteBuffer data(MipMap::getBufferSize(width, height, dstFormat));
-            memset(data.ptr(), 0, data.size());
-            mipMaps.push_back(new MipMap(data, width, height, pixelFormat));
-            data.Free();
+            mipMaps.push_back(new MipMap(width, height, pixelFormat));
             continue;
         }
 
@@ -600,10 +597,7 @@ void Image::correctMips(PixelFormat dstFormat, bool dxt1HasAlpha, quint8 dxt1Thr
                     width = 4;
                 if (height < 4)
                     height = 4;
-                ByteBuffer data(MipMap::getBufferSize(width, height, dstFormat));
-                memset(data.ptr(), 0, data.size());
-                mipMaps.push_back(new MipMap(data, origW, origH, pixelFormat));
-                data.Free();
+                mipMaps.push_back(new MipMap(origW, origH, pixelFormat));
                 continue;
             }
         }

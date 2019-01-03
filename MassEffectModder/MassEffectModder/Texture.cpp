@@ -421,7 +421,7 @@ const ByteBuffer Texture::getTopImageData()
 
 const ByteBuffer Texture::getMipMapDataByIndex(int index)
 {
-    if (mipMapsList.count() == 0 || index < 0 || index > mipMapsList.count())
+    if (mipMapsList.count() == 0 || index < 0 || index >= mipMapsList.count())
         return ByteBuffer();
 
     return getMipMapData(mipMapsList[index]);

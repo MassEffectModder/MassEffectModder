@@ -21,6 +21,25 @@
 
 #include "MipMap.h"
 
+MipMap::MipMap(int w, int h, PixelFormat format)
+{
+    width = origWidth = w;
+    height = origHeight = h;
+
+    if (format == PixelFormat::DXT1 ||
+        format == PixelFormat::DXT3 ||
+        format == PixelFormat::DXT5)
+    {
+        if (width < 4)
+            width = 4;
+        if (height < 4)
+            height = 4;
+    }
+
+    buffer = ByteBuffer(getBufferSize(width, height, format));
+    memset(buffer.ptr(), 0, buffer.size());
+}
+
 MipMap::MipMap(const ByteBuffer &src, int w, int h, PixelFormat format)
 {
     width = origWidth = w;
