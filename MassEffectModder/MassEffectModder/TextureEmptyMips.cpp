@@ -40,8 +40,7 @@ void MipMaps::prepareListToRemove(QList<FoundTexture> &textures, QList<RemoveMip
                     if (list[e].pkgPath == textures[k].list[t].path)
                     {
                         RemoveMipsEntry entry = list[e];
-                        int exportId = textures[k].list[t].exportID;
-                        entry.exportIDs.push_back(exportId);
+                        entry.exportIDs.push_back(textures[k].list[t].exportID);
                         list.replace(e, entry);
                         found = true;
                         break;
