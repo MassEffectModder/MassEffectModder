@@ -421,9 +421,6 @@ const ByteBuffer Texture::getTopImageData()
 
 const ByteBuffer Texture::getMipMapDataByIndex(int index)
 {
-    if (mipMapsList.count() == 0 || index < 0 || index > mipMapsList.count())
-        return ByteBuffer();
-
     return getMipMapData(mipMapsList[index]);
 }
 
@@ -498,7 +495,7 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
             if (!fs.isOpen())
             {
                 g_logs->printMsg(QString("File: " + filename +
-                    "\nStorageType: " + QString::number(mipmap.storageType) + "\n" +
+                    "\nStorageType: " + QString::number(mipmap.storageType) +
                     "\nExternal file offset: " + QString::number(mipmap.dataOffset)));
                 return ByteBuffer();
             }
