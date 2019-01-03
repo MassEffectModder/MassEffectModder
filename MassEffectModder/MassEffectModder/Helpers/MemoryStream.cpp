@@ -187,14 +187,13 @@ void MemoryStream::WriteFromBuffer(quint8 *buffer, qint64 count)
     qint64 newPosition = position + count;
     if (newPosition > internalBufferSize)
     {
-        int newInternalBufferSize = internalBufferSize * 2;
-        internalBufferSize = newPosition + newInternalBufferSize;
+        internalBufferSize = newPosition + internalBufferSize * 2;
         internalBuffer = static_cast<quint8 *>(std::realloc(internalBuffer, static_cast<size_t>(internalBufferSize)));
         if (internalBuffer == nullptr)
         {
             CRASH_MSG("MemoryStream: out of memory");
         }
-        memset(internalBuffer + newPosition, 0, static_cast<size_t>(newInternalBufferSize));
+        memset(internalBuffer + newPosition, 0, static_cast<size_t>(internalBufferSize - newPosition));
     }
     if (newPosition > length)
         length = newPosition;
