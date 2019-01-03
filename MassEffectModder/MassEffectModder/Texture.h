@@ -41,7 +41,6 @@ private:
     };
 
     MemoryStream *textureData = nullptr;
-    ByteBuffer mipMapData;
     ByteBuffer restOfData;
     QString packagePath;
     TexProperty *properties;
@@ -100,9 +99,9 @@ public:
     bool existMipmap(int width, int height);
     const TextureMipMap& getMipmap(int width, int height);
     bool hasImageData();
-    const ByteBuffer getRefTopImageData();
-    const ByteBuffer getRefMipMapDataByIndex(int index);
-    const ByteBuffer getRefMipMapData(TextureMipMap &mipmap);
+    const ByteBuffer getTopImageData();
+    const ByteBuffer getMipMapDataByIndex(int index);
+    const ByteBuffer getMipMapData(TextureMipMap &mipmap);
     void removeEmptyMips();
     bool hasEmptyMips();
     int numNotEmptyMips();

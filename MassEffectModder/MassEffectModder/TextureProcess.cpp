@@ -155,7 +155,7 @@ void MipMaps::extractTextureToPng(QString &outputFile, QString &packagePath, int
     Texture texture = Texture(package, exportID, package.getExportData(exportID));
     PixelFormat format = Image::getPixelFormatType(texture.getProperties().getProperty("Format").valueName);
     Texture::TextureMipMap mipmap = texture.getTopMipmap();
-    ByteBuffer data = texture.getRefTopImageData();
+    ByteBuffer data = texture.getTopImageData();
     if (data.ptr() != nullptr)
     {
         if (QFile(outputFile).exists())

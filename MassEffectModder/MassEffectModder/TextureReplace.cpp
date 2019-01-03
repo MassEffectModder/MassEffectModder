@@ -289,7 +289,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     }
                     if (!found)
                     {
-                        ByteBuffer data = texture.getRefMipMapData(texture.mipMapsList[t]);
+                        ByteBuffer data = texture.getMipMapData(texture.mipMapsList[t]);
                         if (data.ptr() == nullptr)
                         {
                             errors += QString("Error in game data: ") + matched.path + ", skipping texture...\n";
@@ -297,6 +297,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                             break;
                         }
                         auto mipmap = new MipMap(data, texture.mipMapsList[t].width, texture.mipMapsList[t].height, pixelFormat);
+                        data.Free();
                         image->getMipMaps().push_back(mipmap);
                     }
                 }

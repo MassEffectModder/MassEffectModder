@@ -144,7 +144,6 @@ Texture::Texture(Package &package, int exportId, const ByteBuffer &data, bool fi
 Texture::~Texture()
 {
     delete textureData;
-    mipMapData.Free();
     restOfData.Free();
     delete properties;
     for (int i = 0; i < mipMapsList.count(); i++)
@@ -347,18 +346,22 @@ uint Texture::getCrcData(ByteBuffer data)
 
 uint Texture::getCrcMipmap(TextureMipMap &mipmap)
 {
-    ByteBuffer data = getRefMipMapData(mipmap);
+    ByteBuffer data = getMipMapData(mipmap);
     if (data.ptr() == nullptr)
         return 0;
-    return getCrcData(data);
+    uint crc = getCrcData(data);
+    data.Free();
+    return crc;
 }
 
 uint Texture::getCrcTopMipmap()
 {
-    ByteBuffer data = getRefTopImageData();
+    ByteBuffer data = getTopImageData();
     if (data.ptr() == nullptr)
         return 0;
-    return getCrcData(data);
+    uint crc = getCrcData(data);
+    data.Free();
+    return crc;
 }
 
 const Texture::TextureMipMap& Texture::getTopMipmap()
@@ -407,34 +410,32 @@ bool Texture::hasImageData()
     return mipMapsList.count() != 0;
 }
 
-const ByteBuffer Texture::getRefTopImageData()
+const ByteBuffer Texture::getTopImageData()
 {
     if (mipMapsList.count() == 0)
         return ByteBuffer();
 
-    if (mipMapData.ptr() != nullptr)
-        return mipMapData;
-
     TextureMipMap m = getTopMipmap();
-    return getRefMipMapData(m);
+    return getMipMapData(m);
 }
 
-const ByteBuffer Texture::getRefMipMapDataByIndex(int index)
+const ByteBuffer Texture::getMipMapDataByIndex(int index)
 {
     if (mipMapsList.count() == 0 || index < 0 || index > mipMapsList.count())
         return ByteBuffer();
 
-    return getRefMipMapData(mipMapsList[index]);
+    return getMipMapData(mipMapsList[index]);
 }
 
-const ByteBuffer Texture::getRefMipMapData(TextureMipMap &mipmap)
+const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
 {
+    ByteBuffer mipMapData;
+
     switch (mipmap.storageType)
     {
     case StorageTypes::pccUnc:
         {
             textureData->JumpTo(mipmap.internalOffset);
-            mipMapData.Free();
             mipMapData = textureData->ReadToBuffer(mipmap.uncompressedSize);
             break;
         }
@@ -442,7 +443,6 @@ const ByteBuffer Texture::getRefMipMapData(TextureMipMap &mipmap)
     case StorageTypes::pccZlib:
         {
             textureData->JumpTo(mipmap.internalOffset);
-            mipMapData.Free();
             mipMapData = decompressTexture(dynamic_cast<Stream &>(*textureData), mipmap.storageType, mipmap.uncompressedSize, mipmap.compressedSize);
             if (mipMapData.ptr() == nullptr)
             {
@@ -505,7 +505,6 @@ const ByteBuffer Texture::getRefMipMapData(TextureMipMap &mipmap)
             fs.JumpTo(mipmap.dataOffset);
             if (mipmap.storageType == StorageTypes::extLZO || mipmap.storageType == StorageTypes::extZlib)
             {
-                mipMapData.Free();
                 mipMapData = decompressTexture(dynamic_cast<Stream &>(fs), mipmap.storageType, mipmap.uncompressedSize, mipmap.compressedSize);
                 if (mipMapData.ptr() == nullptr)
                 {
@@ -517,7 +516,6 @@ const ByteBuffer Texture::getRefMipMapData(TextureMipMap &mipmap)
             }
             else
             {
-                mipMapData.Free();
                 mipMapData = fs.ReadToBuffer(mipmap.uncompressedSize);
             }
             break;

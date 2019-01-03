@@ -1778,7 +1778,7 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTextur
                 }
                 if (!found)
                 {
-                    ByteBuffer data = texture->getRefMipMapData(texture->mipMapsList[t]);
+                    ByteBuffer data = texture->getMipMapData(texture->mipMapsList[t]);
                     if (data.ptr() == nullptr)
                     {
                         ConsoleWrite(QString("Error in game data: ") + nodeTexture.path + ", skipping texture...");
@@ -1786,6 +1786,7 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTextur
                         break;
                     }
                     auto *mipmap = new MipMap(data, texture->mipMapsList[t].width, texture->mipMapsList[t].height, pixelFormat);
+                    data.Free();
                     image.getMipMaps().push_back(mipmap);
                 }
             }
@@ -2065,12 +2066,13 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
         if (png)
         {
             Texture::TextureMipMap mipmap = texture.getTopMipmap();
-            ByteBuffer data = texture.getRefTopImageData();
+            ByteBuffer data = texture.getTopImageData();
             if (data.ptr() != nullptr)
             {
                 if (QFile(outputFile).exists())
                     QFile(outputFile).remove();
                 Image::saveToPng(data.ptr(), mipmap.width, mipmap.height, pixelFormat, outputFile);
+                data.Free();
             }
         }
         else
@@ -2079,12 +2081,13 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
             QList<MipMap *> mipmaps = QList<MipMap *>();
             for (int k = 0; k < texture.mipMapsList.count(); k++)
             {
-                ByteBuffer data = texture.getRefMipMapDataByIndex(k);
+                ByteBuffer data = texture.getMipMapDataByIndex(k);
                 if (data.ptr() == nullptr)
                 {
                     continue;
                 }
                 mipmaps.push_back(new MipMap(data, texture.mipMapsList[k].width, texture.mipMapsList[k].height, pixelFormat));
+                data.Free();
             }
             Image image = Image(mipmaps, pixelFormat);
             if (QFile(outputFile).exists())
@@ -2193,7 +2196,7 @@ bool CmdLineTools::CheckTextures(MeType gameId, bool ipc)
 
                 for (int m = 0; m < texture.mipMapsList.count(); m++)
                 {
-                    ByteBuffer data = texture.getRefMipMapDataByIndex(m);
+                    ByteBuffer data = texture.getMipMapDataByIndex(m);
                     if (data.ptr() == nullptr)
                     {
                         if (ipc)
@@ -2210,6 +2213,7 @@ bool CmdLineTools::CheckTextures(MeType gameId, bool ipc)
                                          g_GameData->packageFiles[i]);
                         }
                     }
+                    data.Free();
                 }
             }
         }
