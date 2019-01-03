@@ -46,6 +46,7 @@ private:
 public:
 
     int scanTextures(MeType gameId, bool ipc);
+    int removeEmptyMips(MeType gameId, bool ipc);
     void Repack(MeType gameId, bool ipc);
     bool applyModTag(MeType gameId, int MeuitmV, int AlotV);
     bool ConvertToMEM(MeType gameId, QString &inputDir, QString &memFile, bool markToConvert, bool ipc);

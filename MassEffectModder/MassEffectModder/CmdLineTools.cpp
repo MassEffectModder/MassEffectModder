@@ -59,10 +59,6 @@ int CmdLineTools::scanTextures(MeType gameId, bool ipc)
         return -1;
     }
 
-    if (ipc)
-    {
-    }
-
     ConsoleWrite("Scan textures started...");
 
     QList<FoundTexture> textures;
@@ -73,14 +69,57 @@ int CmdLineTools::scanTextures(MeType gameId, bool ipc)
     resources.loadMD5Tables();
     Misc::startTimer();
     errorCode = TreeScan::PrepareListOfTextures(gameId, resources, textures, ipc);
-    if (GameData::gameType == MeType::ME3_TYPE)
-        TOCBinFile::UpdateAllTOCBinFiles();
     long elapsed = Misc::elapsedTime();
     ConsoleWrite(Misc::getTimerFormat(elapsed));
 
     ConsoleWrite("Scan textures finished.\n");
 
     return errorCode;
+}
+
+int CmdLineTools::removeEmptyMips(MeType gameId, bool ipc)
+{
+    auto configIni = ConfigIni{};
+    g_GameData->Init(gameId, configIni);
+
+    if (!CheckGamePath())
+    {
+        return -1;
+    }
+
+    QList<FoundTexture> textures;
+    MipMaps mipMaps;
+    QStringList pkgsToMarkers;
+    QStringList pkgsToRepack;
+
+    QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
+            "/MassEffectModder";
+    QString mapFile = path + QString("/me%1map.bin").arg((int)gameId);
+    if (!TreeScan::loadTexturesMapFile(mapFile, textures, false))
+    {
+        return 1;
+    }
+
+    ConsoleWrite("Remove empty mips started...");
+
+    Misc::startTimer();
+    if (GameData::gameType == MeType::ME1_TYPE)
+    {
+        mipMaps.removeMipMapsME1(1, textures, pkgsToMarkers, ipc, false);
+        mipMaps.removeMipMapsME1(2, textures, pkgsToMarkers, ipc, false);
+    }
+    else
+    {
+        mipMaps.removeMipMapsME2ME3(textures, pkgsToMarkers, pkgsToRepack, ipc, false, false);
+    }
+    if (GameData::gameType == MeType::ME3_TYPE)
+        TOCBinFile::UpdateAllTOCBinFiles();
+    long elapsed = Misc::elapsedTime();
+    ConsoleWrite(Misc::getTimerFormat(elapsed));
+
+    ConsoleWrite("Remove empty mips finished.\n");
+
+    return 0;
 }
 
 bool CmdLineTools::applyModTag(MeType gameId, int MeuitmV, int AlotV)

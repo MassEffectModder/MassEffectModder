@@ -40,6 +40,9 @@ void DisplayHelp()
     ConsoleWrite("  --scan --gameid <game id> [--ipc]");
     ConsoleWrite("     Scan game data for textures.");
     ConsoleWrite("");
+    ConsoleWrite("  --remove-empty-mips --gameid <game id> [--ipc]");
+    ConsoleWrite("     Remove empty mips from textures.");
+    ConsoleWrite("");
     ConsoleWrite("  --update-toc");
     ConsoleWrite("     Update TOC files in ME3.");
     ConsoleWrite("");
@@ -49,42 +52,42 @@ void DisplayHelp()
     ConsoleWrite("  --repack --gameid <game id> [--ipc]");
     ConsoleWrite("     Repack ME2 or ME3 packages.");
     ConsoleWrite("");
-    ConsoleWrite("  --check-game-data-after --gameid <game id> [--ipc]\n");
-    ConsoleWrite("     Check game data for mods installed after textures installation.\n");
+    ConsoleWrite("  --check-game-data-after --gameid <game id> [--ipc]");
+    ConsoleWrite("     Check game data for mods installed after textures installation.");
     ConsoleWrite("");
-    ConsoleWrite("  --check-game-data-mismatch --gameid <game id> [--ipc]\n");
-    ConsoleWrite("     Check game data with md5 database.\n");
+    ConsoleWrite("  --check-game-data-mismatch --gameid <game id> [--ipc]");
+    ConsoleWrite("     Check game data with md5 database.");
     ConsoleWrite("     Scan to detect mods");
     ConsoleWrite("");
-    ConsoleWrite("  --check-game-data-vanilla --gameid <game id> [--ipc]\n");
-    ConsoleWrite("     Check game data with md5 database.\n");
+    ConsoleWrite("  --check-game-data-vanilla --gameid <game id> [--ipc]");
+    ConsoleWrite("     Check game data with md5 database.");
     ConsoleWrite("");
-    ConsoleWrite("  --check-for-markers --gameid <game id> [--ipc]\n");
-    ConsoleWrite("     Check game data for markers.\n");
+    ConsoleWrite("  --check-for-markers --gameid <game id> [--ipc]");
+    ConsoleWrite("     Check game data for markers.");
     ConsoleWrite("");
-    ConsoleWrite("  --install-mods --gameid <game id> --input <input dir> [--repack] [--ipc]\n");
-    ConsoleWrite("  [--alot-mode] [--limit-2k] [--verify]\n");
-    ConsoleWrite("     Install MEM mods from input directory.\n");
+    ConsoleWrite("  --install-mods --gameid <game id> --input <input dir> [--repack] [--ipc]");
+    ConsoleWrite("  [--alot-mode] [--limit-2k] [--verify]");
+    ConsoleWrite("     Install MEM mods from input directory.");
     ConsoleWrite("");
     ConsoleWrite("  --apply-me1-laa\n");
-    ConsoleWrite("     Apply LAA patch to ME1 executable.\n");
+    ConsoleWrite("     Apply LAA patch to ME1 executable.");
     ConsoleWrite("");
-    ConsoleWrite("  --detect-mods --gameid <game id> [--ipc]\n");
-    ConsoleWrite("     Detect compatible mods.\n");
+    ConsoleWrite("  --detect-mods --gameid <game id> [--ipc]");
+    ConsoleWrite("     Detect compatible mods.");
     ConsoleWrite("");
-    ConsoleWrite("  --detect-bad-mods --gameid <game id> [--ipc]\n");
-    ConsoleWrite("     Detect not compatible mods.\n");
+    ConsoleWrite("  --detect-bad-mods --gameid <game id> [--ipc]");
+    ConsoleWrite("     Detect not compatible mods.");
     ConsoleWrite("");
-    ConsoleWrite("  --apply-lods-gfx --gameid <game id> [--soft-shadows-mode] [--meuitm-mode] [--limit-2k]\n");
-    ConsoleWrite("     Update LODs and GFX settings.\n");
+    ConsoleWrite("  --apply-lods-gfx --gameid <game id> [--soft-shadows-mode] [--meuitm-mode] [--limit-2k]");
+    ConsoleWrite("     Update LODs and GFX settings.");
     ConsoleWrite("");
-    ConsoleWrite("  --remove-lods --gameid <game id>\n");
-    ConsoleWrite("     Remove LODs settings.\n");
+    ConsoleWrite("  --remove-lods --gameid <game id>");
+    ConsoleWrite("     Remove LODs settings.");
     ConsoleWrite("");
-    ConsoleWrite("  --print-lods --gameid <game id> [--ipc]\n");
-    ConsoleWrite("     Print LODs settings.\n");
+    ConsoleWrite("  --print-lods --gameid <game id> [--ipc]");
+    ConsoleWrite("     Print LODs settings.");
     ConsoleWrite("");
-    ConsoleWrite("  --convert-to-mem --gameid <game id> --input <input dir> --output <output file> [--mark-to-convert] [--ipc]\n");
+    ConsoleWrite("  --convert-to-mem --gameid <game id> --input <input dir> --output <output file> [--mark-to-convert] [--ipc]");
     ConsoleWrite("     game id: 1 for ME1, 2 for ME2, 3 for ME3");
     ConsoleWrite("     input dir: directory to be converted, containing following file extension(s):");
     ConsoleWrite("        MEM, MOD, TPF");
@@ -112,7 +115,7 @@ void DisplayHelp()
     ConsoleWrite("           Image filename must include texture CRC (0xhhhhhhhh)");
     ConsoleWrite("     ipc: turn on IPC traces");
     ConsoleWrite("");
-    ConsoleWrite("  --convert-game-image --gameid <game id> --input <input image> <--output output image> [--mark-to-convert]\n");
+    ConsoleWrite("  --convert-game-image --gameid <game id> --input <input image> <--output output image> [--mark-to-convert]");
     ConsoleWrite("     game id: 1 for ME1, 2 for ME2, 3 for ME3");
     ConsoleWrite("     Input file with following extension:");
     ConsoleWrite("        DDS, BMP, TGA, PNG, JPG");
@@ -125,7 +128,7 @@ void DisplayHelp()
     ConsoleWrite("           Image filename must include texture CRC (0xhhhhhhhh)");
     ConsoleWrite("     Output file is DDS image");
     ConsoleWrite("");
-    ConsoleWrite("  --convert-game-images --gameid <game id> --input <input dir> --output <output dir> [--mark-to-convert]\n");
+    ConsoleWrite("  --convert-game-images --gameid <game id> --input <input dir> --output <output dir> [--mark-to-convert]");
     ConsoleWrite("     game id: 1 for ME1, 2 for ME2, 3 for ME3");
     ConsoleWrite("     input dir: directory to be converted, containing following file extension(s):");
     ConsoleWrite("        Input files with following extension:");
@@ -139,7 +142,7 @@ void DisplayHelp()
     ConsoleWrite("           Image filename must include texture CRC (0xhhhhhhhh)");
     ConsoleWrite("     output dir: directory where textures converted to DDS are placed");
     ConsoleWrite("");
-    ConsoleWrite("  --extract-mod --gameid <game id> --input <input dir> --output <output dir> [--ipc]\n");
+    ConsoleWrite("  --extract-mod --gameid <game id> --input <input dir> --output <output dir> [--ipc]");
     ConsoleWrite("     game id: 1 for ME1, 2 for ME2, 3 for ME3");
     ConsoleWrite("     input dir: directory of ME3Explorer MOD file(s)");
     ConsoleWrite("     Can extract textures and package export raw data");
@@ -150,7 +153,7 @@ void DisplayHelp()
     ConsoleWrite("        B<pkg filename length>-<pkg filename>-E<pkg export id>.bin");
     ConsoleWrite("        example: B23-BioH_EDI_00_Explore.pcc-E5090.bin");
     ConsoleWrite("");
-    ConsoleWrite("  --extract-mem --gameid <game id> --input <input dir> --output <output dir> [--ipc]\n");
+    ConsoleWrite("  --extract-mem --gameid <game id> --input <input dir> --output <output dir> [--ipc]");
     ConsoleWrite("     game id: 1 for ME1, 2 for ME2, 3 for ME3");
     ConsoleWrite("     input dir: directory of MEM mod file(s)");
     ConsoleWrite("     Can extract textures and package export raw data");
@@ -161,17 +164,17 @@ void DisplayHelp()
     ConsoleWrite("        B<pkg filename length>-<pkg filename>-E<pkg export id>.bin");
     ConsoleWrite("        example: B23-BioH_EDI_00_Explore.pcc-E5090.bin");
     ConsoleWrite("");
-    ConsoleWrite("  --extract-tpf --gameid <input dir> --output <output dir> [--ipc]\n");
+    ConsoleWrite("  --extract-tpf --gameid <input dir> --output <output dir> [--ipc]");
     ConsoleWrite("     input dir: directory containing the TPF file(s) to be extracted");
     ConsoleWrite("     Textures are extracted as they are in the TPF, no additional modifications are made.");
     ConsoleWrite("");
-    ConsoleWrite("  --convert-image --format <output pixel format> [--threshold <dxt1 alpha threshold>] --input <input image> --output <output image>\n");
+    ConsoleWrite("  --convert-image --format <output pixel format> [--threshold <dxt1 alpha threshold>] --input <input image> --output <output image>");
     ConsoleWrite("     input image file types: DDS, BMP, TGA, PNG");
     ConsoleWrite("     output image file type: DDS");
     ConsoleWrite("     output pixel format: DXT1 (no alpha), DXT1a (alpha), DXT3, DXT5, ATI2, V8U8, G8, RGBA, RGB");
     ConsoleWrite("     For DXT1a you have to set the alpha threshold (0-255). 128 is suggested as a default value.");
     ConsoleWrite("");
-    ConsoleWrite("  --extract-all-dds --gameid <game id> --output <output dir> [--tfc-name <filter name|--pcc-only|--tfc-only>]\n");
+    ConsoleWrite("  --extract-all-dds --gameid <game id> --output <output dir> [--tfc-name <filter name|--pcc-only|--tfc-only>]");
     ConsoleWrite("     game id: 1 for ME1, 2 for ME2, 3 for ME3");
     ConsoleWrite("     output dir: directory where textures converted to DDS are placed");
     ConsoleWrite("     TFC filter name: it will filter only textures stored in specific TFC file.");
@@ -179,7 +182,7 @@ void DisplayHelp()
     ConsoleWrite("     Or option: -tfc-only to extract only textures stored in TFC files.");
     ConsoleWrite("     Textures are extracted as they are in game data, only DDS header is added.");
     ConsoleWrite("");
-    ConsoleWrite("  --extract-all-png --gameid <game id> --output <output dir> [--tfc-name <filter name>|--pcc-only|--tfc-only]\n");
+    ConsoleWrite("  --extract-all-png --gameid <game id> --output <output dir> [--tfc-name <filter name>|--pcc-only|--tfc-only]");
     ConsoleWrite("     game id: 1 for ME1, 2 for ME2, 3 for ME3");
     ConsoleWrite("     output dir: directory where textures converted to PNG are placed");
     ConsoleWrite("     TFC filter name: it will filter only textures stored in specific TFC file.");
@@ -187,11 +190,11 @@ void DisplayHelp()
     ConsoleWrite("     Or option: -tfc-only to extract only textures stored in TFC files.");
     ConsoleWrite("     Textures are extracted with only top mipmap.");
     ConsoleWrite("");
-    ConsoleWrite("  --dlc-mod-textures --gameid <game id> --input <mem file>\n");
-    ConsoleWrite("  [--tfc-name <tfc name>] [--guid <guid in 16 hex digits>] [--verify]\n");
+    ConsoleWrite("  --dlc-mod-textures --gameid <game id> --input <mem file>");
+    ConsoleWrite("  [--tfc-name <tfc name>] [--guid <guid in 16 hex digits>] [--verify]");
     ConsoleWrite("     Replace textures from <mem file> and store in new <tfc name> file.");
     ConsoleWrite("     New TFC name must be added earlier to PCC files.");
-    ConsoleWrite("\n");
+    ConsoleWrite("");
 }
 
 bool hasValue(const QStringList &args, int curPos)
@@ -424,6 +427,8 @@ int ProcessArguments()
             cmd = CmdType::HELP;
         if (arg == "--scan")
             cmd = CmdType::SCAN;
+        if (arg == "--remove-empty-mips")
+            cmd = CmdType::REMOVE_EMPTY_MIPS;
         if (arg == "--update-toc")
             cmd = CmdType::UPDATE_TOC;
         if (arg == "--unpack-dlcs")
@@ -565,6 +570,15 @@ int ProcessArguments()
             break;
         }
         errorCode = tools.scanTextures(gameId, ipc);
+        break;
+    case CmdType::REMOVE_EMPTY_MIPS:
+        if (gameId == MeType::UNKNOWN_TYPE)
+        {
+            ConsoleWrite("Wrong game id!");
+            errorCode = 1;
+            break;
+        }
+        errorCode = tools.removeEmptyMips(gameId, ipc);
         break;
     case CmdType::UPDATE_TOC:
     {
