@@ -446,8 +446,8 @@ const ByteBuffer Texture::getRefMipMapData(TextureMipMap &mipmap)
             mipMapData = decompressTexture(dynamic_cast<Stream &>(*textureData), mipmap.storageType, mipmap.uncompressedSize, mipmap.compressedSize);
             if (mipMapData.ptr() == nullptr)
             {
-                g_logs->printMsg(QString("StorageType: ") + mipmap.storageType +
-                    "\nInternal offset: " + mipmap.internalOffset);
+                g_logs->printMsg(QString("StorageType: ") + QString::number(mipmap.storageType) +
+                    "\nInternal offset: " + QString::number(mipmap.internalOffset));
             }
             break;
         }
@@ -498,8 +498,8 @@ const ByteBuffer Texture::getRefMipMapData(TextureMipMap &mipmap)
             if (!fs.isOpen())
             {
                 g_logs->printMsg(QString("File: " + filename +
-                    "\nStorageType: " + mipmap.storageType + "\n" +
-                    "\nExternal file offset: " + mipmap.dataOffset));
+                    "\nStorageType: " + QString::number(mipmap.storageType) + "\n" +
+                    "\nExternal file offset: " + QString::number(mipmap.dataOffset)));
                 return ByteBuffer();
             }
             fs.JumpTo(mipmap.dataOffset);
@@ -510,8 +510,8 @@ const ByteBuffer Texture::getRefMipMapData(TextureMipMap &mipmap)
                 if (mipMapData.ptr() == nullptr)
                 {
                     g_logs->printMsg(QString("File: ") + filename +
-                        "\nStorageType: " + mipmap.storageType +
-                        "\nExternal file offset: " + mipmap.dataOffset);
+                        "\nStorageType: " + QString::number(mipmap.storageType) +
+                        "\nExternal file offset: " + QString::number(mipmap.dataOffset));
                     return ByteBuffer();
                 }
             }
