@@ -28,6 +28,7 @@ MemoryStream::MemoryStream()
     {
         CRASH_MSG("MemoryStream: out of memory");
     }
+    memset(internalBuffer, 0, initialBufferSize);
     internalBufferSize = initialBufferSize;
     length = 0;
     position = 0;
