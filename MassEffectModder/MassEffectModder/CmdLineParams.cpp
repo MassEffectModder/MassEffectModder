@@ -561,7 +561,7 @@ int ProcessArguments()
         if (gameId == MeType::UNKNOWN_TYPE)
         {
             ConsoleWrite("Wrong game id!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         errorCode = tools.scanTextures(gameId, ipc);
@@ -573,7 +573,7 @@ int ProcessArguments()
         if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
         {
             ConsoleWrite("Error: Could not found the game!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         TOCBinFile::UpdateAllTOCBinFiles();
@@ -586,7 +586,7 @@ int ProcessArguments()
         if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
         {
             ConsoleWrite("Error: Could not found the game!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         Misc::startTimer();
@@ -600,7 +600,7 @@ int ProcessArguments()
         if (gameId != MeType::ME2_TYPE && gameId != MeType::ME3_TYPE)
         {
             ConsoleWrite("Wrong game id!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         ConfigIni configIni = ConfigIni();
@@ -608,7 +608,7 @@ int ProcessArguments()
         if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
         {
             ConsoleWrite("Error: Could not found the game!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         Misc::startTimer();
@@ -621,101 +621,101 @@ int ProcessArguments()
         if (gameId == MeType::UNKNOWN_TYPE)
         {
             ConsoleWrite("Wrong game id!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (!QDir(input).exists())
         {
             ConsoleWrite("Input folder doesn't exists!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (output.length() == 0)
         {
             ConsoleWrite("Output param empty!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (!output.endsWith(".mem", Qt::CaseInsensitive))
         {
             ConsoleWrite(QString("Error: output file is not mem: ") + output);
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (!tools.ConvertToMEM(gameId, input, output, markToConvert, ipc))
-            errorCode = -1;
+            errorCode = 1;
         break;
     case CmdType::CONVERT_GAME_IMAGE:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
             ConsoleWrite("Wrong game id!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (!QFile(input).exists())
         {
             ConsoleWrite("Input file doesn't exists!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (!output.endsWith(".dds", Qt::CaseInsensitive))
         {
             ConsoleWrite(QString("Error: output file is not dds: ") + output);
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (!tools.convertGameImage(gameId, input, output, markToConvert))
-            errorCode = -1;
+            errorCode = 1;
         break;
     case CmdType::CONVERT_IMAGE:
         if (!QFile(input).exists())
         {
             ConsoleWrite("Input file doesn't exists!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (output.length() == 0)
         {
             ConsoleWrite("Output param empty!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (!tools.convertImage(input, output, format, thresholdValue))
-            errorCode = -1;
+            errorCode = 1;
         break;
     case CmdType::CONVERT_GAME_IMAGES:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
             ConsoleWrite("Wrong game id!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (!QDir(input).exists())
         {
             ConsoleWrite("Input folder doesn't exists!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (output.length() == 0)
         {
             ConsoleWrite("Output param empty!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (!tools.convertGameImages(gameId, input, output, markToConvert))
-            errorCode = -1;
+            errorCode = 1;
         break;
     case CmdType::INSTALL_MODS:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
             ConsoleWrite("Wrong game id!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (!QDir(input).exists())
         {
             ConsoleWrite("Input folder doesn't exists!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (!tools.InstallMods(gameId, input, ipc, repackMode, guiMode,
@@ -725,222 +725,222 @@ int ProcessArguments()
                                verify
                                ))
         {
-            errorCode = -1;
+            errorCode = 1;
         }
         break;
     case CmdType::EXTRACT_MOD:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
             ConsoleWrite("Wrong game id!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (!QDir(input).exists())
         {
             ConsoleWrite("Input folder doesn't exists!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (output.length() == 0)
         {
             ConsoleWrite("Output param empty!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (!tools.extractMOD(gameId, input, output, ipc))
-            errorCode = -1;
+            errorCode = 1;
         break;
     case CmdType::EXTRACT_MEM:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
             ConsoleWrite("Wrong game id!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (!QDir(input).exists())
         {
             ConsoleWrite("Input folder doesn't exists!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (output.length() == 0)
         {
             ConsoleWrite("Output param empty!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (!tools.extractMEM(gameId, input, output, markToConvert))
-            errorCode = -1;
+            errorCode = 1;
         break;
     case CmdType::EXTRACT_TPF:
         if (!QDir(input).exists())
         {
             ConsoleWrite("Input folder doesn't exists!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (output.length() == 0)
         {
             ConsoleWrite("Output param empty!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (!tools.extractTPF(input, output, ipc))
-            errorCode = -1;
+            errorCode = 1;
         break;
     case CmdType::DETECT_MODS:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
             ConsoleWrite("Wrong game id!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (!tools.DetectMods(gameId, ipc))
-            errorCode = -1;
+            errorCode = 1;
         break;
     case CmdType::DETECT_BAD_MODS:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
             ConsoleWrite("Wrong game id!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (!tools.DetectBadMods(gameId, ipc))
-            errorCode = -1;
+            errorCode = 1;
         break;
     case CmdType::APPLY_LODS_GFX:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
             ConsoleWrite("Wrong game id!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (!tools.ApplyLODAndGfxSettings(gameId, softShadowsMods, meuitmMode, limit2k))
-            errorCode = -1;
+            errorCode = 1;
         break;
     case CmdType::PRINT_LODS:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
             ConsoleWrite("Wrong game id!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (!tools.PrintLODSettings(gameId, ipc))
-            errorCode = -1;
+            errorCode = 1;
         break;
     case CmdType::REMOVE_LODS:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
             ConsoleWrite("Wrong game id!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (!tools.RemoveLODSettings(gameId))
-            errorCode = -1;
+            errorCode = 1;
         break;
     case CmdType::APPLY_ME1_LAA:
         if (!tools.ApplyME1LAAPatch())
-            errorCode = -1;
+            errorCode = 1;
         break;
     case CmdType::CHECK_GAME_DATA_TEXTURES:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
             ConsoleWrite("Wrong game id!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (!tools.CheckTextures(gameId, ipc))
-            errorCode = -1;
+            errorCode = 1;
         break;
     case CmdType::CHECK_GAME_DATA_AFTER:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
             ConsoleWrite("Wrong game id!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (!tools.checkGameFilesAfter(gameId, ipc))
-            errorCode = -1;
+            errorCode = 1;
         break;
     case CmdType::CHECK_GAME_DATA_MISMATCH:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
             ConsoleWrite("Wrong game id!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (!tools.detectsMismatchPackagesAfter(gameId, ipc))
-            errorCode = -1;
+            errorCode = 1;
         break;
     case CmdType::CHECK_GAME_DATA_VANILLA:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
             ConsoleWrite("Wrong game id!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (!tools.CheckGameData(gameId, ipc))
-            errorCode = -1;
+            errorCode = 1;
         break;
     case CmdType::CHECK_FOR_MARKERS:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
             ConsoleWrite("Wrong game id!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (!tools.CheckForMarkers(gameId, ipc))
-            errorCode = -1;
+            errorCode = 1;
         break;
     case CmdType::EXTRACT_ALL_DDS:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
             ConsoleWrite("Wrong game id!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (output.length() == 0)
         {
             ConsoleWrite("Output param empty!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (!tools.extractAllTextures(gameId, output, false, pccOnly, tfcOnly, tfcName))
-            errorCode = -1;
+            errorCode = 1;
         break;
     case CmdType::EXTRACT_ALL_PNG:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
             ConsoleWrite("Wrong game id!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (output.length() == 0)
         {
             ConsoleWrite("Output param empty!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (!tools.extractAllTextures(gameId, output, true, pccOnly, tfcOnly, tfcName))
-            errorCode = -1;
+            errorCode = 1;
         break;
     case CmdType::DLC_MOD_TEXTURES:
         if (gameId == MeType::UNKNOWN_TYPE || gameId == MeType::ME1_TYPE)
         {
             ConsoleWrite("Wrong game id!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (tfcName.length() == 0)
         {
             ConsoleWrite("TFC name param missing!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         if (!QDir(input).exists())
         {
             ConsoleWrite("Input folder doesn't exists!");
-            errorCode = -1;
+            errorCode = 1;
             break;
         }
         quint8 guidArray[16];
@@ -955,14 +955,14 @@ int ProcessArguments()
                 if (!ok)
                 {
                     ConsoleWrite("Guid param is wrong!");
-                    errorCode = -1;
+                    errorCode = 1;
                     break;
                 }
             }
             array = QByteArray(reinterpret_cast<char *>(guidArray), 16);
         }
         if (!tools.applyMEMSpecialModME3(gameId, input, tfcName, array, verify))
-            errorCode = -1;
+            errorCode = 1;
         break;
     }
 
