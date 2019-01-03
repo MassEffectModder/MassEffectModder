@@ -94,7 +94,7 @@ void *ZipOpenFromFile(const void *path, int *numEntries, int tpf)
     return static_cast<void *>(unzipHandle);
 }
 
-void *ZipOpenFromMem(unsigned char *src, unsigned long srcLen, int *numEntries, int tpf)
+void *ZipOpenFromMem(unsigned char *src, unsigned long long srcLen, int *numEntries, int tpf)
 {
     UnzipHandle *unzipHandle;
     int result;
@@ -130,7 +130,7 @@ void *ZipOpenFromMem(unsigned char *src, unsigned long srcLen, int *numEntries, 
     return static_cast<void *>(unzipHandle);
 }
 
-int ZipGetCurrentFileInfo(void *handle, char **fileName, int *sizeOfFileName, unsigned long *dstLen)
+int ZipGetCurrentFileInfo(void *handle, char **fileName, int *sizeOfFileName, unsigned long long *dstLen)
 {
     auto unzipHandle = static_cast<UnzipHandle *>(handle);
     int result;
@@ -197,7 +197,7 @@ int ZipLocateFile(void *handle, const char *filename)
     return 0;
 }
 
-int ZipReadCurrentFile(void *handle, unsigned char *dst, unsigned long dst_len, const unsigned char *pass)
+int ZipReadCurrentFile(void *handle, unsigned char *dst, unsigned long long dst_len, const unsigned char *pass)
 {
     auto unzipHandle = static_cast<UnzipHandle *>(handle);
     int result;

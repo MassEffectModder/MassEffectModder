@@ -345,7 +345,7 @@ bool CmdLineTools::extractTPF(QString &inputDir, QString &outputDir, bool ipc)
     bool status = true;
     int result;
     QString fileName;
-    ulong dstLen = 0;
+    quint64 dstLen = 0;
     int numEntries = 0;
 
     inputDir = QDir::cleanPath(inputDir);
@@ -453,7 +453,7 @@ bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputD
     ConsoleWrite("Extract MOD files started...");
 
     bool status = true;
-    ulong numEntries = 0;
+    quint32 numEntries = 0;
 
     inputDir = QDir::cleanPath(inputDir);
     QFileInfoList list;

@@ -379,7 +379,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
 
     int result;
     QString fileName;
-    ulong dstLen = 0;
+    quint64 dstLen = 0;
     QStringList ddsList;
     int numEntries = 0;
 

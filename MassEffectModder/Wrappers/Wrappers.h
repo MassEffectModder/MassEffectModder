@@ -22,9 +22,9 @@
 #ifndef WRAPPERS_H
 #define WRAPPERS_H
 
-typedef unsigned char BYTE;
-typedef unsigned int  UINT32;
-typedef unsigned long UINT64;
+typedef unsigned char      BYTE;
+typedef unsigned int       UINT32;
+typedef unsigned long long UINT64;
 
 int LzmaDecompress(BYTE *src, UINT32 src_len, BYTE *dst, UINT32 *dst_len);
 

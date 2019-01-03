@@ -123,7 +123,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
 {
     QString errors = "";
     int lastProgress = -1;
-    ulong memorySize = DetectAmountMemoryGB();
+    int memorySize = DetectAmountMemoryGB();
     bool lowMode = false;
     bool veryLowMode = false;
     if (memorySize <= 8 && modsToReplace.count() != 1)

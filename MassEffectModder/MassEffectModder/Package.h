@@ -101,7 +101,7 @@ public:
     struct NameEntry
     {
         QString name;
-        ulong flags;
+        quint64 flags;
     };
 
     struct ImportEntry
@@ -128,7 +128,7 @@ public:
 
         ByteBuffer raw;
         ByteBuffer newData;
-        ulong objectFlags;
+        quint64 objectFlags;
         uint id;
 
         inline int getClassId()

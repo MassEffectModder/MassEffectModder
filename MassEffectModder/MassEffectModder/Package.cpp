@@ -186,7 +186,7 @@ int Package::Open(const QString &filename, bool headerOnly, bool fullLoad)
         if (packageStream->Position() != chunks[0].comprOffset)
             CRASH();
 
-        if ((ulong)dataOffset != chunks[0].uncomprOffset)
+        if ((uint)dataOffset != chunks[0].uncomprOffset)
             CRASH();
 
         uint length = getEndOfTablesOffset() - (uint)dataOffset;
@@ -502,10 +502,10 @@ int Package::addName(const QString &name)
     if (existsNameId(name))
         CRASH();
 
-    NameEntry entry;
+    NameEntry entry{};
     entry.name = name;
     if (packageFileVersion == packageFileVersionME1)
-        entry.flags = (ulong)0x0007001000000000;
+        entry.flags = 0x0007001000000000ULL;
     if (packageFileVersion == packageFileVersionME2)
         entry.flags = 0xfffffff2;
     namesTable.push_back(entry);
@@ -520,7 +520,7 @@ void Package::loadNames(Stream &input)
     input.JumpTo(getNamesOffset());
     for (uint i = 0; i < getNamesCount(); i++)
     {
-        NameEntry entry;
+        NameEntry entry{};
         int len = input.ReadInt32();
         if (len < 0) // unicode
         {
@@ -609,7 +609,7 @@ void Package::saveNames(Stream &output)
 
 void Package::loadExtraNames(Stream &input, bool rawMode)
 {
-    ExtraNameEntry entry;
+    ExtraNameEntry entry{};
     uint extraNamesCount = input.ReadUInt32();
     for (uint c = 0; c < extraNamesCount; c++)
     {
@@ -680,7 +680,7 @@ void Package::loadImports(Stream &input)
     input.JumpTo(getImportsOffset());
     for (uint i = 0; i < getImportsCount(); i++)
     {
-        ImportEntry entry;
+        ImportEntry entry{};
 
         long start = input.Position();
         entry.packageFileId = input.ReadInt32();
@@ -742,7 +742,7 @@ void Package::loadExports(Stream &input)
     input.JumpTo(getExportsOffset());
     for (uint i = 0; i < getExportsCount(); i++)
     {
-        ExportEntry entry;
+        ExportEntry entry{};
 
         long start = input.Position();
         input.Skip(entry.DataOffsetOffset + 4);
