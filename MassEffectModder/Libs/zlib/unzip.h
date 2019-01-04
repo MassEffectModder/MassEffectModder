@@ -11,7 +11,7 @@
          Copyright (C) 2009-2010 Mathias Svensson ( http://result42.com )
 
          Modifications for Memory IO support
-         Copyright (C) 2018 Pawel Kolodziejski <aquadran at users.sourceforge.net>
+         Copyright (C) 2018-2019 Pawel Kolodziejski
 
          For more info read MiniZip_info.txt
 

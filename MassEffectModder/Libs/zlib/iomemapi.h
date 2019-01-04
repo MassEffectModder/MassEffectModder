@@ -1,6 +1,6 @@
 /* iomemapi.h
 
-        Copyright (C) 2017 Pawel Kolodziejski <aquadran at users.sourceforge.net>
+        Copyright (C) 2017 Pawel Kolodziejski
 
         ---------------------------------------------------------------------------------
 

@@ -1,6 +1,6 @@
 /* WrapperZlib.cpp
 
-        Copyright (C) 2017-2019 Pawel Kolodziejski <aquadran at users.sourceforge.net>
+        Copyright (C) 2017-2019 Pawel Kolodziejski
 
         ---------------------------------------------------------------------------------
 

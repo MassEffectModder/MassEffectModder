@@ -13,7 +13,7 @@
          For more info read MiniZip_info.txt
 
          Modifications for Memory IO support
-         Copyright (C) 2017-2018 Pawel Kolodziejski <aquadran at users.sourceforge.net>
+         Copyright (C) 2017-2018 Pawel Kolodziejski
 
   ------------------------------------------------------------------------------------
   Decryption code comes from crypt.c by Info-ZIP but has been greatly reduced in terms of

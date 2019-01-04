@@ -1,6 +1,6 @@
 /* iomemapi.c
 
-        Copyright (C) 2017-2018 Pawel Kolodziejski <aquadran at users.sourceforge.net>
+        Copyright (C) 2017-2018 Pawel Kolodziejski
 
         ---------------------------------------------------------------------------------
 
