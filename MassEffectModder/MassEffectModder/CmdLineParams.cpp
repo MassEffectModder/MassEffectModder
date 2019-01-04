@@ -752,7 +752,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (input.endsWith("*.mod", Qt::CaseInsensitive))
+        if (input.endsWith(".mod", Qt::CaseInsensitive))
         {
             if (!QFile(input).exists())
             {
@@ -777,7 +777,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (input.endsWith("*.mem", Qt::CaseInsensitive))
+        if (input.endsWith(".mem", Qt::CaseInsensitive))
         {
             if (!QFile(input).exists())
             {
@@ -796,7 +796,7 @@ int ProcessArguments()
             errorCode = 1;
         break;
     case CmdType::EXTRACT_TPF:
-        if (input.endsWith("*.tpf", Qt::CaseInsensitive))
+        if (input.endsWith(".tpf", Qt::CaseInsensitive))
         {
             if (!QFile(input).exists())
             {
