@@ -1,6 +1,6 @@
 //===============================================================================
-// Copyright (c) 2017-2018 Pawel Kolodziejski <aquadran at users.sourceforge.net>
-// Copyright (c) 2007-2016  Advanced Micro Devices, Inc. All rights reserved.
+// Copyright (c) 2017-2019 Pawel Kolodziejski
+// Copyright (c) 2007-2016 Advanced Micro Devices, Inc. All rights reserved.
 // Copyright (c) 2004-2006 ATI Technologies Inc.
 //===============================================================================
 //
