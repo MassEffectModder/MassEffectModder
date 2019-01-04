@@ -1891,14 +1891,14 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTextur
                     if (memcmp(origGuid, texture->getProperties().getProperty("TFCFileGuid").valueStruct.ptr(), 16) != 0 &&
                         oldMipmap.width != 0 && mipmap.newData.size() <= oldMipmap.compressedSize)
                     {
-                        FileStream fs = FileStream(archiveFile, FileMode::Open, FileAccess::WriteOnly);
+                        FileStream fs = FileStream(archiveFile, FileMode::Open, FileAccess::ReadWrite);
                         fs.JumpTo(oldMipmap.dataOffset);
                         mipmap.dataOffset = oldMipmap.dataOffset;
                         fs.WriteFromBuffer(mipmap.newData);
                     }
                     else
                     {
-                        FileStream fs = FileStream(archiveFile, FileMode::Open, FileAccess::WriteOnly);
+                        FileStream fs = FileStream(archiveFile, FileMode::Open, FileAccess::ReadWrite);
                         fs.SeekEnd();
                         mipmap.dataOffset = (uint)fs.Position();
                         fs.WriteFromBuffer(mipmap.newData);

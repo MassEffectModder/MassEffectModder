@@ -605,7 +605,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
 
                             if (!newTfcFile && oldSpace)
                             {
-                                FileStream fs = FileStream(archiveFile, FileMode::Open, FileAccess::WriteOnly);
+                                FileStream fs = FileStream(archiveFile, FileMode::Open, FileAccess::ReadWrite);
                                 Texture::TextureMipMap oldMipmap = texture.getMipmap(mipmap.width, mipmap.height);
                                 fs.JumpTo(oldMipmap.dataOffset);
                                 mipmap.dataOffset = oldMipmap.dataOffset;
@@ -613,7 +613,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                             }
                             else
                             {
-                                FileStream fs = FileStream(archiveFile, FileMode::Open, FileAccess::WriteOnly);
+                                FileStream fs = FileStream(archiveFile, FileMode::Open, FileAccess::ReadWrite);
                                 fs.SeekEnd();
                                 mipmap.dataOffset = (uint)fs.Position();
                                 fs.WriteFromBuffer(mipmap.newData);
