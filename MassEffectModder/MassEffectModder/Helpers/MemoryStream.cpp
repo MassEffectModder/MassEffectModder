@@ -193,7 +193,7 @@ void MemoryStream::WriteFromBuffer(quint8 *buffer, qint64 count)
         {
             CRASH_MSG("MemoryStream: out of memory");
         }
-        memset(internalBuffer + newPosition, 0, static_cast<size_t>(internalBufferSize - newPosition));
+        memset(internalBuffer + length, 0, static_cast<size_t>(internalBufferSize - length));
     }
     if (newPosition > length)
         length = newPosition;
