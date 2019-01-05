@@ -425,7 +425,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                                 archiveFile = g_GameData->GamePath() + files.first();
                             else if (files.count() == 0)
                             {
-                                FileStream fs = FileStream(archiveFile, FileMode::Create, FileAccess::WriteOnly);
+                                FileStream fs = FileStream(DLCArchiveFile, FileMode::Create, FileAccess::WriteOnly);
                                 fs.WriteFromBuffer(texture.getProperties().getProperty("TFCFileGuid").valueStruct);
                                 archiveFile = DLCArchiveFile;
                                 newTfcFile = true;
@@ -488,7 +488,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                                 break;
                             }
 
-                            fileLength = QFile(archiveFile).exists();
+                            fileLength = QFile(archiveFile).size();
                             if (fileLength + 0x5000000UL < 0x80000000UL)
                             {
                                 ByteBuffer guid(const_cast<quint8 *>(newGuid.guid), 16);
