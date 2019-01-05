@@ -365,7 +365,7 @@ bool CmdLineTools::extractTPF(QString &inputDir, QString &outputDir, bool ipc)
     if (outputDir.length() != 0)
     {
         QDir().mkpath(outputDir);
-        outputDir + "/";
+        outputDir += "/";
     }
 
     foreach (QFileInfo file, list)
@@ -472,7 +472,7 @@ bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputD
     if (outputDir.length() != 0)
     {
         QDir().mkpath(outputDir);
-        outputDir + "/";
+        outputDir += "/";
     }
 
     foreach (QFileInfo file, list)
@@ -603,7 +603,7 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
     if (outputDir.length() != 0)
     {
         QDir().mkpath(outputDir);
-        outputDir + "/";
+        outputDir += "/";
     }
 
     int currentNumberOfTotalMods = 1;
