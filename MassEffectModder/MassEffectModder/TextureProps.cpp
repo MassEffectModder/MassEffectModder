@@ -369,6 +369,7 @@ void TexProperty::setByteValue(const QString &name, const QString &valueName,
         if (GameData::gameType == MeType::ME3_TYPE)
         {
             texProperty.valueRaw = ByteBuffer(16);
+            memset(texProperty.valueRaw.ptr() + 4, 0, sizeof(qint32));
         }
         else
         {
@@ -444,6 +445,7 @@ void TexProperty::setBoolValue(const QString &name, bool value)
         else
         {
             texProperty.valueRaw = ByteBuffer(4);
+            memset(texProperty.valueRaw.ptr() + 1, 0, 3);
         }
         texProperty.type = "BoolProperty";
         if (!package->existsNameId(texProperty.type))
