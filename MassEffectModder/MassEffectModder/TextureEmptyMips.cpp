@@ -304,7 +304,7 @@ void MipMaps::removeMipMapsME2ME3(QList<FoundTexture> &textures, QStringList &pk
 
 void MipMaps::removeMipMapsME2ME3(Package &package, RemoveMipsEntry &removeEntry,
                                     QStringList &pkgsToMarker, QStringList &pkgsToRepack,
-                                    bool repack, bool ipc, bool appendMarker)
+                                    bool ipc, bool repack, bool appendMarker)
 {
     for (int l = 0; l < removeEntry.exportIDs.count(); l++)
     {
