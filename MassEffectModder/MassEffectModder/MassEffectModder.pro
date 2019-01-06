@@ -159,9 +159,12 @@ win32 {
 
 linux {
     # libomp need to be compiled from sources
-    OMP_PATH=/usr/local/libomp
-    QMAKE_CXXFLAGS += -fopenmp -I$$OMP_PATH/include
-    LIBS += -L$$OMP_PATH/lib -lomp -ldl
+    QMAKE_CXXFLAGS_RELEASE += -I/usr/local/libomp-static/include
+    QMAKE_CXXFLAGS_DEBUG += -I/usr/local/libomp/include
+    QMAKE_CXXFLAGS += -fopenmp
+    QMAKE_LFLAGS_RELEASE += -L/usr/local/libomp-static/lib
+    QMAKE_LFLAGS_DEBUG += -L/usr/local/libomp/lib
+    LIBS += -lomp -ldl
 
     # WA: PCH file clash with targer file name
     PRECOMPILED_DIR = ".pch"
