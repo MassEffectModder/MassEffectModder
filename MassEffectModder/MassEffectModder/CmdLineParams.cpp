@@ -963,9 +963,15 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!QDir(input).exists())
+        if (!input.endsWith(".mem", Qt::CaseInsensitive))
         {
-            ConsoleWrite("Input folder doesn't exists!");
+            ConsoleWrite("Input file is not mem!");
+            errorCode = 1;
+            break;
+        }
+        if (!QFile(input).exists())
+        {
+            ConsoleWrite("Input file doesn't exists!");
             errorCode = 1;
             break;
         }
