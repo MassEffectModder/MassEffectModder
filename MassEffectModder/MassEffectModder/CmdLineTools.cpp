@@ -1887,9 +1887,12 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTextur
                            texture->getProperties().getProperty("TFCFileGuid").valueStruct.ptr(), 16) != 0)
                 {
                     triggerCacheArc = true;
-                    Texture::TextureMipMap oldMipmap = texture->getMipmap(mipmap.width, mipmap.height);
+                    Texture::TextureMipMap oldMipmap{};
+                    auto mipMapExists = texture->existMipmap(mipmap.width, mipmap.height);
+                    if (mipMapExists)
+                        oldMipmap = texture->getMipmap(mipmap.width, mipmap.height);
                     if (memcmp(origGuid, texture->getProperties().getProperty("TFCFileGuid").valueStruct.ptr(), 16) != 0 &&
-                        oldMipmap.width != 0 && mipmap.newData.size() <= oldMipmap.compressedSize)
+                        mipMapExists && mipmap.newData.size() <= oldMipmap.compressedSize)
                     {
                         FileStream fs = FileStream(archiveFile, FileMode::Open, FileAccess::ReadWrite);
                         fs.JumpTo(oldMipmap.dataOffset);
