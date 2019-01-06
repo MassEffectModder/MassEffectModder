@@ -212,6 +212,7 @@ QStringList convertLegacyArguments()
     if (args.count() < 2)
         return QStringList();
 
+    retArgs.append("");
     if (args[1] == "-check-game-data-after")
     {
         if (args.count() > 1)
@@ -422,134 +423,71 @@ int ProcessArguments()
     CmdLineTools tools;
 
     QStringList args = convertLegacyArguments();
+    args.removeFirst();
 
     for (int l = 0; l < args.count(); l++)
     {
         const QString arg = args[l].toLower();
         if (arg == "--help")
             cmd = CmdType::HELP;
-        if (arg == "--scan")
+        else if (arg == "--scan")
             cmd = CmdType::SCAN;
-        if (arg == "--remove-empty-mips")
+        else if (arg == "--remove-empty-mips")
             cmd = CmdType::REMOVE_EMPTY_MIPS;
-        if (arg == "--update-toc")
+        else if (arg == "--update-toc")
             cmd = CmdType::UPDATE_TOC;
-        if (arg == "--unpack-dlcs")
+        else if (arg == "--unpack-dlcs")
             cmd = CmdType::UNPACK_DLCS;
-        if (arg == "--repack")
+        else if (arg == "--repack")
             cmd = CmdType::REPACK;
-        if (arg == "--convert-to-mem")
+        else if (arg == "--convert-to-mem")
             cmd = CmdType::CONVERT_TO_MEM;
-        if (arg == "--convert-game-image")
+        else if (arg == "--convert-game-image")
             cmd = CmdType::CONVERT_GAME_IMAGE;
-        if (arg == "--convert-game-images")
+        else if (arg == "--convert-game-images")
             cmd = CmdType::CONVERT_GAME_IMAGES;
-        if (arg == "--convert-image")
+        else if (arg == "--convert-image")
             cmd = CmdType::CONVERT_IMAGE;
-        if (arg == "--install-mods")
+        else if (arg == "--install-mods")
             cmd = CmdType::INSTALL_MODS;
-        if (arg == "--extract-mod")
+        else if (arg == "--extract-mod")
             cmd = CmdType::EXTRACT_MOD;
-        if (arg == "--extract-mem")
+        else if (arg == "--extract-mem")
             cmd = CmdType::EXTRACT_MEM;
-        if (arg == "--extract-tpf")
+        else if (arg == "--extract-tpf")
             cmd = CmdType::EXTRACT_TPF;
-        if (arg == "--detect-mods")
+        else if (arg == "--detect-mods")
             cmd = CmdType::DETECT_MODS;
-        if (arg == "--detect-bad-mods")
+        else if (arg == "--detect-bad-mods")
             cmd = CmdType::DETECT_BAD_MODS;
-        if (arg == "--apply-lods-gfx")
+        else if (arg == "--apply-lods-gfx")
             cmd = CmdType::APPLY_LODS_GFX;
-        if (arg == "--print-lods")
+        else if (arg == "--print-lods")
             cmd = CmdType::PRINT_LODS;
-        if (arg == "--remove-lods")
+        else if (arg == "--remove-lods")
             cmd = CmdType::REMOVE_LODS;
-        if (arg == "--apply-me1-laa")
+        else if (arg == "--apply-me1-laa")
             cmd = CmdType::APPLY_ME1_LAA;
-        if (arg == "--check-game-data-textures")
+        else if (arg == "--check-game-data-textures")
             cmd = CmdType::CHECK_GAME_DATA_TEXTURES;
-        if (arg == "--check-game-data-mismatch")
+        else if (arg == "--check-game-data-mismatch")
             cmd = CmdType::CHECK_GAME_DATA_MISMATCH;
-        if (arg == "--check-game-data-after")
+        else if (arg == "--check-game-data-after")
             cmd = CmdType::CHECK_GAME_DATA_AFTER;
-        if (arg == "--check-game-data-vanilla")
+        else if (arg == "--check-game-data-vanilla")
             cmd = CmdType::CHECK_GAME_DATA_VANILLA;
-        if (arg == "--check-for-markers")
+        else if (arg == "--check-for-markers")
             cmd = CmdType::CHECK_FOR_MARKERS;
-        if (arg == "--extract-all-dds")
+        else if (arg == "--extract-all-dds")
             cmd = CmdType::EXTRACT_ALL_DDS;
-        if (arg == "--extract-all-png")
+        else if (arg == "--extract-all-png")
             cmd = CmdType::EXTRACT_ALL_PNG;
-        if (arg == "--dlc-mod-textures")
+        else if (arg == "--dlc-mod-textures")
             cmd = CmdType::DLC_MOD_TEXTURES;
-        else if (arg == "--gameid" && hasValue(args, l))
-        {
-            bool ok;
-            int id = args[l + 1].toInt(&ok);
-            if (ok && id >= 1 && id <= 3)
-            {
-                gameId = (MeType)id;
-            }
-        }
-        else if (arg == "--ipc")
-            ipc = true;
-        else if (arg == "--input" && hasValue(args, l))
-        {
-            input = args[l + 1].replace('\\', '/');
-            if (input.length() == 0)
-            {
-                ConsoleWrite("Input path param wrong!");
-                return -1;
-            }
-        }
-        else if (arg == "--output" && hasValue(args, l))
-        {
-            output = args[l + 1].replace('\\', '/');
-            if (output.length() == 0)
-            {
-                ConsoleWrite("Output path wrong!");
-                return -1;
-            }
-        }
-        else if (arg == "--mark-to-convert")
-            markToConvert = true;
-        else if (arg == "--alot-mode")
-            guiMode = true;
-        else if (arg == "--repack-mode")
-            repackMode = true;
-        else if (arg == "--soft-shadows-mode")
-            softShadowsMods = true;
-        else if (arg == "--meuitm-mode")
-            meuitmMode = true;
-        else if (arg == "--limit-2k")
-            limit2k = true;
-        else if (arg == "--verify")
-            verify = true;
-        else if (arg == "--pcc-only" && !tfcOnly)
-            pccOnly = true;
-        else if (arg == "--tfc-only" && !pccOnly)
-            tfcOnly = true;
-        else if (arg == "--threshold" && hasValue(args, l))
-        {
-            threshold = args[l + 1];
-            if (threshold.length() != 0)
-            {
-                thresholdValue = threshold.toInt();
-            }
-        }
-        else if (arg == "--format" && hasValue(args, l))
-        {
-            format = args[l + 1];
-        }
-        else if (arg == "--tfc-name" && hasValue(args, l) &&
-                !pccOnly && !tfcOnly)
-        {
-            tfcName = args[l + 1];
-        }
-        else if (arg == "--guid" && hasValue(args, l))
-        {
-            guid = args[l + 1];
-        }
+        else
+            continue;
+        args.removeAt(l);
+        break;
     }
 
     switch (cmd)
@@ -560,7 +498,133 @@ int ProcessArguments()
     case CmdType::UNKNOWN:
         ConsoleWrite("Wrong command!");
         DisplayHelp();
-        return -1;
+        return 1;
+    }
+
+    for (int l = 0; l < args.count(); l++)
+    {
+        const QString arg = args[l].toLower();
+        if (arg == "--gameid" && hasValue(args, l))
+        {
+            bool ok;
+            int id = args[l + 1].toInt(&ok);
+            if (ok && id >= 1 && id <= 3)
+            {
+                gameId = (MeType)id;
+            }
+            args.removeAt(l);
+            args.removeAt(l--);
+        }
+        else if (arg == "--ipc")
+        {
+            ipc = true;
+            args.removeAt(l--);
+        }
+        else if (arg == "--input" && hasValue(args, l))
+        {
+            input = args[l + 1].replace('\\', '/');
+            if (input.length() == 0)
+            {
+                ConsoleWrite("Input path param wrong!");
+                return -1;
+            }
+            args.removeAt(l);
+            args.removeAt(l--);
+        }
+        else if (arg == "--output" && hasValue(args, l))
+        {
+            output = args[l + 1].replace('\\', '/');
+            if (output.length() == 0)
+            {
+                ConsoleWrite("Output path wrong!");
+                return -1;
+            }
+            args.removeAt(l);
+            args.removeAt(l--);
+        }
+        else if (arg == "--mark-to-convert")
+        {
+            markToConvert = true;
+            args.removeAt(l--);
+        }
+        else if (arg == "--alot-mode")
+        {
+            guiMode = true;
+            args.removeAt(l--);
+        }
+        else if (arg == "--repack-mode")
+        {
+            repackMode = true;
+            args.removeAt(l--);
+        }
+        else if (arg == "--soft-shadows-mode")
+        {
+            softShadowsMods = true;
+            args.removeAt(l--);
+        }
+        else if (arg == "--meuitm-mode")
+        {
+            meuitmMode = true;
+            args.removeAt(l--);
+        }
+        else if (arg == "--limit-2k")
+        {
+            limit2k = true;
+            args.removeAt(l--);
+        }
+        else if (arg == "--verify")
+        {
+            verify = true;
+            args.removeAt(l--);
+        }
+        else if (arg == "--pcc-only")
+        {
+            if (!tfcOnly)
+                pccOnly = true;
+            args.removeAt(l--);
+        }
+        else if (arg == "--tfc-only")
+        {
+            if (!tfcOnly)
+                pccOnly = true;
+            tfcOnly = true;
+            args.removeAt(l--);
+        }
+        else if (arg == "--threshold" && hasValue(args, l))
+        {
+            threshold = args[l + 1];
+            if (threshold.length() != 0)
+            {
+                thresholdValue = threshold.toInt();
+            }
+            args.removeAt(l);
+            args.removeAt(l--);
+        }
+        else if (arg == "--format" && hasValue(args, l))
+        {
+            format = args[l + 1];
+            args.removeAt(l);
+            args.removeAt(l--);
+        }
+        else if (arg == "--tfc-name" && hasValue(args, l))
+        {
+            if (!pccOnly && !tfcOnly)
+                tfcName = args[l + 1];
+            args.removeAt(l);
+            args.removeAt(l--);
+        }
+        else if (arg == "--guid" && hasValue(args, l))
+        {
+            guid = args[l + 1];
+            args.removeAt(l);
+            args.removeAt(l--);
+        }
+    }
+    if (args.count() != 0)
+    {
+        ConsoleWrite("Wrong options!");
+        DisplayHelp();
+        return 1;
     }
 
     switch (cmd)
