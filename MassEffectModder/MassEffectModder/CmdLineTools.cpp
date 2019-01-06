@@ -2054,11 +2054,20 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
         {
             continue;
         }
-        if (!pccOnly && !tfcOnly && textureTfcFilter.length() != 0 && tfcPropExists)
+        if (!pccOnly && !tfcOnly && textureTfcFilter.length() != 0)
         {
-            QString archive = texture.getProperties().getProperty("TextureFileCacheName").valueName;
-            if (archive != textureTfcFilter)
+            if (tfcPropExists)
+            {
+                QString archive = texture.getProperties().getProperty("TextureFileCacheName").valueName;
+                if (archive != textureTfcFilter)
+                {
+                    continue;
+                }
+            }
+            else
+            {
                 continue;
+            }
         }
         PixelFormat pixelFormat = Image::getPixelFormatType(texture.getProperties().getProperty("Format").valueName);
         if (png)
