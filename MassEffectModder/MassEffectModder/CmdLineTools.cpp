@@ -1960,20 +1960,26 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTextur
 
         if (triggerCacheCpr)
         {
-            delete cprTexture;
-            cprTexture = texture;
+            if (cprTexture != arcTexture || triggerCacheArc)
+                delete cprTexture;
         }
         if (triggerCacheArc)
         {
-            delete arcTexture;
-            arcTexture = texture;
+            if (cprTexture != arcTexture && !triggerCacheCpr)
+                delete arcTexture;
         }
+        if (triggerCacheCpr)
+            cprTexture = texture;
+        if (triggerCacheArc)
+            arcTexture = texture;
+
         if (!triggerCacheCpr && !triggerCacheArc)
             delete texture;
 
         package.SaveToFile(false, false, false);
     }
-    delete cprTexture;
+    if (cprTexture != arcTexture)
+        delete cprTexture;
     delete arcTexture;
 }
 
