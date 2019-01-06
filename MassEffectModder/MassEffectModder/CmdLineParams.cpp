@@ -69,7 +69,7 @@ void DisplayHelp()
     ConsoleWrite("  [--alot-mode] [--limit-2k] [--verify]");
     ConsoleWrite("     Install MEM mods from input directory.");
     ConsoleWrite("");
-    ConsoleWrite("  --apply-me1-laa\n");
+    ConsoleWrite("  --apply-me1-laa");
     ConsoleWrite("     Apply LAA patch to ME1 executable.");
     ConsoleWrite("");
     ConsoleWrite("  --detect-mods --gameid <game id> [--ipc]");
