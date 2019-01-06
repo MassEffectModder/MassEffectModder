@@ -423,7 +423,8 @@ int ProcessArguments()
     CmdLineTools tools;
 
     QStringList args = convertLegacyArguments();
-    args.removeFirst();
+    if (args.count() != 0)
+        args.removeFirst();
 
     for (int l = 0; l < args.count(); l++)
     {
