@@ -37,7 +37,10 @@ int ZlibDecompress(unsigned char *src, unsigned int src_len, unsigned char *dst,
     if (status == Z_OK)
         *dst_len = static_cast<unsigned int>(len);
     else
+    {
+        printf("uncompress failed - error: %d\n", status);
         *dst_len = 0;
+    }
 
     return status;
 }
@@ -54,11 +57,19 @@ int ZlibCompress(unsigned char *src, unsigned int src_len, unsigned char **dst, 
     if (status == Z_OK)
     {
         *dst = new unsigned char[len];
+        if (*dst == nullptr)
+        {
+            delete[] tmpbuf;
+            return -100;
+        }
         memcpy(*dst, tmpbuf, len);
         *dst_len = static_cast<unsigned int>(len);
     }
     else
+    {
+        printf("compress2 failed - error: %d\n", status);
         *dst_len = 0;
+    }
 
     delete[] tmpbuf;
 

@@ -293,7 +293,7 @@ const ByteBuffer Texture::decompressTexture(Stream &stream, StorageTypes type, i
     {
         Package::ChunkBlock block = blocks[b];
         block.compressedBuffer = new quint8[blocks[b].comprSize];
-        if (block.uncompressedBuffer == nullptr)
+        if (block.compressedBuffer == nullptr)
             CRASH_MSG((QString("Out of memory! - amount: ") + QString::number(blocks[b].comprSize)).toStdString().c_str());
         stream.ReadToBuffer(block.compressedBuffer, blocks[b].comprSize);
         block.uncompressedBuffer = new quint8[maxBlockSize * 2];

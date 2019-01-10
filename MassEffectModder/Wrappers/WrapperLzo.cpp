@@ -34,6 +34,10 @@ int LzoDecompress(unsigned char *src, unsigned int src_len, unsigned char *dst, 
         return status;
 
     status = lzo1x_decompress_safe(src, src_len, dst, &len, nullptr);
+    if (status != LZO_E_OK)
+    {
+        printf("lzo1x_decompress_safe failed - error: %d\n", status);
+    }
     *dst_len = (unsigned int)len;
 
     return status;
@@ -73,6 +77,10 @@ int LzoCompress(unsigned char *src, unsigned int src_len, unsigned char **dst, u
         {
             status = -100;
         }
+    }
+    else
+    {
+        printf("lzo1x_1_15_compress failed - error: %d\n", status);
     }
 
     delete[] tmpBuffer;
