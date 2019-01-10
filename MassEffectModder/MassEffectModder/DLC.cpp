@@ -144,7 +144,7 @@ void ME3DLC::extract(QString &SFARfilename, bool ipc, int &currentProgress, int 
             int newProgress = (100 * currentProgress) / totalNumber;
             if (lastProgress != newProgress)
             {
-                ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + newProgress);
+                ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + QString::number(newProgress));
                 ConsoleSync();
                 lastProgress = newProgress;
             }
