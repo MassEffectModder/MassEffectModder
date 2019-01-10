@@ -659,13 +659,15 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> &textures, const 
             {
                 if (ipc)
                 {
-                    ConsoleWrite(QString("[IPC]ERROR Texture ") + exp.objectName + " is broken in package: " +
+                    ConsoleWrite(QString("[IPC]ERROR Texture ") + exp.objectName +
+                                 " has broken export data in package: " +
                                  packagePath + "\nExport Id: " + QString::number(i + 1) + "\nSkipping...");
                     ConsoleSync();
                 }
                 else
                 {
-                    ConsoleWrite(QString("Error: Texture ") + exp.objectName + " is broken in package: " +
+                    ConsoleWrite(QString("Error: Texture ") + exp.objectName +
+                                 " has broken export data in package: " +
                                  packagePath +"\nExport Id: " + QString::number(i + 1) + "\nSkipping...");
                 }
                 continue;

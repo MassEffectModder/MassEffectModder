@@ -179,13 +179,15 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
             {
                 if (ipc)
                 {
-                    ConsoleWrite(QString("[IPC]ERROR Texture ") + mod.textureName + " is broken in package: " +
+                    ConsoleWrite(QString("[IPC]ERROR Texture ") + mod.textureName +
+                                 " has broken export data in package: " +
                                  matched.path + "\nExport Id: " + QString::number(matched.exportID + 1) + "\nSkipping...");
                     ConsoleSync();
                 }
                 else
                 {
-                    ConsoleWrite(QString("Error: Texture ") + mod.textureName + " is broken in package: " +
+                    ConsoleWrite(QString("Error: Texture ") + mod.textureName +
+                                 " has broken export data in package: " +
                                  matched.path +"\nExport Id: " + QString::number(matched.exportID + 1) + "\nSkipping...");
                 }
                 continue;

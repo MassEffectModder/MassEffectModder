@@ -1692,7 +1692,8 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTextur
         ByteBuffer exportData = package.getExportData(nodeTexture.exportID);
         if (exportData.ptr() == nullptr)
         {
-            ConsoleWrite(QString("Error: Texture ") + textureName + " is broken in package: " +
+            ConsoleWrite(QString("Error: Texture ") + textureName +
+                         " has broken export data in package: " +
                          nodeTexture.path + "\nExport Id: " + QString::number(nodeTexture.exportID + 1) + "\nSkipping...");
             continue;
         }
@@ -2039,7 +2040,8 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
         ByteBuffer exportData = package.getExportData(exportID);
         if (exportData.ptr() == nullptr)
         {
-            ConsoleWrite(QString("Error: Texture ") + textures[i].name + " is broken in package: " +
+            ConsoleWrite(QString("Error: Texture ") + textures[i].name +
+                         " has broken export data in package: " +
                          textures[i].list[index].path + "\nExport Id: " + QString::number(exportID + 1) + "\nSkipping...");
             continue;
         }

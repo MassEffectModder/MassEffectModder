@@ -122,13 +122,13 @@ void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> &textures, Package
         {
             if (ipc)
             {
-                ConsoleWrite(QString("[IPC]ERROR Texture is broken in package: ") +
+                ConsoleWrite(QString("[IPC]ERROR Texture has broken export data in package: ") +
                              package.packagePath + "\nExport Id: " + QString::number(exportID + 1) + "\nSkipping...");
                 ConsoleSync();
             }
             else
             {
-                ConsoleWrite(QString("Error: Texture is broken in package: ") +
+                ConsoleWrite(QString("Error: Texture has broken export data in package: ") +
                              package.packagePath +"\nExport Id: " + QString::number(exportID + 1) + "\nSkipping...");
             }
             continue;
@@ -314,13 +314,13 @@ void MipMaps::removeMipMapsME2ME3(Package &package, RemoveMipsEntry &removeEntry
         {
             if (ipc)
             {
-                ConsoleWrite(QString("[IPC]ERROR Texture is broken in package: ") +
+                ConsoleWrite(QString("[IPC]ERROR Texture has broken export data in package: ") +
                              package.packagePath + "\nExport Id: " + QString::number(exportID + 1) + "\nSkipping...");
                 ConsoleSync();
             }
             else
             {
-                ConsoleWrite(QString("Error: Texture is broken in package: ") +
+                ConsoleWrite(QString("Error: Texture has broken export data in package: ") +
                              package.packagePath +"\nExport Id: " + QString::number(exportID + 1) + "\nSkipping...");
             }
             continue;
