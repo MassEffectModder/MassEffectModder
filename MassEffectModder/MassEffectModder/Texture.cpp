@@ -207,6 +207,8 @@ const ByteBuffer Texture::compressTexture(const ByteBuffer &inputData, StorageTy
             block.uncomprSize = qMin((uint)maxBlockSize, dataBlockLeft);
             dataBlockLeft -= block.uncomprSize;
             block.uncompressedBuffer = new quint8[block.uncomprSize];
+            if (block.uncompressedBuffer == nullptr)
+                CRASH_MSG((QString("Out of memory! - amount: ") + QString::number(block.uncomprSize)).toStdString().c_str());
             inputStream.ReadToBuffer(block.uncompressedBuffer, block.uncomprSize);
             blocks.push_back(block);
         }
@@ -217,9 +219,15 @@ const ByteBuffer Texture::compressTexture(const ByteBuffer &inputData, StorageTy
     {
         Package::ChunkBlock block = blocks[b];
         if (type == StorageTypes::extLZO || type == StorageTypes::pccLZO)
-            LzoCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize);
+        {
+            if (LzoCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) == -100)
+                CRASH_MSG("Out of memory!");
+        }
         else if (type == StorageTypes::extZlib || type == StorageTypes::pccZlib)
-            ZlibCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize);
+        {
+            if (ZlibCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) == -100)
+                CRASH_MSG("Out of memory!");
+        }
         else
             CRASH_MSG("Compression type not expected!");
         if (block.comprSize == 0)
@@ -285,8 +293,12 @@ const ByteBuffer Texture::decompressTexture(Stream &stream, StorageTypes type, i
     {
         Package::ChunkBlock block = blocks[b];
         block.compressedBuffer = new quint8[blocks[b].comprSize];
+        if (block.uncompressedBuffer == nullptr)
+            CRASH_MSG((QString("Out of memory! - amount: ") + QString::number(blocks[b].comprSize)).toStdString().c_str());
         stream.ReadToBuffer(block.compressedBuffer, blocks[b].comprSize);
         block.uncompressedBuffer = new quint8[maxBlockSize * 2];
+        if (block.uncompressedBuffer == nullptr)
+            CRASH_MSG((QString("Out of memory! - amount: ") + QString::number(maxBlockSize * 2)).toStdString().c_str());
         blocks[b] = block;
     }
 
@@ -309,7 +321,8 @@ const ByteBuffer Texture::decompressTexture(Stream &stream, StorageTypes type, i
         {
             uint dstLen = maxBlockSize * 2;
             Package::ChunkBlock block = blocks[b];
-            ZlibDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen);
+            if (ZlibDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen) == -100)
+                CRASH_MSG("Out of memory!");
             if (dstLen != block.uncomprSize)
                 errorFlag = true;
         }

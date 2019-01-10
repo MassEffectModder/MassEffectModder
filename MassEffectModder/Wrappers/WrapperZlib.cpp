@@ -45,8 +45,10 @@ int ZlibDecompress(unsigned char *src, unsigned int src_len, unsigned char *dst,
 int ZlibCompress(unsigned char *src, unsigned int src_len, unsigned char **dst, unsigned int *dst_len, int compression_level)
 {
     int tmpBufLen = (src_len * 2) + 128;
-    unsigned char *tmpbuf = new unsigned char[tmpBufLen];
     uLongf len = tmpBufLen;
+    auto *tmpbuf = new unsigned char[tmpBufLen];
+    if (tmpbuf == nullptr)
+        return -100;
 
     int status = compress2(static_cast<Bytef *>(tmpbuf), &len, static_cast<Bytef *>(src), static_cast<uLong>(src_len), compression_level);
     if (status == Z_OK)

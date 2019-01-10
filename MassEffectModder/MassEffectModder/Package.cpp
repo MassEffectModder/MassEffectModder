@@ -148,6 +148,8 @@ int Package::Open(const QString &filename, bool headerOnly, bool fullLoad)
     }
 
     packageHeader = new quint8[packageHeaderSize];
+    if (packageHeader == nullptr)
+        CRASH_MSG((QString("Out of memory! - amount: ") + QString::number(packageHeaderSize)).toStdString().c_str());
     packageStream->SeekBegin();
     packageStream->ReadToBuffer(packageHeader, packageHeaderSize);
 
@@ -301,8 +303,12 @@ bool Package::getData(uint offset, uint length, Stream *outputStream, quint8 *ou
                 {
                     ChunkBlock block = blocks[b];
                     block.compressedBuffer = new quint8[block.comprSize];
+                    if (block.compressedBuffer == nullptr)
+                        CRASH_MSG((QString("Out of memory! - amount: ") + QString::number(block.comprSize)).toStdString().c_str());
                     packageStream->ReadToBuffer(block.compressedBuffer, block.comprSize);
                     block.uncompressedBuffer = new quint8[maxBlockSize * 2];
+                    if (block.uncompressedBuffer == nullptr)
+                        CRASH_MSG((QString("Out of memory! - amount: ") + QString::number(maxBlockSize * 2)).toStdString().c_str());
                     blocks.replace(b, block);
                 }
 
@@ -325,7 +331,8 @@ bool Package::getData(uint offset, uint length, Stream *outputStream, quint8 *ou
                     {
                         const ChunkBlock& block = blocks[b];
                         uint dstLen = maxBlockSize * 2;
-                        ZlibDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen);
+                        if (ZlibDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen) == -100)
+                            CRASH_MSG("Out of memory!");
                         if (dstLen != block.uncomprSize)
                             failed = true;
                     }
@@ -1086,6 +1093,8 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
                 block.uncomprSize = qMin((uint)maxBlockSize, dataBlockLeft);
                 dataBlockLeft -= block.uncomprSize;
                 block.uncompressedBuffer = new quint8[block.uncomprSize];
+                if (block.uncompressedBuffer == nullptr)
+                    CRASH_MSG((QString("Out of memory! - amount: ") + QString::number(block.uncomprSize)).toStdString().c_str());
                 tempOutput.ReadToBuffer(block.uncompressedBuffer, block.uncomprSize);
                 chunk.blocks.push_back(block);
             }
@@ -1095,9 +1104,15 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
             {
                 ChunkBlock block = chunk.blocks[b];
                 if (targetCompression == CompressionType::LZO)
-                    LzoCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize);
+                {
+                    if (LzoCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) == -100)
+                        CRASH_MSG("Out of memory!");
+                }
                 else if (targetCompression == CompressionType::Zlib)
-                    ZlibCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize);
+                {
+                    if (ZlibCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) == -100)
+                        CRASH_MSG("Out of memory!");
+                }
                 else
                     CRASH_MSG("Compression type not expected!");
                 if (block.comprSize == 0)

@@ -145,6 +145,8 @@ int ZipGetCurrentFileInfo(void *handle, char **fileName, int *sizeOfFileName, un
         return result;
 
     *fileName = new char[*sizeOfFileName];
+    if (*fileName == nullptr)
+        return -100;
     strcpy(*fileName, f);
     *sizeOfFileName = strlen(*fileName);
     *dstLen = unzipHandle->curFileInfo.uncompressed_size;

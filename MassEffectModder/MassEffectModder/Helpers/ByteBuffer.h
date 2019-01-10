@@ -40,21 +40,18 @@ public:
     ByteBuffer(quint64 size)
     {
         _ptr = new quint8[size];
+        if (_ptr == nullptr)
+            CRASH_MSG((QString("Out of memory! - amount: ") + QString::number(size)).toStdString().c_str());
         _size = size;
     }
 
     ByteBuffer(const quint8 *ptr, quint64 size)
     {
         _ptr = new quint8[size];
-        if (_ptr != nullptr)
-        {
-            memcpy(_ptr, ptr, size);
-            _size = size;
-        }
-        else
-        {
-            _size = 0;
-        }
+        if (_ptr == nullptr)
+            CRASH_MSG((QString("Out of memory! - amount: ") + QString::number(size)).toStdString().c_str());
+        memcpy(_ptr, ptr, size);
+        _size = size;
     }
 
     void Free()
