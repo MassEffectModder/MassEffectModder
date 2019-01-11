@@ -72,6 +72,7 @@ void MipMaps::removeMipMapsME1(int phase, QList<FoundTexture> &textures, QString
 
         if (ipc)
         {
+            ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + list[i].pkgPath);
             int newProgress = (list.count() * (phase - 1) + i + 1) * 100 / (list.count() * 2);
             if (lastProgress != newProgress)
             {
@@ -264,6 +265,7 @@ void MipMaps::removeMipMapsME2ME3(QList<FoundTexture> &textures, QStringList &pk
 
         if (ipc)
         {
+            ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + list[i].pkgPath);
             int newProgress = (i + 1) * 100 / list.count();
             if (lastProgress != newProgress)
             {
