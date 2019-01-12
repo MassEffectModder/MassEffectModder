@@ -112,7 +112,8 @@ Release:LIBS += \
     -L$$OUT_PWD/../Libs/lzo2/release -llzo2 \
     -L$$OUT_PWD/../Libs/png/release -lpng \
     -L$$OUT_PWD/../Libs/xdelta3/release -lxdelta3 \
-    -L$$OUT_PWD/../Libs/zlib/release -lzlib
+    -L$$OUT_PWD/../Libs/zlib/release -lzlib \
+    -L$$OUT_PWD/../Libs/unrar/release -lunrar
 Debug:LIBS += \
     -L$$OUT_PWD/../Wrappers/debug -lWrappers \
     -L$$OUT_PWD/../Libs/7zdec/debug -l7zdec \
@@ -120,7 +121,8 @@ Debug:LIBS += \
     -L$$OUT_PWD/../Libs/lzo2/debug -llzo2 \
     -L$$OUT_PWD/../Libs/png/debug -lpng \
     -L$$OUT_PWD/../Libs/xdelta3/debug -lxdelta3 \
-    -L$$OUT_PWD/../Libs/zlib/debug -lzlib
+    -L$$OUT_PWD/../Libs/zlib/debug -lzlib \
+    -L$$OUT_PWD/../Libs/unrar/debug -lunrar
 } else:unix: {
 LIBS += \
     -L$$OUT_PWD/../Wrappers -lWrappers \
@@ -129,7 +131,8 @@ LIBS += \
     -L$$OUT_PWD/../Libs/lzo2 -llzo2 \
     -L$$OUT_PWD/../Libs/png -lpng \
     -L$$OUT_PWD/../Libs/xdelta3 -lxdelta3 \
-    -L$$OUT_PWD/../Libs/zlib -lzlib
+    -L$$OUT_PWD/../Libs/zlib -lzlib \
+    -L$$OUT_PWD/../Libs/unrar -lunrar
 }
 
 macx {
