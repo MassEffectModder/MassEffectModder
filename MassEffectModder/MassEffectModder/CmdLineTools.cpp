@@ -459,7 +459,7 @@ bool CmdLineTools::extractTPF(QString &inputDir, QString &outputDir, bool ipc)
                 continue;
             }
 
-            ByteBuffer data = ByteBuffer(dstLen);
+            auto data = ByteBuffer(dstLen);
             result = ZipReadCurrentFile(handle, data.ptr(), dstLen, nullptr);
             if (result != 0)
             {
@@ -1692,7 +1692,7 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
                     continue;
                 }
                 ByteBuffer dst = MipMaps::decompressData(fs, size);
-                ByteBuffer buffer = ByteBuffer(src.size());
+                auto buffer = ByteBuffer(src.size());
                 uint dstLen = 0;
                 int status = XDelta3Decompress(src.ptr(), src.size(), dst.ptr(), dst.size(), buffer.ptr(), &dstLen);
                 src.Free();
