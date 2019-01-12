@@ -25,7 +25,8 @@ void FileStream::CheckFileIOErrorStatus()
 {
     if (file->error() != QFileDevice::NoError)
     {
-        CRASH_MSG((QString("File: ") + file->fileName() + " Error: " + file->errorString()).toStdString().c_str());
+        auto error = (QString("Error: ") + file->errorString() + "\nFile: " + file->fileName()).toStdString();
+        CRASH_MSG(error.c_str());
     }
 }
 
