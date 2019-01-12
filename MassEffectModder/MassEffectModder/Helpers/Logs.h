@@ -30,6 +30,7 @@ private:
     qint64          _startedTimestamp;
     bool            _timeStampEnabled;
     bool            _printToConsoleEnabled;
+    bool            _printToFileEnabled;
 
     void print(const QString &message);
 
@@ -37,7 +38,10 @@ public:
 
     Logs();
     void printStdMsg(const std::string &message);
-    void consoleEnabled(bool enabled) { _printToConsoleEnabled = enabled; }
+    bool isOutputConsoleEnabled() { return _printToConsoleEnabled; }
+    bool isOutputFileEnabled() { return _printToFileEnabled; }
+    void enableOutputConsole(bool enable) { _printToConsoleEnabled = enable; }
+    void enableOutputFile(bool enable) { _printToFileEnabled = enable; }
     void printMsg(const QString &message);
     void printMsgTimeStamp(const QString &message);
     void enableTimeStamp(bool enable) { _timeStampEnabled = enable; }

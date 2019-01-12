@@ -22,7 +22,10 @@
 #include "Logs.h"
 
 Logs::Logs() :
-        _startedTimestamp(0), _timeStampEnabled(false), _printToConsoleEnabled(false)
+        _startedTimestamp(0),
+        _timeStampEnabled(false),
+        _printToConsoleEnabled(false),
+        _printToFileEnabled(false)
 {
     _startedTimestamp = QDateTime::currentMSecsSinceEpoch();
 }
@@ -40,11 +43,14 @@ void Logs::print(const QString &message)
     if (_printToConsoleEnabled)
         std::puts((timestampStr + message).toStdString().c_str());
 
-    FILE *file = fopen("Log.txt", "a");
-    if (file)
+    if (_printToFileEnabled)
     {
-        std::fputs((timestampStr + message + "\n").toStdString().c_str(), file);
-        fclose(file);
+        FILE *file = fopen("Log.txt", "a");
+        if (file)
+        {
+            std::fputs((timestampStr + message + "\n").toStdString().c_str(), file);
+            fclose(file);
+        }
     }
 
     _lock.unlock();

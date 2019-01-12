@@ -34,9 +34,10 @@ void LogCrash(string output, string &message)
 
     if (g_logs)
     {
-        g_logs->consoleEnabled(true);
+        bool state = g_logs->isOutputConsoleEnabled();
+        g_logs->enableOutputConsole(true);
         g_logs->printStdMsg(output);
-        g_logs->consoleEnabled(false);
+        g_logs->enableOutputConsole(state);
     }
     else
         cerr << output;
