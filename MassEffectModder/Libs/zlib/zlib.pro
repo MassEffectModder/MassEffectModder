@@ -1,5 +1,5 @@
 TEMPLATE = lib
-CONFIG += staticlib
+CONFIG += staticlib warn_off
 
 QT -= gui core
 
@@ -39,11 +39,11 @@ HEADERS += \
     zutil.h
 
 win32-g++: {
-	SOURCES += iowin32.c
-	HEADERS += iowin32.h
+    SOURCES += iowin32.c
+    HEADERS += iowin32.h
 }
 
-QMAKE_CFLAGS += -O3 -Wno-implicit-fallthrough -Wno-unused-parameter -Wno-unused-function -Wno-unused-variable
+QMAKE_CFLAGS += -O3
 QMAKE_CFLAGS_RELEASE += -g1
 QMAKE_CFLAGS_DEBUG += -g
 
