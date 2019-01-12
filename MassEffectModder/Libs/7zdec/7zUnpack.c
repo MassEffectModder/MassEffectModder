@@ -1,19 +1,18 @@
-/* 7zMain.c - Test application for 7z Decoder
-2018-08-04 : Igor Pavlov : Public domain */
+/* 2019 : Pawel Kolodziejski : Public domain */
+/* 2018-08-04 : Igor Pavlov : Public domain */
 
 #include "Precomp.h"
 
 #include <stdio.h>
 #include <string.h>
 
-#include "../../CpuArch.h"
+#include "CpuArch.h"
 
-#include "../../7z.h"
-#include "../../7zAlloc.h"
-#include "../../7zBuf.h"
-#include "../../7zCrc.h"
-#include "../../7zFile.h"
-#include "../../7zVersion.h"
+#include "7z.h"
+#include "7zAlloc.h"
+#include "7zBuf.h"
+#include "7zCrc.h"
+#include "7zFile.h"
 
 #ifndef USE_WINDOWS_FILE
 /* for mkdir */
@@ -68,10 +67,10 @@ static size_t Utf16_To_Utf8_Calc(const UInt16 *src, const UInt16 *srcLim)
     UInt32 val;
     if (src == srcLim)
       return size;
-    
+
     size++;
     val = *src++;
-   
+
     if (val < 0x80)
       continue;
 
@@ -103,9 +102,9 @@ static Byte *Utf16_To_Utf8(Byte *dest, const UInt16 *src, const UInt16 *srcLim)
     UInt32 val;
     if (src == srcLim)
       return dest;
-    
+
     val = *src++;
-    
+
     if (val < 0x80)
     {
       *dest++ = (char)val;
@@ -135,7 +134,7 @@ static Byte *Utf16_To_Utf8(Byte *dest, const UInt16 *src, const UInt16 *srcLim)
         continue;
       }
     }
-    
+
     dest[0] = _UTF8_HEAD(2, val);
     dest[1] = _UTF8_CHAR(1, val);
     dest[2] = _UTF8_CHAR(0, val);
@@ -156,15 +155,15 @@ static SRes Utf16_To_Utf8Buf(CBuf *dest, const UInt16 *src, size_t srcLen)
 #endif
 
 static SRes Utf16_To_Char(CBuf *buf, const UInt16 *s
-    #ifndef _USE_UTF8
+#ifndef _USE_UTF8
     , UINT codePage
-    #endif
+#endif
     )
 {
   unsigned len = 0;
   for (len = 0; s[len] != 0; len++);
 
-  #ifndef _USE_UTF8
+#ifndef _USE_UTF8
   {
     unsigned size = len * 3 + 100;
     if (!Buf_EnsureSize(buf, size))
@@ -184,27 +183,27 @@ static SRes Utf16_To_Char(CBuf *buf, const UInt16 *s
       return SZ_OK;
     }
   }
-  #else
+#else
   return Utf16_To_Utf8Buf(buf, s, len);
-  #endif
+#endif
 }
 
 #ifdef _WIN32
-  #ifndef USE_WINDOWS_FILE
-    static UINT g_FileCodePage = CP_ACP;
-  #endif
-  #define MY_FILE_CODE_PAGE_PARAM ,g_FileCodePage
+#ifndef USE_WINDOWS_FILE
+  static UINT g_FileCodePage = CP_ACP;
+#endif
+#define MY_FILE_CODE_PAGE_PARAM ,g_FileCodePage
 #else
-  #define MY_FILE_CODE_PAGE_PARAM
+#define MY_FILE_CODE_PAGE_PARAM
 #endif
 
 static WRes MyCreateDir(const UInt16 *name)
 {
-  #ifdef USE_WINDOWS_FILE
-  
+#ifdef USE_WINDOWS_FILE
+
   return CreateDirectoryW(name, NULL) ? 0 : GetLastError();
-  
-  #else
+
+#else
 
   CBuf buf;
   WRes res;
@@ -212,23 +211,23 @@ static WRes MyCreateDir(const UInt16 *name)
   RINOK(Utf16_To_Char(&buf, name MY_FILE_CODE_PAGE_PARAM));
 
   res =
-  #ifdef _WIN32
+#ifdef _WIN32
   _mkdir((const char *)buf.data)
-  #else
+#else
   mkdir((const char *)buf.data, 0777)
-  #endif
+#endif
   == 0 ? 0 : errno;
   Buf_Free(&buf, &g_Alloc);
   return res;
-  
-  #endif
+
+#endif
 }
 
 static WRes OutFile_OpenUtf16(CSzFile *p, const UInt16 *name)
 {
-  #ifdef USE_WINDOWS_FILE
+#ifdef USE_WINDOWS_FILE
   return OutFile_OpenW(p, name);
-  #else
+#else
   CBuf buf;
   WRes res;
   Buf_Init(&buf);
@@ -236,7 +235,7 @@ static WRes OutFile_OpenUtf16(CSzFile *p, const UInt16 *name)
   res = OutFile_Open(p, (const char *)buf.data);
   Buf_Free(&buf, &g_Alloc);
   return res;
-  #endif
+#endif
 }
 
 
@@ -246,9 +245,9 @@ static SRes PrintString(const UInt16 *s)
   SRes res;
   Buf_Init(&buf);
   res = Utf16_To_Char(&buf, s
-      #ifndef _USE_UTF8
+#ifndef _USE_UTF8
       , CP_OEMCP
-      #endif
+#endif
       );
   if (res == SZ_OK)
     Print((const char *)buf.data);
@@ -356,23 +355,23 @@ static void PrintError(char *s)
 
 static void GetAttribString(UInt32 wa, BoolInt isDir, char *s)
 {
-  #ifdef USE_WINDOWS_FILE
+#ifdef USE_WINDOWS_FILE
   s[0] = (char)(((wa & FILE_ATTRIBUTE_DIRECTORY) != 0 || isDir) ? 'D' : '.');
   s[1] = (char)(((wa & FILE_ATTRIBUTE_READONLY ) != 0) ? 'R': '.');
   s[2] = (char)(((wa & FILE_ATTRIBUTE_HIDDEN   ) != 0) ? 'H': '.');
   s[3] = (char)(((wa & FILE_ATTRIBUTE_SYSTEM   ) != 0) ? 'S': '.');
   s[4] = (char)(((wa & FILE_ATTRIBUTE_ARCHIVE  ) != 0) ? 'A': '.');
   s[5] = 0;
-  #else
+#else
   s[0] = (char)(((wa & (1 << 4)) != 0 || isDir) ? 'D' : '.');
   s[1] = 0;
-  #endif
+#endif
 }
 
 
 // #define NUM_PARENTS_MAX 128
 
-int MY_CDECL main(int numargs, char *args[])
+int MY_CDECL decode(int numargs, char *args[])
 {
   ISzAlloc allocImp;
   ISzAlloc allocTempImp;
@@ -383,9 +382,8 @@ int MY_CDECL main(int numargs, char *args[])
   SRes res;
   UInt16 *temp = NULL;
   size_t tempSize = 0;
-  // UInt32 parents[NUM_PARENTS_MAX];
 
-  Print("\n7z Decoder " MY_VERSION_CPU " : " MY_COPYRIGHT_DATE "\n\n");
+  Print("\n7z Decoder\n\n");
 
   if (numargs == 1)
   {
@@ -405,19 +403,15 @@ int MY_CDECL main(int numargs, char *args[])
     return 1;
   }
 
-  #if defined(_WIN32) && !defined(USE_WINDOWS_FILE) && !defined(UNDER_CE)
+#if defined(_WIN32) && !defined(USE_WINDOWS_FILE)
   g_FileCodePage = AreFileApisANSI() ? CP_ACP : CP_OEMCP;
-  #endif
+#endif
 
 
   allocImp = g_Alloc;
   allocTempImp = g_Alloc;
 
-  #ifdef UNDER_CE
-  if (InFile_OpenW(&archiveStream.file, L"\test.7z"))
-  #else
   if (InFile_Open(&archiveStream.file, args[2]))
-  #endif
   {
     PrintError("can not open input file");
     return 1;
@@ -440,21 +434,21 @@ int MY_CDECL main(int numargs, char *args[])
       LookToRead2_Init(&lookStream);
     }
   }
-    
+
   CrcGenerateTable();
-    
+
   SzArEx_Init(&db);
-    
+
   if (res == SZ_OK)
   {
     res = SzArEx_Open(&db, &lookStream.vt, &allocImp, &allocTempImp);
   }
-  
+
   if (res == SZ_OK)
   {
     char *command = args[1];
     int listCommand = 0, testCommand = 0, fullPaths = 0;
-    
+
     if (strcmp(command, "l") == 0) listCommand = 1;
     else if (strcmp(command, "t") == 0) testCommand = 1;
     else if (strcmp(command, "e") == 0) { }
@@ -481,13 +475,11 @@ int MY_CDECL main(int numargs, char *args[])
       {
         size_t offset = 0;
         size_t outSizeProcessed = 0;
-        // const CSzFileItem *f = db.Files + i;
         size_t len;
         unsigned isDir = SzArEx_IsDir(&db, i);
         if (listCommand == 0 && isDir && !fullPaths)
           continue;
         len = SzArEx_GetFileNameUtf16(&db, i, NULL);
-        // len = SzArEx_GetFullNameLen(&db, i);
 
         if (len > tempSize)
         {
@@ -502,13 +494,6 @@ int MY_CDECL main(int numargs, char *args[])
         }
 
         SzArEx_GetFileNameUtf16(&db, i, temp);
-        /*
-        if (SzArEx_GetFullNameUtf16_Back(&db, i, temp + len) != temp)
-        {
-          res = SZ_ERROR_FAIL;
-          break;
-        }
-        */
 
         if (listCommand)
         {
@@ -519,7 +504,7 @@ int MY_CDECL main(int numargs, char *args[])
 
           fileSize = SzArEx_GetFileSize(&db, i);
           UInt64ToStr(fileSize, s, 10);
-          
+
           if (SzBitWithVals_Check(&db.MTime, i))
             ConvertFileTimeToString(&db.MTime.Vals[i], t);
           else
@@ -529,7 +514,7 @@ int MY_CDECL main(int numargs, char *args[])
               t[j] = ' ';
             t[j] = '\0';
           }
-          
+
           Print(t);
           Print(" ");
           Print(attr);
@@ -551,7 +536,7 @@ int MY_CDECL main(int numargs, char *args[])
         res = PrintString(temp);
         if (res != SZ_OK)
           break;
-        
+
         if (isDir)
           Print("/");
         else
@@ -563,7 +548,7 @@ int MY_CDECL main(int numargs, char *args[])
           if (res != SZ_OK)
             break;
         }
-        
+
         if (!testCommand)
         {
           CSzFile outFile;
@@ -571,7 +556,7 @@ int MY_CDECL main(int numargs, char *args[])
           size_t j;
           UInt16 *name = (UInt16 *)temp;
           const UInt16 *destPath = (const UInt16 *)name;
- 
+
           for (j = 0; name[j] != 0; j++)
             if (name[j] == '/')
             {
@@ -584,7 +569,7 @@ int MY_CDECL main(int numargs, char *args[])
               else
                 destPath = name + j + 1;
             }
-    
+
           if (isDir)
           {
             MyCreateDir(destPath);
@@ -599,7 +584,7 @@ int MY_CDECL main(int numargs, char *args[])
           }
 
           processedSize = outSizeProcessed;
-          
+
           if (File_Write(&outFile, outBuffer + offset, &processedSize) != 0 || processedSize != outSizeProcessed)
           {
             PrintError("can not write output file");
@@ -607,7 +592,7 @@ int MY_CDECL main(int numargs, char *args[])
             break;
           }
 
-          #ifdef USE_WINDOWS_FILE
+#ifdef USE_WINDOWS_FILE
           {
             FILETIME mtime, ctime;
             FILETIME *mtimePtr = NULL;
@@ -630,16 +615,16 @@ int MY_CDECL main(int numargs, char *args[])
             if (mtimePtr || ctimePtr)
               SetFileTime(outFile.handle, ctimePtr, NULL, mtimePtr);
           }
-          #endif
-          
+#endif
+
           if (File_Close(&outFile))
           {
             PrintError("can not close output file");
             res = SZ_ERROR_FAIL;
             break;
           }
-          
-          #ifdef USE_WINDOWS_FILE
+
+#ifdef USE_WINDOWS_FILE
           if (SzBitWithVals_Check(&db.Attribs, i))
           {
             UInt32 attrib = db.Attribs.Vals[i];
@@ -649,7 +634,7 @@ int MY_CDECL main(int numargs, char *args[])
               attrib &= 0x7FFF;
             SetFileAttributesW(destPath, attrib);
           }
-          #endif
+#endif
         }
         PrintLF();
       }
@@ -662,13 +647,13 @@ int MY_CDECL main(int numargs, char *args[])
   ISzAlloc_Free(&allocImp, lookStream.buf);
 
   File_Close(&archiveStream.file);
-  
+
   if (res == SZ_OK)
   {
     Print("\nEverything is Ok\n");
     return 0;
   }
-  
+
   if (res == SZ_ERROR_UNSUPPORTED)
     PrintError("decoder doesn't support this archive");
   else if (res == SZ_ERROR_MEM)
@@ -681,6 +666,6 @@ int MY_CDECL main(int numargs, char *args[])
     UInt64ToStr(res, s, 0);
     PrintError(s);
   }
-  
+
   return 1;
 }
