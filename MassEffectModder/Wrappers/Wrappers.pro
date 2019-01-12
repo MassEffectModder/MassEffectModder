@@ -4,7 +4,7 @@ CONFIG += staticlib
 QT -= gui core
 
 SOURCES += \
-    WrapperLzma.cpp \
+    Wrapper7Zip.cpp \
     WrapperLzo.cpp \
     WrapperPng.cpp \
     WrapperUnzip.cpp \

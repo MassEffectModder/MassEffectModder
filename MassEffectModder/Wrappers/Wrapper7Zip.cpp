@@ -1,5 +1,5 @@
 /*
- * Wrapper LZMA
+ * Wrapper 7Zip
  *
  * Copyright (C) 2015-2019 Pawel Kolodziejski
  *
