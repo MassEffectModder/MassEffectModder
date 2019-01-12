@@ -78,7 +78,10 @@ MemoryStream::MemoryStream(QString &filename, qint64 offset, qint64 count)
 {
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly))
-        CRASH_MSG((QString("Failed to open file: ") + filename + " Error: " + file.errorString()).toStdString().c_str());
+    {
+        auto error = (QString("Error: ") + file.errorString() + "\nFailed to open file: " + filename).toStdString();
+        CRASH_MSG(error.c_str());
+    }
 
     internalBuffer = static_cast<quint8 *>(std::malloc(static_cast<size_t>(count)));
     if (internalBuffer == nullptr)
@@ -101,7 +104,10 @@ MemoryStream::MemoryStream(QString &filename, qint64 count)
 {
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly))
-        CRASH_MSG((QString("Failed to open file: ") + filename + " Error: " + file.errorString()).toStdString().c_str());
+    {
+        auto error = (QString("Error: ") + file.errorString() + "\nFailed to open file: " + filename).toStdString();
+        CRASH_MSG(error.c_str());
+    }
 
     internalBuffer = static_cast<quint8 *>(std::malloc(static_cast<size_t>(count)));
     if (internalBuffer == nullptr )
@@ -119,7 +125,10 @@ MemoryStream::MemoryStream(QString &filename)
 {
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly))
-        CRASH_MSG((QString("Failed to open file: ") + filename + " Error: " + file.errorString()).toStdString().c_str());
+    {
+        auto error = (QString("Error: ") + file.errorString() + "\nFailed to open file: " + filename).toStdString();
+        CRASH_MSG(error.c_str());
+    }
 
     qint64 count = file.size();
     internalBuffer = static_cast<quint8 *>(std::malloc(static_cast<size_t>(count)));
