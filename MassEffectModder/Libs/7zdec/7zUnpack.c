@@ -161,7 +161,9 @@ static SRes Utf16_To_Char(CBuf *buf, const UInt16 *s
     )
 {
   unsigned len = 0;
-  for (len = 0; s[len] != 0; len++);
+  for (len = 0; s[len] != 0; len++)
+      ;
+
 
 #ifndef _USE_UTF8
   {
@@ -576,7 +578,7 @@ int MY_CDECL decode(int numargs, char *args[])
             PrintLF();
             continue;
           }
-          else if (OutFile_OpenUtf16(&outFile, destPath))
+          if (OutFile_OpenUtf16(&outFile, destPath))
           {
             PrintError("can not open output file");
             res = SZ_ERROR_FAIL;
