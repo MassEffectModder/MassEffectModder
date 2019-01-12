@@ -650,31 +650,14 @@ int ProcessArguments()
         break;
     case CmdType::UPDATE_TOC:
     {
-        ConfigIni configIni = ConfigIni();
-        g_GameData->Init(MeType::ME3_TYPE, configIni);
-        if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
-        {
-            ConsoleWrite("Error: Could not found the game!");
+        if (!tools.updateTOCs())
             errorCode = 1;
-            break;
-        }
-        TOCBinFile::UpdateAllTOCBinFiles();
         break;
     }
     case CmdType::UNPACK_DLCS:
     {
-        ConfigIni configIni = ConfigIni();
-        g_GameData->Init(MeType::ME3_TYPE, configIni);
-        if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
-        {
-            ConsoleWrite("Error: Could not found the game!");
+        if (!tools.unpackAllDLCs(ipc))
             errorCode = 1;
-            break;
-        }
-        Misc::startTimer();
-        ME3DLC::unpackAllDLC(ipc);
-        long elapsed = Misc::elapsedTime();
-        ConsoleWrite(Misc::getTimerFormat(elapsed));
         break;
     }
     case CmdType::REPACK:
@@ -685,18 +668,8 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        ConfigIni configIni = ConfigIni();
-        g_GameData->Init(gameId, configIni);
-        if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
-        {
-            ConsoleWrite("Error: Could not found the game!");
+        if (!tools.repackGame(gameId, ipc))
             errorCode = 1;
-            break;
-        }
-        Misc::startTimer();
-        tools.Repack(gameId, ipc);
-        long elapsed = Misc::elapsedTime();
-        ConsoleWrite(Misc::getTimerFormat(elapsed));
         break;
     }
     case CmdType::CONVERT_TO_MEM:

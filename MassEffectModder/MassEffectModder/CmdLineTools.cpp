@@ -122,6 +122,57 @@ int CmdLineTools::removeEmptyMips(MeType gameId, bool ipc)
     return 0;
 }
 
+bool CmdLineTools::updateTOCs()
+{
+    ConfigIni configIni = ConfigIni();
+    g_GameData->Init(MeType::ME3_TYPE, configIni);
+    if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
+    {
+        ConsoleWrite("Error: Could not found the game!");
+        return false;
+    }
+
+    TOCBinFile::UpdateAllTOCBinFiles();
+
+    return true;
+}
+
+bool CmdLineTools::unpackAllDLCs(bool ipc)
+{
+    ConfigIni configIni = ConfigIni();
+    g_GameData->Init(MeType::ME3_TYPE, configIni);
+    if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
+    {
+        ConsoleWrite("Error: Could not found the game!");
+        return false;
+    }
+
+    Misc::startTimer();
+    ME3DLC::unpackAllDLC(ipc);
+    long elapsed = Misc::elapsedTime();
+    ConsoleWrite(Misc::getTimerFormat(elapsed));
+
+    return true;
+}
+
+bool CmdLineTools::repackGame(MeType gameId, bool ipc)
+{
+    ConfigIni configIni = ConfigIni();
+    g_GameData->Init(gameId, configIni);
+    if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
+    {
+        ConsoleWrite("Error: Could not found the game!");
+        return false;
+    }
+    Misc::startTimer();
+    Repack(gameId, ipc);
+    long elapsed = Misc::elapsedTime();
+    ConsoleWrite(Misc::getTimerFormat(elapsed));
+
+    return true;
+}
+
+
 bool CmdLineTools::applyModTag(MeType gameId, int MeuitmV, int AlotV)
 {
     QString path;

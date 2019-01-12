@@ -48,6 +48,9 @@ public:
     int scanTextures(MeType gameId, bool ipc);
     int removeEmptyMips(MeType gameId, bool ipc);
     void Repack(MeType gameId, bool ipc);
+    bool updateTOCs();
+    bool unpackAllDLCs(bool ipc);
+    bool repackGame(MeType gameId, bool ipc);
     bool applyModTag(MeType gameId, int MeuitmV, int AlotV);
     bool ConvertToMEM(MeType gameId, QString &inputDir, QString &memFile, bool markToConvert, bool ipc);
     bool convertGameTexture(const QString &inputFile, QString &outputFile, QList<FoundTexture> *textures,
