@@ -187,6 +187,11 @@ void GameData::ScanGameFiles(bool force)
     }
 }
 
+void GameData::Init(MeType type)
+{
+    gameType = type;
+}
+
 void GameData::Init(MeType type, ConfigIni &configIni)
 {
     InternalInit(type, configIni, false);
@@ -345,9 +350,6 @@ const QString GameData::GameExePath()
 
 const QString GameData::GameUserPath()
 {
-    if (_path.length() == 0)
-        CRASH_MSG("Game path not set!");
-
     QString path = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).first() + "/BioWare/Mass Effect";
     if (gameType == MeType::ME2_TYPE)
         path += " 2";

@@ -886,15 +886,7 @@ bool CmdLineTools::ApplyME1LAAPatch()
 
 bool CmdLineTools::ApplyLODAndGfxSettings(MeType gameId, bool softShadowsME1, bool meuitmMode, bool limit2k)
 {
-    ConfigIni configIni{};
-    g_GameData->Init(gameId, configIni);
-
-    if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
-    {
-        ConsoleWrite("Error: Could not found the game!");
-        return false;
-    }
-
+    g_GameData->Init(gameId);
     QString path = g_GameData->EngineConfigIniPath();
     QDir().mkpath(DirName(path));
     ConfigIni engineConf = ConfigIni(path);
@@ -906,9 +898,7 @@ bool CmdLineTools::ApplyLODAndGfxSettings(MeType gameId, bool softShadowsME1, bo
 
 bool CmdLineTools::RemoveLODSettings(MeType gameId)
 {
-    ConfigIni configIni{};
-    g_GameData->Init(gameId, configIni);
-
+    g_GameData->Init(gameId);
     QString path = g_GameData->EngineConfigIniPath();
     bool exist = QFile(path).exists();
     if (!exist)
@@ -921,9 +911,7 @@ bool CmdLineTools::RemoveLODSettings(MeType gameId)
 
 bool CmdLineTools::PrintLODSettings(MeType gameId, bool ipc)
 {
-    ConfigIni configIni{};
-    g_GameData->Init(gameId, configIni);
-
+    g_GameData->Init(gameId);
     QString path = g_GameData->EngineConfigIniPath();
     bool exist = QFile(path).exists();
     if (!exist)

@@ -47,6 +47,7 @@ public:
     bool FullScanGame;
     bool DLCDataCacheDone = false;
 
+    void Init(MeType type);
     void Init(MeType type, ConfigIni &configIni);
     void Init(MeType type, ConfigIni &configIni, bool force);
     QString GamePath() { return _path; }
