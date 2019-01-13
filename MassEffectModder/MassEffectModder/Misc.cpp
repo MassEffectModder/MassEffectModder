@@ -1400,9 +1400,9 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
     mods.clear();
     FileStream *fs;
     if (generateModsMd5Entries)
-        fs = new FileStream("MD5ModFileEntry" + QString::number((int)gameType) + ".cs", FileMode::Create, FileAccess::WriteOnly);
+        fs = new FileStream("MD5ModEntries.cpp", FileMode::Create, FileAccess::WriteOnly);
     if (generateMd5Entries)
-        fs = new FileStream("MD5FileEntry" + QString::number((int)gameType) + ".cs", FileMode::Create, FileAccess::WriteOnly);
+        fs = new FileStream("MD5FileEntry" + QString::number((int)gameType) + ".cpp", FileMode::Create, FileAccess::WriteOnly);
 
     int lastProgress = -1;
     for (int l = 0; l < g_GameData->packageFiles.count(); l++)
@@ -1502,21 +1502,21 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
 
         if (generateModsMd5Entries)
         {
-            fs->WriteStringASCII(QString("new MD5ModFileEntry\n{\npath = @\"") + g_GameData->packageFiles[l] + "\",\nmd5 = new byte[] { ");
+            fs->WriteStringASCII(QString("{\"") + g_GameData->packageFiles[l] + "\",\n{ ");
             for (int i = 0; i < md5.count(); i++)
             {
                 fs->WriteStringASCII(QString::number(md5[i], 16));
             }
-            fs->WriteStringASCII("},\nmodName = \"\",\n},\n");
+            fs->WriteStringASCII("},\n\"\",\n},\n");
         }
         if (generateMd5Entries)
         {
-            fs->WriteStringASCII(QString("new MD5FileEntry\n{\npath = @\"") + g_GameData->packageFiles[l] + "\",\nmd5 = new byte[] { ");
+            fs->WriteStringASCII(QString("{\"") + g_GameData->packageFiles[l] + "\",\n{ ");
             for (int i = 0; i < md5.count(); i++)
             {
                 fs->WriteStringASCII(QString::number(md5[i], 16));
             }
-            fs->WriteStringASCII(QString("},\nsize = ") + QString::number(QFile(g_GameData->packageFiles[l]).size()) + ",\n},\n");
+            fs->WriteStringASCII(QString("},\n") + QString::number(QFile(g_GameData->packageFiles[l]).size()) + ",\n},\n");
         }
 
         if (!generateMd5Entries && !generateModsMd5Entries)
