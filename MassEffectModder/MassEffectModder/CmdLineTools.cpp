@@ -1321,6 +1321,8 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool 
 
         ME3DLC::unpackAllDLC(ipc);
 
+        g_GameData->Init(gameId, configIni, true);
+
         ConsoleWrite("Unpacking DLCs finished.\n");
     }
 

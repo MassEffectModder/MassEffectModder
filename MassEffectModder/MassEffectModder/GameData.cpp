@@ -32,7 +32,7 @@ bool comparePath(const QString &e1, const QString &e2)
 void GameData::ScanGameFiles(bool force)
 {
     if (force)
-        packageFiles.clear();
+        ClosePackagesList();
 
     if (packageFiles.count() == 0)
     {
