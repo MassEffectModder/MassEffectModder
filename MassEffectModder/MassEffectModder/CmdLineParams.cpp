@@ -681,7 +681,7 @@ int ProcessArguments()
         }
         if (!QDir(input).exists())
         {
-            ConsoleWrite("Input folder doesn't exists!");
+            ConsoleWrite("Input folder doesn't exists! " + input);
             errorCode = 1;
             break;
         }
@@ -769,7 +769,7 @@ int ProcessArguments()
         }
         if (!QDir(input).exists())
         {
-            ConsoleWrite("Input folder doesn't exists!");
+            ConsoleWrite("Input folder doesn't exists! " + input);
             errorCode = 1;
             break;
         }
@@ -819,14 +819,14 @@ int ProcessArguments()
         {
             if (!QFile(input).exists())
             {
-                ConsoleWrite("Input file doesn't exists!");
+                ConsoleWrite("Input file doesn't exists!" + input);
                 errorCode = 1;
                 break;
             }
         }
         else if (!QDir(input).exists())
         {
-            ConsoleWrite("Input folder doesn't exists!");
+            ConsoleWrite("Input folder doesn't exists! " + input);
             errorCode = 1;
             break;
         }
@@ -838,14 +838,14 @@ int ProcessArguments()
         {
             if (!QFile(input).exists())
             {
-                ConsoleWrite("Input file doesn't exists!");
+                ConsoleWrite("Input file doesn't exists!" + input);
                 errorCode = 1;
                 break;
             }
         }
         else if (!QDir(input).exists())
         {
-            ConsoleWrite("Input folder doesn't exists!");
+            ConsoleWrite("Input folder doesn't exists! " + input);
             errorCode = 1;
             break;
         }
