@@ -474,7 +474,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                 fs.ReadStringASCIINull(fileMod.name);
                 fileMod.offset = fs.ReadInt64();
                 fileMod.size = fs.ReadInt64();
-                long prevPos = fs.Position();
+                qint64 prevPos = fs.Position();
                 fs.JumpTo(fileMod.offset);
                 fileMod.offset = outFs.Position();
                 if (fileMod.tag == FileTextureTag || fileMod.tag == FileTextureTag2)
@@ -1270,7 +1270,7 @@ end:
         return false;
     }
 
-    long pos = outFs.Position();
+    qint64 pos = outFs.Position();
     outFs.SeekBegin();
     outFs.WriteUInt32(TextureModTag);
     outFs.WriteUInt32(TextureModVersion);
