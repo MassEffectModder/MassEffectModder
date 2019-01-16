@@ -270,15 +270,24 @@ const ByteBuffer Texture::decompressTexture(Stream &stream, StorageTypes type, i
     }
     uint blockSize = stream.ReadUInt32();
     if (blockSize != maxBlockSize)
-        CRASH();
+    {
+        g_logs->printMsg(QString("Data texture block size is wrong!"));
+        return ByteBuffer();
+    }
     uint compressedChunkSize = stream.ReadUInt32();
     uint uncompressedChunkSize = stream.ReadUInt32();
     if (uncompressedChunkSize != (uint)uncompressedSize)
-        CRASH();
+    {
+        g_logs->printMsg(QString("Data texture uncompressed size diffrent than expected!"));
+        return ByteBuffer();
+    }
 
     uint blocksCount = (uncompressedChunkSize + maxBlockSize - 1) / maxBlockSize;
     if ((compressedChunkSize + SizeOfChunk + SizeOfChunkBlock * blocksCount) != (uint)compressedSize)
-        CRASH();
+    {
+        g_logs->printMsg(QString("Data texture compressed size diffrent than expected!"));
+        return ByteBuffer();
+    }
 
     QList<Package::ChunkBlock> blocks{};
     for (uint b = 0; b < blocksCount; b++)
