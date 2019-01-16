@@ -85,15 +85,19 @@ QString DirName(const QString &path)
 QString BaseNameWithoutExt(const QString &path)
 {
     const QString str = BaseName(path);
-    const QString name = str.left(str.lastIndexOf("."));
-    if (name.length() == 0)
+    int index = str.lastIndexOf(".");
+    if (index == -1)
         return str;
-    return name;
+    return str.left(index);
 }
 
 QString GetFileExtension(const QString &path)
 {
-    return path.section('.', -1);
+    const QString str = BaseName(path);
+    int index = str.lastIndexOf(".");
+    if (index == -1)
+        return "";
+    return str.mid(index + 1, -1);
 }
 
 bool DetectAdminRights()
