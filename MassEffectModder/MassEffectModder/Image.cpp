@@ -72,7 +72,7 @@ Image::Image(Stream &stream, ImageFormat format)
             break;
     }
 
-    CRASH_MSG("not supported format");
+    ConsoleWrite("Not supported format!");
 }
 
 Image::Image(Stream &stream, const QString &extension)
@@ -92,7 +92,7 @@ Image::Image(Stream &stream, const QString &extension)
             break;
     }
 
-    CRASH_MSG("not supported format");
+    ConsoleWrite("Not supported format: " + extension);
 }
 
 Image::Image(const ByteBuffer &data, ImageFormat format)
@@ -113,7 +113,7 @@ Image::Image(const ByteBuffer &data, ImageFormat format)
             return;
         }
         case ImageFormat::UnknownImageFormat:
-            break;
+            return;
     }
 
     CRASH();
@@ -138,7 +138,7 @@ Image::Image(const ByteBuffer &data, const QString &extension)
             return;
         }
         case ImageFormat::UnknownImageFormat:
-            break;
+            return;
     }
 
     CRASH();
@@ -207,7 +207,7 @@ void Image::LoadImageFromStream(Stream &stream, ImageFormat format)
             }
         case ImageFormat::PNG:
         case ImageFormat::UnknownImageFormat:
-            break;
+            return;
     }
 
     CRASH();
@@ -229,7 +229,8 @@ void Image::LoadImageFromBuffer(ByteBuffer data, ImageFormat format)
         if (PngRead(data.ptr(), data.size(), &imageBuffer,
                     &imageSize, &imageWidth, &imageHeight) != 0)
         {
-            CRASH_MSG("Failed load PNG");
+            ConsoleWrite("Failed load PNG");
+            return;
         }
     }
     else
@@ -238,7 +239,8 @@ void Image::LoadImageFromBuffer(ByteBuffer data, ImageFormat format)
     if (!checkPowerOfTwo(imageWidth) ||
         !checkPowerOfTwo(imageHeight))
     {
-        CRASH_MSG("dimensions are not power of two");
+        ConsoleWrite("PNG image dimensions are not power of two");
+        return;
     }
 
     ByteBuffer pixels(imageBuffer, imageSize);
@@ -468,7 +470,10 @@ void Image::saveToPng(const quint8 *src, int w, int h, PixelFormat format, const
     quint8 *buffer;
     quint32 bufferSize;
     if (PngWrite(dataARGB.ptr(), &buffer, &bufferSize, w, h) != 0)
-        CRASH_MSG("Failed to save to PNG");
+    {
+        ConsoleWrite("Failed to save to PNG");
+        return;
+    }
     FileStream fs = FileStream(filename, FileMode::Create, FileAccess::WriteOnly);
     fs.WriteFromBuffer(buffer, bufferSize);
     free(buffer);

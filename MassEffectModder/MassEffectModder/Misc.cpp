@@ -586,6 +586,20 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
 
                     PixelFormat pixelFormat = f.pixfmt;
                     Image image = Image(mod.data, ImageFormat::DDS);
+                    if (image.getMipMaps().count() == 0)
+                    {
+                        if (ipc)
+                        {
+                            ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
+                            ConsoleSync();
+                        }
+                        else
+                        {
+                            ConsoleWrite(QString("Skipping not compatible content, entry: ") +
+                                         QString::number(i + 1) + " - mod: " + BaseName(file));
+                        }
+                        continue;
+                    }
 
                     if (image.getMipMaps().first()->getOrigWidth() / image.getMipMaps().first()->getOrigHeight() !=
                         f.width / f.height)
@@ -848,6 +862,21 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
 
                 PixelFormat pixelFormat = f.pixfmt;
                 Image image = Image(mod.data, GetFileExtension(filename));
+                if (image.getMipMaps().count() == 0)
+                {
+                    if (ipc)
+                    {
+                        ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
+                        ConsoleSync();
+                    }
+                    else
+                    {
+                        ConsoleWrite(QString("Skipping not compatible content, entry: ") +
+                                     QString::number(i + 1) + " - mod: " + BaseName(file));
+                    }
+                    mod.data.Free();
+                    continue;
+                }
 
                 if (image.getMipMaps().first()->getOrigWidth() / image.getMipMaps().first()->getOrigHeight() !=
                     f.width / f.height)
@@ -1142,6 +1171,20 @@ end:
 
             PixelFormat pixelFormat = f.pixfmt;
             Image image = Image(file, ImageFormat::UnknownImageFormat);
+            if (image.getMipMaps().count() == 0)
+            {
+                if (ipc)
+                {
+                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
+                    ConsoleSync();
+                }
+                else
+                {
+                    ConsoleWrite(QString("Skipping image: " + BaseName(file)));
+                }
+                continue;
+            }
+
             if (image.getMipMaps().first()->getOrigWidth() / image.getMipMaps().first()->getOrigHeight() !=
                 f.width / f.height)
             {

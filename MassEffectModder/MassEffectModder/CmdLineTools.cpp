@@ -269,6 +269,11 @@ bool CmdLineTools::convertGameTexture(const QString &inputFile, QString &outputF
 
     PixelFormat pixelFormat = foundTex.pixfmt;
     Image image = Image(inputFile);
+    if (image.getMipMaps().count() == 0)
+    {
+        ConsoleWrite("Texture skipped. Texture not compatible");
+        return false;
+    }
 
     if (image.getMipMaps().first()->getOrigWidth() / image.getMipMaps().first()->getOrigHeight() !=
         foundTex.width / foundTex.height)
@@ -378,6 +383,11 @@ bool CmdLineTools::convertImage(QString &inputFile, QString &outputFile, QString
     }
 
     Image image = Image(inputFile);
+    if (image.getMipMaps().count() == 0)
+    {
+        ConsoleWrite("Texture not compatible!");
+        return false;
+    }
     if (QFile(outputFile).exists())
         QFile(outputFile).remove();
     image.correctMips(pixFmt, dxt1HasAlpha, dxt1Threshold);
@@ -1621,6 +1631,12 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
                     {
                         ByteBuffer dst = MipMaps::decompressData(fs, size);
                         Image image = Image(dst, ImageFormat::DDS);
+                        if (image.getMipMaps().count() == 0)
+                        {
+                            ConsoleWrite(QString("Texture skipped. Texture ") + name +
+                                         QString().sprintf("_0x%08X", crc) + " is not compatible!");
+                            return false;
+                        }
                         dst.Free();
                         replaceTextureSpecialME3Mod(image, f.list, f.name, tfcName, guid, verify);
                     }
@@ -2140,10 +2156,19 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
                 data.Free();
             }
             Image image = Image(mipmaps, pixelFormat);
-            if (QFile(outputFile).exists())
-                QFile(outputFile).remove();
-            FileStream fs = FileStream(outputFile, FileMode::Create, FileAccess::WriteOnly);
-            image.StoreImageToDDS(fs);
+            if (image.getMipMaps().count() != 0)
+            {
+                if (QFile(outputFile).exists())
+                    QFile(outputFile).remove();
+                FileStream fs = FileStream(outputFile, FileMode::Create, FileAccess::WriteOnly);
+                image.StoreImageToDDS(fs);
+            }
+            else
+            {
+                ConsoleWrite(QString("Texture skipped. Texture ") + textures[i].name +
+                             QString().sprintf("_0x%08X", textures[i].crc) + " is broken in game data!");
+                return false;
+            }
         }
     }
 

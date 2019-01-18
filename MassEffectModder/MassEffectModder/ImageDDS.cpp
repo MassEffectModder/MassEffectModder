@@ -21,15 +21,22 @@
 
 #include "Image.h"
 #include "Helpers/MemoryStream.h"
+#include "Helpers/MiscHelpers.h"
 #include "Wrappers.h"
 
 void Image::LoadImageDDS(Stream &stream)
 {
     if (stream.ReadUInt32() != DDS_TAG)
-        CRASH_MSG("not DDS tag");
+    {
+        ConsoleWrite("The data has not DDS header!");
+        return;
+    }
 
     if (stream.ReadInt32() != DDS_HEADER_dwSize)
-        CRASH_MSG("wrong DDS header dwSize");
+    {
+        ConsoleWrite("The data has wrong DDS header dwSize");
+        return;
+    }
 
     DDSflags = stream.ReadUInt32();
 
@@ -38,7 +45,8 @@ void Image::LoadImageDDS(Stream &stream)
     if (!checkPowerOfTwo(dwWidth) ||
         !checkPowerOfTwo(dwHeight))
     {
-        CRASH_MSG("dimensions not power of two");
+        ConsoleWrite("DDS image has dimensions not power of two");
+        return;
     }
 
     stream.Skip(8); // dwPitchOrLinearSize, dwDepth
@@ -53,7 +61,10 @@ void Image::LoadImageDDS(Stream &stream)
     ddsPixelFormat.flags = stream.ReadUInt32();
     ddsPixelFormat.fourCC = stream.ReadUInt32();
     if ((ddsPixelFormat.flags & DDPF_FOURCC) != 0 && ddsPixelFormat.fourCC == FOURCC_DX10_TAG)
-        CRASH_MSG("DX10 DDS format not supported");
+    {
+        ConsoleWrite("DX10 DDS format not supported");
+        return;
+    }
 
     ddsPixelFormat.bits = stream.ReadUInt32();
     ddsPixelFormat.Rmask = stream.ReadUInt32();
@@ -99,7 +110,8 @@ void Image::LoadImageDDS(Stream &stream)
                 break;
             }
 
-            CRASH_MSG("Not supported DDS format");
+            ConsoleWrite("Not supported DDS format");
+            return;
 
         case 21:
             pixelFormat = PixelFormat::ARGB;
@@ -134,7 +146,8 @@ void Image::LoadImageDDS(Stream &stream)
             break;
 
         default:
-            CRASH_MSG("Not supported DDS format");
+            ConsoleWrite("Not supported DDS format");
+            return;
     }
     stream.Skip(20); // dwCaps, dwCaps2, dwCaps3, dwCaps4, dwReserved2
 
