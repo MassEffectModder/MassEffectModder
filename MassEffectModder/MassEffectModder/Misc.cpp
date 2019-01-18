@@ -777,8 +777,11 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                     if (dds.length() == 0)
                         continue;
                     QString ddsFile = dds.split('|')[1];
-                    if (ddsFile.toLower() != filename.toLower())
+                    if (ddsFile != "" && ddsList.count() != 1 &&
+                        ddsFile.toLower() != filename.toLower())
+                    {
                         continue;
+                    }
                     bool ok;
                     crc = dds.split('|').first().midRef(2).toUInt(&ok, 16);
                     break;
