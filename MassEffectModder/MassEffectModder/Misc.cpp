@@ -305,7 +305,7 @@ void Misc::ParseME3xBinaryScriptMod(QString &script, QString &package, int &expI
             match = regex.match(script);
             if (match.hasMatch())
             {
-                path = DirName("/BIOGame/" + match.captured().split(QChar('\"'))[1].replace('\\', '/'));
+                path = QDir::cleanPath(DirName("/BIOGame/" + match.captured().split(QChar('\"'))[1].replace('\\', '/')));
             }
         }
     }
