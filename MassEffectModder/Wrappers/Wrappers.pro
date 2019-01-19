@@ -8,6 +8,7 @@ SOURCES += \
     WrapperLzo.cpp \
     WrapperPng.cpp \
     WrapperUnzip.cpp \
+    WrapperUnrar.cpp \
     WrapperXdelta.cpp \
     WrapperZlib.cpp
 

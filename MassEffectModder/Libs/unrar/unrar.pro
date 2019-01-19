@@ -4,9 +4,10 @@ CONFIG += staticlib
 QT -= gui core
 
 SOURCES += \
-    dmc_unrar.c
+    unpack.c
 
-HEADERS +=
+HEADERS += \
+    dmc_unrar.c
 
 DEFINES +=
 

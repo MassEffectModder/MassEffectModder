@@ -53,6 +53,7 @@ typedef enum : int
     EXTRACT_ALL_DDS,
     EXTRACT_ALL_PNG,
     DLC_MOD_TEXTURES,
+    UNPACK_ARCHIVE,
 } CmdType;
 
 int ProcessArguments();

@@ -198,6 +198,9 @@ void DisplayHelp()
     ConsoleWrite("     Replace textures from <mem file> and store in new <tfc name> file.");
     ConsoleWrite("     New TFC name must be added earlier to PCC files.");
     ConsoleWrite("");
+    ConsoleWrite("  --unpack-archive --input <zip/7z/rar file> [--output <output path>] [--ipc]");
+    ConsoleWrite("     Unpack ZIP/7ZIP/RAR file.");
+    ConsoleWrite("");
 }
 
 bool hasValue(const QStringList &args, int curPos)
@@ -485,6 +488,8 @@ int ProcessArguments()
             cmd = CmdType::EXTRACT_ALL_PNG;
         else if (arg == "--dlc-mod-textures")
             cmd = CmdType::DLC_MOD_TEXTURES;
+        else if (arg == "--unpack-archive")
+            cmd = CmdType::UNPACK_ARCHIVE;
         else
             continue;
         args.removeAt(l);
@@ -989,6 +994,7 @@ int ProcessArguments()
             errorCode = 1;
         break;
     case CmdType::DLC_MOD_TEXTURES:
+    {
         if (gameId == MeType::UNKNOWN_TYPE || gameId == MeType::ME1_TYPE)
         {
             ConsoleWrite("Wrong game id!");
@@ -1035,6 +1041,16 @@ int ProcessArguments()
             errorCode = 1;
         break;
     }
-
+    case CmdType::UNPACK_ARCHIVE:
+        if (!QFile(input).exists())
+        {
+            ConsoleWrite("Input file doesn't exists!");
+            errorCode = 1;
+            break;
+        }
+        if (!tools.unpackArchive(input, output))
+            errorCode = 1;
+        break;
+    }
     return errorCode;
 }

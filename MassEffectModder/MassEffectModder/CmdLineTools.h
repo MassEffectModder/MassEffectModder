@@ -51,6 +51,7 @@ public:
     bool updateTOCs();
     bool unpackAllDLCs(bool ipc);
     bool repackGame(MeType gameId, bool ipc);
+    bool unpackArchive(const QString &inputFile, QString &outputDir);
     bool applyModTag(MeType gameId, int MeuitmV, int AlotV);
     bool ConvertToMEM(MeType gameId, QString &inputDir, QString &memFile, bool markToConvert, bool ipc);
     bool convertGameTexture(const QString &inputFile, QString &outputFile, QList<FoundTexture> *textures,

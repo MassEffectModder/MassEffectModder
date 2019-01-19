@@ -9,6 +9,7 @@ SOURCES += \
     7zBuf.c \
     7zBuf2.c \
     7zCrc.c \
+    7zCrcOpt.c \
     7zDec.c \
     7zFile.c \
     7zStream.c \

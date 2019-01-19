@@ -26,6 +26,10 @@
 */
 
 #include <cstring>
+#include <cstdio>
+#include <cerrno>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include <iomemapi.h>
 #if defined(_WIN32)
@@ -242,4 +246,125 @@ void ZipClose(void *handle)
 
     free(unzipHandle);
     unzipHandle = nullptr;
+}
+
+int ZipUnpack(const void *path, const void *output_path, bool full_path)
+{
+    int result;
+    unsigned long long dstLen = 0;
+    int numEntries = 0;
+    const char *outputDir = static_cast<const char *>(output_path);
+
+    void *handle = ZipOpenFromFile(path, &numEntries, 0);
+    if (handle == nullptr)
+        goto failed;
+
+    for (int i = 0; i < numEntries; i++)
+    {
+        char *filetmp;
+        int filetmplen = 0;
+        result = ZipGetCurrentFileInfo(handle, &filetmp, &filetmplen, &dstLen);
+        if (result != 0)
+            goto failed;
+        char fileName[strlen(filetmp) + 1];
+        strcpy(fileName, filetmp);
+        delete[] filetmp;
+
+        if (dstLen == 0)
+        {
+            ZipGoToNextFile(handle);
+            continue;
+        }
+
+        printf("%s\n", fileName);
+
+        auto data = new unsigned char[dstLen];
+        result = ZipReadCurrentFile(handle, data, dstLen, nullptr);
+        if (result != 0)
+        {
+            delete[] data;
+            goto failed;
+        }
+
+        char outputPath[strlen(outputDir) + strlen(fileName) + 2];
+        char tmpfile[strlen(fileName) + 1];
+        strcpy(tmpfile, fileName);
+        for (int j = 0; tmpfile[j] != 0; j++)
+        {
+            if (tmpfile[j] == '/')
+            {
+                if (full_path)
+                {
+                    tmpfile[j] = 0;
+                    if (outputDir[0] != 0)
+                        sprintf(outputPath, "%s/%s", output_path, tmpfile);
+                    else
+                        strcpy(outputPath, tmpfile);
+
+                    struct stat s{};
+                    int error = stat(outputPath, &s);
+                    if (error == -1 && errno != ENOENT) {
+                        fprintf(stderr, "Error: failed to check directory: %s\n", outputPath);
+                        result = 1;
+                        break;
+                    }
+                    if (error == 0 && !S_ISDIR(s.st_mode)) {
+                        fprintf(stderr, "Error: output path is not directory: %s\n", outputPath);
+                        result = 1;
+                        break;
+                    }
+                    if (error == -1 && mkdir(outputPath, 0755) != 0) {
+                        fprintf(stderr, "Error: failed to create directory: %s\n", outputPath);
+                        result = 1;
+                        break;
+                    }
+
+                    tmpfile[j] = '/';
+                }
+                else
+                {
+                    if (outputDir[0] != 0)
+                        sprintf(outputPath, "%s/%s", output_path, tmpfile + j + 1);
+                    else
+                        strcpy(outputPath, tmpfile + j + 1);
+                }
+            }
+        }
+
+        if (full_path)
+        {
+            if (outputDir[0] != 0)
+                sprintf(static_cast<char *>(outputPath), "%s/%s", output_path, fileName);
+            else
+                strcpy(static_cast<char *>(outputPath), fileName);
+        }
+        FILE *file = fopen(outputPath, "wb+");
+        if (!file)
+        {
+            delete[] data;
+            printf("Failed to write to file: %s", outputPath);
+            break;
+        }
+        unsigned long long size = fwrite(data, 1, dstLen, file);
+        if (size != dstLen)
+        {
+            ferror(file);
+            break;
+        }
+
+        ZipGoToNextFile(handle);
+    }
+    ZipClose(handle);
+    handle = nullptr;
+    printf("\nEverything is Ok\n");
+    return 0;
+
+failed:
+
+    printf("Zip file damaged: %s", path);
+    if (handle != nullptr)
+        ZipClose(handle);
+    handle = nullptr;
+
+    return 1;
 }

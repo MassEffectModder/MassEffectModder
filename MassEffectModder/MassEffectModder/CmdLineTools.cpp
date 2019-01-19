@@ -172,6 +172,30 @@ bool CmdLineTools::repackGame(MeType gameId, bool ipc)
     return true;
 }
 
+bool CmdLineTools::unpackArchive(const QString &inputFile, QString &outputDir)
+{
+    outputDir = QDir::cleanPath(outputDir);
+    if (outputDir != "")
+        QDir().mkpath(outputDir);
+#if defined(_WIN32)
+    auto strFile = inputFile.toStdWString();
+    auto strOut = outputDir.toStdWString();
+#else
+    auto strFile = inputFile.toStdString();
+    auto strOut = outputDir.toStdString();
+#endif
+    auto fileName = strFile.c_str();
+    auto outPath = strOut.c_str();
+
+    if (inputFile.endsWith(".zip", Qt::CaseInsensitive))
+        return ZipUnpack(fileName, outPath, true) == 0;
+    if (inputFile.endsWith(".7z", Qt::CaseInsensitive))
+        return SevenZipUnpack(fileName, outPath, true) == 0;
+    if (inputFile.endsWith(".rar", Qt::CaseInsensitive))
+        return RarUnpack(fileName, outPath, true) == 0;
+
+    return false;
+}
 
 bool CmdLineTools::applyModTag(MeType gameId, int MeuitmV, int AlotV)
 {
