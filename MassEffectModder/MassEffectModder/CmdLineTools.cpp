@@ -2202,23 +2202,11 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
 
 bool CmdLineTools::CheckTextures(MeType gameId, bool ipc)
 {
-    Resources resources;
-    resources.loadMD5Tables();
     ConfigIni configIni = ConfigIni();
     g_GameData->Init(gameId, configIni);
     if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
     {
         ConsoleWrite("Error: Could not found the game!");
-        return false;
-    }
-
-    QList<FoundTexture> textures;
-
-    QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
-            "/MassEffectModder";
-    QString mapFile = path + QString("/me%1map.bin").arg((int)gameId);
-    if (!TreeScan::loadTexturesMapFile(mapFile, textures, false))
-    {
         return false;
     }
 
