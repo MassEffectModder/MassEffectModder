@@ -286,6 +286,8 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
             goto failed;
         }
 
+#if defined(_WIN32)
+#else
         char outputPath[strlen(outputDir) + strlen(fileName) + 2];
         char tmpfile[strlen(fileName) + 1];
         strcpy(tmpfile, fileName);
@@ -351,6 +353,7 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
             ferror(file);
             break;
         }
+#endif
 
         ZipGoToNextFile(handle);
     }

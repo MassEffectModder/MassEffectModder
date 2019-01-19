@@ -156,6 +156,7 @@ int unrar_unpack(const char *path, const char *output_path, int full_path) {
             dmc_unrar_return supported = dmc_unrar_file_is_supported(&archive, i);
             if (supported == DMC_UNRAR_OK) {
 #if defined(_WIN32)
+                wchar_t filename_path[wcslen(output_path) + strlen(filename) + 2];
 #else
                 char filename_path[strlen(output_path) + strlen(filename) + 2];
                 if (output_path[0] != 0)
