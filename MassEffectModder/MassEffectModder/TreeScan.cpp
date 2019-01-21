@@ -85,6 +85,7 @@ void TreeScan::loadTexturesMap(MeType gameId, Resources &resources, QList<FoundT
                     matched.slave = true;
                     fs.ReadStringASCIINull(matched.basePackageName);
                 }
+                matched.mipmapOffset = fs.ReadUInt32();
             }
             matched.removeEmptyMips = fs.ReadByte() != 0;
             matched.numMips = fs.ReadByte();
@@ -580,6 +581,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
                     mem.WriteInt16(m.linkToMaster);
                     if (m.linkToMaster != -1)
                         mem.WriteStringASCIINull(m.basePackageName);
+                    mem.WriteUInt32(m.mipmapOffset);
                 }
                 mem.WriteByte(m.removeEmptyMips ? 1 : 0);
                 mem.WriteByte(m.numMips);
