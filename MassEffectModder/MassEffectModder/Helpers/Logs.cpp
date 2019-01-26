@@ -41,14 +41,22 @@ void Logs::print(const QString &message)
         timestampStr = QString("[") + (_startedTimestamp - timestamp) + "] ";
 
     if (_printToConsoleEnabled)
+#if defined(_WIN32)
+        ::_putws((timestampStr + message).toStdWString().c_str());
+#else
         std::puts((timestampStr + message).toStdString().c_str());
+#endif
 
     if (_printToFileEnabled)
     {
         FILE *file = fopen("Log.txt", "a");
         if (file)
         {
+#if defined(_WIN32)
+            std::fputws((timestampStr + message + "\n").toStdWString().c_str(), file);
+#else
             std::fputs((timestampStr + message + "\n").toStdString().c_str(), file);
+#endif
             fclose(file);
         }
     }

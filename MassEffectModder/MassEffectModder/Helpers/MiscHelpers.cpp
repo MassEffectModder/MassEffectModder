@@ -60,7 +60,11 @@ int DetectAmountMemoryGB()
 
 void ConsoleWrite(const QString &message)
 {
+#if defined(_WIN32)
+    ::_putws(message.toStdWString().c_str());
+#else
     ::puts(message.toStdString().c_str());
+#endif
 }
 
 void ConsoleSync()
