@@ -430,7 +430,7 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
                 {
                     tmpfile[j] = 0;
                     if (outputDir[0] != 0)
-                        sprintf(outputPath, "%s/%s", output_path, tmpfile);
+                        sprintf(outputPath, "%s/%s", const_cast<char *>(outputDir), tmpfile);
                     else
                         strcpy(outputPath, tmpfile);
                     if (MyCreateDir(outputPath) != 0)
@@ -443,7 +443,7 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
                 else
                 {
                     if (outputDir[0] != 0)
-                        sprintf(outputPath, "%s/%s", output_path, tmpfile + j + 1);
+                        sprintf(outputPath, "%s/%s", const_cast<char *>(outputDir), tmpfile + j + 1);
                     else
                         strcpy(outputPath, tmpfile + j + 1);
                 }
@@ -453,7 +453,7 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
         if (full_path)
         {
             if (outputDir[0] != 0)
-                sprintf(static_cast<char *>(outputPath), "%s/%s", output_path, fileName);
+                sprintf(static_cast<char *>(outputPath), "%s/%s", const_cast<char *>(outputDir), fileName);
             else
                 strcpy(static_cast<char *>(outputPath), fileName);
         }
