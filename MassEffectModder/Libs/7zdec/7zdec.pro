@@ -46,6 +46,6 @@ HEADERS += \
     Ppmd7.h \
     Precomp.h
 
-QMAKE_CFLAGS += -Wno-enum-conversion #-O3
+QMAKE_CFLAGS += -O3
 QMAKE_CFLAGS_RELEASE += -g1
 QMAKE_CFLAGS_DEBUG += -g

@@ -33,6 +33,11 @@
 
 #include <iomemapi.h>
 #if defined(_WIN32)
+#include <windows.h>
+#include <direct.h>
+#include <sys/stat.h>
+#include <cwchar>
+#include <cerrno>
 #include "iowin32.h"
 #endif
 #include <unzip.h>
@@ -248,12 +253,59 @@ void ZipClose(void *handle)
     unzipHandle = nullptr;
 }
 
+#if defined(_WIN32)
+static int MyCreateDir(const wchar_t *name)
+{
+    errno_t error = _waccess_s(name, 0);
+    if (error != 0 && errno != ENOENT) {
+        fwprintf(stderr, L"Error: failed to check directory: %s\n", name);
+        return 1;
+    }
+    struct _stat s{};
+    _wstat(name, &s);
+    if (error == 0 && !S_ISDIR(s.st_mode)) {
+        fwprintf(stderr, L"Error: output path is not directory: %s\n", name);
+        return 1;
+    }
+    if (error != 0 && !CreateDirectoryW(name, nullptr)) {
+        fwprintf(stderr, L"Error: failed to create directory: %s\n", name);
+        return 1;
+    }
+    return 0;
+}
+#else
+static int MyCreateDir(const char *name)
+{
+    struct stat s{};
+    int error = stat(outputPath, &s);
+    if (error == -1 && errno != ENOENT) {
+        fprintf(stderr, "Error: failed to check directory: %s\n", outputPath);
+        result = 1;
+        break;
+    }
+    if (error == 0 && !S_ISDIR(s.st_mode)) {
+        fprintf(stderr, "Error: output path is not directory: %s\n", outputPath);
+        result = 1;
+        break;
+    }
+    if (error == -1 && mkdir(outputPath, 0755) != 0) {
+        fprintf(stderr, "Error: failed to create directory: %s\n", outputPath);
+        result = 1;
+        break;
+    }
+}
+#endif
+
 int ZipUnpack(const void *path, const void *output_path, bool full_path)
 {
     int result;
     unsigned long long dstLen = 0;
     int numEntries = 0;
+#if defined(_WIN32)
+    auto outputDir = static_cast<const wchar_t *>(output_path);
+#else
     const char *outputDir = static_cast<const char *>(output_path);
+#endif
 
     void *handle = ZipOpenFromFile(path, &numEntries, 0);
     if (handle == nullptr)
@@ -287,6 +339,87 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
         }
 
 #if defined(_WIN32)
+        int size = strlen(fileName) + 1;
+        wchar_t tmpfile[size];
+        mbstowcs(tmpfile, fileName, size);
+        size = wcslen(outputDir) + strlen(fileName) + 2;
+        wchar_t outputPath[size];
+        for (int j = 0; tmpfile[j] != 0; j++)
+        {
+            if (tmpfile[j] == '/')
+            {
+                if (full_path)
+                {
+                    tmpfile[j] = 0;
+                    if (outputDir[0] != 0)
+                    {
+                        wcscpy(outputPath, outputDir);
+                        wcscat(outputPath, L"/");
+                        wcscat(outputPath, tmpfile);
+                    }
+                    else
+                        wcscpy(outputPath, tmpfile);
+
+                    if (MyCreateDir(outputPath) != 0)
+                    {
+                        result = 1;
+                        break;
+                    }
+                    tmpfile[j] = '/';
+                }
+                else
+                {
+                    if (outputDir[0] != 0)
+                    {
+                        wcscpy(outputPath, outputDir);
+                        wcscat(outputPath, L"/");
+                        wcscat(outputPath, tmpfile + j + 1);
+                    }
+                    else
+                        wcscpy(outputPath, tmpfile + j + 1);
+                }
+            }
+        }
+
+        if (full_path)
+        {
+            int size = strlen(fileName) + 1;
+            mbstowcs(tmpfile, fileName, size);
+            if (outputDir[0] != 0)
+            {
+                wcscpy(outputPath, outputDir);
+                wcscat(outputPath, L"/");
+                wcscat(outputPath, tmpfile);
+            }
+            else
+                wcscpy(outputPath, tmpfile);
+        }
+
+        if (result != 0)
+        {
+            delete[] data;
+            result = 1;
+            break;
+        }
+        HANDLE file = CreateFileW(outputPath,
+                                    GENERIC_WRITE,
+                                    FILE_SHARE_READ, nullptr,
+                                    CREATE_ALWAYS,
+                                    FILE_ATTRIBUTE_NORMAL, nullptr);
+        if (file == INVALID_HANDLE_VALUE)
+        {
+            delete[] data;
+            fwprintf(stderr, L"Failed to write to file: %s", outputPath);
+            result = 1;
+            break;
+        }
+        DWORD nWritten = 0;
+        if (!WriteFile(file, data, dstLen, &nWritten, nullptr))
+        {
+            delete[] data;
+            result = 1;
+            break;
+        }
 #else
         char outputPath[strlen(outputDir) + strlen(fileName) + 2];
         char tmpfile[strlen(fileName) + 1];
@@ -302,25 +435,11 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
                         sprintf(outputPath, "%s/%s", output_path, tmpfile);
                     else
                         strcpy(outputPath, tmpfile);
-
-                    struct stat s{};
-                    int error = stat(outputPath, &s);
-                    if (error == -1 && errno != ENOENT) {
-                        fprintf(stderr, "Error: failed to check directory: %s\n", outputPath);
+                    if (MyCreateDir(outputPath) != 0)
+                    {
                         result = 1;
                         break;
                     }
-                    if (error == 0 && !S_ISDIR(s.st_mode)) {
-                        fprintf(stderr, "Error: output path is not directory: %s\n", outputPath);
-                        result = 1;
-                        break;
-                    }
-                    if (error == -1 && mkdir(outputPath, 0755) != 0) {
-                        fprintf(stderr, "Error: failed to create directory: %s\n", outputPath);
-                        result = 1;
-                        break;
-                    }
-
                     tmpfile[j] = '/';
                 }
                 else
@@ -340,31 +459,47 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
             else
                 strcpy(static_cast<char *>(outputPath), fileName);
         }
+        if (result != 0)
+        {
+            delete[] data;
+            result = 1;
+            break;
+        }
+
         FILE *file = fopen(outputPath, "wb+");
         if (!file)
         {
             delete[] data;
             printf("Failed to write to file: %s", outputPath);
+            result = 1;
             break;
         }
         unsigned long long size = fwrite(data, 1, dstLen, file);
         if (size != dstLen)
         {
+            delete[] data;
             ferror(file);
+            result = 1;
             break;
         }
 #endif
 
+        delete[] data;
         ZipGoToNextFile(handle);
     }
     ZipClose(handle);
     handle = nullptr;
-    printf("\nEverything is Ok\n");
-    return 0;
+    if (result == 0)
+        printf("\nEverything is Ok\n");
+    return result;
 
 failed:
 
-    printf("Zip file damaged: %s", path);
+#if defined(_WIN32)
+    fwprintf(stderr, L"Zip file damaged: %s", outputDir);
+#else
+    printf("Zip file damaged: %s", outputDir);
+#endif
     if (handle != nullptr)
         ZipClose(handle);
     handle = nullptr;

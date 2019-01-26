@@ -77,6 +77,49 @@ const char *get_filename_no_directory(const char *filename) {
 }
 
 #if defined(_WIN32)
+static int MyCreateDir(const wchar_t *name)
+{
+    errno_t error = _waccess_s(name, 0);
+    if (error != 0 && errno != ENOENT) {
+        fwprintf(stderr, L"Error: failed to check directory: %s\n", name);
+        return 1;
+    }
+    struct _stat s;
+    memset(&s, 0, sizeof(struct _stat));
+    _wstat(name, &s);
+    if (error == 0 && !S_ISDIR(s.st_mode)) {
+        fwprintf(stderr, L"Error: output path is not directory: %s\n", name);
+        return 1;
+    }
+    if (error != 0 && !CreateDirectoryW(name, NULL)) {
+        fwprintf(stderr, L"Error: failed to create directory: %s\n", name);
+        return 1;
+    }
+    return 0;
+}
+#else
+static int MyCreateDir(const char *name)
+{
+    struct stat s;
+    memset(&s, 0, sizeof(stat));
+    int error = stat(full_file_path, &s);
+    if (error == -1 && errno != ENOENT) {
+        fprintf(stderr, "Error: failed to check directory: %s\n", full_file_path);
+        return 1;
+    }
+    if (error == 0 && !S_ISDIR(s.st_mode)) {
+        fprintf(stderr, "Error: output path is not directory: %s\n", full_file_path);
+        return 1;
+    }
+    if (error == -1 && mkdir(full_file_path, 0755) != 0) {
+        fprintf(stderr, "Error: failed to create directory: %s\n", full_file_path);
+        return 1;
+    }
+    return 0;
+}
+#endif
+
+#if defined(_WIN32)
 int unrar_unpack(const wchar_t *path, const wchar_t *output_path, int full_path) {
 #else
 int unrar_unpack(const char *path, const char *output_path, int full_path) {
@@ -125,27 +168,11 @@ int unrar_unpack(const char *path, const char *output_path, int full_path) {
                             swprintf(full_file_path, size, L"%s/%s", output_path, tmpfile);
                         else
                             wcscpy(full_file_path, tmpfile);
-
-                        errno_t error = _waccess_s(full_file_path, 0);
-                        if (error != 0 && errno != ENOENT) {
-                            wprintf(L"Error: failed to check directory: %s\n", full_file_path);
+                        if (MyCreateDir(full_file_path) != 0)
+                        {
                             status = 1;
                             break;
                         }
-                        struct _stat s;
-                        memset(&s, 0, sizeof(_stat));
-                        _wstat(full_file_path, &s);
-                        if (error == 0 && !S_ISDIR(s.st_mode)) {
-                            wprintf(L"Error: output path is not directory: %s\n", full_file_path);
-                            status = 1;
-                            break;
-                        }
-                        if (error != 0 && !CreateDirectoryW(full_file_path, NULL)) {
-                            wprintf(L"Error: failed to create directory: %s\n", full_file_path);
-                            status = 1;
-                            break;
-                        }
-
                         tmpfile[j] = '/';
                     }
                 }
@@ -162,26 +189,11 @@ int unrar_unpack(const char *path, const char *output_path, int full_path) {
                             sprintf(full_file_path, "%s/%s", output_path, tmpfile);
                         else
                             strcpy(full_file_path, tmpfile);
-
-                        struct stat s;
-                        memset(&s, 0, sizeof(stat));
-                        int error = stat(full_file_path, &s);
-                        if (error == -1 && errno != ENOENT) {
-                            fprintf(stderr, "Error: failed to check directory: %s\n", full_file_path);
+                        if (MyCreateDir(full_file_path) != 0)
+                        {
                             status = 1;
                             break;
                         }
-                        if (error == 0 && !S_ISDIR(s.st_mode)) {
-                            fprintf(stderr, "Error: output path is not directory: %s\n", full_file_path);
-                            status = 1;
-                            break;
-                        }
-                        if (error == -1 && mkdir(full_file_path, 0755) != 0) {
-                            fprintf(stderr, "Error: failed to create directory: %s\n", full_file_path);
-                            status = 1;
-                            break;
-                        }
-
                         tmpfile[j] = '/';
                     }
                 }
@@ -230,7 +242,8 @@ int unrar_unpack(const char *path, const char *output_path, int full_path) {
 
     dmc_unrar_archive_close(&archive);
 
-    printf("\nEverything is Ok\n");
+    if (status == 0)
+        printf("\nEverything is Ok\n");
 
     return status;
 }

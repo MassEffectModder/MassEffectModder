@@ -14,14 +14,10 @@
 #include "7zCrc.h"
 #include "7zFile.h"
 
-#ifndef USE_WINDOWS_FILE
-/* for mkdir */
 #ifdef _WIN32
 #include <direct.h>
-#else
 #include <sys/stat.h>
 #include <errno.h>
-#endif
 #endif
 
 
@@ -200,9 +196,45 @@ static SRes Utf16_To_Char(CBuf *buf, const UInt16 *s
 #endif
 
 #ifdef USE_WINDOWS_FILE
-static WRes MyCreateDir(const UInt16 *name)
+static int MyCreateDir(const wchar_t *name)
 {
-    return CreateDirectoryW(name, NULL) ? 0 : GetLastError();
+    errno_t error = _waccess_s(name, 0);
+    if (error != 0 && errno != ENOENT) {
+        fwprintf(stderr, L"Error: failed to check directory: %s\n", name);
+        return 1;
+    }
+    struct _stat s;
+    memset(&s, 0, sizeof(struct _stat));
+    _wstat(name, &s);
+    if (error == 0 && !S_ISDIR(s.st_mode)) {
+        fwprintf(stderr, L"Error: output path is not directory: %s\n", name);
+        return 1;
+    }
+    if (error != 0 && !CreateDirectoryW(name, NULL)) {
+        fwprintf(stderr, L"Error: failed to create directory: %s\n", name);
+        return 1;
+    }
+    return 0;
+}
+#else
+static int MyCreateDir(const char *name)
+{
+    struct stat s;
+    memset(&s, 0, sizeof(stat));
+    int error = stat(full_file_path, &s);
+    if (error == -1 && errno != ENOENT) {
+        fprintf(stderr, "Error: failed to check directory: %s\n", full_file_path);
+        return 1;
+    }
+    if (error == 0 && !S_ISDIR(s.st_mode)) {
+        fprintf(stderr, "Error: output path is not directory: %s\n", full_file_path);
+        return 1;
+    }
+    if (error == -1 && mkdir(full_file_path, 0755) != 0) {
+        fprintf(stderr, "Error: failed to create directory: %s\n", full_file_path);
+        return 1;
+    }
+    return 0;
 }
 #endif
 
@@ -370,9 +402,10 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path)
             size_t processedSize;
             size_t j;
 #ifdef USE_WINDOWS_FILE
-            UInt16 *OutPath = output_path;
-            UInt16 *name = (UInt16 *)temp;
-            const UInt16 *destPath = (const UInt16 *)name;
+            wchar_t *outputDir = (UInt16 *)output_path;
+            wchar_t *name = (UInt16 *)temp;
+            int size = wcslen(outputDir) + wcslen(name) + 2;
+            wchar_t outputPath[size];
 
             for (j = 0; name[j] != 0; j++)
             {
@@ -381,21 +414,36 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path)
                     if (full_path)
                     {
                         name[j] = 0;
-                        MyCreateDir(name);
+                        if (outputDir[0] != 0)
+                            swprintf(outputPath, size, L"%s/%s", outputDir, name);
+                        else
+                            wcscpy(outputPath, name);
+                        if (MyCreateDir(outputPath) != 0)
+                        {
+                            res = SZ_ERROR_FAIL;
+                            break;
+                        }
                         name[j] = '/';
                     }
                     else
-                        destPath = name + j + 1;
+                    {
+                        if (outputDir[0] != 0)
+                            swprintf(outputPath, size, L"%s/%s", outputDir, name + j + 1);
+                        else
+                            wcscpy(outputPath, name + j + 1);
+                    }
                 }
             }
 
-            if (isDir)
+            if (full_path)
             {
-                MyCreateDir(destPath);
-                PrintLF();
-                continue;
+                if (outputDir[0] != 0)
+                    swprintf(outputPath, size, L"%s/%s", outputDir, name);
+                else
+                    wcscpy(outputPath, name);
             }
-            if (OutFile_OpenW(&outFile, destPath))
+
+            if (OutFile_OpenW(&outFile, outputPath))
             {
                 PrintError("can not open output file");
                 res = SZ_ERROR_FAIL;
@@ -424,26 +472,11 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path)
                             sprintf(full_file_path, "%s/%s", output_path, tmpfile);
                         else
                             strcpy(full_file_path, tmpfile);
-
-                        struct stat s;
-                        memset(&s, 0, sizeof(stat));
-                        int error = stat(full_file_path, &s);
-                        if (error == -1 && errno != ENOENT) {
-                            fprintf(stderr, "Error: failed to check directory: %s\n", full_file_path);
+                        if (MyCreateDir(outputPath) != 0)
+                        {
                             res = SZ_ERROR_FAIL;
                             break;
                         }
-                        if (error == 0 && !S_ISDIR(s.st_mode)) {
-                            fprintf(stderr, "Error: output path is not directory: %s\n", full_file_path);
-                            res = SZ_ERROR_FAIL;
-                            break;
-                        }
-                        if (error == -1 && mkdir(full_file_path, 0755) != 0) {
-                            fprintf(stderr, "Error: failed to create directory: %s\n", full_file_path);
-                            res = SZ_ERROR_FAIL;
-                            break;
-                        }
-
                         tmpfile[j] = '/';
                     }
                     else
