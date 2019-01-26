@@ -102,17 +102,17 @@ static int MyCreateDir(const char *name)
 {
     struct stat s;
     memset(&s, 0, sizeof(stat));
-    int error = stat(full_file_path, &s);
+    int error = stat(name, &s);
     if (error == -1 && errno != ENOENT) {
-        fprintf(stderr, "Error: failed to check directory: %s\n", full_file_path);
+        fprintf(stderr, "Error: failed to check directory: %s\n", name);
         return 1;
     }
     if (error == 0 && !S_ISDIR(s.st_mode)) {
-        fprintf(stderr, "Error: output path is not directory: %s\n", full_file_path);
+        fprintf(stderr, "Error: output path is not directory: %s\n", name);
         return 1;
     }
-    if (error == -1 && mkdir(full_file_path, 0755) != 0) {
-        fprintf(stderr, "Error: failed to create directory: %s\n", full_file_path);
+    if (error == -1 && mkdir(name, 0755) != 0) {
+        fprintf(stderr, "Error: failed to create directory: %s\n", name);
         return 1;
     }
     return 0;

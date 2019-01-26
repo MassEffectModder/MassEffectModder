@@ -16,9 +16,9 @@
 
 #ifdef _WIN32
 #include <direct.h>
+#endif
 #include <sys/stat.h>
 #include <errno.h>
-#endif
 
 
 #define kInputBufSize ((size_t)1 << 18)
@@ -221,17 +221,17 @@ static int MyCreateDir(const char *name)
 {
     struct stat s;
     memset(&s, 0, sizeof(stat));
-    int error = stat(full_file_path, &s);
+    int error = stat(name, &s);
     if (error == -1 && errno != ENOENT) {
-        fprintf(stderr, "Error: failed to check directory: %s\n", full_file_path);
+        fprintf(stderr, "Error: failed to check directory: %s\n", name);
         return 1;
     }
     if (error == 0 && !S_ISDIR(s.st_mode)) {
-        fprintf(stderr, "Error: output path is not directory: %s\n", full_file_path);
+        fprintf(stderr, "Error: output path is not directory: %s\n", name);
         return 1;
     }
-    if (error == -1 && mkdir(full_file_path, 0755) != 0) {
-        fprintf(stderr, "Error: failed to create directory: %s\n", full_file_path);
+    if (error == -1 && mkdir(name, 0755) != 0) {
+        fprintf(stderr, "Error: failed to create directory: %s\n", name);
         return 1;
     }
     return 0;
@@ -472,7 +472,7 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path)
                             sprintf(full_file_path, "%s/%s", output_path, tmpfile);
                         else
                             strcpy(full_file_path, tmpfile);
-                        if (MyCreateDir(outputPath) != 0)
+                        if (MyCreateDir(full_file_path) != 0)
                         {
                             res = SZ_ERROR_FAIL;
                             break;

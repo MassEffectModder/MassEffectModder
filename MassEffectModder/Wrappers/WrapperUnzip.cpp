@@ -277,22 +277,20 @@ static int MyCreateDir(const wchar_t *name)
 static int MyCreateDir(const char *name)
 {
     struct stat s{};
-    int error = stat(outputPath, &s);
+    int error = stat(name, &s);
     if (error == -1 && errno != ENOENT) {
-        fprintf(stderr, "Error: failed to check directory: %s\n", outputPath);
-        result = 1;
-        break;
+        fprintf(stderr, "Error: failed to check directory: %s\n", name);
+        return 1;
     }
     if (error == 0 && !S_ISDIR(s.st_mode)) {
-        fprintf(stderr, "Error: output path is not directory: %s\n", outputPath);
-        result = 1;
-        break;
+        fprintf(stderr, "Error: output path is not directory: %s\n", name);
+        return 1;
     }
-    if (error == -1 && mkdir(outputPath, 0755) != 0) {
-        fprintf(stderr, "Error: failed to create directory: %s\n", outputPath);
-        result = 1;
-        break;
+    if (error == -1 && mkdir(name, 0755) != 0) {
+        fprintf(stderr, "Error: failed to create directory: %s\n", name);
+        return 1;
     }
+    return 0;
 }
 #endif
 
