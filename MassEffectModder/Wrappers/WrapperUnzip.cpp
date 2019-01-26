@@ -415,9 +415,11 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
         if (!WriteFile(file, data, dstLen, &nWritten, nullptr))
         {
             delete[] data;
+            CloseHandle(file);
             result = 1;
             break;
         }
+        CloseHandle(file);
 #else
         char outputPath[strlen(outputDir) + strlen(fileName) + 2];
         char tmpfile[strlen(fileName) + 1];
@@ -477,9 +479,11 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
         {
             delete[] data;
             ferror(file);
+            fclose(file);
             result = 1;
             break;
         }
+        fclose(file);
 #endif
 
         delete[] data;
