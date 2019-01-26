@@ -28,6 +28,9 @@
 
 #ifdef _WIN32
 #include <direct.h>
+#include <sys/stat.h>
+#include <wchar.h>
+#include <errno.h>
 #else
 #include <sys/stat.h>
 #include <errno.h>
@@ -110,6 +113,44 @@ int unrar_unpack(const char *path, const char *output_path, int full_path) {
         if (name) {
             if (full_path) {
 #if defined(_WIN32)
+                int size = strlen(name) + 1;
+                wchar_t tmpfile[size];
+                mbstowcs(tmpfile, name, size);
+                for (int j = 0; tmpfile[j] != 0; j++) {
+                    if (tmpfile[j] == '/') {
+                        tmpfile[j] = 0;
+                        size = wcslen(output_path) + strlen(name) + 2;
+                        wchar_t full_file_path[size];
+                        if (output_path[0] != 0)
+                            swprintf(full_file_path, size, L"%s/%s", output_path, tmpfile);
+                        else
+                            wcscpy(full_file_path, tmpfile);
+
+                        errno_t error = _waccess_s(full_file_path, 0);
+                        if (error != 0 && errno != ENOENT) {
+                            wprintf(L"Error: failed to check directory: %s\n", full_file_path);
+                            status = 1;
+                            break;
+                        }
+                        struct _stat s;
+                        memset(&s, 0, sizeof(_stat));
+                        _wstat(full_file_path, &s);
+                        if (error == 0 && !S_ISDIR(s.st_mode)) {
+                            wprintf(L"Error: output path is not directory: %s\n", full_file_path);
+                            status = 1;
+                            break;
+                        }
+                        if (error != 0 && !CreateDirectoryW(full_file_path, NULL)) {
+                            wprintf(L"Error: failed to create directory: %s\n", full_file_path);
+                            status = 1;
+                            break;
+                        }
+
+                        tmpfile[j] = '/';
+                    }
+                }
+                if (status == 0)
+                    filename = name;
 #else
                 char tmpfile[strlen(name) + 1];
                 strcpy(tmpfile, name);
@@ -156,7 +197,15 @@ int unrar_unpack(const char *path, const char *output_path, int full_path) {
             dmc_unrar_return supported = dmc_unrar_file_is_supported(&archive, i);
             if (supported == DMC_UNRAR_OK) {
 #if defined(_WIN32)
-                wchar_t filename_path[wcslen(output_path) + strlen(filename) + 2];
+                size_t size = strlen(filename) + 1;
+                wchar_t tmpfile[size];
+                mbstowcs(tmpfile, filename, size);
+                size = wcslen(output_path) + wcslen(tmpfile) + 2;
+                wchar_t filename_path[size];
+                if (output_path[0] != 0)
+                    swprintf(filename_path, size, L"%s/%s", output_path, tmpfile);
+                else
+                    mbstowcs(filename_path, filename, strlen(filename));
 #else
                 char filename_path[strlen(output_path) + strlen(filename) + 2];
                 if (output_path[0] != 0)

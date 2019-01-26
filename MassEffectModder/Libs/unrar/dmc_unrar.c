@@ -114,6 +114,11 @@
 #define DMC_UNRAR_HEADER_INCLUDED
 
 /* --- System properties --- */
+#ifdef _WIN32
+#define DMC_UNRAR_DISABLE_WINFILE_IO 0
+#else
+#define DMC_UNRAR_DISABLE_STDIO 0
+#endif
 
 /* 32-bit or 64-bit CPU? Set one to 1, or let the autodetect figure it out later. */
 #ifndef DMC_UNRAR_32BIT
@@ -141,7 +146,13 @@
 /* Set DMC_UNRAR_DISABLE_STDIO to 1 to disable functionality that use the
  * stdio file open/read/write functions. */
 #ifndef DMC_UNRAR_DISABLE_STDIO
-#define DMC_UNRAR_DISABLE_STDIO 0
+#define DMC_UNRAR_DISABLE_STDIO 1
+#endif
+
+/* Set DMC_UNRAR_DISABLE_WINFILE_IO to 1 to disable functionality that use the
+ * Windows file open/read/write functions. */
+#ifndef DMC_UNRAR_DISABLE_WINFILE_IO
+#define DMC_UNRAR_DISABLE_WINFILE_IO 1
 #endif
 
 /* RAR 2.9/3.6 can optionally compress text using the PPMd algorithm.
@@ -240,6 +251,10 @@ typedef int bool;
 
 #if DMC_UNRAR_DISABLE_STDIO != 1
 #include <stdio.h>
+#endif
+
+#if DMC_UNRAR_DISABLE_WINFILE_IO != 1
+#include <windows.h>
 #endif
 
 /* --- System autodetection --- */
@@ -492,6 +507,14 @@ bool dmc_unrar_is_rar_file(FILE *file);
 bool dmc_unrar_is_rar_path(const char *path);
 #endif /* DMC_UNRAR_DISABLE_STDIO */
 
+#if DMC_UNRAR_DISABLE_WINFILE_IO != 1
+/* Detect whether this FILE contains a RAR archive. */
+bool dmc_unrar_is_rar_file(HANDLE *file);
+
+/* Detect whether the file at this path contains a RAR archive. */
+bool dmc_unrar_is_rar_path(const wchar_t *path);
+#endif /* DMC_UNRAR_DISABLE_WINFILE_IO */
+
 /** Initialize/clear this archive struct.
  *
  *  @param  archive A valid pointer to an archive structure to initialize.
@@ -551,6 +574,32 @@ dmc_unrar_return dmc_unrar_archive_open_file(dmc_unrar_archive *archive, FILE *f
  */
 dmc_unrar_return dmc_unrar_archive_open_path(dmc_unrar_archive *archive, const char *path);
 #endif /* DMC_UNRAR_DISABLE_STDIO */
+
+#if DMC_UNRAR_DISABLE_WINFILE_IO != 1
+/** Open this RAR archive from a stdio FILE, reading its block and file headers.
+ *  The func_alloc, func_realloc, func_free and opaque_mem fields may be set.
+ *  All other fields must have been cleared.
+ *
+ *  @param  archive Pointer to the archive structure to use. Needs to be a valid
+ *                  pointer, with the fields properly initialized and set.
+ *  @param  file The stdio FILE structure to read out of.
+ *  @return DMC_UNRAR_OK if the archive was successfully opened. Any other value
+ *          describes an error condition.
+ */
+dmc_unrar_return dmc_unrar_archive_open_file(dmc_unrar_archive *archive, HANDLE *file);
+
+/** Open this RAR archive from a path, opening the file with fopen(), and reading
+ *  its block and file headers. The func_alloc, func_realloc, func_free and
+ *   opaque_mem fields may be set. All other fields must have been cleared.
+ *
+ *  @param  archive Pointer to the archive structure to use. Needs to be a valid
+ *                  pointer, with the fields properly initialized and set.
+ *  @param  path The path of the file to fopen() and read out of.
+ *  @return DMC_UNRAR_OK if the archive was successfully opened. Any other value
+ *          describes an error condition.
+ */
+dmc_unrar_return dmc_unrar_archive_open_path(dmc_unrar_archive *archive, const wchar_t *path);
+#endif /* DMC_UNRAR_DISABLE_WINFILE_IO */
 
 /** Close this RAR archive again.
  *
@@ -739,6 +788,38 @@ dmc_unrar_return dmc_unrar_extract_file_to_file(dmc_unrar_archive *archive, size
 dmc_unrar_return dmc_unrar_extract_file_to_path(dmc_unrar_archive *archive, size_t index,
 	const char *path, size_t *uncompressed_size, bool validate_crc);
 #endif /* DMC_UNRAR_DISABLE_STDIO */
+
+#if DMC_UNRAR_DISABLE_WINFILE_IO != 1
+/** Extract a file entry into a file.
+ *
+ *  @param  archive The archive to extract from.
+ *  @param  index The index of the file entry to extract.
+ *  @param  file The file to write into.
+ *  @param  uncompressed_size If not NULL, the number of bytes written
+ *          to the file will be stored here.
+ *  @param  validate_crc If true, validate the uncompressed data against
+ *          the CRC-32 stored within the archive. If the validation fails,
+ *          this counts as an error (DMC_UNRAR_FILE_CRC32_FAIL).
+ *  @return An error condition, or DMC_UNRAR_OK if extraction succeeded.
+ */
+dmc_unrar_return dmc_unrar_extract_file_to_file(dmc_unrar_archive *archive, size_t index,
+    HANDLE *file, size_t *uncompressed_size, bool validate_crc);
+
+/** Open a file and extract a RAR file entry into it.
+ *
+ *  @param  archive The archive to extract from.
+ *  @param  index The index of the file entry to extract.
+ *  @param  path The file to open and write into.
+ *  @param  uncompressed_size If not NULL, the number of bytes written
+ *          to the file will be stored here.
+ *  @param  validate_crc If true, validate the uncompressed data against
+ *          the CRC-32 stored within the archive. If the validation fails,
+ *          this counts as an error (DMC_UNRAR_FILE_CRC32_FAIL).
+ *  @return An error condition, or DMC_UNRAR_OK if extraction succeeded.
+ */
+dmc_unrar_return dmc_unrar_extract_file_to_path(dmc_unrar_archive *archive, size_t index,
+    const wchar_t *path, size_t *uncompressed_size, bool validate_crc);
+#endif /* DMC_UNRAR_DISABLE_WINFILE_IO */
 
 /** Return true if the given \0-terminated string contains valid UTF-8 data. */
 bool dmc_unrar_unicode_is_valid_utf8(const char *str);
@@ -1391,6 +1472,113 @@ static bool dmc_unrar_io_is_file_reader(dmc_unrar_io *io) {
 	       (io->func_seek == &dmc_unrar_file_seek_func);
 }
 #endif /* DMC_UNRAR_DISABLE_STDIO */
+
+#if DMC_UNRAR_DISABLE_WINFILE_IO != 1
+typedef struct dmc_unrar_file_reader_tag {
+    HANDLE *file;
+    uint64_t size;
+
+    bool need_close;
+} dmc_unrar_file_reader;
+
+static HANDLE *dmc_unrar_file_fopen(const wchar_t *path) {
+    return CreateFileW(path,
+          GENERIC_READ,
+          FILE_SHARE_READ, NULL,
+          OPEN_EXISTING,
+          FILE_ATTRIBUTE_NORMAL, NULL);
+}
+
+static uint64_t dmc_unrar_file_get_size(HANDLE *file) {
+    LARGE_INTEGER size;
+    if (!GetFileSizeEx(file, &size))
+        return 0;
+    return size.QuadPart;
+}
+
+static dmc_unrar_return dmc_unrar_file_set(dmc_unrar_file_reader *reader, HANDLE *file) {
+    DMC_UNRAR_ASSERT(reader && file);
+
+    reader->file       = file;
+    reader->size       = dmc_unrar_file_get_size(file);
+    reader->need_close = false;
+
+    return DMC_UNRAR_OK;
+}
+
+static dmc_unrar_return dmc_unrar_file_open(dmc_unrar_file_reader *reader, const wchar_t *path) {
+    DMC_UNRAR_ASSERT(reader && path);
+
+    reader->file = dmc_unrar_file_fopen(path);
+    if (reader->file == INVALID_HANDLE_VALUE)
+        return DMC_UNRAR_OPEN_FAIL;
+
+    reader->size       = dmc_unrar_file_get_size(reader->file);
+    reader->need_close = true;
+
+    return DMC_UNRAR_OK;
+}
+
+static void dmc_unrar_file_close(dmc_unrar_file_reader *reader) {
+    if (!reader)
+        return;
+
+    if (reader->need_close)
+        CloseHandle(reader->file);
+
+    reader->file       = NULL;
+    reader->need_close = false;
+}
+
+static size_t dmc_unrar_file_read_func(void *opaque, void *buffer, size_t n) {
+    if (!opaque)
+        return 0;
+
+    {
+        dmc_unrar_file_reader *file = (dmc_unrar_file_reader *)opaque;
+
+        DWORD nRead;
+        if (!ReadFile(file->file, buffer, n, &nRead, NULL))
+            return 0;
+    }
+
+    return n;
+}
+
+static int dmc_unrar_file_seek_func(void *opaque, uint64_t offset) {
+    if (!opaque)
+        return -1;
+
+    {
+        dmc_unrar_file_reader *file = (dmc_unrar_file_reader *)opaque;
+        LARGE_INTEGER setOffset, newOffset;
+        setOffset.QuadPart = offset;
+        if (!SetFilePointerEx(file->file, setOffset, &newOffset, FILE_BEGIN))
+            return -1;
+        return 0;
+    }
+}
+
+static void dmc_unrar_io_init_file_reader(dmc_unrar_io *io, dmc_unrar_file_reader *file_reader) {
+    DMC_UNRAR_ASSERT(io && file_reader && file_reader->file);
+
+    io->func_read = &dmc_unrar_file_read_func;
+    io->func_seek = &dmc_unrar_file_seek_func;
+    io->opaque    = file_reader;
+
+    io->offset = 0;
+    io->size   = file_reader->size;
+}
+
+static bool dmc_unrar_io_is_file_reader(dmc_unrar_io *io) {
+    if (!io)
+        return false;
+
+    return io->opaque &&
+           (io->func_read == &dmc_unrar_file_read_func) &&
+           (io->func_seek == &dmc_unrar_file_seek_func);
+}
+#endif /* DMC_UNRAR_DISABLE_WINFILE_IO */
 /* '--- */
 
 /* .--- Convenience IO functions */
@@ -1544,6 +1732,46 @@ bool dmc_unrar_is_rar_path(const char *path) {
 
 	dmc_unrar_file_close(&file_reader);
 	return result;
+}
+#endif /* DMC_UNRAR_DISABLE_STDIO */
+
+#if DMC_UNRAR_DISABLE_WINFILE_IO != 1
+bool dmc_unrar_is_rar_file(HANDLE *file) {
+    dmc_unrar_file_reader file_reader;
+    dmc_unrar_io io;
+    bool result;
+
+    if (!file)
+        return false;
+
+    if (dmc_unrar_file_set(&file_reader, file) != DMC_UNRAR_OK)
+        return false;
+
+    dmc_unrar_io_init_file_reader(&io, &file_reader);
+
+    result = dmc_unrar_is_rar(&io);
+
+    dmc_unrar_file_close(&file_reader);
+    return result;
+}
+
+bool dmc_unrar_is_rar_path(const wchar_t *path) {
+    dmc_unrar_file_reader file_reader;
+    dmc_unrar_io io;
+    bool result;
+
+    if (!path)
+        return false;
+
+    if (dmc_unrar_file_open(&file_reader, path) != DMC_UNRAR_OK)
+        return false;
+
+    dmc_unrar_io_init_file_reader(&io, &file_reader);
+
+    result = dmc_unrar_is_rar(&io);
+
+    dmc_unrar_file_close(&file_reader);
+    return result;
 }
 #endif /* DMC_UNRAR_DISABLE_STDIO */
 
@@ -1733,6 +1961,85 @@ dmc_unrar_return dmc_unrar_archive_open_path(dmc_unrar_archive *archive, const c
 }
 #endif /* DMC_UNRAR_DISABLE_STDIO */
 
+#if DMC_UNRAR_DISABLE_WINFILE_IO != 1
+static dmc_unrar_return dmc_unrar_archive_open_file_reader(dmc_unrar_archive *archive,
+        dmc_unrar_file_reader *file) {
+
+    DMC_UNRAR_ASSERT(archive && file);
+
+    /* Initialize allocators. */
+    {
+        const dmc_unrar_return alloc_check = dmc_unrar_archive_check_alloc(&archive->alloc);
+        if (alloc_check != DMC_UNRAR_OK) {
+            return alloc_check;
+        }
+    }
+
+    /* Allocate and initialize a simple file reader. */
+    {
+        dmc_unrar_file_reader *file_reader = (dmc_unrar_file_reader *)
+            dmc_unrar_malloc(&archive->alloc, 1, sizeof(dmc_unrar_file_reader));
+
+        if (!file_reader) {
+            dmc_unrar_file_close(file);
+            return DMC_UNRAR_ALLOC_FAIL;
+        }
+
+        *file_reader = *file;
+        DMC_UNRAR_CLEAR_OBJ(*file);
+
+        dmc_unrar_io_init_file_reader(&archive->io, file_reader);
+
+        /* Pass to the generic open function. */
+        {
+            const dmc_unrar_return open_archive = dmc_unrar_archive_open(archive, file_reader->size);
+            if (open_archive != DMC_UNRAR_OK) {
+                dmc_unrar_archive_close(archive);
+                return open_archive;
+            }
+        }
+    }
+
+    return DMC_UNRAR_OK;
+}
+
+dmc_unrar_return dmc_unrar_archive_open_file(dmc_unrar_archive *archive, HANDLE *file) {
+    dmc_unrar_file_reader file_reader;
+
+    /* Sanity checks. */
+    if (!archive)
+        return DMC_UNRAR_ARCHIVE_IS_NULL;
+    if (!file)
+        return DMC_UNRAR_ARCHIVE_EMPTY;
+
+    {
+        dmc_unrar_return file_open = dmc_unrar_file_set(&file_reader, file);
+        if (file_open != DMC_UNRAR_OK)
+            return file_open;
+    }
+
+    return dmc_unrar_archive_open_file_reader(archive, &file_reader);
+}
+
+dmc_unrar_return dmc_unrar_archive_open_path(dmc_unrar_archive *archive, const wchar_t *path) {
+    dmc_unrar_file_reader file_reader;
+
+    /* Sanity checks. */
+    if (!archive)
+        return DMC_UNRAR_ARCHIVE_IS_NULL;
+    if (!path)
+        return DMC_UNRAR_ARCHIVE_EMPTY;
+
+    {
+        dmc_unrar_return file_open = dmc_unrar_file_open(&file_reader, path);
+        if (file_open != DMC_UNRAR_OK)
+            return file_open;
+    }
+
+    return dmc_unrar_archive_open_file_reader(archive, &file_reader);
+}
+#endif /* DMC_UNRAR_DISABLE_WINFILE_IO */
+
 void dmc_unrar_archive_close(dmc_unrar_archive *archive) {
 	if (!archive)
 		return;
@@ -1752,7 +2059,16 @@ void dmc_unrar_archive_close(dmc_unrar_archive *archive) {
 	}
 #endif /* DMC_UNRAR_DISABLE_STDIO */
 
-	/* If we're using our own memory reader, clean and free its context. */
+#if DMC_UNRAR_DISABLE_WINFILE_IO != 1
+    /* If we're using our own file reader, clean and free its context. */
+    if (dmc_unrar_io_is_file_reader(&archive->io)) {
+        dmc_unrar_file_close((dmc_unrar_file_reader *)archive->io.opaque);
+        dmc_unrar_free(&archive->alloc, archive->io.opaque);
+        DMC_UNRAR_CLEAR_OBJ(archive->io);
+    }
+#endif /* DMC_UNRAR_DISABLE_STDIO */
+
+    /* If we're using our own memory reader, clean and free its context. */
 	if (dmc_unrar_io_is_mem_reader(&archive->io)) {
 		dmc_unrar_free(&archive->alloc, archive->io.opaque);
 		DMC_UNRAR_CLEAR_OBJ(archive->io);
@@ -2654,9 +2970,11 @@ static dmc_unrar_return dmc_unrar_rar5_read_file_header(dmc_unrar_archive *archi
 			switch (type) {
 				case DMC_UNRAR_FILE5_PROPERTY_ENCRYPTION:
 					file->is_encrypted = true;
+                break;
 
 				case DMC_UNRAR_FILE5_PROPERTY_LINK:
 					file->is_link = true;
+                break;
 
 				default:
 					break;
@@ -3791,6 +4109,96 @@ dmc_unrar_return dmc_unrar_extract_file_to_path(dmc_unrar_archive *archive, size
 	return return_code;
 }
 #endif /* DMC_UNRAR_DISABLE_STDIO */
+
+#if DMC_UNRAR_DISABLE_WINFILE_IO != 1
+bool dmc_unrar_extract_callback_file(void *opaque, void **buffer,
+    size_t *buffer_size, size_t uncompressed_size, dmc_unrar_return *err) {
+
+    HANDLE *file = (HANDLE *)opaque;
+    DMC_UNRAR_ASSERT(file);
+
+    DWORD nWrite = 0;
+    if (!WriteFile(file, *buffer, uncompressed_size, &nWrite, NULL)) {
+        *err = DMC_UNRAR_WRITE_FAIL;
+        return false;
+    }
+
+    (void)buffer_size;
+    return true;
+}
+
+static dmc_unrar_return dmc_unrar_get_file_checked(dmc_unrar_archive *archive, size_t index,
+        dmc_unrar_file_block **file) {
+
+    const dmc_unrar_return is_supported = dmc_unrar_file_is_supported(archive, index);
+    if (is_supported != DMC_UNRAR_OK)
+        return is_supported;
+
+    assert(file);
+
+    *file = dmc_unrar_get_file(archive, index);
+    assert(*file);
+
+    return DMC_UNRAR_OK;
+}
+
+dmc_unrar_return dmc_unrar_extract_file_to_file(dmc_unrar_archive *archive, size_t index,
+    HANDLE *file, size_t *uncompressed_size, bool validate_crc) {
+
+    uint8_t buffer[4096];
+    dmc_unrar_file_block *file_entry = NULL;
+
+    if (!archive || file == INVALID_HANDLE_VALUE)
+        return DMC_UNRAR_ARCHIVE_EMPTY;
+
+    if (uncompressed_size)
+        *uncompressed_size = 0;
+
+    {
+        dmc_unrar_return has_file;
+        if ((has_file = dmc_unrar_get_file_checked(archive, index, &file_entry)) != DMC_UNRAR_OK)
+            return has_file;
+    }
+
+    assert(file_entry);
+
+    {
+        uint32_t crc = 0;
+        size_t output_size;
+        dmc_unrar_return extracted;
+
+        extracted = dmc_unrar_file_extract(archive, file_entry, buffer, DMC_UNRAR_ARRAYSIZE(buffer),
+                    &output_size, &crc, file, &dmc_unrar_extract_callback_file);
+
+        if (extracted != DMC_UNRAR_OK)
+            return extracted;
+
+        if (uncompressed_size)
+            *uncompressed_size = output_size;
+
+        if (validate_crc)
+            if (file_entry->file.has_crc && (file_entry->file.crc != crc))
+                return DMC_UNRAR_FILE_CRC32_FAIL;
+    }
+
+    return DMC_UNRAR_OK;
+}
+
+dmc_unrar_return dmc_unrar_extract_file_to_path(dmc_unrar_archive *archive, size_t index,
+    const wchar_t *path, size_t *uncompressed_size, bool validate_crc) {
+
+    dmc_unrar_return return_code;
+
+    HANDLE *file = CreateFileW(path, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file == INVALID_HANDLE_VALUE)
+        return DMC_UNRAR_OPEN_FAIL;
+
+    return_code = dmc_unrar_extract_file_to_file(archive, index, file, uncompressed_size, validate_crc);
+
+    CloseHandle(file);
+    return return_code;
+}
+#endif /* DMC_UNRAR_DISABLE_WINFILE_IO */
 
 typedef size_t (*dmc_unrar_extractor_func)(void *opaque, void *buffer, size_t buffer_size,
 	dmc_unrar_return *err);
