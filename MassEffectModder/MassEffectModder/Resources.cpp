@@ -59,6 +59,7 @@ void Resources::loadMD5Table(const QString &path, QStringList &tables, QList<MD5
             tmp.ReadToBuffer(entry.md5, 16);
             entries.push_back(entry);
         }
+        std::sort(entries.begin(), entries.end(), SortComparePath);
     }
     decompressed.Free();
     compressed.Free();
