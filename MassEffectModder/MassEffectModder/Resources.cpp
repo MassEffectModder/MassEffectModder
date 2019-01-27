@@ -24,15 +24,13 @@
 #include "Helpers/FileStream.h"
 #include "Wrappers.h"
 
-void Resources::loadMD5Tables()
+void Resources::loadMD5Table(const QString &path, QStringList &tables, QList<MD5FileEntry> &entries)
 {
-    if (MD5tablesLoaded)
-        CRASH();
-
     ByteBuffer decompressed;
     ByteBuffer compressed;
+
     {
-        auto tmp = FileStream(":/Resources/MD5EntriesME1.bin", FileMode::Open, FileAccess::ReadOnly);
+        auto tmp = FileStream(path, FileMode::Open, FileAccess::ReadOnly);
         tmp.SkipInt32();
         decompressed = ByteBuffer(tmp.ReadInt32());
         compressed = tmp.ReadToBuffer((uint)tmp.Length() - 8);
@@ -50,125 +48,31 @@ void Resources::loadMD5Tables()
             QString pkg;
             tmp.ReadStringASCIINull(pkg);
             pkg.replace(QChar('\\'), QChar('/'), Qt::CaseInsensitive);
-            tablePkgsME1.push_back(pkg);
+            tables.push_back(pkg);
         }
         count = tmp.ReadInt32();
         for (int l = 0; l < count; l++)
         {
             MD5FileEntry entry{};
-            entry.path = tablePkgsME1[tmp.ReadInt32()].toLower();
+            entry.path = tables[tmp.ReadInt32()].toLower();
             entry.size = tmp.ReadInt32();
             tmp.ReadToBuffer(entry.md5, 16);
-            entriesME1.push_back(entry);
+            entries.push_back(entry);
         }
     }
     decompressed.Free();
     compressed.Free();
+}
 
+void Resources::loadMD5Tables()
+{
+    if (MD5tablesLoaded)
+        CRASH();
 
-    {
-        FileStream tmp = FileStream(":/Resources/MD5EntriesME1PL.bin", FileMode::Open, FileAccess::ReadOnly);
-        tmp.SkipInt32();
-        decompressed = ByteBuffer(tmp.ReadInt32());
-        compressed = tmp.ReadToBuffer((uint)tmp.Length() - 8);
-        uint dstLen = decompressed.size();
-        ZlibDecompress(compressed.ptr(), compressed.size(), decompressed.ptr(), &dstLen);
-        if (decompressed.size() != dstLen)
-            CRASH();
-    }
-    {
-        MemoryStream tmp = MemoryStream(decompressed);
-        int count = tmp.ReadInt32();
-        for (int l = 0; l < count; l++)
-        {
-            QString pkg;
-            tmp.ReadStringASCIINull(pkg);
-            pkg.replace(QChar('\\'), QChar('/'), Qt::CaseInsensitive);
-            tablePkgsME1PL.push_back(pkg);
-        }
-        count = tmp.ReadInt32();
-        for (int l = 0; l < count; l++)
-        {
-            MD5FileEntry entry{};
-            entry.path = tablePkgsME1PL[tmp.ReadInt32()].toLower();
-            entry.size = tmp.ReadInt32();
-            tmp.ReadToBuffer(entry.md5, 16);
-            entriesME1.push_back(entry);
-        }
-        std::sort(entriesME1.begin(), entriesME1.end(), SortComparePath);
-    }
-    decompressed.Free();
-    compressed.Free();
-
-
-    {
-        FileStream tmp = FileStream(":/Resources/MD5EntriesME2.bin", FileMode::Open, FileAccess::ReadOnly);
-        tmp.SkipInt32();
-        decompressed = ByteBuffer(tmp.ReadInt32());
-        compressed = tmp.ReadToBuffer((uint)tmp.Length() - 8);
-        uint dstLen = decompressed.size();
-        ZlibDecompress(compressed.ptr(), compressed.size(), decompressed.ptr(), &dstLen);
-        if (decompressed.size() != dstLen)
-            CRASH();
-    }
-    {
-        MemoryStream tmp = MemoryStream(decompressed);
-        int count = tmp.ReadInt32();
-        for (int l = 0; l < count; l++)
-        {
-            QString pkg;
-            tmp.ReadStringASCIINull(pkg);
-            pkg.replace(QChar('\\'), QChar('/'), Qt::CaseInsensitive);
-            tablePkgsME2.push_back(pkg);
-        }
-        count = tmp.ReadInt32();
-        for (int l = 0; l < count; l++)
-        {
-            MD5FileEntry entry{};
-            entry.path = tablePkgsME2[tmp.ReadInt32()].toLower();
-            entry.size = tmp.ReadInt32();
-            tmp.ReadToBuffer(entry.md5, 16);
-            entriesME2.push_back(entry);
-        }
-        std::sort(entriesME2.begin(), entriesME2.end(), SortComparePath);
-    }
-    decompressed.Free();
-    compressed.Free();
-
-
-    {
-        FileStream tmp = FileStream(":/Resources/MD5EntriesME3.bin", FileMode::Open, FileAccess::ReadOnly);
-        tmp.SkipInt32();
-        decompressed = ByteBuffer(tmp.ReadInt32());
-        compressed = tmp.ReadToBuffer((uint)tmp.Length() - 8);
-        uint dstLen = decompressed.size();
-        ZlibDecompress(compressed.ptr(), compressed.size(), decompressed.ptr(), &dstLen);
-        if (decompressed.size() != dstLen)
-            CRASH();
-    }
-    {
-        MemoryStream tmp = MemoryStream(decompressed);
-        int count = tmp.ReadInt32();
-        for (int l = 0; l < count; l++)
-        {
-            QString pkg;
-            tmp.ReadStringASCIINull(pkg);
-            pkg.replace(QChar('\\'), QChar('/'), Qt::CaseInsensitive);
-            tablePkgsME3.push_back(pkg);
-        }
-        count = tmp.ReadInt32();
-        for (int l = 0; l < count; l++)
-        {
-            MD5FileEntry entry{};
-            entry.path = tablePkgsME3[tmp.ReadInt32()].toLower();
-            entry.size = tmp.ReadInt32();
-            tmp.ReadToBuffer(entry.md5, 16);
-            entriesME3.push_back(entry);
-        }
-        std::sort(entriesME3.begin(), entriesME3.end(), SortComparePath);
-    }
-    decompressed.Free();
-    compressed.Free();
+    loadMD5Table(":/Resources/MD5EntriesME1.bin", tablePkgsME1, entriesME1);
+    loadMD5Table(":/Resources/MD5EntriesME1PL.bin", tablePkgsME1PL, entriesME1);
+    loadMD5Table(":/Resources/MD5EntriesME2.bin", tablePkgsME2, entriesME2);
+    loadMD5Table(":/Resources/MD5EntriesME3.bin", tablePkgsME3, entriesME3);
 
     MD5tablesLoaded = true;
 }

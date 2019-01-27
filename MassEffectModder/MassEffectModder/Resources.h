@@ -41,6 +41,8 @@ class Resources
 private:
     bool MD5tablesLoaded = false;
 
+    void loadMD5Table(const QString &path, QStringList &tables, QList<MD5FileEntry> &entries);
+
 public:
 
     static bool SortComparePath(MD5FileEntry &e1, MD5FileEntry &e2)
