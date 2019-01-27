@@ -303,41 +303,6 @@ Image::DDS_PF Image::getDDSPixelFormat(PixelFormat format)
     return pixelFormat;
 }
 
-ByteBuffer Image::StoreMipToDDS(ByteBuffer src, PixelFormat format, int w, int h)
-{
-    MemoryStream stream;
-    stream.WriteUInt32(DDS_TAG);
-    stream.WriteInt32(DDS_HEADER_dwSize);
-    stream.WriteUInt32(DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_MIPMAPCOUNT | DDSD_PIXELFORMAT | DDSD_LINEARSIZE);
-    stream.WriteInt32(h);
-    stream.WriteInt32(w);
-    stream.WriteInt32(src.size());
-
-    stream.WriteUInt32(0); // dwDepth
-    stream.WriteInt32(1);
-    stream.WriteZeros(44); // dwReserved1
-
-    stream.WriteInt32(DDS_PIXELFORMAT_dwSize);
-    DDS_PF pixfmt = getDDSPixelFormat(format);
-    stream.WriteUInt32(pixfmt.flags);
-    stream.WriteUInt32(pixfmt.fourCC);
-    stream.WriteUInt32(pixfmt.bits);
-    stream.WriteUInt32(pixfmt.Rmask);
-    stream.WriteUInt32(pixfmt.Gmask);
-    stream.WriteUInt32(pixfmt.Bmask);
-    stream.WriteUInt32(pixfmt.Amask);
-
-    stream.WriteInt32(DDSCAPS_COMPLEX | DDSCAPS_MIPMAP | DDSCAPS_TEXTURE);
-    stream.WriteUInt32(0); // dwCaps2
-    stream.WriteUInt32(0); // dwCaps3
-    stream.WriteUInt32(0); // dwCaps4
-    stream.WriteUInt32(0); // dwReserved2
-
-    stream.WriteFromBuffer(src.ptr(), src.size());
-
-    return stream.ToArray();
-}
-
 void Image::StoreImageToDDS(Stream &stream, PixelFormat format)
 {
     stream.WriteUInt32(DDS_TAG);

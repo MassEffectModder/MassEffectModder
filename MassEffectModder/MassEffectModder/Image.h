@@ -154,7 +154,6 @@ public:
     bool checkDDSHaveAllMipmaps();
     Image *convertToARGB();
     Image *convertToRGB();
-    static ByteBuffer StoreMipToDDS(ByteBuffer src, PixelFormat format, int w, int h);
     void StoreImageToDDS(Stream &stream, PixelFormat format = PixelFormat::UnknownPixelFormat);
     ByteBuffer StoreImageToDDS();
 };
