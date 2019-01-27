@@ -127,22 +127,20 @@ class MipMaps
         maxBlockSize = 0x20000, // 128KB
     };
 
+    void prepareListToRemove(QList<FoundTexture> &textures, QList<RemoveMipsEntry> &list);
+
 public:
 
     static bool compressData(ByteBuffer inputData, Stream &ouputStream);
     static ByteBuffer decompressData(Stream &stream, long compressedSize);
     void extractTextureToPng(QString &outputFile, QString &packagePath, int exportID);
 
-    void prepareListToRemove(QList<FoundTexture> &textures, QList<RemoveMipsEntry> &list);
-    void removeMipMapsME1(int phase, QList<FoundTexture> &textures, QStringList &pkgsToMarker,
-                            bool ipc, bool appendMarker);
-    void removeMipMapsME1(int phase, QList<FoundTexture> &textures, Package &package,
-                            RemoveMipsEntry &removeEntry, QStringList &pkgsToMarker,
-                            bool ipc, bool appendMarker);
-    void removeMipMapsME2ME3(QList<FoundTexture> &textures, QStringList &pkgsToMarker,
-                             QStringList &pkgsToRepack, bool ipc, bool repack, bool appendMarker);
-    void removeMipMapsME2ME3(Package &package, RemoveMipsEntry &removeEntry, QStringList &pkgsToMarker,
-                             QStringList &pkgsToRepack, bool ipc, bool repack, bool appendMarker);
+    void removeMipMaps(int phase, QList<FoundTexture> &textures, QStringList &pkgsToMarker,
+                       QStringList &pkgsToRepack, bool ipc, bool repack, bool appendMarker);
+    void removeMipMapsPerPackage(int phase, QList<FoundTexture> &textures, Package &package,
+                                 RemoveMipsEntry &removeEntry,
+                                 QStringList &pkgsToMarker, QStringList &pkgsToRepack,
+                                 bool ipc, bool repack, bool appendMarker);
 
     PixelFormat changeTextureType(PixelFormat gamePixelFormat, PixelFormat texturePixelFormat, Texture &texture);
     QString replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTexture> &textures,

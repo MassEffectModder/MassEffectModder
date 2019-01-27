@@ -103,15 +103,9 @@ int CmdLineTools::removeEmptyMips(MeType gameId, bool ipc)
     ConsoleWrite("Remove empty mips started...");
 
     Misc::startTimer();
+    mipMaps.removeMipMaps(1, textures, pkgsToMarkers, pkgsToRepack, ipc, false, false);
     if (GameData::gameType == MeType::ME1_TYPE)
-    {
-        mipMaps.removeMipMapsME1(1, textures, pkgsToMarkers, ipc, false);
-        mipMaps.removeMipMapsME1(2, textures, pkgsToMarkers, ipc, false);
-    }
-    else
-    {
-        mipMaps.removeMipMapsME2ME3(textures, pkgsToMarkers, pkgsToRepack, ipc, false, false);
-    }
+        mipMaps.removeMipMaps(2, textures, pkgsToMarkers, pkgsToRepack, ipc, false, false);
     if (GameData::gameType == MeType::ME3_TYPE)
         TOCBinFile::UpdateAllTOCBinFiles();
     long elapsed = Misc::elapsedTime();
@@ -1197,15 +1191,9 @@ bool CmdLineTools::RemoveMipmaps(MipMaps &mipMaps, QList<FoundTexture> &textures
         ConsoleSync();
     }
 
+    mipMaps.removeMipMaps(1, textures, pkgsToMarker, pkgsToRepack, ipc, repack, appendMarker);
     if (GameData::gameType == MeType::ME1_TYPE)
-    {
-        mipMaps.removeMipMapsME1(1, textures, pkgsToMarker, ipc, appendMarker);
-        mipMaps.removeMipMapsME1(2, textures, pkgsToMarker, ipc, appendMarker);
-    }
-    else
-    {
-        mipMaps.removeMipMapsME2ME3(textures, pkgsToMarker, pkgsToRepack, ipc, repack, appendMarker);
-    }
+        mipMaps.removeMipMaps(2, textures, pkgsToMarker, pkgsToRepack, ipc, repack, appendMarker);
 
     ConsoleWrite("Remove mipmaps finished.\n");
 
