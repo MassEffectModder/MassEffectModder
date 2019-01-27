@@ -177,8 +177,16 @@ void GameData::ScanGameFiles(bool force)
                     path.contains("_CS.", Qt::CaseInsensitive) ||
                     path.contains("_HU.", Qt::CaseInsensitive) ||
                     path.contains("_RU.", Qt::CaseInsensitive) ||
-                    path.contains("_RA.", Qt::CaseInsensitive) ||
-                    path.contains("_DE.", Qt::CaseInsensitive) ||
+                    path.contains("_RA.", Qt::CaseInsensitive))
+                {
+                    FullScanGame = true;
+                    break;
+                }
+            }
+            for (int i = 0; i < packageMainFiles.count(); i++)
+            {
+                QString path = packageMainFiles[i];
+                if (path.contains("_DE.", Qt::CaseInsensitive) ||
                     path.contains("_FR.", Qt::CaseInsensitive) ||
                     path.contains("_IT.", Qt::CaseInsensitive) ||
                     path.contains("_ES.", Qt::CaseInsensitive))
