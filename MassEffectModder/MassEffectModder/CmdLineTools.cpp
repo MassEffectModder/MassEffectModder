@@ -1386,7 +1386,7 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
         for (int l = 0; l < numFiles; l++, currentNumberOfTotalMods++)
         {
             QString name;
-            uint crc;
+            uint crc = 0;
             int exportId = -1;
             QString pkgPath;
             fs.JumpTo(modFiles[l].offset);
