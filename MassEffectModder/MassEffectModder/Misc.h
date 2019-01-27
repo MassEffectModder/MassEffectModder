@@ -27,6 +27,7 @@
 #include "Texture.h"
 #include "TreeScan.h"
 #include "Resources.h"
+#include "Image.h"
 
 struct MD5ModFileEntry
 {
@@ -68,9 +69,27 @@ public:
     static void ParseME3xBinaryScriptMod(QString &script, QString &package, int &expId, QString &path);
     static PixelFormat changeTextureType(PixelFormat gamePixelFormat, PixelFormat texturePixelFormat,
                                          TexProperty::TextureTypes flags);
+    static uint scanFilenameForCRC(const QString &inputFile, bool ipc);
+    static FoundTexture FoundTextureInTheMap(QList<FoundTexture> &textures, uint crc);
     static bool convertDataModtoMem(QString &inputDir, QString &memFilePath,
                                     MeType gameId, QList<FoundTexture> &textures, bool markToConvert,
                                     bool onlyIndividual, bool ipc);
+    static bool CorrectTexture(Image &image, FoundTexture &f, int numMips, bool markToConvert,
+                              PixelFormat pixelFormat, PixelFormat newPixelFormat,
+                              const QString &file, bool ipc);
+    static QString CorrectTexture(Image *image, Texture &texture, PixelFormat pixelFormat,
+                                  PixelFormat newPixelFormat, bool markConvert, const QString &textureName);
+    static bool CorrectTexture(Image &image, Texture &texture, PixelFormat pixelFormat, const QString &textureName);
+    static bool CheckMEMHeader(FileStream &fs, const QString &file, bool ipc);
+    static bool CheckMEMGameVersion(FileStream &fs, const QString &file, int gameId, bool ipc);
+    static int ReadModHeader(FileStream &fs);
+    static void ReadModEntryHeader(FileStream &fs, QString &scriptLegacy, bool &binary, QString &textureName);
+    static bool CheckImage(Image &image, FoundTexture &f, const QString &file, int index, bool ipc);
+    static bool CheckImage(Image &image, Texture &texture, const QString &textureName);
+    static bool ParseBinaryModFileName(const QString &file, QString pkgName, QString dlcName, int &exportId);
+    static bool TpfGetCurrentFileInfo(void *handle, QString &fileName, quint64 &lenght);
+    static bool DetectMarkToConvertFromFile(const QString &file);
+    static int GetNumberOfMipsFromMap(FoundTexture &f);
     static QByteArray calculateMD5(const QString &filePath);
     static void detectMods(QStringList &mods);
     static void detectBrokenMod(QStringList &mods);

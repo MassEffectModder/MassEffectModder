@@ -23,6 +23,7 @@
 #include "GameData.h"
 #include "Texture.h"
 #include "Package.h"
+#include "Misc.h"
 #include "Helpers/MiscHelpers.h"
 #include "Helpers/Logs.h"
 #include "Helpers/QSort.h"
@@ -210,8 +211,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     mod.cacheImage = image;
             }
 
-            if (image->getMipMaps().first()->getOrigWidth() / image->getMipMaps().first()->getOrigHeight() !=
-                texture.mipMapsList.first().width / texture.mipMapsList.first().height)
+            if (!Misc::CheckImage(*image, texture, mod.textureName))
             {
                 errors += "Error in texture: " + mod.textureName + " This texture has wrong aspect ratio, skipping texture...\n";
                 continue;
@@ -227,26 +227,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
             if (mod.markConvert)
                 newPixelFormat = changeTextureType(pixelFormat, image->getPixelFormat(), texture);
 
-            if (!image->checkDDSHaveAllMipmaps() ||
-                (texture.mipMapsList.count() > 1 && image->getMipMaps().count() <= 1) ||
-                (mod.markConvert && image->getPixelFormat() != newPixelFormat) ||
-                (!mod.markConvert && image->getPixelFormat() != pixelFormat))
-            {
-                bool dxt1HasAlpha = false;
-                quint8 dxt1Threshold = 128;
-                if (pixelFormat == PixelFormat::DXT1 && texture.getProperties().exists("CompressionSettings") &&
-                    texture.getProperties().getProperty("CompressionSettings").valueName == "TC_OneBitAlpha")
-                {
-                    dxt1HasAlpha = true;
-                    if (image->getPixelFormat() == PixelFormat::ARGB ||
-                        image->getPixelFormat() == PixelFormat::DXT3 ||
-                        image->getPixelFormat() == PixelFormat::DXT5)
-                    {
-                        errors += "Warning for texture: " + mod.textureName + ". This texture converted from full alpha to binary alpha.\n";
-                    }
-                }
-                image->correctMips(newPixelFormat, dxt1HasAlpha, dxt1Threshold);
-            }
+            errors += Misc::CorrectTexture(image, texture, pixelFormat, newPixelFormat,
+                                 mod.markConvert, mod.textureName);
 
             // remove lower mipmaps from source image which not exist in game data
             for (int t = 0; t < image->getMipMaps().count(); t++)

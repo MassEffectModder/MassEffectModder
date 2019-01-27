@@ -53,11 +53,8 @@ int CmdLineTools::scanTextures(MeType gameId, bool ipc)
 
     auto configIni = ConfigIni{};
     g_GameData->Init(gameId, configIni);
-
     if (!CheckGamePath())
-    {
-        return -1;
-    }
+        return 1;
 
     ConsoleWrite("Scan textures started...");
 
@@ -81,11 +78,8 @@ int CmdLineTools::removeEmptyMips(MeType gameId, bool ipc)
 {
     auto configIni = ConfigIni{};
     g_GameData->Init(gameId, configIni);
-
     if (!CheckGamePath())
-    {
-        return -1;
-    }
+        return 1;
 
     QList<FoundTexture> textures;
     MipMaps mipMaps;
@@ -96,9 +90,7 @@ int CmdLineTools::removeEmptyMips(MeType gameId, bool ipc)
             "/MassEffectModder";
     QString mapFile = path + QString("/me%1map.bin").arg((int)gameId);
     if (!TreeScan::loadTexturesMapFile(mapFile, textures, false))
-    {
         return 1;
-    }
 
     ConsoleWrite("Remove empty mips started...");
 
@@ -120,11 +112,8 @@ bool CmdLineTools::updateTOCs()
 {
     ConfigIni configIni = ConfigIni();
     g_GameData->Init(MeType::ME3_TYPE, configIni);
-    if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
-    {
-        ConsoleWrite("Error: Could not found the game!");
+    if (!CheckGamePath())
         return false;
-    }
 
     TOCBinFile::UpdateAllTOCBinFiles();
 
@@ -135,11 +124,8 @@ bool CmdLineTools::unpackAllDLCs(bool ipc)
 {
     ConfigIni configIni = ConfigIni();
     g_GameData->Init(MeType::ME3_TYPE, configIni);
-    if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
-    {
-        ConsoleWrite("Error: Could not found the game!");
+    if (!CheckGamePath())
         return false;
-    }
 
     Misc::startTimer();
     ME3DLC::unpackAllDLC(ipc);
@@ -153,11 +139,8 @@ bool CmdLineTools::repackGame(MeType gameId, bool ipc)
 {
     ConfigIni configIni = ConfigIni();
     g_GameData->Init(gameId, configIni);
-    if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
-    {
-        ConsoleWrite("Error: Could not found the game!");
+    if (!CheckGamePath())
         return false;
-    }
     Misc::startTimer();
     Repack(gameId, ipc);
     long elapsed = Misc::elapsedTime();
@@ -195,17 +178,11 @@ bool CmdLineTools::applyModTag(MeType gameId, int MeuitmV, int AlotV)
 {
     QString path;
     if (gameId == MeType::ME1_TYPE)
-    {
         path = "/BioGame/CookedPC/testVolumeLight_VFX.upk";
-    }
-    if (gameId == MeType::ME2_TYPE)
-    {
+    else if (gameId == MeType::ME2_TYPE)
         path = "/BioGame/CookedPC/BIOC_Materials.pcc";
-    }
-    if (gameId == MeType::ME3_TYPE)
-    {
+    else if (gameId == MeType::ME3_TYPE)
         path = "/BIOGame/CookedPCConsole/adv_combat_tutorial_xbox_D_Int.afc";
-    }
 
     FileStream fs = FileStream(g_GameData->GamePath() + path, FileMode::Open, FileAccess::ReadWrite);
     fs.Seek(-16, SeekOrigin::End);
@@ -242,42 +219,14 @@ bool CmdLineTools::ConvertToMEM(MeType gameId, QString &inputDir, QString &memFi
     return status;
 }
 
-bool CmdLineTools::convertGameTexture(const QString &inputFile, QString &outputFile, QList<FoundTexture> *textures,
+bool CmdLineTools::convertGameTexture(const QString &inputFile, QString &outputFile, QList<FoundTexture> &textures,
                                       bool markToConvert)
 {
-    QString filename = BaseNameWithoutExt(inputFile);
-    if (!filename.contains("0x"))
-    {
-        ConsoleWrite(QString("Texture filename not valid: ") + BaseName(inputFile) +
-                     " Texture filename must include texture CRC (0xhhhhhhhh). Skipping texture...");
-        return false;
-    }
-    int idx = filename.indexOf("0x");
-    if (filename.size() - idx < 10)
-    {
-        ConsoleWrite(QString("Texture filename not valid: ") + BaseName(inputFile) +
-                     " Texture filename must include texture CRC (0xhhhhhhhh). Skipping texture...");
-        return false;
-    }
-    QString crcStr = filename.mid(idx, 10);
-    bool ok;
-    uint crc = crcStr.toUInt(&ok, 16);
+    uint crc = Misc::scanFilenameForCRC(inputFile, false);
     if (crc == 0)
-    {
-        ConsoleWrite(QString("Texture filename not valid: ") + BaseName(inputFile) +
-                     " Texture filename must include texture CRC (0xhhhhhhhh). Skipping texture...");
         return false;
-    }
 
-    FoundTexture foundTex = {};
-    for (int k = 0; k < textures->count(); k++)
-    {
-        if (textures->at(k).crc == crc)
-        {
-            foundTex = textures->at(k);
-            break;
-        }
-    }
+    FoundTexture foundTex = Misc::FoundTextureInTheMap(textures, crc);
     if (foundTex.crc == 0)
     {
         ConsoleWrite(QString("Texture skipped. Texture ") + BaseName(inputFile) +
@@ -285,25 +234,13 @@ bool CmdLineTools::convertGameTexture(const QString &inputFile, QString &outputF
         return false;
     }
 
-    PixelFormat pixelFormat = foundTex.pixfmt;
     Image image = Image(inputFile);
-    if (image.getMipMaps().count() == 0)
-    {
-        ConsoleWrite("Texture skipped. Texture not compatible");
+    if (!Misc::CheckImage(image, foundTex, inputFile, -1, false))
         return false;
-    }
 
-    if (image.getMipMaps().first()->getOrigWidth() / image.getMipMaps().first()->getOrigHeight() !=
-        foundTex.width / foundTex.height)
-    {
-        ConsoleWrite(QString("Error in texture: ") + BaseName(inputFile) +
-                     " This texture has wrong aspect ratio, skipping texture...");
-        return false;
-    }
-
-    PixelFormat newPixelFormat = pixelFormat;
+    PixelFormat newPixelFormat = foundTex.pixfmt;
     if (markToConvert)
-        newPixelFormat = Misc::changeTextureType(pixelFormat, image.getPixelFormat(), foundTex.flags);
+        newPixelFormat = Misc::changeTextureType(foundTex.pixfmt, image.getPixelFormat(), foundTex.flags);
 
     bool dxt1HasAlpha = false;
     quint8 dxt1Threshold = 128;
@@ -336,7 +273,7 @@ bool CmdLineTools::convertGameImage(MeType gameId, QString &inputFile, QString &
     resources.loadMD5Tables();
 
     TreeScan::loadTexturesMap(gameId, resources, textures);
-    return convertGameTexture(inputFile, outputFile, &textures, markToConvert);
+    return convertGameTexture(inputFile, outputFile, textures, markToConvert);
 }
 
 bool CmdLineTools::convertGameImages(MeType gameId, QString &inputDir, QString &outputDir, bool markToConvert)
@@ -361,7 +298,7 @@ bool CmdLineTools::convertGameImages(MeType gameId, QString &inputDir, QString &
     foreach (QFileInfo file, list)
     {
         QString outputFile = outputDir + "/" + BaseNameWithoutExt(file.fileName()) + ".dds";
-        if (!convertGameTexture(file.absoluteFilePath(), outputFile, &textures, markToConvert))
+        if (!convertGameTexture(file.absoluteFilePath(), outputFile, textures, markToConvert))
             status = false;
     }
 
@@ -462,7 +399,7 @@ bool CmdLineTools::extractTPF(QString &inputDir, QString &outputDir, bool ipc)
         QDir().mkpath(outputTPFdir);
 
 #if defined(_WIN32)
-        auto str = file.absoluteFilePath().replace('/', '\\').toStdWString();
+        auto str = file.absoluteFilePath().toStdWString();
 #else
         auto str = file.absoluteFilePath().toStdString();
 #endif
@@ -473,13 +410,8 @@ bool CmdLineTools::extractTPF(QString &inputDir, QString &outputDir, bool ipc)
 
         for (int i = 0; i < numEntries; i++)
         {
-            char *filetmp;
-            int filetmplen = 0;
-            result = ZipGetCurrentFileInfo(handle, &filetmp, &filetmplen, &dstLen);
-            if (result != 0)
+            if (!Misc::TpfGetCurrentFileInfo(handle, fileName, dstLen))
                 goto failed;
-            fileName = QString(filetmp);
-            delete[] filetmp;
             if (fileName.endsWith(".def", Qt::CaseInsensitive) ||
                 fileName.endsWith(".log", Qt::CaseInsensitive))
             {
@@ -532,7 +464,6 @@ bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputD
     ConsoleWrite("Extract MOD files started...");
 
     bool status = true;
-    quint32 numEntries = 0;
 
     inputDir = QDir::cleanPath(inputDir);
     QFileInfoList list;
@@ -569,44 +500,29 @@ bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputD
         QDir().mkpath(outputMODdir);
 
         FileStream fs = FileStream(file.absoluteFilePath(), FileMode::Open, FileAccess::ReadOnly);
-        uint textureCrc;
-        int len = fs.ReadInt32();
-        QString version;
-        fs.ReadStringASCIINull(version);
-        if (version.size() < 5) // legacy .mod
-            fs.SeekBegin();
-        else
-        {
-            fs.SeekBegin();
-            len = fs.ReadInt32();
-            fs.ReadStringASCII(version, len); // version
-        }
-        numEntries = fs.ReadUInt32();
+        uint numEntries = Misc::ReadModHeader(fs);
         for (uint i = 0; i < numEntries; i++)
         {
-            len = fs.ReadInt32();
-            QString desc;
-            fs.ReadStringASCII(desc, len); // description
-            len = fs.ReadInt32();
             QString scriptLegacy;
-            fs.ReadStringASCII(scriptLegacy, len);
-            if (desc.contains("Binary Replacement"))
+            bool binary;
+            QString textureName;
+            Misc::ReadModEntryHeader(fs, scriptLegacy, binary, textureName);
+
+            if (binary)
             {
                 int exportId = -1;
-                QString path = "";
-                QString package = "";
+                QString path;
+                QString package;
                 Misc::ParseME3xBinaryScriptMod(scriptLegacy, package, exportId, path);
                 if (exportId == -1 || package.length() == 0 || path.length() == 0)
                 {
-                    len = fs.ReadInt32();
-                    fs.Skip(len);
+                    fs.Skip(fs.ReadInt32());
                     ConsoleWrite(QString("Skipping not compatible content, entry: ") +
                                  QString::number(i + 1) + " - mod: " + file.fileName());
                     status = false;
                     continue;
                 }
                 path += "/" + package;
-                len = fs.ReadInt32();
                 QString newFilename;
                 if (path.contains("/DLC/"))
                 {
@@ -623,29 +539,26 @@ bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputD
                 if (QFile(outputFile).exists())
                     QFile(outputFile).remove();
                 FileStream fs2 = FileStream(outputFile, FileMode::Create);
-                fs2.CopyFrom(fs, len);
+                fs2.CopyFrom(fs, fs.ReadInt32());
                 ConsoleWrite(outputFile);
             }
             else
             {
-                QString textureName = desc.split(QChar(' ')).last();
                 int index = Misc::ParseLegacyMe3xScriptMod(textures, scriptLegacy, textureName);
                 if (index == -1)
                 {
-                    len = fs.ReadInt32();
-                    fs.Skip(len);
+                    fs.Skip(fs.ReadInt32());
                     ConsoleWrite(QString("Skipping not compatible content, entry: ") +
                                  QString::number(i + 1) + " - mod: " + file.fileName());
                     status = false;
                     continue;
                 }
-                textureCrc = textures[index].crc;
-                len = fs.ReadInt32();
-                QString newFile = outputMODdir + "/" + textures[index].name + QString().sprintf("_0x%08X", textureCrc) + ".dds";
+                QString newFile = outputMODdir + "/" + textures[index].name +
+                        QString().sprintf("_0x%08X", textures[index].crc) + ".dds";
                 if (QFile(newFile).exists())
                     QFile(newFile).remove();
                 FileStream fs2 = FileStream(newFile, FileMode::Create);
-                fs2.CopyFrom(fs, len);
+                fs2.CopyFrom(fs, fs.ReadInt32());
                 ConsoleWrite(newFile);
             }
         }
@@ -715,45 +628,11 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
         QDir().mkpath(outputMODdir);
 
         FileStream fs = FileStream(file.absoluteFilePath(), FileMode::Open, FileAccess::ReadOnly);
-        uint tag = fs.ReadUInt32();
-        uint version = fs.ReadUInt32();
-        if (tag != TextureModTag || version != TextureModVersion)
-        {
-            if (version != TextureModVersion)
-            {
-                ConsoleWrite(QString("File ") + file.absoluteFilePath() +
-                             " was made with an older version of MEM, skipping...");
-            }
-            else
-            {
-                ConsoleWrite(QString("File ") + file.absoluteFilePath() +
-                             " is not a valid MEM mod, skipping...");
-            }
-            if (ipc)
-            {
-                ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + file.fileName());
-                ConsoleSync();
-            }
+        if (!Misc::CheckMEMHeader(fs, file.absoluteFilePath(), ipc))
             continue;
-        }
 
-        uint gameType = 0;
-        fs.JumpTo(fs.ReadInt64());
-        gameType = fs.ReadUInt32();
-        if ((MeType)gameType != gameId)
-        {
-            if (ipc)
-            {
-                ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + file.fileName());
-                ConsoleSync();
-            }
-            else
-            {
-                ConsoleWrite(QString("File ") + file.absoluteFilePath() +
-                             " is not a MEM mod valid for this game");
-            }
+        if (!Misc::CheckMEMGameVersion(fs, file.absoluteFilePath(), gameId, ipc))
             continue;
-        }
 
         int numFiles = fs.ReadInt32();
         QList<FileMod> modFiles = QList<FileMod>();
@@ -782,7 +661,7 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
                 fs.ReadStringASCIINull(name);
                 crc = fs.ReadUInt32();
             }
-            else if (modFiles[i].tag == FileBinaryTag)
+            else if (modFiles[i].tag == FileBinaryTag || modFiles[i].tag == FileXdeltaTag)
             {
                 name = modFiles[i].name;
                 exportId = fs.ReadInt32();
@@ -820,21 +699,18 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
                 return false;
             }
 
-            if (modFiles[i].tag == FileTextureTag)
+            if (modFiles[i].tag == FileTextureTag || modFiles[i].tag == FileTextureTag2)
             {
                 QString filename = outputMODdir + "/" +
-                        BaseName(name + QString().sprintf("_0x%08X", crc) + ".dds");
+                        BaseName(name + QString().sprintf("_0x%08X", crc));
+                if (modFiles[i].tag == FileTextureTag)
+                    filename += ".dds";
+                else
+                    filename += "-memconvert.dds";
                 FileStream output = FileStream(filename, FileMode::Create, FileAccess::ReadWrite);
                 output.WriteFromBuffer(dst);
             }
-            else if (modFiles[i].tag == FileTextureTag2)
-            {
-                QString filename = outputMODdir + "/" +
-                        BaseName(name + QString().sprintf("_0x%08X", crc) + "-memconvert.dds");
-                FileStream output = FileStream(filename, FileMode::Create, FileAccess::ReadWrite);
-                output.WriteFromBuffer(dst);
-            }
-            else if (modFiles[i].tag == FileBinaryTag)
+            else if (modFiles[i].tag == FileBinaryTag || modFiles[i].tag == FileXdeltaTag)
             {
                 const QString& path = pkgPath;
                 QString newFilename;
@@ -848,26 +724,11 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
                     newFilename = "B";
                 }
                 newFilename += QString::number(BaseName(path).size()) +
-                        "-" + BaseName(path) + "-E" + QString::number(exportId) + ".bin";
-                newFilename = outputMODdir + "/" + newFilename;
-                FileStream output = FileStream(newFilename, FileMode::Create, FileAccess::WriteOnly);
-                output.WriteFromBuffer(dst);
-            }
-            else if (modFiles[i].tag == FileXdeltaTag)
-            {
-                const QString& path = pkgPath;
-                QString newFilename;
-                if (path.contains("/DLC/"))
-                {
-                    QString dlcName = path.split('/')[3];
-                    newFilename = "D" + QString::number(dlcName.size()) + "-" + dlcName + "-";
-                }
+                        "-" + BaseName(path) + "-E" + QString::number(exportId);
+                if (modFiles[i].tag == FileBinaryTag)
+                    newFilename += ".bin";
                 else
-                {
-                    newFilename = "B";
-                }
-                newFilename += QString::number(BaseName(path).size()) + "-" +
-                        BaseName(path) + "-E" + QString::number(exportId) + ".xdelta";
+                    newFilename += ".xdelta";
                 newFilename = outputMODdir + "/" + newFilename;
                 FileStream output = FileStream(newFilename, FileMode::Create, FileAccess::WriteOnly);
                 output.WriteFromBuffer(dst);
@@ -896,18 +757,13 @@ bool CmdLineTools::ApplyME1LAAPatch()
 {
     ConfigIni configIni{};
     g_GameData->Init(MeType::ME1_TYPE, configIni);
-    if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
-    {
-        ConsoleWrite("Error: Could not found the game!");
+    if (!CheckGamePath())
         return false;
-    }
 
-#if defined(_WIN32)
     if (!Misc::ApplyLAAForME1Exe())
         return false;
     if (!Misc::ChangeProductNameForME1Exe())
         return false;
-#endif
 
     return true;
 }
@@ -963,11 +819,9 @@ bool CmdLineTools::CheckGameData(MeType gameId, bool ipc)
 {
     ConfigIni configIni{};
     g_GameData->Init(gameId, configIni);
-    if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
-    {
-        ConsoleWrite("Error: Could not found the game!");
+    if (!CheckGamePath())
         return false;
-    }
+
     QString errors;
     QStringList modList;
     Resources resources;
@@ -1005,11 +859,8 @@ bool CmdLineTools::CheckForMarkers(MeType gameId, bool ipc)
 {
     ConfigIni configIni{};
     g_GameData->Init(gameId, configIni);
-    if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
-    {
-        ConsoleWrite("Error: Could not found the game!");
+    if (!CheckGamePath())
         return false;
-    }
 
     QString path;
     if (GameData::gameType == MeType::ME1_TYPE)
@@ -1061,11 +912,8 @@ bool CmdLineTools::DetectBadMods(MeType gameId, bool ipc)
 {
     ConfigIni configIni{};
     g_GameData->Init(gameId, configIni);
-    if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
-    {
-        ConsoleWrite("Error: Could not found the game!");
+    if (!CheckGamePath())
         return false;
-    }
 
     QStringList badMods;
     Misc::detectBrokenMod(badMods);
@@ -1094,11 +942,8 @@ bool CmdLineTools::DetectMods(MeType gameId, bool ipc)
 {
     ConfigIni configIni{};
     g_GameData->Init(gameId, configIni);
-    if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
-    {
-        ConsoleWrite("Error: Could not found the game!");
+    if (!CheckGamePath())
         return false;
-    }
 
     QStringList mods;
     Misc::detectMods(mods);
@@ -1270,11 +1115,8 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool 
     resources.loadMD5Tables();
     ConfigIni configIni = ConfigIni();
     g_GameData->Init(gameId, configIni);
-    if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
-    {
-        ConsoleWrite("Error: Could not found the game!");
+    if (!CheckGamePath())
         return false;
-    }
 
     if (!guiInstaller)
     {
@@ -1453,11 +1295,8 @@ bool CmdLineTools::applyMEMSpecialModME3(MeType gameId, QString &memFile, QStrin
     resources.loadMD5Tables();
     ConfigIni configIni = ConfigIni();
     g_GameData->Init(gameId, configIni);
-    if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
-    {
-        ConsoleWrite("Error: Could not found the game!");
+    if (!CheckGamePath())
         return false;
-    }
 
     QList<FoundTexture> textures;
 
@@ -1501,21 +1340,8 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
             continue;
         }
         FileStream fs = FileStream(files[i], FileMode::Open, FileAccess::ReadOnly);
-        uint tag = fs.ReadUInt32();
-        uint version = fs.ReadUInt32();
-        if (tag != TextureModTag || version != TextureModVersion)
-        {
-            if (ipc)
-            {
-                ConsoleWrite(QString("[IPC]ERROR MEM mod file has wrong header: ") + files[i]);
-                ConsoleSync();
-            }
-            else
-            {
-                ConsoleWrite(QString("MEM mod file has wrong header: ") + files[i]);
-            }
+        if (!Misc::CheckMEMHeader(fs, files[i], ipc))
             continue;
-        }
         fs.JumpTo(fs.ReadInt64());
         fs.SkipInt32();
         totalNumberOfMods += fs.ReadInt32();
@@ -1539,45 +1365,11 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
         }
 
         FileStream fs = FileStream(files[i], FileMode::Open, FileAccess::ReadOnly);
-        uint tag = fs.ReadUInt32();
-        uint version = fs.ReadUInt32();
-        if (tag != TextureModTag || version != TextureModVersion)
-        {
-            if (version != TextureModVersion)
-            {
-                ConsoleWrite(QString("File ") + files[i] +
-                             " was made with an older version of MEM, skipping...");
-            }
-            else
-            {
-                ConsoleWrite(QString("File ") + files[i] +
-                             " is not a valid MEM mod, skipping...");
-            }
-            if (ipc)
-            {
-                ConsoleWrite(QString("[IPC]ERROR MEM mod file has wrong header: ") + files[i]);
-                ConsoleSync();
-            }
+        if (!Misc::CheckMEMHeader(fs, files[i], ipc))
             continue;
-        }
 
-        uint gameType = 0;
-        fs.JumpTo(fs.ReadInt64());
-        gameType = fs.ReadUInt32();
-        if ((MeType)gameType != GameData::gameType)
-        {
-            if (ipc)
-            {
-                ConsoleWrite(QString("[IPC]ERROR MEM mod valid for this game, skipping... ") + files[i]);
-                ConsoleSync();
-            }
-            else
-            {
-                ConsoleWrite(QString("File ") + files[i] +
-                             " is not a MEM mod valid for this game, skipping...");
-            }
+        if (!Misc::CheckMEMGameVersion(fs, files[i], GameData::gameType, ipc))
             continue;
-        }
 
         int numFiles = fs.ReadInt32();
         QList<FileMod> modFiles{};
@@ -1594,12 +1386,11 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
         for (int l = 0; l < numFiles; l++, currentNumberOfTotalMods++)
         {
             QString name;
-            uint crc = 0;
-            long size = 0;
+            uint crc;
             int exportId = -1;
             QString pkgPath;
             fs.JumpTo(modFiles[l].offset);
-            size = modFiles[l].size;
+            long size = modFiles[l].size;
             if (modFiles[l].tag == FileTextureTag || modFiles[l].tag == FileTextureTag2)
             {
                 fs.ReadStringASCIINull(name);
@@ -1628,25 +1419,16 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
 
             if (modFiles[l].tag == FileTextureTag || modFiles[l].tag == FileTextureTag2)
             {
-                FoundTexture f{};
-                for (int s = 0; s < textures.count(); s++)
-                {
-                    if (textures[s].crc == crc)
-                    {
-                        f = textures[s];
-                        break;
-                    }
-                }
+                FoundTexture f = Misc::FoundTextureInTheMap(textures, crc);
                 if (f.crc != 0)
                 {
                     if (special)
                     {
                         ByteBuffer dst = MipMaps::decompressData(fs, size);
                         Image image = Image(dst, ImageFormat::DDS);
-                        if (image.getMipMaps().count() == 0)
+                        if (!Misc::CheckImage(image, f, "", -1, false))
                         {
-                            ConsoleWrite(QString("Texture skipped. Texture ") + name +
-                                         QString().sprintf("_0x%08X", crc) + " is not compatible!");
+                            dst.Free();
                             return false;
                         }
                         dst.Free();
@@ -1773,37 +1555,13 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTextur
         PixelFormat pixelFormat = Image::getPixelFormatType(fmt);
         texture->removeEmptyMips();
 
-        if (image.getMipMaps().first()->getOrigWidth() / image.getMipMaps().first()->getHeight() !=
-            texture->mipMapsList.first().width / texture->mipMapsList.first().height)
-        {
-            ConsoleWrite(QString("Error in texture: ") + textureName +
-                         " This texture has wrong aspect ratio, skipping texture...");
+        if (!Misc::CheckImage(image, *texture, textureName))
             break;
-        }
 
-        if (!image.checkDDSHaveAllMipmaps() ||
-            (texture->mipMapsList.count() > 1 && image.getMipMaps().count() <= 1) ||
-            image.getPixelFormat() != pixelFormat)
-        {
-            bool dxt1HasAlpha = false;
-            quint8 dxt1Threshold = 128;
-            if (pixelFormat == PixelFormat::DXT1 && texture->getProperties().exists("CompressionSettings"))
-            {
-                if (texture->getProperties().exists("CompressionSettings") &&
-                    texture->getProperties().getProperty("CompressionSettings").valueName == "TC_OneBitAlpha")
-                {
-                    dxt1HasAlpha = true;
-                    if (image.getPixelFormat() == PixelFormat::ARGB ||
-                        image.getPixelFormat() == PixelFormat::DXT3 ||
-                        image.getPixelFormat() == PixelFormat::DXT5)
-                    {
-                        ConsoleWrite(QString("Warning for texture: ") + textureName +
-                                     ". This texture converted from full alpha to binary alpha.");
-                    }
-                }
-            }
-            image.correctMips(pixelFormat, dxt1HasAlpha, dxt1Threshold);
-        }
+        QString errors = Misc::CorrectTexture(&image, *texture, pixelFormat, pixelFormat,
+                                              false, textureName);
+        if (errors.length() != 0)
+            ConsoleWrite(errors);
 
         // remove lower mipmaps from source image which not exist in game data
         for (int t = 0; t < image.getMipMaps().count(); t++)
@@ -2060,11 +1818,8 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
     resources.loadMD5Tables();
     ConfigIni configIni = ConfigIni();
     g_GameData->Init(gameId, configIni);
-    if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
-    {
-        ConsoleWrite("Error: Could not found the game!");
+    if (!CheckGamePath())
         return false;
-    }
 
     QList<FoundTexture> textures;
 
@@ -2192,11 +1947,8 @@ bool CmdLineTools::CheckTextures(MeType gameId, bool ipc)
 {
     ConfigIni configIni = ConfigIni();
     g_GameData->Init(gameId, configIni);
-    if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
-    {
-        ConsoleWrite("Error: Could not found the game!");
+    if (!CheckGamePath())
         return false;
-    }
 
     ConsoleWrite("Starting checking textures...");
 
@@ -2302,11 +2054,8 @@ bool CmdLineTools::checkGameFilesAfter(MeType gameType, bool ipc)
 {
     ConfigIni configIni = ConfigIni();
     g_GameData->Init(gameType, configIni);
-    if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
-    {
-        ConsoleWrite("Error: Could not found the game!");
+    if (!CheckGamePath())
         return false;
-    }
 
     ConsoleWrite("\nChecking for vanilla files after textures installation...");
     QString path;
@@ -2362,11 +2111,8 @@ bool CmdLineTools::detectsMismatchPackagesAfter(MeType gameType, bool ipc)
 {
     ConfigIni configIni = ConfigIni();
     g_GameData->Init(gameType, configIni);
-    if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
-    {
-        ConsoleWrite("Error: Could not found the game!");
+    if (!CheckGamePath())
         return false;
-    }
 
     QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
             "/MassEffectModder";

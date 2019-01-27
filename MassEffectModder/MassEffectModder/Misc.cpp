@@ -350,7 +350,371 @@ PixelFormat Misc::changeTextureType(PixelFormat gamePixelFormat, PixelFormat tex
     return gamePixelFormat;
 }
 
-bool compareFileInfoPath(const QFileInfo &e1, const QFileInfo &e2)
+uint Misc::scanFilenameForCRC(const QString &inputFile, bool ipc)
+{
+    QString filename = BaseNameWithoutExt(inputFile);
+    if (!filename.contains("0x"))
+    {
+        if (ipc)
+        {
+            ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(inputFile));
+            ConsoleSync();
+        }
+        else
+        {
+            ConsoleWrite(QString("Texture filename not valid: ") + BaseName(inputFile) +
+                         " Texture filename must include texture CRC (0xhhhhhhhh). Skipping texture...");
+        }
+        ConsoleWrite(QString("Texture filename not valid: ") + BaseName(inputFile) +
+                     " Texture filename must include texture CRC (0xhhhhhhhh). Skipping texture...");
+        return false;
+    }
+    int idx = filename.indexOf("0x");
+    if (filename.size() - idx < 10)
+    {
+        if (ipc)
+        {
+            ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(inputFile));
+            ConsoleSync();
+        }
+        else
+        {
+            ConsoleWrite(QString("Texture filename not valid: ") + BaseName(inputFile) +
+                         " Texture filename must include texture CRC (0xhhhhhhhh). Skipping texture...");
+        }
+        return false;
+    }
+    QString crcStr = filename.mid(idx, 10);
+    bool ok;
+    uint crc = crcStr.toUInt(&ok, 16);
+    if (crc == 0)
+    {
+        if (ipc)
+        {
+            ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(inputFile));
+            ConsoleSync();
+        }
+        else
+        {
+            ConsoleWrite(QString("Texture filename not valid: ") + BaseName(inputFile) +
+                         " Texture filename must include texture CRC (0xhhhhhhhh). Skipping texture...");
+        }
+        return false;
+    }
+
+    return crc;
+}
+
+FoundTexture Misc::FoundTextureInTheMap(QList<FoundTexture> &textures, uint crc)
+{
+    FoundTexture f{};
+    for (int s = 0; s < textures.count(); s++)
+    {
+        if (textures[s].crc == crc)
+        {
+            f = textures[s];
+            break;
+        }
+    }
+    return f;
+}
+
+bool Misc::CorrectTexture(Image &image, FoundTexture &f, int numMips, bool markToConvert,
+                          PixelFormat pixelFormat, PixelFormat newPixelFormat,
+                          const QString &file, bool ipc)
+{
+    if (!image.checkDDSHaveAllMipmaps() ||
+       (numMips > 1 && image.getMipMaps().count() <= 1) ||
+       (markToConvert && image.getPixelFormat() != newPixelFormat) ||
+       (!markToConvert && image.getPixelFormat() != pixelFormat))
+    {
+        if (ipc)
+        {
+            ConsoleWrite(QString("[IPC]PROCESSING_FILE Converting ") + BaseName(file));
+            ConsoleSync();
+        }
+        else
+        {
+            ConsoleWrite(QString("Converting/correcting texture: ") + BaseName(file));
+        }
+        bool dxt1HasAlpha = false;
+        quint8 dxt1Threshold = 128;
+        if (f.flags == TexProperty::TextureTypes::OneBitAlpha)
+        {
+            dxt1HasAlpha = true;
+            if (image.getPixelFormat() == PixelFormat::ARGB ||
+                image.getPixelFormat() == PixelFormat::DXT3 ||
+                image.getPixelFormat() == PixelFormat::DXT5)
+            {
+                ConsoleWrite(QString("Warning for texture: " ) + f.name +
+                             ". This texture converted from full alpha to binary alpha.");
+            }
+        }
+        image.correctMips(newPixelFormat, dxt1HasAlpha, dxt1Threshold);
+        return true;
+    }
+    return false;
+}
+
+QString Misc::CorrectTexture(Image *image, Texture &texture, PixelFormat pixelFormat,
+                             PixelFormat newPixelFormat, bool markConvert, const QString &textureName)
+{
+    QString errors;
+    if (!image->checkDDSHaveAllMipmaps() ||
+        (texture.mipMapsList.count() > 1 && image->getMipMaps().count() <= 1) ||
+        (markConvert && image->getPixelFormat() != newPixelFormat) ||
+        (!markConvert && image->getPixelFormat() != pixelFormat))
+    {
+        bool dxt1HasAlpha = false;
+        quint8 dxt1Threshold = 128;
+        if (pixelFormat == PixelFormat::DXT1 && texture.getProperties().exists("CompressionSettings"))
+        {
+            if (texture.getProperties().exists("CompressionSettings") &&
+                texture.getProperties().getProperty("CompressionSettings").valueName == "TC_OneBitAlpha")
+            {
+                dxt1HasAlpha = true;
+                if (image->getPixelFormat() == PixelFormat::ARGB ||
+                    image->getPixelFormat() == PixelFormat::DXT3 ||
+                    image->getPixelFormat() == PixelFormat::DXT5)
+                {
+                    errors += "Warning for texture: " + textureName + ". This texture converted from full alpha to binary alpha.\n";
+                }
+            }
+        }
+        image->correctMips(pixelFormat, dxt1HasAlpha, dxt1Threshold);
+    }
+    return errors;
+}
+
+bool Misc::CheckMEMHeader(FileStream &fs, const QString &file, bool ipc)
+{
+    uint tag = fs.ReadUInt32();
+    uint version = fs.ReadUInt32();
+    if (tag != TextureModTag || version != TextureModVersion)
+    {
+        if (version != TextureModVersion)
+        {
+            ConsoleWrite(QString("File ") + BaseName(file) + " was made with an older version of MEM, skipping...");
+        }
+        else
+        {
+            ConsoleWrite(QString("File ") + BaseName(file) + " is not a valid MEM mod, skipping...");
+        }
+        if (ipc)
+        {
+            ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
+            ConsoleSync();
+        }
+        return false;
+    }
+    return true;
+}
+
+bool Misc::CheckMEMGameVersion(FileStream &fs, const QString &file, int gameId, bool ipc)
+{
+    uint gameType = 0;
+    fs.JumpTo(fs.ReadInt64());
+    gameType = fs.ReadUInt32();
+    if ((MeType)gameType != gameId)
+    {
+        if (ipc)
+        {
+            ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
+            ConsoleSync();
+        }
+        else
+        {
+            ConsoleWrite(QString("File ") + file + " is not a MEM mod valid for this game");
+        }
+        return false;
+    }
+    return true;
+}
+
+int Misc::ReadModHeader(FileStream &fs)
+{
+    QString version;
+    int len = fs.ReadInt32();
+    fs.ReadStringASCIINull(version);
+    if (version.size() < 5) // legacy .mod
+        fs.SeekBegin();
+    else
+    {
+        fs.SeekBegin();
+        len = fs.ReadInt32();
+        fs.ReadStringASCII(version, len); // version
+    }
+    return fs.ReadUInt32();
+}
+
+void Misc::ReadModEntryHeader(FileStream &fs, QString &scriptLegacy,
+                              bool &binary, QString &textureName)
+{
+    int len = fs.ReadInt32();
+    QString desc;
+    fs.ReadStringASCII(desc, len); // description
+    len = fs.ReadInt32();
+    fs.ReadStringASCII(scriptLegacy, len);
+    binary = desc.contains("Binary Replacement", Qt::CaseInsensitive);
+    if (!binary)
+        textureName = desc.split(QChar(' ')).last();
+}
+
+bool Misc::CheckImage(Image &image, FoundTexture &f, const QString &file, int index, bool ipc)
+{
+    if (image.getMipMaps().count() == 0)
+    {
+        if (ipc)
+        {
+            ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
+            ConsoleSync();
+        }
+        else
+        {
+            if (index == -1)
+            {
+                ConsoleWrite(QString("Skipping texture: ") + f.name + QString().sprintf("_0x%08X", f.crc));
+            }
+            else
+            {
+                ConsoleWrite(QString("Skipping not compatible content, entry: ") +
+                             QString::number(index + 1) + " - mod: " + BaseName(file));
+            }
+        }
+        return false;
+    }
+
+    if (image.getMipMaps().first()->getOrigWidth() / image.getMipMaps().first()->getOrigHeight() !=
+        f.width / f.height)
+    {
+        if (ipc)
+        {
+            ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
+            ConsoleSync();
+        }
+        else
+        {
+            if (index == -1)
+            {
+                ConsoleWrite(QString("Skipping texture: ") + f.name + QString().sprintf("_0x%08X", f.crc) );
+            }
+            else
+            {
+                ConsoleWrite(QString("Error in texture: ") + f.name + QString().sprintf("_0x%08X", f.crc) +
+                    " This texture has wrong aspect ratio, skipping texture, entry: " + (index + 1) +
+                    " - mod: " + BaseName(file));
+            }
+        }
+        return false;
+    }
+
+    return true;
+}
+
+bool Misc::CheckImage(Image &image, Texture &texture, const QString &textureName)
+{
+    if (image.getMipMaps().count() == 0)
+    {
+        ConsoleWrite(QString("Error in texture: ") + textureName);
+        return false;
+    }
+
+    if (image.getMipMaps().first()->getOrigWidth() / image.getMipMaps().first()->getHeight() !=
+        texture.mipMapsList.first().width / texture.mipMapsList.first().height)
+    {
+        ConsoleWrite(QString("Error in texture: ") + textureName +
+                     " This texture has wrong aspect ratio, skipping texture...");
+        return false;
+    }
+
+    return true;
+}
+
+int Misc::GetNumberOfMipsFromMap(FoundTexture &f)
+{
+    for (int s = 0; s < f.list.count(); s++)
+    {
+        if (f.list[s].path.length() != 0)
+        {
+            return f.list[s].numMips;
+        }
+    }
+    return 0;
+}
+
+bool Misc::ParseBinaryModFileName(const QString &file, QString pkgName, QString dlcName, int &exportId)
+{
+    QString filename = BaseNameWithoutExt(file);
+    int posStr = 0;
+    if (filename.toUpper()[0] == 'D')
+    {
+        QString tmpDLC = filename.split(QChar('-'))[0];
+        int lenDLC = tmpDLC.midRef(1).toInt();
+        dlcName = filename.mid(tmpDLC.size() + 1, lenDLC);
+        posStr += tmpDLC.size() + lenDLC + 1;
+        if (filename[posStr++] != '-')
+            return false;
+    }
+    else if (filename.toUpper()[0] == 'B')
+    {
+        posStr += 1;
+    }
+    else
+        return false;
+    QString tmpPkg = filename.mid(posStr).split('-')[0];
+    posStr += tmpPkg.size() + 1;
+    int lenPkg = tmpPkg.midRef(0).toInt();
+    pkgName = filename.mid(posStr, lenPkg);
+    posStr += lenPkg;
+    if (filename[posStr++] != '-')
+        return false;
+    if (filename.toUpper()[posStr++] != 'E')
+        return false;
+    QString tmpExp = filename.mid(posStr);
+    exportId = tmpExp.midRef(0).toInt();
+
+    return true;
+}
+
+uint GetCrcFromTpfList(QStringList &ddsList, const QString &filename)
+{
+    uint crc = 0;
+    foreach (QString dds, ddsList)
+    {
+        if (dds.length() == 0)
+            continue;
+        QString ddsFile = dds.split('|')[1];
+        if (ddsFile != "" && ddsList.count() != 1 &&
+            ddsFile.toLower() != filename.toLower())
+        {
+            continue;
+        }
+        bool ok;
+        crc = dds.split('|').first().midRef(2).toUInt(&ok, 16);
+        break;
+    }
+    return crc;
+}
+
+bool Misc::TpfGetCurrentFileInfo(void *handle, QString &fileName, quint64 &lenght)
+{
+    char *filetmp;
+    int filetmplen = 0;
+    int result = ZipGetCurrentFileInfo(handle, &filetmp, &filetmplen, &lenght);
+    if (result != 0)
+        return false;
+    fileName = QString(filetmp);
+    delete[] filetmp;
+    return true;
+}
+
+bool Misc::DetectMarkToConvertFromFile(const QString &file)
+{
+    int idx = file.indexOf("-memconvert", Qt::CaseInsensitive);
+    return idx > 0;
+}
+
+static bool compareFileInfoPath(const QFileInfo &e1, const QFileInfo &e2)
 {
     return e1.absoluteFilePath().compare(e2.absoluteFilePath(), Qt::CaseInsensitive) < 0;
 }
@@ -428,44 +792,12 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
         if (file.endsWith(".mem", Qt::CaseInsensitive))
         {
             FileStream fs = FileStream(file, FileMode::Open, FileAccess::ReadOnly);
-            uint tag = fs.ReadUInt32();
-            uint version = fs.ReadUInt32();
-            if (tag != TextureModTag || version != TextureModVersion)
-            {
-                if (version != TextureModVersion)
-                {
-                    ConsoleWrite(QString("File ") + BaseName(file) + " was made with an older version of MEM, skipping...");
-                }
-                else
-                {
-                    ConsoleWrite(QString("File ") + BaseName(file) + " is not a valid MEM mod, skipping...");
-                }
-                if (ipc)
-                {
-                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
-                    ConsoleSync();
-                }
+            if (!CheckMEMHeader(fs, file, ipc))
                 continue;
-            }
 
-            {
-                uint gameType = 0;
-                fs.JumpTo(fs.ReadInt64());
-                gameType = fs.ReadUInt32();
-                if ((MeType)gameType != gameId)
-                {
-                    if (ipc)
-                    {
-                        ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
-                        ConsoleSync();
-                    }
-                    else
-                    {
-                        ConsoleWrite(QString("File ") + file + " is not a MEM mod valid for this game");
-                    }
-                    continue;
-                }
-            }
+            if (!CheckMEMGameVersion(fs, file, gameId, ipc))
+                continue;
+
             int numFiles = fs.ReadInt32();
             for (int l = 0; l < numFiles; l++)
             {
@@ -485,14 +817,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                     fs.ReadStringASCIINull(str);
                     outFs.WriteStringASCIINull(str);
                 }
-                else if (fileMod.tag == FileBinaryTag)
-                {
-                    outFs.WriteInt32(fs.ReadInt32());
-                    QString str;
-                    fs.ReadStringASCIINull(str);
-                    outFs.WriteStringASCIINull(str);
-                }
-                else if (fileMod.tag == FileXdeltaTag)
+                else if (fileMod.tag == FileBinaryTag || fileMod.tag == FileXdeltaTag)
                 {
                     outFs.WriteInt32(fs.ReadInt32());
                     QString str;
@@ -511,35 +836,23 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
         {
             FileStream fs = FileStream(file, FileMode::Open, FileAccess::ReadOnly);
             QString package;
-            int len = fs.ReadInt32();
-            QString version;
-            fs.ReadStringASCIINull(version);
-            if (version.size() < 5) // legacy .mod
-                fs.SeekBegin();
-            else
-            {
-                fs.SeekBegin();
-                len = fs.ReadInt32();
-                fs.ReadStringASCII(version, len); // version
-            }
-            numEntries = fs.ReadUInt32();
+            int numEntries = ReadModHeader(fs);
             for (int i = 0; i < numEntries; i++)
             {
                 BinaryMod mod{};
-                len = fs.ReadInt32();
-                QString desc;
-                fs.ReadStringASCII(desc, len); // description
-                len = fs.ReadInt32();
+
                 QString scriptLegacy;
-                fs.ReadStringASCII(scriptLegacy, len);
-                QString path;
-                if (desc.contains("Binary Replacement", Qt::CaseInsensitive))
+                bool binary;
+                QString textureName;
+                ReadModEntryHeader(fs, scriptLegacy, binary, textureName);
+
+                if (binary)
                 {
+                    QString path;
                     ParseME3xBinaryScriptMod(scriptLegacy, package, mod.exportId, path);
                     if (mod.exportId == -1 || package.length() == 0 || path.length() == 0)
                     {
-                        len = fs.ReadInt32();
-                        fs.Skip(len);
+                        fs.Skip(fs.ReadInt32());
                         if (ipc)
                         {
                             ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
@@ -554,17 +867,14 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                     }
                     mod.packagePath = path + "/" + package;
                     mod.binaryModType = 1;
-                    len = fs.ReadInt32();
-                    mod.data = fs.ReadToBuffer(len);
+                    mod.data = fs.ReadToBuffer(fs.ReadInt32());
                 }
                 else
                 {
-                    QString textureName = desc.split(QChar(' ')).last();
                     int index = ParseLegacyMe3xScriptMod(textures, scriptLegacy, textureName);
                     if (index == -1)
                     {
-                        len = fs.ReadInt32();
-                        fs.Skip(len);
+                        fs.Skip(fs.ReadInt32());
                         if (ipc)
                         {
                             ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
@@ -581,84 +891,20 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                     mod.textureCrc = f.crc;
                     mod.textureName = f.name;
                     mod.binaryModType = 0;
-                    len = fs.ReadInt32();
-                    mod.data = fs.ReadToBuffer(len);
+                    mod.data = fs.ReadToBuffer(fs.ReadInt32());
 
-                    PixelFormat pixelFormat = f.pixfmt;
                     Image image = Image(mod.data, ImageFormat::DDS);
-                    if (image.getMipMaps().count() == 0)
-                    {
-                        if (ipc)
-                        {
-                            ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
-                            ConsoleSync();
-                        }
-                        else
-                        {
-                            ConsoleWrite(QString("Skipping not compatible content, entry: ") +
-                                         QString::number(i + 1) + " - mod: " + BaseName(file));
-                        }
+                    if (!CheckImage(image, f, file, i, ipc))
                         continue;
-                    }
 
-                    if (image.getMipMaps().first()->getOrigWidth() / image.getMipMaps().first()->getOrigHeight() !=
-                        f.width / f.height)
-                    {
-                        if (ipc)
-                        {
-                            ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
-                            ConsoleSync();
-                        }
-                        else
-                        {
-                            ConsoleWrite(QString("Error in texture: ") + textureName + QString().sprintf("_0x%08X", f.crc) +
-                                " This texture has wrong aspect ratio, skipping texture, entry: " + (i + 1) +
-                                " - mod: " + BaseName(file));
-                        }
-                        continue;
-                    }
-
-                    PixelFormat newPixelFormat = pixelFormat;
+                    PixelFormat newPixelFormat = f.pixfmt;
                     if (markToConvert)
-                        newPixelFormat = changeTextureType(pixelFormat, image.getPixelFormat(), f.flags);
+                        newPixelFormat = changeTextureType(f.pixfmt, image.getPixelFormat(), f.flags);
 
-                    int numMips = 0;
-                    for (int s = 0; s < f.list.count(); s++)
+                    int numMips = GetNumberOfMipsFromMap(f);
+                    if (CorrectTexture(image, f, numMips, markToConvert,
+                                       f.pixfmt, newPixelFormat, file, ipc))
                     {
-                        if (f.list[s].path.length() != 0)
-                        {
-                            numMips = f.list[s].numMips;
-                            break;
-                        }
-                    }
-                    if (!image.checkDDSHaveAllMipmaps() ||
-                       (numMips > 1 && image.getMipMaps().count() <= 1) ||
-                       (markToConvert && image.getPixelFormat() != newPixelFormat) ||
-                       (!markToConvert && image.getPixelFormat() != pixelFormat))
-                    {
-                        if (ipc)
-                        {
-                            ConsoleWrite(QString("[IPC]PROCESSING_FILE Converting ") + textureName);
-                            ConsoleSync();
-                        }
-                        else
-                        {
-                            ConsoleWrite(QString("Converting/correcting texture: ") + textureName);
-                        }
-                        bool dxt1HasAlpha = false;
-                        quint8 dxt1Threshold = 128;
-                        if (f.flags == TexProperty::TextureTypes::OneBitAlpha)
-                        {
-                            dxt1HasAlpha = true;
-                            if (image.getPixelFormat() == PixelFormat::ARGB ||
-                                image.getPixelFormat() == PixelFormat::DXT3 ||
-                                image.getPixelFormat() == PixelFormat::DXT5)
-                            {
-                                ConsoleWrite(QString("Warning for texture: " ) + textureName +
-                                             ". This texture converted from full alpha to binary alpha.");
-                            }
-                        }
-                        image.correctMips(newPixelFormat, dxt1HasAlpha, dxt1Threshold);
                         mod.data.Free();
                         mod.data = image.StoreImageToDDS();
                     }
@@ -671,35 +917,21 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
             file.endsWith(".xdelta", Qt::CaseInsensitive))
         {
             BinaryMod mod{};
-            QString filename = BaseNameWithoutExt(file);
             QString dlcName;
-            int posStr = 0;
-            if (filename.toUpper()[0] == 'D')
+            QString pkgName;
+            if (!ParseBinaryModFileName(file, pkgName, dlcName, mod.exportId))
             {
-                QString tmpDLC = filename.split(QChar('-'))[0];
-                int lenDLC = tmpDLC.midRef(1).toInt();
-                dlcName = filename.mid(tmpDLC.size() + 1, lenDLC);
-                posStr += tmpDLC.size() + lenDLC + 1;
-                if (filename[posStr++] != '-')
-                    CRASH();
+                if (ipc)
+                {
+                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
+                    ConsoleSync();
+                }
+                else
+                {
+                    ConsoleWrite(QString("Skipping not compatible mod: ") + BaseName(file));
+                }
+                continue;
             }
-            else if (filename.toUpper()[0] == 'B')
-            {
-                posStr += 1;
-            }
-            else
-                CRASH();
-            QString tmpPkg = filename.mid(posStr).split('-')[0];
-            posStr += tmpPkg.size() + 1;
-            int lenPkg = tmpPkg.midRef(0).toInt();
-            QString pkgName = filename.mid(posStr, lenPkg);
-            posStr += lenPkg;
-            if (filename[posStr++] != '-')
-                CRASH();
-            if (filename.toUpper()[posStr++] != 'E')
-                CRASH();
-            QString tmpExp = filename.mid(posStr);
-            mod.exportId = tmpExp.midRef(0).toInt();
             if (dlcName.length() != 0)
             {
                 if (gameId == MeType::ME1_TYPE)
@@ -728,7 +960,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
             int indexTpf = -1;
             char *listText;
 #if defined(_WIN32)
-            auto str = file.replace('/', '\\').toStdWString();
+            auto str = file.toStdWString();
 #else
             auto str = file.toStdString();
 #endif
@@ -736,15 +968,11 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
             void *handle = ZipOpenFromFile(name, &numEntries, 1);
             if (handle == nullptr)
                 goto failed;
+
             for (int i = 0; i < numEntries; i++)
             {
-                char *filetmp;
-                int filetmplen = 0;
-                result = ZipGetCurrentFileInfo(handle, &filetmp, &filetmplen, &dstLen);
-                if (result != 0)
+                if (!TpfGetCurrentFileInfo(handle, fileName, dstLen))
                     goto failed;
-                fileName = QString(filetmp);
-                delete[] filetmp;
                 if (fileName.endsWith(".def", Qt::CaseInsensitive) ||
                     fileName.endsWith(".log", Qt::CaseInsensitive))
                 {
@@ -755,6 +983,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                 if (result != 0)
                     goto failed;
             }
+
             listText = new char[dstLen];
             result = ZipReadCurrentFile(handle, reinterpret_cast<quint8 *>(listText), dstLen, nullptr);
             if (result != 0)
@@ -762,7 +991,6 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                 delete[] listText;
                 goto failed;
             }
-
             ddsList = QString(listText).remove(QChar('\r')).split(QChar('\n'));
             delete[] listText;
 
@@ -772,66 +1000,38 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
 
             for (int i = 0; i < numEntries; i++)
             {
+                BinaryMod mod{};
+
                 if (i == indexTpf)
                 {
                     result = ZipGoToNextFile(handle);
                     continue;
                 }
-                BinaryMod mod{};
-                uint crc = 0;
-                char *filetmp;
-                int filetmplen = 0;
-                result = ZipGetCurrentFileInfo(handle, &filetmp, &filetmplen, &dstLen);
-                if (result != 0)
+
+                if (!TpfGetCurrentFileInfo(handle, fileName, dstLen))
                     goto failed;
-                QString filename(filetmp);
-                delete[] filetmp;
-                foreach (QString dds, ddsList)
-                {
-                    if (dds.length() == 0)
-                        continue;
-                    QString ddsFile = dds.split('|')[1];
-                    if (ddsFile != "" && ddsList.count() != 1 &&
-                        ddsFile.toLower() != filename.toLower())
-                    {
-                        continue;
-                    }
-                    bool ok;
-                    crc = dds.split('|').first().midRef(2).toUInt(&ok, 16);
-                    break;
-                }
+
+                uint crc = GetCrcFromTpfList(ddsList, fileName);
                 if (crc == 0)
                 {
-                    if (fileName.endsWith(".def", Qt::CaseInsensitive) ||
-                        fileName.endsWith(".log", Qt::CaseInsensitive))
+                    if (ipc)
                     {
-                        if (ipc)
-                        {
-                            ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
-                            ConsoleSync();
-                        }
-                        else
-                        {
-                            ConsoleWrite(QString("Skipping file: ") + filename + " not found in definition file, entry: " +
-                                (i + 1) + " - mod: " + BaseName(file));
-                        }
+                        ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
+                        ConsoleSync();
+                    }
+                    else
+                    {
+                        ConsoleWrite(QString("Skipping file: ") + fileName + " not found in definition file, entry: " +
+                            (i + 1) + " - mod: " + BaseName(file));
                     }
                     ZipGoToNextFile(handle);
                     continue;
                 }
 
-                FoundTexture f{};
-                for (int s = 0; s < textures.count(); s++)
-                {
-                    if (textures[s].crc == crc)
-                    {
-                        f = textures[s];
-                        break;
-                    }
-                }
+                FoundTexture f = FoundTextureInTheMap(textures, crc);
                 if (f.crc == 0)
                 {
-                    ConsoleWrite(QString("Texture skipped. File ") + filename + QString().sprintf("_0x%08X", crc) +
+                    ConsoleWrite(QString("Texture skipped. File ") + fileName + QString().sprintf("_0x%08X", crc) +
                         " is not present in your game setup - mod: " + BaseName(file));
                     ZipGoToNextFile(handle);
                     continue;
@@ -860,83 +1060,21 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                     continue;
                 }
 
-                PixelFormat pixelFormat = f.pixfmt;
-                Image image = Image(mod.data, GetFileExtension(filename));
-                if (image.getMipMaps().count() == 0)
+                Image image = Image(mod.data, GetFileExtension(fileName));
+                if (!CheckImage(image, f, file, i, ipc))
                 {
-                    if (ipc)
-                    {
-                        ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
-                        ConsoleSync();
-                    }
-                    else
-                    {
-                        ConsoleWrite(QString("Skipping not compatible content, entry: ") +
-                                     QString::number(i + 1) + " - mod: " + BaseName(file));
-                    }
                     mod.data.Free();
                     continue;
                 }
 
-                if (image.getMipMaps().first()->getOrigWidth() / image.getMipMaps().first()->getOrigHeight() !=
-                    f.width / f.height)
-                {
-                    ZipGoToNextFile(handle);
-                    if (ipc)
-                    {
-                        ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
-                        ConsoleSync();
-                    }
-                    else
-                    {
-                        ConsoleWrite(QString("Error in texture: ") + textureName + QString().sprintf("_0x%08X", crc) +
-                            " This texture has wrong aspect ratio, skipping texture, entry: " + QString::number(i + 1) + " - mod: " + BaseName(file));
-                    }
-                    mod.data.Free();
-                    continue;
-                }
-
-                PixelFormat newPixelFormat = pixelFormat;
+                PixelFormat newPixelFormat = f.pixfmt;
                 if (markToConvert)
-                    newPixelFormat = changeTextureType(pixelFormat, image.getPixelFormat(), f.flags);
+                    newPixelFormat = changeTextureType(f.pixfmt, image.getPixelFormat(), f.flags);
 
-                int numMips = 0;
-                for (int s = 0; s < f.list.count(); s++)
+                int numMips = GetNumberOfMipsFromMap(f);
+                if (CorrectTexture(image, f, numMips, markToConvert,
+                                   f.pixfmt, newPixelFormat, file, ipc))
                 {
-                    if (f.list[s].path.length() != 0)
-                    {
-                        numMips = f.list[s].numMips;
-                        break;
-                    }
-                }
-                if (!image.checkDDSHaveAllMipmaps() ||
-                   (numMips > 1 && image.getMipMaps().count() <= 1) ||
-                   (markToConvert && image.getPixelFormat() != newPixelFormat) ||
-                   (!markToConvert && image.getPixelFormat() != pixelFormat))
-                {
-                    if (ipc)
-                    {
-                        ConsoleWrite(QString("[IPC]PROCESSING_FILE Converting ") + BaseName(file));
-                        ConsoleSync();
-                    }
-                    else
-                    {
-                        ConsoleWrite(QString("Converting/correcting texture: ") + textureName);
-                    }
-                    bool dxt1HasAlpha = false;
-                    quint8 dxt1Threshold = 128;
-                    if (f.flags == TexProperty::TextureTypes::OneBitAlpha)
-                    {
-                        dxt1HasAlpha = true;
-                        if (image.getPixelFormat() == PixelFormat::ARGB ||
-                            image.getPixelFormat() == PixelFormat::DXT3 ||
-                            image.getPixelFormat() == PixelFormat::DXT5)
-                        {
-                            ConsoleWrite(QString("Warning for texture: " )+ textureName +
-                                         ". This texture converted from full alpha to binary alpha.");
-                        }
-                    }
-                    image.correctMips(newPixelFormat, dxt1HasAlpha, dxt1Threshold);
                     mod.data.Free();
                     mod.data = image.StoreImageToDDS();
                 }
@@ -960,66 +1098,17 @@ end:
                 ZipClose(handle);
             handle = nullptr;
         }
-        else if (file.endsWith(".dds", Qt::CaseInsensitive))
+        else if (file.endsWith(".dds", Qt::CaseInsensitive) ||
+                 file.endsWith(".png", Qt::CaseInsensitive) ||
+                 file.endsWith(".bmp", Qt::CaseInsensitive) ||
+                 file.endsWith(".tga", Qt::CaseInsensitive))
         {
             BinaryMod mod{};
-            QString filename = BaseNameWithoutExt(file);
-            if (!filename.contains("0x", Qt::CaseInsensitive))
-            {
-                if (ipc)
-                {
-                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
-                    ConsoleSync();
-                }
-                else
-                {
-                    ConsoleWrite(QString("Texture filename not valid: ") + BaseName(file) +
-                                 " Texture filename must include texture CRC (0xhhhhhhhh). Skipping texture...");
-                }
-                continue;
-            }
-            int idx = filename.indexOf("0x", Qt::CaseInsensitive);
-            if (filename.size() - idx < 10)
-            {
-                if (ipc)
-                {
-                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
-                    ConsoleSync();
-                }
-                else
-                {
-                    ConsoleWrite(QString("Texture filename not valid: ") + BaseName(file) +
-                                 " Texture filename must include texture CRC (0xhhhhhhhh). Skipping texture...");
-                }
-                continue;
-            }
-            QString crcStr = filename.mid(idx, 10);
-            bool ok;
-            uint crc = crcStr.toUInt(&ok, 16);
+            uint crc = scanFilenameForCRC(file, ipc);
             if (crc == 0)
-            {
-                if (ipc)
-                {
-                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
-                    ConsoleSync();
-                }
-                else
-                {
-                    ConsoleWrite(QString("Texture filename not valid: ") + BaseName(file) +
-                                 " Texture filename must include texture CRC (0xhhhhhhhh). Skipping texture...");
-                }
                 continue;
-            }
 
-            FoundTexture f{};
-            for (int s = 0; s < textures.count(); s++)
-            {
-                if (textures[s].crc == crc)
-                {
-                    f = textures[s];
-                    break;
-                }
-            }
+            FoundTexture f = FoundTextureInTheMap(textures, crc);
             if (f.crc == 0)
             {
                 ConsoleWrite(QString("Texture skipped. Texture ") + BaseName(file) +
@@ -1027,16 +1116,23 @@ end:
                 continue;
             }
 
-            idx = filename.indexOf("-memconvert", Qt::CaseInsensitive);
-            if (idx > 0)
-                markToConvert = true;
+            markToConvert = DetectMarkToConvertFromFile(file);
 
-            FileStream fs = FileStream(file, FileMode::Open, FileAccess::ReadOnly);
             PixelFormat pixelFormat = f.pixfmt;
-
-            mod.data = fs.ReadAllToBuffer();
-            Image image(mod.data, ImageFormat::DDS);
-
+            Image image(file, ImageFormat::UnknownImageFormat);
+            if (image.getMipMaps().count() == 0)
+            {
+                if (ipc)
+                {
+                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
+                    ConsoleSync();
+                }
+                else
+                {
+                    ConsoleWrite(QString("Skipping image: " + BaseName(file)));
+                }
+                continue;
+            }
             if (image.getMipMaps().first()->getOrigWidth() / image.getMipMaps().first()->getOrigHeight() !=
                 f.width / f.height)
             {
@@ -1058,176 +1154,9 @@ end:
                     break;
                 }
             }
-            if (!image.checkDDSHaveAllMipmaps() ||
-               (numMips > 1 && image.getMipMaps().count() <= 1) ||
-               (markToConvert && image.getPixelFormat() != newPixelFormat) ||
-               (!markToConvert && image.getPixelFormat() != pixelFormat))
-            {
-                if (ipc)
-                {
-                    ConsoleWrite(QString("[IPC]PROCESSING_FILE Converting ") + BaseName(file));
-                    ConsoleSync();
-                }
-                else
-                {
-                    ConsoleWrite(QString("Converting/correcting texture: ") + BaseName(file));
-                }
-                bool dxt1HasAlpha = false;
-                quint8 dxt1Threshold = 128;
-                if (f.flags == TexProperty::TextureTypes::OneBitAlpha)
-                {
-                    dxt1HasAlpha = true;
-                    if (image.getPixelFormat() == PixelFormat::ARGB ||
-                        image.getPixelFormat() == PixelFormat::DXT3 ||
-                        image.getPixelFormat() == PixelFormat::DXT5)
-                    {
-                        ConsoleWrite(QString("Warning for texture: " ) + f.name +
-                                     ". This texture converted from full alpha to binary alpha.");
-                    }
-                }
-                image.correctMips(newPixelFormat, dxt1HasAlpha, dxt1Threshold);
-                mod.data.Free();
-                mod.data = image.StoreImageToDDS();
-            }
+            CorrectTexture(image, f, numMips, markToConvert,
+                               pixelFormat, newPixelFormat, file, ipc);
 
-            mod.textureName = f.name;
-            mod.binaryModType = 0;
-            mod.textureCrc = crc;
-            mod.markConvert = markToConvert;
-            mods.push_back(mod);
-        }
-        else if (file.endsWith(".png", Qt::CaseInsensitive) ||
-                 file.endsWith(".bmp", Qt::CaseInsensitive) ||
-                 file.endsWith(".tga", Qt::CaseInsensitive))
-        {
-            BinaryMod mod{};
-            QString filename = BaseNameWithoutExt(file);
-            if (!filename.contains("0x", Qt::CaseInsensitive))
-            {
-                if (ipc)
-                {
-                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
-                    ConsoleSync();
-                }
-                else
-                {
-                    ConsoleWrite(QString("Texture filename not valid: ") + BaseName(file) +
-                                 " Texture filename must include texture CRC (0xhhhhhhhh). Skipping texture...");
-                }
-                continue;
-            }
-            int idx = filename.indexOf("0x", Qt::CaseInsensitive);
-            if (filename.size() - idx < 10)
-            {
-                if (ipc)
-                {
-                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
-                    ConsoleSync();
-                }
-                else
-                {
-                    ConsoleWrite(QString("Texture filename not valid: ") + BaseName(file) +
-                                 " Texture filename must include texture CRC (0xhhhhhhhh). Skipping texture...");
-                }
-                continue;
-            }
-            QString crcStr = filename.mid(idx, 10);
-            bool ok;
-            uint crc = crcStr.toUInt(&ok, 16);
-            if (crc == 0)
-            {
-                if (ipc)
-                {
-                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
-                    ConsoleSync();
-                }
-                else
-                {
-                    ConsoleWrite(QString("Texture filename not valid: ") + BaseName(file) +
-                                 " Texture filename must include texture CRC (0xhhhhhhhh). Skipping texture...");
-                }
-                continue;
-            }
-
-            FoundTexture f{};
-            for (int s = 0; s < textures.count(); s++)
-            {
-                if (textures[s].crc == crc)
-                {
-                    f = textures[s];
-                    break;
-                }
-            }
-            if (f.crc == 0)
-            {
-                ConsoleWrite(QString("Texture skipped. Texture ") + BaseName(file) +
-                             " is not present in your game setup.");
-                continue;
-            }
-
-            idx = filename.indexOf("-memconvert", Qt::CaseInsensitive);
-            if (idx > 0)
-                markToConvert = true;
-
-            PixelFormat pixelFormat = f.pixfmt;
-            Image image = Image(file, ImageFormat::UnknownImageFormat);
-            if (image.getMipMaps().count() == 0)
-            {
-                if (ipc)
-                {
-                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
-                    ConsoleSync();
-                }
-                else
-                {
-                    ConsoleWrite(QString("Skipping image: " + BaseName(file)));
-                }
-                continue;
-            }
-
-            if (image.getMipMaps().first()->getOrigWidth() / image.getMipMaps().first()->getOrigHeight() !=
-                f.width / f.height)
-            {
-                if (ipc)
-                {
-                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
-                    ConsoleSync();
-                }
-                else
-                {
-                    ConsoleWrite(QString("Error in texture: ") + BaseName(file) +
-                                 " This texture has wrong aspect ratio, skipping texture...");
-                }
-                continue;
-            }
-
-            PixelFormat newPixelFormat = pixelFormat;
-            if (markToConvert)
-                newPixelFormat = changeTextureType(pixelFormat, image.getPixelFormat(), f.flags);
-
-            if (ipc)
-            {
-                ConsoleWrite(QString("[IPC]PROCESSING_FILE Converting ") + BaseName(file));
-                ConsoleSync();
-            }
-            else
-            {
-                ConsoleWrite(QString("Converting/correcting texture: ") + BaseName(file));
-            }
-            bool dxt1HasAlpha = false;
-            quint8 dxt1Threshold = 128;
-            if (f.flags == TexProperty::TextureTypes::OneBitAlpha)
-            {
-                dxt1HasAlpha = true;
-                if (image.getPixelFormat() == PixelFormat::ARGB ||
-                    image.getPixelFormat() == PixelFormat::DXT3 ||
-                    image.getPixelFormat() == PixelFormat::DXT5)
-                {
-                    ConsoleWrite(QString("Warning for texture: " ) + f.name +
-                                 ". This texture converted from full alpha to binary alpha.");
-                }
-            }
-            image.correctMips(newPixelFormat, dxt1HasAlpha, dxt1Threshold);
             mod.data = image.StoreImageToDDS();
             mod.textureName = f.name;
             mod.binaryModType = 0;
@@ -1235,6 +1164,7 @@ end:
             mod.markConvert = markToConvert;
             mods.push_back(mod);
         }
+
 
         for (int l = 0; l < mods.count(); l++)
         {
