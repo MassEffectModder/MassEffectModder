@@ -1118,44 +1118,17 @@ end:
 
             markToConvert = DetectMarkToConvertFromFile(file);
 
-            PixelFormat pixelFormat = f.pixfmt;
             Image image(file, ImageFormat::UnknownImageFormat);
-            if (image.getMipMaps().count() == 0)
-            {
-                if (ipc)
-                {
-                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
-                    ConsoleSync();
-                }
-                else
-                {
-                    ConsoleWrite(QString("Skipping image: " + BaseName(file)));
-                }
+            if (!Misc::CheckImage(image, f, file, -1, ipc))
                 continue;
-            }
-            if (image.getMipMaps().first()->getOrigWidth() / image.getMipMaps().first()->getOrigHeight() !=
-                f.width / f.height)
-            {
-                ConsoleWrite(QString("Error in texture: ") + BaseName(file) +
-                             " This texture has wrong aspect ratio, skipping texture...");
-                continue;
-            }
 
-            PixelFormat newPixelFormat = pixelFormat;
+            PixelFormat newPixelFormat = f.pixfmt;
             if (markToConvert)
-                newPixelFormat = changeTextureType(pixelFormat, image.getPixelFormat(), f.flags);
+                newPixelFormat = changeTextureType(f.pixfmt, image.getPixelFormat(), f.flags);
 
-            int numMips = 0;
-            for (int s = 0; s < f.list.count(); s++)
-            {
-                if (f.list[s].path.length() != 0)
-                {
-                    numMips = f.list[s].numMips;
-                    break;
-                }
-            }
+            int numMips = Misc::GetNumberOfMipsFromMap(f);
             CorrectTexture(image, f, numMips, markToConvert,
-                               pixelFormat, newPixelFormat, file, ipc);
+                           f.pixfmt, newPixelFormat, file, ipc);
 
             mod.data = image.StoreImageToDDS();
             mod.textureName = f.name;
