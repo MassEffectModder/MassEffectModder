@@ -205,7 +205,7 @@ void DisplayHelp()
 
 bool hasValue(const QStringList &args, int curPos)
 {
-    return args.count() >= (curPos + 2) && !args[curPos + 1].contains("--");
+    return args.count() >= (curPos + 2) && !args[curPos + 1].startsWith("--");
 }
 
 QStringList convertLegacyArguments()
