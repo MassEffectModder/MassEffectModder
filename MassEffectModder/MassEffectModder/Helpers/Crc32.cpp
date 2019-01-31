@@ -46,19 +46,6 @@
 /// zlib's CRC32 polynomial
 const uint32_t Polynomial = 0xEDB88320;
 
-/// swap endianess
-static inline uint32_t swap(uint32_t x)
-{
-#if defined(__GNUC__) || defined(__clang__)
-  return __builtin_bswap32(x);
-#else
-  return (x >> 24) |
-        ((x >>  8) & 0x0000FF00) |
-        ((x <<  8) & 0x00FF0000) |
-         (x << 24);
-#endif
-}
-
 
 /// Slicing-By-16
 #ifdef CRC32_USE_LOOKUP_TABLE_SLICING_BY_16
