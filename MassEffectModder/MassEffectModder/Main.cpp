@@ -33,6 +33,8 @@ int runQtApplication(int argc, char *argv[])
     QCoreApplication::setOrganizationName(APP_NAME);
     QCoreApplication::setApplicationName(APP_NAME);
 
+    QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
+
     ConsoleWrite(QString("\nMassEffectModder (MEM) v%1 command line version\n"
                          "Copyright (C) 2014-2019 Pawel Kolodziejski\n"
                          "This is free software; see the source for copying conditions.  There is NO.\n"
