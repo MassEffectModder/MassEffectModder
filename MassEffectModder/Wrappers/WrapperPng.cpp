@@ -103,8 +103,8 @@ int PngRead(unsigned char *src, unsigned int srcSize,
     *width = pngWidth;
     *height = pngHeight;
 
-    if (colorType != PNG_COLOR_TYPE_RGB &&
-        colorType != PNG_COLOR_TYPE_RGB_ALPHA &&
+    if ((colorType != PNG_COLOR_TYPE_RGB &&
+        colorType != PNG_COLOR_TYPE_RGB_ALPHA) ||
         bits != 8)
     {
         png_destroy_read_struct(&pngStruct, &pngInfo, nullptr);
