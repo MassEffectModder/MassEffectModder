@@ -103,13 +103,21 @@ int PngRead(unsigned char *src, unsigned int srcSize,
     *width = pngWidth;
     *height = pngHeight;
 
-    if ((colorType != PNG_COLOR_TYPE_RGB &&
-        colorType != PNG_COLOR_TYPE_RGB_ALPHA) ||
-        bits != 8)
-    {
-        png_destroy_read_struct(&pngStruct, &pngInfo, nullptr);
-        return -1;
-    }
+    png_set_scale_16(pngStruct);
+    png_set_packing(pngStruct);
+    if (colorType == PNG_COLOR_TYPE_PALETTE)
+        png_set_palette_to_rgb(pngStruct);
+    if (colorType == PNG_COLOR_TYPE_GRAY && bits < 8)
+        png_set_expand_gray_1_2_4_to_8(pngStruct);
+    png_set_invert_mono(pngStruct);
+    if (png_get_valid(pngStruct, pngInfo, PNG_INFO_tRNS) != 0)
+        png_set_tRNS_to_alpha(pngStruct);
+    if ((colorType & PNG_COLOR_MASK_COLOR) != 0)
+        png_set_bgr(pngStruct);
+    png_set_swap_alpha(pngStruct);
+    png_set_swap(pngStruct);
+    png_set_filler(pngStruct, 0xff, PNG_FILLER_AFTER);
+    png_read_update_info(pngStruct, pngInfo);
 
     *dstSize = pngWidth * pngHeight * 4;
     unsigned char *dstPtr = *dst = new unsigned char[*dstSize];
@@ -119,35 +127,22 @@ int PngRead(unsigned char *src, unsigned int srcSize,
         return -1;
     }
 
-    unsigned char lineData[png_get_rowbytes(pngStruct, pngInfo)];
+    png_byte lineData[png_get_rowbytes(pngStruct, pngInfo)];
     int dstOffset = 0;
     for (png_uint_32 y = 0; y < pngHeight; y++)
     {
         png_read_row(pngStruct, (png_bytep)lineData, nullptr);
         int lineOffset = 0;
-        if (colorType == PNG_COLOR_TYPE_RGB_ALPHA)
+        for (png_uint_32 x = 0; x < pngWidth; x++)
         {
-            for (png_uint_32 x = 0; x < pngWidth; x++)
-            {
-                dstPtr[dstOffset + 2] = lineData[lineOffset++];
-                dstPtr[dstOffset + 1] = lineData[lineOffset++];
-                dstPtr[dstOffset + 0] = lineData[lineOffset++];
-                dstPtr[dstOffset + 3] = lineData[lineOffset++];
-                dstOffset += 4;
-            }
-        }
-        else
-        {
-            for (png_uint_32 x = 0; x < pngWidth; x++)
-            {
-                dstPtr[dstOffset + 2] = lineData[lineOffset++];
-                dstPtr[dstOffset + 1] = lineData[lineOffset++];
-                dstPtr[dstOffset + 0] = lineData[lineOffset++];
-                dstPtr[dstOffset + 3] = 255;
-                dstOffset += 4;
-            }
+            dstPtr[dstOffset + 3] = lineData[lineOffset++];
+            dstPtr[dstOffset + 0] = lineData[lineOffset++];
+            dstPtr[dstOffset + 1] = lineData[lineOffset++];
+            dstPtr[dstOffset + 2] = lineData[lineOffset++];
+            dstOffset += 4;
         }
     }
+    png_read_end(pngStruct, pngInfo);
 
     png_destroy_read_struct(&pngStruct, &pngInfo, nullptr);
 
