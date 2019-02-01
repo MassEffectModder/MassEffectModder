@@ -116,7 +116,7 @@ int PngRead(unsigned char *src, unsigned int srcSize,
         png_set_bgr(pngStruct);
     png_set_swap_alpha(pngStruct);
     png_set_swap(pngStruct);
-    png_set_filler(pngStruct, 0xff, PNG_FILLER_AFTER);
+    png_set_filler(pngStruct, 0xff, PNG_FILLER_BEFORE);
     png_read_update_info(pngStruct, pngInfo);
 
     *dstSize = pngWidth * pngHeight * 4;
