@@ -112,8 +112,6 @@ void DisplayHelp()
     ConsoleWrite("              uncompressed RGBA/RGB, compressed RGBA/RGB");
     ConsoleWrite("           input format supported for BMP images:");
     ConsoleWrite("              uncompressed RGBA/RGB/RGBX");
-    ConsoleWrite("           input format supported for PNG images:");
-    ConsoleWrite("              RGBA/RGB");
     ConsoleWrite("           Image filename must include texture CRC (0xhhhhhhhh)");
     ConsoleWrite("     ipc: turn on IPC traces");
     ConsoleWrite("");
@@ -127,8 +125,6 @@ void DisplayHelp()
     ConsoleWrite("              uncompressed RGBA/RGB, compressed RGBA/RGB");
     ConsoleWrite("           input format supported for BMP images:");
     ConsoleWrite("              uncompressed RGBA/RGB/RGBX");
-    ConsoleWrite("           input format supported for PNG images:");
-    ConsoleWrite("              RGBA/RGB");
     ConsoleWrite("           Image filename must include texture CRC (0xhhhhhhhh)");
     ConsoleWrite("     Output file is DDS image");
     ConsoleWrite("");
@@ -143,8 +139,6 @@ void DisplayHelp()
     ConsoleWrite("              uncompressed RGBA/RGB, compressed RGBA/RGB");
     ConsoleWrite("           input pixel format supported for BMP images:");
     ConsoleWrite("              uncompressed RGBA/RGB/RGBX");
-    ConsoleWrite("           input format supported for PNG images:");
-    ConsoleWrite("              RGBA/RGB");
     ConsoleWrite("           Image filename must include texture CRC (0xhhhhhhhh)");
     ConsoleWrite("     output dir: directory where textures converted to DDS are placed");
     ConsoleWrite("");
@@ -185,8 +179,6 @@ void DisplayHelp()
     ConsoleWrite("              uncompressed RGBA/RGB, compressed RGBA/RGB");
     ConsoleWrite("           input format supported for BMP images:");
     ConsoleWrite("              uncompressed RGBA/RGB/RGBX");
-    ConsoleWrite("           input format supported for PNG images:");
-    ConsoleWrite("              RGBA/RGB");
     ConsoleWrite("     output image file type: DDS");
     ConsoleWrite("     output pixel format: DXT1 (no alpha), DXT1a (alpha), DXT3, DXT5, ATI2, V8U8, G8, RGBA, RGB");
     ConsoleWrite("     For DXT1a you have to set the alpha threshold (0-255). 128 is suggested as a default value.");
