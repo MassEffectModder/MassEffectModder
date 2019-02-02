@@ -19,21 +19,23 @@
  *
  */
 
-#include <string>
+#include <cstring>
 #include <execinfo.h>
 #include <cxxabi.h>
 
 using namespace std;
 
+#define MAX_PATH 1024
+
 static void getFilename(char *dst, const char *src)
 {
     long offset = 0;
-    for (auto *ptr = src; *ptr != 0; ptr++)
+    for (auto *ptr = src; *ptr != 0 || (ptr - src < MAX_PATH); ptr++)
     {
         if (*ptr == '/' || *ptr == '\\')
             offset = ptr - src + 1;
     }
-    strncpy(static_cast<char *>(dst), src + offset, 1024 - 1);
+    strncpy(dst, src + offset, MAX_PATH - 1);
 }
 
 #define MAX_CALLSTACK 100
@@ -41,46 +43,50 @@ static void getFilename(char *dst, const char *src)
 bool GetBackTrace(std::string &output, bool crashMode = true)
 {
     void *callstack[MAX_CALLSTACK];
-    char moduleName[1024], address[50], offset[50], sourceFunc[1024];
+    char moduleName[MAX_PATH];
     int status, count = 0;
 
-    int numberTraces = backtrace(static_cast<void **>(callstack), MAX_CALLSTACK);
-    char **strings = backtrace_symbols(static_cast<void **>(callstack), numberTraces);
+    int numberTraces = backtrace(callstack, MAX_CALLSTACK);
+    char **strings = backtrace_symbols(callstack, numberTraces);
 
     for (int i = 0; i < numberTraces; ++i)
     {
-        strcpy(static_cast<char *>(moduleName), "???");
-        strcpy(static_cast<char *>(sourceFunc), "???");
-        strcpy(static_cast<char *>(address), "???");
-        strcpy(static_cast<char *>(offset), "???");
+        char part1[strlen(strings[i]) + 1];
+        char address[strlen(strings[i]) + 1];
+        char offset[strlen(strings[i]) + 1];
+        char sourceFunc[strlen(strings[i]) + 1];
 
-        char part1[1024];
-        sscanf(strings[i], "%s %s", static_cast<char *>(part1), static_cast<char *>(address));
-        char *start = strstr(static_cast<char *>(part1), "(");
+        strcpy(moduleName, "???");
+        strcpy(sourceFunc, "???");
+        strcpy(address, "???");
+        strcpy(offset, "???");
+
+        sscanf(strings[i], "%s %s", part1, address);
+        char *start = strstr(part1, "(");
         if (start)
         {
-            long pos = start - static_cast<char *>(part1);
+            long pos = start - part1;
             part1[pos++] = 0;
-            getFilename(static_cast<char *>(moduleName), static_cast<char *>(part1));
+            getFilename(moduleName, part1);
             start += 1;
             start = strstr(start, "+");
             if (start)
             {
                 *start = '\0';
                 start++;
-                strcpy(static_cast<char *>(sourceFunc), static_cast<char *>(part1) + pos);
-                pos = start - static_cast<char *>(part1);
+                strcpy(sourceFunc, part1 + pos);
+                pos = start - part1;
                 start = strstr(start, ")");
                 if (start)
                 {
                     *start = '\0';
-                    strcpy(static_cast<char *>(offset), static_cast<char *>(part1) + pos);
+                    strcpy(offset, part1 + pos);
                 }
             }
         }
         if (address[0] == '[')
         {
-            for (auto *ptr = static_cast<char *>(address); *ptr != 0; ptr++)
+            for (auto *ptr = address; *ptr != 0; ptr++)
             {
                 *ptr = ptr[1];
                 if (*ptr == ']')
@@ -94,12 +100,14 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
             continue;
         if (!crashMode && i <= 0)
             continue;
-        if (strcmp(static_cast<char *>(sourceFunc), "_start") == 0 ||
-            strcmp(static_cast<char *>(sourceFunc), "__libc_start_main") == 0)
+        if (strcmp(sourceFunc, "_start") == 0 ||
+            strcmp(sourceFunc, "__libc_start_main") == 0)
             continue;
 
-        output += "#" + std::to_string(count) + "  " + static_cast<char *>(address) + " " + static_cast<char *>(moduleName) + " in ";
-        char *funcNewName = abi::__cxa_demangle(static_cast<char *>(sourceFunc), nullptr, nullptr, &status);
+        output += "#" + std::to_string(count) + "  " +
+                address + " " +
+                moduleName + " in ";
+        char *funcNewName = abi::__cxa_demangle(sourceFunc, nullptr, nullptr, &status);
         if (status == 0)
         {
             output += funcNewName;
@@ -107,10 +115,10 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
         }
         else
         {
-            output += std::string(static_cast<char *>(sourceFunc)) + "()";
+            output += std::string(sourceFunc) + "()";
         }
 
-        output += " offset " + std::string(static_cast<char *>(offset)) + "\n";
+        output += " offset " + std::string(offset) + "\n";
         count++;
     }
     free(strings);

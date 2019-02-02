@@ -105,7 +105,7 @@ int getInfoFromModule(char *moduleFilePath, DWORD64 offset, char *sourceFile,
 static void getFilename(char *dst, const char *src)
 {
     long offset = 0;
-    for (auto *ptr = src; *ptr != 0; ptr++)
+    for (auto *ptr = src; *ptr != 0 || (ptr - src < MAX_PATH); ptr++)
     {
         if (*ptr == '/' || *ptr == '\\')
             offset = ptr - src + 1;
