@@ -57,5 +57,6 @@ typedef enum : int
 } CmdType;
 
 int ProcessArguments();
+void DisplayHelp();
 
 #endif

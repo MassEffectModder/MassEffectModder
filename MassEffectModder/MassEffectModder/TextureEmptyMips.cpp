@@ -23,6 +23,7 @@
 #include "GameData.h"
 #include "Texture.h"
 #include "Helpers/MiscHelpers.h"
+#include "Helpers/Logs.h"
 
 void MipMaps::prepareListToRemove(QList<FoundTexture> &textures, QList<RemoveMipsEntry> &list)
 {
@@ -94,15 +95,15 @@ void MipMaps::removeMipMaps(int phase, QList<FoundTexture> &textures, QStringLis
         {
             if (GameData::gameType == ME1_TYPE)
             {
-                ConsoleWrite("Removing empty mipmaps (" + QString::number(phase) + ") " +
+                PINFO("Removing empty mipmaps (" + QString::number(phase) + ") " +
                              QString::number(i + 1) + "/" +
-                             QString::number(list.count()) + " " + list[i].pkgPath);
+                             QString::number(list.count()) + " " + list[i].pkgPath + "\n");
             }
             else
             {
-                ConsoleWrite("Removing empty mipmaps " +
+                PINFO("Removing empty mipmaps " +
                              QString::number(i + 1) + "/" +
-                             QString::number(list.count()) + " " + list[i].pkgPath);
+                             QString::number(list.count()) + " " + list[i].pkgPath + "\n");
             }
         }
 
@@ -111,7 +112,7 @@ void MipMaps::removeMipMaps(int phase, QList<FoundTexture> &textures, QStringLis
         {
             if (ipc)
             {
-                ConsoleWrite(QString("[IPC]ERROR Issue opening package file: ") + list[i].pkgPath);
+                ConsoleWrite(QString("[IPC]ERROR Issue opening package file: ") + list[i].pkgPath + "\n");
                 ConsoleSync();
             }
             else
@@ -120,7 +121,7 @@ void MipMaps::removeMipMaps(int phase, QList<FoundTexture> &textures, QStringLis
                 err += "---- Start --------------------------------------------\n";
                 err += "Issue opening package file: " + list[i].pkgPath + "\n";
                 err += "---- End ----------------------------------------------\n\n";
-                ConsoleWrite(err);
+                PERROR(err);
             }
             return;
         }
@@ -143,13 +144,15 @@ void MipMaps::removeMipMapsPerPackage(int phase, QList<FoundTexture> &textures, 
             if (ipc)
             {
                 ConsoleWrite(QString("[IPC]ERROR Texture has broken export data in package: ") +
-                             package.packagePath + "\nExport Id: " + QString::number(exportID + 1) + "\nSkipping...");
+                             package.packagePath + "\nExport Id: " +
+                             QString::number(exportID + 1) + "\nSkipping...");
                 ConsoleSync();
             }
             else
             {
-                ConsoleWrite(QString("Error: Texture has broken export data in package: ") +
-                             package.packagePath +"\nExport Id: " + QString::number(exportID + 1) + "\nSkipping...");
+                PERROR(QString("Error: Texture has broken export data in package: ") +
+                       package.packagePath +"\nExport Id: " +
+                       QString::number(exportID + 1) + "\nSkipping...\n");
             }
             continue;
         }
@@ -193,7 +196,7 @@ void MipMaps::removeMipMapsPerPackage(int phase, QList<FoundTexture> &textures, 
                 }
                 else
                 {
-                    ConsoleWrite(QString("Error: Texture ") + package.exportsTable[exportID].objectName +
+                    PERROR(QString("Error: Texture ") + package.exportsTable[exportID].objectName +
                                  " not found in package: " + removeEntry.pkgPath + ", skipping...\n");
                 }
                 continue;
@@ -217,7 +220,8 @@ void MipMaps::removeMipMapsPerPackage(int phase, QList<FoundTexture> &textures, 
                     }
                     else
                     {
-                        ConsoleWrite(QString("Error: Texture ") + package.exportsTable[exportID].objectName + " in package: " + foundMasterTex.path + " has wrong reference, skipping...\n");
+                        PERROR(QString("Error: Texture ") + package.exportsTable[exportID].objectName +
+                               " in package: " + foundMasterTex.path + " has wrong reference, skipping...\n");
                     }
                     continue;
                 }

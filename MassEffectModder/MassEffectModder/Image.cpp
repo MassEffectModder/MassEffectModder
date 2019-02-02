@@ -24,6 +24,7 @@
 #include "Helpers/MemoryStream.h"
 #include "Helpers/FileStream.h"
 #include "Helpers/MiscHelpers.h"
+#include "Helpers/Logs.h"
 #include "Wrappers.h"
 
 Image::Image(const QString &fileName, ImageFormat format)
@@ -53,7 +54,7 @@ Image::Image(const QString &fileName, ImageFormat format)
             break;
     }
 
-    CRASH_MSG("not supported format");
+    CRASH_MSG("Not supported format\n");
 }
 
 Image::Image(Stream &stream, ImageFormat format)
@@ -72,7 +73,7 @@ Image::Image(Stream &stream, ImageFormat format)
             break;
     }
 
-    ConsoleWrite("Not supported format!");
+    PERROR("Not supported format!\n");
 }
 
 Image::Image(Stream &stream, const QString &extension)
@@ -92,7 +93,7 @@ Image::Image(Stream &stream, const QString &extension)
             break;
     }
 
-    ConsoleWrite("Not supported format: " + extension);
+    PERROR("Not supported format: " + extension + "\n");
 }
 
 Image::Image(const ByteBuffer &data, ImageFormat format)
@@ -229,7 +230,7 @@ void Image::LoadImageFromBuffer(ByteBuffer data, ImageFormat format)
         if (PngRead(data.ptr(), data.size(), &imageBuffer,
                     &imageSize, &imageWidth, &imageHeight) != 0)
         {
-            ConsoleWrite("Failed load PNG");
+            PERROR("Failed load PNG.\n");
             return;
         }
     }
@@ -239,7 +240,7 @@ void Image::LoadImageFromBuffer(ByteBuffer data, ImageFormat format)
     if (!checkPowerOfTwo(imageWidth) ||
         !checkPowerOfTwo(imageHeight))
     {
-        ConsoleWrite("PNG image dimensions are not power of two");
+        PERROR("PNG image dimensions are not power of two.\n");
         return;
     }
 
@@ -289,7 +290,7 @@ ByteBuffer Image::convertRawToARGB(const quint8 *src, int w, int h, PixelFormat 
         case PixelFormat::V8U8: tmpPtr = V8U8ToARGB(src, w, h); break;
         case PixelFormat::G8: tmpPtr = G8ToARGB(src, w, h); break;
         default:
-            CRASH_MSG("invalid texture format");
+            CRASH_MSG("Invalid texture format.\n");
     }
 
     if (clearAlpha)
@@ -433,7 +434,7 @@ ByteBuffer Image::downscaleARGB(const quint8 *src, int w, int h)
 ByteBuffer Image::downscaleRGB(const quint8 *src, int w, int h)
 {
     if (w == 1 && h == 1)
-        CRASH_MSG("1x1 can not be downscaled");
+        CRASH_MSG("1x1 can not be downscaled.\n");
 
     if (w == 1 || h == 1)
     {
@@ -471,7 +472,7 @@ void Image::saveToPng(const quint8 *src, int w, int h, PixelFormat format, const
     quint32 bufferSize;
     if (PngWrite(dataARGB.ptr(), &buffer, &bufferSize, w, h) != 0)
     {
-        ConsoleWrite("Failed to save to PNG");
+        PERROR("Failed to save to PNG.\n");
         return;
     }
     FileStream fs = FileStream(filename, FileMode::Create, FileAccess::WriteOnly);
@@ -535,7 +536,7 @@ ByteBuffer Image::convertToFormat(PixelFormat srcFormat, const quint8 *src, int 
             break;
         }
         default:
-            CRASH("not supported format");
+            CRASH("Not supported format.\n");
     }
 
     return tempData;
@@ -643,7 +644,7 @@ PixelFormat Image::getPixelFormatType(const QString &format)
     if (format == "PF_G8")
         return PixelFormat::G8;
 
-    CRASH_MSG("invalid texture format");
+    CRASH_MSG("Invalid texture format.\n");
 }
 
 QString Image::getEngineFormatType(PixelFormat format)
@@ -667,7 +668,7 @@ QString Image::getEngineFormatType(PixelFormat format)
         case PixelFormat::G8:
             return "PF_G8";
         default:
-            CRASH_MSG("invalid texture format");
+            CRASH_MSG("Invalid texture format.\n");
     }
 }
 

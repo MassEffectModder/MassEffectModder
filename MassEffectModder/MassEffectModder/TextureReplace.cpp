@@ -147,8 +147,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
         }
         else
         {
-            ConsoleWrite(QString("Package: ") + QString::number(e + 1) + " of " + QString::number(map.count()) +
-                         " started: " + map[e].packagePath);
+            PINFO(QString("Package: ") + QString::number(e + 1) + " of " + QString::number(map.count()) +
+                         " started: " + map[e].packagePath + "\n");
         }
 
         Package package{};
@@ -165,7 +165,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 err += "---- Start --------------------------------------------\n";
                 err += "Issue opening package file: " + map[e].packagePath + "\n";
                 err += "---- End ----------------------------------------------\n\n";
-                ConsoleWrite(err);
+                PERROR(err);
             }
             continue;
         }
@@ -187,9 +187,9 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 }
                 else
                 {
-                    ConsoleWrite(QString("Error: Texture ") + mod.textureName +
-                                 " has broken export data in package: " +
-                                 matched.path +"\nExport Id: " + QString::number(matched.exportID + 1) + "\nSkipping...");
+                    PERROR(QString("Error: Texture ") + mod.textureName +
+                           " has broken export data in package: " +
+                           matched.path + "\nExport Id: " + QString::number(matched.exportID + 1) + "\nSkipping...\n");
                 }
                 continue;
             }
@@ -416,7 +416,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                             }
                             else
                             {
-                                CRASH_MSG((QString("More instances of TFC file: ") + archive + ".tfc").toStdString().c_str());
+                                CRASH_MSG((QString("More instances of TFC file: ") + archive + ".tfc" + "\n").toStdString().c_str());
                             }
                         }
                     }
@@ -484,7 +484,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                             archiveFile = "";
                         }
                         if (archiveFile.length() == 0)
-                            CRASH_MSG("No free TFC texture file!");
+                            CRASH_MSG("No free TFC texture file!\n");
                     }
                 }
                 else
@@ -782,7 +782,7 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList 
 
     if (!ipc)
     {
-        ConsoleWrite("Preparing...");
+        PINFO("Preparing...\n");
     }
 
     // Remove duplicates
@@ -939,7 +939,7 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList 
     {
         if (!ipc)
         {
-            ConsoleWrite("Installing binary mods...");
+            PINFO("Installing binary mods...\n");
         }
 
         for (int i = 0; i < modsToReplace.count(); i++)
@@ -978,7 +978,7 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList 
     {
         if (!ipc)
         {
-            ConsoleWrite("Installing texture mods...");
+            PINFO("Installing texture mods...\n");
         }
 
         errors += replaceTextures(mapPackages, textures, pkgsToMarker, pkgsToRepack, modsToReplace,

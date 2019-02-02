@@ -21,6 +21,7 @@
 
 #include "Exceptions/SignalHandler.h"
 #include "Helpers/MiscHelpers.h"
+#include "Helpers/Logs.h"
 
 #include "CmdLineTools.h"
 #include "ConfigIni.h"
@@ -40,7 +41,7 @@ static bool CheckGamePath()
 {
     if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
     {
-        ConsoleWrite("Error: Could not found the game!");
+        PERROR("Error: Could not found the game!\n");
         return false;
     }
 
@@ -56,7 +57,7 @@ int CmdLineTools::scanTextures(MeType gameId, bool ipc)
     if (!CheckGamePath())
         return 1;
 
-    ConsoleWrite("Scan textures started...");
+    PINFO("Scan textures started...\n");
 
     QList<FoundTexture> textures;
     Resources resources;
@@ -67,9 +68,9 @@ int CmdLineTools::scanTextures(MeType gameId, bool ipc)
     Misc::startTimer();
     errorCode = TreeScan::PrepareListOfTextures(gameId, resources, textures, ipc);
     long elapsed = Misc::elapsedTime();
-    ConsoleWrite(Misc::getTimerFormat(elapsed));
+    PINFO(Misc::getTimerFormat(elapsed));
 
-    ConsoleWrite("Scan textures finished.\n");
+    PINFO("Scan textures finished.\n\n");
 
     return errorCode;
 }
@@ -92,7 +93,7 @@ int CmdLineTools::removeEmptyMips(MeType gameId, bool ipc)
     if (!TreeScan::loadTexturesMapFile(mapFile, textures, false))
         return 1;
 
-    ConsoleWrite("Remove empty mips started...");
+    PINFO("Remove empty mips started...\n");
 
     Misc::startTimer();
     mipMaps.removeMipMaps(1, textures, pkgsToMarkers, pkgsToRepack, ipc, false, false);
@@ -101,9 +102,9 @@ int CmdLineTools::removeEmptyMips(MeType gameId, bool ipc)
     if (GameData::gameType == MeType::ME3_TYPE)
         TOCBinFile::UpdateAllTOCBinFiles();
     long elapsed = Misc::elapsedTime();
-    ConsoleWrite(Misc::getTimerFormat(elapsed));
+    PINFO(Misc::getTimerFormat(elapsed));
 
-    ConsoleWrite("Remove empty mips finished.\n");
+    PINFO("Remove empty mips finished.\n\n");
 
     return 0;
 }
@@ -130,7 +131,7 @@ bool CmdLineTools::unpackAllDLCs(bool ipc)
     Misc::startTimer();
     ME3DLC::unpackAllDLC(ipc);
     long elapsed = Misc::elapsedTime();
-    ConsoleWrite(Misc::getTimerFormat(elapsed));
+    PINFO(Misc::getTimerFormat(elapsed));
 
     return true;
 }
@@ -144,7 +145,7 @@ bool CmdLineTools::repackGame(MeType gameId, bool ipc)
     Misc::startTimer();
     Repack(gameId, ipc);
     long elapsed = Misc::elapsedTime();
-    ConsoleWrite(Misc::getTimerFormat(elapsed));
+    PINFO(Misc::getTimerFormat(elapsed));
 
     return true;
 }
@@ -229,8 +230,8 @@ bool CmdLineTools::convertGameTexture(const QString &inputFile, QString &outputF
     FoundTexture foundTex = Misc::FoundTextureInTheMap(textures, crc);
     if (foundTex.crc == 0)
     {
-        ConsoleWrite(QString("Texture skipped. Texture ") + BaseName(inputFile) +
-                     " is not present in your game setup.");
+        PINFO(QString("Texture skipped. Texture ") + BaseName(inputFile) +
+                     " is not present in your game setup.\n");
         return false;
     }
 
@@ -251,8 +252,8 @@ bool CmdLineTools::convertGameTexture(const QString &inputFile, QString &outputF
             image.getPixelFormat() == PixelFormat::DXT3 ||
             image.getPixelFormat() == PixelFormat::DXT5)
         {
-            ConsoleWrite(QString("Warning for texture: ") + BaseName(inputFile) +
-                         ". This texture converted from full alpha to binary alpha.");
+            PINFO(QString("Warning for texture: ") + BaseName(inputFile) +
+                         ". This texture converted from full alpha to binary alpha.\n");
         }
     }
     image.correctMips(newPixelFormat, dxt1HasAlpha, dxt1Threshold);
@@ -333,14 +334,14 @@ bool CmdLineTools::convertImage(QString &inputFile, QString &outputFile, QString
         pixFmt = PixelFormat::G8;
     else
     {
-        ConsoleWrite(QString("Error: not supported format: ") + format);
+        PERROR(QString("Error: not supported format: ") + format + "\n");
         return false;
     }
 
     Image image = Image(inputFile);
     if (image.getMipMaps().count() == 0)
     {
-        ConsoleWrite("Texture not compatible!");
+        PERROR("Texture not compatible!\n");
         return false;
     }
     if (QFile(outputFile).exists())
@@ -356,7 +357,7 @@ bool CmdLineTools::convertImage(QString &inputFile, QString &outputFile, QString
 
 bool CmdLineTools::extractTPF(QString &inputDir, QString &outputDir, bool ipc)
 {
-    ConsoleWrite("Extract TPF files started...");
+    PINFO("Extract TPF files started...\n");
 
     bool status = true;
     int result;
@@ -393,7 +394,7 @@ bool CmdLineTools::extractTPF(QString &inputDir, QString &outputDir, bool ipc)
         }
         else
         {
-            ConsoleWrite(QString("Extract TPF: ") + file.fileName());
+            PINFO(QString("Extract TPF: ") + file.fileName() + "\n");
         }
         QString outputTPFdir = outputDir + BaseNameWithoutExt(file.fileName());
         QDir().mkpath(outputTPFdir);
@@ -434,7 +435,7 @@ bool CmdLineTools::extractTPF(QString &inputDir, QString &outputDir, bool ipc)
             FileStream fs = FileStream(outputPath, FileMode::Create);
             fs.WriteFromBuffer(data);
             data.Free();
-            ConsoleWrite(outputPath);
+            PINFO(outputPath);
             ZipGoToNextFile(handle);
         }
         ZipClose(handle);
@@ -443,13 +444,13 @@ bool CmdLineTools::extractTPF(QString &inputDir, QString &outputDir, bool ipc)
 
 failed:
 
-        ConsoleWrite(QString("TPF file is damaged: ") + file.fileName());
+        PERROR(QString("TPF file is damaged: ") + file.fileName() + "\n");
         if (handle != nullptr)
             ZipClose(handle);
         handle = nullptr;
     }
 
-    ConsoleWrite("Extract TPF files completed.");
+    PINFO("Extract TPF files completed.\n");
     return status;
 }
 
@@ -461,7 +462,7 @@ bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputD
 
     TreeScan::loadTexturesMap(gameId, resources, textures);
 
-    ConsoleWrite("Extract MOD files started...");
+    PINFO("Extract MOD files started...\n");
 
     bool status = true;
 
@@ -492,10 +493,7 @@ bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputD
             ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + file.fileName());
             ConsoleSync();
         }
-        else
-        {
-            ConsoleWrite(QString("Extract MOD: ") + file.fileName());
-        }
+        PINFO(QString("Extract MOD: ") + file.fileName() + "\n");
         QString outputMODdir = outputDir + BaseNameWithoutExt(file.fileName());
         QDir().mkpath(outputMODdir);
 
@@ -517,8 +515,8 @@ bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputD
                 if (exportId == -1 || package.length() == 0 || path.length() == 0)
                 {
                     fs.Skip(fs.ReadInt32());
-                    ConsoleWrite(QString("Skipping not compatible content, entry: ") +
-                                 QString::number(i + 1) + " - mod: " + file.fileName());
+                    PERROR(QString("Skipping not compatible content, entry: ") +
+                                 QString::number(i + 1) + " - mod: " + file.fileName() + "\n");
                     status = false;
                     continue;
                 }
@@ -540,7 +538,7 @@ bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputD
                     QFile(outputFile).remove();
                 FileStream fs2 = FileStream(outputFile, FileMode::Create);
                 fs2.CopyFrom(fs, fs.ReadInt32());
-                ConsoleWrite(outputFile);
+                PINFO(outputFile);
             }
             else
             {
@@ -548,8 +546,8 @@ bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputD
                 if (index == -1)
                 {
                     fs.Skip(fs.ReadInt32());
-                    ConsoleWrite(QString("Skipping not compatible content, entry: ") +
-                                 QString::number(i + 1) + " - mod: " + file.fileName());
+                    PERROR(QString("Skipping not compatible content, entry: ") +
+                                 QString::number(i + 1) + " - mod: " + file.fileName() + "\n");
                     status = false;
                     continue;
                 }
@@ -559,12 +557,12 @@ bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputD
                     QFile(newFile).remove();
                 FileStream fs2 = FileStream(newFile, FileMode::Create);
                 fs2.CopyFrom(fs, fs.ReadInt32());
-                ConsoleWrite(newFile);
+                PINFO(newFile);
             }
         }
     }
 
-    ConsoleWrite("Extract MOD files completed.");
+    PINFO("Extract MOD files completed.\n");
     return status;
 }
 
@@ -576,7 +574,7 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
 
     TreeScan::loadTexturesMap(gameId, resources, textures);
 
-    ConsoleWrite("Extract MEM files started...");
+    PINFO("Extract MEM files started...\n");
 
     inputDir = QDir::cleanPath(inputDir);
     QFileInfoList list;
@@ -622,7 +620,7 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
         }
         else
         {
-            ConsoleWrite(QString("Extract MEM: ") + file.absoluteFilePath());
+            PINFO(QString("Extract MEM: ") + file.absoluteFilePath() + "\n");
         }
         QString outputMODdir = outputDir + BaseNameWithoutExt(file.fileName());
         QDir().mkpath(outputMODdir);
@@ -669,12 +667,9 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
                 pkgPath.replace('\\', '/');
             }
 
-            if (!ipc)
-            {
-                ConsoleWrite(QString("Processing MEM mod ") + file.fileName() +
+            PINFO(QString("Processing MEM mod ") + file.fileName() +
                              " - File " + QString::number(i + 1) + " of " +
-                             QString::number(numFiles) + " - " + name);
-            }
+                             QString::number(numFiles) + " - " + name + "\n");
             int newProgress = currentNumberOfTotalMods * 100 / totalNumberOfMods;
             if (ipc && lastProgress != newProgress)
             {
@@ -691,11 +686,8 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
                     ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + file.absoluteFilePath());
                     ConsoleSync();
                 }
-                else
-                {
-                    ConsoleWrite(QString("Failed decompress data: ") + file.absoluteFilePath());
-                }
-                ConsoleWrite("Extract MEM mod files failed.");
+                PERROR(QString("Failed decompress data: ") + file.absoluteFilePath() + "\n");
+                PERROR("Extract MEM mod files failed.\n\n");
                 return false;
             }
 
@@ -740,16 +732,13 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
                     ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + file.absoluteFilePath());
                     ConsoleSync();
                 }
-                else
-                {
-                    ConsoleWrite(QString("Unknown tag for file: ") + name);
-                }
+                PERROR(QString("Unknown tag for file: ") + name + "\n");
             }
             dst.Free();
         }
     }
 
-    ConsoleWrite("Extract MEM mod files completed.");
+    PINFO("Extract MEM mod files completed.\n");
     return true;
 }
 
@@ -809,7 +798,7 @@ bool CmdLineTools::PrintLODSettings(MeType gameId, bool ipc)
     {
         QString log;
         LODSettings::readLOD(gameId, engineConf, log);
-        ConsoleWrite(log);
+        PINFO(log);
     }
 
     return true;
@@ -832,24 +821,24 @@ bool CmdLineTools::CheckGameData(MeType gameId, bool ipc)
 
     if (!ipc)
     {
-        ConsoleWrite(errors);
+        PERROR(errors);
         if (modList.count() != 0)
         {
-            ConsoleWrite("\n------- Detected mods --------\n");
+            PERROR("\n------- Detected mods --------\n");
             for (int l = 0; l < modList.count(); l++)
             {
-                ConsoleWrite(modList[l]);
+                PERROR(modList[l] + "\n");
             }
-            ConsoleWrite("------------------------------\n");
+            PERROR("------------------------------\n\n");
         }
     }
 
     if (!vanilla && !ipc)
     {
-        ConsoleWrite("===========================================================================");
-        ConsoleWrite("WARNING: looks like the following file(s) are not vanilla or not recognized");
-        ConsoleWrite("===========================================================================\n");
-        ConsoleWrite(errors);
+        PERROR("===========================================================================\n");
+        PERROR("WARNING: looks like the following file(s) are not vanilla or not recognized\n");
+        PERROR("===========================================================================\n\n");
+        PERROR(errors);
     }
 
     return vanilla;
@@ -900,7 +889,7 @@ bool CmdLineTools::CheckForMarkers(MeType gameId, bool ipc)
             }
             else
             {
-                ConsoleWrite(QString("Error: detected marker: ") + packages[i]);
+                PERROR(QString("Error: detected marker: ") + packages[i] + "\n");
             }
         }
     }
@@ -920,7 +909,7 @@ bool CmdLineTools::DetectBadMods(MeType gameId, bool ipc)
     if (badMods.count() != 0)
     {
         if (!ipc)
-            ConsoleWrite("Error: Detected not compatible mods: \n");
+            PERROR("Error: Detected not compatible mods:\n");
         for (int l = 0; l < badMods.count(); l++)
         {
             if (ipc)
@@ -930,7 +919,7 @@ bool CmdLineTools::DetectBadMods(MeType gameId, bool ipc)
             }
             else
             {
-                ConsoleWrite(badMods[l]);
+                PERROR(badMods[l] + "\n");
             }
         }
     }
@@ -950,7 +939,7 @@ bool CmdLineTools::DetectMods(MeType gameId, bool ipc)
     if (mods.count() != 0)
     {
         if (!ipc)
-            ConsoleWrite("Detected mods:");
+            PINFO("Detected mods:\n");
         for (int l = 0; l < mods.count(); l++)
         {
             if (ipc)
@@ -960,7 +949,7 @@ bool CmdLineTools::DetectMods(MeType gameId, bool ipc)
             }
             else
             {
-                ConsoleWrite(mods[l]);
+                PINFO(mods[l] + "\n");
             }
         }
     }
@@ -986,7 +975,7 @@ bool CmdLineTools::detectMod(MeType gameId)
 
 void CmdLineTools::AddMarkers(bool ipc)
 {
-    ConsoleWrite("Adding markers started...");
+    PINFO("Adding markers started...\n");
     if (ipc)
     {
         ConsoleWrite("[IPC]STAGE_CONTEXT STAGE_MARKERS");
@@ -1013,14 +1002,14 @@ void CmdLineTools::AddMarkers(bool ipc)
             fs.WriteStringASCII(str);
         }
     }
-    ConsoleWrite("Adding markers finished.");
+    PINFO("Adding markers finished.\n");
 }
 
 bool CmdLineTools::ScanTextures(MeType gameId, Resources &resources, QList<FoundTexture> &textures, bool ipc)
 {
-    ConsoleWrite("Scan textures started...");
+    PINFO("Scan textures started...\n");
     TreeScan::PrepareListOfTextures(gameId, resources, textures, ipc);
-    ConsoleWrite("Scan textures finished.\n");
+    PINFO("Scan textures finished.\n\n");
 
     return true;
 }
@@ -1029,7 +1018,7 @@ bool CmdLineTools::RemoveMipmaps(MipMaps &mipMaps, QList<FoundTexture> &textures
                                  QStringList &pkgsToMarker, QStringList &pkgsToRepack,
                                  bool ipc, bool repack, bool appendMarker)
 {
-    ConsoleWrite("Remove mipmaps started...");
+    PINFO("Remove mipmaps started...\n");
     if (ipc)
     {
         ConsoleWrite("[IPC]STAGE_CONTEXT STAGE_REMOVEMIPMAPS");
@@ -1040,7 +1029,7 @@ bool CmdLineTools::RemoveMipmaps(MipMaps &mipMaps, QList<FoundTexture> &textures
     if (GameData::gameType == MeType::ME1_TYPE)
         mipMaps.removeMipMaps(2, textures, pkgsToMarker, pkgsToRepack, ipc, repack, appendMarker);
 
-    ConsoleWrite("Remove mipmaps finished.\n");
+    PINFO("Remove mipmaps finished.\n\n");
 
     return true;
 }
@@ -1058,7 +1047,7 @@ void CmdLineTools::Repack(MeType gameId, bool ipc)
 
 void CmdLineTools::RepackME23(MeType gameId, bool ipc, bool appendMarker)
 {
-    ConsoleWrite("Repack started...");
+    PINFO("Repack started...\n");
     if (ipc)
     {
         ConsoleWrite("[IPC]STAGE_CONTEXT STAGE_REPACK");
@@ -1077,9 +1066,9 @@ void CmdLineTools::RepackME23(MeType gameId, bool ipc, bool appendMarker)
         }
         else
         {
-            ConsoleWrite(QString("Repack " + QString::number(i + 1) + "/" +
+            PINFO(QString("Repack " + QString::number(i + 1) + "/" +
                                  QString::number(pkgsToRepack.count()) +
-                                 " ") + pkgsToRepack[i]);
+                                 " ") + pkgsToRepack[i] + "\n");
         }
         int newProgress = (i * 100 / pkgsToRepack.count());
         if (ipc && lastProgress != newProgress)
@@ -1100,7 +1089,7 @@ void CmdLineTools::RepackME23(MeType gameId, bool ipc, bool appendMarker)
         }
         delete package;
     }
-    ConsoleWrite("Repack finished.\n");
+    PINFO("Repack finished.\n\n");
 }
 
 bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool repack,
@@ -1120,18 +1109,18 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool 
 
     if (!guiInstaller)
     {
-        ConsoleWrite("Getting started...\n");
+        PINFO("Getting started...\n");
 #if defined(_WIN32)
         if (gameId == MeType::ME1_TYPE && !QFile(g_GameData->EngineConfigIniPath()).exists())
         {
-            ConsoleWrite("Error: Missing game configuration file.\nYou need atleast once launch the game first.");
+            PERROR("Error: Missing game configuration file.\nYou need atleast once launch the game first.");
             return false;
         }
 #endif
         bool writeAccess = Misc::CheckAndCorrectAccessToGame();
         if (!writeAccess)
         {
-            ConsoleWrite("Error: Detected no write access to game folders");
+            PERROR("Error: Detected no write access to game folders.\n");
             return false;
         }
 
@@ -1139,10 +1128,10 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool 
         Misc::detectBrokenMod(badMods);
         if (badMods.count() != 0)
         {
-            ConsoleWrite("Error: Detected not compatible mods:\n");
+            PERROR("Error: Detected not compatible mods:\n");
             for (int l = 0; l < badMods.count(); l++)
             {
-                ConsoleWrite(badMods[l]);
+                PERROR(badMods[l] + "\n");
             }
             return false;
         }
@@ -1176,7 +1165,7 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool 
 
     if (gameId == MeType::ME3_TYPE && !modded && unpackNeeded)
     {
-        ConsoleWrite("Unpacking DLCs started...");
+        PINFO("Unpacking DLCs started...\n");
         if (ipc)
         {
             ConsoleWrite("[IPC]STAGE_CONTEXT STAGE_UNPACKDLC");
@@ -1187,7 +1176,7 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool 
 
         g_GameData->Init(gameId, configIni, true);
 
-        ConsoleWrite("Unpacking DLCs finished.\n");
+        PINFO("Unpacking DLCs finished.\n\n");
     }
 
     if (repack)
@@ -1219,7 +1208,7 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool 
     }
 
 
-    ConsoleWrite("Process textures started...");
+    PINFO("Process textures started...\n");
     if (ipc)
     {
         ConsoleWrite("[IPC]STAGE_CONTEXT STAGE_INSTALLTEXTURES");
@@ -1262,15 +1251,15 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool 
     if (!guiInstaller)
     {
         if (!applyModTag(gameId, 0, 0))
-            ConsoleWrite("Failed applying stamp for installation!");
+            PERROR("Failed applying stamp for installation!\n");
 #if defined(_WIN32)
-        ConsoleWrite("Updating LODs and other settings started...");
+        PINFO("Updating LODs and other settings started...");
         QString path = g_GameData->EngineConfigIniPath();
         QDir().mkpath(DirName(path));
         ConfigIni engineConf = ConfigIni(path);
         LODSettings::updateLOD(gameId, engineConf, limit2k);
         LODSettings::updateGFXSettings(gameId, engineConf, false, false);
-        ConsoleWrite("Updating LODs and other settings finished");
+        PINFO("Updating LODs and other settings finished");
 #endif
     }
 
@@ -1283,7 +1272,7 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool ipc, bool 
         ConsoleSync();
     }
 
-    ConsoleWrite("\nInstallation finished.");
+    PINFO("\nInstallation finished.\n\n");
 
     return true;
 }
@@ -1335,7 +1324,7 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
             }
             else
             {
-                ConsoleWrite(QString("MEM mod file has 0 length: ") + files[i]);
+                PERROR(QString("MEM mod file has 0 length: ") + files[i] + "\n");
             }
             continue;
         }
@@ -1357,11 +1346,11 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
         else
         {
             if (special)
-                ConsoleWrite(QString("Installing mod: ") + QString::number(i + 1) + " of " +
-                             QString::number(files.count()) + " - " + BaseName(files[i]));
+                PINFO(QString("Installing mod: ") + QString::number(i + 1) + " of " +
+                             QString::number(files.count()) + " - " + BaseName(files[i]) + "\n");
             else
-                ConsoleWrite(QString("Preparing mod: ") + QString::number(i + 1) + " of " +
-                             QString::number(files.count()) + " - " + BaseName(files[i]));
+                PINFO(QString("Preparing mod: ") + QString::number(i + 1) + " of " +
+                             QString::number(files.count()) + " - " + BaseName(files[i]) + "\n");
         }
 
         FileStream fs = FileStream(files[i], FileMode::Open, FileAccess::ReadOnly);
@@ -1412,7 +1401,7 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
                 }
                 else
                 {
-                    ConsoleWrite(QString("Unknown tag for file: ") + name);
+                    PERROR(QString("Unknown tag for file: ") + name + "\n");
                 }
                 continue;
             }
@@ -1449,16 +1438,16 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
                 }
                 else
                 {
-                    ConsoleWrite(QString("Texture skipped. Texture ") + name +
-                                 QString().sprintf("_0x%08X", crc) + " is not present in your game setup");
+                    PINFO(QString("Texture skipped. Texture ") + name +
+                                 QString().sprintf("_0x%08X", crc) + " is not present in your game setup.\n");
                 }
             }
             else if (modFiles[l].tag == FileBinaryTag)
             {
                 if (!QFile(g_GameData->GamePath() + pkgPath).exists())
                 {
-                    ConsoleWrite(QString("Warning: File ") + pkgPath +
-                                 " not exists in your game setup.");
+                    PINFO(QString("Warning: File ") + pkgPath +
+                                 " not exists in your game setup.\n");
                     continue;
                 }
                 ModEntry entry{};
@@ -1473,22 +1462,22 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
                 QString path = g_GameData->GamePath() + pkgPath;
                 if (!QFile(path).exists())
                 {
-                    ConsoleWrite(QString("Warning: File ") + pkgPath +
-                                 " not exists in your game setup.");
+                    PINFO(QString("Warning: File ") + pkgPath +
+                                 " not exists in your game setup.\n");
                     continue;
                 }
                 ModEntry entry{};
                 Package pkg;
                 if (pkg.Open(path) != 0)
                 {
-                    ConsoleWrite(QString("Failed open package ") + pkgPath);
+                    PERROR(QString("Failed open package ") + pkgPath + "\n");
                     continue;
                 }
                 ByteBuffer src = pkg.getExportData(exportId);
                 if (src.ptr() == nullptr)
                 {
-                    ConsoleWrite(QString("Failed get data, export id") +
-                                 QString::number(exportId) + ", package: " + pkgPath);
+                    PERROR(QString("Failed get data, export id") +
+                                 QString::number(exportId) + ", package: " + pkgPath + "\n");
                     continue;
                 }
                 ByteBuffer dst = MipMaps::decompressData(fs, size);
@@ -1499,7 +1488,7 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
                 dst.Free();
                 if (status != 0)
                 {
-                    ConsoleWrite(QString("Warning: Xdelta patch for ") + pkgPath + " failed to apply.\n");
+                    PERROR(QString("Warning: Xdelta patch for ") + pkgPath + " failed to apply.\n");
                     buffer.Free();
                     continue;
                 }
@@ -1518,7 +1507,7 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
 
     modsToReplace.clear();
 
-    ConsoleWrite("Process textures finished.\n");
+    PINFO("Process textures finished.\n\n");
 
     return status;
 }
@@ -1537,15 +1526,16 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTextur
         Package package;
         if (package.Open(g_GameData->GamePath() + nodeTexture.path) != 0)
         {
-            ConsoleWrite(QString("Error: Failed open package: ") + nodeTexture.path);
+            PERROR(QString("Error: Failed open package: ") + nodeTexture.path + "\n");
             continue;
         }
         ByteBuffer exportData = package.getExportData(nodeTexture.exportID);
         if (exportData.ptr() == nullptr)
         {
-            ConsoleWrite(QString("Error: Texture ") + textureName +
-                         " has broken export data in package: " +
-                         nodeTexture.path + "\nExport Id: " + QString::number(nodeTexture.exportID + 1) + "\nSkipping...");
+            PERROR(QString("Error: Texture ") + textureName +
+                   " has broken export data in package: " +
+                   nodeTexture.path + "\nExport Id: " +
+                   QString::number(nodeTexture.exportID + 1) + "\nSkipping...\n");
             continue;
         }
 
@@ -1561,7 +1551,7 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTextur
         QString errors = Misc::CorrectTexture(&image, *texture, pixelFormat, pixelFormat,
                                               false, textureName);
         if (errors.length() != 0)
-            ConsoleWrite(errors);
+            PERROR(errors);
 
         // remove lower mipmaps from source image which not exist in game data
         for (int t = 0; t < image.getMipMaps().count(); t++)
@@ -1857,16 +1847,17 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
         Package package;
         if (package.Open(g_GameData->GamePath() + textures[i].list[index].path) != 0)
         {
-            ConsoleWrite(QString("Error: Failed open package: ") + textures[i].list[index].path);
+            PERROR(QString("Error: Failed open package: ") + textures[i].list[index].path + "\n");
             continue;
         }
         int exportID = textures[i].list[index].exportID;
         ByteBuffer exportData = package.getExportData(exportID);
         if (exportData.ptr() == nullptr)
         {
-            ConsoleWrite(QString("Error: Texture ") + textures[i].name +
-                         " has broken export data in package: " +
-                         textures[i].list[index].path + "\nExport Id: " + QString::number(exportID + 1) + "\nSkipping...");
+            PERROR(QString("Error: Texture ") + textures[i].name +
+                   " has broken export data in package: " +
+                   textures[i].list[index].path + "\nExport Id: " +
+                   QString::number(exportID + 1) + "\nSkipping...\n");
             continue;
         }
         Texture texture = Texture(package, exportID, exportData);
@@ -1932,14 +1923,14 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
             }
             else
             {
-                ConsoleWrite(QString("Texture skipped. Texture ") + textures[i].name +
-                             QString().sprintf("_0x%08X", textures[i].crc) + " is broken in game data!");
+                PERROR(QString("Texture skipped. Texture ") + textures[i].name +
+                             QString().sprintf("_0x%08X", textures[i].crc) + " is broken in game data!\n");
                 return false;
             }
         }
     }
 
-    ConsoleWrite("Extracting textures completed.");
+    PINFO("Extracting textures completed.\n\n");
     return true;
 }
 
@@ -1950,7 +1941,7 @@ bool CmdLineTools::CheckTextures(MeType gameId, bool ipc)
     if (!CheckGamePath())
         return false;
 
-    ConsoleWrite("Starting checking textures...");
+    PINFO("Starting checking textures...\n");
 
     int lastProgress = -1;
     for (int i = 0; i < g_GameData->packageFiles.count(); i++)
@@ -1962,9 +1953,9 @@ bool CmdLineTools::CheckTextures(MeType gameId, bool ipc)
         }
         else
         {
-            ConsoleWrite(QString("Package ") + QString::number(i + 1) + " of " +
+            PINFO(QString("Package ") + QString::number(i + 1) + " of " +
                          QString::number(g_GameData->packageFiles.count()) +" - " +
-                         g_GameData->packageFiles[i]);
+                         g_GameData->packageFiles[i] + "\n");
         }
         int newProgress = (i + 1) * 100 / g_GameData->packageFiles.count();
         if (ipc && lastProgress != newProgress)
@@ -1984,10 +1975,10 @@ bool CmdLineTools::CheckTextures(MeType gameId, bool ipc)
             else
             {
                 QString err = "";
-                err += "---- Start --------------------------------------------\n" ;
-                err += "Error opening package file: " + g_GameData->packageFiles[i] + "\n";
-                err += "---- End ----------------------------------------------\n";
-                ConsoleWrite(err);
+                err += "---- Start --------------------------------------------\n\n" ;
+                err += "Error opening package file: " + g_GameData->packageFiles[i] + "\n\n";
+                err += "---- End ----------------------------------------------\n\n";
+                PERROR(err);
             }
             continue;
         }
@@ -2014,9 +2005,9 @@ bool CmdLineTools::CheckTextures(MeType gameId, bool ipc)
                     }
                     else
                     {
-                        ConsoleWrite(QString("ERROR: Empty mipmap not removed in texture: ") +
+                        PERROR(QString("ERROR: Empty mipmap not removed in texture: ") +
                                 package.exportsTable[e].objectName + " in package: " +
-                                g_GameData->packageFiles[i]);
+                                g_GameData->packageFiles[i] + "\n");
                     }
                     continue;
                 }
@@ -2035,9 +2026,9 @@ bool CmdLineTools::CheckTextures(MeType gameId, bool ipc)
                         }
                         else
                         {
-                            ConsoleWrite(QString("Error: Issue opening texture data: ") +
+                            PERROR(QString("Error: Issue opening texture data: ") +
                                          package.exportsTable[e].objectName + "mipmap: " + m + " in package: " +
-                                         g_GameData->packageFiles[i]);
+                                         g_GameData->packageFiles[i] + "\n");
                         }
                     }
                     data.Free();
@@ -2045,7 +2036,7 @@ bool CmdLineTools::CheckTextures(MeType gameId, bool ipc)
             }
         }
     }
-    ConsoleWrite("Finished checking textures.");
+    PINFO("Finished checking textures.");
 
     return true;
 }
@@ -2057,7 +2048,7 @@ bool CmdLineTools::checkGameFilesAfter(MeType gameType, bool ipc)
     if (!CheckGamePath())
         return false;
 
-    ConsoleWrite("\nChecking for vanilla files after textures installation...");
+    PINFO("\nChecking for vanilla files after textures installation...");
     QString path;
     if (GameData::gameType == MeType::ME1_TYPE)
     {
@@ -2097,12 +2088,12 @@ bool CmdLineTools::checkGameFilesAfter(MeType gameType, bool ipc)
             }
             else
             {
-                ConsoleWrite(QString("Vanilla file: ") + filesToUpdate[i]);
+                PERROR(QString("Vanilla file: ") + filesToUpdate[i] + "\n");
             }
         }
     }
 
-    ConsoleWrite("Finished checking for vanilla files after textures installation");
+    PINFO("Finished checking for vanilla files after textures installation.\n\n");
 
     return true;
 }
@@ -2129,7 +2120,7 @@ bool CmdLineTools::detectsMismatchPackagesAfter(MeType gameType, bool ipc)
         }
         else
         {
-            ConsoleWrite("Detected wrong or old version of textures scan file!\n");
+            PERROR("Detected wrong or old version of textures scan file!\n");
         }
         return false;
     }
@@ -2156,7 +2147,7 @@ bool CmdLineTools::detectsMismatchPackagesAfter(MeType gameType, bool ipc)
         pkgPath.replace(QChar('\\'), QChar('/'));
         packages.push_back(pkgPath);
     }
-    ConsoleWrite("\nChecking for removed files since last game data scan...");
+    PINFO("\nChecking for removed files since last game data scan...\n");
     for (int i = 0; i < packages.count(); i++)
     {
         if (!g_GameData->packageFiles.contains(packages[i], Qt::CaseInsensitive))
@@ -2168,13 +2159,13 @@ bool CmdLineTools::detectsMismatchPackagesAfter(MeType gameType, bool ipc)
             }
             else
             {
-                ConsoleWrite(QString("Removed: ") + packages[i]);
+                PERROR(QString("Removed: ") + packages[i] + "\n");
             }
         }
     }
-    ConsoleWrite("Finished checking for removed files since last game data scan.");
+    PINFO("Finished checking for removed files since last game data scan.\n");
 
-    ConsoleWrite("\nChecking for additional files since last game data scan...");
+    PINFO("\nChecking for additional files since last game data scan...\n");
     for (int i = 0; i < g_GameData->packageFiles.count(); i++)
     {
         if (!packages.contains(g_GameData->packageFiles[i], Qt::CaseInsensitive))
@@ -2186,11 +2177,11 @@ bool CmdLineTools::detectsMismatchPackagesAfter(MeType gameType, bool ipc)
             }
             else
             {
-                ConsoleWrite(QString("Added: ") + g_GameData->packageFiles[i]);
+                PERROR(QString("Added: ") + g_GameData->packageFiles[i]);
             }
         }
     }
-    ConsoleWrite("Finished checking for additional files since last game data scan.");
+    PINFO("Finished checking for additional files since last game data scan.\n\n");
 
     return true;
 }

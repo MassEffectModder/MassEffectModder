@@ -25,7 +25,7 @@ void FileStream::CheckFileIOErrorStatus()
 {
     if (file->error() != QFileDevice::NoError)
     {
-        auto error = (QString("Error: ") + file->errorString() + "\nFile: " + file->fileName()).toStdString();
+        auto error = (QString("Error: ") + file->errorString() + "\nFile: " + file->fileName() + "\n").toStdString();
         CRASH_MSG(error.c_str());
     }
 }
@@ -57,7 +57,7 @@ FileStream::FileStream(const QString &path, FileMode mode, FileAccess access)
 
     if (!file->open(openFlags))
     {
-        auto error = (QString("Error: ") + file->errorString() + "\nFailed to open file: " + path).toStdString();
+        auto error = (QString("Error: ") + file->errorString() + "\nFailed to open file: " + path + "\n").toStdString();
         CRASH_MSG(error.c_str());
     }
 }

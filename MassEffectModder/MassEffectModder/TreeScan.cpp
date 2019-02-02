@@ -21,6 +21,7 @@
 
 #include "Exceptions/SignalHandler.h"
 #include "Helpers/MiscHelpers.h"
+#include "Helpers/Logs.h"
 #include "Wrappers.h"
 
 #include "TreeScan.h"
@@ -109,7 +110,7 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<FoundTexture> &textures,
         }
         else
         {
-            ConsoleWrite("Missing textures scan file!");
+            PERROR("Missing textures scan file!\n");
         }
         return false;
     }
@@ -129,7 +130,7 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<FoundTexture> &textures,
         }
         else
         {
-            ConsoleWrite("Detected wrong or old version of textures scan file!");
+            PERROR("Detected wrong or old version of textures scan file!\n");
         }
         return false;
     }
@@ -187,13 +188,13 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<FoundTexture> &textures,
             }
             else
             {
-                ConsoleWrite(QString("Removed file since last game data scan: ") + packages[i]);
+                PERROR(QString("Removed file since last game data scan: ") + packages[i] + "\n");
             }
             foundRemoved = true;
         }
     }
     if (!ipc && foundRemoved)
-        ConsoleWrite("Above files removed since last game data scan.");
+        PERROR("Above files removed since last game data scan.");
 
     for (int i = 0; i < g_GameData->packageFiles.count(); i++)
     {
@@ -215,13 +216,13 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<FoundTexture> &textures,
             }
             else
             {
-                ConsoleWrite(QString("File: ") + g_GameData->packageFiles[i]);
+                PERROR(QString("File: ") + g_GameData->packageFiles[i] + "\n");
             }
             foundAdded = true;
         }
     }
     if (!ipc && foundAdded)
-        ConsoleWrite("Above files added since last game data scan.");
+        PERROR("Above files added since last game data scan.\n");
 
     return !foundRemoved && !foundAdded;
 }
@@ -381,9 +382,9 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
             }
             else
             {
-                ConsoleWrite(QString("Package ") + QString::number(currentPackage + 1) + "/" +
+                PINFO(QString("Package ") + QString::number(currentPackage + 1) + "/" +
                                      QString::number(totalPackages) + " : " +
-                                     modifiedFiles[i]);
+                                     modifiedFiles[i] + "\n");
             }
             FindTextures(gameId, textures, modifiedFiles[i], true, ipc);
         }
@@ -403,9 +404,9 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
             }
             else
             {
-                ConsoleWrite(QString("Package ") + QString::number(currentPackage + 1) + "/" +
+                PINFO(QString("Package ") + QString::number(currentPackage + 1) + "/" +
                                      QString::number(totalPackages) + " : " +
-                                     addedFiles[i]);
+                                     addedFiles[i] + "\n");
             }
             FindTextures(gameId, textures, addedFiles[i], false, ipc);
         }
@@ -428,9 +429,9 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
             }
             else
             {
-                ConsoleWrite(QString("Package ") + QString::number(i + 1) + "/" +
+                PINFO(QString("Package ") + QString::number(i + 1) + "/" +
                                      QString::number(g_GameData->packageFiles.count()) + " : " +
-                                     g_GameData->packageFiles[i]);
+                                     g_GameData->packageFiles[i] + "\n");
             }
             FindTextures(gameId, textures, g_GameData->packageFiles[i], false, ipc);
         }
@@ -642,7 +643,7 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> &textures, const 
         }
         else
         {
-            ConsoleWrite(QString("ERROR: Issue opening package file: ") + packagePath);
+            PERROR(QString("ERROR: Issue opening package file: ") + packagePath + "\n");
         }
         return;
     }
@@ -668,9 +669,9 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> &textures, const 
                 }
                 else
                 {
-                    ConsoleWrite(QString("Error: Texture ") + exp.objectName +
+                    PERROR(QString("Error: Texture ") + exp.objectName +
                                  " has broken export data in package: " +
-                                 packagePath +"\nExport Id: " + QString::number(i + 1) + "\nSkipping...");
+                                 packagePath +"\nExport Id: " + QString::number(i + 1) + "\nSkipping...\n");
                 }
                 continue;
             }
@@ -714,8 +715,8 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> &textures, const 
                 }
                 else
                 {
-                    ConsoleWrite(QString("Error: Texture ") + exp.objectName + " is broken in package: " +
-                                 packagePath +"\nExport Id: " + QString::number(i + 1) + "\nSkipping...");
+                    PERROR(QString("Error: Texture ") + exp.objectName + " is broken in package: " +
+                                 packagePath +"\nExport Id: " + QString::number(i + 1) + "\nSkipping...\n");
                 }
                 continue;
             }

@@ -208,7 +208,8 @@ const ByteBuffer Texture::compressTexture(const ByteBuffer &inputData, StorageTy
             dataBlockLeft -= block.uncomprSize;
             block.uncompressedBuffer = new quint8[block.uncomprSize];
             if (block.uncompressedBuffer == nullptr)
-                CRASH_MSG((QString("Out of memory! - amount: ") + QString::number(block.uncomprSize)).toStdString().c_str());
+                CRASH_MSG((QString("Out of memory! - amount: ") +
+                           QString::number(block.uncomprSize) + "\n").toStdString().c_str());
             inputStream.ReadToBuffer(block.uncompressedBuffer, block.uncomprSize);
             blocks.push_back(block);
         }
@@ -221,17 +222,17 @@ const ByteBuffer Texture::compressTexture(const ByteBuffer &inputData, StorageTy
         if (type == StorageTypes::extLZO || type == StorageTypes::pccLZO)
         {
             if (LzoCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) == -100)
-                CRASH_MSG("Out of memory!");
+                CRASH_MSG("Out of memory!\n");
         }
         else if (type == StorageTypes::extZlib || type == StorageTypes::pccZlib)
         {
             if (ZlibCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) == -100)
-                CRASH_MSG("Out of memory!");
+                CRASH_MSG("Out of memory!\n");
         }
         else
-            CRASH_MSG("Compression type not expected!");
+            CRASH_MSG("Compression type not expected!\n");
         if (block.comprSize == 0)
-            CRASH_MSG("Compression failed!");
+            CRASH_MSG("Compression failed!\n");
         blocks[b] = block;
     };
 
@@ -265,27 +266,27 @@ const ByteBuffer Texture::decompressTexture(Stream &stream, StorageTypes type, i
     uint blockTag = stream.ReadUInt32();
     if (blockTag != textureTag)
     {
-        g_logs->printMsg(QString("Data texture tag wrong!"));
+        PERROR(QString("Data texture tag wrong!\n"));
         return ByteBuffer();
     }
     uint blockSize = stream.ReadUInt32();
     if (blockSize != maxBlockSize)
     {
-        g_logs->printMsg(QString("Data texture block size is wrong!"));
+        PERROR(QString("Data texture block size is wrong!\n"));
         return ByteBuffer();
     }
     uint compressedChunkSize = stream.ReadUInt32();
     uint uncompressedChunkSize = stream.ReadUInt32();
     if (uncompressedChunkSize != (uint)uncompressedSize)
     {
-        g_logs->printMsg(QString("Data texture uncompressed size diffrent than expected!"));
+        PERROR(QString("Data texture uncompressed size diffrent than expected!\n"));
         return ByteBuffer();
     }
 
     uint blocksCount = (uncompressedChunkSize + maxBlockSize - 1) / maxBlockSize;
     if ((compressedChunkSize + SizeOfChunk + SizeOfChunkBlock * blocksCount) != (uint)compressedSize)
     {
-        g_logs->printMsg(QString("Data texture compressed size diffrent than expected!"));
+        PERROR(QString("Data texture compressed size diffrent than expected!\n"));
         return ByteBuffer();
     }
 
@@ -303,11 +304,13 @@ const ByteBuffer Texture::decompressTexture(Stream &stream, StorageTypes type, i
         Package::ChunkBlock block = blocks[b];
         block.compressedBuffer = new quint8[blocks[b].comprSize];
         if (block.compressedBuffer == nullptr)
-            CRASH_MSG((QString("Out of memory! - amount: ") + QString::number(blocks[b].comprSize)).toStdString().c_str());
+            CRASH_MSG((QString("Out of memory! - amount: ") +
+                       QString::number(blocks[b].comprSize) + "\n").toStdString().c_str());
         stream.ReadToBuffer(block.compressedBuffer, blocks[b].comprSize);
         block.uncompressedBuffer = new quint8[maxBlockSize * 2];
         if (block.uncompressedBuffer == nullptr)
-            CRASH_MSG((QString("Out of memory! - amount: ") + QString::number(maxBlockSize * 2)).toStdString().c_str());
+            CRASH_MSG((QString("Out of memory! - amount: ") +
+                       QString::number(maxBlockSize * 2) + "\n").toStdString().c_str());
         blocks[b] = block;
     }
 
@@ -331,17 +334,17 @@ const ByteBuffer Texture::decompressTexture(Stream &stream, StorageTypes type, i
             uint dstLen = maxBlockSize * 2;
             Package::ChunkBlock block = blocks[b];
             if (ZlibDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen) == -100)
-                CRASH_MSG("Out of memory!");
+                CRASH_MSG("Out of memory!\n");
             if (dstLen != block.uncomprSize)
                 errorFlag = true;
         }
     }
     else
-        CRASH_MSG("Compression type not expected!");
+        CRASH_MSG("Compression type not expected!\n");
 
     if (errorFlag)
     {
-        g_logs->printMsg(QString("ERROR: Decompressed data size not expected!"));
+        PERROR(QString("ERROR: Decompressed data size not expected!\n"));
         return ByteBuffer();
     }
 
@@ -468,8 +471,8 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
             mipMapData = decompressTexture(dynamic_cast<Stream &>(*textureData), mipmap.storageType, mipmap.uncompressedSize, mipmap.compressedSize);
             if (mipMapData.ptr() == nullptr)
             {
-                g_logs->printMsg(QString("StorageType: ") + QString::number(mipmap.storageType) +
-                    "\nInternal offset: " + QString::number(mipmap.internalOffset));
+                PERROR(QString("StorageType: ") + QString::number(mipmap.storageType) +
+                    "\nInternal offset: " + QString::number(mipmap.internalOffset) + "\n");
             }
             break;
         }
@@ -483,7 +486,7 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
                 auto found = g_GameData->mapME1PackageUpperNames.find(basePackageName);
                 if (found.key().length() == 0)
                 {
-                    g_logs->printMsg((QString("File not found in game: ") + basePackageName + ".*").toStdString().c_str());
+                    PERROR((QString("File not found in game: ") + basePackageName + ".*" + "\n").toStdString().c_str());
                     return ByteBuffer();
                 }
                 filename = g_GameData->GamePath() + g_GameData->packageFiles[found.value()];
@@ -505,12 +508,12 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
                             filename = g_GameData->GamePath() + files.first();
                         else if (files.count() == 0)
                         {
-                            g_logs->printMsg((QString("TFC file not found: ") + archive + ".tfc").toStdString().c_str());
+                            PERROR((QString("TFC file not found: ") + archive + ".tfc" + "\n").toStdString().c_str());
                             return ByteBuffer();
                         }
                         else
                         {
-                            CRASH_MSG((QString("More instances of TFC file: ") + archive + ".tfc").toStdString().c_str());
+                            CRASH_MSG((QString("More instances of TFC file: ") + archive + ".tfc" + "\n").toStdString().c_str());
                         }
                     }
                 }
@@ -519,9 +522,9 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
             auto fs = FileStream(filename, FileMode::Open, FileAccess::ReadOnly);
             if (!fs.isOpen())
             {
-                g_logs->printMsg(QString("File: " + filename +
+                PERROR(QString("File: " + filename +
                     "\nStorageType: " + QString::number(mipmap.storageType) +
-                    "\nExternal file offset: " + QString::number(mipmap.dataOffset)));
+                    "\nExternal file offset: " + QString::number(mipmap.dataOffset)) + "\n");
                 return ByteBuffer();
             }
             fs.JumpTo(mipmap.dataOffset);
@@ -530,9 +533,9 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
                 mipMapData = decompressTexture(dynamic_cast<Stream &>(fs), mipmap.storageType, mipmap.uncompressedSize, mipmap.compressedSize);
                 if (mipMapData.ptr() == nullptr)
                 {
-                    g_logs->printMsg(QString("File: ") + filename +
+                    PERROR(QString("File: ") + filename +
                         "\nStorageType: " + QString::number(mipmap.storageType) +
-                        "\nExternal file offset: " + QString::number(mipmap.dataOffset));
+                        "\nExternal file offset: " + QString::number(mipmap.dataOffset) + "\n");
                     return ByteBuffer();
                 }
             }

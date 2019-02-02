@@ -27,11 +27,11 @@ void Image::LoadImageTGA(Stream &stream)
 
     int colorMapType = stream.ReadByte();
     if (colorMapType != 0)
-        CRASH_MSG("indexed TGA not supported!");
+        CRASH_MSG("Nndexed TGA not supported!\n");
 
     int imageType = stream.ReadByte();
     if (imageType != 2 && imageType != 10)
-        CRASH_MSG("only RGB TGA supported!");
+        CRASH_MSG("Only RGB TGA supported!\n");
 
     bool compressed = false;
     if (imageType == 10)
@@ -47,15 +47,15 @@ void Image::LoadImageTGA(Stream &stream)
     int imageHeight = stream.ReadInt16();
     if (!checkPowerOfTwo(imageWidth) ||
         !checkPowerOfTwo(imageHeight))
-        CRASH_MSG("dimensions not power of two");
+        CRASH_MSG("Dimensions not power of two.\n");
 
     int imageDepth = stream.ReadByte();
     if (imageDepth != 32 && imageDepth != 24)
-        CRASH_MSG("only 24 and 32 bits TGA supported!");
+        CRASH_MSG("Only 24 and 32 bits TGA supported!\n");
 
     int imageDesc = stream.ReadByte();
     if ((imageDesc & 0x10) != 0)
-        CRASH_MSG("origin right not supported in TGA!");
+        CRASH_MSG("Origin right not supported in TGA!\n");
 
     bool downToTop = true;
     if ((imageDesc & 0x20) != 0)

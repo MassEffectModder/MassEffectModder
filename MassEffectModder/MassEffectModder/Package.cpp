@@ -101,17 +101,17 @@ int Package::Open(const QString &filename, bool headerOnly, bool fullLoad)
 
     if (!QFile(filename).exists())
     {
-        g_logs->printMsg(QString("Package not found: %1").arg(filename));
+        PERROR(QString("Package not found: %1\n").arg(filename));
         return -1;
     }
     if (QFileInfo(filename).size() == 0)
     {
-        g_logs->printMsg(QString("Package file has 0 length: %1").arg(filename));
+        PERROR(QString("Package file has 0 length: %1\n").arg(filename));
         return -1;
     }
     if (QFileInfo(filename).size() < packageHeaderSizeME3)
     {
-        g_logs->printMsg(QString("Broken package header in: %1").arg(filename));
+        PERROR(QString("Broken package header in: %1\n").arg(filename));
         return -1;
     }
 
@@ -120,7 +120,7 @@ int Package::Open(const QString &filename, bool headerOnly, bool fullLoad)
     {
         delete packageStream;
         packageStream = nullptr;
-        g_logs->printMsg(QString("Wrong PCC tag: %1").arg(filename));
+        PERROR(QString("Wrong PCC tag: %1\n").arg(filename));
         return -1;
     }
     ushort ver = packageStream->ReadUInt16();
@@ -143,13 +143,13 @@ int Package::Open(const QString &filename, bool headerOnly, bool fullLoad)
     {
         delete packageStream;
         packageStream = nullptr;
-        g_logs->printMsg(QString("Wrong PCC version in file: %1").arg(filename));
+        PERROR(QString("Wrong PCC version in file: %1\n").arg(filename));
         return -1;
     }
 
     packageHeader = new quint8[packageHeaderSize];
     if (packageHeader == nullptr)
-        CRASH_MSG((QString("Out of memory! - amount: ") + QString::number(packageHeaderSize)).toStdString().c_str());
+        CRASH_MSG((QString("Out of memory! - amount: ") + QString::number(packageHeaderSize) + "\n").toStdString().c_str());
     packageStream->SeekBegin();
     packageStream->ReadToBuffer(packageHeader, packageHeaderSize);
 
@@ -196,7 +196,7 @@ int Package::Open(const QString &filename, bool headerOnly, bool fullLoad)
         packageData->JumpTo(dataOffset);
         if (!getData((uint)dataOffset, length, packageData))
         {
-            g_logs->printMsg(QString("Failed get data! %1").arg(filename));
+            PERROR(QString("Failed get data! %1\n").arg(filename));
             return -1;
         }
     }
@@ -304,11 +304,13 @@ bool Package::getData(uint offset, uint length, Stream *outputStream, quint8 *ou
                     ChunkBlock block = blocks[b];
                     block.compressedBuffer = new quint8[block.comprSize];
                     if (block.compressedBuffer == nullptr)
-                        CRASH_MSG((QString("Out of memory! - amount: ") + QString::number(block.comprSize)).toStdString().c_str());
+                        CRASH_MSG((QString("Out of memory! - amount: ") +
+                                   QString::number(block.comprSize) + "\n").toStdString().c_str());
                     packageStream->ReadToBuffer(block.compressedBuffer, block.comprSize);
                     block.uncompressedBuffer = new quint8[maxBlockSize * 2];
                     if (block.uncompressedBuffer == nullptr)
-                        CRASH_MSG((QString("Out of memory! - amount: ") + QString::number(maxBlockSize * 2)).toStdString().c_str());
+                        CRASH_MSG((QString("Out of memory! - amount: ") +
+                                   QString::number(maxBlockSize * 2) + "\n").toStdString().c_str());
                     blocks.replace(b, block);
                 }
 
@@ -332,13 +334,13 @@ bool Package::getData(uint offset, uint length, Stream *outputStream, quint8 *ou
                         const ChunkBlock& block = blocks[b];
                         uint dstLen = maxBlockSize * 2;
                         if (ZlibDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen) == -100)
-                            CRASH_MSG("Out of memory!");
+                            CRASH_MSG("Out of memory!\n");
                         if (dstLen != block.uncomprSize)
                             failed = true;
                     }
                 }
                 else
-                    CRASH_MSG("Compression type not expected!");
+                    CRASH_MSG("Compression type not expected!\n");
 
                 for (int b = 0; b < blocks.count(); b++)
                 {
@@ -842,7 +844,7 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
         return false;
 
     if (forceCompressed && forceDecompressed)
-        CRASH_MSG("force de/compression can't be both enabled!");
+        CRASH_MSG("force de/compression can't be both enabled!\n");
 
     CompressionType targetCompression = compressionType;
     if (forceCompressed)
@@ -1029,7 +1031,7 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
     std::unique_ptr<FileStream> fs (new FileStream(g_GameData->GamePath() + packagePath,
                                                    FileMode::Create, FileAccess::WriteOnly));
     if (fs == nullptr)
-        CRASH_MSG(QString("Failed to write to file: %1").arg(packagePath).toStdString().c_str());
+        CRASH_MSG(QString("Failed to write to file: %1\n").arg(packagePath).toStdString().c_str());
 
     if (!getCompressedFlag())
     {
@@ -1094,7 +1096,8 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
                 dataBlockLeft -= block.uncomprSize;
                 block.uncompressedBuffer = new quint8[block.uncomprSize];
                 if (block.uncompressedBuffer == nullptr)
-                    CRASH_MSG((QString("Out of memory! - amount: ") + QString::number(block.uncomprSize)).toStdString().c_str());
+                    CRASH_MSG((QString("Out of memory! - amount: ") +
+                               QString::number(block.uncomprSize) + "\n").toStdString().c_str());
                 tempOutput.ReadToBuffer(block.uncompressedBuffer, block.uncomprSize);
                 chunk.blocks.push_back(block);
             }
@@ -1106,17 +1109,17 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
                 if (targetCompression == CompressionType::LZO)
                 {
                     if (LzoCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) == -100)
-                        CRASH_MSG("Out of memory!");
+                        CRASH_MSG("Out of memory!\n");
                 }
                 else if (targetCompression == CompressionType::Zlib)
                 {
                     if (ZlibCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) == -100)
-                        CRASH_MSG("Out of memory!");
+                        CRASH_MSG("Out of memory!\n");
                 }
                 else
-                    CRASH_MSG("Compression type not expected!");
+                    CRASH_MSG("Compression type not expected!\n");
                 if (block.comprSize == 0)
-                    CRASH_MSG("Compression failed!");
+                    CRASH_MSG("Compression failed!\n");
                 chunk.blocks.replace(b, block);
             }
 

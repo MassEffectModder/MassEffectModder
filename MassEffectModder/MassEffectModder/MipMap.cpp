@@ -56,7 +56,7 @@ MipMap::MipMap(const ByteBuffer &src, int w, int h, PixelFormat format)
     }
 
     if (src.size() != getBufferSize(width, height, format))
-        CRASH_MSG("data size is not valid");
+        CRASH_MSG("Data size is not valid.\n");
 
     buffer = ByteBuffer(src.ptr(), src.size());
 }
@@ -79,6 +79,6 @@ int MipMap::getBufferSize(int w, int h, PixelFormat format)
         case PixelFormat::DXT1:
             return (w * h) / 2;
         default:
-            CRASH_MSG("unknown format");
+            CRASH_MSG("Unknown format.\n");
     }
 }

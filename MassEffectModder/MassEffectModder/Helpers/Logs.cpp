@@ -22,67 +22,107 @@
 #include "Logs.h"
 
 Logs::Logs() :
-        _startedTimestamp(0),
-        _timeStampEnabled(false),
-        _printToConsoleEnabled(false),
-        _printToFileEnabled(false)
+        startedTimestamp(0),
+        logLevel(LOG_NONE),
+        errorsString(""),
+        timeStampEnabled(false),
+        consoleEnabled(false),
+        fileEnabled(false),
+        errorBufferEnabled(false)
 {
-    _startedTimestamp = QDateTime::currentMSecsSinceEpoch();
+    startedTimestamp = QDateTime::currentMSecsSinceEpoch();
 }
 
-void Logs::print(const QString &message)
+void Logs::ChangeLogLevel(LOG_LEVEL level)
 {
+    logLevel = level;
+}
+
+void Logs::ClearErrors()
+{
+    errorsString = "";
+}
+
+void Logs::EnableOutputConsole(bool enable)
+{
+    consoleEnabled = enable;
+}
+
+void Logs::EnableOutputFile(bool enable)
+{
+    fileEnabled = enable;
+}
+
+void Logs::EnableTimeStamp(bool enable)
+{
+    timeStampEnabled = enable;
+}
+
+void Logs::EnableErrorsBuffer(bool enable)
+{
+    errorBufferEnabled = enable;
+}
+
+void Logs::Print(int level, const QString &message, int flags)
+{
+    if (logLevel < level)
+        return;
+
     qint64 timestamp = QDateTime::currentMSecsSinceEpoch();
     QString timestampStr;
 
-    _lock.lock();
+    lock.lock();
 
-    if (_timeStampEnabled)
-        timestampStr = QString("[") + (_startedTimestamp - timestamp) + "] ";
+    if (errorBufferEnabled && flags & LOG_ERROR_BUFFER)
+        errorsString += message;
 
-    if (_printToConsoleEnabled)
+    if (timeStampEnabled)
+        timestampStr = QString("[") + (startedTimestamp - timestamp) + "] ";
+
+    if (consoleEnabled&& flags & LOG_CONSOLE)
+    {
 #if defined(_WIN32)
         ::_putws((timestampStr + message).toStdWString().c_str());
 #else
         std::puts((timestampStr + message).toStdString().c_str());
 #endif
+    }
 
-    if (_printToFileEnabled)
+    if (fileEnabled && flags & LOG_FILE)
     {
         FILE *file = fopen("Log.txt", "a");
         if (file)
         {
 #if defined(_WIN32)
-            std::fputws((timestampStr + message + "\n").toStdWString().c_str(), file);
+            std::fputws((timestampStr + message).toStdWString().c_str(), file);
 #else
-            std::fputs((timestampStr + message + "\n").toStdString().c_str(), file);
+            std::fputs((timestampStr + message).toStdString().c_str(), file);
 #endif
             fclose(file);
         }
     }
 
-    _lock.unlock();
+    lock.unlock();
 }
 
-void Logs::printStdMsg(const std::string &message)
+void Logs::PrintCrash(const std::string &message)
 {
-    printMsg(QString(message.c_str()));
+    Print(LOG_MAX, QString(message.c_str()), LOG_ALL_OUTPUTS);
 }
 
-void Logs::printMsgTimeStamp(const QString &message)
+void Logs::PrintError(const QString &message)
 {
-    bool oldState = _timeStampEnabled;
-    _timeStampEnabled = true;
-    this->print(message);
-    _timeStampEnabled = oldState;
+    Print(LOG_ERROR, message, LOG_ALL_OUTPUTS);
 }
 
-void Logs::printMsg(const QString &message)
+void Logs::PrintInfo(const QString &message)
 {
-    bool oldState = _timeStampEnabled;
-    _timeStampEnabled = false;
-    this->print(message);
-    _timeStampEnabled = oldState;
+    Print(LOG_INFO, message, LOG_ALL_OUTPUTS);
+}
+
+void Logs::PrintDebug(const QString &message)
+{
+    Print(LOG_DEBUG, message, LOG_ALL_OUTPUTS);
 }
 
 Logs *g_logs;

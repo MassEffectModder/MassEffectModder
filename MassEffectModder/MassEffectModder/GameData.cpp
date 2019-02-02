@@ -431,7 +431,7 @@ bool CreateGameData()
     g_GameData = new GameData();
     if (g_GameData == nullptr)
     {
-        std::fputs("CreateLogs: Failed create instance\n", stderr);
+        std::fputs("CreateLogs: Failed create instance.\n", stderr);
         return false;
     }
     return true;

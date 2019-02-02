@@ -186,7 +186,7 @@ QString TexProperty::getDisplayString(int index)
 {
     QString result = "";
     if (index < 0 || index >= texPropertyList.count())
-        CRASH("");
+        CRASH();
 
     fetchValue(index);
     TexPropertyEntry texProperty = texPropertyList[index];
@@ -228,7 +228,7 @@ QString TexProperty::getDisplayString(int index)
         result += QString::number(texProperty.valueInt) + "\n";
     }
     else
-        CRASH("");
+        CRASH();
 
     return result;
 }
@@ -269,7 +269,7 @@ void TexProperty::setIntValue(const QString &name, qint32 value)
             }
         }
         if (texProperty.type != "IntProperty")
-            CRASH("");
+            CRASH();
     }
     else
     {
@@ -315,7 +315,7 @@ void TexProperty::setFloatValue(const QString &name, float value)
             }
         }
         if (texProperty.type != "FloatProperty")
-            CRASH("");
+            CRASH();
     }
     else
     {
@@ -362,7 +362,7 @@ void TexProperty::setByteValue(const QString &name, const QString &valueName,
             }
         }
         if (texProperty.type != "ByteProperty")
-            CRASH("");
+            CRASH();
     }
     else
     {
@@ -434,7 +434,7 @@ void TexProperty::setBoolValue(const QString &name, bool value)
             }
         }
         if (texProperty.type != "BoolProperty")
-            CRASH("");
+            CRASH();
     }
     else
     {
@@ -492,7 +492,7 @@ void TexProperty::setNameValue(const QString &name, const QString &valueName, qi
             }
         }
         if (texProperty.type != "NameProperty")
-            CRASH("");
+            CRASH();
     }
     else
     {
@@ -548,12 +548,11 @@ void TexProperty::setStructValue(const QString &name, const QString &valueName, 
         fetchValue(index);
         texProperty = texPropertyList[index];
         if (texProperty.type != "StructProperty" || texProperty.valueStruct.size() != valueStruct.size())
-            CRASH("");
+            CRASH();
     }
     else
     {
-        // missing implementation
-        CRASH("");
+        CRASH("Not implemented.\n");
     }
 
     if (!package->existsNameId(name))

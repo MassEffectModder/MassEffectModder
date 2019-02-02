@@ -35,11 +35,11 @@ int runQtApplication(int argc, char *argv[])
 
     QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
 
-    ConsoleWrite(QString("\nMassEffectModder (MEM) v%1 command line version\n"
-                         "Copyright (C) 2014-2019 Pawel Kolodziejski\n"
-                         "This is free software; see the source for copying conditions.  There is NO.\n"
-                         "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n"
-                         ).arg(MEM_VERSION));
+    PINFO(QString("\nMassEffectModder (MEM) v%1 command line version\n"
+                  "Copyright (C) 2014-2019 Pawel Kolodziejski\n"
+                  "This is free software; see the source for copying conditions.  There is NO.\n"
+                  "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n"
+                  ).arg(MEM_VERSION));
 
     return ProcessArguments();
 }
@@ -50,11 +50,14 @@ int main(int argc, char *argv[])
     CreateGameData();
     CreateLogs();
 
-    g_logs->printMsg("\n----------------------------------------------------");
-    g_logs->printMsg(QString("Log started at: ") + QDateTime::currentDateTime().toString());
-    g_logs->printMsg(QString(APP_NAME) + " v" + QString(MEM_VERSION));
-    g_logs->printMsg(QString("OS: ") + QSysInfo::productType() + " " + QSysInfo::productVersion());
-    g_logs->printMsg(QString("RAM: ") + QString::number(DetectAmountMemoryGB()) + " GB\n");
+    g_logs->EnableOutputConsole(true);
+    g_logs->ChangeLogLevel(LOG_INFO);
+
+    PINFO("\n----------------------------------------------------");
+    PINFO(QString("Log started at: ") + QDateTime::currentDateTime().toString());
+    PINFO(QString(APP_NAME) + " v" + QString(MEM_VERSION));
+    PINFO(QString("OS: ") + QSysInfo::productType() + " " + QSysInfo::productVersion());
+    PINFO(QString("RAM: ") + QString::number(DetectAmountMemoryGB()) + " GB\n");
 
     int status = runQtApplication(argc, argv);
 

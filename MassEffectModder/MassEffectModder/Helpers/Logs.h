@@ -22,34 +22,59 @@
 #ifndef LOGS_H
 #define LOGS_H
 
+enum LOG_LEVEL {
+    LOG_NONE,
+    LOG_ERROR,
+    LOG_INFO,
+    LOG_DEBUG,
+    LOG_MAX
+};
+
+#define LOG_CONSOLE       0x01
+#define LOG_FILE          0x02
+#define LOG_ERROR_BUFFER  0x04
+#define LOG_ALL_OUTPUTS   (LOG_CONSOLE | LOG_FILE | LOG_ERROR_BUFFER)
+
 class Logs
 {
 private:
 
-    std::mutex      _lock;
-    qint64          _startedTimestamp;
-    bool            _timeStampEnabled;
-    bool            _printToConsoleEnabled;
-    bool            _printToFileEnabled;
+    std::mutex      lock;
+    qint64          startedTimestamp;
+    int             logLevel;
+    QString         errorsString;
 
-    void print(const QString &message);
+    bool            timeStampEnabled;
+    bool            consoleEnabled;
+    bool            fileEnabled;
+    bool            errorBufferEnabled;
+
+    void Print(int level, const QString &message, int flags);
 
 public:
 
     Logs();
-    void printStdMsg(const std::string &message);
-    bool isOutputConsoleEnabled() { return _printToConsoleEnabled; }
-    bool isOutputFileEnabled() { return _printToFileEnabled; }
-    void enableOutputConsole(bool enable) { _printToConsoleEnabled = enable; }
-    void enableOutputFile(bool enable) { _printToFileEnabled = enable; }
-    void printMsg(const QString &message);
-    void printMsgTimeStamp(const QString &message);
-    void enableTimeStamp(bool enable) { _timeStampEnabled = enable; }
+    void PrintCrash(const std::string &message);
+
+    void PrintInfo(const QString &message);
+    void PrintError(const QString &message);
+    void PrintDebug(const QString &message);
+
+    void ChangeLogLevel(LOG_LEVEL level);
+    void ClearErrors();
+    void EnableOutputConsole(bool enable);
+    void EnableOutputFile(bool enable);
+    void EnableTimeStamp(bool enable);
+    void EnableErrorsBuffer(bool enable);
 };
 
 extern Logs *g_logs;
 
 bool CreateLogs();
 void ReleaseLogs();
+
+#define PINFO g_logs->PrintInfo
+#define PERROR g_logs->PrintError
+#define PDEBUG g_logs->{rintDebug
 
 #endif

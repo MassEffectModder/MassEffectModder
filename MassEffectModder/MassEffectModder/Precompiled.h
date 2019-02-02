@@ -19,11 +19,7 @@
  *
  */
 
-// C includes
-
 #if defined __cplusplus
-
-// C++ includes
 
 #include <cstdlib>
 #include <cstring>

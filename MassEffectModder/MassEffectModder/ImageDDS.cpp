@@ -22,19 +22,20 @@
 #include "Image.h"
 #include "Helpers/MemoryStream.h"
 #include "Helpers/MiscHelpers.h"
+#include "Helpers/Logs.h"
 #include "Wrappers.h"
 
 void Image::LoadImageDDS(Stream &stream)
 {
     if (stream.ReadUInt32() != DDS_TAG)
     {
-        ConsoleWrite("The data has not DDS header!");
+        PERROR("The data has not DDS header!\n");
         return;
     }
 
     if (stream.ReadInt32() != DDS_HEADER_dwSize)
     {
-        ConsoleWrite("The data has wrong DDS header dwSize");
+        PERROR("The data has wrong DDS header dwSize.\n");
         return;
     }
 
@@ -45,7 +46,7 @@ void Image::LoadImageDDS(Stream &stream)
     if (!checkPowerOfTwo(dwWidth) ||
         !checkPowerOfTwo(dwHeight))
     {
-        ConsoleWrite("DDS image has dimensions not power of two");
+        PERROR("DDS image has dimensions not power of two.\n");
         return;
     }
 
@@ -62,7 +63,7 @@ void Image::LoadImageDDS(Stream &stream)
     ddsPixelFormat.fourCC = stream.ReadUInt32();
     if ((ddsPixelFormat.flags & DDPF_FOURCC) != 0 && ddsPixelFormat.fourCC == FOURCC_DX10_TAG)
     {
-        ConsoleWrite("DX10 DDS format not supported");
+        PERROR("DX10 DDS format not supported.\n");
         return;
     }
 
@@ -110,7 +111,7 @@ void Image::LoadImageDDS(Stream &stream)
                 break;
             }
 
-            ConsoleWrite("Not supported DDS format");
+            PERROR("Not supported DDS format.\n");
             return;
 
         case 21:
@@ -146,7 +147,7 @@ void Image::LoadImageDDS(Stream &stream)
             break;
 
         default:
-            ConsoleWrite("Not supported DDS format");
+            PERROR("Not supported DDS format.\n");
             return;
     }
     stream.Skip(20); // dwCaps, dwCaps2, dwCaps3, dwCaps4, dwReserved2
@@ -297,7 +298,7 @@ Image::DDS_PF Image::getDDSPixelFormat(PixelFormat format)
             break;
 
         default:
-            CRASH_MSG("invalid texture format ");
+            CRASH_MSG("Invalid texture format.\n");
     }
 
     return pixelFormat;
@@ -557,7 +558,7 @@ ByteBuffer Image::compressMipmap(PixelFormat dstFormat, const quint8 *src, int w
                     writeBlock4X4ATI2(blockX, blockY, dst.ptr(), w, x, y);
                 }
                 else
-                    CRASH_MSG("not supported codec");
+                    CRASH_MSG("Not supported codec.\n");
             }
         }
     }
@@ -636,7 +637,7 @@ ByteBuffer Image::decompressMipmap(PixelFormat srcFormat, const quint8 *src, int
                     writeBlock4X4ARGBATI2(blockDstR, blockDstG, dst.ptr(), w, x, y);
                 }
                 else
-                    CRASH_MSG("not supported codec");
+                    CRASH_MSG("Not supported codec.\n");
             }
         }
     }

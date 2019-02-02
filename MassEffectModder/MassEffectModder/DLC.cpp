@@ -22,6 +22,7 @@
 #include "Helpers/FileStream.h"
 #include "Helpers/MemoryStream.h"
 #include "Helpers/MiscHelpers.h"
+#include "Helpers/Logs.h"
 #include "DLC.h"
 #include "GameData.h"
 #include "Wrappers.h"
@@ -29,14 +30,14 @@
 int ME3DLC::getNumberOfFiles(QString &path)
 {
     if (!QFile(path).exists())
-        CRASH_MSG("filename missing");
+        CRASH_MSG("filename missing\n");
     FileStream stream = FileStream(path, FileMode::Open, FileAccess::ReadOnly);
     uint tag = stream.ReadUInt32();
     if (tag != SfarTag)
-        CRASH_MSG("Wrong SFAR tag");
+        CRASH_MSG("Wrong SFAR tag\n");
     uint sfarVersion = stream.ReadUInt32();
     if (sfarVersion != SfarVersion)
-        CRASH_MSG("Wrong SFAR version");
+        CRASH_MSG("Wrong SFAR version\n");
 
     stream.SkipInt32();
     stream.SkipInt32();
@@ -47,10 +48,10 @@ void ME3DLC::loadHeader(Stream *stream)
 {
     uint tag = stream->ReadUInt32();
     if (tag != SfarTag)
-        CRASH_MSG("Wrong SFAR tag");
+        CRASH_MSG("Wrong SFAR tag\n");
     uint sfarVersion = stream->ReadUInt32();
     if (sfarVersion != SfarVersion)
-        CRASH_MSG("Wrong SFAR version");
+        CRASH_MSG("Wrong SFAR version\n");
 
     stream->SkipInt32();
     uint entriesOffset = stream->ReadUInt32();
@@ -59,7 +60,7 @@ void ME3DLC::loadHeader(Stream *stream)
     maxBlockSize = stream->ReadUInt32();
     uint compressionTag = stream->ReadUInt32();
     if (compressionTag != LZMATag)
-        CRASH_MSG("Not LZMA compression for SFAR file");
+        CRASH_MSG("Not LZMA compression for SFAR file\n");
 
     uint numBlockSizes = 0;
     stream->JumpTo(entriesOffset);
@@ -125,7 +126,7 @@ void ME3DLC::loadHeader(Stream *stream)
 void ME3DLC::extract(QString &SFARfilename, bool ipc, int &currentProgress, int totalNumber)
 {
     if (!QFile(SFARfilename).exists())
-        CRASH_MSG("filename missing");
+        CRASH_MSG("filename missing\n");
 
     std::unique_ptr<Stream> stream (new MemoryStream(SFARfilename));
 
@@ -137,7 +138,7 @@ void ME3DLC::extract(QString &SFARfilename, bool ipc, int &currentProgress, int 
         if ((uint)filenamesIndex == i)
             continue;
         if (filesList[i].filenamePath.length() == 0)
-            CRASH_MSG("filename missing");
+            CRASH_MSG("filename missing\n");
 
         if (ipc)
         {
@@ -285,7 +286,7 @@ void ME3DLC::unpackAllDLC(bool ipc)
         }
         else
         {
-            ConsoleWrite("Unpacking SFAR: " + g_GameData->RelativeGameData(sfarFiles[i]));
+            PINFO("Unpacking SFAR: " + g_GameData->RelativeGameData(sfarFiles[i]) + "\n");
         }
         dlc.extract(sfarFiles[i], ipc, currentProgress, totalNumFiles);
     }

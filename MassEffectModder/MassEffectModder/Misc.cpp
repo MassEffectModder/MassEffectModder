@@ -26,6 +26,7 @@
 #include "MD5ModEntries.h"
 #include "MD5BadEntries.h"
 #include "Helpers/MiscHelpers.h"
+#include "Helpers/Logs.h"
 #include "Helpers/FileStream.h"
 
 static bool generateModsMd5Entries = false;
@@ -43,20 +44,20 @@ bool Misc::ApplyLAAForME1Exe()
             ushort flag = fs.ReadUInt16(); // read flags
             if ((flag & 0x20) != 0x20) // check for LAA flag
             {
-                ConsoleWrite(QString("Patching ME1 for LAA: ") + g_GameData->GameExePath());
+                PINFO(QString("Patching ME1 for LAA: ") + g_GameData->GameExePath() + "\n");
                 flag |= 0x20;
                 fs.Skip(-2);
                 fs.WriteUInt16(flag); // write LAA flag
             }
             else
             {
-                ConsoleWrite(QString("File already has LAA flag enabled: ") + g_GameData->GameExePath());
+                PINFO(QString("File already has LAA flag enabled: ") + g_GameData->GameExePath() + "\n");
             }
         }
         return true;
     }
 
-    ConsoleWrite(QString("File not found: ") + g_GameData->GameExePath());
+    PERROR(QString("File not found: ") + g_GameData->GameExePath() + "\n");
     return false;
 }
 
@@ -96,17 +97,18 @@ bool Misc::ChangeProductNameForME1Exe()
             // replace to "Mass_Effect"
             fs.JumpTo(pos + 34);
             fs.WriteByte(0x5f);
-            ConsoleWrite(QString("Patching ME1 for Product Name: ") + g_GameData->GameExePath());
+            PINFO(QString("Patching ME1 for Product Name: ") + g_GameData->GameExePath() + "\n");
         }
         else
         {
-            ConsoleWrite(QString("Specific Product Name not found or already changed: ") + g_GameData->GameExePath());
+            PINFO(QString("Specific Product Name not found or already changed: ") +
+                         g_GameData->GameExePath() + "\n");
         }
         buffer.Free();
         return true;
     }
 
-    ConsoleWrite(QString("File not found: ") + g_GameData->GameExePath());
+    PERROR(QString("File not found: ") + g_GameData->GameExePath() + "\n");
     return false;
 }
 
@@ -138,8 +140,8 @@ bool Misc::CheckAndCorrectAccessToGame()
 {
     if (!checkWriteAccessDir(g_GameData->MainData()))
     {
-        ConsoleWrite(QString("MEM has not write access to game folders:\n") +
-                     g_GameData->MainData());
+        PERROR(QString("MEM has not write access to game folders:\n") +
+                     g_GameData->MainData() + "\n");
         return false;
     }
 
@@ -362,11 +364,9 @@ uint Misc::scanFilenameForCRC(const QString &inputFile, bool ipc)
         }
         else
         {
-            ConsoleWrite(QString("Texture filename not valid: ") + BaseName(inputFile) +
-                         " Texture filename must include texture CRC (0xhhhhhhhh). Skipping texture...");
+            PERROR(QString("Texture filename not valid: ") + BaseName(inputFile) +
+                         " Texture filename must include texture CRC (0xhhhhhhhh). Skipping texture...\n");
         }
-        ConsoleWrite(QString("Texture filename not valid: ") + BaseName(inputFile) +
-                     " Texture filename must include texture CRC (0xhhhhhhhh). Skipping texture...");
         return false;
     }
     int idx = filename.indexOf("0x");
@@ -379,8 +379,8 @@ uint Misc::scanFilenameForCRC(const QString &inputFile, bool ipc)
         }
         else
         {
-            ConsoleWrite(QString("Texture filename not valid: ") + BaseName(inputFile) +
-                         " Texture filename must include texture CRC (0xhhhhhhhh). Skipping texture...");
+            PERROR(QString("Texture filename not valid: ") + BaseName(inputFile) +
+                         " Texture filename must include texture CRC (0xhhhhhhhh). Skipping texture...\n");
         }
         return false;
     }
@@ -396,8 +396,8 @@ uint Misc::scanFilenameForCRC(const QString &inputFile, bool ipc)
         }
         else
         {
-            ConsoleWrite(QString("Texture filename not valid: ") + BaseName(inputFile) +
-                         " Texture filename must include texture CRC (0xhhhhhhhh). Skipping texture...");
+            PERROR(QString("Texture filename not valid: ") + BaseName(inputFile) +
+                         " Texture filename must include texture CRC (0xhhhhhhhh). Skipping texture...\n");
         }
         return false;
     }
@@ -435,7 +435,7 @@ bool Misc::CorrectTexture(Image &image, FoundTexture &f, int numMips, bool markT
         }
         else
         {
-            ConsoleWrite(QString("Converting/correcting texture: ") + BaseName(file));
+            PINFO(QString("Converting/correcting texture: ") + BaseName(file) + "\n");
         }
         bool dxt1HasAlpha = false;
         quint8 dxt1Threshold = 128;
@@ -446,8 +446,8 @@ bool Misc::CorrectTexture(Image &image, FoundTexture &f, int numMips, bool markT
                 image.getPixelFormat() == PixelFormat::DXT3 ||
                 image.getPixelFormat() == PixelFormat::DXT5)
             {
-                ConsoleWrite(QString("Warning for texture: " ) + f.name +
-                             ". This texture converted from full alpha to binary alpha.");
+                PINFO(QString("Warning for texture: " ) + f.name +
+                             ". This texture converted from full alpha to binary alpha.\n");
             }
         }
         image.correctMips(newPixelFormat, dxt1HasAlpha, dxt1Threshold);
@@ -477,7 +477,8 @@ QString Misc::CorrectTexture(Image *image, Texture &texture, PixelFormat pixelFo
                     image->getPixelFormat() == PixelFormat::DXT3 ||
                     image->getPixelFormat() == PixelFormat::DXT5)
                 {
-                    errors += "Warning for texture: " + textureName + ". This texture converted from full alpha to binary alpha.\n";
+                    errors += "Warning for texture: " + textureName +
+                              ". This texture converted from full alpha to binary alpha.\n";
                 }
             }
         }
@@ -494,11 +495,11 @@ bool Misc::CheckMEMHeader(FileStream &fs, const QString &file, bool ipc)
     {
         if (version != TextureModVersion)
         {
-            ConsoleWrite(QString("File ") + BaseName(file) + " was made with an older version of MEM, skipping...");
+            PERROR(QString("File ") + BaseName(file) + " was made with an older version of MEM, skipping...\n");
         }
         else
         {
-            ConsoleWrite(QString("File ") + BaseName(file) + " is not a valid MEM mod, skipping...");
+            PERROR(QString("File ") + BaseName(file) + " is not a valid MEM mod, skipping...\n");
         }
         if (ipc)
         {
@@ -524,7 +525,7 @@ bool Misc::CheckMEMGameVersion(FileStream &fs, const QString &file, int gameId, 
         }
         else
         {
-            ConsoleWrite(QString("File ") + file + " is not a MEM mod valid for this game");
+            PERROR(QString("File ") + file + " is not a MEM mod valid for this game.\n");
         }
         return false;
     }
@@ -573,12 +574,12 @@ bool Misc::CheckImage(Image &image, FoundTexture &f, const QString &file, int in
         {
             if (index == -1)
             {
-                ConsoleWrite(QString("Skipping texture: ") + f.name + QString().sprintf("_0x%08X", f.crc));
+                PINFO(QString("Skipping texture: ") + f.name + QString().sprintf("_0x%08X", f.crc) + "\n");
             }
             else
             {
-                ConsoleWrite(QString("Skipping not compatible content, entry: ") +
-                             QString::number(index + 1) + " - mod: " + BaseName(file));
+                PERROR(QString("Skipping not compatible content, entry: ") +
+                             QString::number(index + 1) + " - mod: " + BaseName(file) + "\n");
             }
         }
         return false;
@@ -596,13 +597,13 @@ bool Misc::CheckImage(Image &image, FoundTexture &f, const QString &file, int in
         {
             if (index == -1)
             {
-                ConsoleWrite(QString("Skipping texture: ") + f.name + QString().sprintf("_0x%08X", f.crc) );
+                PINFO(QString("Skipping texture: ") + f.name + QString().sprintf("_0x%08X", f.crc) + "\n");
             }
             else
             {
-                ConsoleWrite(QString("Error in texture: ") + f.name + QString().sprintf("_0x%08X", f.crc) +
+                PERROR(QString("Error in texture: ") + f.name + QString().sprintf("_0x%08X", f.crc) +
                     " This texture has wrong aspect ratio, skipping texture, entry: " + (index + 1) +
-                    " - mod: " + BaseName(file));
+                    " - mod: " + BaseName(file) + "\n");
             }
         }
         return false;
@@ -615,15 +616,15 @@ bool Misc::CheckImage(Image &image, Texture &texture, const QString &textureName
 {
     if (image.getMipMaps().count() == 0)
     {
-        ConsoleWrite(QString("Error in texture: ") + textureName);
+        PERROR(QString("Error in texture: ") + textureName + "\n");
         return false;
     }
 
     if (image.getMipMaps().first()->getOrigWidth() / image.getMipMaps().first()->getHeight() !=
         texture.mipMapsList.first().width / texture.mipMapsList.first().height)
     {
-        ConsoleWrite(QString("Error in texture: ") + textureName +
-                     " This texture has wrong aspect ratio, skipping texture...");
+        PERROR(QString("Error in texture: ") + textureName +
+                     " This texture has wrong aspect ratio, skipping texture...\n");
         return false;
     }
 
@@ -722,7 +723,7 @@ static bool compareFileInfoPath(const QFileInfo &e1, const QFileInfo &e2)
 bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
     MeType gameId, QList<FoundTexture> &textures, bool markToConvert, bool onlyIndividual, bool ipc)
 {
-    ConsoleWrite("Mods conversion started...");
+    PINFO("Mods conversion started...\n");
 
     QFileInfoList list;
     QFileInfoList list2;
@@ -785,7 +786,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
         }
         else
         {
-            ConsoleWrite(QString("File: ") + BaseName(file));
+            PINFO(QString("File: ") + BaseName(file) + "\n");
         }
 
 
@@ -860,8 +861,8 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                         }
                         else
                         {
-                            ConsoleWrite(QString("Skipping not compatible content, entry: ") +
-                                         QString::number(i + 1) + " - mod: " + BaseName(file));
+                            PINFO(QString("Skipping not compatible content, entry: ") +
+                                         QString::number(i + 1) + " - mod: " + BaseName(file) + "\n");
                         }
                         continue;
                     }
@@ -882,8 +883,8 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                         }
                         else
                         {
-                            ConsoleWrite(QString("Skipping not compatible content, entry: ") +
-                                         QString::number(i + 1) + " - mod: " + BaseName(file));
+                            PINFO(QString("Skipping not compatible content, entry: ") +
+                                         QString::number(i + 1) + " - mod: " + BaseName(file) + "\n");
                         }
                         continue;
                     }
@@ -928,7 +929,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                 }
                 else
                 {
-                    ConsoleWrite(QString("Skipping not compatible mod: ") + BaseName(file));
+                    PINFO(QString("Skipping not compatible mod: ") + BaseName(file) + "\n");
                 }
                 continue;
             }
@@ -1021,8 +1022,8 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                     }
                     else
                     {
-                        ConsoleWrite(QString("Skipping file: ") + fileName + " not found in definition file, entry: " +
-                            (i + 1) + " - mod: " + BaseName(file));
+                        PERROR(QString("Skipping file: ") + fileName + " not found in definition file, entry: " +
+                            (i + 1) + " - mod: " + BaseName(file) + "\n");
                     }
                     ZipGoToNextFile(handle);
                     continue;
@@ -1031,7 +1032,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                 FoundTexture f = FoundTextureInTheMap(textures, crc);
                 if (f.crc == 0)
                 {
-                    ConsoleWrite(QString("Texture skipped. File ") + fileName + QString().sprintf("_0x%08X", crc) +
+                    PINFO(QString("Texture skipped. File ") + fileName + QString().sprintf("_0x%08X", crc) +
                         " is not present in your game setup - mod: " + BaseName(file));
                     ZipGoToNextFile(handle);
                     continue;
@@ -1053,8 +1054,8 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                     }
                     else
                     {
-                        ConsoleWrite(QString("Error in texture: ") + textureName + QString().sprintf("_0x%08X", crc) +
-                            ", skipping texture, entry: " + (i + 1) + " - mod: " + BaseName(file));
+                        PERROR(QString("Error in texture: ") + textureName + QString().sprintf("_0x%08X", crc) +
+                            ", skipping texture, entry: " + (i + 1) + " - mod: " + BaseName(file) + "\n");
                     }
                     mod.data.Free();
                     continue;
@@ -1091,7 +1092,7 @@ failed:
             }
             else
             {
-                ConsoleWrite(QString("Mod is not compatible: ") + BaseName(file));
+                PERROR(QString("Mod is not compatible: ") + BaseName(file) + "\n");
             }
 end:
             if (handle != nullptr)
@@ -1111,8 +1112,8 @@ end:
             FoundTexture f = FoundTextureInTheMap(textures, crc);
             if (f.crc == 0)
             {
-                ConsoleWrite(QString("Texture skipped. Texture ") + BaseName(file) +
-                             " is not present in your game setup.");
+                PINFO(QString("Texture skipped. Texture ") + BaseName(file) +
+                             " is not present in your game setup.\n");
                 continue;
             }
 
@@ -1368,7 +1369,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
         }
         else
         {
-            ConsoleWrite("Checking: " + g_GameData->packageFiles[l]);
+            PINFO("Checking: " + g_GameData->packageFiles[l] + "\n");
         }
         QByteArray md5 = calculateMD5(g_GameData->GamePath() + g_GameData->packageFiles[l]);
         bool found = false;
@@ -1504,7 +1505,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
         }
         else
         {
-            ConsoleWrite("Checking: " + g_GameData->sfarFiles[l]);
+            PINFO("Checking: " + g_GameData->sfarFiles[l] + "\n");
         }
         QByteArray md5 = calculateMD5(g_GameData->GamePath() + g_GameData->sfarFiles[l]);
         bool found = false;
@@ -1569,7 +1570,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
         }
         else
         {
-            ConsoleWrite("Checking: " + g_GameData->tfcFiles[l]);
+            PINFO("Checking: " + g_GameData->tfcFiles[l] + "\n");
         }
         QByteArray md5 = calculateMD5(g_GameData->GamePath() + g_GameData->tfcFiles[l]);
         bool found = false;

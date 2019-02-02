@@ -16,6 +16,7 @@ SOURCES += \
     Helpers/MemoryStream.cpp \
     Helpers/MiscHelpers.cpp \
     Helpers/Stream.cpp \
+    CmdLineHelp.cpp \
     CmdLineParams.cpp \
     CmdLineTools.cpp \
     ConfigIni.cpp \
