@@ -30,7 +30,7 @@ using namespace std;
 static void getFilename(char *dst, const char *src)
 {
     long offset = 0;
-    for (auto *ptr = src; *ptr != 0 || (ptr - src < MAX_PATH); ptr++)
+    for (auto *ptr = src; *ptr != 0 && (ptr - src < MAX_PATH); ptr++)
     {
         if (*ptr == '/' || *ptr == '\\')
             offset = ptr - src + 1;
@@ -104,7 +104,7 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
             strcmp(sourceFunc, "__libc_start_main") == 0)
             continue;
 
-        output += "#" + std::to_string(count) + "  " +
+        output += std::to_string(count) + "  " +
                 address + " " +
                 moduleName + " in ";
         char *funcNewName = abi::__cxa_demangle(sourceFunc, nullptr, nullptr, &status);

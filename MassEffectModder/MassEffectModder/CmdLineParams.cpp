@@ -209,7 +209,7 @@ void DisplayHelp()
     ConsoleWrite("");
 }
 
-bool hasValue(const QStringList &args, int curPos)
+static bool hasValue(const QStringList &args, int curPos)
 {
     return args.count() >= (curPos + 2) && !args[curPos + 1].startsWith("--");
 }

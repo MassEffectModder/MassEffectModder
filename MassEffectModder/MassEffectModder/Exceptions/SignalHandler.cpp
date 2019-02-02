@@ -28,6 +28,8 @@
 
 using namespace std;
 
+#define MAX_FILE_PATH 1024
+
 void LogCrash(string output, string &message)
 {
     output = message + output;
@@ -46,12 +48,12 @@ void LogCrash(string output, string &message)
 static void getFilename(char *dst, const char *src)
 {
     long offset = 0;
-    for (auto *ptr = src; *ptr != 0; ptr++)
+    for (auto *ptr = src; *ptr != 0 && (ptr - src < MAX_FILE_PATH); ptr++)
     {
         if (*ptr == '/' || *ptr == '\\')
             offset = ptr - src + 1;
     }
-    strncpy(dst, src + offset, 1024 - 1);
+    strncpy(dst, src + offset, MAX_FILE_PATH - 1);
 }
 
 #ifdef NDEBUG
@@ -59,15 +61,16 @@ static void getFilename(char *dst, const char *src)
 #endif
 void Exception(const char *file, const char *func, int line, const char *msg)
 {
-    char str[1024];
-    getFilename(static_cast<char *>(str), file);
+    char str[MAX_FILE_PATH];
+    getFilename(str, file);
 
     string message = "\nException occured: ";
     if (msg)
     {
         message += "\"" + std::string(msg) + "\"";
     }
-    message += "\n" + std::string(func) + " at " + std::string(static_cast<char *>(str)) + ": line " + std::to_string(line) + "\n";
+    message += "\n" + std::string(func) + " at " + std::string(str) +
+            ": line " + std::to_string(line) + "\n";
 
     string output = "Backtrace:\n";
     GetBackTrace(output);

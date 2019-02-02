@@ -105,7 +105,7 @@ int getInfoFromModule(char *moduleFilePath, DWORD64 offset, char *sourceFile,
 static void getFilename(char *dst, const char *src)
 {
     long offset = 0;
-    for (auto *ptr = src; *ptr != 0 || (ptr - src < MAX_PATH); ptr++)
+    for (auto *ptr = src; *ptr != 0 && (ptr - src < MAX_PATH); ptr++)
     {
         if (*ptr == '/' || *ptr == '\\')
             offset = ptr - src + 1;
@@ -156,8 +156,7 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
         {
             moduleName = moduleFilePath;
             status = getInfoFromModule(moduleFilePath, stackFrame.AddrPC.Offset,
-                                       reinterpret_cast<char *>(&sourceFile),
-                                       reinterpret_cast<char *>(&sourceFunc), &sourceLine);
+                                       sourceFile, sourceFunc, &sourceLine);
         }
         if (moduleName)
             getFilename(moduleFilePath, moduleName);
@@ -180,7 +179,7 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
                   strcmp(sourceFunc, "mainCRTStartup") == 0 ||
                   strcmp(sourceFunc, "WinMainCRTStartup") == 0)
                 continue;
-            sprintf(tmpBuffer, "#%02d  ", count);
+            sprintf(tmpBuffer, "%02d  ", count);
             output += tmpBuffer;
             char *name = cplus_demangle(sourceFunc, DMGL_PARAMS | DMGL_ANSI | DMGL_VERBOSE | DMGL_TYPES);
             if (name)
