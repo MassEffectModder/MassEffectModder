@@ -20,7 +20,7 @@
 #include "Crc32.h"
 
 // define endianess and some integer data types
-#if defined(_MSC_VER) || defined(__MINGW32__)
+#if defined(_MSC_VER) || defined(__MINGW32__) || defined (__i386__) || defined(__x86_64__)
   #define __LITTLE_ENDIAN 1234
   #define __BIG_ENDIAN    4321
   #define __BYTE_ORDER    __LITTLE_ENDIAN
