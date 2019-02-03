@@ -198,4 +198,7 @@ void DisplayHelp()
     PINFO("  --unpack-archive --input <zip/7z/rar file> [--output <output path>] [--ipc]");
     PINFO("     Unpack ZIP/7ZIP/RAR file.");
     PINFO("");
+    PINFO("");
+    PINFO("  Additonal option to enable debug logs level to all commands: --debug-logs");
+    PINFO("");
 }

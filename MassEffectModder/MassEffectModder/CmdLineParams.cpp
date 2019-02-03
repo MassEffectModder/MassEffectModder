@@ -454,6 +454,11 @@ int ProcessArguments()
             args.removeAt(l);
             args.removeAt(l--);
         }
+        else if (arg == "--debug-logs")
+        {
+            g_logs->ChangeLogLevel(LOG_DEBUG);
+            args.removeAt(l--);
+        }
     }
     if (args.count() != 0)
     {
