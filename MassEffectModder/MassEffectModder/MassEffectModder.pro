@@ -1,10 +1,19 @@
 QT += core
-QT -= gui
+
+equals(GUI_MODE, true) {
+    QT += gui
+} else {
+    QT -= gui
+}
 
 CONFIG += c++14 static precompile_header console
 CONFIG -= app_bundle
 
-TARGET = MassEffectModderNoGui
+equals(GUI_MODE, true) {
+    TARGET = MassEffectModder
+} else {
+    TARGET = MassEffectModderNoGui
+}
 
 TEMPLATE = app
 
@@ -87,6 +96,10 @@ QMAKE_RESOURCE_FLAGS += --no-compress
 
 precompile_header:!isEmpty(PRECOMPILED_HEADER) {
     DEFINES += USING_PCH
+}
+
+equals(GUI_MODE, true) {
+    DEFINES += GUI
 }
 
 QMAKE_CXXFLAGS +=

@@ -2,7 +2,7 @@ TEMPLATE = subdirs
 
 CONFIG += ordered
 
-GUI_MODE = true
+GUI_MODE = false
 cache(GUI_MODE, set)
 
 SUBDIRS += \
