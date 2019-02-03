@@ -50,7 +50,11 @@ int main(int argc, char *argv[])
     CreateGameData();
     CreateLogs();
 
+#ifdef GUI
+    g_logs->EnableOutputFile(true);
+#else
     g_logs->EnableOutputConsole(true);
+#endif
     g_logs->ChangeLogLevel(LOG_INFO);
 
     PINFO("\n----------------------------------------------------");
