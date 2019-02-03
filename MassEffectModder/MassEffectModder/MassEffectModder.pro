@@ -102,8 +102,12 @@ equals(GUI_MODE, true) {
     DEFINES += GUI
 }
 
+CONFIG(release, debug | release) {
+    DEFINES += NDEBUG
+}
+
 QMAKE_CXXFLAGS +=
-QMAKE_CXXFLAGS_RELEASE += -g1 -D NDEBUG
+QMAKE_CXXFLAGS_RELEASE += -g1
 QMAKE_CXXFLAGS_DEBUG += -g
 
 win32-g++: {
