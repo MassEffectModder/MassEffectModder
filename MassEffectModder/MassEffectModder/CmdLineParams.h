@@ -54,6 +54,10 @@ typedef enum : int
     EXTRACT_ALL_PNG,
     DLC_MOD_TEXTURES,
     UNPACK_ARCHIVE,
+#if !defined(_WIN32)
+    SET_GAME_DATA_PATH,
+    SET_GAME_USER_PATH,
+#endif
 } CmdType;
 
 int ProcessArguments();

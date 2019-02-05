@@ -198,6 +198,17 @@ void DisplayHelp()
     PINFO("  --unpack-archive --input <zip/7z/rar file> [--output <output path>] [--ipc]");
     PINFO("     Unpack ZIP/7ZIP/RAR file.");
     PINFO("");
+#if !defined(_WIN32)
+    PINFO("  --set-game-data-path --gameid <game id> --path <path>");
+    PINFO("     game id: 1 for ME1, 2 for ME2, 3 for ME3");
+    PINFO("     Set game data path to <path>.");
+    PINFO("");
+    PINFO("  --set-game-user-path --gameid <game id> --path <path>");
+    PINFO("     game id: 1 for ME1, 2 for ME2, 3 for ME3");
+    PINFO("     Set game user config path to <path>.");
+    PINFO("");
+#endif
+    PINFO("");
     PINFO("");
     PINFO("  Additonal option to enable debug logs level to all commands: --debug-logs");
     PINFO("");

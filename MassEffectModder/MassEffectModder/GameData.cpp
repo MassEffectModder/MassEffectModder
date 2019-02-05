@@ -250,8 +250,7 @@ void GameData::InternalInit(MeType type, ConfigIni &configIni, bool force = fals
         _path = QDir::cleanPath(path);
         if (QFile(GameExePath()).exists())
         {
-            configIni.Write(key,
-                       _path.replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameDataPath");
+            configIni.Write(key, _path.replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameDataPath");
             ScanGameFiles(force);
             return;
         }
@@ -259,15 +258,15 @@ void GameData::InternalInit(MeType type, ConfigIni &configIni, bool force = fals
     }
 #endif
 
-    if (_path.length() != 0)
+    if (_path.length() != 0 && QFile(GameExePath()).exists())
+    {
 #if defined(_WIN32)
-        configIni.Write(key,
-                   _path.replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameDataPath");
+        configIni.Write(key, _path.replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameDataPath");
 #else
         configIni.Write(key, _path, "GameDataPath");
 #endif
-
-    ScanGameFiles(force);
+        ScanGameFiles(force);
+    }
 }
 
 const QString GameData::bioGamePath()
@@ -362,24 +361,35 @@ const QString GameData::GameExePath()
 
 const QString GameData::GameUserPath()
 {
+#if defined(_WIN32)
     QString path = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).first() + "/BioWare/Mass Effect";
     if (gameType == MeType::ME2_TYPE)
         path += " 2";
     else if (gameType == MeType::ME3_TYPE)
         path += " 3";
+#else
+    ConfigIni configIni;
+    QString key = QString("ME%1").arg(static_cast<int>(gameType));
+    QString path = configIni.Read(key, "GameUserPath");
+    if (!QDir(path).exists())
+        path = "";
+#endif
 
     return path;
 }
 
 const QString GameData::ConfigIniPath()
 {
+    QString path = GameUserPath();
+    if (path == "")
+        return path;
     switch (gameType)
     {
         case MeType::ME1_TYPE:
-            return GameUserPath() + "/Config";
+            return path + "/Config";
         case MeType::ME2_TYPE:
         case MeType::ME3_TYPE:
-            return GameUserPath() + "/BioGame/Config";
+            return path + "/BioGame/Config";
         case MeType::UNKNOWN_TYPE:
             CRASH();
     }
@@ -389,13 +399,16 @@ const QString GameData::ConfigIniPath()
 
 const QString GameData::EngineConfigIniPath()
 {
+    QString path = ConfigIniPath();
+    if (path == "")
+        return path;
     switch (gameType)
     {
         case MeType::ME1_TYPE:
-            return ConfigIniPath() + "/BIOEngine.ini";
+            return path + "/BIOEngine.ini";
         case MeType::ME2_TYPE:
         case MeType::ME3_TYPE:
-            return ConfigIniPath() + "/GamerSettings.ini";
+            return path + "/GamerSettings.ini";
         case MeType::UNKNOWN_TYPE:
             CRASH();
     }

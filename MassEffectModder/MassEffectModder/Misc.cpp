@@ -32,6 +32,67 @@
 static bool generateModsMd5Entries = false;
 static bool generateMd5Entries = false;
 
+bool Misc::SetGameDataPath(MeType gameId, const QString &path)
+{
+    ConfigIni configIni;
+
+    QString key = QString("ME%1").arg(static_cast<int>(gameId));
+#if defined(_WIN32)
+    configIni.Write(key, path.replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameDataPath");
+#else
+    configIni.Write(key, path, "GameDataPath");
+#endif
+    g_GameData->Init(gameId, configIni, true);
+    if (!QFile(g_GameData->GameExePath()).exists())
+    {
+        PERROR("Error: Could not found the game!\n");
+        return false;
+    }
+
+    PINFO("Game data found.\n");
+    return true;
+}
+
+bool Misc::SetGameUserPath(MeType gameId, const QString &path)
+{
+    ConfigIni configIni;
+
+    QString key = QString("ME%1").arg(static_cast<int>(gameId));
+#if defined(_WIN32)
+    configIni.Write(key, path.replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameUserPath");
+#else
+    configIni.Write(key, path, "GameUserPath");
+#endif
+
+    g_GameData->Init(gameId, configIni);
+    QString newPath = g_GameData->GameUserPath();
+    if (newPath.length() != 0 && !QDir(newPath).exists())
+    {
+        PERROR("Error: Could not found game user config path!\n");
+        return false;
+    }
+
+    PINFO("Game user config path changed.\n");
+    return true;
+}
+
+bool Misc::ConvertEndLinesToUnix(const QString &path)
+{
+    QTextStream streamIn(QFile(path).readAll());
+
+    QFile file(path);
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        QTextStream streamOut(&file);
+        while (!streamIn.atEnd())
+        {
+            streamOut << streamIn.readLine();
+        }
+        return true;
+    }
+    return false;
+}
+
 bool Misc::ApplyLAAForME1Exe()
 {
     if (QFile(g_GameData->GameExePath()).exists())

@@ -251,7 +251,7 @@ int ProcessArguments()
     bool tfcOnly = false;
     bool verify = false;
     int thresholdValue = 128;
-    QString input, output, threshold, format, tfcName, guid;
+    QString input, output, threshold, format, tfcName, guid, path;
     CmdLineTools tools;
 
     QStringList args = convertLegacyArguments();
@@ -319,6 +319,10 @@ int ProcessArguments()
             cmd = CmdType::DLC_MOD_TEXTURES;
         else if (arg == "--unpack-archive")
             cmd = CmdType::UNPACK_ARCHIVE;
+        else if (arg == "--set-game-data-path")
+            cmd = CmdType::SET_GAME_DATA_PATH;
+        else if (arg == "--set-game-user-path")
+            cmd = CmdType::SET_GAME_USER_PATH;
         else
             continue;
         args.removeAt(l);
@@ -457,6 +461,12 @@ int ProcessArguments()
         else if (arg == "--debug-logs")
         {
             g_logs->ChangeLogLevel(LOG_DEBUG);
+            args.removeAt(l--);
+        }
+        else if (arg == "--path" && hasValue(args, l))
+        {
+            path = args[l + 1];
+            args.removeAt(l);
             args.removeAt(l--);
         }
     }
@@ -612,12 +622,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.InstallMods(gameId, input, ipc, repackMode, guiMode,
-#if defined(_WIN32)
-                               limit2k,
-#endif
-                               verify
-                               ))
+        if (!tools.InstallMods(gameId, input, ipc, repackMode, guiMode, limit2k, verify))
         {
             errorCode = 1;
         }
@@ -885,6 +890,43 @@ int ProcessArguments()
         if (!tools.unpackArchive(input, output))
             errorCode = 1;
         break;
+#if !defined(_WIN32)
+    case CmdType::SET_GAME_DATA_PATH:
+        if (gameId == MeType::UNKNOWN_TYPE)
+        {
+            PERROR("Wrong game id!\n");
+            errorCode = 1;
+            break;
+        }
+        path = QDir::cleanPath(path);
+        if (path.length() != 0 && !QDir(path).exists())
+        {
+            PERROR("Game path doesn't exists!\n");
+            errorCode = 1;
+            break;
+        }
+        if (!Misc::SetGameDataPath(gameId, path))
+            errorCode = 1;
+        break;
+    case CmdType::SET_GAME_USER_PATH:
+        if (gameId == MeType::UNKNOWN_TYPE)
+        {
+            PERROR("Wrong game id!\n");
+            errorCode = 1;
+            break;
+        }
+        path = QDir::cleanPath(path);
+        if (path.length() != 0 && !QDir(path).exists())
+        {
+            PERROR("Game config path doesn't exists!\n");
+            errorCode = 1;
+            break;
+        }
+        if (!Misc::SetGameUserPath(gameId, path))
+            errorCode = 1;
+        break;
+#endif
     }
+
     return errorCode;
 }
