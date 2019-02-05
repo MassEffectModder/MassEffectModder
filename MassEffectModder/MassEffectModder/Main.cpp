@@ -29,6 +29,8 @@
 
 #include "CmdLineParams.h"
 
+bool g_ipc = false;
+
 int runQtApplication(int argc, char *argv[])
 {
     QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));

@@ -356,7 +356,7 @@ int ProcessArguments()
         }
         else if (arg == "--ipc")
         {
-            ipc = true;
+            g_ipc = ipc = true;
             args.removeAt(l--);
         }
         else if (arg == "--input" && hasValue(args, l))

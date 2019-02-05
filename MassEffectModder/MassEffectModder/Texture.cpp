@@ -508,7 +508,15 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
                             filename = g_GameData->GamePath() + files.first();
                         else if (files.count() == 0)
                         {
-                            PERROR((QString("TFC file not found: ") + archive + ".tfc" + "\n").toStdString().c_str());
+                            if (g_ipc)
+                            {
+                                ConsoleWrite("[IPC]ERROR_REFERENCED_TFC_NOT_FOUND " + archive + ".tfc");
+                                ConsoleSync();
+                            }
+                            else
+                            {
+                                PERROR(QString("TFC file not found: ") + archive + ".tfc" + "\n");
+                            }
                             return ByteBuffer();
                         }
                         else
@@ -519,14 +527,22 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
                 }
             }
 
-            auto fs = FileStream(filename, FileMode::Open, FileAccess::ReadOnly);
-            if (!fs.isOpen())
+            if (!QFile(filename).exists())
             {
-                PERROR(QString("File: " + filename +
-                    "\nStorageType: " + QString::number(mipmap.storageType) +
-                    "\nExternal file offset: " + QString::number(mipmap.dataOffset)) + "\n");
+                if (g_ipc)
+                {
+                    ConsoleWrite("[IPC]ERROR_REFERENCED_TFC_NOT_FOUND " + g_GameData->RelativeGameData(filename));
+                    ConsoleSync();
+                }
+                else
+                {
+                    PERROR(QString("File no found: " + filename + "\n"));
+                }
+                PERROR("StorageType: " + QString::number(mipmap.storageType) +
+                       "\nExternal file offset: " + QString::number(mipmap.dataOffset) + "\n");
                 return ByteBuffer();
             }
+            auto fs = FileStream(filename, FileMode::Open, FileAccess::ReadOnly);
             fs.JumpTo(mipmap.dataOffset);
             if (mipmap.storageType == StorageTypes::extLZO || mipmap.storageType == StorageTypes::extZlib)
             {

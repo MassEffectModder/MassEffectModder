@@ -65,5 +65,7 @@
 
 #include "Exceptions/Exception.h"
 
+extern bool g_ipc;
+
 #endif
 
