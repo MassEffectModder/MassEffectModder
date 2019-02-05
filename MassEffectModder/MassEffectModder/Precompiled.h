@@ -49,6 +49,17 @@
 #include <QStorageInfo>
 #include <QRegularExpression>
 #include <QElapsedTimer>
+#ifdef GUI
+#include <QApplication>
+#include <QWidget>
+#include <QMainWindow>
+#include <QFormLayout>
+#include <QStackedLayout>
+#include <QToolBar>
+#include <QStatusBar>
+#include <QPushButton>
+#include <QMessageBox>
+#endif
 
 #include <omp.h>
 

@@ -1,12 +1,13 @@
 QT += core
 
 equals(GUI_MODE, true) {
-    QT += gui
+    QT += gui widgets
 } else {
     QT -= gui
+    QT += console
 }
 
-CONFIG += c++14 static precompile_header console
+CONFIG += c++14 static precompile_header
 CONFIG -= app_bundle
 
 equals(GUI_MODE, true) {
@@ -50,6 +51,15 @@ SOURCES += \
     TextureReplace.cpp \
     TOCFile.cpp \
     TreeScan.cpp
+
+equals(GUI_MODE, true) {
+SOURCES += \
+    Gui/MainWindow.cpp \
+    Gui/LayoutMeSelect.cpp
+HEADERS += \
+    Gui/MainWindow.h \
+    Gui/LayoutMeSelect.h
+}
 
 PRECOMPILED_HEADER = Precompiled.h
 

@@ -22,19 +22,31 @@
 #include "Exceptions/SignalHandler.h"
 #include "Helpers/Logs.h"
 #include "Helpers/MiscHelpers.h"
+#ifdef GUI
+#include "Gui/MainWindow.h"
+#endif
 #include "GameData.h"
 
 #include "CmdLineParams.h"
 
 int runQtApplication(int argc, char *argv[])
 {
+    QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
+
+#ifdef GUI
+    QApplication application(argc, argv);
+
+    QApplication::setOrganizationName(APP_NAME);
+    QApplication::setApplicationName(APP_NAME);
+    MainWindow window;
+    window.show();
+
+    return QApplication::exec();
+#else
     QCoreApplication application(argc, argv);
 
     QCoreApplication::setOrganizationName(APP_NAME);
     QCoreApplication::setApplicationName(APP_NAME);
-
-    QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
-
     PINFO(QString("\nMassEffectModder (MEM) v%1 command line version\n"
                   "Copyright (C) 2014-2019 Pawel Kolodziejski\n"
                   "This is free software; see the source for copying conditions.  There is NO.\n"
@@ -42,6 +54,7 @@ int runQtApplication(int argc, char *argv[])
                   ).arg(MEM_VERSION));
 
     return ProcessArguments();
+#endif
 }
 
 int main(int argc, char *argv[])
