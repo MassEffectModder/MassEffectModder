@@ -61,8 +61,8 @@ class ME3DLC
     void loadHeader(Stream *stream);
 
 public:
-    void extract(QString &SFARfilename, bool ipc, int &currentProgress, int totalNumber);
-    static void unpackAllDLC(bool ipc);
+    void extract(QString &SFARfilename, int &currentProgress, int totalNumber);
+    static void unpackAllDLC();
 };
 
 #endif

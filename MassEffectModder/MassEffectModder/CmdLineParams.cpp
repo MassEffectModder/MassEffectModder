@@ -240,7 +240,6 @@ int ProcessArguments()
     int errorCode = 0;
     int cmd = CmdType::UNKNOWN;
     MeType gameId = MeType::UNKNOWN_TYPE;
-    bool ipc = false;
     bool markToConvert = false;
     bool guiMode = false;
     bool repackMode = false;
@@ -356,7 +355,7 @@ int ProcessArguments()
         }
         else if (arg == "--ipc")
         {
-            g_ipc = ipc = true;
+            g_ipc = true;
             args.removeAt(l--);
         }
         else if (arg == "--input" && hasValue(args, l))
@@ -486,7 +485,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        errorCode = tools.scanTextures(gameId, ipc);
+        errorCode = tools.scanTextures(gameId);
         break;
     case CmdType::REMOVE_EMPTY_MIPS:
         if (gameId == MeType::UNKNOWN_TYPE)
@@ -495,7 +494,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        errorCode = tools.removeEmptyMips(gameId, ipc);
+        errorCode = tools.removeEmptyMips(gameId);
         break;
     case CmdType::UPDATE_TOC:
     {
@@ -505,7 +504,7 @@ int ProcessArguments()
     }
     case CmdType::UNPACK_DLCS:
     {
-        if (!tools.unpackAllDLCs(ipc))
+        if (!tools.unpackAllDLCs())
             errorCode = 1;
         break;
     }
@@ -517,7 +516,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.repackGame(gameId, ipc))
+        if (!tools.repackGame(gameId))
             errorCode = 1;
         break;
     }
@@ -546,7 +545,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.ConvertToMEM(gameId, input, output, markToConvert, ipc))
+        if (!tools.ConvertToMEM(gameId, input, output, markToConvert))
             errorCode = 1;
         break;
     case CmdType::CONVERT_GAME_IMAGE:
@@ -622,7 +621,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.InstallMods(gameId, input, ipc, repackMode, guiMode, limit2k, verify))
+        if (!tools.InstallMods(gameId, input, repackMode, guiMode, limit2k, verify))
         {
             errorCode = 1;
         }
@@ -649,7 +648,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.extractMOD(gameId, input, output, ipc))
+        if (!tools.extractMOD(gameId, input, output))
             errorCode = 1;
         break;
     case CmdType::EXTRACT_MEM:
@@ -674,7 +673,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.extractMEM(gameId, input, output, markToConvert))
+        if (!tools.extractMEM(gameId, input, output))
             errorCode = 1;
         break;
     case CmdType::EXTRACT_TPF:
@@ -693,7 +692,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.extractTPF(input, output, ipc))
+        if (!tools.extractTPF(input, output))
             errorCode = 1;
         break;
     case CmdType::DETECT_MODS:
@@ -703,7 +702,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.DetectMods(gameId, ipc))
+        if (!tools.DetectMods(gameId))
             errorCode = 1;
         break;
     case CmdType::DETECT_BAD_MODS:
@@ -713,7 +712,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.DetectBadMods(gameId, ipc))
+        if (!tools.DetectBadMods(gameId))
             errorCode = 1;
         break;
     case CmdType::APPLY_LODS_GFX:
@@ -733,7 +732,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.PrintLODSettings(gameId, ipc))
+        if (!tools.PrintLODSettings(gameId))
             errorCode = 1;
         break;
     case CmdType::REMOVE_LODS:
@@ -757,7 +756,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.CheckTextures(gameId, ipc))
+        if (!tools.CheckTextures(gameId))
             errorCode = 1;
         break;
     case CmdType::CHECK_GAME_DATA_AFTER:
@@ -767,7 +766,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.checkGameFilesAfter(gameId, ipc))
+        if (!tools.checkGameFilesAfter(gameId))
             errorCode = 1;
         break;
     case CmdType::CHECK_GAME_DATA_MISMATCH:
@@ -777,7 +776,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.detectsMismatchPackagesAfter(gameId, ipc))
+        if (!tools.detectsMismatchPackagesAfter(gameId))
             errorCode = 1;
         break;
     case CmdType::CHECK_GAME_DATA_VANILLA:
@@ -787,7 +786,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.CheckGameData(gameId, ipc))
+        if (!tools.CheckGameData(gameId))
             errorCode = 1;
         break;
     case CmdType::CHECK_FOR_MARKERS:
@@ -797,7 +796,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.CheckForMarkers(gameId, ipc))
+        if (!tools.CheckForMarkers(gameId))
             errorCode = 1;
         break;
     case CmdType::EXTRACT_ALL_DDS:

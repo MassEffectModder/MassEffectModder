@@ -99,11 +99,11 @@ void TreeScan::loadTexturesMap(MeType gameId, Resources &resources, QList<FoundT
     }
 }
 
-bool TreeScan::loadTexturesMapFile(QString &path, QList<FoundTexture> &textures, bool ipc)
+bool TreeScan::loadTexturesMapFile(QString &path, QList<FoundTexture> &textures)
 {
     if (!QFile(path).exists())
     {
-        if (ipc)
+        if (g_ipc)
         {
             ConsoleWrite("[IPC]ERROR_TEXTURE_MAP_MISSING");
             ConsoleSync();
@@ -123,7 +123,7 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<FoundTexture> &textures,
     uint version = fs.ReadUInt32();
     if (tag != textureMapBinTag || version != textureMapBinVersion)
     {
-        if (ipc)
+        if (g_ipc)
         {
             ConsoleWrite("[IPC]ERROR_TEXTURE_MAP_WRONG");
             ConsoleSync();
@@ -181,7 +181,7 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<FoundTexture> &textures,
         }
         if (!found)
         {
-            if (ipc)
+            if (g_ipc)
             {
                 ConsoleWrite(QString("[IPC]ERROR_REMOVED_FILE ") + packages[i]);
                 ConsoleSync();
@@ -193,7 +193,7 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<FoundTexture> &textures,
             foundRemoved = true;
         }
     }
-    if (!ipc && foundRemoved)
+    if (!g_ipc && foundRemoved)
         PERROR("Above files removed since last game data scan.");
 
     for (int i = 0; i < g_GameData->packageFiles.count(); i++)
@@ -209,7 +209,7 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<FoundTexture> &textures,
         }
         if (!found)
         {
-            if (ipc)
+            if (g_ipc)
             {
                 ConsoleWrite(QString("[IPC]ERROR_ADDED_FILE ") + g_GameData->packageFiles[i]);
                 ConsoleSync();
@@ -221,13 +221,13 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<FoundTexture> &textures,
             foundAdded = true;
         }
     }
-    if (!ipc && foundAdded)
+    if (!g_ipc && foundAdded)
         PERROR("Above files added since last game data scan.\n");
 
     return !foundRemoved && !foundAdded;
 }
 
-int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<FoundTexture> &textures, bool ipc)
+int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<FoundTexture> &textures)
 {
     QStringList pkgs;
     QList<MD5FileEntry> md5Entries;
@@ -253,7 +253,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
         QDir(path).mkpath(path);
     QString filename = path + QString("/me%1map.bin").arg((int)gameId);
 
-    if (ipc)
+    if (g_ipc)
     {
         ConsoleWrite("[IPC]STAGE_CONTEXT STAGE_PRESCAN");
         ConsoleSync();
@@ -327,7 +327,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
         QStringList addedFiles;
         QStringList modifiedFiles;
 
-        if (ipc)
+        if (g_ipc)
         {
             ConsoleWrite("[IPC]STAGE_CONTEXT STAGE_SCAN");
             ConsoleSync();
@@ -361,7 +361,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
         int lastProgress = -1;
         int totalPackages = modifiedFiles.count() + addedFiles.count();
         int currentPackage = 0;
-        if (ipc)
+        if (g_ipc)
         {
             ConsoleWrite(QString("[IPC]STAGE_WEIGHT STAGE_SCAN ") +
                 QString::number(((float)totalPackages / g_GameData->packageFiles.count())));
@@ -369,7 +369,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
         }
         for (int i = 0; i < modifiedFiles.count(); i++, currentPackage++)
         {
-            if (ipc)
+            if (g_ipc)
             {
                 ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + modifiedFiles[i]);
                 int newProgress = currentPackage * 100 / totalPackages;
@@ -386,12 +386,12 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
                                      QString::number(totalPackages) + " : " +
                                      modifiedFiles[i] + "\n");
             }
-            FindTextures(gameId, textures, modifiedFiles[i], true, ipc);
+            FindTextures(gameId, textures, modifiedFiles[i], true);
         }
 
         for (int i = 0; i < addedFiles.count(); i++, currentPackage++)
         {
-            if (ipc)
+            if (g_ipc)
             {
                 ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + addedFiles[i]);
                 int newProgress = currentPackage * 100 / totalPackages;
@@ -408,7 +408,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
                                      QString::number(totalPackages) + " : " +
                                      addedFiles[i] + "\n");
             }
-            FindTextures(gameId, textures, addedFiles[i], false, ipc);
+            FindTextures(gameId, textures, addedFiles[i], false);
         }
     }
     else
@@ -416,7 +416,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
         int lastProgress = -1;
         for (int i = 0; i < g_GameData->packageFiles.count(); i++)
         {
-            if (ipc)
+            if (g_ipc)
             {
                 ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + g_GameData->packageFiles[i]);
                 int newProgress = i * 100 / g_GameData->packageFiles.count();
@@ -433,7 +433,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
                                      QString::number(g_GameData->packageFiles.count()) + " : " +
                                      g_GameData->packageFiles[i] + "\n");
             }
-            FindTextures(gameId, textures, g_GameData->packageFiles[i], false, ipc);
+            FindTextures(gameId, textures, g_GameData->packageFiles[i], false);
         }
     }
 
@@ -630,13 +630,13 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
 }
 
 void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> &textures, const QString &packagePath,
-                            bool modified, bool ipc)
+                            bool modified)
 {
     Package package;
     int status = package.Open(g_GameData->GamePath() + packagePath);
     if (status != 0)
     {
-        if (ipc)
+        if (g_ipc)
         {
             ConsoleWrite(QString("[IPC]ERROR Issue opening package file: ") + packagePath);
             ConsoleSync();
@@ -660,7 +660,7 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> &textures, const 
             ByteBuffer exportData = package.getExportData(i);
             if (exportData.ptr() == nullptr)
             {
-                if (ipc)
+                if (g_ipc)
                 {
                     ConsoleWrite(QString("[IPC]ERROR Texture ") + exp.objectName +
                                  " has broken export data in package: " +
@@ -707,7 +707,7 @@ void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> &textures, const 
             uint crc = texture.getCrcTopMipmap();
             if (crc == 0)
             {
-                if (ipc)
+                if (g_ipc)
                 {
                     ConsoleWrite(QString("[IPC]ERROR Texture ") + exp.objectName + " is broken in package: " +
                                  packagePath + "\nExport Id: " + QString::number(i + 1) + "\nSkipping...");

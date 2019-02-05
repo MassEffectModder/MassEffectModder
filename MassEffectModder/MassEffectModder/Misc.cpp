@@ -413,12 +413,12 @@ PixelFormat Misc::changeTextureType(PixelFormat gamePixelFormat, PixelFormat tex
     return gamePixelFormat;
 }
 
-uint Misc::scanFilenameForCRC(const QString &inputFile, bool ipc)
+uint Misc::scanFilenameForCRC(const QString &inputFile)
 {
     QString filename = BaseNameWithoutExt(inputFile);
     if (!filename.contains("0x"))
     {
-        if (ipc)
+        if (g_ipc)
         {
             ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(inputFile));
             ConsoleSync();
@@ -433,7 +433,7 @@ uint Misc::scanFilenameForCRC(const QString &inputFile, bool ipc)
     int idx = filename.indexOf("0x");
     if (filename.size() - idx < 10)
     {
-        if (ipc)
+        if (g_ipc)
         {
             ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(inputFile));
             ConsoleSync();
@@ -450,7 +450,7 @@ uint Misc::scanFilenameForCRC(const QString &inputFile, bool ipc)
     uint crc = crcStr.toUInt(&ok, 16);
     if (crc == 0)
     {
-        if (ipc)
+        if (g_ipc)
         {
             ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(inputFile));
             ConsoleSync();
@@ -482,14 +482,14 @@ FoundTexture Misc::FoundTextureInTheMap(QList<FoundTexture> &textures, uint crc)
 
 bool Misc::CorrectTexture(Image &image, FoundTexture &f, int numMips, bool markToConvert,
                           PixelFormat pixelFormat, PixelFormat newPixelFormat,
-                          const QString &file, bool ipc)
+                          const QString &file)
 {
     if (!image.checkDDSHaveAllMipmaps() ||
        (numMips > 1 && image.getMipMaps().count() <= 1) ||
        (markToConvert && image.getPixelFormat() != newPixelFormat) ||
        (!markToConvert && image.getPixelFormat() != pixelFormat))
     {
-        if (ipc)
+        if (g_ipc)
         {
             ConsoleWrite(QString("[IPC]PROCESSING_FILE Converting ") + BaseName(file));
             ConsoleSync();
@@ -548,7 +548,7 @@ QString Misc::CorrectTexture(Image *image, Texture &texture, PixelFormat pixelFo
     return errors;
 }
 
-bool Misc::CheckMEMHeader(FileStream &fs, const QString &file, bool ipc)
+bool Misc::CheckMEMHeader(FileStream &fs, const QString &file)
 {
     uint tag = fs.ReadUInt32();
     uint version = fs.ReadUInt32();
@@ -562,7 +562,7 @@ bool Misc::CheckMEMHeader(FileStream &fs, const QString &file, bool ipc)
         {
             PERROR(QString("File ") + BaseName(file) + " is not a valid MEM mod, skipping...\n");
         }
-        if (ipc)
+        if (g_ipc)
         {
             ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
             ConsoleSync();
@@ -572,14 +572,14 @@ bool Misc::CheckMEMHeader(FileStream &fs, const QString &file, bool ipc)
     return true;
 }
 
-bool Misc::CheckMEMGameVersion(FileStream &fs, const QString &file, int gameId, bool ipc)
+bool Misc::CheckMEMGameVersion(FileStream &fs, const QString &file, int gameId)
 {
     uint gameType = 0;
     fs.JumpTo(fs.ReadInt64());
     gameType = fs.ReadUInt32();
     if ((MeType)gameType != gameId)
     {
-        if (ipc)
+        if (g_ipc)
         {
             ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
             ConsoleSync();
@@ -622,11 +622,11 @@ void Misc::ReadModEntryHeader(FileStream &fs, QString &scriptLegacy,
         textureName = desc.split(QChar(' ')).last();
 }
 
-bool Misc::CheckImage(Image &image, FoundTexture &f, const QString &file, int index, bool ipc)
+bool Misc::CheckImage(Image &image, FoundTexture &f, const QString &file, int index)
 {
     if (image.getMipMaps().count() == 0)
     {
-        if (ipc)
+        if (g_ipc)
         {
             ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
             ConsoleSync();
@@ -649,7 +649,7 @@ bool Misc::CheckImage(Image &image, FoundTexture &f, const QString &file, int in
     if (image.getMipMaps().first()->getOrigWidth() / image.getMipMaps().first()->getOrigHeight() !=
         f.width / f.height)
     {
-        if (ipc)
+        if (g_ipc)
         {
             ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
             ConsoleSync();
@@ -782,7 +782,7 @@ static bool compareFileInfoPath(const QFileInfo &e1, const QFileInfo &e2)
 }
 
 bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
-    MeType gameId, QList<FoundTexture> &textures, bool markToConvert, bool onlyIndividual, bool ipc)
+    MeType gameId, QList<FoundTexture> &textures, bool markToConvert, bool onlyIndividual)
 {
     PINFO("Mods conversion started...\n");
 
@@ -834,7 +834,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
         mods.clear();
 
         QString file = list[n].absoluteFilePath();
-        if (ipc)
+        if (g_ipc)
         {
             ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + BaseName(file));
             int newProgress = (n * 100) / list.count();
@@ -854,10 +854,10 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
         if (file.endsWith(".mem", Qt::CaseInsensitive))
         {
             FileStream fs = FileStream(file, FileMode::Open, FileAccess::ReadOnly);
-            if (!CheckMEMHeader(fs, file, ipc))
+            if (!CheckMEMHeader(fs, file))
                 continue;
 
-            if (!CheckMEMGameVersion(fs, file, gameId, ipc))
+            if (!CheckMEMGameVersion(fs, file, gameId))
                 continue;
 
             int numFiles = fs.ReadInt32();
@@ -915,7 +915,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                     if (mod.exportId == -1 || package.length() == 0 || path.length() == 0)
                     {
                         fs.Skip(fs.ReadInt32());
-                        if (ipc)
+                        if (g_ipc)
                         {
                             ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
                             ConsoleSync();
@@ -937,7 +937,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                     if (index == -1)
                     {
                         fs.Skip(fs.ReadInt32());
-                        if (ipc)
+                        if (g_ipc)
                         {
                             ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
                             ConsoleSync();
@@ -956,7 +956,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                     mod.data = fs.ReadToBuffer(fs.ReadInt32());
 
                     Image image = Image(mod.data, ImageFormat::DDS);
-                    if (!CheckImage(image, f, file, i, ipc))
+                    if (!CheckImage(image, f, file, i))
                         continue;
 
                     PixelFormat newPixelFormat = f.pixfmt;
@@ -965,7 +965,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
 
                     int numMips = GetNumberOfMipsFromMap(f);
                     if (CorrectTexture(image, f, numMips, markToConvert,
-                                       f.pixfmt, newPixelFormat, file, ipc))
+                                       f.pixfmt, newPixelFormat, file))
                     {
                         mod.data.Free();
                         mod.data = image.StoreImageToDDS();
@@ -983,7 +983,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
             QString pkgName;
             if (!ParseBinaryModFileName(file, pkgName, dlcName, mod.exportId))
             {
-                if (ipc)
+                if (g_ipc)
                 {
                     ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
                     ConsoleSync();
@@ -1076,7 +1076,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                 uint crc = GetCrcFromTpfList(ddsList, fileName);
                 if (crc == 0)
                 {
-                    if (ipc)
+                    if (g_ipc)
                     {
                         ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
                         ConsoleSync();
@@ -1108,7 +1108,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                 if (result != 0)
                 {
                     ZipGoToNextFile(handle);
-                    if (ipc)
+                    if (g_ipc)
                     {
                         ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
                         ConsoleSync();
@@ -1123,7 +1123,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                 }
 
                 Image image = Image(mod.data, GetFileExtension(fileName));
-                if (!CheckImage(image, f, file, i, ipc))
+                if (!CheckImage(image, f, file, i))
                 {
                     mod.data.Free();
                     continue;
@@ -1135,7 +1135,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
 
                 int numMips = GetNumberOfMipsFromMap(f);
                 if (CorrectTexture(image, f, numMips, markToConvert,
-                                   f.pixfmt, newPixelFormat, file, ipc))
+                                   f.pixfmt, newPixelFormat, file))
                 {
                     mod.data.Free();
                     mod.data = image.StoreImageToDDS();
@@ -1146,7 +1146,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
             }
             goto end;
 failed:
-            if (ipc)
+            if (g_ipc)
             {
                 ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
                 ConsoleSync();
@@ -1166,7 +1166,7 @@ end:
                  file.endsWith(".tga", Qt::CaseInsensitive))
         {
             BinaryMod mod{};
-            uint crc = scanFilenameForCRC(file, ipc);
+            uint crc = scanFilenameForCRC(file);
             if (crc == 0)
                 continue;
 
@@ -1181,7 +1181,7 @@ end:
             markToConvert = DetectMarkToConvertFromFile(file);
 
             Image image(file, ImageFormat::UnknownImageFormat);
-            if (!Misc::CheckImage(image, f, file, -1, ipc))
+            if (!Misc::CheckImage(image, f, file, -1))
                 continue;
 
             PixelFormat newPixelFormat = f.pixfmt;
@@ -1190,7 +1190,7 @@ end:
 
             int numMips = Misc::GetNumberOfMipsFromMap(f);
             CorrectTexture(image, f, numMips, markToConvert,
-                           f.pixfmt, newPixelFormat, file, ipc);
+                           f.pixfmt, newPixelFormat, file);
 
             mod.data = image.StoreImageToDDS();
             mod.textureName = f.name;
@@ -1273,7 +1273,7 @@ end:
         outFs.Close();
         if (QFile(memFilePath).exists())
             QFile(memFilePath).remove();
-        if (ipc)
+        if (g_ipc)
         {
             ConsoleWrite("[IPC]ERROR_NO_BUILDABLE_FILES");
             ConsoleSync();
@@ -1385,7 +1385,7 @@ bool Misc::unpackSFARisNeeded()
     return false;
 }
 
-bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors, QStringList &mods, bool ipc)
+bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors, QStringList &mods)
 {
     bool vanilla = true;
     QList<MD5FileEntry> entries;
@@ -1419,7 +1419,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
     for (int l = 0; l < g_GameData->packageFiles.count(); l++)
     {
         int newProgress = (l + progress) * 100 / allFilesCount;
-        if (ipc)
+        if (g_ipc)
         {
             if (lastProgress != newProgress)
             {
@@ -1543,7 +1543,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
                 errors += QString::number(i, 16);
             }
             errors += "\n";
-            if (ipc)
+            if (g_ipc)
             {
                 ConsoleWrite(QString("[IPC]ERROR ") + g_GameData->packageFiles[l]);
                 ConsoleSync();
@@ -1554,7 +1554,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
 
     for (int l = 0; l < g_GameData->sfarFiles.count(); l++)
     {
-        if (ipc)
+        if (g_ipc)
         {
             int newProgress = (l + progress) * 100 / allFilesCount;
             if (lastProgress != newProgress)
@@ -1608,7 +1608,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
             }
             errors += "\n";
 
-            if (ipc)
+            if (g_ipc)
             {
                 ConsoleWrite(QString("[IPC]ERROR ") + g_GameData->sfarFiles[l]);
                 ConsoleSync();
@@ -1619,7 +1619,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
 
     for (int l = 0; l < g_GameData->tfcFiles.count(); l++)
     {
-        if (ipc)
+        if (g_ipc)
         {
             int newProgress = (l + progress) * 100 / allFilesCount;
             if (lastProgress != newProgress)
@@ -1672,7 +1672,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
                 errors += QString::number(i, 16);
             }
             errors += "\n";
-            if (ipc)
+            if (g_ipc)
             {
                 ConsoleWrite(QString("[IPC]ERROR ") + g_GameData->tfcFiles[l]);
                 ConsoleSync();

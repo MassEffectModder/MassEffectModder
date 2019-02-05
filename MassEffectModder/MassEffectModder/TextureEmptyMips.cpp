@@ -59,7 +59,7 @@ void MipMaps::prepareListToRemove(QList<FoundTexture> &textures, QList<RemoveMip
 }
 
 void MipMaps::removeMipMaps(int phase, QList<FoundTexture> &textures, QStringList &pkgsToMarker,
-                            QStringList &pkgsToRepack, bool ipc, bool repack, bool appendMarker)
+                            QStringList &pkgsToRepack, bool repack, bool appendMarker)
 {
     int lastProgress = -1;
 
@@ -76,7 +76,7 @@ void MipMaps::removeMipMaps(int phase, QList<FoundTexture> &textures, QStringLis
         if (path.length() != 0 && path.compare(list[i].pkgPath, Qt::CaseInsensitive) == 0)
             continue;
 
-        if (ipc)
+        if (g_ipc)
         {
             ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + list[i].pkgPath);
             int newProgress;
@@ -110,7 +110,7 @@ void MipMaps::removeMipMaps(int phase, QList<FoundTexture> &textures, QStringLis
         Package package{};
         if (package.Open(g_GameData->GamePath() + list[i].pkgPath) != 0)
         {
-            if (ipc)
+            if (g_ipc)
             {
                 ConsoleWrite(QString("[IPC]ERROR Issue opening package file: ") + list[i].pkgPath + "\n");
                 ConsoleSync();
@@ -127,13 +127,13 @@ void MipMaps::removeMipMaps(int phase, QList<FoundTexture> &textures, QStringLis
         }
 
         removeMipMapsPerPackage(phase, textures, package, list[i],
-                                pkgsToMarker, pkgsToRepack, ipc, repack, appendMarker);
+                                pkgsToMarker, pkgsToRepack, repack, appendMarker);
     }
 }
 
 void MipMaps::removeMipMapsPerPackage(int phase, QList<FoundTexture> &textures, Package &package,
                                       RemoveMipsEntry &removeEntry, QStringList &pkgsToMarker,
-                                      QStringList &pkgsToRepack, bool ipc, bool repack, bool appendMarker)
+                                      QStringList &pkgsToRepack, bool repack, bool appendMarker)
 {
     for (int l = 0; l < removeEntry.exportIDs.count(); l++)
     {
@@ -141,7 +141,7 @@ void MipMaps::removeMipMapsPerPackage(int phase, QList<FoundTexture> &textures, 
         ByteBuffer exportData = package.getExportData(exportID);
         if (exportData.ptr() == nullptr)
         {
-            if (ipc)
+            if (g_ipc)
             {
                 ConsoleWrite(QString("[IPC]ERROR Texture has broken export data in package: ") +
                              package.packagePath + "\nExport Id: " +
@@ -188,7 +188,7 @@ void MipMaps::removeMipMapsPerPackage(int phase, QList<FoundTexture> &textures, 
             }
             if (foundListEntry == -1)
             {
-                if (ipc)
+                if (g_ipc)
                 {
                     ConsoleWrite(QString("[IPC]ERROR Texture ") + package.exportsTable[exportID].objectName +
                                  " not found in tree: " + removeEntry.pkgPath + ", skipping...");
@@ -213,7 +213,7 @@ void MipMaps::removeMipMapsPerPackage(int phase, QList<FoundTexture> &textures, 
                 const MatchedTexture& foundMasterTex = textures[foundTextureEntry].list[m.linkToMaster];
                 if (texture.mipMapsList.count() != foundMasterTex.masterDataOffset.count())
                 {
-                    if (ipc)
+                    if (g_ipc)
                     {
                         ConsoleWrite(QString("[IPC]ERROR Texture ") + package.exportsTable[exportID].objectName + " in package: " + foundMasterTex.path + " has wrong reference, skipping...");
                         ConsoleSync();

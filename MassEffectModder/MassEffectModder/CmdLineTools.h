@@ -37,52 +37,52 @@ private:
     QList<ModEntry> modsToReplace;
 
     bool detectMod(MeType gameId);
-    bool ScanTextures(MeType gameId, Resources &resources, QList<FoundTexture> &texture, bool ipc);
+    bool ScanTextures(MeType gameId, Resources &resources, QList<FoundTexture> &texture);
     bool RemoveMipmaps(MipMaps &mipMaps, QList<FoundTexture> &textures,
                        QStringList &pkgsToMarker, QStringList &pkgsToRepack,
-                       bool ipc, bool repack, bool appendMarker);
-    void RepackME23(MeType gameId, bool ipc, bool appendMarker);
+                       bool repack, bool appendMarker);
+    void RepackME23(MeType gameId, bool appendMarker);
 
 public:
 
-    int scanTextures(MeType gameId, bool ipc);
-    int removeEmptyMips(MeType gameId, bool ipc);
-    void Repack(MeType gameId, bool ipc);
+    int scanTextures(MeType gameId);
+    int removeEmptyMips(MeType gameId);
+    void Repack(MeType gameId);
     bool updateTOCs();
-    bool unpackAllDLCs(bool ipc);
-    bool repackGame(MeType gameId, bool ipc);
+    bool unpackAllDLCs();
+    bool repackGame(MeType gameId);
     bool unpackArchive(const QString &inputFile, QString &outputDir);
     bool applyModTag(MeType gameId, int MeuitmV, int AlotV);
-    bool ConvertToMEM(MeType gameId, QString &inputDir, QString &memFile, bool markToConvert, bool ipc);
+    bool ConvertToMEM(MeType gameId, QString &inputDir, QString &memFile, bool markToConvert);
     bool convertGameTexture(const QString &inputFile, QString &outputFile, QList<FoundTexture> &textures,
                             bool markToConvert);
     bool convertGameImage(MeType gameId, QString &inputFile, QString &outputFile, bool markToConvert);
     bool convertGameImages(MeType gameId, QString &inputDir, QString &outputDir, bool markToConvert);
     bool convertImage(QString &inputFile, QString &outputFile, QString &format, int dxt1Threshold);
-    bool extractTPF(QString &inputDir, QString &outputDir, bool ipc);
-    bool extractMOD(MeType gameId, QString &inputDir, QString &outputDir, bool ipc);
-    bool extractMEM(MeType gameId, QString &inputDir, QString &outputDir, bool ipc);
+    bool extractTPF(QString &inputDir, QString &outputDir);
+    bool extractMOD(MeType gameId, QString &inputDir, QString &outputDir);
+    bool extractMEM(MeType gameId, QString &inputDir, QString &outputDir);
     bool ApplyME1LAAPatch();
     bool ApplyLODAndGfxSettings(MeType gameId, bool softShadowsME1, bool meuitmMode, bool limit2k);
     bool RemoveLODSettings(MeType gameId);
-    bool PrintLODSettings(MeType gameId, bool ipc);
-    bool CheckGameData(MeType gameId, bool ipc);
-    bool CheckForMarkers(MeType gameId, bool ipc);
-    bool DetectBadMods(MeType gameId, bool ipc);
-    bool DetectMods(MeType gameId, bool ipc);
-    void AddMarkers(bool ipc);
-    bool InstallMods(MeType gameId, QString &inputDir, bool ipc, bool repack, bool guiInstaller,
+    bool PrintLODSettings(MeType gameId);
+    bool CheckGameData(MeType gameId);
+    bool CheckForMarkers(MeType gameId);
+    bool DetectBadMods(MeType gameId);
+    bool DetectMods(MeType gameId);
+    void AddMarkers();
+    bool InstallMods(MeType gameId, QString &inputDir, bool repack, bool guiInstaller,
                      bool limit2k, bool verify);
     bool applyMEMSpecialModME3(MeType gameId, QString &memFile, QString &tfcName, QByteArray &guid, bool verify);
     bool applyMods(QStringList &files, QList<FoundTexture> &textures, MipMaps &mipMaps, bool repack,
-                   bool modded, bool ipc, QString &tfcName, QByteArray &guid, bool verify = false, bool special = false);
+                   bool modded, QString &tfcName, QByteArray &guid, bool verify = false, bool special = false);
     void replaceTextureSpecialME3Mod(Image &image, QList<MatchedTexture> &list, QString &textureName,
                                      QString &tfcName, QByteArray &guid, bool verify);
     bool extractAllTextures(MeType gameId, QString &outputDir, bool png,
                             bool pccOnly, bool tfcOnly, QString &textureTfcFilter);
-    bool CheckTextures(MeType gameId, bool ipc);
-    bool checkGameFilesAfter(MeType gameType, bool ipc = false);
-    bool detectsMismatchPackagesAfter(MeType gameType, bool ipc = false);
+    bool CheckTextures(MeType gameId);
+    bool checkGameFilesAfter(MeType gameType);
+    bool detectsMismatchPackagesAfter(MeType gameType);
 };
 
 #endif

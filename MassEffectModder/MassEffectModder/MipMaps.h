@@ -136,19 +136,19 @@ public:
     void extractTextureToPng(QString &outputFile, QString &packagePath, int exportID);
 
     void removeMipMaps(int phase, QList<FoundTexture> &textures, QStringList &pkgsToMarker,
-                       QStringList &pkgsToRepack, bool ipc, bool repack, bool appendMarker);
+                       QStringList &pkgsToRepack, bool repack, bool appendMarker);
     void removeMipMapsPerPackage(int phase, QList<FoundTexture> &textures, Package &package,
                                  RemoveMipsEntry &removeEntry,
                                  QStringList &pkgsToMarker, QStringList &pkgsToRepack,
-                                 bool ipc, bool repack, bool appendMarker);
+                                 bool repack, bool appendMarker);
 
     PixelFormat changeTextureType(PixelFormat gamePixelFormat, PixelFormat texturePixelFormat, Texture &texture);
     QString replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTexture> &textures,
                             QStringList &pkgsToMarker, QStringList &pkgsToRepack, QList<ModEntry> &modsToReplace,
-                            bool repack, bool appendMarker, bool verify, bool removeMips, bool ipc);
+                            bool repack, bool appendMarker, bool verify, bool removeMips);
     QString replaceModsFromList(QList<FoundTexture> &textures, QStringList &pkgsToMarker,
                                 QStringList &pkgsToRepack,QList<ModEntry> &modsToReplace, bool repack,
-                                bool appendMarker, bool verify, bool removeMips, bool ipc);
+                                bool appendMarker, bool verify, bool removeMips);
 };
 
 #endif

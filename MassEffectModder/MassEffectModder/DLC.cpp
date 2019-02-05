@@ -123,7 +123,7 @@ void ME3DLC::loadHeader(Stream *stream)
     }
 }
 
-void ME3DLC::extract(QString &SFARfilename, bool ipc, int &currentProgress, int totalNumber)
+void ME3DLC::extract(QString &SFARfilename, int &currentProgress, int totalNumber)
 {
     if (!QFile(SFARfilename).exists())
         CRASH_MSG("filename missing\n");
@@ -140,7 +140,7 @@ void ME3DLC::extract(QString &SFARfilename, bool ipc, int &currentProgress, int 
         if (filesList[i].filenamePath.length() == 0)
             CRASH_MSG("filename missing\n");
 
-        if (ipc)
+        if (g_ipc)
         {
             int newProgress = (100 * currentProgress) / totalNumber;
             if (lastProgress != newProgress)
@@ -223,7 +223,7 @@ void ME3DLC::extract(QString &SFARfilename, bool ipc, int &currentProgress, int 
     outputFile.WriteUInt32(LZMATag);
 }
 
-void ME3DLC::unpackAllDLC(bool ipc)
+void ME3DLC::unpackAllDLC()
 {
     if (!QDir(g_GameData->DLCData()).exists())
         return;
@@ -262,7 +262,7 @@ void ME3DLC::unpackAllDLC(bool ipc)
     {
         return;
     }
-    if (ipc)
+    if (g_ipc)
     {
         ConsoleWrite(QString("[IPC]STAGE_WEIGHT STAGE_UNPACKDLC %1").arg(
             QString::number(((float)sfarFiles.count()) / totalSfars)));
@@ -279,7 +279,7 @@ void ME3DLC::unpackAllDLC(bool ipc)
     for (int i = 0; i < sfarFiles.count(); i++)
     {
         ME3DLC dlc = ME3DLC();
-        if (ipc)
+        if (g_ipc)
         {
             ConsoleWrite("[IPC]PROCESSING_FILE " + g_GameData->RelativeGameData(sfarFiles[i]));
             ConsoleSync();
@@ -288,6 +288,6 @@ void ME3DLC::unpackAllDLC(bool ipc)
         {
             PINFO("Unpacking SFAR: " + g_GameData->RelativeGameData(sfarFiles[i]) + "\n");
         }
-        dlc.extract(sfarFiles[i], ipc, currentProgress, totalNumFiles);
+        dlc.extract(sfarFiles[i], currentProgress, totalNumFiles);
     }
 }

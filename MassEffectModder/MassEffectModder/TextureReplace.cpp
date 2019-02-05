@@ -120,7 +120,7 @@ PixelFormat MipMaps::changeTextureType(PixelFormat gamePixelFormat, PixelFormat 
 QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTexture> &textures,
                                  QStringList &pkgsToMarker, QStringList &pkgsToRepack,
                                  QList<ModEntry> &modsToReplace, bool repack,
-                                 bool appendMarker, bool verify, bool removeMips, bool ipc)
+                                 bool appendMarker, bool verify, bool removeMips)
 {
     QString errors = "";
     int lastProgress = -1;
@@ -134,7 +134,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
 
     for (int e = 0; e < map.count(); e++)
     {
-        if (ipc)
+        if (g_ipc)
         {
             ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + map[e].packagePath);
             int newProgress = (e + 1) * 100 / map.count();
@@ -154,7 +154,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
         Package package{};
         if (package.Open(g_GameData->GamePath() + map[e].packagePath) != 0)
         {
-            if (ipc)
+            if (g_ipc)
             {
                 ConsoleWrite(QString("[IPC]ERROR Issue opening package file: ") + map[e].packagePath);
                 ConsoleSync();
@@ -178,7 +178,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
             auto exportData = package.getExportData(matched.exportID);
             if (exportData.ptr() == nullptr)
             {
-                if (ipc)
+                if (g_ipc)
                 {
                     ConsoleWrite(QString("[IPC]ERROR Texture ") + mod.textureName +
                                  " has broken export data in package: " +
@@ -739,7 +739,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
         if (removeMips && !map[e].slave)
         {
             removeMipMapsPerPackage(1, textures, package, map[e].removeMips,
-                                    pkgsToMarker, pkgsToRepack, ipc, repack, appendMarker);
+                                    pkgsToMarker, pkgsToRepack, repack, appendMarker);
         }
         else
         {
@@ -775,12 +775,12 @@ static int comparePaths(const MapTexturesToMod &e1, const MapTexturesToMod &e2)
 
 QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList &pkgsToMarker,
                                      QStringList &pkgsToRepack, QList<ModEntry> &modsToReplace,
-                                     bool repack, bool appendMarker, bool verify, bool removeMips, bool ipc)
+                                     bool repack, bool appendMarker, bool verify, bool removeMips)
 {
     QString errors;
     bool binaryMods = false;
 
-    if (!ipc)
+    if (!g_ipc)
     {
         PINFO("Preparing...\n");
     }
@@ -937,7 +937,7 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList 
 
     if (binaryMods)
     {
-        if (!ipc)
+        if (!g_ipc)
         {
             PINFO("Installing binary mods...\n");
         }
@@ -976,13 +976,13 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList 
 
     if (mapPackages.count() != 0)
     {
-        if (!ipc)
+        if (!g_ipc)
         {
             PINFO("Installing texture mods...\n");
         }
 
         errors += replaceTextures(mapPackages, textures, pkgsToMarker, pkgsToRepack, modsToReplace,
-                                  repack, appendMarker, verify, removeMips, ipc);
+                                  repack, appendMarker, verify, removeMips);
     }
 
     modsToReplace.clear();
