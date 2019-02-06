@@ -900,7 +900,7 @@ int ProcessArguments()
             break;
         }
         path = QDir::cleanPath(path);
-        if (path.length() != 0 && !QDir(path).exists())
+        if (path.length() == 0 || !QDir(path).exists())
         {
             PERROR("Game path doesn't exists!\n");
             errorCode = 1;
@@ -917,7 +917,7 @@ int ProcessArguments()
             break;
         }
         path = QDir::cleanPath(path);
-        if (path.length() != 0 && !QDir(path).exists())
+        if (path.length() == 0 || !QDir(path).exists())
         {
             PERROR("Game config path doesn't exists!\n");
             errorCode = 1;

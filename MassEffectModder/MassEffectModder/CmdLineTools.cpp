@@ -1291,9 +1291,20 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool repack,
         PINFO("Updating LODs and other settings started...");
         QString path = g_GameData->EngineConfigIniPath();
         QDir().mkpath(DirName(path));
+#if !defined(_WIN32)
+        if (QFile(path).exists())
+        {
+            if (!Misc::ConvertEndLines(path, true))
+                return false;
+        }
+#endif
         ConfigIni engineConf = ConfigIni(path);
         LODSettings::updateLOD(gameId, engineConf, limit2k);
         LODSettings::updateGFXSettings(gameId, engineConf, false, false);
+#if !defined(_WIN32)
+        if (!Misc::ConvertEndLines(path, false))
+            return false;
+#endif
         PINFO("Updating LODs and other settings finished");
     }
 

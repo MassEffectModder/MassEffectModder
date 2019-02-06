@@ -258,6 +258,7 @@ void GameData::InternalInit(MeType type, ConfigIni &configIni, bool force = fals
     }
 #endif
 
+    _path = QDir::cleanPath(path);
     if (_path.length() != 0 && QFile(GameExePath()).exists())
     {
 #if defined(_WIN32)
