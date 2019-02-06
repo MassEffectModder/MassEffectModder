@@ -4,7 +4,7 @@ equals(GUI_MODE, true) {
     QT += gui widgets
 } else {
     QT -= gui
-    QT += console
+    CONFIG += console
 }
 
 CONFIG += c++14 static precompile_header
