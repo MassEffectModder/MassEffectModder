@@ -79,27 +79,26 @@ bool Misc::SetGameUserPath(MeType gameId, const QString &path)
 bool Misc::ConvertEndLines(const QString &path, bool unix)
 {
     auto inputFile = new QFile(path);
-    inputFile->open(QIODevice::ReadOnly | QIODevice::Text);
+    if (!inputFile->open(QIODevice::ReadOnly | QIODevice::Text))
+        return false;
     auto text = inputFile->readAll();
     delete inputFile;
     QTextStream streamIn(text);
 
-    auto *file = new QFile(path);
-    if (file->open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
+    if (QFile(path).open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
     {
-        QTextStream streamOut(file);
+        auto fs = FileStream(path, FileMode::Create);
         while (!streamIn.atEnd())
         {
-            streamOut << streamIn.readLine();
+            auto line = streamIn.readLine();
+            fs.WriteStringASCII(line);
             if (unix)
-                streamOut << "\n";
+                fs.WriteStringASCII("\n");
             else
-                streamOut << "\r\n";
+                fs.WriteStringASCII("\r\n");
         }
-        delete file;
         return true;
     }
-    delete file;
     return false;
 }
 
