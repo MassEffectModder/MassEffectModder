@@ -885,8 +885,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                     QString str;
                     fs.ReadStringASCIINull(str);
                     outFs.WriteStringASCIINull(str);
-                    fs.ReadStringASCIINull(str);
-                    outFs.WriteStringASCIINull(str);
+                    outFs.WriteUInt32(fs.ReadUInt32());
                 }
                 else if (fileMod.tag == FileBinaryTag || fileMod.tag == FileXdeltaTag)
                 {
