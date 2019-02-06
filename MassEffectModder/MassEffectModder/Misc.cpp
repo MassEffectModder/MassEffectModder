@@ -76,20 +76,30 @@ bool Misc::SetGameUserPath(MeType gameId, const QString &path)
     return true;
 }
 
-bool Misc::ConvertEndLinesToUnix(const QString &path)
+bool Misc::ConvertEndLines(const QString &path, bool unix)
 {
-    QTextStream streamIn(QFile(path).readAll());
+    auto inputFile = new QFile(path);
+    inputFile->open(QIODevice::ReadOnly | QIODevice::Text);
+    auto text = inputFile->readAll();
+    delete inputFile;
+    QTextStream streamIn(text);
 
-    QFile file(path);
-    if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+    auto *file = new QFile(path);
+    if (file->open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
     {
-        QTextStream streamOut(&file);
+        QTextStream streamOut(file);
         while (!streamIn.atEnd())
         {
             streamOut << streamIn.readLine();
+            if (unix)
+                streamOut << "\n";
+            else
+                streamOut << "\r\n";
         }
+        delete file;
         return true;
     }
+    delete file;
     return false;
 }
 

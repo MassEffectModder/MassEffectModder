@@ -55,7 +55,7 @@ public:
 
     static bool SetGameDataPath(MeType gameId, const QString &path);
     static bool SetGameUserPath(MeType gameId, const QString &path);
-    static bool ConvertEndLinesToUnix(const QString &path);
+    static bool ConvertEndLines(const QString &path, bool unix);
     static bool ApplyLAAForME1Exe();
     static bool ChangeProductNameForME1Exe();
     static bool checkWriteAccessDir(const QString &path);
