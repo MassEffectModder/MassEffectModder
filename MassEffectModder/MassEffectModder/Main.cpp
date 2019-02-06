@@ -72,11 +72,13 @@ int main(int argc, char *argv[])
 #endif
     g_logs->ChangeLogLevel(LOG_INFO);
 
+#ifdef GUI
     PINFO("\n----------------------------------------------------");
     PINFO(QString("Log started at: ") + QDateTime::currentDateTime().toString());
     PINFO(QString(APP_NAME) + " v" + QString(MEM_VERSION));
     PINFO(QString("OS: ") + QSysInfo::productType() + " " + QSysInfo::productVersion());
     PINFO(QString("RAM: ") + QString::number(DetectAmountMemoryGB()) + " GB\n");
+#endif
 
     int status = runQtApplication(argc, argv);
 
