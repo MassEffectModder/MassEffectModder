@@ -38,7 +38,7 @@ bool Misc::SetGameDataPath(MeType gameId, const QString &path)
 
     QString key = QString("ME%1").arg(static_cast<int>(gameId));
 #if defined(_WIN32)
-    configIni.Write(key, path.replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameDataPath");
+    configIni.Write(key, QString(path).replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameDataPath");
 #else
     configIni.Write(key, path, "GameDataPath");
 #endif
@@ -59,7 +59,7 @@ bool Misc::SetGameUserPath(MeType gameId, const QString &path)
 
     QString key = QString("ME%1").arg(static_cast<int>(gameId));
 #if defined(_WIN32)
-    configIni.Write(key, path.replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameUserPath");
+    configIni.Write(key, QString(path).replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameUserPath");
 #else
     configIni.Write(key, path, "GameUserPath");
 #endif
