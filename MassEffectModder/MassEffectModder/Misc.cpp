@@ -1213,10 +1213,18 @@ end:
         {
             FileMod fileMod{};
             std::unique_ptr<Stream> dst (new MemoryStream());
-            MipMaps::compressData(mods[l].data, *dst);
-            dst->SeekBegin();
-            fileMod.offset = outFs.Position();
-            fileMod.size = dst->Length();
+            if (mods[l].data.size() != 0)
+            {
+                MipMaps::compressData(mods[l].data, *dst);
+                dst->SeekBegin();
+                fileMod.offset = outFs.Position();
+                fileMod.size = dst->Length();
+            }
+            else
+            {
+                fileMod.offset = mods[l].offset;
+                fileMod.size = mods[l].size;
+            }
 
             if (mods[l].binaryModType == 1)
             {
@@ -1266,7 +1274,8 @@ end:
                 outFs.WriteStringASCIINull(mods[l].textureName);
                 outFs.WriteUInt32(mods[l].textureCrc);
             }
-            outFs.CopyFrom(*dst, dst->Length());
+            if (mods[l].data.size() != 0)
+                outFs.CopyFrom(*dst, dst->Length());
             modFiles.push_back(fileMod);
         }
     }
