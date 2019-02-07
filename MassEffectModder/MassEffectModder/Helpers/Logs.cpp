@@ -82,9 +82,9 @@ void Logs::Print(int level, const QString &message, int flags)
     if (consoleEnabled&& flags & LOG_CONSOLE)
     {
 #if defined(_WIN32)
-        ::_putws((timestampStr + message).toStdWString().c_str());
+        ::_fputws((timestampStr + message).toStdWString().c_str(), stdout);
 #else
-        std::puts((timestampStr + message).toStdString().c_str());
+        std::fputs((timestampStr + message).toStdString().c_str(), stdout);
 #endif
     }
 
