@@ -76,7 +76,7 @@ bool Misc::SetGameUserPath(MeType gameId, const QString &path)
     return true;
 }
 
-bool Misc::ConvertEndLines(const QString &path, bool unix)
+bool Misc::ConvertEndLines(const QString &path, bool unixMode)
 {
     auto inputFile = new QFile(path);
     if (!inputFile->open(QIODevice::ReadOnly | QIODevice::Text))
@@ -92,7 +92,7 @@ bool Misc::ConvertEndLines(const QString &path, bool unix)
         {
             auto line = streamIn.readLine();
             fs.WriteStringASCII(line);
-            if (unix)
+            if (unixMode)
                 fs.WriteStringASCII("\n");
             else
                 fs.WriteStringASCII("\r\n");
