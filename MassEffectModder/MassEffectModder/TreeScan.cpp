@@ -194,7 +194,7 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<FoundTexture> &textures)
         }
     }
     if (!g_ipc && foundRemoved)
-        PERROR("Above files removed since last game data scan.");
+        PERROR("Above files removed since last game data scan.\n");
 
     for (int i = 0; i < g_GameData->packageFiles.count(); i++)
     {

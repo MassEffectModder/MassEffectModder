@@ -780,11 +780,6 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList 
     QString errors;
     bool binaryMods = false;
 
-    if (!g_ipc)
-    {
-        PINFO("Preparing...\n");
-    }
-
     // Remove duplicates
     for (int i = 0; i < modsToReplace.count(); i++)
     {
@@ -939,7 +934,7 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList 
     {
         if (!g_ipc)
         {
-            PINFO("Installing binary mods...\n");
+            PINFO("\nInstalling binary mods...\n");
         }
 
         for (int i = 0; i < modsToReplace.count(); i++)
@@ -978,7 +973,7 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList 
     {
         if (!g_ipc)
         {
-            PINFO("Installing texture mods...\n");
+            PINFO("\nInstalling texture mods...\n");
         }
 
         errors += replaceTextures(mapPackages, textures, pkgsToMarker, pkgsToRepack, modsToReplace,
