@@ -1999,7 +1999,7 @@ bool CmdLineTools::CheckTextures(MeType gameId)
         else
         {
             PINFO(QString("Package ") + QString::number(i + 1) + " of " +
-                         QString::number(g_GameData->packageFiles.count()) +" - " +
+                         QString::number(g_GameData->packageFiles.count()) + " - " +
                          g_GameData->packageFiles[i] + "\n");
         }
         int newProgress = (i + 1) * 100 / g_GameData->packageFiles.count();
@@ -2065,14 +2065,14 @@ bool CmdLineTools::CheckTextures(MeType gameId)
                         if (g_ipc)
                         {
                             ConsoleWrite(QString("[IPC]ERROR_TEXTURE_SCAN_DIAGNOSTIC Issue opening texture data: ") +
-                                        package.exportsTable[e].objectName + "mipmap: " + m + " in package: " +
+                                        package.exportsTable[e].objectName + ", mipmap: " + QString::number(m) + " in package: " +
                                         g_GameData->packageFiles[i]);
                             ConsoleSync();
                         }
                         else
                         {
                             PERROR(QString("Error: Issue opening texture data: ") +
-                                         package.exportsTable[e].objectName + "mipmap: " + m + " in package: " +
+                                         package.exportsTable[e].objectName + ", mipmap: " + QString::number(m) + " in package: " +
                                          g_GameData->packageFiles[i] + "\n");
                         }
                     }
