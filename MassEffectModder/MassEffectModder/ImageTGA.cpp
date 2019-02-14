@@ -27,7 +27,7 @@ void Image::LoadImageTGA(Stream &stream)
 
     int colorMapType = stream.ReadByte();
     if (colorMapType != 0)
-        CRASH_MSG("Nndexed TGA not supported!\n");
+        CRASH_MSG("Indexed TGA not supported!\n");
 
     int imageType = stream.ReadByte();
     if (imageType != 2 && imageType != 10)
