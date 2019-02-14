@@ -73,13 +73,13 @@ void Logs::Print(int level, const QString &message, int flags)
 
     lock.lock();
 
-    if (errorBufferEnabled && flags & LOG_ERROR_BUFFER)
+    if (errorBufferEnabled && (flags & LOG_ERROR_BUFFER))
         errorsString += message;
 
     if (timeStampEnabled)
         timestampStr = QString("[") + (startedTimestamp - timestamp) + "] ";
 
-    if (consoleEnabled&& flags & LOG_CONSOLE)
+    if (consoleEnabled && (flags & LOG_CONSOLE))
     {
 #if defined(_WIN32)
         std::fputws((timestampStr + message).toStdWString().c_str(), stdout);
@@ -88,7 +88,7 @@ void Logs::Print(int level, const QString &message, int flags)
 #endif
     }
 
-    if (fileEnabled && flags & LOG_FILE)
+    if (fileEnabled && (flags & LOG_FILE))
     {
         FILE *file = fopen("Log.txt", "a");
         if (file)
