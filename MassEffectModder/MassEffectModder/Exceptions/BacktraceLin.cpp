@@ -96,14 +96,15 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
                 }
             }
         }
-        if (crashMode && i <= 1)
+        if (crashMode && i <= 2)
             continue;
-        if (exceptionMode && i <= 0)
+        if (exceptionMode && i <= 1)
             continue;
         if (!crashMode && !exceptionMode && i <= 0)
             continue;
         if (strcmp(sourceFunc, "_start") == 0 ||
-            strcmp(sourceFunc, "__libc_start_main") == 0)
+            strcmp(sourceFunc, "__libc_start_main") == 0 ||
+            strcmp(sourceFunc, "???") == 0)
             continue;
 
         output += std::to_string(count) + "  " +
