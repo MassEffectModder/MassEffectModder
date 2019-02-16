@@ -25,7 +25,7 @@
 
 #define MAX_CALLSTACK 100
 
-bool GetBackTrace(std::string &output, bool crashMode = true)
+bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
 {
     void *callstack[MAX_CALLSTACK];
     int offset, status, count = 0;
@@ -48,7 +48,9 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
                     moduleName, address, sourceFunc, &offset);
         if (crashMode && i <= 1)
             continue;
-        if (!crashMode && i <= 0)
+        if (exceptionMode && i <= 0)
+            continue;
+        if (!crashMode && !exceptionMode && i <= 0)
             continue;
         if (strcmp(sourceFunc, "start") == 0)
             continue;

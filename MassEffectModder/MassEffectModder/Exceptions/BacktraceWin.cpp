@@ -113,7 +113,7 @@ static void getFilename(char *dst, const char *src)
     strncpy(dst, src + offset, MAX_PATH - 1);
 }
 
-bool GetBackTrace(std::string &output, bool crashMode = true)
+bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
 {
     bfd_init();
 
@@ -163,9 +163,11 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
         else
             strcpy(moduleFilePath, "???");
 
-        if (crashMode && current <= 1)
+        if (crashMode && current <= 6)
             continue;
-        if (!crashMode && current <= 0)
+        if (exceptionMode && current <= 1)
+            continue;
+        if (!crashMode && !exceptionMode && current <= 0)
             continue;
 
         if (status == 0)

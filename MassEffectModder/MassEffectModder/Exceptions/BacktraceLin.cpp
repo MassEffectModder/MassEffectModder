@@ -40,7 +40,7 @@ static void getFilename(char *dst, const char *src)
 
 #define MAX_CALLSTACK 100
 
-bool GetBackTrace(std::string &output, bool crashMode = true)
+bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
 {
     void *callstack[MAX_CALLSTACK];
     char moduleName[MAX_PATH];
@@ -98,7 +98,9 @@ bool GetBackTrace(std::string &output, bool crashMode = true)
         }
         if (crashMode && i <= 1)
             continue;
-        if (!crashMode && i <= 0)
+        if (exceptionMode && i <= 0)
+            continue;
+        if (!crashMode && !exceptionMode && i <= 0)
             continue;
         if (strcmp(sourceFunc, "_start") == 0 ||
             strcmp(sourceFunc, "__libc_start_main") == 0)

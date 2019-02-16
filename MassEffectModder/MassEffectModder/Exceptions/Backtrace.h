@@ -24,6 +24,6 @@
 
 #include <string>
 
-bool GetBackTrace(std::string &output, bool crashMode = true);
+bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode);
 
 #endif

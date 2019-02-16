@@ -82,7 +82,7 @@ void Exception(const char *file, const char *func, int line, const char *msg)
             ": line " + std::to_string(line) + "\n";
 
     string output = "Backtrace:\n";
-    GetBackTrace(output);
+    GetBackTrace(output, true, false);
 
     LogCrash(output, message);
 
@@ -115,7 +115,7 @@ void Exception(const char *file, const char *func, int line, const char *msg)
     if (crashed)
     {
         string output = "Backtrace:\n";
-        GetBackTrace(output);
+        GetBackTrace(output, false, true);
         LogCrash(output, message);
     }
 
