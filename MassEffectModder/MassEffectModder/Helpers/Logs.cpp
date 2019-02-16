@@ -107,7 +107,7 @@ void Logs::Print(int level, const QString &message, int flags)
 
 void Logs::PrintCrash(const std::string &message)
 {
-    Print(LOG_MAX, QString(message.c_str()), LOG_ALL_OUTPUTS);
+    Print(LOG_NONE, QString(message.c_str()), LOG_ALL_OUTPUTS);
 }
 
 void Logs::PrintError(const QString &message)
