@@ -119,7 +119,7 @@ void Exception(const char *file, const char *func, int line, const char *msg)
         LogCrash(output, message);
     }
 
-    exit(signal);
+    exit(1);
 }
 
 #endif
