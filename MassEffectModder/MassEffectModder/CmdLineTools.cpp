@@ -2044,15 +2044,15 @@ bool CmdLineTools::CheckTextures(MeType gameId)
                     if (g_ipc)
                     {
                         ConsoleWrite(QString("[IPC]ERROR_MIPMAPS_NOT_REMOVED Empty mipmap not removed in texture: ") +
-                                package.exportsTable[e].objectName + " in package: " +
-                                g_GameData->packageFiles[i]);
+                                package.exportsTable[e].objectName + ", package: " +
+                                g_GameData->packageFiles[i] + ", export id: " + QString::number(e + 1));
                         ConsoleSync();
                     }
                     else
                     {
                         PERROR(QString("ERROR: Empty mipmap not removed in texture: ") +
-                                package.exportsTable[e].objectName + " in package: " +
-                                g_GameData->packageFiles[i] + "\n");
+                               package.exportsTable[e].objectName + "\nPackage: " +
+                               g_GameData->packageFiles[i] + "\nExport Id: " + QString::number(e + 1) + "\n");
                     }
                     continue;
                 }
@@ -2065,15 +2065,15 @@ bool CmdLineTools::CheckTextures(MeType gameId)
                         if (g_ipc)
                         {
                             ConsoleWrite(QString("[IPC]ERROR_TEXTURE_SCAN_DIAGNOSTIC Issue opening texture data: ") +
-                                        package.exportsTable[e].objectName + ", mipmap: " + QString::number(m) + " in package: " +
-                                        g_GameData->packageFiles[i]);
+                                        package.exportsTable[e].objectName + ", mipmap: " + QString::number(m) + ", package: " +
+                                        g_GameData->packageFiles[i] + ", export id: " + QString::number(e + 1));
                             ConsoleSync();
                         }
                         else
                         {
                             PERROR(QString("Error: Issue opening texture data: ") +
-                                         package.exportsTable[e].objectName + ", mipmap: " + QString::number(m) + " in package: " +
-                                         g_GameData->packageFiles[i] + "\n");
+                                   package.exportsTable[e].objectName + "\nMipmap: " + QString::number(m) + "\nPackage: " +
+                                   g_GameData->packageFiles[i] + "\nExport Id: " + QString::number(e + 1) + "\n");
                         }
                     }
                     data.Free();
