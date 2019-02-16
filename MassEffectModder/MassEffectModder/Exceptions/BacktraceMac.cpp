@@ -46,16 +46,18 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
         char moduleName[strlen(strings[i]) + 1];
         std::sscanf(strings[i], "%*s %s %s %s %*s %d",
                     moduleName, address, sourceFunc, &offset);
-        if (crashMode && i <= 1)
+        if (crashMode && i <= 2)
             continue;
-        if (exceptionMode && i <= 0)
+        if (exceptionMode && i <= 1)
             continue;
         if (!crashMode && !exceptionMode && i <= 0)
             continue;
-        if (strcmp(sourceFunc, "start") == 0)
+        if (strcmp(sourceFunc, "start") == 0 ||
+            strcmp(moduleName, "") == 0 ||
+            strcmp(moduleName, "???") == 0)
+        {
             continue;
-        if (strcmp(moduleName, "") == 0)
-            continue;
+        }
 
         output += std::to_string(count) + "  " + address + " " + moduleName + " in ";
         char *funcNewName = abi::__cxa_demangle(sourceFunc, nullptr, nullptr, &status);
