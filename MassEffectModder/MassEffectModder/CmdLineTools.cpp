@@ -1459,11 +1459,22 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
                     if (special)
                     {
                         ByteBuffer dst = MipMaps::decompressData(fs, size);
+                        if (dst.size() == 0)
+                        {
+                            if (g_ipc)
+                            {
+                                ConsoleWrite(QString("[IPC]ERROR Failed decompress data: ") + name);
+                                ConsoleSync();
+                            }
+                            PERROR(QString("Failed decompress data: ") + name + "\n");
+                            continue;
+                        }
                         Image image = Image(dst, ImageFormat::DDS);
                         if (!Misc::CheckImage(image, f, "", -1))
                         {
+                            PINFO(QString("Failed load texture: " + modFiles[l].name + "\n"));
                             dst.Free();
-                            return false;
+                            continue;
                         }
                         dst.Free();
                         replaceTextureSpecialME3Mod(image, f.list, f.name, tfcName, guid, verify);
@@ -1499,7 +1510,17 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
                 entry.binaryModType = true;
                 entry.packagePath = pkgPath;
                 entry.exportId = exportId;
-                entry.binaryModData = MipMaps::decompressData(fs, size);;
+                entry.binaryModData = MipMaps::decompressData(fs, size);
+                if (entry.binaryModData.size() == 0)
+                {
+                    if (g_ipc)
+                    {
+                        ConsoleWrite(QString("[IPC]ERROR Failed decompress data: ") + name);
+                        ConsoleSync();
+                    }
+                    PERROR(QString("Failed decompress data: ") + name + "\n");
+                    continue;
+                }
                 modsToReplace.push_back(entry);
             }
             else if (modFiles[l].tag == FileXdeltaTag)
@@ -1526,6 +1547,16 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
                     continue;
                 }
                 ByteBuffer dst = MipMaps::decompressData(fs, size);
+                if (entry.binaryModData.size() == 0)
+                {
+                    if (g_ipc)
+                    {
+                        ConsoleWrite(QString("[IPC]ERROR Failed decompress data: ") + name);
+                        ConsoleSync();
+                    }
+                    PERROR(QString("Failed decompress data: ") + name + "\n");
+                    continue;
+                }
                 auto buffer = ByteBuffer(src.size());
                 uint dstLen = 0;
                 int status = XDelta3Decompress(src.ptr(), src.size(), dst.ptr(), dst.size(), buffer.ptr(), &dstLen);

@@ -205,6 +205,17 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 FileStream fs = FileStream(mod.memPath, FileMode::Open, FileAccess::ReadOnly);
                 fs.JumpTo(mod.memEntryOffset);
                 ByteBuffer data = decompressData(fs, mod.memEntrySize);
+                if (data.size() == 0)
+                {
+                    if (g_ipc)
+                    {
+                        ConsoleWrite(QString("[IPC]ERROR ") + mod.textureName + " MEM file: " + mod.memPath);
+                        ConsoleSync();
+                    }
+                    PERROR(QString("Failed decompress data: ") + mod.textureName +
+                           " MEM file: " + mod.memPath + "\n");
+                    continue;
+                }
                 image = new Image(data, ImageFormat::DDS);
                 data.Free();
                 if (!lowMode)
