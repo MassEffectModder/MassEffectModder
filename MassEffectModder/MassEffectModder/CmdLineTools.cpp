@@ -1470,12 +1470,6 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
                             continue;
                         }
                         Image image = Image(dst, ImageFormat::DDS);
-                        if (!Misc::CheckImage(image, f, "", -1))
-                        {
-                            PINFO(QString("Failed load texture: " + modFiles[l].name + "\n"));
-                            dst.Free();
-                            continue;
-                        }
                         dst.Free();
                         replaceTextureSpecialME3Mod(image, f.list, f.name, tfcName, guid, verify);
                     }
