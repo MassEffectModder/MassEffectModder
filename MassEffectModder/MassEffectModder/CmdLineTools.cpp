@@ -1937,7 +1937,8 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
         {
             continue;
         }
-        if (tfcOnly && !tfcPropExists)
+        if ((tfcOnly && !tfcPropExists) ||
+            (tfcOnly && !texture.HasExternalMips()))
         {
             continue;
         }
@@ -1946,7 +1947,7 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
             if (tfcPropExists)
             {
                 QString archive = texture.getProperties().getProperty("TextureFileCacheName").valueName;
-                if (archive != textureTfcFilter)
+                if (archive != textureTfcFilter || !texture.HasExternalMips())
                 {
                     continue;
                 }

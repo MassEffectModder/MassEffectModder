@@ -105,6 +105,7 @@ public:
     void removeEmptyMips();
     bool hasEmptyMips();
     int numNotEmptyMips();
+    bool HasExternalMips();
     const ByteBuffer toArray(uint pccTextureDataOffset, bool updateOffset = true);
     void Dispose();
 };

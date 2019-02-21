@@ -634,3 +634,17 @@ int Texture::numNotEmptyMips()
     }
     return num;
 }
+
+bool Texture::HasExternalMips()
+{
+    for (int l = 0; l < mipMapsList.count(); l++)
+    {
+        if (mipMapsList[l].storageType == StorageTypes::extUnc ||
+            mipMapsList[l].storageType == StorageTypes::extLZO ||
+            mipMapsList[l].storageType == StorageTypes::extZlib)
+        {
+            return true;
+        }
+    }
+    return false;
+}
