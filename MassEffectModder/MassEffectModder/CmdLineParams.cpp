@@ -425,9 +425,8 @@ int ProcessArguments()
         }
         else if (arg == "--tfc-only")
         {
-            if (!tfcOnly)
-                pccOnly = true;
-            tfcOnly = true;
+            if (!pccOnly)
+                tfcOnly = true;
             args.removeAt(l--);
         }
         else if (arg == "--threshold" && hasValue(args, l))

@@ -1881,122 +1881,124 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
     if (!CheckGamePath())
         return false;
 
-    QList<FoundTexture> textures;
-
-    QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
-            "/MassEffectModder";
-    QString mapFile = path + QString("/me%1map.bin").arg((int)gameId);
-    if (!TreeScan::loadTexturesMapFile(mapFile, textures))
-    {
-        return false;
-    }
-
     QDir().mkpath(outputDir);
 
-    for (int i = 0; i < textures.count(); i++)
+    for (int i = 0; i < g_GameData->packageFiles.count(); i++)
     {
-        int index = -1;
-        for (int s = 0; s < textures[i].list.count(); s++)
-        {
-            if (textures[i].list[s].path.length() != 0)
-            {
-                index = s;
-                break;
-            }
-        }
-        QString outputFile = outputDir + "/" + textures[i].name +
-                QString().sprintf("_0x%08X", textures[i].crc);
-        if (png)
-        {
-            outputFile += ".png";
-        }
-        else
-        {
-            outputFile += ".dds";
-        }
+        PINFO(QString("Package ") + QString::number(i + 1) + "/" +
+                             QString::number(g_GameData->packageFiles.count()) + " : " +
+                             g_GameData->packageFiles[i] + "\n");
+
         Package package;
-        if (package.Open(g_GameData->GamePath() + textures[i].list[index].path) != 0)
+        if (package.Open(g_GameData->GamePath() + g_GameData->packageFiles[i]) != 0)
         {
-            PERROR(QString("Error: Failed open package: ") + textures[i].list[index].path + "\n");
+            PERROR(QString("ERROR: Issue opening package file: ") + g_GameData->packageFiles[i] + "\n");
             continue;
         }
-        int exportID = textures[i].list[index].exportID;
-        ByteBuffer exportData = package.getExportData(exportID);
-        if (exportData.ptr() == nullptr)
+
+        for (int i = 0; i < package.exportsTable.count(); i++)
         {
-            PERROR(QString("Error: Texture ") + textures[i].name +
-                   " has broken export data in package: " +
-                   textures[i].list[index].path + "\nExport Id: " +
-                   QString::number(exportID + 1) + "\nSkipping...\n");
-            continue;
-        }
-        Texture texture = Texture(package, exportID, exportData);
-        exportData.Free();
-        bool tfcPropExists = texture.getProperties().exists("TextureFileCacheName");
-        if (pccOnly && tfcPropExists)
-        {
-            continue;
-        }
-        if ((tfcOnly && !tfcPropExists) ||
-            (tfcOnly && !texture.HasExternalMips()))
-        {
-            continue;
-        }
-        if (!pccOnly && !tfcOnly && textureTfcFilter.length() != 0)
-        {
-            if (tfcPropExists)
+            Package::ExportEntry& exp = package.exportsTable[i];
+            int id = package.getClassNameId(exp.getClassId());
+            if (id == package.nameIdTexture2D ||
+                id == package.nameIdLightMapTexture2D ||
+                id == package.nameIdShadowMapTexture2D ||
+                id == package.nameIdTextureFlipBook)
             {
-                QString archive = texture.getProperties().getProperty("TextureFileCacheName").valueName;
-                if (archive != textureTfcFilter || !texture.HasExternalMips())
+                ByteBuffer exportData = package.getExportData(i);
+                if (exportData.ptr() == nullptr)
+                {
+                    PERROR(QString("Error: Texture ") + exp.objectName +
+                                 " has broken export data in package: " +
+                                 g_GameData->packageFiles[i] +"\nExport Id: " + QString::number(i + 1) + "\nSkipping...\n");
+                    continue;
+                }
+                Texture texture(package, i, exportData);
+                exportData.Free();
+                if (!texture.hasImageData())
                 {
                     continue;
                 }
-            }
-            else
-            {
-                continue;
-            }
-        }
-        PixelFormat pixelFormat = Image::getPixelFormatType(texture.getProperties().getProperty("Format").valueName);
-        if (png)
-        {
-            Texture::TextureMipMap mipmap = texture.getTopMipmap();
-            ByteBuffer data = texture.getTopImageData();
-            if (data.ptr() != nullptr)
-            {
-                if (QFile(outputFile).exists())
-                    QFile(outputFile).remove();
-                Image::saveToPng(data.ptr(), mipmap.width, mipmap.height, pixelFormat, outputFile);
-                data.Free();
-            }
-        }
-        else
-        {
-            texture.removeEmptyMips();
-            QList<MipMap *> mipmaps = QList<MipMap *>();
-            for (int k = 0; k < texture.mipMapsList.count(); k++)
-            {
-                ByteBuffer data = texture.getMipMapDataByIndex(k);
-                if (data.ptr() == nullptr)
+
+                bool tfcPropExists = texture.getProperties().exists("TextureFileCacheName");
+                if ((pccOnly && tfcPropExists) ||
+                    (tfcOnly && !tfcPropExists) ||
+                    (tfcOnly && !texture.HasExternalMips()))
                 {
                     continue;
                 }
-                mipmaps.push_back(new MipMap(data, texture.mipMapsList[k].width, texture.mipMapsList[k].height, pixelFormat));
-                data.Free();
-            }
-            Image image = Image(mipmaps, pixelFormat);
-            if (image.getMipMaps().count() != 0)
-            {
+                if (!pccOnly && !tfcOnly && textureTfcFilter.length() != 0)
+                {
+                    if (!tfcPropExists)
+                        continue;
+                    QString archive = texture.getProperties().getProperty("TextureFileCacheName").valueName;
+                    if (archive != textureTfcFilter ||
+                        !texture.HasExternalMips())
+                    {
+                        continue;
+                    }
+                }
+                QString name = exp.objectName;
+                uint crc = texture.getCrcTopMipmap();
+                if (crc == 0)
+                {
+                    PERROR(QString("Error: Texture ") + name + " is broken in package: " +
+                                 g_GameData->packageFiles[i] +"\nExport Id: " + QString::number(i + 1) + "\nSkipping...\n");
+                    continue;
+                }
+                QString outputFile = outputDir + "/" +  name +
+                        QString().sprintf("_0x%08X", crc);
+                if (png)
+                {
+                    outputFile += ".png";
+                }
+                else
+                {
+                    outputFile += ".dds";
+                }
                 if (QFile(outputFile).exists())
-                    QFile(outputFile).remove();
-                FileStream fs = FileStream(outputFile, FileMode::Create, FileAccess::WriteOnly);
-                image.StoreImageToDDS(fs);
-            }
-            else
-            {
-                PERROR(QString("Texture skipped. Texture ") + textures[i].name +
-                             QString().sprintf("_0x%08X", textures[i].crc) + " is broken in game data!\n");
-                return false;
+                    continue;
+                PixelFormat pixelFormat = Image::getPixelFormatType(texture.getProperties().getProperty("Format").valueName);
+                if (png)
+                {
+                    Texture::TextureMipMap mipmap = texture.getTopMipmap();
+                    ByteBuffer data = texture.getTopImageData();
+                    if (data.ptr() != nullptr)
+                    {
+                        if (QFile(outputFile).exists())
+                            QFile(outputFile).remove();
+                        Image::saveToPng(data.ptr(), mipmap.width, mipmap.height, pixelFormat, outputFile);
+                        data.Free();
+                    }
+                }
+                else
+                {
+                    texture.removeEmptyMips();
+                    QList<MipMap *> mipmaps = QList<MipMap *>();
+                    for (int k = 0; k < texture.mipMapsList.count(); k++)
+                    {
+                        ByteBuffer data = texture.getMipMapDataByIndex(k);
+                        if (data.ptr() == nullptr)
+                        {
+                            continue;
+                        }
+                        mipmaps.push_back(new MipMap(data, texture.mipMapsList[k].width, texture.mipMapsList[k].height, pixelFormat));
+                        data.Free();
+                    }
+                    Image image = Image(mipmaps, pixelFormat);
+                    if (image.getMipMaps().count() != 0)
+                    {
+                        if (QFile(outputFile).exists())
+                            QFile(outputFile).remove();
+                        FileStream fs = FileStream(outputFile, FileMode::Create, FileAccess::WriteOnly);
+                        image.StoreImageToDDS(fs);
+                    }
+                    else
+                    {
+                        PERROR(QString("Texture skipped. Texture ") + name +
+                                     QString().sprintf("_0x%08X", crc) + " is broken in game data!\n");
+                    }
+                }
             }
         }
     }
