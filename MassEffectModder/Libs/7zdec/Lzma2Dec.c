@@ -1,5 +1,5 @@
 /* Lzma2Dec.c -- LZMA2 Decoder
-2018-07-04 : Igor Pavlov : Public domain */
+2019-02-02 : Igor Pavlov : Public domain */
 
 /* #define SHOW_DEBUG_INFO */
 
@@ -331,7 +331,7 @@ ELzma2ParseStatus Lzma2Dec_Parse(CLzma2Dec *p,
       {
         // if (p->decoder.dicPos != 0)
         if (p->control == LZMA2_CONTROL_COPY_RESET_DIC || p->control >= 0xE0)
-          return (ELzma2ParseStatus)LZMA2_PARSE_STATUS_NEW_BLOCK;
+          return LZMA2_PARSE_STATUS_NEW_BLOCK;
         // if (outSize == 0) return LZMA_STATUS_NOT_FINISHED;
       }
 
@@ -348,7 +348,7 @@ ELzma2ParseStatus Lzma2Dec_Parse(CLzma2Dec *p,
       }
 
       if (p->state == LZMA2_STATE_DATA)
-        return (ELzma2ParseStatus)LZMA2_PARSE_STATUS_NEW_CHUNK;
+        return LZMA2_PARSE_STATUS_NEW_CHUNK;
 
       continue;
     }
