@@ -828,6 +828,8 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
     if (QFile(memFilePath).exists())
         QFile(memFilePath).remove();
 
+    Misc::startTimer();
+
     FileStream outFs = FileStream(memFilePath, FileMode::Create, FileAccess::WriteOnly);
     outFs.WriteUInt32(TextureModTag);
     outFs.WriteUInt32(TextureModVersion);
@@ -1313,6 +1315,9 @@ end:
         outFs.WriteInt64(modFiles[i].offset);
         outFs.WriteInt64(modFiles[i].size);
     }
+
+    long elapsed = Misc::elapsedTime();
+    PINFO(Misc::getTimerFormat(elapsed) + "\n");
 
     return true;
 }
