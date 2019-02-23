@@ -45,7 +45,8 @@ int ZlibDecompress(unsigned char *src, unsigned int src_len, unsigned char *dst,
     return status;
 }
 
-int ZlibCompress(unsigned char *src, unsigned int src_len, unsigned char **dst, unsigned int *dst_len, int compression_level)
+int ZlibCompress(unsigned char *src, unsigned int src_len,
+                 unsigned char **dst, unsigned int *dst_len, int compression_level)
 {
     int tmpBufLen = (src_len * 2) + 128;
     uLongf len = tmpBufLen;

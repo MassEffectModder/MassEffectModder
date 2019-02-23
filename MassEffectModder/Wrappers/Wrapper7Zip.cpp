@@ -34,7 +34,8 @@ int LzmaDecompress(unsigned char *src, unsigned int src_len, unsigned char *dst,
     return status;
 }
 
-int LzmaCompressData(unsigned char *src, unsigned int src_len, unsigned char **dst, unsigned int *dst_len)
+int LzmaCompressData(unsigned char *src, unsigned int src_len,
+                     unsigned char **dst, unsigned int *dst_len, int compress_level)
 {
     size_t propsSize = LZMA_PROPS_SIZE;
     size_t destLen = src_len + src_len / 3 + 128;
@@ -48,7 +49,7 @@ int LzmaCompressData(unsigned char *src, unsigned int src_len, unsigned char **d
                               (size_t)src_len,
                               tmpbuf,
                               &propsSize,
-                              -1, 0, -1, -1, -1, -1, -1);
+                              compress_level, 0, -1, -1, -1, -1, 1);
     if (status == SZ_OK)
     {
         *dst = new unsigned char[propsSize + destLen];

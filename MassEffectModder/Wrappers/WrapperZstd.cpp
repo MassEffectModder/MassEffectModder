@@ -55,7 +55,8 @@ int ZstdDecompress(unsigned char *src, unsigned int src_len, unsigned char *dst,
     return 0;
 }
 
-int ZstdCompress(unsigned char *src, unsigned int src_len, unsigned char **dst, unsigned int *dst_len, int compression_level)
+int ZstdCompress(unsigned char *src, unsigned int src_len,
+                 unsigned char **dst, unsigned int *dst_len, int compression_level)
 {
     size_t const tmpBufLen = ZSTD_compressBound(src_len);
     auto *tmpbuf = new unsigned char[tmpBufLen];

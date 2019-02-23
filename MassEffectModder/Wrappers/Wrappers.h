@@ -27,7 +27,7 @@ typedef unsigned int       UINT32;
 typedef unsigned long long UINT64;
 
 int LzmaDecompress(BYTE *src, UINT32 src_len, BYTE *dst, UINT32 *dst_len);
-int LzmaCompressData(BYTE *src, UINT32 src_len, BYTE **dst, UINT32 *dst_len);
+int LzmaCompressData(BYTE *src, UINT32 src_len, BYTE **dst, UINT32 *dst_len, int compress_level);
 
 int LzoDecompress(BYTE *src, UINT32 src_len, BYTE *dst, UINT32 *dst_len);
 int LzoCompress(BYTE *src, UINT32 src_len, BYTE **dst, UINT32 *dst_len);
