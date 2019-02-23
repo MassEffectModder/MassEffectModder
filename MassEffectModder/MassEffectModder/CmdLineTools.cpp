@@ -596,6 +596,8 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
         outputDir += "/";
     }
 
+    Misc::startTimer();
+
     int currentNumberOfTotalMods = 1;
     int totalNumberOfMods = 0;
     for (int i = 0; i < list.count(); i++)
@@ -737,6 +739,9 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
             dst.Free();
         }
     }
+
+    long elapsed = Misc::elapsedTime();
+    PINFO(Misc::getTimerFormat(elapsed) + "\n");
 
     PINFO("Extract MEM mod files completed.\n\n");
     return true;
