@@ -226,7 +226,7 @@ const ByteBuffer Texture::compressTexture(const ByteBuffer &inputData, StorageTy
         }
         else if (type == StorageTypes::extZlib || type == StorageTypes::pccZlib)
         {
-            if (ZlibCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) == -100)
+            if (ZlibCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize, 1) == -100)
                 CRASH_MSG("Out of memory!\n");
         }
         else
