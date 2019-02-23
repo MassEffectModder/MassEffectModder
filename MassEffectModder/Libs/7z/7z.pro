@@ -21,11 +21,11 @@ SOURCES += \
     BraIA64.c \
     CpuArch.c \
     Delta.c \
+    LzFind.c \
     Lzma2Dec.c \
     Lzma2Enc.c \
     LzmaDec.c \
     LzmaEnc.c \
-    LzmaFind.c \
     LzmaLib.c \
     Ppmd7.c \
     Ppmd7Dec.c
@@ -43,16 +43,16 @@ HEADERS += \
     Compiler.h \
     CpuArch.h \
     Delta.h \
+    LzFind.h \
+    LzHash.h \
     Lzma2Dec.h \
     Lzma2Enc.h \
     LzmaDec.h \
     LzmaEnc.h \
-    LzmaFind.h \
-    LzmaHash.h \
     LzmaLib.h \
     Ppmd7.h \
     Precomp.h
 
-QMAKE_CFLAGS += -O3
+QMAKE_CFLAGS += -D_7ZIP_ST
 QMAKE_CFLAGS_RELEASE += -g1
 QMAKE_CFLAGS_DEBUG += -g

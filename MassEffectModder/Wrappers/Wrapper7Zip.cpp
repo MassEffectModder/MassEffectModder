@@ -20,6 +20,8 @@
  */
 
 #include <LzmaLib.h>
+#include <cstring>
+#include <memory>
 
 int LzmaDecompress(unsigned char *src, unsigned int src_len, unsigned char *dst, unsigned int *dst_len)
 {
@@ -28,6 +30,42 @@ int LzmaDecompress(unsigned char *src, unsigned int src_len, unsigned char *dst,
     int status = LzmaUncompress(dst, &len, &src[LZMA_PROPS_SIZE], &sLen, src, LZMA_PROPS_SIZE);
     if (status == SZ_OK)
         *dst_len = static_cast<unsigned int>(len);
+
+    return status;
+}
+
+int LzmaCompressData(unsigned char *src, unsigned int src_len, unsigned char **dst, unsigned int *dst_len)
+{
+    size_t propsSize = LZMA_PROPS_SIZE;
+    size_t destLen = src_len + src_len / 3 + 128;
+    auto *tmpbuf = new unsigned char[propsSize + destLen];
+    if (tmpbuf == nullptr)
+        return -100;
+
+    int status = LzmaCompress(&tmpbuf[LZMA_PROPS_SIZE],
+                              &destLen,
+                              (const unsigned char *)src,
+                              (size_t)src_len,
+                              tmpbuf,
+                              &propsSize,
+                              -1, 0, -1, -1, -1, -1, -1);
+    if (status == SZ_OK)
+    {
+        *dst = new unsigned char[propsSize + destLen];
+        if (*dst == nullptr)
+        {
+            delete[] tmpbuf;
+            return -100;
+        }
+        memcpy(*dst, tmpbuf, propsSize + destLen);
+        *dst_len = static_cast<unsigned int>(propsSize + destLen);
+    }
+    else
+    {
+        *dst_len = 0;
+    }
+
+    delete[] tmpbuf;
 
     return status;
 }
