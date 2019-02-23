@@ -1269,7 +1269,7 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool repack,
 
     QString tfcName;
     QByteArray guid;
-    applyMods(modFiles, textures, mipMaps, repack, modded, tfcName, guid, verify, false);
+    applyMods(modFiles, textures, mipMaps, repack, modded, tfcName, guid, false, verify, false);
 
 
     if (!modded)
@@ -1322,7 +1322,9 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool repack,
     return true;
 }
 
-bool CmdLineTools::applyMEMSpecialModME3(MeType gameId, QString &memFile, QString &tfcName, QByteArray &guid, bool verify)
+bool CmdLineTools::applyMEMSpecialModME3(MeType gameId, QString &memFile,
+                                           QString &tfcName, QByteArray &guid,
+                                           bool appendTfc, bool verify)
 {
     Resources resources;
     MipMaps mipMaps;
@@ -1345,13 +1347,14 @@ bool CmdLineTools::applyMEMSpecialModME3(MeType gameId, QString &memFile, QStrin
     QStringList memFiles = QStringList();
     memFiles.push_back(memFile);
 
-    applyMods(memFiles, textures, mipMaps, false, false, tfcName, guid, verify, true);
+    applyMods(memFiles, textures, mipMaps, false, false, tfcName, guid, appendTfc, verify, true);
 
     return true;
 }
 
 bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, MipMaps &mipMaps, bool repack,
-                             bool modded, QString &tfcName, QByteArray &guid, bool verify, bool special)
+                             bool modded, QString &tfcName, QByteArray &guid, bool appendTfc,
+                             bool verify, bool special)
 {
     bool status = true;
 
@@ -1471,7 +1474,7 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
                         }
                         Image image = Image(dst, ImageFormat::DDS);
                         dst.Free();
-                        replaceTextureSpecialME3Mod(image, f.list, f.name, tfcName, guid, verify);
+                        replaceTextureSpecialME3Mod(image, f.list, f.name, tfcName, guid, appendTfc, verify);
                     }
                     else
                     {
@@ -1584,7 +1587,7 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
 
 void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTexture> &list,
                                                QString &textureName, QString &tfcName,
-                                               QByteArray &guid, bool verify)
+                                               QByteArray &guid, bool appendTfc, bool verify)
 {
     Texture *arcTexture = nullptr, *cprTexture = nullptr;
 
@@ -1779,7 +1782,8 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTextur
                     auto mipMapExists = texture->existMipmap(mipmap.width, mipmap.height);
                     if (mipMapExists)
                         oldMipmap = texture->getMipmap(mipmap.width, mipmap.height);
-                    if (memcmp(origGuid, texture->getProperties().getProperty("TFCFileGuid").valueStruct.ptr(), 16) != 0 &&
+                    if (!appendTfc &&
+                        memcmp(origGuid, texture->getProperties().getProperty("TFCFileGuid").valueStruct.ptr(), 16) != 0 &&
                         mipMapExists && mipmap.newData.size() <= oldMipmap.compressedSize)
                     {
                         FileStream fs = FileStream(archiveFile, FileMode::Open, FileAccess::ReadWrite);

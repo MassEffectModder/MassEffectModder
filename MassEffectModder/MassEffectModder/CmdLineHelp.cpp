@@ -191,7 +191,7 @@ void DisplayHelp()
     PINFO("     Textures are extracted with only top mipmap.\n");
     PINFO("\n");
     PINFO("  --dlc-mod-textures --gameid <game id> --input <mem file>\n");
-    PINFO("  [--tfc-name <tfc name>] [--guid <guid in 16 hex digits>] [--verify]\n");
+    PINFO("  [--tfc-name <tfc name>] [--guid <guid in 16 hex digits>] [--append-tfc] [--verify]\n");
     PINFO("     Replace textures from <mem file> and store in new <tfc name> file.\n");
     PINFO("     New TFC name must be added earlier to PCC files.\n");
     PINFO("\n");

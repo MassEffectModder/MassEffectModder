@@ -248,6 +248,7 @@ int ProcessArguments()
     bool limit2k = false;
     bool pccOnly = false;
     bool tfcOnly = false;
+    bool appendTfc = false;
     bool verify = false;
     int thresholdValue = 128;
     QString input, output, threshold, format, tfcName, guid, path;
@@ -449,6 +450,12 @@ int ProcessArguments()
         {
             if (!pccOnly && !tfcOnly)
                 tfcName = args[l + 1];
+            args.removeAt(l);
+            args.removeAt(l--);
+        }
+        else if (arg == "--append-tfc")
+        {
+            appendTfc = true;
             args.removeAt(l);
             args.removeAt(l--);
         }
@@ -876,7 +883,7 @@ int ProcessArguments()
             }
             array = QByteArray(reinterpret_cast<char *>(guidArray), 16);
         }
-        if (!tools.applyMEMSpecialModME3(gameId, input, tfcName, array, verify))
+        if (!tools.applyMEMSpecialModME3(gameId, input, tfcName, array, appendTfc, verify))
             errorCode = 1;
         break;
     }
