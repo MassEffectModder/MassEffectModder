@@ -12,6 +12,7 @@ SUBDIRS += \
     Libs/png \
     Libs/xdelta3 \
     Libs/zlib \
+    Libs/zstd \
     Libs/unrar \
     Wrappers \
     MassEffectModder
