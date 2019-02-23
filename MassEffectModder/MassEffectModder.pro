@@ -6,7 +6,7 @@ GUI_MODE = true
 cache(GUI_MODE, set)
 
 SUBDIRS += \
-    Libs/7zdec \
+    Libs/7z \
     Libs/dxtc \
     Libs/lzo2 \
     Libs/png \

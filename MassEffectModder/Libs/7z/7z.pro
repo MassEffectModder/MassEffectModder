@@ -22,7 +22,10 @@ SOURCES += \
     CpuArch.c \
     Delta.c \
     Lzma2Dec.c \
+    Lzma2Enc.c \
     LzmaDec.c \
+    LzmaEnc.c \
+    LzmaFind.c \
     LzmaLib.c \
     Ppmd7.c \
     Ppmd7Dec.c
@@ -41,7 +44,11 @@ HEADERS += \
     CpuArch.h \
     Delta.h \
     Lzma2Dec.h \
+    Lzma2Enc.h \
     LzmaDec.h \
+    LzmaEnc.h \
+    LzmaFind.h \
+    LzmaHash.h \
     LzmaLib.h \
     Ppmd7.h \
     Precomp.h

@@ -22,7 +22,7 @@ DEFINES +=
 
 win32-g++: {
     Release:PRE_TARGETDEPS += \
-    $$OUT_PWD/../Libs/7zdec/release/lib7zdec.a \
+    $$OUT_PWD/../Libs/7z/release/lib7z.a \
     $$OUT_PWD/../Libs/dxtc/release/libdxtc.a \
     $$OUT_PWD/../Libs/lzo2/release/liblzo2.a \
     $$OUT_PWD/../Libs/png/release/libpng.a \
@@ -30,7 +30,7 @@ win32-g++: {
     $$OUT_PWD/../Libs/zlib/release/libzlib.a \
     $$OUT_PWD/../Libs/unrar/release/libunrar.a
     Debug:PRE_TARGETDEPS += \
-    $$OUT_PWD/../Libs/7zdec/debug/lib7zdec.a \
+    $$OUT_PWD/../Libs/7z/debug/lib7z.a \
     $$OUT_PWD/../Libs/dxtc/debug/libdxtc.a \
     $$OUT_PWD/../Libs/lzo2/debug/liblzo2.a \
     $$OUT_PWD/../Libs/png/debug/libpng.a \
@@ -39,7 +39,7 @@ win32-g++: {
     $$OUT_PWD/../Libs/unrar/debug/libunrar.a
 } else:unix: {
     PRE_TARGETDEPS += \
-    $$OUT_PWD/../Libs/7zdec/lib7zdec.a \
+    $$OUT_PWD/../Libs/7z/lib7z.a \
     $$OUT_PWD/../Libs/dxtc/libdxtc.a \
     $$OUT_PWD/../Libs/lzo2/liblzo2.a \
     $$OUT_PWD/../Libs/png/libpng.a \
@@ -49,7 +49,7 @@ win32-g++: {
 }
 
 INCLUDEPATH += \
-    $$PWD/../Libs/7zdec \
+    $$PWD/../Libs/7z \
     $$PWD/../Libs/dxtc \
     $$PWD/../Libs/lzo2 \
     $$PWD/../Libs/png \
@@ -58,7 +58,7 @@ INCLUDEPATH += \
     $$PWD/../Libs/unrar
 
 DEPENDPATH += \
-    $$PWD/../Libs/7zdec \
+    $$PWD/../Libs/7z \
     $$PWD/../Libs/dxtc \
     $$PWD/../Libs/lzo2 \
     $$PWD/../Libs/png \

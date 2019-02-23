@@ -135,7 +135,7 @@ DEPENDPATH += $$PWD/../Wrappers
 win32-g++: {
 Release:LIBS += \
     -L$$OUT_PWD/../Wrappers/release -lWrappers \
-    -L$$OUT_PWD/../Libs/7zdec/release -l7zdec \
+    -L$$OUT_PWD/../Libs/7z/release -l7z \
     -L$$OUT_PWD/../Libs/dxtc/release -ldxtc \
     -L$$OUT_PWD/../Libs/lzo2/release -llzo2 \
     -L$$OUT_PWD/../Libs/png/release -lpng \
@@ -144,7 +144,7 @@ Release:LIBS += \
     -L$$OUT_PWD/../Libs/unrar/release -lunrar
 Debug:LIBS += \
     -L$$OUT_PWD/../Wrappers/debug -lWrappers \
-    -L$$OUT_PWD/../Libs/7zdec/debug -l7zdec \
+    -L$$OUT_PWD/../Libs/7z/debug -l7z \
     -L$$OUT_PWD/../Libs/dxtc/debug -ldxtc \
     -L$$OUT_PWD/../Libs/lzo2/debug -llzo2 \
     -L$$OUT_PWD/../Libs/png/debug -lpng \
@@ -154,7 +154,7 @@ Debug:LIBS += \
 } else:unix: {
 LIBS += \
     -L$$OUT_PWD/../Wrappers -lWrappers \
-    -L$$OUT_PWD/../Libs/7zdec -l7zdec \
+    -L$$OUT_PWD/../Libs/7z -l7z \
     -L$$OUT_PWD/../Libs/dxtc -ldxtc \
     -L$$OUT_PWD/../Libs/lzo2 -llzo2 \
     -L$$OUT_PWD/../Libs/png -lpng \
