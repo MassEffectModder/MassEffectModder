@@ -89,7 +89,7 @@ public:
     static void ReadModEntryHeader(FileStream &fs, QString &scriptLegacy, bool &binary, QString &textureName);
     static bool CheckImage(Image &image, FoundTexture &f, const QString &file, int index);
     static bool CheckImage(Image &image, Texture &texture, const QString &textureName);
-    static bool ParseBinaryModFileName(const QString &file, QString pkgName, QString dlcName, int &exportId);
+    static bool ParseBinaryModFileName(const QString &file, QString &pkgName, QString &dlcName, int &exportId);
     static bool TpfGetCurrentFileInfo(void *handle, QString &fileName, quint64 &lenght);
     static bool DetectMarkToConvertFromFile(const QString &file);
     static int GetNumberOfMipsFromMap(FoundTexture &f);

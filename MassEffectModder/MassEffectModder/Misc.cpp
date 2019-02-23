@@ -713,7 +713,7 @@ int Misc::GetNumberOfMipsFromMap(FoundTexture &f)
     return 0;
 }
 
-bool Misc::ParseBinaryModFileName(const QString &file, QString pkgName, QString dlcName, int &exportId)
+bool Misc::ParseBinaryModFileName(const QString &file, QString &pkgName, QString &dlcName, int &exportId)
 {
     QString filename = BaseNameWithoutExt(file);
     int posStr = 0;
@@ -823,7 +823,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
 
     QString dir = DirName(memFilePath);
     if (dir.length() != 0)
-        QDir().mkpath(DirName(dir));
+        QDir().mkpath(dir);
 
     if (QFile(memFilePath).exists())
         QFile(memFilePath).remove();

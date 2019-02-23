@@ -74,16 +74,18 @@ void ConsoleSync()
 
 QString BaseName(const QString &path)
 {
-    const QString str = path.section('/', -1, -1);
-    if (str.length() == 0)
+    int index = path.lastIndexOf("/");
+    if (index == -1)
         return path;
-    return str;
+    return path.mid(index + 1, -1);
 }
 
 QString DirName(const QString &path)
 {
-    const QString str = path.section('/', 0, -2);
-    return str;
+    int index = path.lastIndexOf("/");
+    if (index == -1)
+        return path;
+    return path.left(index);
 }
 
 QString BaseNameWithoutExt(const QString &path)
