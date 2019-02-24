@@ -189,7 +189,7 @@ void Texture::replaceMipMaps(const QList<TextureMipMap> &newMipMaps)
     }
 }
 
-const ByteBuffer Texture::compressTexture(const ByteBuffer &inputData, StorageTypes type)
+const ByteBuffer Texture::compressTexture(const ByteBuffer &inputData, StorageTypes type, bool repack)
 {
     MemoryStream ouputStream;
     qint64 compressedSize = 0;
@@ -226,7 +226,8 @@ const ByteBuffer Texture::compressTexture(const ByteBuffer &inputData, StorageTy
         }
         else if (type == StorageTypes::extZlib || type == StorageTypes::pccZlib)
         {
-            if (ZlibCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize, 1) == -100)
+            if (ZlibCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize,
+                             repack ? -1 : 1) == -100)
                 CRASH_MSG("Out of memory!");
         }
         else

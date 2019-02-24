@@ -303,7 +303,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     else
                         mod.cacheCprMipmapsStorageType = Texture::StorageTypes::extZlib;
                     mod.cacheCprMipmapsDecompressedSize.push_back(image->getMipMaps()[m]->getRefData().size());
-                    auto data = texture.compressTexture(image->getMipMaps()[m]->getRefData(), mod.cacheCprMipmapsStorageType);
+                    auto data = texture.compressTexture(image->getMipMaps()[m]->getRefData(),
+                                                        mod.cacheCprMipmapsStorageType, repack);
                     mod.cacheCprMipmaps.push_back(MipMap(data, image->getMipMaps()[m]->getOrigWidth(),
                                                   image->getMipMaps()[m]->getOrigHeight(), pixelFormat, true));
                     data.Free();
