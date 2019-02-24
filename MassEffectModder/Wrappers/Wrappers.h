@@ -27,7 +27,7 @@ typedef unsigned int       UINT32;
 typedef unsigned long long UINT64;
 
 int LzmaDecompress(BYTE *src, UINT32 src_len, BYTE *dst, UINT32 *dst_len);
-int LzmaCompressData(BYTE *src, UINT32 src_len, BYTE **dst, UINT32 *dst_len, int compress_level);
+int LzmaCompress(BYTE *src, UINT32 src_len, BYTE **dst, UINT32 *dst_len, int compress_level = 5);
 
 int LzoDecompress(BYTE *src, UINT32 src_len, BYTE *dst, UINT32 *dst_len);
 int LzoCompress(BYTE *src, UINT32 src_len, BYTE **dst, UINT32 *dst_len);
@@ -53,7 +53,7 @@ int ZlibDecompress(BYTE *src, UINT32 src_len, BYTE *dst, UINT32 *dst_len);
 int ZlibCompress(BYTE *src, UINT32 src_len, BYTE **dst, UINT32 *dst_len, int compression_level = -1);
 
 int ZstdDecompress(BYTE *src, UINT32 src_len, BYTE *dst, UINT32 *dst_len);
-int ZstdCompress(BYTE *src, UINT32 src_len, BYTE **dst, UINT32 *dst_len, int compression_level);
+int ZstdCompress(BYTE *src, UINT32 src_len, BYTE **dst, UINT32 *dst_len, int compression_level = 3);
 
 int PngRead(BYTE *src, UINT32 srcSize,
              BYTE **dst, UINT32 *dstSize,
