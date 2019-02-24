@@ -125,10 +125,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
     QString errors = "";
     int lastProgress = -1;
     int memorySize = DetectAmountMemoryGB();
-    bool lowMode = false;
     bool veryLowMode = false;
-    if (memorySize <= 8 && modsToReplace.count() != 1)
-        lowMode = true;
     if (memorySize <= 6 && modsToReplace.count() != 1)
         veryLowMode = true;
 
@@ -199,8 +196,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
             PixelFormat pixelFormat = Image::getPixelFormatType(fmt);
             texture.removeEmptyMips();
 
-            Image *image = mod.cacheImage;
-            if (image == nullptr)
+            Image *image = nullptr;
+            if (mod.cacheCprMipmaps.count() == 0)
             {
                 FileStream fs = FileStream(mod.memPath, FileMode::Open, FileAccess::ReadOnly);
                 fs.JumpTo(mod.memEntryOffset);
@@ -218,14 +215,12 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 }
                 image = new Image(data, ImageFormat::DDS);
                 data.Free();
-                if (!lowMode)
-                    mod.cacheImage = image;
-            }
 
-            if (!Misc::CheckImage(*image, texture, mod.textureName))
-            {
-                errors += "Error in texture: " + mod.textureName + " This texture has wrong aspect ratio, skipping texture...\n";
-                continue;
+                if (!Misc::CheckImage(*image, texture, mod.textureName))
+                {
+                    errors += "Error in texture: " + mod.textureName + " This texture has wrong aspect ratio, skipping texture...\n";
+                    continue;
+                }
             }
 
             if (GameData::gameType == MeType::ME1_TYPE && texture.mipMapsList.count() < 6)
@@ -234,57 +229,60 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     texture.mipMapsList.removeAt(i);
             }
 
-            PixelFormat newPixelFormat = pixelFormat;
-            if (mod.markConvert)
-                newPixelFormat = changeTextureType(pixelFormat, image->getPixelFormat(), texture);
-
-            errors += Misc::CorrectTexture(image, texture, pixelFormat, newPixelFormat,
-                                 mod.markConvert, mod.textureName);
-
-            // remove lower mipmaps from source image which not exist in game data
-            for (int t = 0; t < image->getMipMaps().count(); t++)
+            if (mod.cacheCprMipmaps.count() == 0)
             {
-                if (image->getMipMaps()[t]->getOrigWidth() <= texture.mipMapsList.first().width &&
-                    image->getMipMaps()[t]->getOrigHeight() <= texture.mipMapsList.first().height &&
-                    texture.mipMapsList.count() > 1)
+                PixelFormat newPixelFormat = pixelFormat;
+                if (mod.markConvert)
+                    newPixelFormat = changeTextureType(pixelFormat, image->getPixelFormat(), texture);
+
+                errors += Misc::CorrectTexture(image, texture, pixelFormat, newPixelFormat,
+                                               mod.markConvert, mod.textureName);
+
+                // remove lower mipmaps from source image which not exist in game data
+                for (int t = 0; t < image->getMipMaps().count(); t++)
                 {
-                    bool found = false;
-                    for (int m = 0; m < texture.mipMapsList.count(); m++)
+                    if (image->getMipMaps()[t]->getOrigWidth() <= texture.mipMapsList.first().width &&
+                        image->getMipMaps()[t]->getOrigHeight() <= texture.mipMapsList.first().height &&
+                        texture.mipMapsList.count() > 1)
                     {
-                        if (texture.mipMapsList[m].width == image->getMipMaps()[t]->getOrigWidth() &&
-                            texture.mipMapsList[m].height == image->getMipMaps()[t]->getOrigHeight())
+                        bool found = false;
+                        for (int m = 0; m < texture.mipMapsList.count(); m++)
                         {
-                            found = true;
-                            break;
+                            if (texture.mipMapsList[m].width == image->getMipMaps()[t]->getOrigWidth() &&
+                                texture.mipMapsList[m].height == image->getMipMaps()[t]->getOrigHeight())
+                            {
+                                found = true;
+                                break;
+                            }
                         }
-                    }
-                    if (!found)
-                    {
-                        image->getMipMaps().removeAt(t--);
+                        if (!found)
+                        {
+                            image->getMipMaps().removeAt(t--);
+                        }
                     }
                 }
-            }
 
-            // put empty mips if missing
-            for (int t = 0; t < texture.mipMapsList.count(); t++)
-            {
-                if (texture.mipMapsList[t].width <= image->getMipMaps().first()->getOrigWidth() &&
-                    texture.mipMapsList[t].height <= image->getMipMaps().first()->getOrigHeight())
+                // put empty mips if missing
+                for (int t = 0; t < texture.mipMapsList.count(); t++)
                 {
-                    bool found = false;
-                    for (int m = 0; m < image->getMipMaps().count(); m++)
+                    if (texture.mipMapsList[t].width <= image->getMipMaps().first()->getOrigWidth() &&
+                        texture.mipMapsList[t].height <= image->getMipMaps().first()->getOrigHeight())
                     {
-                        if (image->getMipMaps()[m]->getOrigWidth() == texture.mipMapsList[t].width &&
-                            image->getMipMaps()[m]->getOrigHeight() == texture.mipMapsList[t].height)
+                        bool found = false;
+                        for (int m = 0; m < image->getMipMaps().count(); m++)
                         {
-                            found = true;
-                            break;
+                            if (image->getMipMaps()[m]->getOrigWidth() == texture.mipMapsList[t].width &&
+                                image->getMipMaps()[m]->getOrigHeight() == texture.mipMapsList[t].height)
+                            {
+                                found = true;
+                                break;
+                            }
                         }
-                    }
-                    if (!found)
-                    {
-                        auto mipmap = new MipMap(texture.mipMapsList[t].width, texture.mipMapsList[t].height, pixelFormat);
-                        image->getMipMaps().push_back(mipmap);
+                        if (!found)
+                        {
+                            auto mipmap = new MipMap(texture.mipMapsList[t].width, texture.mipMapsList[t].height, pixelFormat);
+                            image->getMipMaps().push_back(mipmap);
+                        }
                     }
                 }
             }
@@ -294,25 +292,31 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
 
             if (mod.cacheCprMipmaps.count() == 0)
             {
+                if (verify)
+                    matched.crcs.clear();
                 for (int m = 0; m < image->getMipMaps().count(); m++)
                 {
+                    if (verify)
+                        matched.crcs.push_back(texture.getCrcData(image->getMipMaps()[m]->getRefData()));
                     if (GameData::gameType == MeType::ME1_TYPE)
-                        mod.cacheCprMipmaps.push_back(texture.compressTexture(image->getMipMaps()[m]->getRefData(), Texture::StorageTypes::extLZO));
+                        mod.cacheCprMipmaps.push_back(
+                                    MipMap(texture.compressTexture(image->getMipMaps()[m]->getRefData(), Texture::StorageTypes::extLZO),
+                                           image->getMipMaps()[m]->getOrigWidth(), image->getMipMaps()[m]->getOrigHeight(),
+                                           pixelFormat));
                     else
-                        mod.cacheCprMipmaps.push_back(texture.compressTexture(image->getMipMaps()[m]->getRefData(), Texture::StorageTypes::extZlib));
+                        mod.cacheCprMipmaps.push_back(
+                                    MipMap(texture.compressTexture(image->getMipMaps()[m]->getRefData(), Texture::StorageTypes::extZlib),
+                                           image->getMipMaps()[m]->getOrigWidth(), image->getMipMaps()[m]->getOrigHeight(),
+                                           pixelFormat));
                 }
             }
 
-            if (verify)
-                matched.crcs.clear();
             auto mipmaps = QList<Texture::TextureMipMap>();
-            for (int m = 0; m < image->getMipMaps().count(); m++)
+            for (int m = 0; m < mod.cacheCprMipmaps.count(); m++)
             {
-                if (verify)
-                    matched.crcs.push_back(texture.getCrcData(image->getMipMaps()[m]->getRefData()));
                 Texture::TextureMipMap mipmap;
-                mipmap.width = image->getMipMaps()[m]->getOrigWidth();
-                mipmap.height = image->getMipMaps()[m]->getOrigHeight();
+                mipmap.width = mod.cacheCprMipmaps[m].getOrigWidth();
+                mipmap.height = mod.cacheCprMipmaps[m].getOrigHeight();
                 if (texture.existMipmap(mipmap.width, mipmap.height))
                     mipmap.storageType = texture.getMipmap(mipmap.width, mipmap.height).storageType;
                 else
@@ -378,8 +382,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     }
                 }
 
-                mipmap.width = image->getMipMaps()[m]->getWidth();
-                mipmap.height = image->getMipMaps()[m]->getHeight();
+                mipmap.width = mod.cacheCprMipmaps[m].getWidth();
+                mipmap.height = mod.cacheCprMipmaps[m].getHeight();
                 mipmaps.push_back(mipmap);
                 if (texture.mipMapsList.count() == 1)
                     break;
@@ -437,11 +441,11 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     }
 
                     // check if texture fit in old space
-                    for (int mip = 0; mip < image->getMipMaps().count(); mip++)
+                    for (int mip = 0; mip < mod.cacheCprMipmaps.count(); mip++)
                     {
                         Texture::TextureMipMap testMipmap{};
-                        testMipmap.width = image->getMipMaps()[mip]->getOrigWidth();
-                        testMipmap.height = image->getMipMaps()[mip]->getOrigHeight();
+                        testMipmap.width = mod.cacheCprMipmaps[mip].getOrigWidth();
+                        testMipmap.height = mod.cacheCprMipmaps[mip].getOrigHeight();
                         if (texture.existMipmap(testMipmap.width, testMipmap.height))
                             testMipmap.storageType = texture.getMipmap(testMipmap.width, testMipmap.height).storageType;
                         else
@@ -454,7 +458,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                             testMipmap.storageType == Texture::StorageTypes::extLZO)
                         {
                             Texture::TextureMipMap oldTestMipmap = texture.getMipmap(testMipmap.width, testMipmap.height);
-                            if (mod.cacheCprMipmaps[mip].size() > oldTestMipmap.compressedSize)
+                            if (mod.cacheCprMipmaps[mip].getRefData().size() > oldTestMipmap.compressedSize)
                             {
                                 oldSpace = false;
                                 break;
@@ -507,10 +511,10 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 }
             }
 
-            for (int m = 0; m < image->getMipMaps().count(); m++)
+            for (int m = 0; m < mod.cacheCprMipmaps.count(); m++)
             {
                 Texture::TextureMipMap mipmap = mipmaps[m];
-                mipmap.uncompressedSize = image->getMipMaps()[m]->getRefData().size();
+                mipmap.uncompressedSize = mod.cacheCprMipmaps[m].getRefData().size();
                 if (GameData::gameType == MeType::ME1_TYPE)
                 {
                     if (mipmap.storageType == Texture::StorageTypes::pccLZO ||
@@ -518,14 +522,15 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     {
                         if (matched.linkToMaster == -1)
                         {
-                            if (veryLowMode && mod.cacheCprMipmaps.count() != 0)
+                            if (veryLowMode)
                             {
-                                mipmap.newData = ByteBuffer(mod.cacheCprMipmaps[m].ptr(), mod.cacheCprMipmaps[m].size());
+                                mipmap.newData = ByteBuffer(mod.cacheCprMipmaps[m].getRefData().ptr(),
+                                                            mod.cacheCprMipmaps[m].getRefData().size());
                                 mipmap.freeNewData = true;
                             }
                             else
                             {
-                                mipmap.newData = mod.cacheCprMipmaps[m];
+                                mipmap.newData = mod.cacheCprMipmaps[m].getRefData();
                             }
                         }
                         else
@@ -537,15 +542,18 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     if (mipmap.storageType == Texture::StorageTypes::pccUnc)
                     {
                         mipmap.compressedSize = mipmap.uncompressedSize;
-                        auto mip = image->getMipMaps()[m]->getRefData();
-                        if (lowMode)
+                        if (image)
                         {
-                            mipmap.newData = ByteBuffer(mip.ptr(), mip.size());
-                            mipmap.freeNewData = true;
+                            auto mip = image->getMipMaps()[m]->getRefData();
+                            mipmap.newData = mip;
                         }
                         else
                         {
+                            MemoryStream stream(mod.cacheCprMipmaps[m].getRefData());
+                            auto mip = texture.decompressTexture(stream, mipmap.storageType, mipmap.uncompressedSize,
+                                                                 mod.cacheCprMipmaps[m].getRefData().size());
                             mipmap.newData = mip;
+                            mipmap.freeNewData = true;
                         }
                     }
                     if ((mipmap.storageType == Texture::StorageTypes::extLZO ||
@@ -561,16 +569,15 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     if (mipmap.storageType == Texture::StorageTypes::extZlib ||
                         mipmap.storageType == Texture::StorageTypes::extLZO)
                     {
-                        if (mod.cacheCprMipmaps.count() != image->getMipMaps().count())
-                            CRASH();
                         if (veryLowMode && mod.cacheCprMipmaps.count() != 0)
                         {
-                            mipmap.newData = ByteBuffer(mod.cacheCprMipmaps[m].ptr(), mod.cacheCprMipmaps[m].size());
+                            mipmap.newData = ByteBuffer(mod.cacheCprMipmaps[m].getRefData().ptr(),
+                                                        mod.cacheCprMipmaps[m].getRefData().size());
                             mipmap.freeNewData = true;
                         }
                         else
                         {
-                            mipmap.newData = mod.cacheCprMipmaps[m];
+                            mipmap.newData = mod.cacheCprMipmaps[m].getRefData();
                         }
                         mipmap.compressedSize = mipmap.newData.size();
                     }
@@ -579,15 +586,18 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                         mipmap.storageType == Texture::StorageTypes::extUnc)
                     {
                         mipmap.compressedSize = mipmap.uncompressedSize;
-                        auto mip = image->getMipMaps()[m]->getRefData();
-                        if (lowMode)
+                        if (image)
                         {
-                            mipmap.newData = ByteBuffer(mip.ptr(), mip.size());
-                            mipmap.freeNewData = true;
+                            auto mip = image->getMipMaps()[m]->getRefData();
+                            mipmap.newData = mip;
                         }
                         else
                         {
+                            MemoryStream stream(mod.cacheCprMipmaps[m].getRefData());
+                            auto mip = texture.decompressTexture(stream, mipmap.storageType, mipmap.uncompressedSize,
+                                                                 mod.cacheCprMipmaps[m].getRefData().size());
                             mipmap.newData = mip;
+                            mipmap.freeNewData = true;
                         }
                     }
                     if (mipmap.storageType == Texture::StorageTypes::extZlib ||
@@ -710,7 +720,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 }
                 mod.arcTexture.clear();
 
-                foreach(ByteBuffer mip, mod.cacheCprMipmaps)
+                foreach(MipMap mip, mod.cacheCprMipmaps)
                 {
                     mip.Free();
                 }
@@ -726,17 +736,13 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     }
                 }
                 mod.masterTextures.clear();
-
-                delete mod.cacheImage;
-                mod.cacheImage = nullptr;
             }
 
-            if (lowMode)
-                delete image;
+            delete image;
 
             if (veryLowMode && mod.cacheCprMipmaps.count() != 0)
             {
-                foreach(ByteBuffer mip, mod.cacheCprMipmaps)
+                foreach(MipMap mip, mod.cacheCprMipmaps)
                 {
                     mip.Free();
                 }
