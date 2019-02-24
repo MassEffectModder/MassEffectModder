@@ -1178,6 +1178,8 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool repack,
         }
     }
 
+    Misc::startTimer();
+
     if (gameId == MeType::ME1_TYPE)
         repack = false;
 
@@ -1321,6 +1323,9 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool repack,
         ConsoleWrite("[IPC]STAGE_CONTEXT STAGE_DONE");
         ConsoleSync();
     }
+
+    long elapsed = Misc::elapsedTime();
+    PINFO(Misc::getTimerFormat(elapsed) + "\n");
 
     PINFO("\nInstallation finished.\n\n");
 
