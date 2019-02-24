@@ -6,7 +6,7 @@
 #include "LzmaEnc.h"
 #include "LzmaLib.h"
 
-MY_STDAPI LzmaCompress(unsigned char *dest, size_t *destLen, const unsigned char *src, size_t srcLen,
+MY_STDAPI LzmaCompressData(unsigned char *dest, size_t *destLen, const unsigned char *src, size_t srcLen,
   unsigned char *outProps, size_t *outPropsSize,
   int level, /* 0 <= level <= 9, default = 5 */
   unsigned dictSize, /* use (1 << N) or (3 << N). 4 KB < dictSize <= 128 MB */
