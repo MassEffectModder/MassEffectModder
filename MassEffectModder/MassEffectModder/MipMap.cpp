@@ -40,7 +40,7 @@ MipMap::MipMap(int w, int h, PixelFormat format)
     memset(buffer.ptr(), 0, buffer.size());
 }
 
-MipMap::MipMap(const ByteBuffer &src, int w, int h, PixelFormat format)
+MipMap::MipMap(const ByteBuffer &src, int w, int h, PixelFormat format, bool skipCheck)
 {
     width = origWidth = w;
     height = origHeight = h;
@@ -55,8 +55,11 @@ MipMap::MipMap(const ByteBuffer &src, int w, int h, PixelFormat format)
             height = 4;
     }
 
-    if (src.size() != getBufferSize(width, height, format))
-        CRASH_MSG("Data size is not valid.\n");
+    if (!skipCheck)
+    {
+        if (src.size() != getBufferSize(width, height, format))
+            CRASH_MSG("Data size is not valid.");
+    }
 
     buffer = ByteBuffer(src.ptr(), src.size());
 }

@@ -58,6 +58,8 @@ struct ModEntry
     uint textureCrc;
     bool markConvert;
     QList<MipMap> cacheCprMipmaps;
+    Texture::StorageTypes cacheCprMipmapsStorageType;
+    QList<int> cacheCprMipmapsDecompressedSize;
     QMap<int, QList<Texture::TextureMipMap>> masterTextures;
     QList<Texture::TextureMipMap> arcTexture;
     quint8 arcTfcGuid[16];

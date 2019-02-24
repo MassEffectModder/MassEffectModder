@@ -38,7 +38,7 @@ private:
 public:
 
     MipMap(int w, int h, PixelFormat format);
-    MipMap(const ByteBuffer &data, int w, int h, PixelFormat format);
+    MipMap(const ByteBuffer &data, int w, int h, PixelFormat format, bool skipCheck = false);
     void Free() { buffer.Free(); }
     static int getBufferSize(int w, int h, PixelFormat format);
     ByteBuffer& getRefData() { return buffer; }
