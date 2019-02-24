@@ -35,16 +35,16 @@ int ZstdDecompress(unsigned char *src, unsigned int src_len, unsigned char *dst,
         printf("zstd uncompress failed - error: not known size!\n");
         return -1;
     }
-    if (rSize != len)
+    if (rSize > len)
     {
         *dst_len = 0;
-        printf("zstd uncompress failed - error: not expected size!\n");
+        printf("zstd uncompress failed - error: buffer too small!\n");
         return -1;
     }
 
     size_t const dSize = ZSTD_decompress(dst, len, src, src_len);
-    if (dSize == len)
-        *dst_len = static_cast<unsigned int>(len);
+    if (dSize == rSize)
+        *dst_len = static_cast<unsigned int>(dSize);
     else
     {
         *dst_len = 0;
