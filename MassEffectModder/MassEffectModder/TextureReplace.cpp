@@ -299,22 +299,14 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     if (verify)
                         matched.crcs.push_back(texture.getCrcData(image->getMipMaps()[m]->getRefData()));
                     if (GameData::gameType == MeType::ME1_TYPE)
-                    {
-                        mod.cacheCprMipmaps.push_back(
-                                MipMap(texture.compressTexture(image->getMipMaps()[m]->getRefData(), Texture::StorageTypes::extLZO),
-                                       image->getMipMaps()[m]->getOrigWidth(), image->getMipMaps()[m]->getOrigHeight(),
-                                       pixelFormat, true));
                         mod.cacheCprMipmapsStorageType = Texture::StorageTypes::extLZO;
-                    }
                     else
-                    {
-                        mod.cacheCprMipmaps.push_back(
-                                MipMap(texture.compressTexture(image->getMipMaps()[m]->getRefData(), Texture::StorageTypes::extZlib),
-                                       image->getMipMaps()[m]->getOrigWidth(), image->getMipMaps()[m]->getOrigHeight(),
-                                       pixelFormat, true));
                         mod.cacheCprMipmapsStorageType = Texture::StorageTypes::extZlib;
-                    }
                     mod.cacheCprMipmapsDecompressedSize.push_back(image->getMipMaps()[m]->getRefData().size());
+                    auto data = texture.compressTexture(image->getMipMaps()[m]->getRefData(), mod.cacheCprMipmapsStorageType);
+                    mod.cacheCprMipmaps.push_back(MipMap(data, image->getMipMaps()[m]->getOrigWidth(),
+                                                  image->getMipMaps()[m]->getOrigHeight(), pixelFormat, true));
+                    data.Free();
                 }
             }
 
