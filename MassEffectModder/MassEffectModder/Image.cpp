@@ -54,7 +54,7 @@ Image::Image(const QString &fileName, ImageFormat format)
             break;
     }
 
-    CRASH_MSG("Not supported format\n");
+    CRASH_MSG("Not supported format");
 }
 
 Image::Image(Stream &stream, ImageFormat format)
@@ -290,7 +290,7 @@ ByteBuffer Image::convertRawToARGB(const quint8 *src, int w, int h, PixelFormat 
         case PixelFormat::V8U8: tmpPtr = V8U8ToARGB(src, w, h); break;
         case PixelFormat::G8: tmpPtr = G8ToARGB(src, w, h); break;
         default:
-            CRASH_MSG("Invalid texture format.\n");
+            CRASH_MSG("Invalid texture format.");
     }
 
     if (clearAlpha)
@@ -434,7 +434,7 @@ ByteBuffer Image::downscaleARGB(const quint8 *src, int w, int h)
 ByteBuffer Image::downscaleRGB(const quint8 *src, int w, int h)
 {
     if (w == 1 && h == 1)
-        CRASH_MSG("1x1 can not be downscaled.\n");
+        CRASH_MSG("1x1 can not be downscaled");
 
     if (w == 1 || h == 1)
     {
@@ -644,7 +644,7 @@ PixelFormat Image::getPixelFormatType(const QString &format)
     if (format == "PF_G8")
         return PixelFormat::G8;
 
-    CRASH_MSG("Invalid texture format.\n");
+    CRASH_MSG("Invalid texture format.");
 }
 
 QString Image::getEngineFormatType(PixelFormat format)
@@ -668,7 +668,7 @@ QString Image::getEngineFormatType(PixelFormat format)
         case PixelFormat::G8:
             return "PF_G8";
         default:
-            CRASH_MSG("Invalid texture format.\n");
+            CRASH_MSG("Invalid texture format.");
     }
 }
 

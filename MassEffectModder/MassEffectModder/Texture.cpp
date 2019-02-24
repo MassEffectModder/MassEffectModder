@@ -209,7 +209,7 @@ const ByteBuffer Texture::compressTexture(const ByteBuffer &inputData, StorageTy
             block.uncompressedBuffer = new quint8[block.uncomprSize];
             if (block.uncompressedBuffer == nullptr)
                 CRASH_MSG((QString("Out of memory! - amount: ") +
-                           QString::number(block.uncomprSize) + "\n").toStdString().c_str());
+                           QString::number(block.uncomprSize)).toStdString().c_str());
             inputStream.ReadToBuffer(block.uncompressedBuffer, block.uncomprSize);
             blocks.push_back(block);
         }
@@ -222,17 +222,17 @@ const ByteBuffer Texture::compressTexture(const ByteBuffer &inputData, StorageTy
         if (type == StorageTypes::extLZO || type == StorageTypes::pccLZO)
         {
             if (LzoCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) == -100)
-                CRASH_MSG("Out of memory!\n");
+                CRASH_MSG("Out of memory!");
         }
         else if (type == StorageTypes::extZlib || type == StorageTypes::pccZlib)
         {
             if (ZlibCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize, 1) == -100)
-                CRASH_MSG("Out of memory!\n");
+                CRASH_MSG("Out of memory!");
         }
         else
-            CRASH_MSG("Compression type not expected!\n");
+            CRASH_MSG("Compression type not expected!");
         if (block.comprSize == 0)
-            CRASH_MSG("Compression failed!\n");
+            CRASH_MSG("Compression failed!");
         blocks[b] = block;
     };
 
@@ -305,12 +305,12 @@ const ByteBuffer Texture::decompressTexture(Stream &stream, StorageTypes type, i
         block.compressedBuffer = new quint8[blocks[b].comprSize];
         if (block.compressedBuffer == nullptr)
             CRASH_MSG((QString("Out of memory! - amount: ") +
-                       QString::number(blocks[b].comprSize) + "\n").toStdString().c_str());
+                       QString::number(blocks[b].comprSize)).toStdString().c_str());
         stream.ReadToBuffer(block.compressedBuffer, blocks[b].comprSize);
         block.uncompressedBuffer = new quint8[maxBlockSize * 2];
         if (block.uncompressedBuffer == nullptr)
             CRASH_MSG((QString("Out of memory! - amount: ") +
-                       QString::number(maxBlockSize * 2) + "\n").toStdString().c_str());
+                       QString::number(maxBlockSize * 2)).toStdString().c_str());
         blocks[b] = block;
     }
 
@@ -334,17 +334,17 @@ const ByteBuffer Texture::decompressTexture(Stream &stream, StorageTypes type, i
             uint dstLen = maxBlockSize * 2;
             Package::ChunkBlock block = blocks[b];
             if (ZlibDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen) == -100)
-                CRASH_MSG("Out of memory!\n");
+                CRASH_MSG("Out of memory!");
             if (dstLen != block.uncomprSize)
                 errorFlag = true;
         }
     }
     else
-        CRASH_MSG("Compression type not expected!\n");
+        CRASH_MSG("Compression type not expected!");
 
     if (errorFlag)
     {
-        PERROR(QString("ERROR: Decompressed data size not expected!\n"));
+        PERROR(QString("ERROR: Decompressed data size not expected!"));
         return ByteBuffer();
     }
 
@@ -521,7 +521,7 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
                         }
                         else
                         {
-                            CRASH_MSG((QString("More instances of TFC file: ") + archive + ".tfc" + "\n").toStdString().c_str());
+                            CRASH_MSG((QString("More instances of TFC file: ") + archive + ".tfc").toStdString().c_str());
                         }
                     }
                 }

@@ -298,7 +298,7 @@ Image::DDS_PF Image::getDDSPixelFormat(PixelFormat format)
             break;
 
         default:
-            CRASH_MSG("Invalid texture format.\n");
+            CRASH_MSG("Invalid texture format.");
     }
 
     return pixelFormat;
@@ -558,7 +558,7 @@ ByteBuffer Image::compressMipmap(PixelFormat dstFormat, const quint8 *src, int w
                     writeBlock4X4ATI2(blockX, blockY, dst.ptr(), w, x, y);
                 }
                 else
-                    CRASH_MSG("Not supported codec.\n");
+                    CRASH_MSG("Not supported codec.");
             }
         }
     }
@@ -637,7 +637,7 @@ ByteBuffer Image::decompressMipmap(PixelFormat srcFormat, const quint8 *src, int
                     writeBlock4X4ARGBATI2(blockDstR, blockDstG, dst.ptr(), w, x, y);
                 }
                 else
-                    CRASH_MSG("Not supported codec.\n");
+                    CRASH_MSG("Not supported codec.");
             }
         }
     }

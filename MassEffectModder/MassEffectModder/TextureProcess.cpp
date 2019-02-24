@@ -46,7 +46,7 @@ bool MipMaps::compressData(ByteBuffer inputData, Stream &ouputStream)
             block.uncompressedBuffer = new quint8[block.uncomprSize];
             if (block.uncompressedBuffer == nullptr)
                 CRASH_MSG((QString("Out of memory! - amount: ") +
-                           QString::number(block.uncomprSize) + "\n").toStdString().c_str());
+                           QString::number(block.uncomprSize)).toStdString().c_str());
             inputStream.ReadToBuffer(block.uncompressedBuffer, block.uncomprSize);
             blocks.push_back(block);
         }
@@ -58,7 +58,7 @@ bool MipMaps::compressData(ByteBuffer inputData, Stream &ouputStream)
     {
         Package::ChunkBlock block = blocks[b];
         if (ZlibCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) == -100)
-            CRASH_MSG("Out of memory!\n");
+            CRASH_MSG("Out of memory!");
         if (block.comprSize == 0)
         {
             failed = true;
@@ -118,12 +118,12 @@ ByteBuffer MipMaps::decompressData(Stream &stream, long compressedSize)
         block.compressedBuffer = new quint8[block.comprSize];
         if (block.compressedBuffer == nullptr)
             CRASH_MSG((QString("Out of memory! - amount: ") +
-                       QString::number(block.comprSize) + "\n").toStdString().c_str());
+                       QString::number(block.comprSize)).toStdString().c_str());
         stream.ReadToBuffer(block.compressedBuffer, block.comprSize);
         block.uncompressedBuffer = new quint8[maxBlockSize * 2];
         if (block.uncompressedBuffer == nullptr)
             CRASH_MSG((QString("Out of memory! - amount: ") +
-                       QString::number(maxBlockSize * 2) + "\n").toStdString().c_str());
+                       QString::number(maxBlockSize * 2)).toStdString().c_str());
         blocks[b] = block;
     }
 
@@ -134,7 +134,7 @@ ByteBuffer MipMaps::decompressData(Stream &stream, long compressedSize)
         uint dstLen = Package::maxBlockSize * 2;
         Package::ChunkBlock block = blocks[b];
         if (ZlibDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen) == -100)
-            CRASH_MSG("Out of memory!\n");
+            CRASH_MSG("Out of memory!");
         if (dstLen != block.uncomprSize)
         {
             failed = true;

@@ -30,14 +30,14 @@
 int ME3DLC::getNumberOfFiles(QString &path)
 {
     if (!QFile(path).exists())
-        CRASH_MSG("filename missing\n");
+        CRASH_MSG("filename missing");
     FileStream stream = FileStream(path, FileMode::Open, FileAccess::ReadOnly);
     uint tag = stream.ReadUInt32();
     if (tag != SfarTag)
-        CRASH_MSG("Wrong SFAR tag\n");
+        CRASH_MSG("Wrong SFAR tag");
     uint sfarVersion = stream.ReadUInt32();
     if (sfarVersion != SfarVersion)
-        CRASH_MSG("Wrong SFAR version\n");
+        CRASH_MSG("Wrong SFAR version");
 
     stream.SkipInt32();
     stream.SkipInt32();
@@ -48,10 +48,10 @@ void ME3DLC::loadHeader(Stream *stream)
 {
     uint tag = stream->ReadUInt32();
     if (tag != SfarTag)
-        CRASH_MSG("Wrong SFAR tag\n");
+        CRASH_MSG("Wrong SFAR tag");
     uint sfarVersion = stream->ReadUInt32();
     if (sfarVersion != SfarVersion)
-        CRASH_MSG("Wrong SFAR version\n");
+        CRASH_MSG("Wrong SFAR version");
 
     stream->SkipInt32();
     uint entriesOffset = stream->ReadUInt32();
@@ -60,7 +60,7 @@ void ME3DLC::loadHeader(Stream *stream)
     maxBlockSize = stream->ReadUInt32();
     uint compressionTag = stream->ReadUInt32();
     if (compressionTag != LZMATag)
-        CRASH_MSG("Not LZMA compression for SFAR file\n");
+        CRASH_MSG("Not LZMA compression for SFAR file");
 
     uint numBlockSizes = 0;
     stream->JumpTo(entriesOffset);
@@ -126,7 +126,7 @@ void ME3DLC::loadHeader(Stream *stream)
 void ME3DLC::extract(QString &SFARfilename, int &currentProgress, int totalNumber)
 {
     if (!QFile(SFARfilename).exists())
-        CRASH_MSG("filename missing\n");
+        CRASH_MSG("filename missing");
 
     std::unique_ptr<Stream> stream (new MemoryStream(SFARfilename));
 
@@ -138,7 +138,7 @@ void ME3DLC::extract(QString &SFARfilename, int &currentProgress, int totalNumbe
         if ((uint)filenamesIndex == i)
             continue;
         if (filesList[i].filenamePath.length() == 0)
-            CRASH_MSG("filename missing\n");
+            CRASH_MSG("filename missing");
 
         if (g_ipc)
         {

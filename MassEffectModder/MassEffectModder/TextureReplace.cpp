@@ -431,7 +431,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                             }
                             else
                             {
-                                CRASH_MSG((QString("More instances of TFC file: ") + archive + ".tfc" + "\n").toStdString().c_str());
+                                CRASH_MSG((QString("More instances of TFC file: ") + archive + ".tfc").toStdString().c_str());
                             }
                         }
                     }
@@ -499,7 +499,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                             archiveFile = "";
                         }
                         if (archiveFile.length() == 0)
-                            CRASH_MSG("No free TFC texture file!\n");
+                            CRASH_MSG("No free TFC texture file!");
                     }
                 }
                 else

@@ -79,6 +79,6 @@ int MipMap::getBufferSize(int w, int h, PixelFormat format)
         case PixelFormat::DXT1:
             return (w * h) / 2;
         default:
-            CRASH_MSG("Unknown format.\n");
+            CRASH_MSG("Unknown format.");
     }
 }

@@ -43,7 +43,7 @@ void Image::LoadImageBMP(Stream &stream)
 {
     ushort tag = stream.ReadUInt16();
     if (tag != BMP_TAG)
-        CRASH_MSG("Not BMP header.\n");
+        CRASH_MSG("Not BMP header.");
 
     stream.Skip(8);
 
@@ -60,13 +60,13 @@ void Image::LoadImageBMP(Stream &stream)
     }
     if (!checkPowerOfTwo(imageWidth) ||
         !checkPowerOfTwo(imageHeight))
-        CRASH_MSG("Dimensions not power of two.\n");
+        CRASH_MSG("Dimensions not power of two.");
 
     stream.Skip(2);
 
     int bits = stream.ReadUInt16();
     if (bits != 32 && bits != 24)
-        CRASH_MSG("Only 24 and 32 bits BMP supported!\n");
+        CRASH_MSG("Only 24 and 32 bits BMP supported!");
 
     bool hasAlphaMask = false;
     uint Rmask = 0xFF0000, Gmask = 0xFF00, Bmask = 0xFF, Amask = 0xFF000000;
@@ -76,7 +76,7 @@ void Image::LoadImageBMP(Stream &stream)
     {
         int compression = stream.ReadInt32();
         if (compression == 1 || compression == 2)
-            CRASH_MSG("Compression not supported in BMP!\n");
+            CRASH_MSG("Compression not supported in BMP!");
 
         if (compression == 3)
         {
