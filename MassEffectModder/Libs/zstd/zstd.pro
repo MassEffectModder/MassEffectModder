@@ -14,8 +14,9 @@ SOURCES += \
            huf_decompress.c \
            pool.c \
            threading.c \
-           xxhash.c \
+           hash.c \
            zstd_common.c \
+           zstd_compress.c \
            zstd_ddict.c \
            zstd_decompress.c \
            zstd_decompress_block.c \
