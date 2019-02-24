@@ -7,23 +7,23 @@ SOURCES += \
            debug.c \
            entropy_common.c \
            error_private.c \
+           fse_compress.c \
            fse_decompress.c \
+           hist.c \
+           huf_compress.c \
+           huf_decompress.c \
            pool.c \
            threading.c \
            xxhash.c \
            zstd_common.c \
-           fse_compress.c \
-           hist.c \
-           huf_compress.c \
+           zstd_ddict.c \
+           zstd_decompress.c \
+           zstd_decompress_block.c \
            zstd_double_fast.c \
            zstd_fast.c \
            zstd_lazy.c \
            zstd_ldm.c \
-           zstd_opt.c \
-           huf_decompress.c \
-           zstd_ddict.c \
-           zstd_decompress.c \
-           zstd_decompress_block.c
+           zstd_opt.c
 
 HEADERS += \
            bitstream.h \
@@ -32,23 +32,23 @@ HEADERS += \
            debug.h \
            error_private.h \
            fse.h \
+           hist.h \
            huf.h \
            mem.h \
            pool.h \
            threading.h \
            xxhash.h \
-           zstd_errors.h \
-           zstd_internal.h \
-           hist.h \
            zstd_compress_internal.h \
-           zstd_double_fast.h \
-           zstd_fast.h \
-           zstd_lazy.h \
-           zstd_ldm.h \
-           zstd_opt.h \
            zstd_ddict.h \
            zstd_decompress_block.h \
-           zstd_decompress_internal.h
+           zstd_decompress_internal.h \
+           zstd_double_fast.h \
+           zstd_errors.h \
+           zstd_fast.h \
+           zstd_internal.h \
+           zstd_lazy.h \
+           zstd_ldm.h \
+           zstd_opt.h
 
 QMAKE_CFLAGS += -O3 -D ZSTD_STRIP_ERROR_STRINGS \
             -Wall -Wextra -Wcast-qual -Wcast-align -Wshadow \
