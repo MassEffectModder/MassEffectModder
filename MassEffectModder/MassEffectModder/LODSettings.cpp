@@ -456,8 +456,8 @@ void LODSettings::updateGFXSettings(MeType gameId, ConfigIni &engineConf, bool s
         }
         else
         {
-            engineConf.Write("ShadowFilterRadius", "5", "Engine.Engine");
-            engineConf.Write("ShadowFilterRadius", "5", "Engine.GameEngine");
+            engineConf.Write("ShadowFilterRadius", "4", "Engine.Engine");
+            engineConf.Write("ShadowFilterRadius", "4", "Engine.GameEngine");
         }
         engineConf.Write("bEnableBranchingPCFShadows", "True", "Engine.Engine");
         engineConf.Write("bEnableBranchingPCFShadows", "True", "Engine.GameEngine");
@@ -481,7 +481,7 @@ void LODSettings::updateGFXSettings(MeType gameId, ConfigIni &engineConf, bool s
         engineConf.Write("MaxShadowResolution", "2048", "SystemSettings");
         engineConf.Write("MinShadowResolution", "64", "SystemSettings");
         engineConf.Write("ShadowFilterQualityBias", "2", "SystemSettings");
-        engineConf.Write("ShadowFilterRadius", "5", "SystemSettings");
+        engineConf.Write("ShadowFilterRadius", "4", "SystemSettings");
         engineConf.Write("bEnableBranchingPCFShadows", "True", "SystemSettings");
         engineConf.Write("MaxAnisotropy", "16", "SystemSettings");
         engineConf.Write("Trilinear", "True", "SystemSettings");
@@ -498,7 +498,7 @@ void LODSettings::updateGFXSettings(MeType gameId, ConfigIni &engineConf, bool s
         engineConf.Write("MaxShadowResolution", "2048", "SystemSettings");
         engineConf.Write("MinShadowResolution", "64", "SystemSettings");
         engineConf.Write("ShadowFilterQualityBias", "2", "SystemSettings");
-        engineConf.Write("ShadowFilterRadius", "5", "SystemSettings");
+        engineConf.Write("ShadowFilterRadius", "4", "SystemSettings");
         engineConf.Write("bEnableBranchingPCFShadows", "True", "SystemSettings");
         engineConf.Write("MaxAnisotropy", "16", "SystemSettings");
         engineConf.Write("MotionBlur", "True", "SystemSettings");
