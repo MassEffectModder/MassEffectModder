@@ -524,8 +524,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                         {
                             if (veryLowMode)
                             {
-                                mipmap.newData = ByteBuffer(mod.cacheCprMipmaps[m].getRefData().ptr(),
-                                                            mod.cacheCprMipmaps[m].getRefData().size());
+                                mipmap.newData = ByteBuffer(mod.cacheCprMipmaps[m].getRefData());
                                 mipmap.freeNewData = true;
                             }
                             else
@@ -569,10 +568,9 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     if (mipmap.storageType == Texture::StorageTypes::extZlib ||
                         mipmap.storageType == Texture::StorageTypes::extLZO)
                     {
-                        if (veryLowMode && mod.cacheCprMipmaps.count() != 0)
+                        if (veryLowMode)
                         {
-                            mipmap.newData = ByteBuffer(mod.cacheCprMipmaps[m].getRefData().ptr(),
-                                                        mod.cacheCprMipmaps[m].getRefData().size());
+                            mipmap.newData = ByteBuffer(mod.cacheCprMipmaps[m].getRefData());
                             mipmap.freeNewData = true;
                         }
                         else
