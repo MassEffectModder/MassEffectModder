@@ -129,6 +129,8 @@ class MipMaps
     };
 
     void prepareListToRemove(QList<FoundTexture> &textures, QList<RemoveMipsEntry> &list);
+    void RemoveLowerMips(Image *image);
+    void AddMissingLowerMips(Image *image, PixelFormat pixelFormat);
 
 public:
 

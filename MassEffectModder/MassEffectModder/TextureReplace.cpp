@@ -117,6 +117,49 @@ PixelFormat MipMaps::changeTextureType(PixelFormat gamePixelFormat, PixelFormat 
     return gamePixelFormat;
 }
 
+void MipMaps::RemoveLowerMips(Image *image)
+{
+    for (int t = 0; t < image->getMipMaps().count(); t++)
+    {
+        if (image->getMipMaps()[t]->getOrigWidth() < 4 ||
+            image->getMipMaps()[t]->getOrigHeight() < 4)
+        {
+            image->getMipMaps().removeAt(t--);
+        }
+    }
+}
+
+void MipMaps::AddMissingLowerMips(Image *image, PixelFormat pixelFormat)
+{
+    int width = image->getMipMaps()[0]->getOrigWidth();
+    int height = image->getMipMaps()[0]->getOrigHeight();
+    for (; width < 4 || height < 4;)
+    {
+        width /= 2;
+        height /= 2;
+    }
+    for (; width == 1 && height == 1;)
+    {
+        bool found = false;
+        for (int m = 0; m < image->getMipMaps().count(); m++)
+        {
+            if (image->getMipMaps()[m]->getOrigWidth() == width &&
+                image->getMipMaps()[m]->getOrigHeight() == height)
+            {
+                found = true;
+                break;
+            }
+        }
+        if (!found)
+        {
+            auto mipmap = new MipMap(width, height, pixelFormat);
+            image->getMipMaps().push_back(mipmap);
+        }
+        width /= 2;
+        height /= 2;
+    }
+}
+
 QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTexture> &textures,
                                  QStringList &pkgsToMarker, QStringList &pkgsToRepack,
                                  QList<ModEntry> &modsToReplace, bool repack,
@@ -238,53 +281,13 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 errors += Misc::CorrectTexture(image, texture, pixelFormat, newPixelFormat,
                                                mod.markConvert, mod.textureName);
 
-                // remove lower mipmaps from source image which not exist in game data
-                for (int t = 0; t < image->getMipMaps().count(); t++)
-                {
-                    if (image->getMipMaps()[t]->getOrigWidth() <= texture.mipMapsList.first().width &&
-                        image->getMipMaps()[t]->getOrigHeight() <= texture.mipMapsList.first().height &&
-                        texture.mipMapsList.count() > 1)
-                    {
-                        bool found = false;
-                        for (int m = 0; m < texture.mipMapsList.count(); m++)
-                        {
-                            if (texture.mipMapsList[m].width == image->getMipMaps()[t]->getOrigWidth() &&
-                                texture.mipMapsList[m].height == image->getMipMaps()[t]->getOrigHeight())
-                            {
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (!found)
-                        {
-                            image->getMipMaps().removeAt(t--);
-                        }
-                    }
-                }
+                // remove lower mipmaps below 4x4 for ATI2N
+                if (newPixelFormat == PixelFormat::ATI2)
+                    RemoveLowerMips(image);
 
-                // put empty mips if missing
-                for (int t = 0; t < texture.mipMapsList.count(); t++)
-                {
-                    if (texture.mipMapsList[t].width <= image->getMipMaps().first()->getOrigWidth() &&
-                        texture.mipMapsList[t].height <= image->getMipMaps().first()->getOrigHeight())
-                    {
-                        bool found = false;
-                        for (int m = 0; m < image->getMipMaps().count(); m++)
-                        {
-                            if (image->getMipMaps()[m]->getOrigWidth() == texture.mipMapsList[t].width &&
-                                image->getMipMaps()[m]->getOrigHeight() == texture.mipMapsList[t].height)
-                            {
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (!found)
-                        {
-                            auto mipmap = new MipMap(texture.mipMapsList[t].width, texture.mipMapsList[t].height, pixelFormat);
-                            image->getMipMaps().push_back(mipmap);
-                        }
-                    }
-                }
+                // put empty mips below 4x4 except for ATI2N
+                if (newPixelFormat != PixelFormat::ATI2)
+                    AddMissingLowerMips(image, newPixelFormat);
             }
 
             if (!texture.getProperties().exists("LODGroup"))
