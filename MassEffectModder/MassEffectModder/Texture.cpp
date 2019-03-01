@@ -410,6 +410,14 @@ bool Texture::existMipmap(int width, int height)
     return false;
 }
 
+const Texture::TextureMipMap& Texture::getMipMapByIndex(int index)
+{
+    if (mipMapsList.count() == 0 || index < 0 || index >= mipMapsList.count())
+        CRASH();
+
+    return mipMapsList[index];
+}
+
 void Texture::removeEmptyMips()
 {
     for (int l = 0; l < mipMapsList.count(); l++)

@@ -95,6 +95,7 @@ public:
     uint getCrcData(ByteBuffer data);
     uint getCrcMipmap(TextureMipMap &mipmap);
     uint getCrcTopMipmap();
+    const TextureMipMap& getMipMapByIndex(int index);
     const TextureMipMap& getTopMipmap();
     bool existMipmap(int width, int height);
     const TextureMipMap& getMipmap(int width, int height);
@@ -105,6 +106,7 @@ public:
     void removeEmptyMips();
     bool hasEmptyMips();
     int numNotEmptyMips();
+    int getNumMipmaps() { return mipMapsList.count(); }
     bool HasExternalMips();
     const ByteBuffer toArray(uint pccTextureDataOffset, bool updateOffset = true);
     void Dispose();
