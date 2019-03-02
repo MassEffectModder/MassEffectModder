@@ -60,6 +60,7 @@ struct ModEntry
     QList<MipMap> cacheCprMipmaps;
     Texture::StorageTypes cacheCprMipmapsStorageType;
     QList<int> cacheCprMipmapsDecompressedSize;
+    PixelFormat cachedPixelFormat;
     QMap<int, QList<Texture::TextureMipMap>> masterTextures;
     QList<Texture::TextureMipMap> arcTexture;
     quint8 arcTfcGuid[16];

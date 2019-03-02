@@ -288,6 +288,13 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 // put empty mips below 4x4 except for ATI2N
                 if (newPixelFormat != PixelFormat::ATI2)
                     AddMissingLowerMips(image, newPixelFormat);
+
+                mod.cachedPixelFormat = newPixelFormat;
+            }
+            else
+            {
+                if (mod.markConvert)
+                    changeTextureType(pixelFormat, mod.cachedPixelFormat, texture);
             }
 
             if (!texture.getProperties().exists("LODGroup"))
@@ -309,7 +316,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     auto data = texture.compressTexture(image->getMipMaps()[m]->getRefData(),
                                                         mod.cacheCprMipmapsStorageType, repack);
                     mod.cacheCprMipmaps.push_back(MipMap(data, image->getMipMaps()[m]->getOrigWidth(),
-                                                  image->getMipMaps()[m]->getOrigHeight(), pixelFormat, true));
+                                                  image->getMipMaps()[m]->getOrigHeight(), mod.cachedPixelFormat, true));
                     data.Free();
                 }
             }
