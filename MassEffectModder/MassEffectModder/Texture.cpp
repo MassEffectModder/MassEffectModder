@@ -530,7 +530,12 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
                         }
                         else
                         {
-                            CRASH_MSG((QString("More instances of TFC file: ") + archive + ".tfc").toStdString().c_str());
+                            QString list;
+                            foreach(QString file, files)
+                                list += file + "\n";
+                            PERROR((QString("More instances of TFC file: ") + archive + ".tfc\n" +
+                                       list).toStdString().c_str());
+                            return ByteBuffer();
                         }
                     }
                 }

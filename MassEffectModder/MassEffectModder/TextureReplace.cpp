@@ -434,7 +434,12 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                             }
                             else
                             {
-                                CRASH_MSG((QString("More instances of TFC file: ") + archive + ".tfc").toStdString().c_str());
+                                QString list;
+                                foreach(QString file, files)
+                                    list += file + "\n";
+                                CRASH_MSG((QString("More instances of TFC file: ") + archive + ".tfc\n" +
+                                           list + "package: " + matched.path + "\n" +
+                                           "export id: " + QString::number(matched.exportID + 1)).toStdString().c_str());
                             }
                         }
                     }
