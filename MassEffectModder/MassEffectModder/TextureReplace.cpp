@@ -345,7 +345,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                                 mipmap.storageType = Texture::StorageTypes::extLZO;
                             }
                         }
-                        else if (GameData::gameType == MeType::ME2_TYPE || GameData::gameType == MeType::ME3_TYPE)
+                        else if (GameData::gameType == MeType::ME2_TYPE ||
+                                 GameData::gameType == MeType::ME3_TYPE)
                         {
                             if (texture.getProperties().exists("TextureFileCacheName"))
                             {
@@ -566,7 +567,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                         }
                     }
                     if ((mipmap.storageType == Texture::StorageTypes::extLZO ||
-                        mipmap.storageType == Texture::StorageTypes::extZlib) && matched.linkToMaster != -1)
+                         mipmap.storageType == Texture::StorageTypes::extZlib) && matched.linkToMaster != -1)
                     {
                         auto mip = mod.masterTextures.find(matched.linkToMaster).value()[m];
                         mipmap.compressedSize = mip.compressedSize;
