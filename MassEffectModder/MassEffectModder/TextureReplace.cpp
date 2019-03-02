@@ -239,6 +239,15 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
             PixelFormat pixelFormat = Image::getPixelFormatType(fmt);
             texture.removeEmptyMips();
 
+            if (GameData::gameType == MeType::ME1_TYPE && texture.mipMapsList.count() < 6)
+            {
+                for (int i = texture.mipMapsList.count() - 1; i != 0; i--)
+                    texture.mipMapsList.removeAt(i);
+            }
+
+            if (!texture.getProperties().exists("LODGroup"))
+                texture.getProperties().setByteValue("LODGroup", "TEXTUREGROUP_Character", "TextureGroup", 1025);
+
             Image *image = nullptr;
             if (mod.cacheCprMipmaps.count() == 0)
             {
@@ -264,16 +273,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     errors += "Error in texture: " + mod.textureName + " This texture has wrong aspect ratio, skipping texture...\n";
                     continue;
                 }
-            }
 
-            if (GameData::gameType == MeType::ME1_TYPE && texture.mipMapsList.count() < 6)
-            {
-                for (int i = texture.mipMapsList.count() - 1; i != 0; i--)
-                    texture.mipMapsList.removeAt(i);
-            }
-
-            if (mod.cacheCprMipmaps.count() == 0)
-            {
                 PixelFormat newPixelFormat = pixelFormat;
                 if (mod.markConvert)
                     newPixelFormat = changeTextureType(pixelFormat, image->getPixelFormat(), texture);
@@ -290,20 +290,10 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     AddMissingLowerMips(image, newPixelFormat);
 
                 mod.cachedPixelFormat = newPixelFormat;
-            }
-            else
-            {
-                if (mod.markConvert)
-                    changeTextureType(pixelFormat, mod.cachedPixelFormat, texture);
-            }
 
-            if (!texture.getProperties().exists("LODGroup"))
-                texture.getProperties().setByteValue("LODGroup", "TEXTUREGROUP_Character", "TextureGroup", 1025);
-
-            if (mod.cacheCprMipmaps.count() == 0)
-            {
                 if (verify)
                     matched.crcs.clear();
+
                 for (int m = 0; m < image->getMipMaps().count(); m++)
                 {
                     if (verify)
@@ -319,6 +309,11 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                                                   image->getMipMaps()[m]->getOrigHeight(), mod.cachedPixelFormat, true));
                     data.Free();
                 }
+            }
+            else
+            {
+                if (mod.markConvert)
+                    changeTextureType(pixelFormat, mod.cachedPixelFormat, texture);
             }
 
             auto mipmaps = QList<Texture::TextureMipMap>();
