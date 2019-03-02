@@ -1637,52 +1637,10 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTextur
             PERROR(errors);
 
         // remove lower mipmaps from source image which not exist in game data
-        for (int t = 0; t < image.getMipMaps().count(); t++)
-        {
-            if (image.getMipMaps()[t]->getOrigWidth() <= texture->mipMapsList.first().width &&
-                image.getMipMaps()[t]->getOrigHeight() <= texture->mipMapsList.first().height &&
-                texture->mipMapsList.count() > 1)
-            {
-                bool found = false;
-                for (int m = 0; m < texture->mipMapsList.count(); m++)
-                {
-                    if (texture->mipMapsList[m].width == image.getMipMaps()[t]->getOrigWidth() &&
-                        texture->mipMapsList[m].height == image.getMipMaps()[t]->getOrigHeight())
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found)
-                {
-                    image.getMipMaps().removeAt(t--);
-                }
-            }
-        }
+        MipMaps::RemoveLowerMips(&image, texture);
 
         // put empty mips if missing
-        for (int t = 0; t < texture->mipMapsList.count(); t++)
-        {
-            if (texture->mipMapsList[t].width <= image.getMipMaps().first()->getOrigWidth() &&
-                texture->mipMapsList[t].height <= image.getMipMaps().first()->getOrigHeight())
-            {
-                bool found = false;
-                for (int m = 0; m < image.getMipMaps().count(); m++)
-                {
-                    if (image.getMipMaps()[m]->getOrigWidth() == texture->mipMapsList[t].width &&
-                        image.getMipMaps()[m]->getOrigHeight() == texture->mipMapsList[t].height)
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found)
-                {
-                    auto mipmap = new MipMap(texture->mipMapsList[t].width, texture->mipMapsList[t].height, pixelFormat);
-                    image.getMipMaps().push_back(mipmap);
-                }
-            }
-        }
+        MipMaps::AddMissingLowerMips(&image, texture);
 
         bool triggerCacheArc = false, triggerCacheCpr = false;
         QString archiveFile;

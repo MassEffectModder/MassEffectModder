@@ -130,8 +130,6 @@ class MipMaps
     };
 
     void prepareListToRemove(QList<FoundTexture> &textures, QList<RemoveMipsEntry> &list);
-    void RemoveLowerMips(Image *image);
-    void AddMissingLowerMips(Image *image, PixelFormat pixelFormat);
 
 public:
 
@@ -153,6 +151,9 @@ public:
     QString replaceModsFromList(QList<FoundTexture> &textures, QStringList &pkgsToMarker,
                                 QStringList &pkgsToRepack,QList<ModEntry> &modsToReplace, bool repack,
                                 bool appendMarker, bool verify, bool removeMips);
+    static void RemoveLowerMips(Image *image, Texture *texture);
+    static void AddMissingLowerMips(Image *image, Texture *texture);
+    static void RemoveLowerMips(Image *image);
 };
 
 #endif
