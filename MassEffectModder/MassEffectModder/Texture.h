@@ -41,8 +41,6 @@ private:
     };
 
     MemoryStream *textureData = nullptr;
-    quint32 someFlags;
-    quint8 guid[16]{};
     ByteBuffer restOfData;
     QString packagePath;
     TexProperty *properties;

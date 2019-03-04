@@ -100,13 +100,8 @@ Texture::Texture(Package &package, int exportId, const ByteBuffer &data, bool fi
         mipMapsList.push_back(mipmap);
     }
 
-    someFlags = textureData->ReadUInt32(); // usually 0, for ME2/ME3 also 13
-    if (GameData::gameType != MeType::ME1_TYPE)
-    {
-        textureData->ReadToBuffer(guid, 16);
-        restOfData = ByteBuffer(textureData->Length() - textureData->Position());
-        textureData->ReadToBuffer(restOfData.ptr(), textureData->Length() - textureData->Position());
-    }
+    restOfData = ByteBuffer(textureData->Length() - textureData->Position());
+    textureData->ReadToBuffer(restOfData.ptr(), textureData->Length() - textureData->Position());
 
     packagePath = package.packagePath;
     packageName = BaseNameWithoutExt(packagePath).toUpper();
@@ -628,13 +623,7 @@ const ByteBuffer Texture::toArray(uint pccTextureDataOffset, bool updateOffset)
         mipMapsList[l] = mipmap;
     }
 
-    newData.WriteUInt32(someFlags);
-    if (GameData::gameType != MeType::ME1_TYPE)
-    {
-        newData.WriteFromBuffer(guid, 16);
-        newData.WriteFromBuffer(restOfData);
-    }
-
+    newData.WriteFromBuffer(restOfData);
 
     return newData.ToArray();
 }
