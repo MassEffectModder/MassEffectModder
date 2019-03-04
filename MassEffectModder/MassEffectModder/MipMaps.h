@@ -66,7 +66,6 @@ struct ModEntry
     quint8 arcTfcGuid[16];
     QString arcTfcName;
     bool arcTfcDLC;
-    QList<Texture::TextureMipMap> cprTexture;
     int instance;
 
     bool binaryModType;
@@ -76,19 +75,13 @@ struct ModEntry
     quint64 memEntryOffset;
     long memEntrySize;
 
-    void DeepCopyMipMapsList(QList<Texture::TextureMipMap> &copy,
-                               const QList<Texture::TextureMipMap> &list)
+    void CopyMipMapsList(QList<Texture::TextureMipMap> &copy,
+                         const QList<Texture::TextureMipMap> &list)
     {
-        foreach(Texture::TextureMipMap mip, copy)
-        {
-            if (mip.freeNewData)
-                mip.newData.Free();
-        }
         foreach(Texture::TextureMipMap mip, list)
         {
             Texture::TextureMipMap newMip = mip;
-            newMip.newData = ByteBuffer(mip.newData.ptr(), mip.newData.size());
-            newMip.freeNewData = true;
+            newMip.freeNewData = false;
             copy.append(newMip);
         }
     }

@@ -190,10 +190,6 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
 {
     QString errors = "";
     int lastProgress = -1;
-    int memorySize = DetectAmountMemoryGB();
-    bool veryLowMode = false;
-    if (memorySize < 8 && modsToReplace.count() != 1)
-        veryLowMode = true;
 
     for (int e = 0; e < map.count(); e++)
     {
@@ -404,11 +400,6 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 {
                     if (mod.arcTexture[m].storageType != mipmap.storageType)
                     {
-                        foreach(Texture::TextureMipMap mip, mod.arcTexture)
-                        {
-                            if (mip.freeNewData)
-                                mip.newData.Free();
-                        }
                         mod.arcTexture.clear();
                     }
                 }
@@ -429,12 +420,6 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 QString archive = texture.getProperties().getProperty("TextureFileCacheName").valueName;
                 if (mod.arcTfcDLC && mod.arcTfcName != archive)
                 {
-                    foreach(Texture::TextureMipMap mip, mod.arcTexture)
-                    {
-                        if (mip.freeNewData)
-                            mip.newData.Free();
-                    }
-
                     mod.arcTexture.clear();
                 }
 
@@ -556,22 +541,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     if (mipmap.storageType == Texture::StorageTypes::pccLZO ||
                         mipmap.storageType == Texture::StorageTypes::pccZlib)
                     {
-                        if (matched.linkToMaster == -1)
-                        {
-                            if (veryLowMode)
-                            {
-                                mipmap.newData = ByteBuffer(mod.cacheCprMipmaps[m].getRefData());
-                                mipmap.freeNewData = true;
-                            }
-                            else
-                            {
-                                mipmap.newData = mod.cacheCprMipmaps[m].getRefData();
-                            }
-                        }
-                        else
-                        {
-                            mipmap.newData = mod.masterTextures.find(matched.linkToMaster).value()[m].newData;
-                        }
+                        mipmap.newData = mod.cacheCprMipmaps[m].getRefData();
                         mipmap.compressedSize = mipmap.newData.size();
                     }
                     if (mipmap.storageType == Texture::StorageTypes::pccUnc)
@@ -604,15 +574,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     if (mipmap.storageType == Texture::StorageTypes::extZlib ||
                         mipmap.storageType == Texture::StorageTypes::extLZO)
                     {
-                        if (veryLowMode)
-                        {
-                            mipmap.newData = ByteBuffer(mod.cacheCprMipmaps[m].getRefData());
-                            mipmap.freeNewData = true;
-                        }
-                        else
-                        {
-                            mipmap.newData = mod.cacheCprMipmaps[m].getRefData();
-                        }
+                        mipmap.newData = mod.cacheCprMipmaps[m].getRefData();
                         mipmap.compressedSize = mipmap.newData.size();
                     }
 
@@ -715,7 +677,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 if (matched.linkToMaster == -1)
                 {
                     QList<Texture::TextureMipMap> mastersList;
-                    mod.DeepCopyMipMapsList(mastersList, texture.mipMapsList);
+                    mod.CopyMipMapsList(mastersList, texture.mipMapsList);
                     mod.masterTextures.insert(entryMap.listIndex, mastersList);
                 }
             }
@@ -723,7 +685,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
             {
                 if (triggerCacheArc)
                 {
-                    mod.DeepCopyMipMapsList(mod.arcTexture, texture.mipMapsList);
+                    mod.CopyMipMapsList(mod.arcTexture, texture.mipMapsList);
                     memcpy(mod.arcTfcGuid, texture.getProperties().getProperty("TFCFileGuid").valueStruct.ptr(), 16);
                     mod.arcTfcName = texture.getProperties().getProperty("TextureFileCacheName").valueName;
                 }
@@ -747,11 +709,6 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 CRASH();
             if (mod.instance == 0)
             {
-                foreach(Texture::TextureMipMap mip, mod.arcTexture)
-                {
-                    if (mip.freeNewData)
-                        mip.newData.Free();
-                }
                 mod.arcTexture.clear();
 
                 foreach(MipMap mip, mod.cacheCprMipmaps)
@@ -760,28 +717,10 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 }
                 mod.cacheCprMipmaps.clear();
 
-                for (int i = 0; i < mod.masterTextures.count(); i++)
-                {
-                    auto list = mod.masterTextures[i];
-                    foreach(Texture::TextureMipMap mip, list)
-                    {
-                        if (mip.freeNewData)
-                            mip.newData.Free();
-                    }
-                }
                 mod.masterTextures.clear();
             }
 
             delete image;
-
-            if (veryLowMode && mod.cacheCprMipmaps.count() != 0)
-            {
-                foreach(MipMap mip, mod.cacheCprMipmaps)
-                {
-                    mip.Free();
-                }
-                mod.cacheCprMipmaps.clear();
-            }
 
             modsToReplace.replace(entryMap.modIndex, mod);
             textures[entryMap.texturesIndex].list[entryMap.listIndex] = matched;
