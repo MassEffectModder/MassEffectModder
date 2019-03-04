@@ -137,8 +137,7 @@ void MipMaps::RemoveLowerMips(Image *image, Texture *texture)
             }
             if (!found)
             {
-                image->getMipMaps()[t]->Free();
-                image->getMipMaps().removeAt(t--);
+                image->removeMipByIndex(t--);
             }
         }
     }
@@ -151,8 +150,7 @@ void MipMaps::RemoveLowerMips(Image *image)
         if (image->getMipMaps()[t]->getOrigWidth() < 4 ||
             image->getMipMaps()[t]->getOrigHeight() < 4)
         {
-            image->getMipMaps()[t]->Free();
-            image->getMipMaps().removeAt(t--);
+            image->removeMipByIndex(t--);
         }
     }
 }
@@ -292,6 +290,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 if (!Misc::CheckImage(*image, texture, mod.textureName))
                 {
                     errors += "Error in texture: " + mod.textureName + " This texture has wrong aspect ratio, skipping texture...\n";
+                    delete image;
                     continue;
                 }
 

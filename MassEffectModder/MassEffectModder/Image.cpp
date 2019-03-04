@@ -160,6 +160,16 @@ Image::~Image()
     }
 }
 
+void Image::removeMipByIndex(int n)
+{
+    if (n < 0 || n >= mipMaps.count())
+        CRASH();
+
+    mipMaps[n]->Free();
+    delete mipMaps[n];
+    mipMaps.removeAt(n);
+}
+
 ImageFormat Image::DetectImageByFilename(const QString &fileName)
 {
     return DetectImageByExtension(GetFileExtension(fileName));

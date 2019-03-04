@@ -117,6 +117,7 @@ public:
     void correctMips(PixelFormat dstFormat, bool dxt1HasAlpha = false, quint8 dxt1Threshold = 128);
     static PixelFormat getPixelFormatType(const QString &format);
     static QString getEngineFormatType(PixelFormat format);
+    void removeMipByIndex(int n);
     static bool checkPowerOfTwo(int n);
     static int returnPowerOfTwo(int n);
 
