@@ -97,6 +97,7 @@ public:
     uint getCrcTopMipmap();
     const TextureMipMap& getMipMapByIndex(int index);
     const TextureMipMap& getTopMipmap();
+    const TextureMipMap& getBottomMipmap();
     bool existMipmap(int width, int height);
     const TextureMipMap& getMipmap(int width, int height);
     bool hasImageData();

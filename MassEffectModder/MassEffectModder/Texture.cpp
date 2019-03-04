@@ -400,6 +400,11 @@ const Texture::TextureMipMap& Texture::getTopMipmap()
     CRASH();
 }
 
+const Texture::TextureMipMap& Texture::getBottomMipmap()
+{
+    return mipMapsList.last();
+}
+
 bool Texture::existMipmap(int width, int height)
 {
     for (int l = 0; l < mipMapsList.count(); l++)

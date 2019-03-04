@@ -301,15 +301,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 errors += Misc::CorrectTexture(image, texture, pixelFormat, newPixelFormat,
                                                mod.markConvert, mod.textureName);
 
-                // remove lower mipmaps from source image which not exist in game data
-                RemoveLowerMips(image, &texture);
-
-                // put empty mips if missing
-                AddMissingLowerMips(image, &texture);
-
-                // remove lower mipmaps below 4x4 for ATI2N
-                if (newPixelFormat == PixelFormat::ATI2)
-                    RemoveLowerMips(image);
+                // remove lower mipmaps below 4x4
+                RemoveLowerMips(image);
 
                 mod.cachedPixelFormat = newPixelFormat;
 
@@ -338,46 +331,46 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     changeTextureType(pixelFormat, mod.cachedPixelFormat, texture);
             }
 
+            int indexOfPackageMipmap = mod.cacheCprMipmaps.count() - 6;
             auto mipmaps = QList<Texture::TextureMipMap>();
             for (int m = 0; m < mod.cacheCprMipmaps.count(); m++)
             {
                 Texture::TextureMipMap mipmap;
                 mipmap.width = mod.cacheCprMipmaps[m].getOrigWidth();
                 mipmap.height = mod.cacheCprMipmaps[m].getOrigHeight();
-                if (texture.existMipmap(mipmap.width, mipmap.height))
-                    mipmap.storageType = texture.getMipmap(mipmap.width, mipmap.height).storageType;
-                else
+                mipmap.storageType = texture.getTopMipmap().storageType;
+                if (texture.mipMapsList.count() > 1)
                 {
-                    mipmap.storageType = texture.getTopMipmap().storageType;
-                    if (texture.mipMapsList.count() > 1)
+                    if (m >= indexOfPackageMipmap)
                     {
-                        if (GameData::gameType == MeType::ME1_TYPE && matched.linkToMaster == -1)
+                        mipmap.storageType = texture.getBottomMipmap().storageType;
+                    }
+                    else
+                    {
+                        if (texture.existMipmap(mipmap.width, mipmap.height))
+                            mipmap.storageType = texture.getMipmap(mipmap.width, mipmap.height).storageType;
+                        else
                         {
-                            if (mipmap.storageType == Texture::StorageTypes::pccUnc)
+                            if (GameData::gameType == MeType::ME1_TYPE && matched.linkToMaster == -1)
                             {
-                                mipmap.storageType = Texture::StorageTypes::pccLZO;
-                            }
-                        }
-                        else if (GameData::gameType == MeType::ME1_TYPE && matched.linkToMaster != -1)
-                        {
-                            if (mipmap.storageType == Texture::StorageTypes::pccUnc ||
-                                mipmap.storageType == Texture::StorageTypes::pccLZO ||
-                                mipmap.storageType == Texture::StorageTypes::pccZlib)
-                            {
-                                mipmap.storageType = Texture::StorageTypes::extLZO;
-                            }
-                        }
-                        else if (GameData::gameType == MeType::ME2_TYPE ||
-                                 GameData::gameType == MeType::ME3_TYPE)
-                        {
-                            if (texture.getProperties().exists("TextureFileCacheName"))
-                            {
-                                if (texture.mipMapsList.count() < 6)
+                                if (mipmap.storageType == Texture::StorageTypes::pccUnc)
                                 {
-                                    mipmap.storageType = Texture::StorageTypes::pccUnc;
-                                    texture.getProperties().setBoolValue("NeverStream", true);
+                                    mipmap.storageType = Texture::StorageTypes::pccLZO;
                                 }
-                                else
+                            }
+                            else if (GameData::gameType == MeType::ME1_TYPE && matched.linkToMaster != -1)
+                            {
+                                if (mipmap.storageType == Texture::StorageTypes::pccUnc ||
+                                    mipmap.storageType == Texture::StorageTypes::pccLZO ||
+                                    mipmap.storageType == Texture::StorageTypes::pccZlib)
+                                {
+                                    mipmap.storageType = Texture::StorageTypes::extLZO;
+                                }
+                            }
+                            else if (GameData::gameType == MeType::ME2_TYPE ||
+                                     GameData::gameType == MeType::ME3_TYPE)
+                            {
+                                if (texture.getProperties().exists("TextureFileCacheName"))
                                 {
                                     if (GameData::gameType == MeType::ME2_TYPE)
                                         mipmap.storageType = Texture::StorageTypes::extLZO;
