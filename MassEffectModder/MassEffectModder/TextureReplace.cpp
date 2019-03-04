@@ -137,6 +137,7 @@ void MipMaps::RemoveLowerMips(Image *image, Texture *texture)
             }
             if (!found)
             {
+                image->getMipMaps()[t]->Free();
                 image->getMipMaps().removeAt(t--);
             }
         }
@@ -150,6 +151,7 @@ void MipMaps::RemoveLowerMips(Image *image)
         if (image->getMipMaps()[t]->getOrigWidth() < 4 ||
             image->getMipMaps()[t]->getOrigHeight() < 4)
         {
+            image->getMipMaps()[t]->Free();
             image->getMipMaps().removeAt(t--);
         }
     }
