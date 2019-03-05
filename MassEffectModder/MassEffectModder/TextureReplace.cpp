@@ -190,6 +190,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
 {
     QString errors = "";
     int lastProgress = -1;
+    quint64 cacheUsage = 0;
+    quint64 cacheLimit = (DetectAmountMemoryGB() - 2) * 1024 * 1024 * 1024;
 
     for (int e = 0; e < map.count(); e++)
     {
@@ -307,6 +309,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
 
                 if (verify)
                     matched.crcs.clear();
+                mod.cacheSize = 0;
                 for (int m = 0; m < image->getMipMaps().count(); m++)
                 {
                     if (verify)
@@ -320,8 +323,10 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                                                         mod.cacheCprMipmapsStorageType, repack);
                     mod.cacheCprMipmaps.push_back(MipMap(data, image->getMipMaps()[m]->getOrigWidth(),
                                                   image->getMipMaps()[m]->getOrigHeight(), mod.cachedPixelFormat, true));
+                    mod.cacheSize += data.size();
                     data.Free();
                 }
+                cacheUsage += mod.cacheSize;
             }
             else
             {
@@ -710,9 +715,21 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 mod.cacheCprMipmaps.clear();
 
                 mod.masterTextures.clear();
+
+                cacheUsage -= mod.cacheSize;
             }
 
             delete image;
+
+            if (cacheLimit > 0 && cacheUsage > cacheLimit)
+            {
+                foreach(MipMap mip, mod.cacheCprMipmaps)
+                {
+                    mip.Free();
+                }
+                mod.cacheCprMipmaps.clear();
+                cacheUsage -= mod.cacheSize;
+            }
 
             modsToReplace.replace(entryMap.modIndex, mod);
             textures[entryMap.texturesIndex].list[entryMap.listIndex] = matched;

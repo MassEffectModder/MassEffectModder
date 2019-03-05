@@ -59,6 +59,7 @@ struct ModEntry
     bool markConvert;
     QList<MipMap> cacheCprMipmaps;
     Texture::StorageTypes cacheCprMipmapsStorageType;
+    quint64 cacheSize;
     QList<int> cacheCprMipmapsDecompressedSize;
     PixelFormat cachedPixelFormat;
     QMap<int, QList<Texture::TextureMipMap>> masterTextures;
