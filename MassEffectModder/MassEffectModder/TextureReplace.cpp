@@ -297,6 +297,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 PixelFormat newPixelFormat = pixelFormat;
                 if (mod.markConvert)
                     newPixelFormat = changeTextureType(pixelFormat, image->getPixelFormat(), texture);
+                mod.cachedPixelFormat = newPixelFormat;
 
                 errors += Misc::CorrectTexture(image, texture, pixelFormat, newPixelFormat,
                                                mod.markConvert, mod.textureName);
@@ -304,11 +305,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 // remove lower mipmaps below 4x4
                 RemoveLowerMips(image);
 
-                mod.cachedPixelFormat = newPixelFormat;
-
                 if (verify)
                     matched.crcs.clear();
-
                 for (int m = 0; m < image->getMipMaps().count(); m++)
                 {
                     if (verify)
@@ -382,7 +380,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     }
                 }
 
-                if (GameData::gameType != MeType::ME1_TYPE)
+                if (GameData::gameType == MeType::ME2_TYPE)
                 {
                     if (mipmap.storageType == Texture::StorageTypes::extLZO)
                         mipmap.storageType = Texture::StorageTypes::extZlib;
