@@ -106,7 +106,7 @@ void DisplayHelp()
     PINFO("           Image filename must include texture CRC (0xhhhhhhhh)\n");
     PINFO("     ipc: turn on IPC traces\n");
     PINFO("\n");
-    PINFO("  --convert-game-image --gameid <game id> --input <input image> <--output output image> [--mark-to-convert]\n");
+    PINFO("  --convert-game-image --gameid <game id> --input <input image> --output <output image> [--mark-to-convert]\n");
     PINFO("     game id: 1 for ME1, 2 for ME2, 3 for ME3\n");
     PINFO("     Input file with following extension:\n");
     PINFO("        DDS, BMP, TGA, PNG\n");
