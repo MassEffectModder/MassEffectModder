@@ -112,6 +112,8 @@ int PngRead(unsigned char *src, unsigned int srcSize,
     png_set_invert_mono(pngStruct);
     if (png_get_valid(pngStruct, pngInfo, PNG_INFO_tRNS) != 0)
         png_set_tRNS_to_alpha(pngStruct);
+    if (colorType == PNG_COLOR_TYPE_GRAY || colorType == PNG_COLOR_TYPE_GRAY_ALPHA)
+        png_set_gray_to_rgb(pngStruct);
     if ((colorType & PNG_COLOR_MASK_COLOR) != 0)
         png_set_bgr(pngStruct);
     png_set_swap_alpha(pngStruct);
