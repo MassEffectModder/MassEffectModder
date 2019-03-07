@@ -31,8 +31,8 @@
 #error not supported system!
 #endif
 
-#define GIGABYTES (1024 * 1024 * 1024)
-#define ALIGN_GIGABYTES (1024 * 1024 * 1023)
+#define GIGABYTES (1024ULL * 1024 * 1024)
+#define ALIGN_GIGABYTES (1024ULL * 1024 * 1023)
 
 int DetectAmountMemoryGB()
 {
