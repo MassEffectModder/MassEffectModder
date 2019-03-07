@@ -706,17 +706,15 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 CRASH();
             if (mod.instance == 0)
             {
-                mod.arcTexture.clear();
-
                 foreach(MipMap mip, mod.cacheCprMipmaps)
                 {
                     mip.Free();
                 }
                 mod.cacheCprMipmaps.clear();
-
-                mod.masterTextures.clear();
-
                 cacheUsage -= mod.cacheSize;
+
+                mod.arcTexture.clear();
+                mod.masterTextures.clear();
             }
 
             delete image;
