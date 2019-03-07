@@ -70,7 +70,7 @@ public:
     static QString getTimerFormat(long time);
     static int ParseLegacyMe3xScriptMod(QList<FoundTexture> &textures, QString &script, QString &textureName);
     static void ParseME3xBinaryScriptMod(QString &script, QString &package, int &expId, QString &path);
-    static PixelFormat changeTextureType(PixelFormat gamePixelFormat, PixelFormat texturePixelFormat,
+    static PixelFormat changeTextureType(MeType gameId, PixelFormat gamePixelFormat, PixelFormat texturePixelFormat,
                                          TexProperty::TextureTypes flags);
     static uint scanFilenameForCRC(const QString &inputFile);
     static FoundTexture FoundTextureInTheMap(QList<FoundTexture> &textures, uint crc);

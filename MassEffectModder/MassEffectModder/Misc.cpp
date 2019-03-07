@@ -383,7 +383,7 @@ void Misc::ParseME3xBinaryScriptMod(QString &script, QString &package, int &expI
     }
 }
 
-PixelFormat Misc::changeTextureType(PixelFormat gamePixelFormat, PixelFormat texturePixelFormat,
+PixelFormat Misc::changeTextureType(MeType gameId, PixelFormat gamePixelFormat, PixelFormat texturePixelFormat,
                                     TexProperty::TextureTypes flags)
 {
     if ((gamePixelFormat == PixelFormat::DXT5 || gamePixelFormat == PixelFormat::DXT1 || gamePixelFormat == PixelFormat::ATI2) &&
@@ -400,7 +400,7 @@ PixelFormat Misc::changeTextureType(PixelFormat gamePixelFormat, PixelFormat tex
         {
             gamePixelFormat = PixelFormat::ATI2;
         }
-        else if (GameData::gameType != MeType::ME3_TYPE && texturePixelFormat == PixelFormat::ARGB &&
+        else if (gameId != MeType::ME3_TYPE && texturePixelFormat == PixelFormat::ARGB &&
             flags == TexProperty::TextureTypes::Normalmap)
         {
             gamePixelFormat = PixelFormat::ARGB;
@@ -412,14 +412,14 @@ PixelFormat Misc::changeTextureType(PixelFormat gamePixelFormat, PixelFormat tex
             gamePixelFormat = PixelFormat::ARGB;
         }
         else if (gamePixelFormat == PixelFormat::DXT5 && texturePixelFormat == PixelFormat::ARGB &&
-            GameData::gameType == MeType::ME3_TYPE &&
+            gameId == MeType::ME3_TYPE &&
             flags == TexProperty::TextureTypes::Normalmap)
         {
             gamePixelFormat = PixelFormat::ARGB;
         }
         else if ((gamePixelFormat == PixelFormat::DXT5 || gamePixelFormat == PixelFormat::DXT1) &&
             (texturePixelFormat == PixelFormat::ARGB || texturePixelFormat == PixelFormat::V8U8) &&
-            GameData::gameType == MeType::ME3_TYPE &&
+            gameId == MeType::ME3_TYPE &&
             flags == TexProperty::TextureTypes::Normalmap)
         {
             gamePixelFormat = PixelFormat::V8U8;
@@ -979,7 +979,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                     PixelFormat newPixelFormat = f.pixfmt;
                     if (markToConvert)
                     {
-                        newPixelFormat = changeTextureType(f.pixfmt, image.getPixelFormat(), f.flags);
+                        newPixelFormat = changeTextureType(gameId, f.pixfmt, image.getPixelFormat(), f.flags);
                         if (f.pixfmt == newPixelFormat)
                             PINFO(QString("Warning for texture: ") + mod.textureName +
                                   " This texture con be converted to desired format...\n");
@@ -1154,7 +1154,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                 PixelFormat newPixelFormat = f.pixfmt;
                 if (markToConvert)
                 {
-                    newPixelFormat = changeTextureType(f.pixfmt, image.getPixelFormat(), f.flags);
+                    newPixelFormat = changeTextureType(gameId, f.pixfmt, image.getPixelFormat(), f.flags);
                     if (f.pixfmt == newPixelFormat)
                         PINFO(QString("Warning for texture: ") + mod.textureName +
                               " This texture con be converted to desire format...\n");
@@ -1214,7 +1214,7 @@ end:
             PixelFormat newPixelFormat = f.pixfmt;
             if (markToConvert)
             {
-                newPixelFormat = changeTextureType(f.pixfmt, image.getPixelFormat(), f.flags);
+                newPixelFormat = changeTextureType(gameId, f.pixfmt, image.getPixelFormat(), f.flags);
                 if (f.pixfmt == newPixelFormat)
                     PINFO(QString("Warning for texture: ") + mod.textureName +
                           " This texture con be converted to desired format...\n");
