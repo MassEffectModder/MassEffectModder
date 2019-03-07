@@ -829,7 +829,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
     QList<FileMod> modFiles = QList<FileMod>();
 
     QString dir = DirName(memFilePath);
-    if (dir.length() != 0)
+    if (dir != memFilePath)
         QDir().mkpath(dir);
 
     if (QFile(memFilePath).exists())
