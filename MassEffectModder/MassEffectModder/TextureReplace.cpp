@@ -103,7 +103,7 @@ PixelFormat MipMaps::changeTextureType(PixelFormat gamePixelFormat, PixelFormat 
             texture.getProperties().setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
         }
         else if (GameData::gameType == MeType::ME3_TYPE && gamePixelFormat == PixelFormat::DXT1 &&
-            texturePixelFormat == PixelFormat::V8U8 &&
+            (texturePixelFormat == PixelFormat::ARGB || texturePixelFormat == PixelFormat::V8U8) &&
             texture.getProperties().exists("CompressionSettings") &&
             (texture.getProperties().getProperty("CompressionSettings").valueName == "TC_Normalmap" ||
             texture.getProperties().getProperty("CompressionSettings").valueName == "TC_NormalmapHQ"))

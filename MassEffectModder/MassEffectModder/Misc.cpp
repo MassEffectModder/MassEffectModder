@@ -411,9 +411,16 @@ PixelFormat Misc::changeTextureType(PixelFormat gamePixelFormat, PixelFormat tex
         {
             gamePixelFormat = PixelFormat::ARGB;
         }
+        else if (gamePixelFormat == PixelFormat::DXT5 && texturePixelFormat == PixelFormat::ARGB &&
+            GameData::gameType == MeType::ME3_TYPE &&
+            flags == TexProperty::TextureTypes::Normalmap)
+        {
+            gamePixelFormat = PixelFormat::ARGB;
+        }
         else if ((gamePixelFormat == PixelFormat::DXT5 || gamePixelFormat == PixelFormat::DXT1) &&
-            texturePixelFormat == PixelFormat::V8U8 && GameData::gameType == MeType::ME3_TYPE &&
-            flags == TexProperty::TextureTypes::Normal)
+            (texturePixelFormat == PixelFormat::ARGB || texturePixelFormat == PixelFormat::V8U8) &&
+            GameData::gameType == MeType::ME3_TYPE &&
+            flags == TexProperty::TextureTypes::Normalmap)
         {
             gamePixelFormat = PixelFormat::V8U8;
         }
@@ -971,7 +978,12 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
 
                     PixelFormat newPixelFormat = f.pixfmt;
                     if (markToConvert)
+                    {
                         newPixelFormat = changeTextureType(f.pixfmt, image.getPixelFormat(), f.flags);
+                        if (f.pixfmt == newPixelFormat)
+                            PINFO(QString("Warning for texture: ") + mod.textureName +
+                                  " This texture con be converted to desired format...\n");
+                    }
 
                     int numMips = GetNumberOfMipsFromMap(f);
                     if (CorrectTexture(image, f, numMips, markToConvert,
@@ -1141,7 +1153,12 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
 
                 PixelFormat newPixelFormat = f.pixfmt;
                 if (markToConvert)
+                {
                     newPixelFormat = changeTextureType(f.pixfmt, image.getPixelFormat(), f.flags);
+                    if (f.pixfmt == newPixelFormat)
+                        PINFO(QString("Warning for texture: ") + mod.textureName +
+                              " This texture con be converted to desire format...\n");
+                }
 
                 int numMips = GetNumberOfMipsFromMap(f);
                 if (CorrectTexture(image, f, numMips, markToConvert,
@@ -1196,7 +1213,12 @@ end:
 
             PixelFormat newPixelFormat = f.pixfmt;
             if (markToConvert)
+            {
                 newPixelFormat = changeTextureType(f.pixfmt, image.getPixelFormat(), f.flags);
+                if (f.pixfmt == newPixelFormat)
+                    PINFO(QString("Warning for texture: ") + mod.textureName +
+                          " This texture con be converted to desired format...\n");
+            }
 
             int numMips = Misc::GetNumberOfMipsFromMap(f);
             CorrectTexture(image, f, numMips, markToConvert,
