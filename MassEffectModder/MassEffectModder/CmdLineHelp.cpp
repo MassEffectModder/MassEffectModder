@@ -56,8 +56,8 @@ void DisplayHelp()
     PINFO("  --check-for-markers --gameid <game id> [--ipc]\n");
     PINFO("     Check game data for markers.\n");
     PINFO("\n");
-    PINFO("  --install-mods --gameid <game id> --input <input dir> [--repack] [--ipc]\n");
-    PINFO("  [--alot-mode] [--limit-2k] [--verify]\n");
+    PINFO("  --install-mods --gameid <game id> --input <input dir> [--cache-amount <percent>]\n");
+    PINFO("  [--repack] [--ipc] [--alot-mode] [--limit-2k] [--verify]\n");
     PINFO("     Install MEM mods from input directory.\n");
     PINFO("\n");
     PINFO("  --apply-me1-laa\n");

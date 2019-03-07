@@ -251,7 +251,8 @@ int ProcessArguments()
     bool appendTfc = false;
     bool verify = false;
     int thresholdValue = 128;
-    QString input, output, threshold, format, tfcName, guid, path;
+    int cacheAmountValue = -1;
+    QString input, output, threshold, format, tfcName, guid, path, cacheAmount;
     CmdLineTools tools;
 
     QStringList args = convertLegacyArguments();
@@ -476,6 +477,16 @@ int ProcessArguments()
             args.removeAt(l);
             args.removeAt(l--);
         }
+        else if (arg == "--cache-amount" && hasValue(args, l))
+        {
+            cacheAmount = args[l + 1];
+            if (cacheAmount.length() != 0)
+            {
+                cacheAmountValue = cacheAmount.toInt();
+            }
+            args.removeAt(l);
+            args.removeAt(l--);
+        }
     }
     if (args.count() != 0)
     {
@@ -629,7 +640,13 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.InstallMods(gameId, input, repackMode, guiMode, limit2k, verify))
+        if (cacheAmountValue < -1 || cacheAmountValue > 100)
+        {
+            PERROR("Cache amount must be in range from -1 to 100\n");
+            errorCode = 1;
+            break;
+        }
+        if (!tools.InstallMods(gameId, input, repackMode, guiMode, limit2k, verify, cacheAmountValue))
         {
             errorCode = 1;
         }

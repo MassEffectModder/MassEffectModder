@@ -186,12 +186,14 @@ void MipMaps::AddMissingLowerMips(Image *image, Texture *texture)
 QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTexture> &textures,
                                  QStringList &pkgsToMarker, QStringList &pkgsToRepack,
                                  QList<ModEntry> &modsToReplace, bool repack,
-                                 bool appendMarker, bool verify, bool removeMips)
+                                 bool appendMarker, bool verify, bool removeMips, int cacheAmount)
 {
     QString errors = "";
     int lastProgress = -1;
     quint64 cacheUsage = 0;
     quint64 cacheLimit = (DetectAmountMemoryGB() - 2) * 1024ULL * 1024 * 1024;
+    if (cacheAmount >= 0 && cacheAmount <= 100)
+        cacheLimit = (quint64)((DetectAmountMemoryGB() * 1024ULL * 1024 * 1024) * (cacheAmount / 100.0));
 
     for (int e = 0; e < map.count(); e++)
     {
@@ -719,7 +721,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
 
             delete image;
 
-            if (cacheLimit > 0 && cacheUsage > cacheLimit)
+            if (cacheUsage > cacheLimit)
             {
                 foreach(MipMap mip, mod.cacheCprMipmaps)
                 {
@@ -772,7 +774,8 @@ static int comparePaths(const MapTexturesToMod &e1, const MapTexturesToMod &e2)
 
 QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList &pkgsToMarker,
                                      QStringList &pkgsToRepack, QList<ModEntry> &modsToReplace,
-                                     bool repack, bool appendMarker, bool verify, bool removeMips)
+                                     bool repack, bool appendMarker, bool verify, bool removeMips,
+                                     int cacheAmount)
 {
     QString errors;
     bool binaryMods = false;
@@ -974,7 +977,7 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList 
         }
 
         errors += replaceTextures(mapPackages, textures, pkgsToMarker, pkgsToRepack, modsToReplace,
-                                  repack, appendMarker, verify, removeMips);
+                                  repack, appendMarker, verify, removeMips, cacheAmount);
     }
 
     modsToReplace.clear();

@@ -141,10 +141,10 @@ public:
     PixelFormat changeTextureType(PixelFormat gamePixelFormat, PixelFormat texturePixelFormat, Texture &texture);
     QString replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTexture> &textures,
                             QStringList &pkgsToMarker, QStringList &pkgsToRepack, QList<ModEntry> &modsToReplace,
-                            bool repack, bool appendMarker, bool verify, bool removeMips);
+                            bool repack, bool appendMarker, bool verify, bool removeMips, int cacheAmount);
     QString replaceModsFromList(QList<FoundTexture> &textures, QStringList &pkgsToMarker,
                                 QStringList &pkgsToRepack,QList<ModEntry> &modsToReplace, bool repack,
-                                bool appendMarker, bool verify, bool removeMips);
+                                bool appendMarker, bool verify, bool removeMips, int cacheAmount);
     static void RemoveLowerMips(Image *image, Texture *texture);
     static void AddMissingLowerMips(Image *image, Texture *texture);
     static void RemoveLowerMips(Image *image);

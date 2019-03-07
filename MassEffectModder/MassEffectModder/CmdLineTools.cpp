@@ -1135,7 +1135,7 @@ void CmdLineTools::RepackME23(MeType gameId, bool appendMarker)
 }
 
 bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool repack,
-                               bool guiInstaller, bool limit2k, bool verify)
+                               bool guiInstaller, bool limit2k, bool verify, int cacheAmount)
 {
     Resources resources;
     MipMaps mipMaps;
@@ -1276,7 +1276,7 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool repack,
 
     QString tfcName;
     QByteArray guid;
-    applyMods(modFiles, textures, mipMaps, repack, modded, tfcName, guid, false, verify, false);
+    applyMods(modFiles, textures, mipMaps, repack, modded, tfcName, guid, false, verify, false, cacheAmount);
 
 
     if (!modded)
@@ -1357,14 +1357,14 @@ bool CmdLineTools::applyMEMSpecialModME3(MeType gameId, QString &memFile,
     QStringList memFiles = QStringList();
     memFiles.push_back(memFile);
 
-    applyMods(memFiles, textures, mipMaps, false, false, tfcName, guid, appendTfc, verify, true);
+    applyMods(memFiles, textures, mipMaps, false, false, tfcName, guid, appendTfc, verify, true, -1);
 
     return true;
 }
 
 bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, MipMaps &mipMaps, bool repack,
                              bool modded, QString &tfcName, QByteArray &guid, bool appendTfc,
-                             bool verify, bool special)
+                             bool verify, bool special, int cacheAmount)
 {
     bool status = true;
 
@@ -1586,7 +1586,7 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
 
     if (!special)
         mipMaps.replaceModsFromList(textures, pkgsToMarker, pkgsToRepack, modsToReplace,
-                                     repack, !modded, verify, !modded);
+                                     repack, !modded, verify, !modded, cacheAmount);
 
     modsToReplace.clear();
 
