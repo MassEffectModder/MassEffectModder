@@ -642,6 +642,13 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
             texture.getProperties().setIntValue("SizeY", texture.mipMapsList.first().height);
             if (texture.getProperties().exists("MipTailBaseIdx"))
                 texture.getProperties().setIntValue("MipTailBaseIdx", texture.mipMapsList.count() - 1);
+            if (GameData::gameType != MeType::ME1_TYPE &&
+                texture.mipMapsList.count() > 6 &&
+                !texture.HasExternalMips() &&
+                !texture.getProperties().exists("NeverStream"))
+            {
+                texture.getProperties().setBoolValue("NeverStream", true);
+            }
 
             {
                 MemoryStream newData;
