@@ -83,6 +83,7 @@ public:
     bool extractAllTextures(MeType gameId, QString &outputDir, bool png,
                             bool pccOnly, bool tfcOnly, QString &textureTfcFilter);
     bool CheckTextures(MeType gameId);
+    bool FixMissingPropertyInTextures(MeType gameId);
     bool checkGameFilesAfter(MeType gameType);
     bool detectsMismatchPackagesAfter(MeType gameType);
 };

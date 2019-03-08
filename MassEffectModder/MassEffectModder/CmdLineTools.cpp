@@ -2086,6 +2086,100 @@ bool CmdLineTools::CheckTextures(MeType gameId)
     return true;
 }
 
+bool CmdLineTools::FixMissingPropertyInTextures(MeType gameId)
+{
+    ConfigIni configIni = ConfigIni();
+    g_GameData->Init(gameId, configIni);
+    if (!CheckGamePath())
+        return false;
+
+    PINFO("Starting checking textures...\n");
+
+    for (int i = 0; i < g_GameData->packageFiles.count(); i++)
+    {
+        Package package;
+        PINFO(QString("Package ") + QString::number(i + 1) + " of " +
+                     QString::number(g_GameData->packageFiles.count()) + " - " +
+                     g_GameData->packageFiles[i] + "\n");
+        if (package.Open(g_GameData->GamePath() + g_GameData->packageFiles[i]) != 0)
+        {
+            QString err = "";
+            err += "---- Start --------------------------------------------\n\n" ;
+            err += "Error opening package file: " + g_GameData->packageFiles[i] + "\n\n";
+            err += "---- End ----------------------------------------------\n\n";
+            PERROR(err);
+            continue;
+        }
+
+        bool modified = false;
+        for (int e = 0; e < package.exportsTable.count(); e++)
+        {
+            int id = package.getClassNameId(package.exportsTable[e].getClassId());
+            if (id == package.nameIdTexture2D ||
+                id == package.nameIdLightMapTexture2D ||
+                id == package.nameIdShadowMapTexture2D ||
+                id == package.nameIdTextureFlipBook)
+            {
+                ByteBuffer exportData = package.getExportData(e);
+                Texture texture(package, e, exportData);
+                exportData.Free();
+                if (GameData::gameType != MeType::ME1_TYPE &&
+                    texture.mipMapsList.count() > 6 &&
+                    !texture.HasExternalMips() &&
+                    !texture.getProperties().exists("NeverStream"))
+                {
+                    PINFO(QString("Adding missing property \"NeverStream\" for ") +
+                                  package.exportsTable[e].objectName + ", export id: " +
+                                  QString::number(e + 1) + "\n");
+                    texture.getProperties().setBoolValue("NeverStream", true);
+                    modified = true;
+                }
+                else
+                {
+                    continue;
+                }
+
+                {
+                    MemoryStream newData;
+                    ByteBuffer buffer = texture.getProperties().toArray();
+                    newData.WriteFromBuffer(buffer);
+                    buffer.Free();
+                    buffer = texture.toArray(0, false); // filled later
+                    newData.WriteFromBuffer(buffer);
+                    buffer.Free();
+                    buffer = newData.ToArray();
+                    package.setExportData(e, buffer);
+                    buffer.Free();
+                }
+
+                uint packageDataOffset;
+                {
+                    MemoryStream newData;
+                    ByteBuffer buffer = texture.getProperties().toArray();
+                    newData.WriteFromBuffer(buffer);
+                    buffer.Free();
+                    packageDataOffset = package.exportsTable[e].getDataOffset() + (uint)newData.Position();
+                    buffer = texture.toArray(packageDataOffset);
+                    newData.WriteFromBuffer(buffer);
+                    buffer.Free();
+                    buffer = newData.ToArray();
+                    package.setExportData(e, buffer);
+                    buffer.Free();
+                }
+            }
+        }
+        if (modified)
+            package.SaveToFile(false, false, false);
+    }
+
+    if (GameData::gameType == MeType::ME3_TYPE)
+        TOCBinFile::UpdateAllTOCBinFiles();
+
+    PINFO("Finished checking textures.\n\n");
+
+    return true;
+}
+
 bool CmdLineTools::checkGameFilesAfter(MeType gameType)
 {
     ConfigIni configIni = ConfigIni();

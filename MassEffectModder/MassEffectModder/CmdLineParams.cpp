@@ -326,6 +326,8 @@ int ProcessArguments()
         else if (arg == "--set-game-user-path")
             cmd = CmdType::SET_GAME_USER_PATH;
 #endif
+        else if (arg == "--fix-textures-property")
+            cmd = CmdType::FIX_TEXTURES_PROPERTY;
         else
             continue;
         args.removeAt(l);
@@ -950,6 +952,16 @@ int ProcessArguments()
             errorCode = 1;
         break;
 #endif
+    case CmdType::FIX_TEXTURES_PROPERTY:
+        if (gameId == MeType::UNKNOWN_TYPE || gameId == MeType::ME1_TYPE)
+        {
+            PERROR("Wrong game id!\n");
+            errorCode = 1;
+            break;
+        }
+        if (!tools.FixMissingPropertyInTextures(gameId))
+            errorCode = 1;
+        break;
     }
 
     return errorCode;

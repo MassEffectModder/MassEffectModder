@@ -58,6 +58,7 @@ typedef enum : int
     SET_GAME_DATA_PATH,
     SET_GAME_USER_PATH,
 #endif
+    FIX_TEXTURES_PROPERTY,
 } CmdType;
 
 int ProcessArguments();
