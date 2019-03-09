@@ -450,8 +450,10 @@ bool Package::ReserveSpaceBeforeExportData(int space)
     for (int i = 0; i < sortedExports.count(); i++)
     {
         if (sortedExports[i].objectName == "SeekFreeShaderCache" &&
-                getClassName(sortedExports[i].getClassId()) == "ShaderCache")
+            getClassName(sortedExports[i].getClassId()) == "ShaderCache")
+        {
             return false;
+        }
         if (packageFileVersion == packageFileVersionME1)
         {
             int id = getClassNameId(sortedExports[i].getClassId());
