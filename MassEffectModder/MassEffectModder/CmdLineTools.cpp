@@ -1679,7 +1679,7 @@ void CmdLineTools::replaceTextureSpecialME3Mod(Image &image, QList<MatchedTextur
                 {
                     if (texture->getProperties().exists("TextureFileCacheName"))
                     {
-                        if (texture->mipMapsList.count() < 6)
+                        if (texture->mipMapsList.count() <= 6)
                         {
                             mipmap.storageType = Texture::StorageTypes::pccUnc;
                             texture->getProperties().setBoolValue("NeverStream", true);
