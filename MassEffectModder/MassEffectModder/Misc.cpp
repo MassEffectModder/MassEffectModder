@@ -1318,7 +1318,10 @@ end:
         {
             ConsoleWrite("[IPC]ERROR_NO_BUILDABLE_FILES");
             ConsoleSync();
+            return true;
         }
+
+        PERROR("MEM file not created!\n");
         return false;
     }
 
