@@ -1116,7 +1116,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                 if (f.crc == 0)
                 {
                     PINFO(QString("Texture skipped. File ") + fileName + QString().sprintf("_0x%08X", crc) +
-                        " is not present in your game setup - mod: " + BaseName(file));
+                        " is not present in your game setup - mod: " + BaseName(file) + "\n");
                     ZipGoToNextFile(handle);
                     continue;
                 }
