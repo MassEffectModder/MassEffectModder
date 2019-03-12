@@ -30,28 +30,43 @@
 int ME3DLC::getNumberOfFiles(QString &path)
 {
     if (!QFile(path).exists())
-        CRASH_MSG("filename missing");
+    {
+        PERROR(QString("Filename missing: ") + path + "\n");
+        return -1;
+    }
     FileStream stream = FileStream(path, FileMode::Open, FileAccess::ReadOnly);
     uint tag = stream.ReadUInt32();
     if (tag != SfarTag)
-        CRASH_MSG("Wrong SFAR tag");
+    {
+        PERROR("Wrong SFAR tag\n");
+        return -1;
+    }
     uint sfarVersion = stream.ReadUInt32();
     if (sfarVersion != SfarVersion)
-        CRASH_MSG("Wrong SFAR version");
+    {
+        PERROR("Wrong SFAR version\n");
+        return -1;
+    }
 
     stream.SkipInt32();
     stream.SkipInt32();
     return stream.ReadInt32();
 }
 
-void ME3DLC::loadHeader(Stream *stream)
+bool ME3DLC::loadHeader(Stream *stream)
 {
     uint tag = stream->ReadUInt32();
     if (tag != SfarTag)
-        CRASH_MSG("Wrong SFAR tag");
+    {
+        CRASH_MSG("Wrong SFAR tag\n");
+        return false;
+    }
     uint sfarVersion = stream->ReadUInt32();
     if (sfarVersion != SfarVersion)
-        CRASH_MSG("Wrong SFAR version");
+    {
+        CRASH_MSG("Wrong SFAR version\n");
+        return false;
+    }
 
     stream->SkipInt32();
     uint entriesOffset = stream->ReadUInt32();
@@ -60,7 +75,10 @@ void ME3DLC::loadHeader(Stream *stream)
     maxBlockSize = stream->ReadUInt32();
     uint compressionTag = stream->ReadUInt32();
     if (compressionTag != LZMATag)
-        CRASH_MSG("Not LZMA compression for SFAR file");
+    {
+        CRASH_MSG("Not LZMA compression for SFAR file\n");
+        return false;
+    }
 
     uint numBlockSizes = 0;
     stream->JumpTo(entriesOffset);
@@ -123,14 +141,18 @@ void ME3DLC::loadHeader(Stream *stream)
     }
 }
 
-void ME3DLC::extract(QString &SFARfilename, int &currentProgress, int totalNumber)
+bool ME3DLC::extract(QString &SFARfilename, int &currentProgress, int totalNumber)
 {
     if (!QFile(SFARfilename).exists())
-        CRASH_MSG("filename missing");
+    {
+        PERROR(QString("Filename missing: ") + SFARfilename + "\n");
+        return false;
+    }
 
     std::unique_ptr<Stream> stream (new MemoryStream(SFARfilename));
 
-    loadHeader(stream.get());
+    if (!loadHeader(stream.get()))
+        return false;
 
     int lastProgress = -1;
     for (uint i = 0; i < filesCount; i++, currentProgress++)
@@ -138,7 +160,10 @@ void ME3DLC::extract(QString &SFARfilename, int &currentProgress, int totalNumbe
         if ((uint)filenamesIndex == i)
             continue;
         if (filesList[i].filenamePath.length() == 0)
-            CRASH_MSG("filename missing");
+        {
+            PERROR("Filename list missing in DLC\n");
+            return false;
+        }
 
         if (g_ipc)
         {
@@ -180,6 +205,7 @@ void ME3DLC::extract(QString &SFARfilename, int &currentProgress, int totalNumbe
                     bytesLeft -= uncompressedBlockSize;
                 }
 
+                bool status = true;
                 #pragma omp parallel for
                 for (uint j = 0; j < filesList[i].numBlocks; j++)
                 {
@@ -193,9 +219,15 @@ void ME3DLC::extract(QString &SFARfilename, int &currentProgress, int totalNumbe
                         LzmaDecompress(compressedBlockBuffers[j].ptr(), compressedBlockBuffers[j].size(),
                                        uncompressedBlockBuffers[j].ptr(), &dstLen);
                         if (uncompressedBlockBuffers[j].size() == 0)
-                            CRASH();
+                        {
+                            PERROR("Decompression failed\n");
+                            status = false;
+                        }
                     }
                 }
+
+                if (!status)
+                    return false;
 
                 for (uint j = 0; j < filesList[i].numBlocks; j++)
                 {
@@ -221,6 +253,8 @@ void ME3DLC::extract(QString &SFARfilename, int &currentProgress, int totalNumbe
     outputFile.WriteUInt32(HeaderSize);
     outputFile.WriteUInt32((uint)MaxBlockSize);
     outputFile.WriteUInt32(LZMATag);
+
+    return true;
 }
 
 void ME3DLC::unpackAllDLC()
@@ -273,7 +307,8 @@ void ME3DLC::unpackAllDLC()
     int currentProgress = 0;
     for (int i = 0; i < sfarFiles.count(); i++)
     {
-        totalNumFiles += getNumberOfFiles(sfarFiles[i]);
+        if (getNumberOfFiles(sfarFiles[i]) != -1)
+            totalNumFiles += getNumberOfFiles(sfarFiles[i]);
     }
 
     for (int i = 0; i < sfarFiles.count(); i++)
@@ -288,6 +323,17 @@ void ME3DLC::unpackAllDLC()
         {
             PINFO("Unpacking SFAR: " + g_GameData->RelativeGameData(sfarFiles[i]) + "\n");
         }
-        dlc.extract(sfarFiles[i], currentProgress, totalNumFiles);
+        if (!dlc.extract(sfarFiles[i], currentProgress, totalNumFiles))
+        {
+            if (g_ipc)
+            {
+                ConsoleWrite("[IPC]ERROR Failed unpack DLC");
+                ConsoleSync();
+            }
+            else
+            {
+                PERROR("Error: Failed unpack: " + g_GameData->RelativeGameData(sfarFiles[i]) + "\n");
+            }
+        }
     }
 }

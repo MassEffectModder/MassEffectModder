@@ -21,6 +21,7 @@
 
 #include "Image.h"
 #include "Helpers/MemoryStream.h"
+#include "Helpers/Logs.h"
 #include "Wrappers.h"
 
 static int getShiftFromMask(uint mask)
@@ -43,7 +44,10 @@ void Image::LoadImageBMP(Stream &stream)
 {
     ushort tag = stream.ReadUInt16();
     if (tag != BMP_TAG)
-        CRASH_MSG("Not BMP header.");
+    {
+        PERROR("Not BMP header.\n");
+        return;
+    }
 
     stream.Skip(8);
 
@@ -60,13 +64,19 @@ void Image::LoadImageBMP(Stream &stream)
     }
     if (!checkPowerOfTwo(imageWidth) ||
         !checkPowerOfTwo(imageHeight))
-        CRASH_MSG("Dimensions not power of two.");
+    {
+        PERROR("Dimensions not power of two.\n");
+        return;
+    }
 
     stream.Skip(2);
 
     int bits = stream.ReadUInt16();
     if (bits != 32 && bits != 24)
-        CRASH_MSG("Only 24 and 32 bits BMP supported!");
+    {
+        PERROR("Only 24 and 32 bits BMP supported!\n");
+        return;
+    }
 
     bool hasAlphaMask = false;
     uint Rmask = 0xFF0000, Gmask = 0xFF00, Bmask = 0xFF, Amask = 0xFF000000;
@@ -76,7 +86,10 @@ void Image::LoadImageBMP(Stream &stream)
     {
         int compression = stream.ReadInt32();
         if (compression == 1 || compression == 2)
-            CRASH_MSG("Compression not supported in BMP!");
+        {
+            PERROR("Compression not supported in BMP!\n");
+            return;
+        }
 
         if (compression == 3)
         {

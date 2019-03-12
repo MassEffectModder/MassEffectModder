@@ -20,6 +20,7 @@
  */
 
 #include "Image.h"
+#include "Helpers/Logs.h"
 
 void Image::LoadImageTGA(Stream &stream)
 {
@@ -27,11 +28,17 @@ void Image::LoadImageTGA(Stream &stream)
 
     int colorMapType = stream.ReadByte();
     if (colorMapType != 0)
-        CRASH_MSG("Indexed TGA not supported!");
+    {
+        PERROR("Indexed TGA not supported!");
+        return;
+    }
 
     int imageType = stream.ReadByte();
     if (imageType != 2 && imageType != 10)
-        CRASH_MSG("Only RGB TGA supported!");
+    {
+        PERROR("Only RGB TGA supported!");
+        return;
+    }
 
     bool compressed = false;
     if (imageType == 10)
@@ -47,15 +54,24 @@ void Image::LoadImageTGA(Stream &stream)
     int imageHeight = stream.ReadInt16();
     if (!checkPowerOfTwo(imageWidth) ||
         !checkPowerOfTwo(imageHeight))
-        CRASH_MSG("Dimensions not power of two.");
+    {
+        PERROR("Dimensions not power of two.");
+        return;
+    }
 
     int imageDepth = stream.ReadByte();
     if (imageDepth != 32 && imageDepth != 24)
-        CRASH_MSG("Only 24 and 32 bits TGA supported!");
+    {
+        PERROR("Only 24 and 32 bits TGA supported!");
+        return;
+    }
 
     int imageDesc = stream.ReadByte();
     if ((imageDesc & 0x10) != 0)
-        CRASH_MSG("Origin right not supported in TGA!");
+    {
+        PERROR("Origin right not supported in TGA!");
+        return;
+    }
 
     bool downToTop = true;
     if ((imageDesc & 0x20) != 0)

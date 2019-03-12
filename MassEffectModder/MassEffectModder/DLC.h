@@ -58,10 +58,10 @@ class ME3DLC
     };
 
     static int getNumberOfFiles(QString &path);
-    void loadHeader(Stream *stream);
+    bool loadHeader(Stream *stream);
 
 public:
-    void extract(QString &SFARfilename, int &currentProgress, int totalNumber);
+    bool extract(QString &SFARfilename, int &currentProgress, int totalNumber);
     static void unpackAllDLC();
 };
 

@@ -401,7 +401,7 @@ void MemoryStream::Seek(qint64 offset, SeekOrigin origin)
         qint64 newOffset = length + offset;
         if (newOffset < 0)
         {
-            CRASH_MSG("MemoryStream: out of stream.\n");
+            CRASH_MSG("MemoryStream: out of stream.");
         }
         position = newOffset;
         break;
