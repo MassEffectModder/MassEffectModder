@@ -139,6 +139,7 @@ bool ME3DLC::loadHeader(Stream *stream)
             break;
         }
     }
+    return true;
 }
 
 bool ME3DLC::extract(QString &SFARfilename, int &currentProgress, int totalNumber)
