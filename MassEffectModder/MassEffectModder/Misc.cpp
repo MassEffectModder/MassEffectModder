@@ -792,6 +792,12 @@ bool Misc::DetectMarkToConvertFromFile(const QString &file)
     return idx > 0;
 }
 
+bool Misc::DetectHashFromFile(const QString &file)
+{
+    int idx = file.indexOf("-hash", Qt::CaseInsensitive);
+    return idx > 0;
+}
+
 static bool compareFileInfoPath(const QFileInfo &e1, const QFileInfo &e2)
 {
     return e1.absoluteFilePath().compare(e2.absoluteFilePath(), Qt::CaseInsensitive) < 0;
@@ -1193,36 +1199,55 @@ end:
                  file.endsWith(".tga", Qt::CaseInsensitive))
         {
             BinaryMod mod{};
+            FoundTexture f;
             uint crc = scanFilenameForCRC(file);
             if (crc == 0)
                 continue;
 
-            FoundTexture f = FoundTextureInTheMap(textures, crc);
-            if (f.crc == 0)
-            {
-                PINFO(QString("Texture skipped. Texture ") + BaseName(file) +
-                             " is not present in your game setup.\n");
-                continue;
-            }
-
             markToConvert = DetectMarkToConvertFromFile(file);
 
+            bool forceHash = DetectHashFromFile(file);
+            if (!forceHash)
+            {
+                f = FoundTextureInTheMap(textures, crc);
+                if (f.crc == 0)
+                {
+                    PINFO(QString("Texture skipped. Texture ") + BaseName(file) +
+                                 " is not present in your game setup.\n");
+                    continue;
+                }
+            }
+
             Image image(file, ImageFormat::UnknownImageFormat);
+            if (forceHash)
+            {
+                f.width = image.getMipMaps().first()->getOrigWidth();
+                f.height = image.getMipMaps().first()->getOrigHeight();
+                QString filename = BaseName(file);
+                int idx = filename.indexOf("0x");
+                if (idx > 1)
+                    f.name = filename.left(idx - 1);
+                f.name += "-hash";
+            }
+
             if (!Misc::CheckImage(image, f, file, -1))
                 continue;
 
-            PixelFormat newPixelFormat = f.pixfmt;
-            if (markToConvert)
+            if (!forceHash)
             {
-                newPixelFormat = changeTextureType(gameId, f.pixfmt, image.getPixelFormat(), f.flags);
-                if (f.pixfmt == newPixelFormat)
-                    PINFO(QString("Warning for texture: ") + mod.textureName +
-                          " This texture con be converted to desired format...\n");
-            }
+                PixelFormat newPixelFormat = f.pixfmt;
+                if (markToConvert)
+                {
+                    newPixelFormat = changeTextureType(gameId, f.pixfmt, image.getPixelFormat(), f.flags);
+                    if (f.pixfmt == newPixelFormat)
+                        PINFO(QString("Warning for texture: ") + mod.textureName +
+                              " This texture con be converted to desired format...\n");
+                }
 
-            int numMips = Misc::GetNumberOfMipsFromMap(f);
-            CorrectTexture(image, f, numMips, markToConvert,
-                           f.pixfmt, newPixelFormat, file);
+                int numMips = Misc::GetNumberOfMipsFromMap(f);
+                CorrectTexture(image, f, numMips, markToConvert,
+                               f.pixfmt, newPixelFormat, file);
+            }
 
             mod.data = image.StoreImageToDDS();
             mod.textureName = f.name;

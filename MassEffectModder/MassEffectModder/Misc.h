@@ -45,6 +45,7 @@ struct BinaryMod
     QString textureName;
     uint textureCrc;
     bool markConvert;
+    bool forceHash;
     long offset;
     long size;
 };
@@ -92,6 +93,7 @@ public:
     static bool ParseBinaryModFileName(const QString &file, QString &pkgName, QString &dlcName, int &exportId);
     static bool TpfGetCurrentFileInfo(void *handle, QString &fileName, quint64 &lenght);
     static bool DetectMarkToConvertFromFile(const QString &file);
+    static bool DetectHashFromFile(const QString &file);
     static int GetNumberOfMipsFromMap(FoundTexture &f);
     static QByteArray calculateMD5(const QString &filePath);
     static void detectMods(QStringList &mods);

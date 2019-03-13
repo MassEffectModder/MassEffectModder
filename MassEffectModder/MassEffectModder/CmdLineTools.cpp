@@ -641,6 +641,9 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
             FileMod fileMod{};
             fileMod.tag = fs.ReadUInt32();
             fs.ReadStringASCIINull(fileMod.name);
+            int idx = fileMod.name.indexOf("-hash");
+            if (idx != -1)
+                fileMod.name = fileMod.name.left(idx);
             fileMod.offset = fs.ReadInt64();
             fileMod.size = fs.ReadInt64();
             modFiles.push_back(fileMod);
@@ -695,8 +698,13 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
 
             if (modFiles[i].tag == FileTextureTag || modFiles[i].tag == FileTextureTag2)
             {
+                int idx = name.indexOf("-hash");
+                if (idx != -1)
+                    name = name.left(idx);
                 QString filename = outputMODdir + "/" +
                         BaseName(name + QString().sprintf("_0x%08X", crc));
+                if (idx != -1)
+                    filename += "-hash";
                 if (modFiles[i].tag == FileTextureTag)
                     filename += ".dds";
                 else
