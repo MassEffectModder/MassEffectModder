@@ -18,6 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+#if 0
 
 #define ZSTD_STATIC_LINKING_ONLY
 #include <zstd.h>
@@ -85,3 +86,5 @@ int ZstdCompress(unsigned char *src, unsigned int src_len,
 
     return 0;
 }
+
+#endif
