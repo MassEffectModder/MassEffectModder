@@ -2094,7 +2094,7 @@ bool CmdLineTools::CheckTextures(MeType gameId)
     return true;
 }
 
-bool CmdLineTools::FixMissingPropertyInTextures(MeType gameId)
+bool CmdLineTools::FixMissingPropertyInTextures(MeType gameId, const QString& filter)
 {
     ConfigIni configIni = ConfigIni();
     g_GameData->Init(gameId, configIni);
@@ -2103,19 +2103,56 @@ bool CmdLineTools::FixMissingPropertyInTextures(MeType gameId)
 
     PINFO("Starting checking textures...\n");
 
+    QStringList packages;
     for (int i = 0; i < g_GameData->packageFiles.count(); i++)
     {
-        Package package;
-        PINFO(QString("Package ") + QString::number(i + 1) + " of " +
-                     QString::number(g_GameData->packageFiles.count()) + " - " +
-                     g_GameData->packageFiles[i] + "\n");
-        if (package.Open(g_GameData->GamePath() + g_GameData->packageFiles[i]) != 0)
+        if (filter != "")
         {
-            QString err = "";
-            err += "---- Start --------------------------------------------\n\n" ;
-            err += "Error opening package file: " + g_GameData->packageFiles[i] + "\n\n";
-            err += "---- End ----------------------------------------------\n\n";
-            PERROR(err);
+            if (!g_GameData->packageFiles[i].contains(filter, Qt::CaseSensitive))
+            {
+                continue;
+            }
+        }
+        packages += g_GameData->packageFiles[i];
+    }
+
+    int lastProgress = -1;
+    for (int i = 0; i < packages.count(); i++)
+    {
+        Package package;
+        if (g_ipc)
+        {
+            ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + packages[i]);
+        }
+        else
+        {
+            PINFO(QString("Package ") + QString::number(i + 1) + " of " +
+                         QString::number(packages.count()) + " - " +
+                         packages[i] + "\n");
+        }
+        int newProgress = (i + 1) * 100 / packages.count();
+        if (g_ipc && lastProgress != newProgress)
+        {
+            ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + QString::number(newProgress));
+            ConsoleSync();
+            lastProgress = newProgress;
+        }
+        if (package.Open(g_GameData->GamePath() + packages[i]) != 0)
+        {
+            if (g_ipc)
+            {
+                ConsoleWrite(QString("[IPC]ERROR Error opening package file: ") +
+                             packages[i]);
+                ConsoleSync();
+            }
+            else
+            {
+                QString err = "";
+                err += "---- Start --------------------------------------------\n\n" ;
+                err += "Error opening package file: " + packages[i] + "\n\n";
+                err += "---- End ----------------------------------------------\n\n";
+                PERROR(err);
+            }
             continue;
         }
 

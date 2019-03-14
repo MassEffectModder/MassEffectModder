@@ -252,7 +252,7 @@ int ProcessArguments()
     bool verify = false;
     int thresholdValue = 128;
     int cacheAmountValue = -1;
-    QString input, output, threshold, format, tfcName, guid, path, cacheAmount;
+    QString input, output, threshold, format, tfcName, guid, path, cacheAmount, filter;
     CmdLineTools tools;
 
     QStringList args = convertLegacyArguments();
@@ -486,6 +486,12 @@ int ProcessArguments()
             {
                 cacheAmountValue = cacheAmount.toInt();
             }
+            args.removeAt(l);
+            args.removeAt(l--);
+        }
+        else if (arg == "--filter" && hasValue(args, l))
+        {
+            filter = args[l + 1];
             args.removeAt(l);
             args.removeAt(l--);
         }
@@ -959,7 +965,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.FixMissingPropertyInTextures(gameId))
+        if (!tools.FixMissingPropertyInTextures(gameId, filter))
             errorCode = 1;
         break;
     }

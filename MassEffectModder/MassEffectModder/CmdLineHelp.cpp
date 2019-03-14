@@ -208,9 +208,10 @@ void DisplayHelp()
     PINFO("     Set game user config path to <path>.\n");
     PINFO("\n");
 #endif
-    PINFO("  --fix-textures-property --gameid <game id>\n");
+    PINFO("  --fix-textures-property --gameid <game id> [--filter <string>] [--ipc]\n");
     PINFO("     Fix missing \"NeverStream\" property for textures\n");
     PINFO("     which has more than 6 mips in package.\n");
+    PINFO("     If filter param is provided, match packages by filter \"string\".\n");
     PINFO("\n");
     PINFO("\n");
     PINFO("  Additonal option to enable debug logs level to all commands: --debug-logs\n");
