@@ -227,7 +227,8 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<FoundTexture> &textures)
     return !foundRemoved && !foundAdded;
 }
 
-int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<FoundTexture> &textures)
+int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
+                                    QList<FoundTexture> &textures, bool removeEmptyMips)
 {
     QStringList pkgs;
     QList<MD5FileEntry> md5Entries;
@@ -624,6 +625,20 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources, QList<F
     else
     {
         fs.CopyFrom(mem, mem.Length());
+    }
+
+    if (removeEmptyMips)
+    {
+        PINFO("\nRemove empty mips started...\n");
+        MipMaps mipMaps;
+        QStringList pkgsToMarkers;
+        QStringList pkgsToRepack;
+        mipMaps.removeMipMaps(1, textures, pkgsToMarkers, pkgsToRepack, false, false);
+        if (GameData::gameType == MeType::ME1_TYPE)
+            mipMaps.removeMipMaps(2, textures, pkgsToMarkers, pkgsToRepack, false, false);
+        if (GameData::gameType == MeType::ME3_TYPE)
+            TOCBinFile::UpdateAllTOCBinFiles();
+        PINFO("\nRemove empty mips finished.\n\n");
     }
 
     return 0;

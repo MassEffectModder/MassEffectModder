@@ -48,7 +48,7 @@ static bool CheckGamePath()
     return true;
 }
 
-int CmdLineTools::scanTextures(MeType gameId)
+int CmdLineTools::scanTextures(MeType gameId, bool removeEmptyMips)
 {
     int errorCode;
 
@@ -66,47 +66,13 @@ int CmdLineTools::scanTextures(MeType gameId)
 
     resources.loadMD5Tables();
     Misc::startTimer();
-    errorCode = TreeScan::PrepareListOfTextures(gameId, resources, textures);
+    errorCode = TreeScan::PrepareListOfTextures(gameId, resources, textures, removeEmptyMips);
     long elapsed = Misc::elapsedTime();
     PINFO(Misc::getTimerFormat(elapsed) + "\n");
 
     PINFO("Scan textures finished.\n\n");
 
     return errorCode;
-}
-
-int CmdLineTools::removeEmptyMips(MeType gameId)
-{
-    auto configIni = ConfigIni{};
-    g_GameData->Init(gameId, configIni);
-    if (!CheckGamePath())
-        return 1;
-
-    QList<FoundTexture> textures;
-    MipMaps mipMaps;
-    QStringList pkgsToMarkers;
-    QStringList pkgsToRepack;
-
-    QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
-            "/MassEffectModder";
-    QString mapFile = path + QString("/me%1map.bin").arg((int)gameId);
-    if (!TreeScan::loadTexturesMapFile(mapFile, textures))
-        return 1;
-
-    PINFO("Remove empty mips started...\n");
-
-    Misc::startTimer();
-    mipMaps.removeMipMaps(1, textures, pkgsToMarkers, pkgsToRepack, false, false);
-    if (GameData::gameType == MeType::ME1_TYPE)
-        mipMaps.removeMipMaps(2, textures, pkgsToMarkers, pkgsToRepack, false, false);
-    if (GameData::gameType == MeType::ME3_TYPE)
-        TOCBinFile::UpdateAllTOCBinFiles();
-    long elapsed = Misc::elapsedTime();
-    PINFO(Misc::getTimerFormat(elapsed) + "\n");
-
-    PINFO("Remove empty mips finished.\n\n");
-
-    return 0;
 }
 
 bool CmdLineTools::updateTOCs()
@@ -2169,7 +2135,7 @@ bool CmdLineTools::FixMissingPropertyInTextures(MeType gameId, const QString& fi
                 Texture texture(package, e, exportData);
                 exportData.Free();
                 if (GameData::gameType != MeType::ME1_TYPE &&
-                    texture.mipMapsList.count() > 6 &&
+                    texture.numNotEmptyMips() > 6 &&
                     !texture.HasExternalMips() &&
                     !texture.getProperties().exists("NeverStream"))
                 {

@@ -28,11 +28,8 @@ void DisplayHelp()
     PINFO("  --help\n");
     PINFO("     This help\n");
     PINFO("\n");
-    PINFO("  --scan --gameid <game id> [--ipc]\n");
+    PINFO("  --scan --gameid <game id> [--remove-empty-mips] [--ipc]\n");
     PINFO("     Scan game data for textures.\n");
-    PINFO("\n");
-    PINFO("  --remove-empty-mips --gameid <game id> [--ipc]\n");
-    PINFO("     Remove empty mips from textures.\n");
     PINFO("\n");
     PINFO("  --update-toc\n");
     PINFO("     Update TOC files in ME3.\n");

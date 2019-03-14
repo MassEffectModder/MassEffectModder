@@ -27,7 +27,6 @@ typedef enum : int
     UNKNOWN = 0,
     HELP,
     SCAN,
-    REMOVE_EMPTY_MIPS,
     UPDATE_TOC,
     UNPACK_DLCS,
     REPACK,

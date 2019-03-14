@@ -45,8 +45,7 @@ private:
 
 public:
 
-    int scanTextures(MeType gameId);
-    int removeEmptyMips(MeType gameId);
+    int scanTextures(MeType gameId, bool removeEmptyMips);
     void Repack(MeType gameId);
     bool updateTOCs();
     bool unpackAllDLCs();

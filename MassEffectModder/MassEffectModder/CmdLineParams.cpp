@@ -250,6 +250,7 @@ int ProcessArguments()
     bool tfcOnly = false;
     bool appendTfc = false;
     bool verify = false;
+    bool removeEmptyMips = false;
     int thresholdValue = 128;
     int cacheAmountValue = -1;
     QString input, output, threshold, format, tfcName, guid, path, cacheAmount, filter;
@@ -266,8 +267,6 @@ int ProcessArguments()
             cmd = CmdType::HELP;
         else if (arg == "--scan")
             cmd = CmdType::SCAN;
-        else if (arg == "--remove-empty-mips")
-            cmd = CmdType::REMOVE_EMPTY_MIPS;
         else if (arg == "--update-toc")
             cmd = CmdType::UPDATE_TOC;
         else if (arg == "--unpack-dlcs")
@@ -495,6 +494,12 @@ int ProcessArguments()
             args.removeAt(l);
             args.removeAt(l--);
         }
+        else if (arg == "--remove-empty-mips")
+        {
+            removeEmptyMips = true;
+            args.removeAt(l);
+            args.removeAt(l--);
+        }
     }
     if (args.count() != 0)
     {
@@ -512,16 +517,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        errorCode = tools.scanTextures(gameId);
-        break;
-    case CmdType::REMOVE_EMPTY_MIPS:
-        if (gameId == MeType::UNKNOWN_TYPE)
-        {
-            PERROR("Wrong game id!\n");
-            errorCode = 1;
-            break;
-        }
-        errorCode = tools.removeEmptyMips(gameId);
+        errorCode = tools.scanTextures(gameId, removeEmptyMips);
         break;
     case CmdType::UPDATE_TOC:
     {
