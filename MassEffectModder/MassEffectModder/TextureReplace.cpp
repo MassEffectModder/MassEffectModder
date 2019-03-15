@@ -28,34 +28,7 @@
 #include "Helpers/Logs.h"
 #include "Helpers/QSort.h"
 
-static const TFCTexture guids[] =
-{
-    {
-        { 0x11, 0xD3, 0xC3, 0x39, 0xB3, 0x40, 0x44, 0x61, 0xBB, 0x0E, 0x76, 0x75, 0x2D, 0xF7, 0xC3, 0xB1 },
-        "Texture2D"
-    },
-    {
-        { 0x2B, 0x7D, 0x2F, 0x16, 0x63, 0x52, 0x4F, 0x3E, 0x97, 0x5B, 0x0E, 0xF2, 0xC1, 0xEB, 0xC6, 0x5D },
-        "Format"
-    },
-    {
-        { 0x81, 0xCD, 0x12, 0x5C, 0xBB, 0x72, 0x40, 0x2D, 0x99, 0xB1, 0x63, 0x8D, 0xC0, 0xA7, 0x6E, 0x03 },
-        "IntProperty"
-    },
-    {
-        { 0xA5, 0xBE, 0xFF, 0x48, 0xB4, 0x7A, 0x47, 0xB0, 0xB2, 0x07, 0x2B, 0x35, 0x96, 0x39, 0x55, 0xFB },
-        "ByteProperty"
-    },
-    {
-        { 0x59, 0xF2, 0x1B, 0x17, 0xD0, 0xFE, 0x42, 0x3E, 0x94, 0x8A, 0x26, 0xBE, 0x26, 0x3C, 0x46, 0x2E },
-        "SizeX"
-    },
-    {
-        { 0x0C, 0x70, 0x7A, 0x01, 0xA0, 0xC1, 0x49, 0xB4, 0x97, 0x8D, 0x3B, 0xA4, 0x94, 0x71, 0xBE, 0x43 },
-        "SizeY"
-    },
-};
-
+static const quint8 tfcNewGuid[16] = { 0xB4, 0xD2, 0xD7, 0x16, 0x08, 0x4A, 0x4B, 0x99, 0x9F, 0xC9, 0x07, 0x89, 0x87, 0xE0, 0x38, 0x21 };
 
 PixelFormat MipMaps::changeTextureType(PixelFormat gamePixelFormat, PixelFormat texturePixelFormat, Texture &texture)
 {
@@ -492,13 +465,15 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     if (!oldSpace && fileLength + 0x5000000UL > 0x80000000UL)
                     {
                         archiveFile = "";
-                        for (const auto & newGuid : guids)
+                        ByteBuffer guid(tfcNewGuid, 16);
+                        for (int indexTfc = 0; indexTfc < 100; indexTfc++)
                         {
-                            archiveFile = g_GameData->MainData() + "/" + newGuid.name + ".tfc";
+                            guid.ptr()[0] = indexTfc;
+                            QString tfcNewName = QString().sprintf("TexturesMEM%02d", indexTfc);
+                            archiveFile = g_GameData->MainData() + "/" + tfcNewName + ".tfc";
                             if (!QFile(archiveFile).exists())
                             {
-                                ByteBuffer guid(const_cast<quint8 *>(newGuid.guid), 16);
-                                texture.getProperties().setNameValue("TextureFileCacheName", newGuid.name);
+                                texture.getProperties().setNameValue("TextureFileCacheName", tfcNewName);
                                 texture.getProperties().setStructValue("TFCFileGuid", "Guid", guid);
                                 FileStream fs = FileStream(archiveFile, FileMode::Create, FileAccess::WriteOnly);
                                 fs.WriteFromBuffer(guid);
@@ -510,8 +485,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                             fileLength = QFile(archiveFile).size();
                             if (fileLength + 0x5000000UL < 0x80000000UL)
                             {
-                                ByteBuffer guid(const_cast<quint8 *>(newGuid.guid), 16);
-                                texture.getProperties().setNameValue("TextureFileCacheName", newGuid.name);
+                                texture.getProperties().setNameValue("TextureFileCacheName", tfcNewName);
                                 texture.getProperties().setStructValue("TFCFileGuid", "Guid", guid);
                                 guid.Free();
                                 break;
@@ -519,7 +493,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                             archiveFile = "";
                         }
                         if (archiveFile.length() == 0)
-                            CRASH_MSG("No free TFC texture file!");
+                            CRASH_MSG("No more TFC files available!");
                     }
                 }
                 else
