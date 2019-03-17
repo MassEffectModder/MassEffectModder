@@ -63,6 +63,7 @@
 /* Contributors:
  *
  * Amos Wenger <amoswenger@gmail.com>
+ * Pawel Kolodziejski
  *
  */
 
@@ -74,6 +75,9 @@
  * - Fixed RAR4 UTF-16 filenames with non-Latin characters
  * - Plugged a potential leak when growing internal structures
  * - Correctly implemented dmc_unrar_extract_file_with_callback()
+ *
+ * 2017-01-25 (Pawel Kolodziejski)
+ * - Added support for windows file io
  *
  * Sunday, 2017-03-19 (Version 1.5.1)
  * - Removed usage of variable name "unix"
