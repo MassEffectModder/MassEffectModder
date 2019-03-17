@@ -39,11 +39,12 @@
 #include "dmc_unrar.c"
 
 const char *get_filename(dmc_unrar_archive *archive, size_t i) {
+    char *filename = 0;
     size_t size = dmc_unrar_get_filename(archive, i, 0, 0);
     if (!size)
         return NULL;
 
-    char *filename = (char *)malloc(size);
+    filename = (char *)malloc(size);
     if (!filename)
         return NULL;
 
@@ -63,10 +64,11 @@ const char *get_filename(dmc_unrar_archive *archive, size_t i) {
 }
 
 const char *get_filename_no_directory(const char *filename) {
+    char *p = 0;
     if (!filename)
         return 0;
 
-    char *p = strrchr(filename, '/');
+    p = strrchr(filename, '/');
     if (!p)
         return filename;
 
