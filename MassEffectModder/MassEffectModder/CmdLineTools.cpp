@@ -1528,7 +1528,7 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
                     continue;
                 }
                 ByteBuffer dst = MipMaps::decompressData(fs, size);
-                if (entry.binaryModData.size() == 0)
+                if (dst.size() == 0)
                 {
                     if (g_ipc)
                     {
