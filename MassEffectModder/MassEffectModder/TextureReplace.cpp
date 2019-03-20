@@ -163,10 +163,13 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
 {
     QString errors = "";
     int lastProgress = -1;
+    int memoryAmount = DetectAmountMemoryGB();
+    if (memoryAmount == 0)
+        memoryAmount = 16;
     quint64 cacheUsage = 0;
-    quint64 cacheLimit = (DetectAmountMemoryGB() - 2) * 1024ULL * 1024 * 1024;
+    quint64 cacheLimit = (memoryAmount - 2) * 1024ULL * 1024 * 1024;
     if (cacheAmount >= 0 && cacheAmount <= 100)
-        cacheLimit = (quint64)((DetectAmountMemoryGB() * 1024ULL * 1024 * 1024) * (cacheAmount / 100.0));
+        cacheLimit = (quint64)((memoryAmount * 1024ULL * 1024 * 1024) * (cacheAmount / 100.0));
 
     for (int e = 0; e < map.count(); e++)
     {
