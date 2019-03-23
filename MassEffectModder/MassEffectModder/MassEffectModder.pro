@@ -99,7 +99,7 @@ HEADERS += \
 include(Version.pri)
 
 DEFINES += QT_DEPRECATED_WARNINGS
-DEFINES += MEM_VERSION=\\\"$$VERSION\\\"
+DEFINES += MEM_VERSION=\"$$VERSION\" MEM_YEAR=\"$$MEM_YEAR\"
 
 RESOURCES = Resources.qrc
 QMAKE_RESOURCE_FLAGS += --no-compress
