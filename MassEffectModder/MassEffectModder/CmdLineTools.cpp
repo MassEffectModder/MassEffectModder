@@ -876,7 +876,7 @@ bool CmdLineTools::CheckForMarkers(MeType gameId)
     QStringList packages;
     for (int i = 0; i < g_GameData->packageFiles.count(); i++)
     {
-        if (g_GameData->packageFiles[i].contains(path, Qt::CaseInsensitive))
+        if (path.length() != 0 && g_GameData->packageFiles[i].compare(path, Qt::CaseInsensitive) == 0)
             continue;
         packages.push_back(g_GameData->packageFiles[i]);
     }
@@ -2211,7 +2211,7 @@ bool CmdLineTools::checkGameFilesAfter(MeType gameType)
     QStringList filesToUpdate = QStringList();
     for (int i = 0; i < g_GameData->packageFiles.count(); i++)
     {
-        if (path.length() != 0 && g_GameData->packageFiles[i].contains(path, Qt::CaseInsensitive))
+        if (path.length() != 0 && g_GameData->packageFiles[i].compare(path, Qt::CaseInsensitive) == 0)
             continue;
         filesToUpdate.push_back(g_GameData->packageFiles[i]);
     }
