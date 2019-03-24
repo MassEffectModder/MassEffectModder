@@ -2074,7 +2074,7 @@ bool CmdLineTools::FixMissingPropertyInTextures(MeType gameId, const QString& fi
     {
         if (filter != "")
         {
-            if (!g_GameData->packageFiles[i].contains(filter, Qt::CaseSensitive))
+            if (!g_GameData->packageFiles[i].contains(filter, Qt::CaseInsensitive))
             {
                 continue;
             }
