@@ -22,42 +22,87 @@
 #include "Gui/LayoutMeSelect.h"
 #include "Gui/MainWindow.h"
 
-LayoutMeSelect::LayoutMeSelect(QWidget *parent)
-    : QWidget(parent)
+LayoutMeSelect::LayoutMeSelect(QWidget *parent, QStackedLayout *layout, MainWindow *window)
+    : QWidget(parent), gameType(MeType::UNKNOWN_TYPE)
 {
-    me1Button = new QPushButton("ME1", this);
-    me1Button->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    me1Button->setMinimumWidth(300);
-    me1Button->setMinimumHeight(300);
-    me1Button->setGeometry(50, 200, 300, 300);
-    connect(me1Button, &QPushButton::clicked, this, &LayoutMeSelect::ME1Selected);
+    if (layout == nullptr || window == nullptr)
+        CRASH();
+    stackedLayout = layout;
+    mainWindow = window;
 
-    me2Button = new QPushButton("ME2", this);
-    me2Button->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    me2Button->setMinimumWidth(300);
-    me2Button->setMinimumHeight(300);
-    me2Button->setGeometry(450, 200, 300, 300);
-    connect(me2Button, &QPushButton::clicked, this, &LayoutMeSelect::ME2Selected);
+    auto ButtonME1 = new QPushButton("Mass Effect");
+    ButtonME1->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+    ButtonME1->setMinimumWidth(kButtonMinWidth);
+    ButtonME1->setMinimumHeight(kButtonMinHeight);
+    QFont ButtonFont = ButtonME1->font();
+    ButtonFont.setPointSize(20);
+    ButtonME1->setFont(ButtonFont);
+    connect(ButtonME1, &QPushButton::clicked, this, &LayoutMeSelect::ME1Selected);
 
-    me3Button = new QPushButton("ME3", this);
-    me3Button->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    me3Button->setMinimumWidth(300);
-    me3Button->setMinimumHeight(300);
-    me3Button->setGeometry(850, 200, 300, 300);
-    connect(me3Button, &QPushButton::clicked, this, &LayoutMeSelect::ME3Selected);
+    auto ButtonME2 = new QPushButton("Mass Effect 2");
+    ButtonME2->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+    ButtonME2->setMinimumWidth(kButtonMinWidth);
+    ButtonME2->setMinimumHeight(kButtonMinHeight);
+    ButtonME2->setFont(ButtonFont);
+    connect(ButtonME2, &QPushButton::clicked, this, &LayoutMeSelect::ME2Selected);
+
+    auto ButtonME3 = new QPushButton("Mass Effect 3");
+    ButtonME3->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+    ButtonME3->setMinimumWidth(kButtonMinWidth);
+    ButtonME3->setMinimumHeight(kButtonMinHeight);
+    ButtonME3->setFont(ButtonFont);
+    connect(ButtonME3, &QPushButton::clicked, this, &LayoutMeSelect::ME3Selected);
+
+    auto ButtonExit = new QPushButton("Exit");
+    ButtonExit->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+    ButtonExit->setMinimumWidth(kButtonMinWidth);
+    ButtonExit->setMinimumHeight(kButtonMinHeight / 2);
+    ButtonExit->setFont(ButtonFont);
+    connect(ButtonExit, &QPushButton::clicked, this, &LayoutMeSelect::ExitSelected);
+
+    auto LabelSelect = new QLabel();
+    LabelSelect->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+    LabelSelect->setText("Select which game to work with:");
+    LabelSelect->setFont(ButtonFont);
+
+    auto *horizontalLayout = new QHBoxLayout(this);
+    horizontalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 40));
+    auto *verticalLayout = new QVBoxLayout();
+    verticalLayout->setAlignment(Qt::AlignVCenter);
+    verticalLayout->addWidget(LabelSelect, 0, Qt::AlignHCenter);
+    verticalLayout->addWidget(ButtonME1, 1);
+    verticalLayout->addWidget(ButtonME2, 1);
+    verticalLayout->addWidget(ButtonME3, 1);
+    verticalLayout->addSpacing(20);
+    verticalLayout->addWidget(ButtonExit, 1);
+    horizontalLayout->addLayout(verticalLayout);
+    horizontalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 40));
+
+    layout->addWidget(this);
 }
 
 void LayoutMeSelect::ME1Selected()
 {
-    QMessageBox::about(this, "About", "ME1");
+    gameType = MeType::ME1_TYPE;
+    mainWindow->setWindowTitle(QString("Mass Effect Modder v%1 - ME1").arg(MEM_VERSION));
+    stackedLayout->setCurrentIndex(MainWindow::kLayoutModules);
 }
 
 void LayoutMeSelect::ME2Selected()
 {
-    QMessageBox::about(this, "About", "ME2");
+    gameType = MeType::ME2_TYPE;
+    mainWindow->setWindowTitle(QString("Mass Effect Modder v%1 - ME2").arg(MEM_VERSION));
+    stackedLayout->setCurrentIndex(MainWindow::kLayoutModules);
 }
 
 void LayoutMeSelect::ME3Selected()
 {
-    QMessageBox::about(this, "About", "ME3");
+    gameType = MeType::ME3_TYPE;
+    mainWindow->setWindowTitle(QString("Mass Effect Modder v%1 - ME3").arg(MEM_VERSION));
+    stackedLayout->setCurrentIndex(MainWindow::kLayoutModules);
+}
+
+void LayoutMeSelect::ExitSelected()
+{
+    QApplication::closeAllWindows();
 }

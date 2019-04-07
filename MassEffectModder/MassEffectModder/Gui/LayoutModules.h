@@ -1,7 +1,7 @@
 /*
  * MassEffectModder
  *
- * Copyright (C) 2017-2019 Pawel Kolodziejski
+ * Copyright (C) 2019 Pawel Kolodziejski
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,36 +19,33 @@
  *
  */
 
-#ifndef LAYOUTMESELECT_H
-#define LAYOUTMESELECT_H
-
-#include <MemTypes.h>
+#ifndef LAYOUTMODULES_H
+#define LAYOUTMODULES_H
 
 class MainWindow;
 
-class LayoutMeSelect: public QWidget
+class LayoutModules: public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit LayoutMeSelect(QWidget *parent = nullptr,
-                            QStackedLayout *layout = nullptr,
-                            MainWindow *window = nullptr);
-    MeType SelectedGameType() { return gameType; }
+    explicit LayoutModules(QWidget *parent = nullptr,
+                           QStackedLayout *layout = nullptr,
+                           MainWindow *window = nullptr);
 
 private slots:
-    void ME1Selected();
-    void ME2Selected();
-    void ME3Selected();
-    void ExitSelected();
+    void TextureManagerSelected();
+    void TextureUtilitiesSelected();
+    void GameUtilitiesSelected();
+    void ModsManagerSelected();
+    void ReturnSelected();
 
 private:
     const int kButtonMinWidth = 300;
     const int kButtonMinHeight = 100;
-    MeType gameType;
 
     QStackedLayout *stackedLayout;
     MainWindow *mainWindow;
 };
 
-#endif // LAYOUTMESELECT_H
+#endif // LAYOUTMODULES_H

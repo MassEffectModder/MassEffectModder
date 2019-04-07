@@ -22,25 +22,31 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <Gui/LayoutMeSelect.h>
+#define PERCENT_OF_SIZE(x, y) ((x * 100) / y)
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = 0);
+    MainWindow(QWidget *parent = nullptr);
 
     QToolBar        *GetToolBar() { return toolBar; }
     QStatusBar      *GetStatusBar() { return statusBar; }
     QStackedLayout  *GetLayout() { return stackedLayout; }
 
 protected:
-    void            closeEvent(QCloseEvent *event);
+    void            closeEvent(QCloseEvent *event) override;
 
 private:
-    const int kMinWindowWidth = 1270;
-    const int kMinWindowHeight = 770;
+    static const int kMinWindowWidth = 1024;
+    static const int kMinWindowHeight = 600;
+
+    static const int kLayoutMeSelect = 0;
+    static const int kLayoutModules = 1;
+
+    friend class LayoutMeSelect;
+    friend class LayoutModules;
 
     QToolBar        *toolBar;
     QStatusBar      *statusBar;

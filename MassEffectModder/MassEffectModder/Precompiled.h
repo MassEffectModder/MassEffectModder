@@ -57,7 +57,9 @@
 #include <QStackedLayout>
 #include <QToolBar>
 #include <QStatusBar>
+#include <QMessageBox>
 #include <QPushButton>
+#include <QLabel>
 #include <QMessageBox>
 #endif
 

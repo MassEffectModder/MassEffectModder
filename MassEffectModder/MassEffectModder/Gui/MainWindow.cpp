@@ -21,6 +21,7 @@
 
 #include "Gui/MainWindow.h"
 #include "Gui/LayoutMeSelect.h"
+#include "Gui/LayoutModules.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -30,15 +31,14 @@ MainWindow::MainWindow(QWidget *parent)
     toolBar->hide();
     addToolBar(toolBar);
     setStatusBar(statusBar);
-    setWindowTitle("Mass Effect Modder");
+    setWindowTitle(QString("Mass Effect Modder v%1").arg(MEM_VERSION));
     setMinimumSize(kMinWindowWidth, kMinWindowHeight);
 
     auto *widget = new QWidget;
     setCentralWidget(widget);
     stackedLayout = new QStackedLayout(widget);
-
-    auto *layoutMeSelect = new LayoutMeSelect(widget);
-    stackedLayout->addWidget(layoutMeSelect);
+    new LayoutMeSelect(widget, stackedLayout, this);
+    new LayoutModules(widget, stackedLayout, this);
 }
 
 void MainWindow::closeEvent(QCloseEvent */*event*/)
