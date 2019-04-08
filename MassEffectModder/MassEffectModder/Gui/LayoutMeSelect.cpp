@@ -35,7 +35,7 @@ LayoutMeSelect::LayoutMeSelect(QWidget *parent, QStackedLayout *layout, MainWind
     ButtonME1->setMinimumWidth(kButtonMinWidth);
     ButtonME1->setMinimumHeight(kButtonMinHeight);
     QFont ButtonFont = ButtonME1->font();
-    ButtonFont.setPointSize(20);
+    ButtonFont.setPointSize(kFontSize);
     ButtonME1->setFont(ButtonFont);
     connect(ButtonME1, &QPushButton::clicked, this, &LayoutMeSelect::ME1Selected);
 

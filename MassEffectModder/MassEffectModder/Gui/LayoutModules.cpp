@@ -35,7 +35,7 @@ LayoutModules::LayoutModules(QWidget *parent, QStackedLayout *layout, MainWindow
     ButtonTextureManager->setMinimumWidth(kButtonMinWidth);
     ButtonTextureManager->setMinimumHeight(kButtonMinHeight);
     QFont ButtonFont = ButtonTextureManager->font();
-    ButtonFont.setPointSize(20);
+    ButtonFont.setPointSize(kFontSize);
     ButtonTextureManager->setFont(ButtonFont);
     connect(ButtonTextureManager, &QPushButton::clicked, this, &LayoutModules::TextureManagerSelected);
 

@@ -43,6 +43,11 @@ private slots:
 private:
     const int kButtonMinWidth = 300;
     const int kButtonMinHeight = 100;
+#if defined(_WIN32)
+    const int kFontSize = 15;
+#else
+    const int kFontSize = 20;
+#endif
 
     QStackedLayout *stackedLayout;
     MainWindow *mainWindow;
