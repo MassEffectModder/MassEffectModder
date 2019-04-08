@@ -60,16 +60,10 @@ LayoutMeSelect::LayoutMeSelect(QWidget *parent, QStackedLayout *layout, MainWind
     ButtonExit->setFont(ButtonFont);
     connect(ButtonExit, &QPushButton::clicked, this, &LayoutMeSelect::ExitSelected);
 
-    auto LabelSelect = new QLabel();
-    LabelSelect->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    LabelSelect->setText("Select which game to work with:");
-    LabelSelect->setFont(ButtonFont);
-
     auto *horizontalLayout = new QHBoxLayout(this);
     horizontalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 40));
     auto *verticalLayout = new QVBoxLayout();
     verticalLayout->setAlignment(Qt::AlignVCenter);
-    verticalLayout->addWidget(LabelSelect, 0, Qt::AlignHCenter);
     verticalLayout->addWidget(ButtonME1, 1);
     verticalLayout->addWidget(ButtonME2, 1);
     verticalLayout->addWidget(ButtonME3, 1);
