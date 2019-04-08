@@ -36,6 +36,8 @@ int runQtApplication(int argc, char *argv[])
     QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
 
 #ifdef GUI
+    qputenv("QT_AUTO_SCREEN_SCALE_FACTOR", QByteArray("1"));
+
     QApplication application(argc, argv);
 
     QApplication::setOrganizationName(APP_NAME);
