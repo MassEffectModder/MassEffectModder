@@ -45,10 +45,12 @@ private slots:
 private:
     const int kButtonMinWidth = 300;
     const int kButtonMinHeight = 100;
-#if defined(_WIN32)
-    const int kFontSize = 15;
-#else
+#if defined(__APPLE__)
     const int kFontSize = 20;
+#elif defined(__linux__)
+    const int kFontSize = 13;
+#else
+    const int kFontSize = 15;
 #endif
 
     MeType gameType;
