@@ -19,28 +19,28 @@
  *
  */
 
-#ifndef LAYOUT_ME_SELECT_H
-#define LAYOUT_ME_SELECT_H
+#ifndef LAYOUT_TEXTURE_UTILITIES_H
+#define LAYOUT_TEXTURE_UTILITIES_H
 
 #include <MemTypes.h>
 
 class MainWindow;
 
-class LayoutMeSelect: public QWidget
+class LayoutTextureUtilities: public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit LayoutMeSelect(QWidget *parent = nullptr,
-                            QStackedLayout *layout = nullptr,
-                            MainWindow *window = nullptr);
-    MeType SelectedGameType() { return gameType; }
+    explicit LayoutTextureUtilities(QWidget *parent = nullptr,
+                                    QStackedLayout *layout = nullptr,
+                                    MainWindow *window = nullptr);
 
 private slots:
-    void ME1Selected();
-    void ME2Selected();
-    void ME3Selected();
-    void ExitSelected();
+    void RemoveScanFileSelected();
+    void ApplyHQLODsSelected();
+    void ApplyVanillaLODsSelected();
+    void ApplyHQGfxSelected();
+    void ReturnSelected();
 
 private:
     const int kButtonMinWidth = 300;
@@ -53,9 +53,8 @@ private:
     const int kFontSize = 15;
 #endif
 
-    MeType gameType;
     QStackedLayout *stackedLayout;
     MainWindow *mainWindow;
 };
 
-#endif // LAYOUT_ME_SELECT_H
+#endif // LAYOUT_TEXTURE_UTILITIES_H

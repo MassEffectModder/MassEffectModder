@@ -55,12 +55,20 @@ SOURCES += \
 equals(GUI_MODE, true) {
 SOURCES += \
     Gui/MainWindow.cpp \
+    Gui/LayoutGameUtilities.cpp \
     Gui/LayoutMeSelect.cpp \
-    Gui/LayoutModules.cpp
+    Gui/LayoutModsManager.cpp \
+    Gui/LayoutModules.cpp \
+    Gui/LayoutTexturesManager.cpp \
+    Gui/LayoutTextureUtilities.cpp
 HEADERS += \
     Gui/MainWindow.h \
+    Gui/LayoutGameUtilities.h \
     Gui/LayoutMeSelect.h \
-    Gui/LayoutModules.h
+    Gui/LayoutModsManager.h \
+    Gui/LayoutModules.h \
+    Gui/LayoutTexturesManager.h \
+    Gui/LayoutTextureUtilities.h
 }
 
 PRECOMPILED_HEADER = Precompiled.h

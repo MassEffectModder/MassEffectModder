@@ -30,14 +30,14 @@ LayoutModules::LayoutModules(QWidget *parent, QStackedLayout *layout, MainWindow
     stackedLayout = layout;
     mainWindow = window;
 
-    auto ButtonTextureManager = new QPushButton("Texture Manager");
-    ButtonTextureManager->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    ButtonTextureManager->setMinimumWidth(kButtonMinWidth);
-    ButtonTextureManager->setMinimumHeight(kButtonMinHeight);
-    QFont ButtonFont = ButtonTextureManager->font();
+    auto ButtonTexturesManager = new QPushButton("Textures Manager");
+    ButtonTexturesManager->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+    ButtonTexturesManager->setMinimumWidth(kButtonMinWidth);
+    ButtonTexturesManager->setMinimumHeight(kButtonMinHeight);
+    QFont ButtonFont = ButtonTexturesManager->font();
     ButtonFont.setPointSize(kFontSize);
-    ButtonTextureManager->setFont(ButtonFont);
-    connect(ButtonTextureManager, &QPushButton::clicked, this, &LayoutModules::TextureManagerSelected);
+    ButtonTexturesManager->setFont(ButtonFont);
+    connect(ButtonTexturesManager, &QPushButton::clicked, this, &LayoutModules::TexturesManagerSelected);
 
     auto ButtonTextureUtilities = new QPushButton("Texture Utilities");
     ButtonTextureUtilities->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -71,7 +71,7 @@ LayoutModules::LayoutModules(QWidget *parent, QStackedLayout *layout, MainWindow
     horizontalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 40));
     auto *verticalLayout = new QVBoxLayout();
     verticalLayout->setAlignment(Qt::AlignVCenter);
-    verticalLayout->addWidget(ButtonTextureManager, 1);
+    verticalLayout->addWidget(ButtonTexturesManager, 1);
     verticalLayout->addWidget(ButtonTextureUtilities, 1);
     verticalLayout->addWidget(ButtonGameUtilities, 1);
     verticalLayout->addWidget(ButtonModsManager, 1);
@@ -83,24 +83,24 @@ LayoutModules::LayoutModules(QWidget *parent, QStackedLayout *layout, MainWindow
     layout->addWidget(this);
 }
 
-void LayoutModules::TextureManagerSelected()
+void LayoutModules::TexturesManagerSelected()
 {
-    QMessageBox::about(this, "About", "Texture Manager");
+    stackedLayout->setCurrentIndex(MainWindow::kLayoutTexturesManager);
 }
 
 void LayoutModules::TextureUtilitiesSelected()
 {
-    QMessageBox::about(this, "About", "Texture Utilities");
+    stackedLayout->setCurrentIndex(MainWindow::kLayoutTextureUtilities);
 }
 
 void LayoutModules::GameUtilitiesSelected()
 {
-    QMessageBox::about(this, "About", "Game Utilities");
+    stackedLayout->setCurrentIndex(MainWindow::kLayoutGameUtilities);
 }
 
 void LayoutModules::ModsManagerSelected()
 {
-    QMessageBox::about(this, "About", "Mods Manager");
+    stackedLayout->setCurrentIndex(MainWindow::kLayoutModsManager);
 }
 
 void LayoutModules::ReturnSelected()

@@ -1,7 +1,7 @@
 /*
  * MassEffectModder
  *
- * Copyright (C) 2017-2019 Pawel Kolodziejski
+ * Copyright (C) 2019 Pawel Kolodziejski
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,7 +22,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#define PERCENT_OF_SIZE(x, y) ((x * 100) / y)
+#define PERCENT_OF_SIZE(x, y) (((x) * 100) / (y))
 
 class MainWindow : public QMainWindow
 {
@@ -44,9 +44,17 @@ private:
 
     static const int kLayoutMeSelect = 0;
     static const int kLayoutModules = 1;
+    static const int kLayoutTexturesManager = 2;
+    static const int kLayoutTextureUtilities = 3;
+    static const int kLayoutGameUtilities = 4;
+    static const int kLayoutModsManager = 5;
 
     friend class LayoutMeSelect;
     friend class LayoutModules;
+    friend class LayoutTexturesManager;
+    friend class LayoutTextureUtilities;
+    friend class LayoutGameUtilities;
+    friend class LayoutModsManager;
 
     QToolBar        *toolBar;
     QStatusBar      *statusBar;

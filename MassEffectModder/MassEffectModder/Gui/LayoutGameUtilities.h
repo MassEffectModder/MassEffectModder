@@ -19,28 +19,29 @@
  *
  */
 
-#ifndef LAYOUT_ME_SELECT_H
-#define LAYOUT_ME_SELECT_H
+#ifndef LAYOUT_GAME_UTILITIES_H
+#define LAYOUT_GAME_UTILITIES_H
 
 #include <MemTypes.h>
 
 class MainWindow;
 
-class LayoutMeSelect: public QWidget
+class LayoutGameUtilities: public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit LayoutMeSelect(QWidget *parent = nullptr,
-                            QStackedLayout *layout = nullptr,
-                            MainWindow *window = nullptr);
-    MeType SelectedGameType() { return gameType; }
+    explicit LayoutGameUtilities(QWidget *parent = nullptr,
+                                 QStackedLayout *layout = nullptr,
+                                 MainWindow *window = nullptr);
 
 private slots:
-    void ME1Selected();
-    void ME2Selected();
-    void ME3Selected();
-    void ExitSelected();
+    void CheckGameFilesSelected();
+    void ChangeGamePathSelected();
+    void RepackGameFilesSelected();
+    void UpdateTOCsSelected();
+    void ExtractDLCsSelected();
+    void ReturnSelected();
 
 private:
     const int kButtonMinWidth = 300;
@@ -53,9 +54,8 @@ private:
     const int kFontSize = 15;
 #endif
 
-    MeType gameType;
     QStackedLayout *stackedLayout;
     MainWindow *mainWindow;
 };
 
-#endif // LAYOUT_ME_SELECT_H
+#endif // LAYOUT_GAME_UTILITIES_H

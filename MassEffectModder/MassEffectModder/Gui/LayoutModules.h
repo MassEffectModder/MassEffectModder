@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef LAYOUTMODULES_H
-#define LAYOUTMODULES_H
+#ifndef LAYOUT_MODULES_H
+#define LAYOUT_MODULES_H
 
 class MainWindow;
 
@@ -34,7 +34,7 @@ public:
                            MainWindow *window = nullptr);
 
 private slots:
-    void TextureManagerSelected();
+    void TexturesManagerSelected();
     void TextureUtilitiesSelected();
     void GameUtilitiesSelected();
     void ModsManagerSelected();
@@ -55,4 +55,4 @@ private:
     MainWindow *mainWindow;
 };
 
-#endif // LAYOUTMODULES_H
+#endif // LAYOUT_MODULES_H

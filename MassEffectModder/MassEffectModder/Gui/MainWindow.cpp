@@ -1,7 +1,7 @@
 /*
  * MassEffectModder
  *
- * Copyright (C) 2017-2019 Pawel Kolodziejski
+ * Copyright (C) 2019 Pawel Kolodziejski
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,6 +22,10 @@
 #include "Gui/MainWindow.h"
 #include "Gui/LayoutMeSelect.h"
 #include "Gui/LayoutModules.h"
+#include "Gui/LayoutTexturesManager.h"
+#include "Gui/LayoutTextureUtilities.h"
+#include "Gui/LayoutGameUtilities.h"
+#include "Gui/LayoutModsManager.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -39,6 +43,10 @@ MainWindow::MainWindow(QWidget *parent)
     stackedLayout = new QStackedLayout(widget);
     new LayoutMeSelect(widget, stackedLayout, this);
     new LayoutModules(widget, stackedLayout, this);
+    new LayoutTexturesManager(widget, stackedLayout, this);
+    new LayoutTextureUtilities(widget, stackedLayout, this);
+    new LayoutGameUtilities(widget, stackedLayout, this);
+    new LayoutModsManager(widget, stackedLayout, this);
 }
 
 void MainWindow::closeEvent(QCloseEvent */*event*/)
