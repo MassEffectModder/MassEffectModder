@@ -738,13 +738,12 @@ bool CmdLineTools::ApplyME1LAAPatch()
 
 bool CmdLineTools::ApplyLODAndGfxSettings(MeType gameId, bool softShadowsME1, bool meuitmMode, bool limit2k)
 {
-    g_GameData->Init(gameId);
-    if (g_GameData->ConfigIniPath().length() == 0)
+    if (GameData::ConfigIniPath(gameId).length() == 0)
     {
         PERROR("Game User path is not defined.\n");
         return false;
     }
-    QString path = g_GameData->EngineConfigIniPath();
+    QString path = GameData::EngineConfigIniPath(gameId);
     QDir().mkpath(DirName(path));
 #if !defined(_WIN32)
     if (QFile(path).exists())
@@ -765,13 +764,12 @@ bool CmdLineTools::ApplyLODAndGfxSettings(MeType gameId, bool softShadowsME1, bo
 
 bool CmdLineTools::RemoveLODSettings(MeType gameId)
 {
-    g_GameData->Init(gameId);
-    if (g_GameData->ConfigIniPath().length() == 0)
+    if (GameData::ConfigIniPath(gameId).length() == 0)
     {
         PERROR("Game User path is not defined.\n");
         return false;
     }
-    QString path = g_GameData->EngineConfigIniPath();
+    QString path = GameData::EngineConfigIniPath(gameId);
     if (!QFile(path).exists())
         return true;
 #if !defined(_WIN32)
@@ -789,13 +787,12 @@ bool CmdLineTools::RemoveLODSettings(MeType gameId)
 
 bool CmdLineTools::PrintLODSettings(MeType gameId)
 {
-    g_GameData->Init(gameId);
-    if (g_GameData->ConfigIniPath().length() == 0)
+    if (GameData::ConfigIniPath(gameId).length() == 0)
     {
         PERROR("Game User path is not defined.\n");
         return false;
     }
-    QString path = g_GameData->EngineConfigIniPath();
+    QString path = GameData::EngineConfigIniPath(gameId);
     bool exist = QFile(path).exists();
     if (!exist)
         return true;
@@ -1119,7 +1116,7 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool repack,
     if (!CheckGamePath())
         return false;
 
-    if (g_GameData->ConfigIniPath().length() == 0)
+    if (GameData::ConfigIniPath(gameId).length() == 0)
     {
         PERROR("Game User path is not defined.\n");
         return false;
@@ -1127,7 +1124,7 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool repack,
 
     if (!guiInstaller)
     {
-        if (gameId == MeType::ME1_TYPE && !QFile(g_GameData->EngineConfigIniPath()).exists())
+        if (gameId == MeType::ME1_TYPE && !QFile(GameData::EngineConfigIniPath(gameId)).exists())
         {
             PERROR("Error: Missing game configuration file.\nYou need atleast once launch the game first.\n");
             return false;
@@ -1270,7 +1267,7 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool repack,
         if (!applyModTag(gameId, 0, 0))
             PERROR("Failed applying stamp for installation!\n");
         PINFO("Updating LODs and other settings started...\n");
-        QString path = g_GameData->EngineConfigIniPath();
+        QString path = GameData::EngineConfigIniPath(gameId);
         QDir().mkpath(DirName(path));
 #if !defined(_WIN32)
         if (QFile(path).exists())

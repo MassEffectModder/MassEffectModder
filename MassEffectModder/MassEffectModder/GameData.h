@@ -57,9 +57,9 @@ public:
     const QString DLCDataSuffix();
     const QString RelativeGameData(const QString &path);
     const QString GameExePath();
-    const QString GameUserPath();
-    const QString ConfigIniPath();
-    const QString EngineConfigIniPath();
+    static const QString GameUserPath(MeType type);
+    static const QString ConfigIniPath(MeType type);
+    static const QString EngineConfigIniPath(MeType type);
     void ClosePackagesList();
 };
 

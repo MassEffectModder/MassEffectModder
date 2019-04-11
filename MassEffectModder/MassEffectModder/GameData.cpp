@@ -360,17 +360,17 @@ const QString GameData::GameExePath()
     CRASH();
 }
 
-const QString GameData::GameUserPath()
+const QString GameData::GameUserPath(MeType type)
 {
 #if defined(_WIN32)
     QString path = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).first() + "/BioWare/Mass Effect";
-    if (gameType == MeType::ME2_TYPE)
+    if (type == MeType::ME2_TYPE)
         path += " 2";
-    else if (gameType == MeType::ME3_TYPE)
+    else if (type == MeType::ME3_TYPE)
         path += " 3";
 #else
     ConfigIni configIni;
-    QString key = QString("ME%1").arg(static_cast<int>(gameType));
+    QString key = QString("ME%1").arg(static_cast<int>(type));
     QString path = configIni.Read(key, "GameUserPath");
     if (!QDir(path).exists())
         path = "";
@@ -379,12 +379,12 @@ const QString GameData::GameUserPath()
     return path;
 }
 
-const QString GameData::ConfigIniPath()
+const QString GameData::ConfigIniPath(MeType type)
 {
-    QString path = GameUserPath();
+    QString path = GameUserPath(type);
     if (path == "")
         return path;
-    switch (gameType)
+    switch (type)
     {
         case MeType::ME1_TYPE:
             return path + "/Config";
@@ -398,12 +398,12 @@ const QString GameData::ConfigIniPath()
     CRASH();
 }
 
-const QString GameData::EngineConfigIniPath()
+const QString GameData::EngineConfigIniPath(MeType type)
 {
-    QString path = ConfigIniPath();
+    QString path = ConfigIniPath(type);
     if (path == "")
         return path;
-    switch (gameType)
+    switch (type)
     {
         case MeType::ME1_TYPE:
             return path + "/BIOEngine.ini";

@@ -64,8 +64,7 @@ bool Misc::SetGameUserPath(MeType gameId, const QString &path)
     configIni.Write(key, path, "GameUserPath");
 #endif
 
-    g_GameData->Init(gameId, configIni);
-    QString newPath = g_GameData->GameUserPath();
+    QString newPath = GameData::GameUserPath(gameId);
     if (newPath.length() == 0 || !QDir(newPath).exists())
     {
         PERROR("Error: Could not found game user config path!\n");
