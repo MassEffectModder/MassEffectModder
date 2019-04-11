@@ -22,8 +22,6 @@
 #ifndef LAYOUT_GAME_UTILITIES_H
 #define LAYOUT_GAME_UTILITIES_H
 
-#include <MemTypes.h>
-
 class MainWindow;
 
 class LayoutGameUtilities: public QWidget

@@ -22,8 +22,6 @@
 #ifndef LAYOUT_ME_SELECT_H
 #define LAYOUT_ME_SELECT_H
 
-#include <MemTypes.h>
-
 class MainWindow;
 
 class LayoutMeSelect: public QWidget
@@ -34,7 +32,6 @@ public:
     explicit LayoutMeSelect(QWidget *parent = nullptr,
                             QStackedLayout *layout = nullptr,
                             MainWindow *window = nullptr);
-    MeType SelectedGameType() { return gameType; }
 
 private slots:
     void ME1Selected();
@@ -53,7 +50,6 @@ private:
     const int kFontSize = 15;
 #endif
 
-    MeType gameType;
     QStackedLayout *stackedLayout;
     MainWindow *mainWindow;
 };

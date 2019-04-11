@@ -21,6 +21,8 @@
 
 #include "Gui/LayoutModules.h"
 #include "Gui/MainWindow.h"
+#include "Helpers/MiscHelpers.h"
+#include "MemTypes.h"
 
 LayoutModules::LayoutModules(QWidget *parent, QStackedLayout *layout, MainWindow *window)
     : QWidget(parent)
@@ -105,6 +107,10 @@ void LayoutModules::ModsManagerSelected()
 
 void LayoutModules::ReturnSelected()
 {
-    mainWindow->setWindowTitle(QString("Mass Effect Modder v%1").arg(MEM_VERSION));
+    QString title = QString("Mass Effect Modder v%1").arg(MEM_VERSION);
+    if (DetectAdminRights())
+        title += " (run as Administrator)";
+    mainWindow->setWindowTitle(title);
+    mainWindow->gameType = MeType::UNKNOWN_TYPE;
     stackedLayout->setCurrentIndex(MainWindow::kLayoutMeSelect);
 }

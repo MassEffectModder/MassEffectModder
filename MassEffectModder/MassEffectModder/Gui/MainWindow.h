@@ -22,7 +22,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#define PERCENT_OF_SIZE(x, y) (((x) * 100) / (y))
+#include <MemTypes.h>
 
 class MainWindow : public QMainWindow
 {
@@ -56,6 +56,7 @@ private:
     friend class LayoutGameUtilities;
     friend class LayoutModsManager;
 
+    MeType           gameType;
     QToolBar        *toolBar;
     QStatusBar      *statusBar;
     QStackedLayout  *stackedLayout;

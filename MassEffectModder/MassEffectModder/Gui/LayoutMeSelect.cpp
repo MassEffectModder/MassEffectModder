@@ -21,9 +21,11 @@
 
 #include "Gui/LayoutMeSelect.h"
 #include "Gui/MainWindow.h"
+#include "Helpers/MiscHelpers.h"
+#include "MemTypes.h"
 
 LayoutMeSelect::LayoutMeSelect(QWidget *parent, QStackedLayout *layout, MainWindow *window)
-    : QWidget(parent), gameType(MeType::UNKNOWN_TYPE)
+    : QWidget(parent)
 {
     if (layout == nullptr || window == nullptr)
         CRASH();
@@ -77,22 +79,31 @@ LayoutMeSelect::LayoutMeSelect(QWidget *parent, QStackedLayout *layout, MainWind
 
 void LayoutMeSelect::ME1Selected()
 {
-    gameType = MeType::ME1_TYPE;
-    mainWindow->setWindowTitle(QString("Mass Effect Modder v%1 - ME1").arg(MEM_VERSION));
+    mainWindow->gameType = MeType::ME1_TYPE;
+    QString title = QString("Mass Effect Modder v%1 - ME1").arg(MEM_VERSION);
+    if (DetectAdminRights())
+        title += " (run as Administrator)";
+    mainWindow->setWindowTitle(title);
     stackedLayout->setCurrentIndex(MainWindow::kLayoutModules);
 }
 
 void LayoutMeSelect::ME2Selected()
 {
-    gameType = MeType::ME2_TYPE;
-    mainWindow->setWindowTitle(QString("Mass Effect Modder v%1 - ME2").arg(MEM_VERSION));
+    mainWindow->gameType = MeType::ME2_TYPE;
+    QString title = QString("Mass Effect Modder v%1 - ME2").arg(MEM_VERSION);
+    if (DetectAdminRights())
+        title += " (run as Administrator)";
+    mainWindow->setWindowTitle(title);
     stackedLayout->setCurrentIndex(MainWindow::kLayoutModules);
 }
 
 void LayoutMeSelect::ME3Selected()
 {
-    gameType = MeType::ME3_TYPE;
-    mainWindow->setWindowTitle(QString("Mass Effect Modder v%1 - ME3").arg(MEM_VERSION));
+    mainWindow->gameType = MeType::ME3_TYPE;
+    QString title = QString("Mass Effect Modder v%1 - ME3").arg(MEM_VERSION);
+    if (DetectAdminRights())
+        title += " (run as Administrator)";
+    mainWindow->setWindowTitle(title);
     stackedLayout->setCurrentIndex(MainWindow::kLayoutModules);
 }
 

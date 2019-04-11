@@ -22,8 +22,6 @@
 #ifndef LAYOUT_TEXTURE_UTILITIES_H
 #define LAYOUT_TEXTURE_UTILITIES_H
 
-#include <MemTypes.h>
-
 class MainWindow;
 
 class LayoutTextureUtilities: public QWidget

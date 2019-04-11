@@ -26,6 +26,7 @@
 #include "Gui/LayoutTextureUtilities.h"
 #include "Gui/LayoutGameUtilities.h"
 #include "Gui/LayoutModsManager.h"
+#include "Helpers/MiscHelpers.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -35,7 +36,10 @@ MainWindow::MainWindow(QWidget *parent)
     toolBar->hide();
     addToolBar(toolBar);
     setStatusBar(statusBar);
-    setWindowTitle(QString("Mass Effect Modder v%1").arg(MEM_VERSION));
+    QString title = QString("Mass Effect Modder v%1").arg(MEM_VERSION);
+    if (DetectAdminRights())
+        title += " (run as Administrator)";
+    setWindowTitle(title);
     setMinimumSize(kMinWindowWidth, kMinWindowHeight);
 
     auto *widget = new QWidget;

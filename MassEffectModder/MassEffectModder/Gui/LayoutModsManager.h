@@ -22,8 +22,6 @@
 #ifndef LAYOUT_MODS_MANAGER_H
 #define LAYOUT_MODS_MANAGER_H
 
-#include <MemTypes.h>
-
 class MainWindow;
 
 class LayoutModsManager: public QWidget

@@ -31,7 +31,7 @@ LayoutTextureUtilities::LayoutTextureUtilities(QWidget *parent, QStackedLayout *
     stackedLayout = layout;
     mainWindow = window;
 
-    auto ButtonRemoveScanFile = new QPushButton("Remove Textures Scan File");
+    auto ButtonRemoveScanFile = new QPushButton("Delete Textures Scan File");
     ButtonRemoveScanFile->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     ButtonRemoveScanFile->setMinimumWidth(kButtonMinWidth);
     ButtonRemoveScanFile->setMinimumHeight(kButtonMinHeight);
@@ -86,6 +86,33 @@ LayoutTextureUtilities::LayoutTextureUtilities(QWidget *parent, QStackedLayout *
 
 void LayoutTextureUtilities::RemoveScanFileSelected()
 {
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("Remove textures map of the game.");
+    msgBox.setText("WARNING: you are going to delete your current textures scan file.");
+    msgBox.setInformativeText(QString("After that, and before scanning your game again, ") +
+                              "you need to restore game to vanilla state and reinstall vanilla DLCs and DLC mods." +
+                              "\n\nAre you sure you want to proceed?");
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Abort);
+    msgBox.setDefaultButton(QMessageBox::Abort);
+    int result = msgBox.exec();
+    if (result == QMessageBox::Yes)
+    {
+        QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
+                "/MassEffectModder";
+        QString filename = path + QString("/me%1map.bin").arg((int)mainWindow->gameType);
+        if (QFile(filename).exists())
+        {
+            QFile(filename).remove();
+            QMessageBox::information(this, "Remove textures map of the game.",
+                    QString("File at ") + filename + " deleted.");
+        }
+        else
+        {
+            QMessageBox::information(this, "Remove textures map of the game.",
+                    QString("File at ") + filename + " not found.");
+        }
+    }
 }
 
 void LayoutTextureUtilities::ApplyHQLODsSelected()
