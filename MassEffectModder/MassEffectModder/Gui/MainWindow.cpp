@@ -30,9 +30,9 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
+      gameType(MeType::UNKNOWN_TYPE),
       toolBar(new QToolBar(this)),
-      statusBar(new QStatusBar(this)),
-      gameType(MeType::UNKNOWN_TYPE)
+      statusBar(new QStatusBar(this))
 {
     toolBar->hide();
     addToolBar(toolBar);
