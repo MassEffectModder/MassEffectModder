@@ -22,6 +22,12 @@
 #include "Gui/LayoutMeSelect.h"
 #include "Gui/LayoutTextureUtilities.h"
 #include "Gui/MainWindow.h"
+#include "Helpers/MiscHelpers.h"
+#include "Helpers/Logs.h"
+#include "ConfigIni.h"
+#include "GameData.h"
+#include "Misc.h"
+#include "LODSettings.h"
 
 LayoutTextureUtilities::LayoutTextureUtilities(QWidget *parent, QStackedLayout *layout, MainWindow *window)
     : QWidget(parent)
@@ -47,6 +53,17 @@ LayoutTextureUtilities::LayoutTextureUtilities(QWidget *parent, QStackedLayout *
     ButtonApplyHQLODs->setFont(ButtonFont);
     connect(ButtonApplyHQLODs, &QPushButton::clicked, this, &LayoutTextureUtilities::ApplyHQLODsSelected);
 
+    QPushButton *ButtonApply2kLODs;
+    if (mainWindow->gameType == MeType::ME1_TYPE)
+    {
+        ButtonApply2kLODs = new QPushButton("Apply 2k LODs Settings");
+        ButtonApply2kLODs->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+        ButtonApply2kLODs->setMinimumWidth(kButtonMinWidth);
+        ButtonApply2kLODs->setMinimumHeight(kButtonMinHeight);
+        ButtonApply2kLODs->setFont(ButtonFont);
+        connect(ButtonApply2kLODs, &QPushButton::clicked, this, &LayoutTextureUtilities::Apply2kLODsSelected);
+    }
+
     auto ButtonApplyVanillaLODs = new QPushButton("Apply Vanilla LODs Settings");
     ButtonApplyVanillaLODs->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     ButtonApplyVanillaLODs->setMinimumWidth(kButtonMinWidth);
@@ -61,6 +78,17 @@ LayoutTextureUtilities::LayoutTextureUtilities(QWidget *parent, QStackedLayout *
     ButtonApplyHQGfx->setFont(ButtonFont);
     connect(ButtonApplyHQGfx, &QPushButton::clicked, this, &LayoutTextureUtilities::ApplyHQGfxSelected);
 
+    QPushButton *ButtonApplyHQGfxSoftShadows;
+    if (mainWindow->gameType == MeType::ME1_TYPE)
+    {
+        ButtonApplyHQGfxSoftShadows = new QPushButton("Apply HQ GFX Settings (Soft shadows)");
+        ButtonApplyHQGfxSoftShadows->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+        ButtonApplyHQGfxSoftShadows->setMinimumWidth(kButtonMinWidth);
+        ButtonApplyHQGfxSoftShadows->setMinimumHeight(kButtonMinHeight);
+        ButtonApplyHQGfxSoftShadows->setFont(ButtonFont);
+        connect(ButtonApplyHQGfxSoftShadows, &QPushButton::clicked, this, &LayoutTextureUtilities::ApplyHQGfxSoftShadowsSelected);
+    }
+
     auto ButtonReturn = new QPushButton("Return");
     ButtonReturn->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     ButtonReturn->setMinimumWidth(kButtonMinWidth);
@@ -74,8 +102,16 @@ LayoutTextureUtilities::LayoutTextureUtilities(QWidget *parent, QStackedLayout *
     verticalLayout->setAlignment(Qt::AlignVCenter);
     verticalLayout->addWidget(ButtonRemoveScanFile, 1);
     verticalLayout->addWidget(ButtonApplyHQLODs, 1);
+    if (mainWindow->gameType == MeType::ME1_TYPE)
+    {
+        verticalLayout->addWidget(ButtonApply2kLODs, 1);
+    }
     verticalLayout->addWidget(ButtonApplyVanillaLODs, 1);
     verticalLayout->addWidget(ButtonApplyHQGfx, 1);
+    if (mainWindow->gameType == MeType::ME1_TYPE)
+    {
+        verticalLayout->addWidget(ButtonApplyHQGfxSoftShadows, 1);
+    }
     verticalLayout->addSpacing(20);
     verticalLayout->addWidget(ButtonReturn, 1);
     horizontalLayout->addLayout(verticalLayout);
@@ -115,16 +151,93 @@ void LayoutTextureUtilities::RemoveScanFileSelected()
     }
 }
 
+void LayoutTextureUtilities::ApplyLODs(bool lods2k)
+{
+    if (GameData::ConfigIniPath(mainWindow->gameType).length() == 0)
+    {
+        PERROR("Game User path is not defined.\n");
+        return;
+    }
+    QString path = GameData::EngineConfigIniPath(mainWindow->gameType);
+    QDir().mkpath(DirName(path));
+#if !defined(_WIN32)
+    if (QFile(path).exists())
+    {
+        if (!Misc::ConvertEndLines(path, true))
+            return;
+    }
+#endif
+    ConfigIni engineConf = ConfigIni(path);
+    LODSettings::updateLOD(mainWindow->gameType, engineConf, lods2k);
+#if !defined(_WIN32)
+    Misc::ConvertEndLines(path, false);
+#endif
+}
+
 void LayoutTextureUtilities::ApplyHQLODsSelected()
 {
+    ApplyLODs(false);
+}
+
+void LayoutTextureUtilities::Apply2kLODsSelected()
+{
+    ApplyLODs(true);
 }
 
 void LayoutTextureUtilities::ApplyVanillaLODsSelected()
 {
+    if (GameData::ConfigIniPath(mainWindow->gameType).length() == 0)
+    {
+        PERROR("Game User path is not defined.\n");
+        return;
+    }
+    QString path = GameData::EngineConfigIniPath(mainWindow->gameType);
+    QDir().mkpath(DirName(path));
+#if !defined(_WIN32)
+    if (QFile(path).exists())
+    {
+        if (!Misc::ConvertEndLines(path, true))
+            return;
+    }
+#endif
+    ConfigIni engineConf = ConfigIni(path);
+    LODSettings::removeLOD(mainWindow->gameType, engineConf);
+#if !defined(_WIN32)
+    Misc::ConvertEndLines(path, false);
+#endif
+}
+
+void LayoutTextureUtilities::ApplyHQGfx(bool softShadows)
+{
+    if (GameData::ConfigIniPath(mainWindow->gameType).length() == 0)
+    {
+        PERROR("Game User path is not defined.\n");
+        return;
+    }
+    QString path = GameData::EngineConfigIniPath(mainWindow->gameType);
+    QDir().mkpath(DirName(path));
+#if !defined(_WIN32)
+    if (QFile(path).exists())
+    {
+        if (!Misc::ConvertEndLines(path, true))
+            return;
+    }
+#endif
+    ConfigIni engineConf = ConfigIni(path);
+    LODSettings::updateGFXSettings(mainWindow->gameType, engineConf, softShadows, false);
+#if !defined(_WIN32)
+    Misc::ConvertEndLines(path, false);
+#endif
 }
 
 void LayoutTextureUtilities::ApplyHQGfxSelected()
 {
+    ApplyHQGfx(false);
+}
+
+void LayoutTextureUtilities::ApplyHQGfxSoftShadowsSelected()
+{
+    ApplyHQGfx(true);
 }
 
 void LayoutTextureUtilities::ReturnSelected()

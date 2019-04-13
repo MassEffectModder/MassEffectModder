@@ -36,8 +36,10 @@ public:
 private slots:
     void RemoveScanFileSelected();
     void ApplyHQLODsSelected();
+    void Apply2kLODsSelected();
     void ApplyVanillaLODsSelected();
     void ApplyHQGfxSelected();
+    void ApplyHQGfxSoftShadowsSelected();
     void ReturnSelected();
 
 private:
@@ -53,6 +55,9 @@ private:
 
     QStackedLayout *stackedLayout;
     MainWindow *mainWindow;
+
+    void ApplyLODs(bool lods2k);
+    void ApplyHQGfx(bool softShadows);
 };
 
 #endif // LAYOUT_TEXTURE_UTILITIES_H
