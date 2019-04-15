@@ -90,7 +90,7 @@ void Logs::Print(int level, const QString &message, int flags)
 
     if (fileEnabled && (flags & LOG_FILE))
     {
-        FILE *file = fopen("Log.txt", "w");
+        FILE *file = fopen("MEMLog.txt", "w");
         if (file)
         {
 #if defined(_WIN32)

@@ -35,7 +35,7 @@ void LogCrash(string output, string &message)
 #ifdef GUI
     QString error = QString::fromStdString(message).replace("\n", "<br>") + "<br>" +
             "Callstack for the crash provided after press 'Show Details'<br>"
-            "Program log provided in the file: 'Log.txt'";
+            "Program log provided in the file: 'MEMLog.txt'";
     QMessageBox msgBox;
     msgBox.setTextFormat(Qt::RichText);
     msgBox.setText(error);
