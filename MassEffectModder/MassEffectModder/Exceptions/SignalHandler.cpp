@@ -34,8 +34,8 @@ void LogCrash(string output, string &message)
 {
 #ifdef GUI
     QString error = QString::fromStdString(message).replace("\n", "<br>") + "<br>" +
-            "Callstack for crash provided after press 'Show Details'<br>"
-            "Program log provided in the Log.txt";
+            "Callstack for the crash provided after press 'Show Details'<br>"
+            "Program log provided in the file: 'Log.txt'";
     QMessageBox msgBox;
     msgBox.setTextFormat(Qt::RichText);
     msgBox.setText(error);
@@ -49,7 +49,7 @@ void LogCrash(string output, string &message)
     msgBox.exec();
 #endif
 
-    output = message + output;
+    output = "\n" + message + "\n" + output;
 
     if (g_logs)
     {
@@ -78,7 +78,7 @@ void Exception(const char *file, const char *func, int line, const char *msg)
     char str[MAX_FILE_PATH];
     getFilename(str, file);
 
-    string message = "\nException occured: ";
+    string message = "Exception occured!\n";
     if (msg)
     {
         message += "\"" + std::string(msg) + "\"";
