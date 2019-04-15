@@ -59,7 +59,7 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
             continue;
         }
 
-        output += std::to_string(count) + "  " + address + " " + moduleName + " in ";
+        output += std::to_string(count) + "  ";
         char *funcNewName = abi::__cxa_demangle(sourceFunc, nullptr, nullptr, &status);
         if (status == 0)
         {

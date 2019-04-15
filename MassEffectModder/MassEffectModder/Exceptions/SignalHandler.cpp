@@ -33,14 +33,19 @@ using namespace std;
 void LogCrash(string output, string &message)
 {
 #ifdef GUI
-    QMessageBox msgBox(QMessageBox::Critical, "", QString::fromStdString(message) + "\n" +
-                       "Backtrace to crash provided in below Details.\n"
-                       "Program log provided in the Log.txt file.",
-                       QMessageBox::Close, nullptr, Qt::Dialog);
+    QString error = QString::fromStdString(message).replace("\n", "<br>") + "<br>" +
+            "Callstack for crash provided after press 'Show Details'<br>"
+            "Program log provided in the Log.txt";
+    QMessageBox msgBox;
+    msgBox.setTextFormat(Qt::RichText);
+    msgBox.setText(error);
+    msgBox.setStandardButtons(QMessageBox::Close);
+    msgBox.setIcon(QMessageBox::Critical);
     msgBox.setDetailedText(QString::fromStdString(output));
     msgBox.setWindowModality(Qt::ApplicationModal);
-    msgBox.setStyleSheet("QLabel{min-width: 400px;min-height: 100px;}");
-    msgBox.show();
+    auto *spacer = new QSpacerItem(800, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    auto *layout = dynamic_cast<QGridLayout*>(msgBox.layout());
+    layout->addItem(spacer, layout->rowCount(), 0, 1, layout->columnCount());
     msgBox.exec();
 #endif
 
@@ -81,7 +86,7 @@ void Exception(const char *file, const char *func, int line, const char *msg)
     message += "\n" + std::string(func) + " at " + std::string(str) +
             ": line " + std::to_string(line) + "\n";
 
-    string output = "Backtrace:\n";
+    string output = "Callstack:\n";
     GetBackTrace(output, true, false);
 
     LogCrash(output, message);
