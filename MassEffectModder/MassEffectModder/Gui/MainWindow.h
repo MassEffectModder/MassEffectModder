@@ -24,30 +24,34 @@
 
 #include <MemTypes.h>
 
+class LayoutHandle: public QWidget
+{
+    Q_OBJECT
+
+protected:
+    int              layoutId{};
+
+public:
+    int              GetLayoutId() { return layoutId; }
+};
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
-public:
-    MainWindow(QWidget *parent = nullptr);
-
-    QToolBar        *GetToolBar() { return toolBar; }
-    QStatusBar      *GetStatusBar() { return statusBar; }
-    QStackedLayout  *GetLayout() { return stackedLayout; }
-
 protected:
     void            closeEvent(QCloseEvent *event) override;
+    void            SwitchLayoutById(int id);
 
 private:
     static const int kMinWindowWidth = 1024;
     static const int kMinWindowHeight = 600;
-
-    static const int kLayoutMeSelect = 0;
-    static const int kLayoutModules = 1;
-    static const int kLayoutTexturesManager = 2;
-    static const int kLayoutTextureUtilities = 3;
-    static const int kLayoutGameUtilities = 4;
-    static const int kLayoutModsManager = 5;
+    static const int kLayoutMeSelect = 1;
+    static const int kLayoutModules = 2;
+    static const int kLayoutTexturesManager = 3;
+    static const int kLayoutTextureUtilities = 4;
+    static const int kLayoutGameUtilities = 5;
+    static const int kLayoutModsManager = 6;
 
     friend class LayoutMeSelect;
     friend class LayoutModules;
@@ -56,10 +60,15 @@ private:
     friend class LayoutGameUtilities;
     friend class LayoutModsManager;
 
-    MeType           gameType;
-    QToolBar        *toolBar;
     QStatusBar      *statusBar;
     QStackedLayout  *stackedLayout;
+    MeType           gameType;
+
+public:
+    MainWindow();
+
+    QStatusBar      *GetStatusBar() { return statusBar; }
+    QStackedLayout  *GetLayout() { return stackedLayout; }
 };
 
 #endif // MAINWINDOW_H

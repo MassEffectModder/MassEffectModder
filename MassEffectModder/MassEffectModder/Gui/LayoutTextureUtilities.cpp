@@ -29,13 +29,13 @@
 #include "Misc.h"
 #include "LODSettings.h"
 
-LayoutTextureUtilities::LayoutTextureUtilities(QWidget *parent, QStackedLayout *layout, MainWindow *window)
-    : QWidget(parent)
+LayoutTextureUtilities::LayoutTextureUtilities(MainWindow *window)
+    : mainWindow(window)
 {
-    if (layout == nullptr || window == nullptr)
+    if (window == nullptr)
         CRASH();
-    stackedLayout = layout;
-    mainWindow = window;
+
+    layoutId = MainWindow::kLayoutTextureUtilities;
 
     auto ButtonRemoveScanFile = new QPushButton("Delete Textures Scan File");
     ButtonRemoveScanFile->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -81,7 +81,7 @@ LayoutTextureUtilities::LayoutTextureUtilities(QWidget *parent, QStackedLayout *
     QPushButton *ButtonApplyHQGfxSoftShadows;
     if (mainWindow->gameType == MeType::ME1_TYPE)
     {
-        ButtonApplyHQGfxSoftShadows = new QPushButton("Apply HQ GFX Settings (Soft shadows)");
+        ButtonApplyHQGfxSoftShadows = new QPushButton("Apply HQ GFX Settings\n(Soft Shadows)");
         ButtonApplyHQGfxSoftShadows->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
         ButtonApplyHQGfxSoftShadows->setMinimumWidth(kButtonMinWidth);
         ButtonApplyHQGfxSoftShadows->setMinimumHeight(kButtonMinHeight);
@@ -116,8 +116,6 @@ LayoutTextureUtilities::LayoutTextureUtilities(QWidget *parent, QStackedLayout *
     verticalLayout->addWidget(ButtonReturn, 1);
     horizontalLayout->addLayout(verticalLayout);
     horizontalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 40));
-
-    layout->addWidget(this);
 }
 
 void LayoutTextureUtilities::RemoveScanFileSelected()
@@ -242,5 +240,6 @@ void LayoutTextureUtilities::ApplyHQGfxSoftShadowsSelected()
 
 void LayoutTextureUtilities::ReturnSelected()
 {
-    stackedLayout->setCurrentIndex(MainWindow::kLayoutModules);
+    mainWindow->SwitchLayoutById(MainWindow::kLayoutModules);
+    mainWindow->GetLayout()->removeWidget(this);
 }

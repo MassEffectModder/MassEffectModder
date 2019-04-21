@@ -22,16 +22,14 @@
 #ifndef LAYOUT_TEXTURE_UTILITIES_H
 #define LAYOUT_TEXTURE_UTILITIES_H
 
-class MainWindow;
+#include <Gui/MainWindow.h>
 
-class LayoutTextureUtilities: public QWidget
+class LayoutTextureUtilities: public LayoutHandle
 {
     Q_OBJECT
 
 public:
-    explicit LayoutTextureUtilities(QWidget *parent = nullptr,
-                                    QStackedLayout *layout = nullptr,
-                                    MainWindow *window = nullptr);
+    explicit LayoutTextureUtilities(MainWindow *window = nullptr);
 
 private slots:
     void RemoveScanFileSelected();
@@ -44,7 +42,7 @@ private slots:
 
 private:
     const int kButtonMinWidth = 300;
-    const int kButtonMinHeight = 100;
+    const int kButtonMinHeight = 80;
 #if defined(__APPLE__)
     const int kFontSize = 20;
 #elif defined(__linux__)
@@ -53,7 +51,6 @@ private:
     const int kFontSize = 15;
 #endif
 
-    QStackedLayout *stackedLayout;
     MainWindow *mainWindow;
 
     void ApplyLODs(bool lods2k);

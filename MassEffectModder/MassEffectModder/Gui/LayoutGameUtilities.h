@@ -22,16 +22,14 @@
 #ifndef LAYOUT_GAME_UTILITIES_H
 #define LAYOUT_GAME_UTILITIES_H
 
-class MainWindow;
+#include <Gui/MainWindow.h>
 
-class LayoutGameUtilities: public QWidget
+class LayoutGameUtilities: public LayoutHandle
 {
     Q_OBJECT
 
 public:
-    explicit LayoutGameUtilities(QWidget *parent = nullptr,
-                                 QStackedLayout *layout = nullptr,
-                                 MainWindow *window = nullptr);
+    explicit LayoutGameUtilities(MainWindow *window = nullptr);
 
 private slots:
     void CheckGameFilesSelected();
@@ -43,7 +41,7 @@ private slots:
 
 private:
     const int kButtonMinWidth = 300;
-    const int kButtonMinHeight = 100;
+    const int kButtonMinHeight = 80;
 #if defined(__APPLE__)
     const int kFontSize = 20;
 #elif defined(__linux__)
@@ -52,7 +50,6 @@ private:
     const int kFontSize = 15;
 #endif
 
-    QStackedLayout *stackedLayout;
     MainWindow *mainWindow;
 };
 

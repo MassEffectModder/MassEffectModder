@@ -23,13 +23,13 @@
 #include "Gui/LayoutModsManager.h"
 #include "Gui/MainWindow.h"
 
-LayoutModsManager::LayoutModsManager(QWidget *parent, QStackedLayout *layout, MainWindow *window)
-    : QWidget(parent)
+LayoutModsManager::LayoutModsManager(MainWindow *window)
+    : mainWindow(window)
 {
-    if (layout == nullptr || window == nullptr)
+    if (window == nullptr)
         CRASH();
-    stackedLayout = layout;
-    mainWindow = window;
+
+    layoutId = MainWindow::kLayoutModsManager;
 
     auto ButtonInstallMods = new QPushButton("Install Mods");
     ButtonInstallMods->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -80,8 +80,6 @@ LayoutModsManager::LayoutModsManager(QWidget *parent, QStackedLayout *layout, Ma
     verticalLayout->addWidget(ButtonReturn, 1);
     horizontalLayout->addLayout(verticalLayout);
     horizontalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 40));
-
-    layout->addWidget(this);
 }
 
 void LayoutModsManager::InstallModsSelected()
@@ -102,5 +100,6 @@ void LayoutModsManager::CreateBinaryModSelected()
 
 void LayoutModsManager::ReturnSelected()
 {
-    stackedLayout->setCurrentIndex(MainWindow::kLayoutModules);
+    mainWindow->SwitchLayoutById(MainWindow::kLayoutModules);
+    mainWindow->GetLayout()->removeWidget(this);
 }

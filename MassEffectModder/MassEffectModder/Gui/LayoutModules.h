@@ -22,16 +22,14 @@
 #ifndef LAYOUT_MODULES_H
 #define LAYOUT_MODULES_H
 
-class MainWindow;
+#include <Gui/MainWindow.h>
 
-class LayoutModules: public QWidget
+class LayoutModules: public LayoutHandle
 {
     Q_OBJECT
 
 public:
-    explicit LayoutModules(QWidget *parent = nullptr,
-                           QStackedLayout *layout = nullptr,
-                           MainWindow *window = nullptr);
+    explicit LayoutModules(MainWindow *window = nullptr);
 
 private slots:
     void TexturesManagerSelected();
@@ -42,7 +40,7 @@ private slots:
 
 private:
     const int kButtonMinWidth = 300;
-    const int kButtonMinHeight = 100;
+    const int kButtonMinHeight = 80;
 #if defined(__APPLE__)
     const int kFontSize = 20;
 #elif defined(__linux__)
@@ -51,7 +49,6 @@ private:
     const int kFontSize = 15;
 #endif
 
-    QStackedLayout *stackedLayout;
     MainWindow *mainWindow;
 };
 

@@ -23,13 +23,13 @@
 #include "Gui/LayoutTexturesManager.h"
 #include "Gui/MainWindow.h"
 
-LayoutTexturesManager::LayoutTexturesManager(QWidget *parent, QStackedLayout *layout, MainWindow *window)
-    : QWidget(parent)
+LayoutTexturesManager::LayoutTexturesManager(MainWindow *window)
+    : mainWindow(window)
 {
-    if (layout == nullptr || window == nullptr)
+    if (window == nullptr)
         CRASH();
-    stackedLayout = layout;
-    mainWindow = window;
+
+    layoutId = MainWindow::kLayoutTexturesManager;
 
     auto ButtonReturn = new QPushButton("Return");
     ButtonReturn->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -47,11 +47,10 @@ LayoutTexturesManager::LayoutTexturesManager(QWidget *parent, QStackedLayout *la
     verticalLayout->addWidget(ButtonReturn, 1);
     horizontalLayout->addLayout(verticalLayout);
     horizontalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 40));
-
-    layout->addWidget(this);
 }
 
 void LayoutTexturesManager::ReturnSelected()
 {
-    stackedLayout->setCurrentIndex(MainWindow::kLayoutModules);
+    mainWindow->SwitchLayoutById(MainWindow::kLayoutModules);
+    mainWindow->GetLayout()->removeWidget(this);
 }

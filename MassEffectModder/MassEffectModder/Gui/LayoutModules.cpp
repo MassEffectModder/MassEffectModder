@@ -20,17 +20,21 @@
  */
 
 #include "Gui/LayoutModules.h"
+#include "Gui/LayoutTexturesManager.h"
+#include "Gui/LayoutTextureUtilities.h"
+#include "Gui/LayoutGameUtilities.h"
+#include "Gui/LayoutModsManager.h"
 #include "Gui/MainWindow.h"
 #include "Helpers/MiscHelpers.h"
 #include "MemTypes.h"
 
-LayoutModules::LayoutModules(QWidget *parent, QStackedLayout *layout, MainWindow *window)
-    : QWidget(parent)
+LayoutModules::LayoutModules(MainWindow *window)
+    : mainWindow(window)
 {
-    if (layout == nullptr || window == nullptr)
+    if (window == nullptr)
         CRASH();
-    stackedLayout = layout;
-    mainWindow = window;
+
+    layoutId = MainWindow::kLayoutModules;
 
     auto ButtonTexturesManager = new QPushButton("Textures Manager");
     ButtonTexturesManager->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -81,28 +85,30 @@ LayoutModules::LayoutModules(QWidget *parent, QStackedLayout *layout, MainWindow
     verticalLayout->addWidget(ButtonReturn, 1);
     horizontalLayout->addLayout(verticalLayout);
     horizontalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 40));
-
-    layout->addWidget(this);
 }
 
 void LayoutModules::TexturesManagerSelected()
 {
-    stackedLayout->setCurrentIndex(MainWindow::kLayoutTexturesManager);
+    mainWindow->GetLayout()->addWidget(new LayoutTexturesManager(mainWindow));
+    mainWindow->SwitchLayoutById(MainWindow::kLayoutTexturesManager);
 }
 
 void LayoutModules::TextureUtilitiesSelected()
 {
-    stackedLayout->setCurrentIndex(MainWindow::kLayoutTextureUtilities);
+    mainWindow->GetLayout()->addWidget(new LayoutTextureUtilities(mainWindow));
+    mainWindow->SwitchLayoutById(MainWindow::kLayoutTextureUtilities);
 }
 
 void LayoutModules::GameUtilitiesSelected()
 {
-    stackedLayout->setCurrentIndex(MainWindow::kLayoutGameUtilities);
+    mainWindow->GetLayout()->addWidget(new LayoutGameUtilities(mainWindow));
+    mainWindow->SwitchLayoutById(MainWindow::kLayoutGameUtilities);
 }
 
 void LayoutModules::ModsManagerSelected()
 {
-    stackedLayout->setCurrentIndex(MainWindow::kLayoutModsManager);
+    mainWindow->GetLayout()->addWidget(new LayoutModsManager(mainWindow));
+    mainWindow->SwitchLayoutById(MainWindow::kLayoutModsManager);
 }
 
 void LayoutModules::ReturnSelected()
@@ -112,5 +118,6 @@ void LayoutModules::ReturnSelected()
         title += " (run as Administrator)";
     mainWindow->setWindowTitle(title);
     mainWindow->gameType = MeType::UNKNOWN_TYPE;
-    stackedLayout->setCurrentIndex(MainWindow::kLayoutMeSelect);
+    mainWindow->SwitchLayoutById(MainWindow::kLayoutMeSelect);
+    mainWindow->GetLayout()->removeWidget(this);
 }

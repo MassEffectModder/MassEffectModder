@@ -19,18 +19,19 @@
  *
  */
 
-#include "Gui/LayoutMeSelect.h"
 #include "Gui/MainWindow.h"
+#include "Gui/LayoutMeSelect.h"
+#include "Gui/LayoutModules.h"
 #include "Helpers/MiscHelpers.h"
 #include "MemTypes.h"
 
-LayoutMeSelect::LayoutMeSelect(QWidget *parent, QStackedLayout *layout, MainWindow *window)
-    : QWidget(parent)
+LayoutMeSelect::LayoutMeSelect(MainWindow *window)
+    : mainWindow(window)
 {
-    if (layout == nullptr || window == nullptr)
+    if (window == nullptr)
         CRASH();
-    stackedLayout = layout;
-    mainWindow = window;
+
+    layoutId = MainWindow::kLayoutMeSelect;
 
     auto ButtonME1 = new QPushButton("Mass Effect");
     ButtonME1->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -73,8 +74,6 @@ LayoutMeSelect::LayoutMeSelect(QWidget *parent, QStackedLayout *layout, MainWind
     verticalLayout->addWidget(ButtonExit, 1);
     horizontalLayout->addLayout(verticalLayout);
     horizontalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 40));
-
-    layout->addWidget(this);
 }
 
 void LayoutMeSelect::ME1Selected()
@@ -84,7 +83,8 @@ void LayoutMeSelect::ME1Selected()
     if (DetectAdminRights())
         title += " (run as Administrator)";
     mainWindow->setWindowTitle(title);
-    stackedLayout->setCurrentIndex(MainWindow::kLayoutModules);
+    mainWindow->GetLayout()->addWidget(new LayoutModules(mainWindow));
+    mainWindow->SwitchLayoutById(MainWindow::kLayoutModules);
 }
 
 void LayoutMeSelect::ME2Selected()
@@ -94,7 +94,8 @@ void LayoutMeSelect::ME2Selected()
     if (DetectAdminRights())
         title += " (run as Administrator)";
     mainWindow->setWindowTitle(title);
-    stackedLayout->setCurrentIndex(MainWindow::kLayoutModules);
+    mainWindow->GetLayout()->addWidget(new LayoutModules(mainWindow));
+    mainWindow->SwitchLayoutById(MainWindow::kLayoutModules);
 }
 
 void LayoutMeSelect::ME3Selected()
@@ -104,7 +105,8 @@ void LayoutMeSelect::ME3Selected()
     if (DetectAdminRights())
         title += " (run as Administrator)";
     mainWindow->setWindowTitle(title);
-    stackedLayout->setCurrentIndex(MainWindow::kLayoutModules);
+    mainWindow->GetLayout()->addWidget(new LayoutModules(mainWindow));
+    mainWindow->SwitchLayoutById(MainWindow::kLayoutModules);
 }
 
 void LayoutMeSelect::ExitSelected()

@@ -22,20 +22,12 @@
 #include "Gui/MainWindow.h"
 #include "Gui/LayoutMeSelect.h"
 #include "Gui/LayoutModules.h"
-#include "Gui/LayoutTexturesManager.h"
-#include "Gui/LayoutTextureUtilities.h"
-#include "Gui/LayoutGameUtilities.h"
-#include "Gui/LayoutModsManager.h"
 #include "Helpers/MiscHelpers.h"
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent),
-      gameType(MeType::UNKNOWN_TYPE),
-      toolBar(new QToolBar(this)),
-      statusBar(new QStatusBar(this))
+MainWindow::MainWindow()
+    : statusBar(new QStatusBar(this)),
+      gameType(MeType::UNKNOWN_TYPE)
 {
-    toolBar->hide();
-    addToolBar(toolBar);
     setStatusBar(statusBar);
     QString title = QString("Mass Effect Modder v%1").arg(MEM_VERSION);
     if (DetectAdminRights())
@@ -46,12 +38,21 @@ MainWindow::MainWindow(QWidget *parent)
     auto *widget = new QWidget;
     setCentralWidget(widget);
     stackedLayout = new QStackedLayout(widget);
-    new LayoutMeSelect(widget, stackedLayout, this);
-    new LayoutModules(widget, stackedLayout, this);
-    new LayoutTexturesManager(widget, stackedLayout, this);
-    new LayoutTextureUtilities(widget, stackedLayout, this);
-    new LayoutGameUtilities(widget, stackedLayout, this);
-    new LayoutModsManager(widget, stackedLayout, this);
+    stackedLayout->addWidget(new LayoutMeSelect(this));
+}
+
+void MainWindow::SwitchLayoutById(int id)
+{
+    for (int i = 0; i < stackedLayout->count(); i++)
+    {
+        auto *handle = dynamic_cast<LayoutHandle *>(stackedLayout->widget(i));
+        if (handle->GetLayoutId() == id)
+        {
+            stackedLayout->setCurrentIndex(i);
+            return;
+        }
+    }
+    CRASH();
 }
 
 void MainWindow::closeEvent(QCloseEvent */*event*/)

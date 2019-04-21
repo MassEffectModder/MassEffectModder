@@ -23,13 +23,13 @@
 #include "Gui/LayoutGameUtilities.h"
 #include "Gui/MainWindow.h"
 
-LayoutGameUtilities::LayoutGameUtilities(QWidget *parent, QStackedLayout *layout, MainWindow *window)
-    : QWidget(parent)
+LayoutGameUtilities::LayoutGameUtilities(MainWindow *window)
+    : mainWindow(window)
 {
-    if (layout == nullptr || window == nullptr)
+    if (window == nullptr)
         CRASH();
-    stackedLayout = layout;
-    mainWindow = window;
+
+    layoutId = MainWindow::kLayoutGameUtilities;
 
     auto ButtonCheckGameFiles = new QPushButton("Check Game Files");
     ButtonCheckGameFiles->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -88,8 +88,6 @@ LayoutGameUtilities::LayoutGameUtilities(QWidget *parent, QStackedLayout *layout
     verticalLayout->addWidget(ButtonReturn, 1);
     horizontalLayout->addLayout(verticalLayout);
     horizontalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 40));
-
-    layout->addWidget(this);
 }
 
 void LayoutGameUtilities::CheckGameFilesSelected()
@@ -114,5 +112,6 @@ void LayoutGameUtilities::ExtractDLCsSelected()
 
 void LayoutGameUtilities::ReturnSelected()
 {
-    stackedLayout->setCurrentIndex(MainWindow::kLayoutModules);
+    mainWindow->SwitchLayoutById(MainWindow::kLayoutModules);
+    mainWindow->GetLayout()->removeWidget(this);
 }

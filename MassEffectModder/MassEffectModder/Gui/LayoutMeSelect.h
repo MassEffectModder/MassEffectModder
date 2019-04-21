@@ -22,16 +22,14 @@
 #ifndef LAYOUT_ME_SELECT_H
 #define LAYOUT_ME_SELECT_H
 
-class MainWindow;
+#include <Gui/MainWindow.h>
 
-class LayoutMeSelect: public QWidget
+class LayoutMeSelect: public LayoutHandle
 {
     Q_OBJECT
 
 public:
-    explicit LayoutMeSelect(QWidget *parent = nullptr,
-                            QStackedLayout *layout = nullptr,
-                            MainWindow *window = nullptr);
+    explicit LayoutMeSelect(MainWindow *window = nullptr);
 
 private slots:
     void ME1Selected();
@@ -41,7 +39,7 @@ private slots:
 
 private:
     const int kButtonMinWidth = 300;
-    const int kButtonMinHeight = 100;
+    const int kButtonMinHeight = 80;
 #if defined(__APPLE__)
     const int kFontSize = 20;
 #elif defined(__linux__)
@@ -50,7 +48,6 @@ private:
     const int kFontSize = 15;
 #endif
 
-    QStackedLayout *stackedLayout;
     MainWindow *mainWindow;
 };
 
