@@ -7,7 +7,7 @@ equals(GUI_MODE, true) {
     CONFIG += console
 }
 
-CONFIG += c++14 static precompile_header
+CONFIG += c++17 static precompile_header
 CONFIG -= app_bundle
 
 equals(GUI_MODE, true) {
