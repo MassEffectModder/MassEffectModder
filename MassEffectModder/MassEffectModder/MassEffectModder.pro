@@ -181,7 +181,8 @@ macx {
     # build from sources and install:
     OMP_PATH=/usr/local/libomp
     QMAKE_CXXFLAGS += -Xpreprocessor -fopenmp -I$$OMP_PATH/include
-    LIBS += -L$$OMP_PATH/lib -lomp
+    QMAKE_LFLAGS += -L$$OMP_PATH/lib
+    LIBS += -lomp
 
     # WA: PCH file clash with targer file name
     PRECOMPILED_DIR = ".pch"
@@ -190,24 +191,22 @@ macx {
 }
 
 win32 {
-    SOURCES += Exceptions/BacktraceWin.cpp
-    LIBS += -lbfd -liberty -limagehlp -lintl -liconv -lz -lgomp
-
     QMAKE_CXXFLAGS += -fopenmp
+    LIBS += -lbfd -liberty -limagehlp -lintl -liconv -lz -lgomp
 
     # WA: this bad. Assuming Qtcreator/project is on the same disk as msys2.
     # And assuming msys64 is main directory of msys2 64bit installation.
     # It should be /mingw64/lib/binutils but doesn't work in Qt env.
     QMAKE_LIBDIR += c:/msys64/mingw64/lib/binutils
+
+    SOURCES += Exceptions/BacktraceWin.cpp
 }
 
 linux {
     # libomp need to be compiled from sources
-    QMAKE_CXXFLAGS_RELEASE += -I/usr/local/libomp-static/include
-    QMAKE_CXXFLAGS_DEBUG += -I/usr/local/libomp/include
-    QMAKE_CXXFLAGS += -fopenmp
-    QMAKE_LFLAGS_RELEASE += -L/usr/local/libomp-static/lib
-    QMAKE_LFLAGS_DEBUG += -L/usr/local/libomp/lib
+    OMP_PATH=/usr/local/libomp-static
+    QMAKE_CXXFLAGS += -fopenmp -I$$OMP_PATH/include
+    QMAKE_LFLAGS += -L$$OMP_PATH/lib
     LIBS += -lomp -ldl
 
     # WA: PCH file clash with targer file name
