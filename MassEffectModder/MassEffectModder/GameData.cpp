@@ -214,6 +214,12 @@ void GameData::Init(MeType type, ConfigIni &configIni, bool force = false)
     InternalInit(type, configIni, force);
 }
 
+void GameData::Init(MeType type, ConfigIni &configIni, const QString &path)
+{
+    _path = path;
+    InternalInit(type, configIni, true);
+}
+
 void GameData::InternalInit(MeType type, ConfigIni &configIni, bool force = false)
 {
     gameType = type;

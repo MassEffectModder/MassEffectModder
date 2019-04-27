@@ -61,6 +61,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QMessageBox>
+#include <QFileDialog>
 #endif
 
 #include <omp.h>

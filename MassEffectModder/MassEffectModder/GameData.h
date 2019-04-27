@@ -50,6 +50,7 @@ public:
     void Init(MeType type);
     void Init(MeType type, ConfigIni &configIni);
     void Init(MeType type, ConfigIni &configIni, bool force);
+    void Init(MeType type, ConfigIni &configIni, const QString &path);
     QString GamePath() { return _path; }
     const QString MainData();
     const QString bioGamePath();

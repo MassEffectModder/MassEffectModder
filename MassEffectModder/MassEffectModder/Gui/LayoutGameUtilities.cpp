@@ -22,6 +22,8 @@
 #include "Gui/LayoutMeSelect.h"
 #include "Gui/LayoutGameUtilities.h"
 #include "Gui/MainWindow.h"
+#include "Helpers/MiscHelpers.h"
+#include "GameData.h"
 
 LayoutGameUtilities::LayoutGameUtilities(MainWindow *window)
     : mainWindow(window)
@@ -96,6 +98,44 @@ void LayoutGameUtilities::CheckGameFilesSelected()
 
 void LayoutGameUtilities::ChangeGamePathSelected()
 {
+    ConfigIni configIni{};
+    g_GameData->Init(mainWindow->gameType, configIni);
+    QString filter, caption, exeSuffix;
+    switch (mainWindow->gameType)
+    {
+    case MeType::ME1_TYPE:
+        caption = "Please select the Mass Effect 1 executable file";
+        filter = "ME1 exe file (MassEffect.exe)";
+        exeSuffix = "/Binaries";
+        break;
+    case MeType::ME2_TYPE:
+        caption = "Please select the Mass Effect 2 executable file";
+        filter = "ME2 exe file (MassEffect2.exe)";
+        exeSuffix = "/Binaries";
+        break;
+    case MeType::ME3_TYPE:
+        caption = "Please select the Mass Effect 3 executable file";
+        filter = "ME3 exe file (MassEffect3.exe)";
+        exeSuffix = "/Binaries/Win32";
+        break;
+    case MeType::UNKNOWN_TYPE:
+        CRASH();
+    }
+    QString path = QFileDialog::getOpenFileName(this, caption,
+                                                g_GameData->GamePath() + exeSuffix, filter);
+    if (path.length() != 0 && QFile(path).exists())
+    {
+        if (mainWindow->gameType == MeType::ME3_TYPE)
+            path = DirName(DirName(DirName(path)));
+        else
+            path = DirName(DirName(path));
+        g_GameData->Init(mainWindow->gameType, configIni, path);
+        QMessageBox::information(this, "Changing game path", "Game path changed to\n" + path);
+    }
+    else
+    {
+        QMessageBox::information(this, "Changing game path", "Game path NOT changed.");
+    }
 }
 
 void LayoutGameUtilities::RepackGameFilesSelected()
