@@ -42,6 +42,7 @@ int runQtApplication(int argc, char *argv[])
 
     QApplication::setOrganizationName(APP_NAME);
     QApplication::setApplicationName(APP_NAME);
+    QApplication::setWindowIcon(QIcon(":/Resources/MEM.png"));
     MainWindow window;
     window.show();
 
