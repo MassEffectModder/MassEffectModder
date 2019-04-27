@@ -105,17 +105,17 @@ void LayoutGameUtilities::ChangeGamePathSelected()
     {
     case MeType::ME1_TYPE:
         caption = "Please select the Mass Effect 1 executable file";
-        filter = "ME1 exe file (MassEffect.exe)";
+        filter = "ME1 executable file (MassEffect.exe)";
         exeSuffix = "/Binaries";
         break;
     case MeType::ME2_TYPE:
         caption = "Please select the Mass Effect 2 executable file";
-        filter = "ME2 exe file (MassEffect2.exe)";
+        filter = "ME2 executable file (MassEffect2.exe)";
         exeSuffix = "/Binaries";
         break;
     case MeType::ME3_TYPE:
         caption = "Please select the Mass Effect 3 executable file";
-        filter = "ME3 exe file (MassEffect3.exe)";
+        filter = "ME3 executable file (MassEffect3.exe)";
         exeSuffix = "/Binaries/Win32";
         break;
     case MeType::UNKNOWN_TYPE:
