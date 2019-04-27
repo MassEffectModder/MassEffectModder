@@ -122,7 +122,7 @@ void LayoutTextureUtilities::RemoveScanFileSelected()
 {
     QMessageBox msgBox;
     msgBox.setWindowTitle("Remove textures map of the game.");
-    msgBox.setText("WARNING: you are going to delete your current textures scan file.");
+    msgBox.setText("You are going to delete your current textures scan file.");
     msgBox.setInformativeText(QString("After that, and before scanning your game again, ") +
                               "you need to restore game to vanilla state and reinstall vanilla DLCs and DLC mods." +
                               "\n\nAre you sure you want to proceed?");
@@ -170,6 +170,9 @@ void LayoutTextureUtilities::ApplyLODs(bool lods2k)
 #if !defined(_WIN32)
     Misc::ConvertEndLines(path, false);
 #endif
+
+    QMessageBox::information(this, "Appling HQ LODs settings.",
+            QString("Game configuration file at ") + path + " updated.");
 }
 
 void LayoutTextureUtilities::ApplyHQLODsSelected()
@@ -203,6 +206,9 @@ void LayoutTextureUtilities::ApplyVanillaLODsSelected()
 #if !defined(_WIN32)
     Misc::ConvertEndLines(path, false);
 #endif
+
+    QMessageBox::information(this, "Appling vanilla LODs settings.",
+            QString("Game configuration file at ") + path + " updated.");
 }
 
 void LayoutTextureUtilities::ApplyHQGfx(bool softShadows)
@@ -226,6 +232,9 @@ void LayoutTextureUtilities::ApplyHQGfx(bool softShadows)
 #if !defined(_WIN32)
     Misc::ConvertEndLines(path, false);
 #endif
+
+    QMessageBox::information(this, "Appling HW gfx settings.",
+            QString("Game configuration file at ") + path + " updated.");
 }
 
 void LayoutTextureUtilities::ApplyHQGfxSelected()
