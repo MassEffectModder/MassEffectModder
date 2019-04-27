@@ -113,15 +113,16 @@ bool DetectAdminRights()
 #if defined(_WIN32)
     SID_IDENTIFIER_AUTHORITY authority = SECURITY_NT_AUTHORITY;
     PSID sid;
-    BOOL state = AllocateAndInitializeSid(&authority, 2, SECURITY_BUILTIN_DOMAIN_RID,
-                                      DOMAIN_ALIAS_RID_ADMINS, 0, 0, 0, 0, 0, 0, &sid);
-    status = state;
+    BOOL state = AllocateAndInitializeSid(&authority, 2,
+                                          SECURITY_BUILTIN_DOMAIN_RID,
+                                          DOMAIN_ALIAS_RID_ADMINS,
+                                          0, 0, 0, 0, 0, 0, &sid);
     if (state)
     {
-        if (!CheckTokenMembership(nullptr, sid, &state))
-            status = false;
+        CheckTokenMembership(nullptr, sid, &state);
         FreeSid(sid);
     }
+    status = state;
 #else
     status = (geteuid() == 0);
 #endif
