@@ -53,7 +53,7 @@ LayoutTextureUtilities::LayoutTextureUtilities(MainWindow *window)
     ButtonApplyHQLODs->setFont(ButtonFont);
     connect(ButtonApplyHQLODs, &QPushButton::clicked, this, &LayoutTextureUtilities::ApplyHQLODsSelected);
 
-    QPushButton *ButtonApply2kLODs;
+    QPushButton *ButtonApply2kLODs = nullptr;
     if (mainWindow->gameType == MeType::ME1_TYPE)
     {
         ButtonApply2kLODs = new QPushButton("Apply 2k LODs Settings");
@@ -78,7 +78,7 @@ LayoutTextureUtilities::LayoutTextureUtilities(MainWindow *window)
     ButtonApplyHQGfx->setFont(ButtonFont);
     connect(ButtonApplyHQGfx, &QPushButton::clicked, this, &LayoutTextureUtilities::ApplyHQGfxSelected);
 
-    QPushButton *ButtonApplyHQGfxSoftShadows;
+    QPushButton *ButtonApplyHQGfxSoftShadows = nullptr;
     if (mainWindow->gameType == MeType::ME1_TYPE)
     {
         ButtonApplyHQGfxSoftShadows = new QPushButton("Apply HQ GFX Settings\n(Soft Shadows)");
