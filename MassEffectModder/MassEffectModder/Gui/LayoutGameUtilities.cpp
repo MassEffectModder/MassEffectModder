@@ -49,6 +49,15 @@ LayoutGameUtilities::LayoutGameUtilities(MainWindow *window)
     ButtonChangeGamePath->setFont(ButtonFont);
     connect(ButtonChangeGamePath, &QPushButton::clicked, this, &LayoutGameUtilities::ChangeGamePathSelected);
 
+#if !defined(_WIN32)
+    auto ButtonChangeUserPath = new QPushButton("Change User Path");
+    ButtonChangeUserPath->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+    ButtonChangeUserPath->setMinimumWidth(kButtonMinWidth);
+    ButtonChangeUserPath->setMinimumHeight(kButtonMinHeight);
+    ButtonChangeUserPath->setFont(ButtonFont);
+    connect(ButtonChangeUserPath, &QPushButton::clicked, this, &LayoutGameUtilities::ChangeUserPathSelected);
+#endif
+
     auto ButtonRepackGameFiles = new QPushButton("Repack Game Files");
     ButtonRepackGameFiles->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     ButtonRepackGameFiles->setMinimumWidth(kButtonMinWidth);
@@ -83,6 +92,9 @@ LayoutGameUtilities::LayoutGameUtilities(MainWindow *window)
     verticalLayout->setAlignment(Qt::AlignVCenter);
     verticalLayout->addWidget(ButtonCheckGameFiles, 1);
     verticalLayout->addWidget(ButtonChangeGamePath, 1);
+#if !defined(_WIN32)
+    verticalLayout->addWidget(ButtonChangeUserPath, 1);
+#endif
     verticalLayout->addWidget(ButtonRepackGameFiles, 1);
     verticalLayout->addWidget(ButtonUpdateTOCs, 1);
     verticalLayout->addWidget(ButtonExtractDLCs, 1);
@@ -137,6 +149,43 @@ void LayoutGameUtilities::ChangeGamePathSelected()
         QMessageBox::information(this, "Changing game path", "Game path NOT changed.");
     }
 }
+
+#if !defined(_WIN32)
+void LayoutGameUtilities::ChangeUserPathSelected()
+{
+    ConfigIni configIni{};
+    g_GameData->Init(mainWindow->gameType, configIni);
+    QString caption;
+    switch (mainWindow->gameType)
+    {
+    case MeType::ME1_TYPE:
+        caption = "Please select the Mass Effect 1 user configuration path";
+        break;
+    case MeType::ME2_TYPE:
+        caption = "Please select the Mass Effect 2 user configuration path";
+        break;
+    case MeType::ME3_TYPE:
+        caption = "Please select the Mass Effect 3 user configuration path";
+        break;
+    case MeType::UNKNOWN_TYPE:
+        CRASH();
+    }
+    QString path = QFileDialog::getExistingDirectory(this, caption,
+                                                     GameData::GameUserPath(mainWindow->gameType),
+                                                     QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    if (path.length() != 0 && QDir(path).exists())
+    {
+        g_GameData->Init(mainWindow->gameType, configIni, path);
+        QMessageBox::information(this, "Changing user configuration path",
+                                 "User configuration path changed to\n" + path);
+    }
+    else
+    {
+        QMessageBox::information(this, "Changing user configuration path",
+                                 "User configuration path NOT changed.");
+    }
+}
+#endif
 
 void LayoutGameUtilities::RepackGameFilesSelected()
 {
