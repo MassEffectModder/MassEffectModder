@@ -153,7 +153,8 @@ void LayoutTextureUtilities::ApplyLODs(bool lods2k)
 {
     if (GameData::ConfigIniPath(mainWindow->gameType).length() == 0)
     {
-        PERROR("Game User path is not defined.\n");
+        QMessageBox::critical(this, "Appling HQ LODs settings.",
+                              "Game User path is not defined.");
         return;
     }
     QString path = GameData::EngineConfigIniPath(mainWindow->gameType);
@@ -189,7 +190,8 @@ void LayoutTextureUtilities::ApplyVanillaLODsSelected()
 {
     if (GameData::ConfigIniPath(mainWindow->gameType).length() == 0)
     {
-        PERROR("Game User path is not defined.\n");
+        QMessageBox::critical(this, "Appling vanilla LODs settings.",
+                              "Game User path is not defined.");
         return;
     }
     QString path = GameData::EngineConfigIniPath(mainWindow->gameType);
@@ -215,7 +217,8 @@ void LayoutTextureUtilities::ApplyHQGfx(bool softShadows)
 {
     if (GameData::ConfigIniPath(mainWindow->gameType).length() == 0)
     {
-        PERROR("Game User path is not defined.\n");
+        QMessageBox::critical(this, "Appling HQ gfx settings.",
+                              "Game User path is not defined.");
         return;
     }
     QString path = GameData::EngineConfigIniPath(mainWindow->gameType);
@@ -233,7 +236,7 @@ void LayoutTextureUtilities::ApplyHQGfx(bool softShadows)
     Misc::ConvertEndLines(path, false);
 #endif
 
-    QMessageBox::information(this, "Appling HW gfx settings.",
+    QMessageBox::information(this, "Appling HQ gfx settings.",
             QString("Game configuration file at ") + path + " updated.");
 }
 

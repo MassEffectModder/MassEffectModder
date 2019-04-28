@@ -24,6 +24,7 @@
 #include "Gui/MainWindow.h"
 #include "Helpers/MiscHelpers.h"
 #include "GameData.h"
+#include "TOCFile.h"
 
 LayoutGameUtilities::LayoutGameUtilities(MainWindow *window)
     : mainWindow(window)
@@ -58,26 +59,35 @@ LayoutGameUtilities::LayoutGameUtilities(MainWindow *window)
     connect(ButtonChangeUserPath, &QPushButton::clicked, this, &LayoutGameUtilities::ChangeUserPathSelected);
 #endif
 
-    auto ButtonRepackGameFiles = new QPushButton("Repack Game Files");
-    ButtonRepackGameFiles->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    ButtonRepackGameFiles->setMinimumWidth(kButtonMinWidth);
-    ButtonRepackGameFiles->setMinimumHeight(kButtonMinHeight);
-    ButtonRepackGameFiles->setFont(ButtonFont);
-    connect(ButtonRepackGameFiles, &QPushButton::clicked, this, &LayoutGameUtilities::RepackGameFilesSelected);
+    QPushButton *ButtonRepackGameFiles = nullptr;
+    if (mainWindow->gameType != MeType::ME3_TYPE)
+    {
+        ButtonRepackGameFiles = new QPushButton("Repack Game Files");
+        ButtonRepackGameFiles->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+        ButtonRepackGameFiles->setMinimumWidth(kButtonMinWidth);
+        ButtonRepackGameFiles->setMinimumHeight(kButtonMinHeight);
+        ButtonRepackGameFiles->setFont(ButtonFont);
+        connect(ButtonRepackGameFiles, &QPushButton::clicked, this, &LayoutGameUtilities::RepackGameFilesSelected);
+    }
 
-    auto ButtonUpdateTOCs = new QPushButton("Update TOCs");
-    ButtonUpdateTOCs->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    ButtonUpdateTOCs->setMinimumWidth(kButtonMinWidth);
-    ButtonUpdateTOCs->setMinimumHeight(kButtonMinHeight);
-    ButtonUpdateTOCs->setFont(ButtonFont);
-    connect(ButtonUpdateTOCs, &QPushButton::clicked, this, &LayoutGameUtilities::UpdateTOCsSelected);
+    QPushButton *ButtonUpdateTOCs = nullptr;
+    QPushButton *ButtonExtractDLCs = nullptr;
+    if (mainWindow->gameType == MeType::ME3_TYPE)
+    {
+        ButtonUpdateTOCs = new QPushButton("Update TOCs");
+        ButtonUpdateTOCs->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+        ButtonUpdateTOCs->setMinimumWidth(kButtonMinWidth);
+        ButtonUpdateTOCs->setMinimumHeight(kButtonMinHeight);
+        ButtonUpdateTOCs->setFont(ButtonFont);
+        connect(ButtonUpdateTOCs, &QPushButton::clicked, this, &LayoutGameUtilities::UpdateTOCsSelected);
 
-    auto ButtonExtractDLCs = new QPushButton("Extract DLCs");
-    ButtonExtractDLCs->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    ButtonExtractDLCs->setMinimumWidth(kButtonMinWidth);
-    ButtonExtractDLCs->setMinimumHeight(kButtonMinHeight);
-    ButtonExtractDLCs->setFont(ButtonFont);
-    connect(ButtonExtractDLCs, &QPushButton::clicked, this, &LayoutGameUtilities::ExtractDLCsSelected);
+        ButtonExtractDLCs = new QPushButton("Extract DLCs");
+        ButtonExtractDLCs->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+        ButtonExtractDLCs->setMinimumWidth(kButtonMinWidth);
+        ButtonExtractDLCs->setMinimumHeight(kButtonMinHeight);
+        ButtonExtractDLCs->setFont(ButtonFont);
+        connect(ButtonExtractDLCs, &QPushButton::clicked, this, &LayoutGameUtilities::ExtractDLCsSelected);
+    }
 
     auto ButtonReturn = new QPushButton("Return");
     ButtonReturn->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -95,9 +105,15 @@ LayoutGameUtilities::LayoutGameUtilities(MainWindow *window)
 #if !defined(_WIN32)
     verticalLayout->addWidget(ButtonChangeUserPath, 1);
 #endif
-    verticalLayout->addWidget(ButtonRepackGameFiles, 1);
-    verticalLayout->addWidget(ButtonUpdateTOCs, 1);
-    verticalLayout->addWidget(ButtonExtractDLCs, 1);
+    if (mainWindow->gameType != MeType::ME3_TYPE)
+    {
+        verticalLayout->addWidget(ButtonRepackGameFiles, 1);
+    }
+    if (mainWindow->gameType == MeType::ME3_TYPE)
+    {
+        verticalLayout->addWidget(ButtonUpdateTOCs, 1);
+        verticalLayout->addWidget(ButtonExtractDLCs, 1);
+    }
     verticalLayout->addSpacing(20);
     verticalLayout->addWidget(ButtonReturn, 1);
     horizontalLayout->addLayout(verticalLayout);
@@ -203,6 +219,16 @@ void LayoutGameUtilities::RepackGameFilesSelected()
 
 void LayoutGameUtilities::UpdateTOCsSelected()
 {
+    ConfigIni configIni{};
+    g_GameData->Init(MeType::ME3_TYPE, configIni);
+    if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
+    {
+        QMessageBox::critical(this, "Updating TOC files.", "Game data not found.");
+        return;
+    }
+
+    TOCBinFile::UpdateAllTOCBinFiles();
+    QMessageBox::information(this, "Updating TOC files.", "All TOC files updated.");
 }
 
 void LayoutGameUtilities::ExtractDLCsSelected()
