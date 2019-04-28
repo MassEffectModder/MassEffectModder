@@ -34,9 +34,7 @@ public:
 private slots:
     void CheckGameFilesSelected();
     void ChangeGamePathSelected();
-#if !defined(_WIN32)
     void ChangeUserPathSelected();
-#endif
     void RepackGameFilesSelected();
     void UpdateTOCsSelected();
     void ExtractDLCsSelected();

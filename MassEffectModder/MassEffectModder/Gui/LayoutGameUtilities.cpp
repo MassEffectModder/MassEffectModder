@@ -141,7 +141,13 @@ void LayoutGameUtilities::ChangeGamePathSelected()
             path = DirName(DirName(DirName(path)));
         else
             path = DirName(DirName(path));
-        g_GameData->Init(mainWindow->gameType, configIni, path);
+        QString key = QString("ME%1").arg(static_cast<int>(mainWindow->gameType));
+#if defined(_WIN32)
+        configIni.Write(key, QString(path).replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameDataPath");
+#else
+        configIni.Write(key, path, "GameDataPath");
+#endif
+        g_GameData->Init(mainWindow->gameType, configIni, true);
         QMessageBox::information(this, "Changing game path", "Game path changed to\n" + path);
     }
     else
@@ -150,7 +156,6 @@ void LayoutGameUtilities::ChangeGamePathSelected()
     }
 }
 
-#if !defined(_WIN32)
 void LayoutGameUtilities::ChangeUserPathSelected()
 {
     ConfigIni configIni{};
@@ -175,9 +180,15 @@ void LayoutGameUtilities::ChangeUserPathSelected()
                                                      QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     if (path.length() != 0 && QDir(path).exists())
     {
-        g_GameData->Init(mainWindow->gameType, configIni, path);
+        QString key = QString("ME%1").arg(static_cast<int>(mainWindow->gameType));
+#if defined(_WIN32)
+        configIni.Write(key, QString(path).replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameUserPath");
+#else
+        configIni.Write(key, path, "GameUserPath");
+#endif
+        QString newPath = GameData::GameUserPath(mainWindow->gameType);
         QMessageBox::information(this, "Changing user configuration path",
-                                 "User configuration path changed to\n" + path);
+                                 "User configuration path changed to\n" + newPath);
     }
     else
     {
@@ -185,7 +196,6 @@ void LayoutGameUtilities::ChangeUserPathSelected()
                                  "User configuration path NOT changed.");
     }
 }
-#endif
 
 void LayoutGameUtilities::RepackGameFilesSelected()
 {
