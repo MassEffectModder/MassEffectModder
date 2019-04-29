@@ -105,7 +105,7 @@ LayoutGameUtilities::LayoutGameUtilities(MainWindow *window)
 #if !defined(_WIN32)
     verticalLayout->addWidget(ButtonChangeUserPath, 1);
 #endif
-    if (mainWindow->gameType != MeType::ME3_TYPE)
+    if (mainWindow->gameType != MeType::ME1_TYPE)
     {
         verticalLayout->addWidget(ButtonRepackGameFiles, 1);
     }
