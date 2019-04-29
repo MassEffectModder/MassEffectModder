@@ -172,7 +172,7 @@ void DisplayHelp()
         "     output pixel format: DXT1 (no alpha), DXT1a (alpha), DXT3, DXT5, ATI2, V8U8, G8, ARGB, RGB\n" \
         "     For DXT1a you have to set the alpha threshold (0-255). 128 is suggested as a default value.\n" \
         "\n" \
-        "  --extract-all-dds --gameid <game id> --output <output dir> [--tfc-name <filter name|--pcc-only|--tfc-only]\n" \
+        "  --extract-all-dds --gameid <game id> --output <output dir> [--tfc-name <filter name>|--pcc-only|--tfc-only]\n" \
         "     game id: 1 for ME1, 2 for ME2, 3 for ME3\n" \
         "     output dir: directory where textures converted to DDS are placed\n" \
         "     TFC filter name: it will filter only textures stored in specific TFC file.\n" \
