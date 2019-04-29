@@ -37,204 +37,6 @@ static bool hasValue(const QStringList &args, int curPos)
     return args.count() >= (curPos + 2) && !args[curPos + 1].startsWith("--");
 }
 
-static QStringList convertLegacyArguments()
-{
-    QStringList retArgs;
-    const QStringList args = QCoreApplication::arguments();
-    if (args.count() < 2)
-        return QStringList();
-
-    retArgs.append("");
-    if (args[1] == "-check-game-data-after")
-    {
-        if (args.count() > 1)
-        {
-            retArgs.append("--check-game-data-after");
-            retArgs.append("--gameid");
-            retArgs.append(args[2]);
-            retArgs.append("--ipc");
-        }
-    }
-    else if (args[1] == "-check-game-data-mismatch")
-    {
-        if (args.count() > 1)
-        {
-            retArgs.append("--check-game-data-mismatch");
-            retArgs.append("--gameid");
-            retArgs.append(args[2]);
-            retArgs.append("--ipc");
-        }
-    }
-    else if (args[1] == "-check-game-data-only-vanilla")
-    {
-        if (args.count() > 1)
-        {
-            retArgs.append("--check-game-data-vanilla");
-            retArgs.append("--gameid");
-            retArgs.append(args[2]);
-            retArgs.append("--ipc");
-        }
-    }
-    else if (args[1] == "-check-game-data-textures")
-    {
-        if (args.count() > 1)
-        {
-            retArgs.append("--check-game-data-textures");
-            retArgs.append("--gameid");
-            retArgs.append(args[2]);
-            retArgs.append("--ipc");
-        }
-    }
-    else if (args[1] == "-check-for-markers")
-    {
-        if (args.count() > 1)
-        {
-            retArgs.append("--check-for-markers");
-            retArgs.append("--gameid");
-            retArgs.append(args[2]);
-            retArgs.append("--ipc");
-        }
-    }
-    else if (args[1] == "-install-mods")
-    {
-        if (args.count() > 2)
-        {
-            retArgs.append("--install-mods");
-            retArgs.append("--gameid");
-            retArgs.append(args[2]);
-            retArgs.append("--input");
-            retArgs.append(args[3]);
-            for (int a = 0; a < args.count(); a++)
-            {
-                if (args[a] == "-repack")
-                    retArgs.append("--repack-mode");
-            }
-            retArgs.append("--ipc");
-        }
-
-    }
-    else if (args[1] == "-apply-me1-laa")
-    {
-        retArgs.append("--apply-me1-laa");
-    }
-    else if (args[1] == "-detect-mods")
-    {
-        if (args.count() > 1)
-        {
-            retArgs.append("--detect-mods");
-            retArgs.append("--gameid");
-            retArgs.append(args[2]);
-            retArgs.append("--ipc");
-        }
-    }
-    else if (args[1] == "-detect-bad-mods")
-    {
-        if (args.count() > 1)
-        {
-            retArgs.append("--detect-bad-mods");
-            retArgs.append("--gameid");
-            retArgs.append(args[2]);
-            retArgs.append("--ipc");
-        }
-    }
-    else if (args[1] == "-apply-lods-gfx")
-    {
-        if (args.count() > 1)
-        {
-            retArgs.append("--apply-lods-gfx");
-            retArgs.append("--gameid");
-            retArgs.append(args[2]);
-            for (int a = 0; a < args.count(); a++)
-            {
-                if (args[a] == "-soft-shadows-mode")
-                    retArgs.append("--soft-shadows-mode");
-            }
-            for (int a = 0; a < args.count(); a++)
-            {
-                if (args[a] == "-meuitm-mode")
-                    retArgs.append("--meuitm-mode");
-            }
-            for (int a = 0; a < args.count(); a++)
-            {
-                if (args[a] == "-limit2k")
-                    retArgs.append("--limit-2k");
-            }
-            retArgs.append("--ipc");
-        }
-    }
-    else if (args[1] == "-remove-lods")
-    {
-        if (args.count() > 1)
-        {
-            retArgs.append("--remove-lods");
-            retArgs.append("--gameid");
-            retArgs.append(args[2]);
-            retArgs.append("--ipc");
-        }
-    }
-    else if (args[1] == "-print-lods")
-    {
-        if (args.count() > 1)
-        {
-            retArgs.append("--print-lods");
-            retArgs.append("--gameid");
-            retArgs.append(args[2]);
-            retArgs.append("--ipc");
-        }
-    }
-    else if (args[1] == "-convert-to-mem")
-    {
-        if (args.count() > 3)
-        {
-            retArgs.append("--convert-to-mem");
-            retArgs.append("--gameid");
-            retArgs.append(args[2]);
-            retArgs.append("--input");
-            retArgs.append(args[3]);
-            retArgs.append("--output");
-            retArgs.append(args[4]);
-            for (int a = 0; a < args.count(); a++)
-            {
-                if (args[a] == "--mark-to-convert")
-                    retArgs.append("--mark-to-convert");
-            }
-            retArgs.append("--ipc");
-        }
-    }
-    else if (args[1] == "-extract-mod")
-    {
-        if (args.count() > 3)
-        {
-            retArgs.append("--extract-mod");
-            retArgs.append("--gameid");
-            retArgs.append(args[2]);
-            retArgs.append("--input");
-            retArgs.append(args[3]);
-            retArgs.append("--output");
-            retArgs.append(args[4]);
-            retArgs.append("--ipc");
-        }
-    }
-    else if (args[1] == "-extract-tpf")
-    {
-        if (args.count() > 2)
-        {
-            retArgs.append("--extract-tpf");
-            retArgs.append("--input");
-            retArgs.append(args[2]);
-            retArgs.append("--output");
-            retArgs.append(args[3]);
-            retArgs.append("--ipc");
-        }
-    }
-    else
-    {
-        return args;
-    }
-
-    return retArgs;
-}
-
 int ProcessArguments()
 {
     int errorCode = 0;
@@ -256,7 +58,7 @@ int ProcessArguments()
     QString input, output, threshold, format, tfcName, guid, path, cacheAmount, filter;
     CmdLineTools tools;
 
-    QStringList args = convertLegacyArguments();
+    QStringList args = QCoreApplication::arguments();
     if (args.count() != 0)
         args.removeFirst();
 
@@ -422,14 +224,22 @@ int ProcessArguments()
         }
         else if (arg == "--pcc-only")
         {
-            if (!tfcOnly)
-                pccOnly = true;
+            if (tfcName != "" || tfcOnly)
+            {
+                PERROR("--tfc-name or --tfc-only is already enabled!\n");
+                return -1;
+            }
+            pccOnly = true;
             args.removeAt(l--);
         }
         else if (arg == "--tfc-only")
         {
-            if (!pccOnly)
-                tfcOnly = true;
+            if (tfcName != "" || pccOnly)
+            {
+                PERROR("--tfc-name or --pcc-only is already enabled!\n");
+                return -1;
+            }
+            tfcOnly = true;
             args.removeAt(l--);
         }
         else if (arg == "--threshold" && hasValue(args, l))
@@ -450,8 +260,12 @@ int ProcessArguments()
         }
         else if (arg == "--tfc-name" && hasValue(args, l))
         {
-            if (!pccOnly && !tfcOnly)
-                tfcName = args[l + 1];
+            if (pccOnly || tfcOnly)
+            {
+                PERROR("--pcc-only or --tfc-only is already enabled!\n");
+                return -1;
+            }
+            tfcName = args[l + 1];
             args.removeAt(l);
             args.removeAt(l--);
         }
@@ -503,7 +317,11 @@ int ProcessArguments()
     }
     if (args.count() != 0)
     {
-        PERROR("Wrong options!\n");
+        QString error = "Wrong options: ";
+        for (const QString &a : args) {
+            error += a + " ";
+        }
+        PERROR(error + "\n");
         DisplayHelp();
         return 1;
     }
