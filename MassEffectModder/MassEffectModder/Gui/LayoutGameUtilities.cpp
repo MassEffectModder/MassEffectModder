@@ -128,21 +128,21 @@ void LayoutGameUtilities::ChangeGamePathSelected()
 {
     ConfigIni configIni{};
     g_GameData->Init(mainWindow->gameType, configIni);
-    QString filter, caption, exeSuffix;
+    QString filter, exeSuffix;
+    QString caption = "Please select the Mass Effect " +
+            QString::number(static_cast<int>(mainWindow->gameType)) +
+            " executable file";
     switch (mainWindow->gameType)
     {
     case MeType::ME1_TYPE:
-        caption = "Please select the Mass Effect 1 executable file";
         filter = "ME1 executable file (MassEffect.exe)";
         exeSuffix = "/Binaries";
         break;
     case MeType::ME2_TYPE:
-        caption = "Please select the Mass Effect 2 executable file";
         filter = "ME2 executable file (MassEffect2.exe)";
         exeSuffix = "/Binaries";
         break;
     case MeType::ME3_TYPE:
-        caption = "Please select the Mass Effect 3 executable file";
         filter = "ME3 executable file (MassEffect3.exe)";
         exeSuffix = "/Binaries/Win32";
         break;
@@ -176,21 +176,9 @@ void LayoutGameUtilities::ChangeUserPathSelected()
 {
     ConfigIni configIni{};
     g_GameData->Init(mainWindow->gameType, configIni);
-    QString caption;
-    switch (mainWindow->gameType)
-    {
-    case MeType::ME1_TYPE:
-        caption = "Please select the Mass Effect 1 user configuration path";
-        break;
-    case MeType::ME2_TYPE:
-        caption = "Please select the Mass Effect 2 user configuration path";
-        break;
-    case MeType::ME3_TYPE:
-        caption = "Please select the Mass Effect 3 user configuration path";
-        break;
-    case MeType::UNKNOWN_TYPE:
-        CRASH();
-    }
+    QString caption = "Please select the Mass Effect " +
+            QString::number(static_cast<int>(mainWindow->gameType)) +
+            " user configuration path";
     QString path = QFileDialog::getExistingDirectory(this, caption,
                                                      GameData::GameUserPath(mainWindow->gameType),
                                                      QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);

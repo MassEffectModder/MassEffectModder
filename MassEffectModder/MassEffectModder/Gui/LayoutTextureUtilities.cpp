@@ -134,7 +134,7 @@ void LayoutTextureUtilities::RemoveScanFileSelected()
     {
         QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
                 "/MassEffectModder";
-        QString filename = path + QString("/me%1map.bin").arg((int)mainWindow->gameType);
+        QString filename = path + QString("/me%1map.bin").arg(static_cast<int>(mainWindow->gameType));
         if (QFile(filename).exists())
         {
             QFile(filename).remove();
