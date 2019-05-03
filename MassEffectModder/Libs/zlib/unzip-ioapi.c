@@ -531,198 +531,198 @@ Else, the return value is a unzFile Handle, usable with other function
 of this unzip package.
 */
 local unzFile unzOpenInternal(const void *path,
-	zlib_filefunc64_32_def* pzlib_filefunc64_32_def,
-	int is64bitOpenFunction)
+    zlib_filefunc64_32_def* pzlib_filefunc64_32_def,
+    int is64bitOpenFunction)
 {
-	unz64_s us;
-	unz64_s *s;
-	ZPOS64_T central_pos;
-	uLong   uL;
+    unz64_s us;
+    unz64_s *s;
+    ZPOS64_T central_pos;
+    uLong   uL;
 
-	uLong number_disk;          /* number of the current dist, used for
-								spaning ZIP, unsupported, always 0*/
-	uLong number_disk_with_CD;  /* number the the disk with central dir, used
-								for spaning ZIP, unsupported, always 0*/
-	ZPOS64_T number_entry_CD;      /* total number of entries in
-								   the central dir
-								   (same than number_entry on nospan) */
+    uLong number_disk;          /* number of the current dist, used for
+                                spaning ZIP, unsupported, always 0*/
+    uLong number_disk_with_CD;  /* number the the disk with central dir, used
+                                for spaning ZIP, unsupported, always 0*/
+    ZPOS64_T number_entry_CD;      /* total number of entries in
+                                   the central dir
+                                   (same than number_entry on nospan) */
 
-	int err = UNZ_OK;
+    int err = UNZ_OK;
 
-	us.z_filefunc.zseek32_file = NULL;
-	us.z_filefunc.ztell32_file = NULL;
-	if (pzlib_filefunc64_32_def == NULL)
-		fill_fopen64_filefunc(&us.z_filefunc.zfile_func64);
-	else
-		us.z_filefunc = *pzlib_filefunc64_32_def;
-	us.is64bitOpenFunction = is64bitOpenFunction;
-
-
-
-	us.filestream = ZOPEN64(us.z_filefunc,
-		path,
-		ZLIB_FILEFUNC_MODE_READ |
-		ZLIB_FILEFUNC_MODE_EXISTING);
-	if (us.filestream == NULL)
-		return NULL;
-
-	char buf[100];
-	if (ZREAD64(us.z_filefunc, us.filestream, buf, 100) != 100)
-		return NULL;
-
-	central_pos = unz64local_SearchCentralDir64(&us.z_filefunc, us.filestream);
-	if (central_pos)
-	{
-		uLong uS;
-		ZPOS64_T uL64;
-
-		us.isZip64 = 1;
-
-		if (ZSEEK64(us.z_filefunc, us.filestream,
-			central_pos, ZLIB_FILEFUNC_SEEK_SET) != 0)
-			err = UNZ_ERRNO;
-
-		/* the signature, already checked */
-		if (unz64local_getLong(&us.z_filefunc, us.filestream, &uL) != UNZ_OK)
-			err = UNZ_ERRNO;
-
-		/* size of zip64 end of central directory record */
-		if (unz64local_getLong64(&us.z_filefunc, us.filestream, &uL64) != UNZ_OK)
-			err = UNZ_ERRNO;
-
-		/* version made by */
-		if (unz64local_getShort(&us.z_filefunc, us.filestream, &uS) != UNZ_OK)
-			err = UNZ_ERRNO;
-
-		/* version needed to extract */
-		if (unz64local_getShort(&us.z_filefunc, us.filestream, &uS) != UNZ_OK)
-			err = UNZ_ERRNO;
-
-		/* number of this disk */
-		if (unz64local_getLong(&us.z_filefunc, us.filestream, &number_disk) != UNZ_OK)
-			err = UNZ_ERRNO;
-
-		/* number of the disk with the start of the central directory */
-		if (unz64local_getLong(&us.z_filefunc, us.filestream, &number_disk_with_CD) != UNZ_OK)
-			err = UNZ_ERRNO;
-
-		/* total number of entries in the central directory on this disk */
-		if (unz64local_getLong64(&us.z_filefunc, us.filestream, &us.gi.number_entry) != UNZ_OK)
-			err = UNZ_ERRNO;
-
-		/* total number of entries in the central directory */
-		if (unz64local_getLong64(&us.z_filefunc, us.filestream, &number_entry_CD) != UNZ_OK)
-			err = UNZ_ERRNO;
-
-		if ((number_entry_CD != us.gi.number_entry) ||
-			(number_disk_with_CD != 0) ||
-			(number_disk != 0))
-			err = UNZ_BADZIPFILE;
-
-		/* size of the central directory */
-		if (unz64local_getLong64(&us.z_filefunc, us.filestream, &us.size_central_dir) != UNZ_OK)
-			err = UNZ_ERRNO;
-
-		/* offset of start of central directory with respect to the
-		starting disk number */
-		if (unz64local_getLong64(&us.z_filefunc, us.filestream, &us.offset_central_dir) != UNZ_OK)
-			err = UNZ_ERRNO;
-
-		us.gi.size_comment = 0;
-	}
-	else
-	{
-		central_pos = unz64local_SearchCentralDir(&us.z_filefunc, us.filestream);
-		if (central_pos == 0)
-			err = UNZ_ERRNO;
-
-		us.isZip64 = 0;
-
-		if (ZSEEK64(us.z_filefunc, us.filestream,
-			central_pos, ZLIB_FILEFUNC_SEEK_SET) != 0)
-			err = UNZ_ERRNO;
-
-		/* the signature, already checked */
-		if (unz64local_getLong(&us.z_filefunc, us.filestream, &uL) != UNZ_OK)
-			err = UNZ_ERRNO;
-
-		/* number of this disk */
-		if (unz64local_getShort(&us.z_filefunc, us.filestream, &number_disk) != UNZ_OK)
-			err = UNZ_ERRNO;
-
-		/* number of the disk with the start of the central directory */
-		if (unz64local_getShort(&us.z_filefunc, us.filestream, &number_disk_with_CD) != UNZ_OK)
-			err = UNZ_ERRNO;
-
-		/* total number of entries in the central dir on this disk */
-		if (unz64local_getShort(&us.z_filefunc, us.filestream, &uL) != UNZ_OK)
-			err = UNZ_ERRNO;
-		us.gi.number_entry = uL;
-
-		/* total number of entries in the central dir */
-		if (unz64local_getShort(&us.z_filefunc, us.filestream, &uL) != UNZ_OK)
-			err = UNZ_ERRNO;
-		number_entry_CD = uL;
-
-		if ((number_entry_CD != us.gi.number_entry) ||
-			(number_disk_with_CD != 0) ||
-			(number_disk != 0))
-			err = UNZ_BADZIPFILE;
-
-		/* size of the central directory */
-		if (unz64local_getLong(&us.z_filefunc, us.filestream, &uL) != UNZ_OK)
-			err = UNZ_ERRNO;
-		us.size_central_dir = uL;
-
-		/* offset of start of central directory with respect to the
-		starting disk number */
-		if (unz64local_getLong(&us.z_filefunc, us.filestream, &uL) != UNZ_OK)
-			err = UNZ_ERRNO;
-		us.offset_central_dir = uL;
-
-		/* zipfile comment length */
-		if (unz64local_getShort(&us.z_filefunc, us.filestream, &us.gi.size_comment) != UNZ_OK)
-			err = UNZ_ERRNO;
-	}
-
-	if ((central_pos<us.offset_central_dir + us.size_central_dir) &&
-		(err == UNZ_OK))
-		err = UNZ_BADZIPFILE;
-
-	if (err != UNZ_OK)
-	{
-		ZCLOSE64(us.z_filefunc, us.filestream);
-		return NULL;
-	}
-
-	us.byte_before_the_zipfile = central_pos -
-		(us.offset_central_dir + us.size_central_dir);
-	us.central_pos = central_pos;
-	us.pfile_in_zip_read = NULL;
-	us.encrypted = 0;
+    us.z_filefunc.zseek32_file = NULL;
+    us.z_filefunc.ztell32_file = NULL;
+    if (pzlib_filefunc64_32_def == NULL)
+        fill_fopen64_filefunc(&us.z_filefunc.zfile_func64);
+    else
+        us.z_filefunc = *pzlib_filefunc64_32_def;
+    us.is64bitOpenFunction = is64bitOpenFunction;
 
 
-	s = (unz64_s*)ALLOC(sizeof(unz64_s));
-	if (s != NULL)
-	{
-		*s = us;
-		unzGoToFirstFile((unzFile)s);
-	}
-	return (unzFile)s;
+
+    us.filestream = ZOPEN64(us.z_filefunc,
+        path,
+        ZLIB_FILEFUNC_MODE_READ |
+        ZLIB_FILEFUNC_MODE_EXISTING);
+    if (us.filestream == NULL)
+        return NULL;
+
+    char buf[100];
+    if (ZREAD64(us.z_filefunc, us.filestream, buf, 100) != 100)
+        return NULL;
+
+    central_pos = unz64local_SearchCentralDir64(&us.z_filefunc, us.filestream);
+    if (central_pos)
+    {
+        uLong uS;
+        ZPOS64_T uL64;
+
+        us.isZip64 = 1;
+
+        if (ZSEEK64(us.z_filefunc, us.filestream,
+                central_pos, ZLIB_FILEFUNC_SEEK_SET) != 0)
+            err = UNZ_ERRNO;
+
+        /* the signature, already checked */
+        if (unz64local_getLong(&us.z_filefunc, us.filestream, &uL) != UNZ_OK)
+            err = UNZ_ERRNO;
+
+        /* size of zip64 end of central directory record */
+        if (unz64local_getLong64(&us.z_filefunc, us.filestream, &uL64) != UNZ_OK)
+            err = UNZ_ERRNO;
+
+        /* version made by */
+        if (unz64local_getShort(&us.z_filefunc, us.filestream, &uS) != UNZ_OK)
+            err = UNZ_ERRNO;
+
+        /* version needed to extract */
+        if (unz64local_getShort(&us.z_filefunc, us.filestream, &uS) != UNZ_OK)
+            err = UNZ_ERRNO;
+
+        /* number of this disk */
+        if (unz64local_getLong(&us.z_filefunc, us.filestream, &number_disk) != UNZ_OK)
+            err = UNZ_ERRNO;
+
+        /* number of the disk with the start of the central directory */
+        if (unz64local_getLong(&us.z_filefunc, us.filestream, &number_disk_with_CD) != UNZ_OK)
+            err = UNZ_ERRNO;
+
+        /* total number of entries in the central directory on this disk */
+        if (unz64local_getLong64(&us.z_filefunc, us.filestream, &us.gi.number_entry) != UNZ_OK)
+            err = UNZ_ERRNO;
+
+        /* total number of entries in the central directory */
+        if (unz64local_getLong64(&us.z_filefunc, us.filestream, &number_entry_CD) != UNZ_OK)
+            err = UNZ_ERRNO;
+
+        if ((number_entry_CD != us.gi.number_entry) ||
+            (number_disk_with_CD != 0) ||
+            (number_disk != 0))
+            err = UNZ_BADZIPFILE;
+
+        /* size of the central directory */
+        if (unz64local_getLong64(&us.z_filefunc, us.filestream, &us.size_central_dir) != UNZ_OK)
+            err = UNZ_ERRNO;
+
+        /* offset of start of central directory with respect to the
+        starting disk number */
+        if (unz64local_getLong64(&us.z_filefunc, us.filestream, &us.offset_central_dir) != UNZ_OK)
+            err = UNZ_ERRNO;
+
+        us.gi.size_comment = 0;
+    }
+    else
+    {
+        central_pos = unz64local_SearchCentralDir(&us.z_filefunc, us.filestream);
+        if (central_pos == 0)
+            err = UNZ_ERRNO;
+
+        us.isZip64 = 0;
+
+        if (ZSEEK64(us.z_filefunc, us.filestream,
+                central_pos, ZLIB_FILEFUNC_SEEK_SET) != 0)
+            err = UNZ_ERRNO;
+
+        /* the signature, already checked */
+        if (unz64local_getLong(&us.z_filefunc, us.filestream, &uL) != UNZ_OK)
+            err = UNZ_ERRNO;
+
+        /* number of this disk */
+        if (unz64local_getShort(&us.z_filefunc, us.filestream, &number_disk) != UNZ_OK)
+            err = UNZ_ERRNO;
+
+        /* number of the disk with the start of the central directory */
+        if (unz64local_getShort(&us.z_filefunc, us.filestream, &number_disk_with_CD) != UNZ_OK)
+            err = UNZ_ERRNO;
+
+        /* total number of entries in the central dir on this disk */
+        if (unz64local_getShort(&us.z_filefunc, us.filestream, &uL) != UNZ_OK)
+            err = UNZ_ERRNO;
+        us.gi.number_entry = uL;
+
+        /* total number of entries in the central dir */
+        if (unz64local_getShort(&us.z_filefunc, us.filestream, &uL) != UNZ_OK)
+            err = UNZ_ERRNO;
+        number_entry_CD = uL;
+
+        if ((number_entry_CD != us.gi.number_entry) ||
+            (number_disk_with_CD != 0) ||
+            (number_disk != 0))
+            err = UNZ_BADZIPFILE;
+
+        /* size of the central directory */
+        if (unz64local_getLong(&us.z_filefunc, us.filestream, &uL) != UNZ_OK)
+            err = UNZ_ERRNO;
+        us.size_central_dir = uL;
+
+        /* offset of start of central directory with respect to the
+        starting disk number */
+        if (unz64local_getLong(&us.z_filefunc, us.filestream, &uL) != UNZ_OK)
+            err = UNZ_ERRNO;
+        us.offset_central_dir = uL;
+
+        /* zipfile comment length */
+        if (unz64local_getShort(&us.z_filefunc, us.filestream, &us.gi.size_comment) != UNZ_OK)
+            err = UNZ_ERRNO;
+    }
+
+    if ((central_pos<us.offset_central_dir + us.size_central_dir) &&
+        (err == UNZ_OK))
+        err = UNZ_BADZIPFILE;
+
+    if (err != UNZ_OK)
+    {
+        ZCLOSE64(us.z_filefunc, us.filestream);
+        return NULL;
+    }
+
+    us.byte_before_the_zipfile = central_pos -
+        (us.offset_central_dir + us.size_central_dir);
+    us.central_pos = central_pos;
+    us.pfile_in_zip_read = NULL;
+    us.encrypted = 0;
+
+
+    s = (unz64_s*)ALLOC(sizeof(unz64_s));
+    if (s != NULL)
+    {
+        *s = us;
+        unzGoToFirstFile((unzFile)s);
+    }
+    return (unzFile)s;
 }
 
 unzFile unzOpenIoFile(const void *path, zlib_filefunc64_def* pzlib_filefunc_def)
 {
-	if (pzlib_filefunc_def != NULL)
-	{
-		zlib_filefunc64_32_def zlib_filefunc64_32_def_fill;
-		zlib_filefunc64_32_def_fill.zfile_func64 = *pzlib_filefunc_def;
-		zlib_filefunc64_32_def_fill.ztell32_file = NULL;
-		zlib_filefunc64_32_def_fill.zseek32_file = NULL;
-		return unzOpenInternal(path, &zlib_filefunc64_32_def_fill, 1);
-	}
-	else
-		return unzOpenInternal(path, NULL, 1);
+    if (pzlib_filefunc_def != NULL)
+    {
+        zlib_filefunc64_32_def zlib_filefunc64_32_def_fill;
+        zlib_filefunc64_32_def_fill.zfile_func64 = *pzlib_filefunc_def;
+        zlib_filefunc64_32_def_fill.ztell32_file = NULL;
+        zlib_filefunc64_32_def_fill.zseek32_file = NULL;
+        return unzOpenInternal(path, &zlib_filefunc64_32_def_fill, 1);
+    }
+    else
+        return unzOpenInternal(path, NULL, 1);
 }
 
 unzFile unzOpenIoMem(voidpf stream, zlib_filefunc64_def* pzlib_filefunc64_def, int is64bitOpenFunction)
