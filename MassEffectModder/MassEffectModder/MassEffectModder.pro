@@ -198,6 +198,7 @@ win32 {
     # And assuming msys64 is main directory of msys2 64bit installation.
     # It should be /mingw64/lib/binutils but doesn't work in Qt env.
     QMAKE_LIBDIR += c:/msys64/mingw64/lib/binutils
+    QMAKE_CXXFLAGS += -Ic:/msys64/mingw64/include/binutils
 
     SOURCES += Exceptions/BacktraceWin.cpp
 }

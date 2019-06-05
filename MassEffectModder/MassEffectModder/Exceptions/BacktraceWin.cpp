@@ -26,7 +26,7 @@
 #include <imagehlp.h>
 #include <string>
 
-#include <binutils/bfd.h>
+#include <bfd.h>
 #include <libiberty/demangle.h>
 
 int getInfoFromModule(char *moduleFilePath, DWORD64 offset, char *sourceFile,
