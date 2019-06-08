@@ -318,7 +318,7 @@ int ProcessArguments()
     if (args.count() != 0)
     {
         QString error = "Wrong options: ";
-        for (const QString &a : args) {
+        for (const auto& a : qAsConst(args)) {
             error += a + " ";
         }
         PERROR(error + "\n");
@@ -704,15 +704,13 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        quint8 guidArray[16];
-        memset(guidArray, 0, 16);
         QByteArray array;
         if (guid.length() != 0)
         {
             for (int i = 0; i < 32; i += 2)
             {
                 bool ok;
-                guidArray[i / 2] = guid.midRef(i, 2).toInt(&ok, 16);
+                array += (quint8)guid.midRef(i, 2).toInt(&ok, 16);
                 if (!ok)
                 {
                     PERROR("Guid param is wrong!\n");
@@ -720,7 +718,10 @@ int ProcessArguments()
                     break;
                 }
             }
-            array = QByteArray(reinterpret_cast<char *>(guidArray), 16);
+        }
+        else
+        {
+            array = QUuid::createUuid().toRfc4122();
         }
         if (!tools.applyMEMSpecialModME3(gameId, input, tfcName, array, appendTfc, verify))
             errorCode = 1;

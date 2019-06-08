@@ -49,6 +49,7 @@
 #include <QStorageInfo>
 #include <QRegularExpression>
 #include <QElapsedTimer>
+#include <QUuid>
 #ifdef GUI
 #include <QApplication>
 #include <QWidget>
