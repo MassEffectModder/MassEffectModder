@@ -1117,7 +1117,7 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
                 else if (targetCompression == CompressionType::Zlib)
                 {
                     if (ZlibCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize,
-                                     forceCompressed ? -1 : 1) == -100)
+                                     forceCompressed ? 9 : 1) == -100)
                         CRASH_MSG("Out of memory!");
                 }
                 else
