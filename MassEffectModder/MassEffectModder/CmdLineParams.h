@@ -51,7 +51,7 @@ typedef enum : int
     CHECK_FOR_MARKERS,
     EXTRACT_ALL_DDS,
     EXTRACT_ALL_PNG,
-    DLC_MOD_TEXTURES,
+    COMPACT_DLC,
     UNPACK_ARCHIVE,
 #if !defined(_WIN32)
     SET_GAME_DATA_PATH,

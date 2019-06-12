@@ -53,9 +53,12 @@ int ProcessArguments()
     bool appendTfc = false;
     bool verify = false;
     bool removeEmptyMips = false;
+    bool pullTextures = false;
+    bool compressed = true;
     int thresholdValue = 128;
     int cacheAmountValue = -1;
-    QString input, output, threshold, format, tfcName, guid, path, cacheAmount, filter;
+    QString input, output, threshold, format, tfcName;
+    QString dlcName, path, cacheAmount, filter;
     CmdLineTools tools;
 
     QStringList args = QCoreApplication::arguments();
@@ -117,8 +120,8 @@ int ProcessArguments()
             cmd = CmdType::EXTRACT_ALL_DDS;
         else if (arg == "--extract-all-png")
             cmd = CmdType::EXTRACT_ALL_PNG;
-        else if (arg == "--dlc-mod-textures")
-            cmd = CmdType::DLC_MOD_TEXTURES;
+        else if (arg == "--compact-dlc")
+            cmd = CmdType::COMPACT_DLC;
         else if (arg == "--unpack-archive")
             cmd = CmdType::UNPACK_ARCHIVE;
 #if !defined(_WIN32)
@@ -275,9 +278,9 @@ int ProcessArguments()
             args.removeAt(l);
             args.removeAt(l--);
         }
-        else if (arg == "--guid" && hasValue(args, l))
+        else if (arg == "--dlc-name" && hasValue(args, l))
         {
-            guid = args[l + 1];
+            dlcName = args[l + 1];
             args.removeAt(l);
             args.removeAt(l--);
         }
@@ -312,6 +315,17 @@ int ProcessArguments()
         {
             removeEmptyMips = true;
             args.removeAt(l);
+            args.removeAt(l--);
+        }
+        else if (arg == "--pull-textures")
+        {
+            pullTextures = true;
+            args.removeAt(l);
+            args.removeAt(l--);
+        }
+        else if (arg == "--no-compression")
+        {
+            compressed = false;
             args.removeAt(l--);
         }
     }
@@ -678,7 +692,7 @@ int ProcessArguments()
         if (!tools.extractAllTextures(gameId, output, true, pccOnly, tfcOnly, tfcName))
             errorCode = 1;
         break;
-    case CmdType::DLC_MOD_TEXTURES:
+    case CmdType::COMPACT_DLC:
     {
         if (gameId == MeType::UNKNOWN_TYPE || gameId == MeType::ME1_TYPE)
         {
@@ -686,44 +700,13 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (tfcName.length() == 0)
+        if (dlcName.length() == 0)
         {
-            PERROR("TFC name param missing!\n");
+            PERROR("DLC name param missing!\n");
             errorCode = 1;
             break;
         }
-        if (!input.endsWith(".mem", Qt::CaseInsensitive))
-        {
-            PERROR("Input file is not mem!\n");
-            errorCode = 1;
-            break;
-        }
-        if (!QFile(input).exists())
-        {
-            PERROR("Input file doesn't exists! " + input + "\n");
-            errorCode = 1;
-            break;
-        }
-        QByteArray array;
-        if (guid.length() != 0)
-        {
-            for (int i = 0; i < 32; i += 2)
-            {
-                bool ok;
-                array += (quint8)guid.midRef(i, 2).toInt(&ok, 16);
-                if (!ok)
-                {
-                    PERROR("Guid param is wrong!\n");
-                    errorCode = 1;
-                    break;
-                }
-            }
-        }
-        else
-        {
-            array = QUuid::createUuid().toRfc4122();
-        }
-        if (!tools.applyMEMSpecialModME3(gameId, input, tfcName, array, appendTfc, verify))
+        if (!tools.RepackTFCInDLC(gameId, dlcName, pullTextures, compressed))
             errorCode = 1;
         break;
     }
