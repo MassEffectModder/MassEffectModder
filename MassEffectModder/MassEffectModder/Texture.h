@@ -89,8 +89,8 @@ public:
     Texture(Package &package, int exportId, const ByteBuffer &data, bool fixDim = true);
     ~Texture();
     void replaceMipMaps(const QList<TextureMipMap> &newMipMaps);
-    const ByteBuffer compressTexture(const ByteBuffer &inputData, StorageTypes type, bool repack = true);
-    const ByteBuffer decompressTexture(Stream &stream, StorageTypes type, int uncompressedSize, int compressedSize);
+    static const ByteBuffer compressTexture(const ByteBuffer &inputData, StorageTypes type, bool repack = true);
+    static const ByteBuffer decompressTexture(Stream &stream, StorageTypes type, int uncompressedSize, int compressedSize);
     TexProperty& getProperties() { return *properties; }
     uint getCrcData(ByteBuffer data);
     uint getCrcMipmap(TextureMipMap &mipmap);

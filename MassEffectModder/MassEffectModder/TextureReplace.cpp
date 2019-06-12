@@ -297,7 +297,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     else
                         mod.cacheCprMipmapsStorageType = Texture::StorageTypes::extZlib;
                     mod.cacheCprMipmapsDecompressedSize.push_back(image->getMipMaps()[m]->getRefData().size());
-                    auto data = texture.compressTexture(image->getMipMaps()[m]->getRefData(),
+                    auto data = Texture::compressTexture(image->getMipMaps()[m]->getRefData(),
                                                         mod.cacheCprMipmapsStorageType, repack);
                     mod.cacheCprMipmaps.push_back(MipMap(data, image->getMipMaps()[m]->getOrigWidth(),
                                                   image->getMipMaps()[m]->getOrigHeight(), mod.cachedPixelFormat, true));
@@ -530,7 +530,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                         else
                         {
                             MemoryStream stream(mod.cacheCprMipmaps[m].getRefData());
-                            auto mip = texture.decompressTexture(stream, mod.cacheCprMipmapsStorageType,
+                            auto mip = Texture::decompressTexture(stream, mod.cacheCprMipmapsStorageType,
                                                                  mipmap.uncompressedSize,
                                                                  mod.cacheCprMipmaps[m].getRefData().size());
                             mipmap.newData = mip;
@@ -565,7 +565,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                         else
                         {
                             MemoryStream stream(mod.cacheCprMipmaps[m].getRefData());
-                            auto mip = texture.decompressTexture(stream, mod.cacheCprMipmapsStorageType,
+                            auto mip = Texture::decompressTexture(stream, mod.cacheCprMipmapsStorageType,
                                                                  mipmap.uncompressedSize,
                                                                  mod.cacheCprMipmaps[m].getRefData().size());
                             mipmap.newData = mip;
