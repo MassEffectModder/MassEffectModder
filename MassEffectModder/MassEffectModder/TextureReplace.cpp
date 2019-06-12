@@ -371,6 +371,20 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                         mipmap.storageType = Texture::StorageTypes::pccZlib;
                 }
 
+                if (GameData::gameType == MeType::ME2_TYPE ||
+                    GameData::gameType == MeType::ME3_TYPE)
+                {
+                    if (repack && mipmap.storageType == Texture::StorageTypes::pccZlib)
+                        mipmap.storageType = Texture::StorageTypes::pccUnc;
+                    if (!repack && package.compressed && mipmap.storageType == Texture::StorageTypes::pccZlib)
+                        mipmap.storageType = Texture::StorageTypes::pccUnc;
+                    if (!repack && !package.compressed && mipmap.storageType == Texture::StorageTypes::pccUnc)
+                    {
+                        if (mipmap.width > 32 || mipmap.height > 32)
+                            mipmap.storageType = Texture::StorageTypes::pccZlib;
+                    }
+                }
+
                 if (mod.arcTexture.count() != 0)
                 {
                     if (mod.arcTexture[m].storageType != mipmap.storageType)
@@ -508,7 +522,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 }
             }
 
-            for (int m = 0; m < mod.cacheCprMipmaps.count(); m++)
+            for (int m = 0; m < mipmaps.count(); m++)
             {
                 Texture::TextureMipMap mipmap = mipmaps[m];
                 mipmap.uncompressedSize = mod.cacheCprMipmapsDecompressedSize[m];
