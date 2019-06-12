@@ -61,12 +61,10 @@ int CmdLineTools::scanTextures(MeType gameId, bool removeEmptyMips)
 
     QList<FoundTexture> textures;
     Resources resources;
-    QStringList pkgsToMarkers;
-    QStringList pkgsToRepack;
 
     resources.loadMD5Tables();
     Misc::startTimer();
-    errorCode = TreeScan::PrepareListOfTextures(gameId, resources, textures, removeEmptyMips);
+    errorCode = TreeScan::PrepareListOfTextures(gameId, resources, textures, removeEmptyMips, true);
     long elapsed = Misc::elapsedTime();
     PINFO(Misc::getTimerFormat(elapsed) + "\n");
 
@@ -1021,7 +1019,7 @@ void CmdLineTools::AddMarkers()
 bool CmdLineTools::ScanTextures(MeType gameId, Resources &resources, QList<FoundTexture> &textures)
 {
     PINFO("Scan textures started...\n");
-    TreeScan::PrepareListOfTextures(gameId, resources, textures);
+    TreeScan::PrepareListOfTextures(gameId, resources, textures, false, true);
     PINFO("Scan textures finished.\n\n");
 
     return true;

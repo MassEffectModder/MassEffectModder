@@ -228,7 +228,8 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<FoundTexture> &textures)
 }
 
 int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
-                                    QList<FoundTexture> &textures, bool removeEmptyMips)
+                                    QList<FoundTexture> &textures, bool removeEmptyMips,
+                                    bool saveMapFile)
 {
     QStringList pkgs;
     QList<MD5FileEntry> md5Entries;
@@ -254,14 +255,14 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
         QDir(path).mkpath(path);
     QString filename = path + QString("/me%1map.bin").arg((int)gameId);
 
-    if (g_ipc)
-    {
-        ConsoleWrite("[IPC]STAGE_CONTEXT STAGE_PRESCAN");
-        ConsoleSync();
-    }
-
     if (!generateBuiltinMapFiles && !g_GameData->FullScanGame)
     {
+        if (g_ipc)
+        {
+            ConsoleWrite("[IPC]STAGE_CONTEXT STAGE_PRESCAN");
+            ConsoleSync();
+        }
+
         loadTexturesMap(gameId, resources, textures);
 
         for (int k = 0; k < textures.count(); k++)
@@ -323,16 +324,16 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
         }
     }
 
+    if (g_ipc)
+    {
+        ConsoleWrite("[IPC]STAGE_CONTEXT STAGE_SCAN");
+        ConsoleSync();
+    }
+
     if (!generateBuiltinMapFiles && !g_GameData->FullScanGame)
     {
         QStringList addedFiles;
         QStringList modifiedFiles;
-
-        if (g_ipc)
-        {
-            ConsoleWrite("[IPC]STAGE_CONTEXT STAGE_SCAN");
-            ConsoleSync();
-        }
 
         for (int i = 0; i < g_GameData->packageFiles.count(); i++)
         {
@@ -541,90 +542,93 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
         }
     }
 
-    if (QFile(filename).exists())
-        QFile(filename).remove();
-
-    auto fs = FileStream(filename, FileMode::Create, FileAccess::WriteOnly);
-    MemoryStream mem;
-    mem.WriteUInt32(textureMapBinTag);
-    mem.WriteUInt32(textureMapBinVersion);
-    mem.WriteInt32(textures.count());
-
-    for (int i = 0; i < textures.count(); i++)
+    if (saveMapFile)
     {
-        const FoundTexture& texture = textures[i];
-        if (generateBuiltinMapFiles)
-            mem.WriteByte(texture.name.length());
-        else
-            mem.WriteInt32(texture.name.length());
-        mem.WriteStringASCII(texture.name);
-        mem.WriteUInt32(texture.crc);
-        if (generateBuiltinMapFiles)
-        {
-            mem.WriteInt16(texture.width);
-            mem.WriteInt16(texture.height);
-            mem.WriteByte(texture.pixfmt);
-            mem.WriteByte(texture.flags);
+        if (QFile(filename).exists())
+            QFile(filename).remove();
 
-            mem.WriteInt16(texture.list.count());
-        }
-        else
+        auto fs = FileStream(filename, FileMode::Create, FileAccess::WriteOnly);
+        MemoryStream mem;
+        mem.WriteUInt32(textureMapBinTag);
+        mem.WriteUInt32(textureMapBinVersion);
+        mem.WriteInt32(textures.count());
+
+        for (int i = 0; i < textures.count(); i++)
         {
-            mem.WriteInt32(texture.list.count());
-        }
-        for (int k = 0; k < texture.list.count(); k++)
-        {
-            const MatchedTexture& m = texture.list[k];
-            mem.WriteInt32(m.exportID);
+            const FoundTexture& texture = textures[i];
+            if (generateBuiltinMapFiles)
+                mem.WriteByte(texture.name.length());
+            else
+                mem.WriteInt32(texture.name.length());
+            mem.WriteStringASCII(texture.name);
+            mem.WriteUInt32(texture.crc);
             if (generateBuiltinMapFiles)
             {
-                if (GameData::gameType == MeType::ME1_TYPE)
-                {
-                    mem.WriteInt16(m.linkToMaster);
-                    if (m.linkToMaster != -1)
-                        mem.WriteStringASCIINull(m.basePackageName);
-                    mem.WriteUInt32(m.mipmapOffset);
-                }
-                mem.WriteByte(m.removeEmptyMips ? 1 : 0);
-                mem.WriteByte(m.numMips);
-                mem.WriteInt16(pkgs.indexOf(m.path));
+                mem.WriteInt16(texture.width);
+                mem.WriteInt16(texture.height);
+                mem.WriteByte(texture.pixfmt);
+                mem.WriteByte(texture.flags);
+
+                mem.WriteInt16(texture.list.count());
             }
             else
             {
-                mem.WriteInt32(m.linkToMaster);
-                mem.WriteInt32(m.path.length());
-                QString path = m.path;
-                mem.WriteStringASCII(path.replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive));
+                mem.WriteInt32(texture.list.count());
+            }
+            for (int k = 0; k < texture.list.count(); k++)
+            {
+                const MatchedTexture& m = texture.list[k];
+                mem.WriteInt32(m.exportID);
+                if (generateBuiltinMapFiles)
+                {
+                    if (GameData::gameType == MeType::ME1_TYPE)
+                    {
+                        mem.WriteInt16(m.linkToMaster);
+                        if (m.linkToMaster != -1)
+                            mem.WriteStringASCIINull(m.basePackageName);
+                        mem.WriteUInt32(m.mipmapOffset);
+                    }
+                    mem.WriteByte(m.removeEmptyMips ? 1 : 0);
+                    mem.WriteByte(m.numMips);
+                    mem.WriteInt16(pkgs.indexOf(m.path));
+                }
+                else
+                {
+                    mem.WriteInt32(m.linkToMaster);
+                    mem.WriteInt32(m.path.length());
+                    QString path = m.path;
+                    mem.WriteStringASCII(path.replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive));
+                }
             }
         }
-    }
-    if (!generateBuiltinMapFiles)
-    {
-        mem.WriteInt32(g_GameData->packageFiles.count());
-        for (int i = 0; i < g_GameData->packageFiles.count(); i++)
+        if (!generateBuiltinMapFiles)
         {
-            mem.WriteInt32(g_GameData->packageFiles[i].length());
-            mem.WriteStringASCII(g_GameData->packageFiles[i].replace(QChar('/'), QChar('\\')));
+            mem.WriteInt32(g_GameData->packageFiles.count());
+            for (int i = 0; i < g_GameData->packageFiles.count(); i++)
+            {
+                mem.WriteInt32(g_GameData->packageFiles[i].length());
+                mem.WriteStringASCII(g_GameData->packageFiles[i].replace(QChar('/'), QChar('\\')));
+            }
         }
-    }
-    mem.SeekBegin();
+        mem.SeekBegin();
 
-    if (generateBuiltinMapFiles)
-    {
-        fs.WriteUInt32(0x504D5443);
-        fs.WriteUInt32(mem.Length());
-        quint8 *compressed = nullptr;
-        uint compressedSize = 0;
-        ByteBuffer decompressed = mem.ToArray();
-        ZlibCompress(decompressed.ptr(), mem.Length(), &compressed, &compressedSize, 9);
-        decompressed.Free();
-        fs.WriteUInt32(compressedSize);
-        fs.WriteFromBuffer(compressed, compressedSize);
-        delete[] compressed;
-    }
-    else
-    {
-        fs.CopyFrom(mem, mem.Length());
+        if (generateBuiltinMapFiles)
+        {
+            fs.WriteUInt32(0x504D5443);
+            fs.WriteUInt32(mem.Length());
+            quint8 *compressed = nullptr;
+            uint compressedSize = 0;
+            ByteBuffer decompressed = mem.ToArray();
+            ZlibCompress(decompressed.ptr(), mem.Length(), &compressed, &compressedSize, 9);
+            decompressed.Free();
+            fs.WriteUInt32(compressedSize);
+            fs.WriteFromBuffer(compressed, compressedSize);
+            delete[] compressed;
+        }
+        else
+        {
+            fs.CopyFrom(mem, mem.Length());
+        }
     }
 
     if (removeEmptyMips)
