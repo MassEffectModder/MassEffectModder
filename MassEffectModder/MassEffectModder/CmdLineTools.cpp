@@ -1162,7 +1162,8 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool repack,
         {
             if (gameId == MeType::ME3_TYPE && unpackNeeded)
                 ConsoleWrite("[IPC]STAGE_ADD STAGE_UNPACKDLC");
-            ConsoleWrite("[IPC]STAGE_ADD STAGE_PRESCAN");
+            if (!g_GameData->FullScanGame)
+                ConsoleWrite("[IPC]STAGE_ADD STAGE_PRESCAN");
             ConsoleWrite("[IPC]STAGE_ADD STAGE_SCAN");
         }
         ConsoleWrite("[IPC]STAGE_ADD STAGE_INSTALLTEXTURES");
