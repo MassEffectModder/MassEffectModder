@@ -33,7 +33,7 @@ private:
     QString _path;
 
     void InternalInit(MeType type, ConfigIni &configIni, bool force);
-    void ScanGameFiles(bool force);
+    void ScanGameFiles(bool force, const QString &filterPath);
 
 public:
     static MeType gameType;
@@ -49,6 +49,7 @@ public:
 
     void Init(MeType type);
     void Init(MeType type, ConfigIni &configIni);
+    void Init(MeType type, ConfigIni &configIni, const QString &filterPath);
     void Init(MeType type, ConfigIni &configIni, bool force);
     QString GamePath() { return _path; }
     const QString MainData();

@@ -29,7 +29,7 @@ bool comparePath(const QString &e1, const QString &e2)
     return e1.compare(e2, Qt::CaseInsensitive) < 0;
 }
 
-void GameData::ScanGameFiles(bool force)
+void GameData::ScanGameFiles(bool force, const QString &filterPath)
 {
     if (force)
         ClosePackagesList();
@@ -100,6 +100,8 @@ void GameData::ScanGameFiles(bool force)
                             isValid = true;
                         }
                     }
+                    if (filterPath != "" && !path.contains(filterPath, Qt::CaseInsensitive))
+                        continue;
                     packages.push_back(path);
                 }
                 if (gameType == MeType::ME3_TYPE)
@@ -121,6 +123,8 @@ void GameData::ScanGameFiles(bool force)
         {
             for (int i = 0; i < packageMainFiles.count(); i++)
             {
+                if (filterPath != "" && !packageMainFiles[i].contains(filterPath, Qt::CaseInsensitive))
+                    continue;
                 if (packageMainFiles[i].endsWith(".u", Qt::CaseInsensitive) ||
                     packageMainFiles[i].endsWith(".upk", Qt::CaseInsensitive) ||
                     packageMainFiles[i].endsWith(".sfm", Qt::CaseInsensitive))
@@ -130,6 +134,8 @@ void GameData::ScanGameFiles(bool force)
             }
             for (int i = 0; i < packageDLCFiles.count(); i++)
             {
+                if (filterPath != "" && !packageDLCFiles[i].contains(filterPath, Qt::CaseInsensitive))
+                    continue;
                 if (packageDLCFiles[i].endsWith(".u", Qt::CaseInsensitive) ||
                     packageDLCFiles[i].endsWith(".upk", Qt::CaseInsensitive) ||
                     packageDLCFiles[i].endsWith(".sfm", Qt::CaseInsensitive))
@@ -142,6 +148,8 @@ void GameData::ScanGameFiles(bool force)
         {
             for (int i = 0; i < packageMainFiles.count(); i++)
             {
+                if (filterPath != "" && !packageMainFiles[i].contains(filterPath, Qt::CaseInsensitive))
+                    continue;
                 if (packageMainFiles[i].endsWith(".pcc", Qt::CaseInsensitive))
                 {
                     packageFiles += packageMainFiles[i];
@@ -149,6 +157,8 @@ void GameData::ScanGameFiles(bool force)
             }
             for (int i = 0; i < packageDLCFiles.count(); i++)
             {
+                if (filterPath != "" && !packageDLCFiles[i].contains(filterPath, Qt::CaseInsensitive))
+                    continue;
                 if (packageDLCFiles[i].endsWith(".pcc", Qt::CaseInsensitive))
                 {
                     packageFiles += packageDLCFiles[i];
@@ -207,14 +217,22 @@ void GameData::Init(MeType type)
 void GameData::Init(MeType type, ConfigIni &configIni)
 {
     InternalInit(type, configIni, false);
+    ScanGameFiles(false, "");
+}
+
+void GameData::Init(MeType type, ConfigIni &configIni, const QString &filterPath)
+{
+    InternalInit(type, configIni, false);
+    ScanGameFiles(false, filterPath);
 }
 
 void GameData::Init(MeType type, ConfigIni &configIni, bool force = false)
 {
     InternalInit(type, configIni, force);
+    ScanGameFiles(force, "");
 }
 
-void GameData::InternalInit(MeType type, ConfigIni &configIni, bool force = false)
+void GameData::InternalInit(MeType type, ConfigIni &configIni, bool force)
 {
     gameType = type;
 
@@ -225,7 +243,6 @@ void GameData::InternalInit(MeType type, ConfigIni &configIni, bool force = fals
         _path = QDir::cleanPath(path);
         if (QFile(GameExePath()).exists())
         {
-            ScanGameFiles(force);
             return;
         }
         _path = "";
@@ -251,7 +268,6 @@ void GameData::InternalInit(MeType type, ConfigIni &configIni, bool force = fals
         if (QFile(GameExePath()).exists())
         {
             configIni.Write(key, _path.replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameDataPath");
-            ScanGameFiles(force);
             return;
         }
         _path = "";
@@ -266,7 +282,6 @@ void GameData::InternalInit(MeType type, ConfigIni &configIni, bool force = fals
 #else
         configIni.Write(key, _path, "GameDataPath");
 #endif
-        ScanGameFiles(force);
     }
 }
 
