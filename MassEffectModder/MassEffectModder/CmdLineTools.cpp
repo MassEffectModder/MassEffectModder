@@ -1760,7 +1760,7 @@ bool CmdLineTools::RepackTFCInDLC(MeType gameId, QString &dlcName, bool pullText
                 buffer.Free();
             }
         }
-        if (!package.SaveToFile(compressed, !compressed))
+        if (!package.SaveToFile(compressed, !compressed, false))
         {
             if (g_ipc)
             {
