@@ -1694,22 +1694,16 @@ bool CmdLineTools::RepackTFCInDLC(MeType gameId, QString &dlcName, bool pullText
                 if (mipmap.storageType == Texture::StorageTypes::extZlib ||
                     mipmap.storageType == Texture::StorageTypes::pccZlib)
                 {
-                    if (compactTFC && mipmap.storageType == Texture::StorageTypes::extZlib)
-                    {
-                        mipmap.newData = Texture::compressTexture(data, mipmap.storageType, true);
-                        mipmap.compressedSize = mipmap.newData.size();
-                        mipmap.freeNewData = true;
-                    }
+                    mipmap.newData = Texture::compressTexture(data, mipmap.storageType, true);
+                    mipmap.compressedSize = mipmap.newData.size();
+                    mipmap.freeNewData = true;
                 }
                 if (mipmap.storageType == Texture::StorageTypes::pccUnc ||
                     mipmap.storageType == Texture::StorageTypes::extUnc)
                 {
-                    if (compactTFC && mipmap.storageType == Texture::StorageTypes::extUnc)
-                    {
-                        mipmap.compressedSize = mipmap.uncompressedSize;
-                        mipmap.newData = ByteBuffer(data.ptr(), data.size());
-                        mipmap.freeNewData = true;
-                    }
+                    mipmap.compressedSize = mipmap.uncompressedSize;
+                    mipmap.newData = ByteBuffer(data.ptr(), data.size());
+                    mipmap.freeNewData = true;
                 }
                 if (mipmap.storageType == Texture::StorageTypes::extZlib ||
                     mipmap.storageType == Texture::StorageTypes::extLZO ||
