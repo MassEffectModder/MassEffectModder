@@ -376,9 +376,13 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 {
                     if (repack && mipmap.storageType == Texture::StorageTypes::pccZlib)
                         mipmap.storageType = Texture::StorageTypes::pccUnc;
-                    if (!repack && package.compressed && mipmap.storageType == Texture::StorageTypes::pccZlib)
+                    if (!repack && package.compressionType != Package::CompressionType::None &&
+                        mipmap.storageType == Texture::StorageTypes::pccZlib)
+                    {
                         mipmap.storageType = Texture::StorageTypes::pccUnc;
-                    if (!repack && !package.compressed && mipmap.storageType == Texture::StorageTypes::pccUnc)
+                    }
+                    if (!repack && package.compressionType == Package::CompressionType::None &&
+                        mipmap.storageType == Texture::StorageTypes::pccUnc)
                     {
                         if (mipmap.width > 32 || mipmap.height > 32)
                             mipmap.storageType = Texture::StorageTypes::pccZlib;

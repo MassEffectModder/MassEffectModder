@@ -50,7 +50,6 @@ int ProcessArguments()
     bool limit2k = false;
     bool pccOnly = false;
     bool tfcOnly = false;
-    bool appendTfc = false;
     bool verify = false;
     bool removeEmptyMips = false;
     bool pullTextures = false;
@@ -269,12 +268,6 @@ int ProcessArguments()
                 return -1;
             }
             tfcName = args[l + 1];
-            args.removeAt(l);
-            args.removeAt(l--);
-        }
-        else if (arg == "--append-tfc")
-        {
-            appendTfc = true;
             args.removeAt(l);
             args.removeAt(l--);
         }
