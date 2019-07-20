@@ -1682,48 +1682,51 @@ bool CmdLineTools::RepackTFCInDLC(MeType gameId, QString &dlcName, bool pullText
                 auto mipmap = texture.mipMapsList[m];
                 auto data = texture.getMipMapDataByIndex(m);
 
-                if (compactTFC && !compressed && mipmap.storageType == Texture::StorageTypes::extZlib)
+                if (compactTFC && !compressed &&
+                   (mipmap.storageType == Texture::StorageTypes::extZlib ||
+                    mipmap.storageType == Texture::StorageTypes::extLZO))
+                {
                     mipmap.storageType = Texture::StorageTypes::extUnc;
-                if (!compressed && mipmap.storageType == Texture::StorageTypes::pccZlib)
-                    mipmap.storageType = Texture::StorageTypes::pccUnc;
-                if (compactTFC && compressed && mipmap.storageType == Texture::StorageTypes::extUnc)
+                }
+                if (compactTFC && compressed &&
+                    mipmap.storageType == Texture::StorageTypes::extUnc)
+                {
                     mipmap.storageType = Texture::StorageTypes::extZlib;
-                if (compressed && mipmap.storageType == Texture::StorageTypes::pccZlib)
+                }
+                if (mipmap.storageType == Texture::StorageTypes::pccZlib ||
+                    mipmap.storageType == Texture::StorageTypes::pccLZO)
+                {
                     mipmap.storageType = Texture::StorageTypes::pccUnc;
+                }
 
-                if (mipmap.storageType == Texture::StorageTypes::extZlib ||
+                if ((compactTFC && mipmap.storageType == Texture::StorageTypes::extZlib) ||
                     mipmap.storageType == Texture::StorageTypes::pccZlib)
                 {
                     mipmap.newData = Texture::compressTexture(data, mipmap.storageType, true);
                     mipmap.compressedSize = mipmap.newData.size();
                     mipmap.freeNewData = true;
                 }
-                if (mipmap.storageType == Texture::StorageTypes::pccUnc ||
-                    mipmap.storageType == Texture::StorageTypes::extUnc)
+                if ((compactTFC && mipmap.storageType == Texture::StorageTypes::extUnc) ||
+                    mipmap.storageType == Texture::StorageTypes::pccUnc)
                 {
                     mipmap.compressedSize = mipmap.uncompressedSize;
                     mipmap.newData = ByteBuffer(data.ptr(), data.size());
                     mipmap.freeNewData = true;
                 }
-                if (mipmap.storageType == Texture::StorageTypes::extZlib ||
+                if (compactTFC &&
+                   (mipmap.storageType == Texture::StorageTypes::extZlib ||
                     mipmap.storageType == Texture::StorageTypes::extLZO ||
-                    mipmap.storageType == Texture::StorageTypes::extUnc)
+                    mipmap.storageType == Texture::StorageTypes::extUnc))
                 {
-                    if (compactTFC)
+                    if (!QFile(DLCArchiveFileNew).exists())
                     {
-                        if (!QFile(DLCArchiveFileNew).exists())
-                        {
-                            FileStream fs = FileStream(DLCArchiveFileNew, FileMode::Create, FileAccess::WriteOnly);
-                            fs.WriteFromBuffer(guid);
-                        }
-                        FileStream fs = FileStream(DLCArchiveFileNew, FileMode::Open, FileAccess::ReadWrite);
-                        fs.SeekEnd();
-                        mipmap.dataOffset = (uint)fs.Position();
-                        fs.WriteFromBuffer(mipmap.newData);
-
-                        texture.getProperties().setNameValue("TextureFileCacheName", "Textures_" + dlcName);
-                        texture.getProperties().setStructValue("TFCFileGuid", "Guid", guid);
+                        FileStream fs = FileStream(DLCArchiveFileNew, FileMode::Create, FileAccess::WriteOnly);
+                        fs.WriteFromBuffer(guid);
                     }
+                    FileStream fs = FileStream(DLCArchiveFileNew, FileMode::Open, FileAccess::ReadWrite);
+                    fs.SeekEnd();
+                    mipmap.dataOffset = (uint)fs.Position();
+                    fs.WriteFromBuffer(mipmap.newData);
                 }
                 data.Free();
                 mipmaps.push_back(mipmap);
@@ -1731,6 +1734,12 @@ bool CmdLineTools::RepackTFCInDLC(MeType gameId, QString &dlcName, bool pullText
                     break;
             }
             texture.replaceMipMaps(mipmaps);
+
+            if (compactTFC)
+            {
+                texture.getProperties().setNameValue("TextureFileCacheName", "Textures_" + dlcName);
+                texture.getProperties().setStructValue("TFCFileGuid", "Guid", guid);
+            }
 
             {
                 MemoryStream newData;
