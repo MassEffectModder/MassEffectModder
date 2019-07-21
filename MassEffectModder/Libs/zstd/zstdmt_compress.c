@@ -22,6 +22,7 @@
 /* ======   Dependencies   ====== */
 #include <string.h>      /* memcpy, memset */
 #include <limits.h>      /* INT_MAX, UINT_MAX */
+#include "mem.h"         /* MEM_STATIC */
 #include "pool.h"        /* threadpool */
 #include "threading.h"   /* mutex */
 #include "zstd_compress_internal.h"  /* MIN, ERROR, ZSTD_*, ZSTD_highbit32 */
@@ -456,7 +457,7 @@ typedef struct {
      * Must be acquired after the main mutex when acquiring both.
      */
     ZSTD_pthread_mutex_t ldmWindowMutex;
-    ZSTD_pthread_cond_t ldmWindowCond;  /* Signaled when ldmWindow is udpated */
+    ZSTD_pthread_cond_t ldmWindowCond;  /* Signaled when ldmWindow is updated */
     ZSTD_window_t ldmWindow;  /* A thread-safe copy of ldmState.window */
 } serialState_t;
 
@@ -647,7 +648,7 @@ static void ZSTDMT_compressionJob(void* jobDescription)
     buffer_t dstBuff = job->dstBuff;
     size_t lastCBlockSize = 0;
 
-    /* ressources */
+    /* resources */
     if (cctx==NULL) JOB_ERROR(ERROR(memory_allocation));
     if (dstBuff.start == NULL) {   /* streaming job : doesn't provide a dstBuffer */
         dstBuff = ZSTDMT_getBuffer(job->bufPool);
@@ -867,7 +868,7 @@ size_t ZSTDMT_CCtxParam_setNbWorkers(ZSTD_CCtx_params* params, unsigned nbWorker
     return ZSTD_CCtxParams_setParameter(params, ZSTD_c_nbWorkers, (int)nbWorkers);
 }
 
-ZSTDMT_CCtx* ZSTDMT_createCCtx_advanced(unsigned nbWorkers, ZSTD_customMem cMem)
+MEM_STATIC ZSTDMT_CCtx* ZSTDMT_createCCtx_advanced_internal(unsigned nbWorkers, ZSTD_customMem cMem)
 {
     ZSTDMT_CCtx* mtctx;
     U32 nbJobs = nbWorkers + 2;
@@ -900,6 +901,17 @@ ZSTDMT_CCtx* ZSTDMT_createCCtx_advanced(unsigned nbWorkers, ZSTD_customMem cMem)
     }
     DEBUGLOG(3, "mt_cctx created, for %u threads", nbWorkers);
     return mtctx;
+}
+
+ZSTDMT_CCtx* ZSTDMT_createCCtx_advanced(unsigned nbWorkers, ZSTD_customMem cMem)
+{
+#ifdef ZSTD_MULTITHREAD
+    return ZSTDMT_createCCtx_advanced_internal(nbWorkers, cMem);
+#else
+    (void)nbWorkers;
+    (void)cMem;
+    return NULL;
+#endif
 }
 
 ZSTDMT_CCtx* ZSTDMT_createCCtx(unsigned nbWorkers)
@@ -1117,9 +1129,14 @@ size_t ZSTDMT_toFlushNow(ZSTDMT_CCtx* mtctx)
             size_t const produced = ZSTD_isError(cResult) ? 0 : cResult;
             size_t const flushed = ZSTD_isError(cResult) ? 0 : jobPtr->dstFlushed;
             assert(flushed <= produced);
+            assert(jobPtr->consumed <= jobPtr->src.size);
             toFlush = produced - flushed;
-            if (toFlush==0 && (jobPtr->consumed >= jobPtr->src.size)) {
-                /* doneJobID is not-fully-flushed, but toFlush==0 : doneJobID should be compressing some more data */
+            /* if toFlush==0, nothing is available to flush.
+             * However, jobID is expected to still be active:
+             * if jobID was already completed and fully flushed,
+             * ZSTDMT_flushProduced() should have already moved onto next job.
+             * Therefore, some input has not yet been consumed. */
+            if (toFlush==0) {
                 assert(jobPtr->consumed < jobPtr->src.size);
             }
         }
@@ -1136,12 +1153,16 @@ size_t ZSTDMT_toFlushNow(ZSTDMT_CCtx* mtctx)
 
 static unsigned ZSTDMT_computeTargetJobLog(ZSTD_CCtx_params const params)
 {
-    if (params.ldmParams.enableLdm)
+    unsigned jobLog;
+    if (params.ldmParams.enableLdm) {
         /* In Long Range Mode, the windowLog is typically oversized.
          * In which case, it's preferable to determine the jobSize
          * based on chainLog instead. */
-        return MAX(21, params.cParams.chainLog + 4);
-    return MAX(20, params.cParams.windowLog + 2);
+        jobLog = MAX(21, params.cParams.chainLog + 4);
+    } else {
+        jobLog = MAX(20, params.cParams.windowLog + 2);
+    }
+    return MIN(jobLog, (unsigned)ZSTDMT_JOBLOG_MAX);
 }
 
 static int ZSTDMT_overlapLog_default(ZSTD_strategy strat)
@@ -1185,7 +1206,7 @@ static size_t ZSTDMT_computeOverlapSize(ZSTD_CCtx_params const params)
         ovLog = MIN(params.cParams.windowLog, ZSTDMT_computeTargetJobLog(params) - 2)
                 - overlapRLog;
     }
-    assert(0 <= ovLog && ovLog <= 30);
+    assert(0 <= ovLog && ovLog <= ZSTD_WINDOWLOG_MAX);
     DEBUGLOG(4, "overlapLog : %i", params.overlapLog);
     DEBUGLOG(4, "overlap size : %i", 1 << ovLog);
     return (ovLog==0) ? 0 : (size_t)1 << ovLog;
@@ -1379,7 +1400,7 @@ size_t ZSTDMT_initCStream_internal(
         FORWARD_IF_ERROR( ZSTDMT_resize(mtctx, params.nbWorkers) );
 
     if (params.jobSize != 0 && params.jobSize < ZSTDMT_JOBSIZE_MIN) params.jobSize = ZSTDMT_JOBSIZE_MIN;
-    if (params.jobSize > (size_t)ZSTDMT_JOBSIZE_MAX) params.jobSize = ZSTDMT_JOBSIZE_MAX;
+    if (params.jobSize > (size_t)ZSTDMT_JOBSIZE_MAX) params.jobSize = (size_t)ZSTDMT_JOBSIZE_MAX;
 
     mtctx->singleBlockingThread = (pledgedSrcSize <= ZSTDMT_JOBSIZE_MIN);  /* do not trigger multi-threading when srcSize is too small */
     if (mtctx->singleBlockingThread) {
@@ -1420,6 +1441,8 @@ size_t ZSTDMT_initCStream_internal(
     if (mtctx->targetSectionSize == 0) {
         mtctx->targetSectionSize = 1ULL << ZSTDMT_computeTargetJobLog(params);
     }
+    assert(mtctx->targetSectionSize <= (size_t)ZSTDMT_JOBSIZE_MAX);
+
     if (params.rsyncable) {
         /* Aim for the targetsectionSize as the average job size. */
         U32 const jobSizeMB = (U32)(mtctx->targetSectionSize >> 20);
@@ -1527,7 +1550,7 @@ size_t ZSTDMT_initCStream(ZSTDMT_CCtx* mtctx, int compressionLevel) {
 /* ZSTDMT_writeLastEmptyBlock()
  * Write a single empty block with an end-of-frame to finish a frame.
  * Job must be created from streaming variant.
- * This function is always successfull if expected conditions are fulfilled.
+ * This function is always successful if expected conditions are fulfilled.
  */
 static void ZSTDMT_writeLastEmptyBlock(ZSTDMT_jobDescription* job)
 {
@@ -1967,7 +1990,7 @@ size_t ZSTDMT_compressStream_generic(ZSTDMT_CCtx* mtctx,
     assert(input->pos  <= input->size);
 
     if (mtctx->singleBlockingThread) {  /* delegate to single-thread (synchronous) */
-        return ZSTD_compressStream_generic(mtctx->cctxPool->cctx[0], output, input, endOp);
+        return ZSTD_compressStream2(mtctx->cctxPool->cctx[0], output, input, endOp);
     }
 
     if ((mtctx->frameEnded) && (endOp==ZSTD_e_continue)) {

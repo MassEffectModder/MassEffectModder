@@ -505,7 +505,7 @@ size_t ZSTD_decodeSeqHeaders(ZSTD_DCtx* dctx, int* nbSeqPtr,
     *nbSeqPtr = nbSeq;
 
     /* FSE table descriptors */
-    RETURN_ERROR_IF(ip+4 > iend, srcSize_wrong); /* minimum possible size */
+    RETURN_ERROR_IF(ip+1 > iend, srcSize_wrong); /* minimum possible size: 1 byte for symbol encoding types */
     {   symbolEncodingType_e const LLtype = (symbolEncodingType_e)(*ip >> 6);
         symbolEncodingType_e const OFtype = (symbolEncodingType_e)((*ip >> 4) & 3);
         symbolEncodingType_e const MLtype = (symbolEncodingType_e)((*ip >> 2) & 3);
@@ -637,9 +637,10 @@ size_t ZSTD_execSequence(BYTE* op,
     if (oLitEnd>oend_w) return ZSTD_execSequenceLast7(op, oend, sequence, litPtr, litLimit, prefixStart, virtualStart, dictEnd);
 
     /* copy Literals */
-    ZSTD_copy8(op, *litPtr);
     if (sequence.litLength > 8)
-        ZSTD_wildcopy(op+8, (*litPtr)+8, sequence.litLength - 8);   /* note : since oLitEnd <= oend-WILDCOPY_OVERLENGTH, no risk of overwrite beyond oend */
+        ZSTD_wildcopy_16min(op, (*litPtr), sequence.litLength, ZSTD_no_overlap);   /* note : since oLitEnd <= oend-WILDCOPY_OVERLENGTH, no risk of overwrite beyond oend */
+    else
+        ZSTD_copy8(op, *litPtr);
     op = oLitEnd;
     *litPtr = iLitEnd;   /* update for next sequence */
 
@@ -686,13 +687,13 @@ size_t ZSTD_execSequence(BYTE* op,
 
     if (oMatchEnd > oend-(16-MINMATCH)) {
         if (op < oend_w) {
-            ZSTD_wildcopy(op, match, oend_w - op);
+            ZSTD_wildcopy(op, match, oend_w - op, ZSTD_overlap_src_before_dst);
             match += oend_w - op;
             op = oend_w;
         }
         while (op < oMatchEnd) *op++ = *match++;
     } else {
-        ZSTD_wildcopy(op, match, (ptrdiff_t)sequence.matchLength-8);   /* works even if matchLength < 8 */
+        ZSTD_wildcopy(op, match, (ptrdiff_t)sequence.matchLength-8, ZSTD_overlap_src_before_dst);   /* works even if matchLength < 8 */
     }
     return sequenceLength;
 }
@@ -717,9 +718,11 @@ size_t ZSTD_execSequenceLong(BYTE* op,
     if (oLitEnd > oend_w) return ZSTD_execSequenceLast7(op, oend, sequence, litPtr, litLimit, prefixStart, dictStart, dictEnd);
 
     /* copy Literals */
-    ZSTD_copy8(op, *litPtr);  /* note : op <= oLitEnd <= oend_w == oend - 8 */
     if (sequence.litLength > 8)
-        ZSTD_wildcopy(op+8, (*litPtr)+8, sequence.litLength - 8);   /* note : since oLitEnd <= oend-WILDCOPY_OVERLENGTH, no risk of overwrite beyond oend */
+        ZSTD_wildcopy_16min(op, *litPtr, sequence.litLength, ZSTD_no_overlap);   /* note : since oLitEnd <= oend-WILDCOPY_OVERLENGTH, no risk of overwrite beyond oend */
+    else
+        ZSTD_copy8(op, *litPtr);  /* note : op <= oLitEnd <= oend_w == oend - 8 */
+
     op = oLitEnd;
     *litPtr = iLitEnd;   /* update for next sequence */
 
@@ -766,13 +769,13 @@ size_t ZSTD_execSequenceLong(BYTE* op,
 
     if (oMatchEnd > oend-(16-MINMATCH)) {
         if (op < oend_w) {
-            ZSTD_wildcopy(op, match, oend_w - op);
+            ZSTD_wildcopy(op, match, oend_w - op, ZSTD_overlap_src_before_dst);
             match += oend_w - op;
             op = oend_w;
         }
         while (op < oMatchEnd) *op++ = *match++;
     } else {
-        ZSTD_wildcopy(op, match, (ptrdiff_t)sequence.matchLength-8);   /* works even if matchLength < 8 */
+        ZSTD_wildcopy(op, match, (ptrdiff_t)sequence.matchLength-8, ZSTD_overlap_src_before_dst);   /* works even if matchLength < 8 */
     }
     return sequenceLength;
 }
@@ -801,7 +804,7 @@ ZSTD_updateFseState(ZSTD_fseState* DStatePtr, BIT_DStream_t* bitD)
 /* We need to add at most (ZSTD_WINDOWLOG_MAX_32 - 1) bits to read the maximum
  * offset bits. But we can only read at most (STREAM_ACCUMULATOR_MIN_32 - 1)
  * bits before reloading. This value is the maximum number of bytes we read
- * after reloading when we are decoding long offets.
+ * after reloading when we are decoding long offsets.
  */
 #define LONG_OFFSETS_MAX_EXTRA_BITS_32                       \
     (ZSTD_WINDOWLOG_MAX_32 > STREAM_ACCUMULATOR_MIN_32       \
@@ -889,6 +892,7 @@ ZSTD_decodeSequence(seqState_t* seqState, const ZSTD_longOffset_e longOffsets)
 }
 
 FORCE_INLINE_TEMPLATE size_t
+DONT_VECTORIZE
 ZSTD_decompressSequences_body( ZSTD_DCtx* dctx,
                                void* dst, size_t maxDstSize,
                          const void* seqStart, size_t seqSize, int nbSeq,
@@ -918,6 +922,11 @@ ZSTD_decompressSequences_body( ZSTD_DCtx* dctx,
         ZSTD_initFseState(&seqState.stateOffb, &seqState.DStream, dctx->OFTptr);
         ZSTD_initFseState(&seqState.stateML, &seqState.DStream, dctx->MLTptr);
 
+        ZSTD_STATIC_ASSERT(
+                BIT_DStream_unfinished < BIT_DStream_completed &&
+                BIT_DStream_endOfBuffer < BIT_DStream_completed &&
+                BIT_DStream_completed < BIT_DStream_overflow);
+
         for ( ; (BIT_reloadDStream(&(seqState.DStream)) <= BIT_DStream_completed) && nbSeq ; ) {
             nbSeq--;
             {   seq_t const sequence = ZSTD_decodeSequence(&seqState, isLongOffset);
@@ -930,6 +939,7 @@ ZSTD_decompressSequences_body( ZSTD_DCtx* dctx,
         /* check if reached exact end */
         DEBUGLOG(5, "ZSTD_decompressSequences_body: after decode loop, remaining nbSeq : %i", nbSeq);
         RETURN_ERROR_IF(nbSeq, corruption_detected);
+        RETURN_ERROR_IF(BIT_reloadDStream(&seqState.DStream) < BIT_DStream_completed, corruption_detected);
         /* save reps for next block */
         { U32 i; for (i=0; i<ZSTD_REP_NUM; i++) dctx->entropy.rep[i] = (U32)(seqState.prevOffset[i]); }
     }
@@ -1131,6 +1141,7 @@ ZSTD_decompressSequencesLong_default(ZSTD_DCtx* dctx,
 
 #ifndef ZSTD_FORCE_DECOMPRESS_SEQUENCES_LONG
 static TARGET_ATTRIBUTE("bmi2") size_t
+DONT_VECTORIZE
 ZSTD_decompressSequences_bmi2(ZSTD_DCtx* dctx,
                                  void* dst, size_t maxDstSize,
                            const void* seqStart, size_t seqSize, int nbSeq,
@@ -1180,7 +1191,7 @@ ZSTD_decompressSequences(ZSTD_DCtx* dctx, void* dst, size_t maxDstSize,
 /* ZSTD_decompressSequencesLong() :
  * decompression function triggered when a minimum share of offsets is considered "long",
  * aka out of cache.
- * note : "long" definition seems overloaded here, sometimes meaning "wider than bitstream register", and sometimes mearning "farther than memory cache distance".
+ * note : "long" definition seems overloaded here, sometimes meaning "wider than bitstream register", and sometimes meaning "farther than memory cache distance".
  * This function will try to mitigate main memory latency through the use of prefetching */
 static size_t
 ZSTD_decompressSequencesLong(ZSTD_DCtx* dctx,
