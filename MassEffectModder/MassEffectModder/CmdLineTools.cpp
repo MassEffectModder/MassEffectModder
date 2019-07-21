@@ -1699,8 +1699,10 @@ bool CmdLineTools::RepackTFCInDLC(MeType gameId, QString &dlcName, bool pullText
                     mipmap.storageType = Texture::StorageTypes::pccUnc;
                 }
 
-                if ((compactTFC && mipmap.storageType == Texture::StorageTypes::extZlib) ||
-                    mipmap.storageType == Texture::StorageTypes::pccZlib)
+                if ((compactTFC && (mipmap.storageType == Texture::StorageTypes::extZlib ||
+                                    mipmap.storageType == Texture::StorageTypes::extLZO)) ||
+                   (mipmap.storageType == Texture::StorageTypes::pccZlib ||
+                    mipmap.storageType == Texture::StorageTypes::pccLZO))
                 {
                     mipmap.newData = Texture::compressTexture(data, mipmap.storageType, true);
                     mipmap.compressedSize = mipmap.newData.size();
