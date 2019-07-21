@@ -486,7 +486,8 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
             mipMapData = decompressTexture(dynamic_cast<Stream &>(*textureData), mipmap.storageType, mipmap.uncompressedSize, mipmap.compressedSize);
             if (mipMapData.ptr() == nullptr)
             {
-                PERROR(QString("StorageType: ") + QString::number(mipmap.storageType) +
+                PERROR(QString("Package: ") + packagePath +
+                    "\nStorageType: " + QString::number(mipmap.storageType) +
                     "\nExport Id: " + QString::number(dataExportId) + "\n" +
                     "\nInternal offset: " + QString::number(mipmap.internalOffset) + "\n");
             }
@@ -559,7 +560,8 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
                 {
                     PERROR(QString("File no found: " + filename + "\n"));
                 }
-                PERROR("StorageType: " + QString::number(mipmap.storageType) +
+                PERROR(QString("Package: ") + packagePath +
+                       "\nStorageType: " + QString::number(mipmap.storageType) +
                        "\nExport Id: " + QString::number(dataExportId) + "\n" +
                        "\nExternal file offset: " + QString::number(mipmap.dataOffset) + "\n");
                 return ByteBuffer();
@@ -572,6 +574,7 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
                 if (mipMapData.ptr() == nullptr)
                 {
                     PERROR(QString("File: ") + filename +
+                        "\nPackage: " + packagePath +
                         "\nStorageType: " + QString::number(mipmap.storageType) +
                         "\nExport Id: " + QString::number(dataExportId) + "\n" +
                         "\nExternal file offset: " + QString::number(mipmap.dataOffset) + "\n");
