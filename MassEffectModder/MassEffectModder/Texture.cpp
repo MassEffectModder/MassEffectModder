@@ -486,9 +486,9 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
             mipMapData = decompressTexture(dynamic_cast<Stream &>(*textureData), mipmap.storageType, mipmap.uncompressedSize, mipmap.compressedSize);
             if (mipMapData.ptr() == nullptr)
             {
-                PERROR(QString("Package: ") + packagePath +
+                PERROR(QString("\nPackage: ") + packagePath +
                     "\nStorageType: " + QString::number(mipmap.storageType) +
-                    "\nExport Id: " + QString::number(dataExportId) + "\n" +
+                    "\nExport Id: " + QString::number(dataExportId + 1) +
                     "\nInternal offset: " + QString::number(mipmap.internalOffset) + "\n");
             }
             break;
@@ -560,9 +560,9 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
                 {
                     PERROR(QString("File no found: " + filename + "\n"));
                 }
-                PERROR(QString("Package: ") + packagePath +
+                PERROR(QString("\nPackage: ") + packagePath +
                        "\nStorageType: " + QString::number(mipmap.storageType) +
-                       "\nExport Id: " + QString::number(dataExportId) + "\n" +
+                       "\nExport Id: " + QString::number(dataExportId + 1) +
                        "\nExternal file offset: " + QString::number(mipmap.dataOffset) + "\n");
                 return ByteBuffer();
             }
@@ -573,10 +573,10 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
                 mipMapData = decompressTexture(dynamic_cast<Stream &>(fs), mipmap.storageType, mipmap.uncompressedSize, mipmap.compressedSize);
                 if (mipMapData.ptr() == nullptr)
                 {
-                    PERROR(QString("File: ") + filename +
+                    PERROR(QString("\nFile: ") + filename +
                         "\nPackage: " + packagePath +
                         "\nStorageType: " + QString::number(mipmap.storageType) +
-                        "\nExport Id: " + QString::number(dataExportId) + "\n" +
+                        "\nExport Id: " + QString::number(dataExportId + 1) +
                         "\nExternal file offset: " + QString::number(mipmap.dataOffset) + "\n");
                     return ByteBuffer();
                 }
