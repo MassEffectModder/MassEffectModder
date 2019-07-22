@@ -188,7 +188,7 @@ void DisplayHelp()
         "     Or option: --tfc-only to extract only textures stored in TFC files.\n" \
         "     Textures are extracted with only top mipmap.\n" \
         "\n" \
-        "  --compact-dlc --gameid <game id> --dlc-name <DLC name> --pull-textures --no-compression\n" \
+        "  --compact-dlc --gameid <game id> --dlc-name <DLC name> [--pull-textures] [--no-compression] [--ipc]\n" \
         "     Compact textures in TFC, repack textures according compression flag.\n" \
         "     DLC name is DLC folder name.\n" \
         "     Pull textures option make DLC as standalone, not depend on external TFC files.\n" \
