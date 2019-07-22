@@ -377,7 +377,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     if (repack && mipmap.storageType == Texture::StorageTypes::pccZlib)
                         mipmap.storageType = Texture::StorageTypes::pccUnc;
                     if (!repack && package.compressionType != Package::CompressionType::None &&
-                        mipmap.storageType == Texture::StorageTypes::pccZlib)
+                        (mipmap.storageType == Texture::StorageTypes::pccZlib ||
+                         mipmap.storageType == Texture::StorageTypes::pccLZO))
                     {
                         mipmap.storageType = Texture::StorageTypes::pccUnc;
                     }
