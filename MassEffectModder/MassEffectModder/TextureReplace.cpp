@@ -156,6 +156,92 @@ void MipMaps::AddMissingLowerMips(Image *image, Texture *texture)
     }
 }
 
+bool MipMaps::VerifyTextures(QList<FoundTexture> &textures)
+{
+    bool errors = false;
+    int lastProgress = -1;
+
+    for (int k = 0; k < textures.count(); k++)
+    {
+        if (g_ipc)
+        {
+            int newProgress = (k + 1) * 100 / textures.count();
+            if (lastProgress != newProgress)
+            {
+                ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + QString::number(newProgress));
+                lastProgress = newProgress;
+            }
+            ConsoleSync();
+        }
+        for (int t = 0; t < textures[k].list.count(); t++)
+        {
+            FoundTexture foundTexture = textures[k];
+            if (textures[k].list[t].path.length() == 0)
+                continue;
+            MatchedTexture matchedTexture = textures[k].list[t];
+            if (matchedTexture.crcs.count() != 0)
+            {
+                if (!g_ipc)
+                {
+                    PINFO(QString("Texture: ") + foundTexture.name + " in " + matchedTexture.path + "\n");
+                }
+                Package package{};
+                if (package.Open(g_GameData->GamePath() + matchedTexture.path) != 0)
+                {
+                    auto exportData = package.getExportData(matchedTexture.exportID);
+                    if (exportData.ptr() == nullptr)
+                    {
+                        if (g_ipc)
+                        {
+                            ConsoleWrite(QString("[IPC]ERROR Texture ") + foundTexture.name +
+                                         " has broken export data in package: " +
+                                         matchedTexture.path + "Export Id: " +
+                                         QString::number(matchedTexture.exportID + 1) + " Skipping...");
+                            ConsoleSync();
+                        }
+                        else
+                        {
+                            PERROR(QString("Error: Texture ") + foundTexture.name +
+                                   " has broken export data in package: " +
+                                   matchedTexture.path + "\nExport Id: " +
+                                   QString::number(matchedTexture.exportID + 1) + "\nSkipping...\n");
+                        }
+                        errors = true;
+                        continue;
+                    }
+                    Texture texture = Texture(package, matchedTexture.exportID, exportData);
+                    exportData.Free();
+                    for (int m = 0; m < matchedTexture.crcs.count(); m++)
+                    {
+                        if (matchedTexture.crcs[m] != texture.getCrcData(texture.getMipMapDataByIndex(m)))
+                        {
+                            if (g_ipc)
+                            {
+                                ConsoleWrite(QString("[IPC]ERROR Texture ") + foundTexture.name +
+                                             " CRC does not match, mipmap: " +
+                                             QString::number(m) + ", Package: " +
+                                             matchedTexture.path + ", Export Id: " +
+                                             QString::number(matchedTexture.exportID + 1));
+                                ConsoleSync();
+                            }
+                            else
+                            {
+                                PERROR(QString("Error: Texture ") + foundTexture.name +
+                                       " CRC does not match, mipmap: " +
+                                       QString::number(m) + "\nPackage: " +
+                                       matchedTexture.path + "\nExport Id: " +
+                                       QString::number(matchedTexture.exportID + 1) + "\n");
+                            }
+                            errors = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return errors;
+}
+
 QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTexture> &textures,
                                  QStringList &pkgsToMarker, QStringList &pkgsToRepack,
                                  QList<ModEntry> &modsToReplace, bool repack,
@@ -363,6 +449,26 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                     }
                 }
 
+                if (repack && mipmap.storageType == Texture::StorageTypes::pccZlib)
+                    mipmap.storageType = Texture::StorageTypes::pccUnc;
+                if (!repack && package.getCompressedFlag() &&
+                    (mipmap.storageType == Texture::StorageTypes::pccZlib ||
+                     mipmap.storageType == Texture::StorageTypes::pccLZO))
+                {
+                    mipmap.storageType = Texture::StorageTypes::pccUnc;
+                }
+                if (!repack && !package.getCompressedFlag() &&
+                    mipmap.storageType == Texture::StorageTypes::pccUnc)
+                {
+                    if (mipmap.width > 32 || mipmap.height > 32)
+                    {
+                        if (GameData::gameType == MeType::ME3_TYPE)
+                            mipmap.storageType = Texture::StorageTypes::pccZlib;
+                        else
+                            mipmap.storageType = Texture::StorageTypes::pccLZO;
+                    }
+                }
+
                 if (GameData::gameType == MeType::ME2_TYPE)
                 {
                     if (mipmap.storageType == Texture::StorageTypes::extLZO)
@@ -371,26 +477,10 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                         mipmap.storageType = Texture::StorageTypes::pccZlib;
                 }
 
-                if (GameData::gameType == MeType::ME2_TYPE ||
-                    GameData::gameType == MeType::ME3_TYPE)
-                {
-                    if (repack && mipmap.storageType == Texture::StorageTypes::pccZlib)
-                        mipmap.storageType = Texture::StorageTypes::pccUnc;
-                    if (!repack && package.compressionType != Package::CompressionType::None &&
-                        (mipmap.storageType == Texture::StorageTypes::pccZlib ||
-                         mipmap.storageType == Texture::StorageTypes::pccLZO))
-                    {
-                        mipmap.storageType = Texture::StorageTypes::pccUnc;
-                    }
-                    if (!repack && package.compressionType == Package::CompressionType::None &&
-                        mipmap.storageType == Texture::StorageTypes::pccUnc)
-                    {
-                        if (mipmap.width > 32 || mipmap.height > 32)
-                            mipmap.storageType = Texture::StorageTypes::pccZlib;
-                    }
-                }
-
-                if (mod.arcTexture.count() != 0)
+                if ((mipmap.storageType == Texture::StorageTypes::extZlib ||
+                     mipmap.storageType == Texture::StorageTypes::extLZO ||
+                     mipmap.storageType == Texture::StorageTypes::extUnc) &&
+                     mod.arcTexture.count() != 0)
                 {
                     if (mod.arcTexture[m].storageType != mipmap.storageType)
                     {
@@ -566,8 +656,10 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 }
                 else
                 {
-                    if (mipmap.storageType == Texture::StorageTypes::extZlib ||
-                        mipmap.storageType == Texture::StorageTypes::extLZO)
+                    if (mipmap.storageType == Texture::StorageTypes::extLZO ||
+                        mipmap.storageType == Texture::StorageTypes::extZlib ||
+                        mipmap.storageType == Texture::StorageTypes::pccLZO ||
+                        mipmap.storageType == Texture::StorageTypes::pccZlib)
                     {
                         mipmap.newData = mod.cacheCprMipmaps[m].getRefData();
                         mipmap.compressedSize = mipmap.newData.size();

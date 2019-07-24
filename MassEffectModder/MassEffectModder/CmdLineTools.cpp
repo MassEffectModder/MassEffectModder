@@ -1167,6 +1167,8 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool repack,
             ConsoleWrite("[IPC]STAGE_ADD STAGE_SCAN");
         }
         ConsoleWrite("[IPC]STAGE_ADD STAGE_INSTALLTEXTURES");
+        if (verify)
+            ConsoleWrite("[IPC]STAGE_ADD STAGE_VERIFYTEXTURES");
         if (!modded)
             ConsoleWrite("[IPC]STAGE_ADD STAGE_REMOVEMIPMAPS");
         if (repack)
@@ -1500,9 +1502,23 @@ bool CmdLineTools::applyMods(QStringList &files, QList<FoundTexture> &textures, 
     mipMaps.replaceModsFromList(textures, pkgsToMarker, pkgsToRepack, modsToReplace,
                                  repack, !modded, verify, !modded, cacheAmount);
 
-    modsToReplace.clear();
-
     PINFO("Process textures finished.\n\n");
+
+    if (verify)
+    {
+        if (g_ipc)
+        {
+            ConsoleWrite("[IPC]STAGE_CONTEXT STAGE_VERIFYTEXTURES");
+            ConsoleSync();
+        }
+        else
+        {
+            PINFO("\nVerifying installed textures started...\n");
+        }
+        status = mipMaps.VerifyTextures(textures);
+        if (!g_ipc)
+            PINFO("\nVerifying installed textures finished.\n");
+    }
 
     return status;
 }

@@ -139,6 +139,7 @@ public:
                                  bool repack, bool appendMarker);
 
     PixelFormat changeTextureType(PixelFormat gamePixelFormat, PixelFormat texturePixelFormat, Texture &texture);
+    bool VerifyTextures(QList<FoundTexture> &textures);
     QString replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTexture> &textures,
                             QStringList &pkgsToMarker, QStringList &pkgsToRepack, QList<ModEntry> &modsToReplace,
                             bool repack, bool appendMarker, bool verify, bool removeMips, int cacheAmount);
