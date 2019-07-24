@@ -75,6 +75,6 @@ void ReleaseLogs();
 
 #define PINFO g_logs->PrintInfo
 #define PERROR g_logs->PrintError
-#define PDEBUG g_logs->{rintDebug
+#define PDEBUG g_logs->PrintDebug
 
 #endif
