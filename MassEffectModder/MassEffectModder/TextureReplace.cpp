@@ -183,7 +183,8 @@ bool MipMaps::VerifyTextures(QList<FoundTexture> &textures)
             {
                 if (!g_ipc)
                 {
-                    PINFO(QString("Texture: ") + foundTexture.name + " in " + matchedTexture.path + "\n");
+                    PINFO(QString("Texture: ") + QString::number(k + 1) + " of " + QString::number(k) +
+                          + " " + foundTexture.name + " in " + matchedTexture.path + "\n");
                 }
                 Package package{};
                 if (package.Open(g_GameData->GamePath() + matchedTexture.path) != 0)
@@ -273,7 +274,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
         else
         {
             PINFO(QString("Package: ") + QString::number(e + 1) + " of " + QString::number(map.count()) +
-                         " started: " + map[e].packagePath + "\n");
+                         " " + map[e].packagePath + "\n");
         }
 
         Package package{};
