@@ -27,7 +27,7 @@
 #include <string>
 
 #include <bfd.h>
-#include <libiberty/demangle.h>
+#include <cxxabi.h>
 
 int getInfoFromModule(char *moduleFilePath, DWORD64 offset, char *sourceFile,
     char *sourceFunc, unsigned int *sourceLine)
@@ -183,7 +183,8 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
                 continue;
             sprintf(tmpBuffer, "%02d  ", count);
             output += tmpBuffer;
-            char *name = cplus_demangle(sourceFunc, DMGL_PARAMS | DMGL_ANSI | DMGL_VERBOSE | DMGL_TYPES);
+            int status;
+            char *name = abi::__cxa_demangle(sourceFunc, nullptr, nullptr, &status);
             if (name)
             {
                 output += std::string(name) + " ";
