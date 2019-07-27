@@ -6,6 +6,7 @@ SUBDIRS += \
     Libs/7z \
     Libs/dxtc \
     Libs/lzo2 \
+    Libs/omp \
     Libs/png \
     Libs/xdelta3 \
     Libs/zlib \

@@ -143,7 +143,7 @@ win32-g++: {
     PRE_TARGETDEPS += $$OUT_PWD/../Wrappers/libWrappers.a
 }
 
-INCLUDEPATH += $$PWD/../Wrappers
+INCLUDEPATH += $$PWD/../Wrappers $$PWD/../Libs/omp
 
 DEPENDPATH += $$PWD/../Wrappers
 
@@ -153,6 +153,7 @@ Release:LIBS += \
     -L$$OUT_PWD/../Libs/7z/release -l7z \
     -L$$OUT_PWD/../Libs/dxtc/release -ldxtc \
     -L$$OUT_PWD/../Libs/lzo2/release -llzo2 \
+    -L$$OUT_PWD/../Libs/omp/release -lomp \
     -L$$OUT_PWD/../Libs/png/release -lpng \
     -L$$OUT_PWD/../Libs/xdelta3/release -lxdelta3 \
     -L$$OUT_PWD/../Libs/zlib/release -lzlib \
@@ -163,6 +164,7 @@ Debug:LIBS += \
     -L$$OUT_PWD/../Libs/7z/debug -l7z \
     -L$$OUT_PWD/../Libs/dxtc/debug -ldxtc \
     -L$$OUT_PWD/../Libs/lzo2/debug -llzo2 \
+    -L$$OUT_PWD/../Libs/omp/debug -lomp \
     -L$$OUT_PWD/../Libs/png/debug -lpng \
     -L$$OUT_PWD/../Libs/xdelta3/debug -lxdelta3 \
     -L$$OUT_PWD/../Libs/zlib/debug -lzlib \
@@ -174,6 +176,7 @@ LIBS += \
     -L$$OUT_PWD/../Libs/7z -l7z \
     -L$$OUT_PWD/../Libs/dxtc -ldxtc \
     -L$$OUT_PWD/../Libs/lzo2 -llzo2 \
+    -L$$OUT_PWD/../Libs/omp -lomp \
     -L$$OUT_PWD/../Libs/png -lpng \
     -L$$OUT_PWD/../Libs/xdelta3 -lxdelta3 \
     -L$$OUT_PWD/../Libs/zlib -lzlib \
@@ -182,12 +185,7 @@ LIBS += \
 }
 
 macx {
-    # macOS doesn't have OpenMP installed
-    # build from sources and install:
-    OMP_PATH=/usr/local/libomp
-    QMAKE_CXXFLAGS += -Xpreprocessor -fopenmp -I$$OMP_PATH/include
-    QMAKE_LFLAGS += -L$$OMP_PATH/lib
-    LIBS += -lomp
+    QMAKE_CXXFLAGS += -Xpreprocessor -fopenmp
 
     # WA: PCH file clash with targer file name
     PRECOMPILED_DIR = ".pch"
@@ -197,7 +195,7 @@ macx {
 
 win32 {
     QMAKE_CXXFLAGS += -fopenmp
-    LIBS += -lbfd -liberty -limagehlp -lintl -liconv -lz -lgomp
+    LIBS += -lbfd -liberty -limagehlp -lintl -liconv -lz
 
     # WA: this bad. Assuming Qtcreator/project is on the same disk as msys2.
     # And assuming msys64 is main directory of msys2 64bit installation.
@@ -209,11 +207,8 @@ win32 {
 }
 
 linux {
-    # libomp need to be compiled from sources
-    OMP_PATH=/usr/local/libomp-static
-    QMAKE_CXXFLAGS += -fopenmp -I$$OMP_PATH/include
-    QMAKE_LFLAGS += -L$$OMP_PATH/lib
-    LIBS += -lomp -ldl
+    QMAKE_CXXFLAGS += -fopenmp
+    LIBS += -ldl
 
     # WA: PCH file clash with targer file name
     PRECOMPILED_DIR = ".pch"
