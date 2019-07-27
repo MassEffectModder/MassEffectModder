@@ -143,7 +143,10 @@ win32-g++: {
     PRE_TARGETDEPS += $$OUT_PWD/../Wrappers/libWrappers.a
 }
 
-INCLUDEPATH += $$PWD/../Wrappers $$PWD/../Libs/omp
+INCLUDEPATH += $$PWD/../Wrappers
+!win32 {
+    INCLUDEPATH += $$PWD/../Libs/omp
+}
 
 DEPENDPATH += $$PWD/../Wrappers
 
@@ -153,7 +156,6 @@ Release:LIBS += \
     -L$$OUT_PWD/../Libs/7z/release -l7z \
     -L$$OUT_PWD/../Libs/dxtc/release -ldxtc \
     -L$$OUT_PWD/../Libs/lzo2/release -llzo2 \
-    -L$$OUT_PWD/../Libs/omp/release -lomp \
     -L$$OUT_PWD/../Libs/png/release -lpng \
     -L$$OUT_PWD/../Libs/xdelta3/release -lxdelta3 \
     -L$$OUT_PWD/../Libs/zlib/release -lzlib \
@@ -164,7 +166,6 @@ Debug:LIBS += \
     -L$$OUT_PWD/../Libs/7z/debug -l7z \
     -L$$OUT_PWD/../Libs/dxtc/debug -ldxtc \
     -L$$OUT_PWD/../Libs/lzo2/debug -llzo2 \
-    -L$$OUT_PWD/../Libs/omp/debug -lomp \
     -L$$OUT_PWD/../Libs/png/debug -lpng \
     -L$$OUT_PWD/../Libs/xdelta3/debug -lxdelta3 \
     -L$$OUT_PWD/../Libs/zlib/debug -lzlib \
@@ -195,7 +196,7 @@ macx {
 
 win32 {
     QMAKE_CXXFLAGS += -fopenmp
-    LIBS += -lbfd -liberty -limagehlp -lintl -liconv -lz
+    LIBS += -lbfd -liberty -limagehlp -lintl -liconv -lz -lgomp
 
     # WA: this bad. Assuming Qtcreator/project is on the same disk as msys2.
     # And assuming msys64 is main directory of msys2 64bit installation.
