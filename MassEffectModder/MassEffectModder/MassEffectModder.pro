@@ -147,6 +147,9 @@ INCLUDEPATH += $$PWD/../Wrappers
 !win32 {
     INCLUDEPATH += $$PWD/../Libs/omp
 }
+win32 {
+    INCLUDEPATH += $$PWD/../Libs/bfd
+}
 
 DEPENDPATH += $$PWD/../Wrappers
 
@@ -154,6 +157,7 @@ win32-g++: {
 Release:LIBS += \
     -L$$OUT_PWD/../Wrappers/release -lWrappers \
     -L$$OUT_PWD/../Libs/7z/release -l7z \
+    -L$$OUT_PWD/../Libs/bfd/release -lbfd \
     -L$$OUT_PWD/../Libs/dxtc/release -ldxtc \
     -L$$OUT_PWD/../Libs/lzo2/release -llzo2 \
     -L$$OUT_PWD/../Libs/png/release -lpng \
@@ -164,6 +168,7 @@ Release:LIBS += \
 Debug:LIBS += \
     -L$$OUT_PWD/../Wrappers/debug -lWrappers \
     -L$$OUT_PWD/../Libs/7z/debug -l7z \
+    -L$$OUT_PWD/../Libs/bfd/debug -lbfd \
     -L$$OUT_PWD/../Libs/dxtc/debug -ldxtc \
     -L$$OUT_PWD/../Libs/lzo2/debug -llzo2 \
     -L$$OUT_PWD/../Libs/png/debug -lpng \
@@ -196,13 +201,7 @@ macx {
 
 win32 {
     QMAKE_CXXFLAGS += -fopenmp
-    LIBS += -lbfd -liberty -limagehlp -lintl -liconv -lz -lgomp
-
-    # WA: this bad. Assuming Qtcreator/project is on the same disk as msys2.
-    # And assuming msys64 is main directory of msys2 64bit installation.
-    # It should be /mingw64/lib/binutils but doesn't work in Qt env.
-    QMAKE_LIBDIR += c:/msys64/mingw64/lib/binutils
-    QMAKE_CXXFLAGS += -Ic:/msys64/mingw64/include/binutils
+    LIBS += -limagehlp -lgomp
 
     SOURCES += Exceptions/BacktraceWin.cpp
 }

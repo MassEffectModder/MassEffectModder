@@ -7,6 +7,9 @@ SUBDIRS += \
     Libs/dxtc \
     Libs/lzo2
 
+win32 {
+SUBDIRS += Libs/bfd
+}
 !win32 {
 SUBDIRS += Libs/omp
 }

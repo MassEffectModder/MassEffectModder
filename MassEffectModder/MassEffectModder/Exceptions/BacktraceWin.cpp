@@ -42,15 +42,6 @@ int getInfoFromModule(char *moduleFilePath, DWORD64 offset, char *sourceFile,
         return -1;
     }
 
-    char **matching;
-    if (!bfd_check_format_matches(bfdHandle, bfd_object, &matching))
-    {
-        if (bfd_get_error() == bfd_error_file_ambiguously_recognized)
-            free(matching);
-        bfd_close(bfdHandle);
-        return -1;
-    }
-
     if ((bfd_get_file_flags(bfdHandle) & HAS_SYMS) != HAS_SYMS)
     {
         bfd_close(bfdHandle);
@@ -115,8 +106,6 @@ static void getFilename(char *dst, const char *src)
 
 bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
 {
-    bfd_init();
-
     char symbolInfo[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)];
     auto symbol = reinterpret_cast<PSYMBOL_INFO>(symbolInfo);
     symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
