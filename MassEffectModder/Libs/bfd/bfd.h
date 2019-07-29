@@ -86,6 +86,19 @@ extern "C" {
    been selected with --enable-targets, or if --enable-64-bit-bfd.  */
 #define BFD_ARCH_SIZE 64
 
+#ifdef __APPLE__
+/* The word size of the default bfd target.  */
+#define BFD_DEFAULT_TARGET_SIZE 32
+
+#define BFD_HOST_64BIT_LONG 1
+#define BFD_HOST_64BIT_LONG_LONG 0
+#if 1
+#define BFD_HOST_64_BIT long
+#define BFD_HOST_U_64_BIT unsigned long
+typedef BFD_HOST_64_BIT bfd_int64_t;
+typedef BFD_HOST_U_64_BIT bfd_uint64_t;
+#endif
+#else // __APPLE__
 /* The word size of the default bfd target.  */
 #define BFD_DEFAULT_TARGET_SIZE 64
 
@@ -97,6 +110,7 @@ extern "C" {
 typedef BFD_HOST_64_BIT bfd_int64_t;
 typedef BFD_HOST_U_64_BIT bfd_uint64_t;
 #endif
+#endif // __APPLE__
 
 #ifdef HAVE_INTTYPES_H
 # include <inttypes.h>
@@ -129,7 +143,11 @@ typedef BFD_HOST_U_64_BIT bfd_uint64_t;
 #endif
 
 /* Declaring a type wide enough to hold a host long and a host pointer.  */
+#ifdef __APPLE__
+#define BFD_HOSTPTR_T unsigned long
+#else
 #define BFD_HOSTPTR_T unsigned long long
+#endif
 typedef BFD_HOSTPTR_T bfd_hostptr_t;
 
 /* Forward declaration.  */

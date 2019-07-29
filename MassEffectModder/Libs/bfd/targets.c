@@ -613,47 +613,10 @@ static const bfd_target * const _bfd_target_vector[] =
 
 #ifdef BFD64
 //	&x86_64_elf64_vec,
-//	&x86_64_mach_o_vec,
+	&x86_64_mach_o_vec,
 	&x86_64_pei_vec,
 #endif
 #endif /* not SELECT_VECS */
-
-/* Add any required traditional-core-file-handler.  */
-
-#ifdef AIX386_CORE
-	&core_aix386_vec,
-#endif
-#if 0
-	/* We don't include cisco_core_*_vec.  Although it has a magic number,
-	   the magic number isn't at the beginning of the file, and thus
-	   might spuriously match other kinds of files.  */
-	&core_cisco_be_vec,
-	&core_cisco_le_vec,
-#endif
-#ifdef HPPABSD_CORE
-	&core_hppabsd_vec,
-#endif
-#ifdef HPUX_CORE
-	&core_hpux_vec,
-#endif
-#ifdef IRIX_CORE
-	&core_irix_vec,
-#endif
-#ifdef NETBSD_CORE
-	&core_netbsd_vec,
-#endif
-#ifdef OSF_CORE
-	&core_osf_vec,
-#endif
-#ifdef PTRACE_CORE
-	&core_ptrace_vec,
-#endif
-#ifdef SCO5_CORE
-	&core_sco5_vec,
-#endif
-#ifdef TRAD_CORE
-	&core_trad_vec,
-#endif
 
 	NULL /* end of list marker */
 };
@@ -700,6 +663,8 @@ struct targmatch
 static const struct targmatch bfd_target_match[] = {
 { "x86_64-*-mingw*", NULL },{ "x86_64-*-pe", NULL },{ "x86_64-*-pep", NULL },{ "x86_64-*-cygwin",
 &x86_64_pei_vec },
+{ "x86_64-*-darwin*",
+&x86_64_mach_o_vec },
   { NULL, NULL }
 };
 

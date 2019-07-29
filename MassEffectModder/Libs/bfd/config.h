@@ -20,7 +20,11 @@
 /* #undef ENABLE_NLS */
 
 /* Define to 1 if you have the <alloca.h> header file. */
+#ifdef __APPLE__
+#define HAVE_ALLOCA_H 1
+#else
 /* #undef HAVE_ALLOCA_H */
+#endif
 
 /* Define to 1 if you have the declaration of `asprintf', and to 0 if you
    don't. */
@@ -31,7 +35,11 @@
 #define HAVE_DECL_BASENAME 0
 
 /* Define to 1 if you have the declaration of `ffs', and to 0 if you don't. */
+#ifdef __APPLE__
+#define HAVE_DECL_FFS 1
+#else
 #define HAVE_DECL_FFS 0
+#endif
 
 /* Define to 1 if you have the declaration of `free', and to 0 if you don't.
    */
@@ -43,7 +51,11 @@
 
 /* Define to 1 if you have the declaration of `fseeko64', and to 0 if you
    don't. */
+#ifdef __APPLE__
+#define HAVE_DECL_FSEEKO64 0
+#else
 #define HAVE_DECL_FSEEKO64 1
+#endif
 
 /* Define to 1 if you have the declaration of `ftello', and to 0 if you don't.
    */
@@ -51,7 +63,11 @@
 
 /* Define to 1 if you have the declaration of `ftello64', and to 0 if you
    don't. */
+#ifdef __APPLE__
+#define HAVE_DECL_FTELLO64 0
+#else
 #define HAVE_DECL_FTELLO64 1
+#endif
 
 /* Define to 1 if you have the declaration of `getenv', and to 0 if you don't.
    */
@@ -71,7 +87,11 @@
 
 /* Define to 1 if you have the declaration of `stpcpy', and to 0 if you don't.
    */
+#ifdef __APPLE__
+#define HAVE_DECL_STPCPY 1
+#else
 #define HAVE_DECL_STPCPY 0
+#endif
 
 /* Define to 1 if you have the declaration of `strnlen', and to 0 if you
    don't. */
@@ -94,9 +114,15 @@
 #define HAVE_DIRENT_H 1
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
+#ifdef __APPLE__
+#define HAVE_DLFCN_H 1
+#endif
 /* #undef HAVE_DLFCN_H */
 
 /* Define to 1 if you have the `fcntl' function. */
+#ifdef __APPLE__
+#define HAVE_FCNTL 1
+#endif
 /* #undef HAVE_FCNTL */
 
 /* Define to 1 if you have the <fcntl.h> header file. */
@@ -109,37 +135,68 @@
 #define HAVE_FILENO 1
 
 /* Define to 1 if you have the `fls' function. */
+#ifdef __APPLE__
+#define HAVE_FLS 1
+#endif
 /* #undef HAVE_FLS */
 
 /* Define to 1 if you have the `fopen64' function. */
+#ifdef __APPLE__
+/* #undef HAVE_FOPEN64 */
+#else
 #define HAVE_FOPEN64 1
+#endif
 
 /* Define to 1 if you have the `fseeko' function. */
 #define HAVE_FSEEKO 1
 
 /* Define to 1 if you have the `fseeko64' function. */
+#ifdef __APPLE__
+/* #undef HAVE_FSEEKO64 */
+#else
 #define HAVE_FSEEKO64 1
+#endif
 
 /* Define to 1 if you have the `ftello' function. */
 #define HAVE_FTELLO 1
 
 /* Define to 1 if you have the `ftello64' function. */
+#ifdef __APPLE__
+/* #undef HAVE_FTELLO64 */
+#else
 #define HAVE_FTELLO64 1
+#endif
 
 /* Define to 1 if you have the `getgid' function. */
+#ifdef __APPLE__
+#define HAVE_GETGID 1
+#else
 /* #undef HAVE_GETGID */
+#endif
 
 /* Define to 1 if you have the `getpagesize' function. */
 #define HAVE_GETPAGESIZE 1
 
 /* Define to 1 if you have the `getrlimit' function. */
+#ifdef __APPLE__
+#define HAVE_GETRLIMIT 1
+#else
 /* #undef HAVE_GETRLIMIT */
+#endif
 
 /* Define to 1 if you have the `getuid' function. */
+#ifdef __APPLE__
+#define HAVE_GETUID 1
+#else
 /* #undef HAVE_GETUID */
+#endif
 
 /* Define if your compiler supports hidden visibility. */
+#ifdef __APPLE__
+#define HAVE_HIDDEN 1
+#else
 /* #undef HAVE_HIDDEN */
+#endif
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define HAVE_INTTYPES_H 1
@@ -166,13 +223,21 @@
 /* #undef HAVE_LWPXSTATUS_T */
 
 /* Define to 1 if you have the `madvise' function. */
+#ifdef __APPLE__
+#define HAVE_MADVISE 1
+#else
 /* #undef HAVE_MADVISE */
+#endif
 
 /* Define to 1 if you have the <memory.h> header file. */
 #define HAVE_MEMORY_H 1
 
 /* Define to 1 if you have a working `mmap' system call. */
+#ifdef __APPLE__
+#define HAVE_MMAP 1
+#else
 /* #undef HAVE_MMAP */
+#endif
 
 /* Define to 1 if you have the `mprotect' function. */
 #define HAVE_MPROTECT 1
@@ -226,7 +291,11 @@
 /* #undef HAVE_PXSTATUS_T */
 
 /* Define to 1 if you have the `setitimer' function. */
+#ifdef __APPLE__
+#define HAVE_SETITIMER 1
+#else
 /* #undef HAVE_SETITIMER */
+#endif
 
 /* Define to 1 if you have the <stddef.h> header file. */
 #define HAVE_STDDEF_H 1
@@ -250,7 +319,11 @@
 /* #undef HAVE_ST_C_IMPL */
 
 /* Define to 1 if you have the `sysconf' function. */
+#ifdef __APPLE__
+#define HAVE_SYSCONF 1
+#else
 /* #undef HAVE_SYSCONF */
+#endif
 
 /* Define to 1 if you have the <sys/dir.h> header file, and it defines `DIR'.
    */
@@ -270,7 +343,11 @@
 /* #undef HAVE_SYS_PROCFS_H */
 
 /* Define to 1 if you have the <sys/resource.h> header file. */
+#ifdef __APPLE__
+#define HAVE_SYS_RESOURCE_H 1
+#else
 /* #undef HAVE_SYS_RESOURCE_H */
+#endif
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #define HAVE_SYS_STAT_H 1
@@ -297,7 +374,11 @@
 /* #undef HAVE_WIN32_PSTATUS_T */
 
 /* Define to 1 if you have the <windows.h> header file. */
+#ifdef __APPLE__
+/* #undef HAVE_WINDOWS_H */
+#else
 #define HAVE_WINDOWS_H 1
+#endif
 
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
    */
@@ -331,7 +412,11 @@
 /* #undef SIZEOF_INT */
 
 /* The size of `long', as computed by sizeof. */
+#ifdef __APPLE__
+#define SIZEOF_LONG 8
+#else
 #define SIZEOF_LONG 4
+#endif
 
 /* The size of `long long', as computed by sizeof. */
 #define SIZEOF_LONG_LONG 8
@@ -361,7 +446,11 @@
 /* #undef USE_64_BIT_ARCHIVE */
 
 /* Use b modifier when opening binary files? */
+#ifdef __APPLE__
+/* #undef USE_BINARY_FOPEN */
+#else
 #define USE_BINARY_FOPEN 1
+#endif
 
 /* Define if we should use leading underscore on 64 bit mingw targets */
 /* #undef USE_MINGW64_LEADING_UNDERSCORES */
@@ -403,7 +492,11 @@
 #endif
 
 /* Number of bits in a file offset, on hosts where this is settable. */
+#ifdef __APPLE__
+/* #undef _FILE_OFFSET_BITS */
+#else
 #define _FILE_OFFSET_BITS 64
+#endif
 
 /* Define for large files, on AIX-style hosts. */
 /* #undef _LARGE_FILES */

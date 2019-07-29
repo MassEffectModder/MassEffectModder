@@ -22,45 +22,73 @@
 #include <string>
 #include <execinfo.h>
 #include <cxxabi.h>
+#include <mach-o/dyld.h>
+
+#include "Exceptions/Backtrace.h"
 
 #define MAX_CALLSTACK 100
+
+void getExecutablePath(char *path, uint32_t maxLen)
+{
+    if (_NSGetExecutablePath(path, &maxLen) != 0) {
+        path[0] = '\0';
+    } else {
+        char *fullPath = realpath(path, nullptr);
+        if (fullPath != nullptr) {
+            strncpy(path, fullPath, maxLen);
+            free(fullPath);
+        }
+    }
+}
 
 bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
 {
     void *callstack[MAX_CALLSTACK];
-    int offset, status, count = 0;
+    int status, count = 0;
+    //unsigned long long offset;
+    int offset;
+    char moduleFilePath[PATH_MAX];
+    char /*sourceFile[PATH_MAX], */sourceFunc[PATH_MAX];
 
-    int numberTraces = backtrace(callstack, MAX_CALLSTACK);
-    char **strings = backtrace_symbols(callstack, numberTraces);
+    int numberOfTraces = backtrace(callstack, MAX_CALLSTACK);
+    char **strings = backtrace_symbols(callstack, numberOfTraces);
 
     if (strings == nullptr)
         return false;
 
-    for (int i = 0; i < numberTraces; ++i)
+    getExecutablePath(moduleFilePath, PATH_MAX - 1);
+    if (moduleFilePath[0] == 0)
+        return false;
+
+    for (int i = 0; i < numberOfTraces; ++i)
     {
         if (strings[i] == nullptr)
             continue;
 
         char address[strlen(strings[i]) + 1];
-        char sourceFunc[strlen(strings[i]) + 1];
+        char sourceFunction[strlen(strings[i]) + 1];
         char moduleName[strlen(strings[i]) + 1];
-        std::sscanf(strings[i], "%*s %s %s %s %*s %d",
-                    moduleName, address, sourceFunc, &offset);
+        std::sscanf(strings[i], "%*d %s %s %s %*s %d",
+                    moduleName, address, sourceFunction, &offset);
         if (crashMode && i <= 2)
             continue;
         if (exceptionMode && i <= 1)
             continue;
         if (!crashMode && !exceptionMode && i <= 0)
             continue;
-        if (strcmp(sourceFunc, "start") == 0 ||
+        if (strcmp(sourceFunction, "start") == 0 ||
             strcmp(moduleName, "") == 0 ||
             strcmp(moduleName, "???") == 0)
         {
             continue;
         }
 
+        //offset = strtoull(address, nullptr, 16);
+        //unsigned int sourceLine = 0;
+        //status = BacktraceGetInfoFromModule(moduleFilePath, offset,
+        //                           sourceFile, sourceFunc, &sourceLine);
         output += std::to_string(count) + "  ";
-        char *funcNewName = abi::__cxa_demangle(sourceFunc, nullptr, nullptr, &status);
+        char *funcNewName = abi::__cxa_demangle(sourceFunction, nullptr, nullptr, &status);
         if (status == 0)
         {
             output += funcNewName;
@@ -72,6 +100,7 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
         }
 
         output += " offset " + std::to_string(offset) + "\n";
+        //output += " at " + std::string(sourceFile) + ":" + std::to_string(sourceLine) + "\n";
         count++;
     }
     free(strings);

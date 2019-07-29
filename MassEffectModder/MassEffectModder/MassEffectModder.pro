@@ -20,6 +20,7 @@ TEMPLATE = app
 
 SOURCES += \
     Exceptions/SignalHandler.cpp \
+    Exceptions/BacktraceCommon.cpp \
     Helpers/Crc32.cpp \
     Helpers/FileStream.cpp \
     Helpers/Logs.cpp \
@@ -143,12 +144,9 @@ win32-g++: {
     PRE_TARGETDEPS += $$OUT_PWD/../Wrappers/libWrappers.a
 }
 
-INCLUDEPATH += $$PWD/../Wrappers
+INCLUDEPATH += $$PWD/../Wrappers $$PWD/../Libs/bfd
 !win32 {
     INCLUDEPATH += $$PWD/../Libs/omp
-}
-win32 {
-    INCLUDEPATH += $$PWD/../Libs/bfd
 }
 
 DEPENDPATH += $$PWD/../Wrappers
@@ -180,6 +178,7 @@ Debug:LIBS += \
 LIBS += \
     -L$$OUT_PWD/../Wrappers -lWrappers \
     -L$$OUT_PWD/../Libs/7z -l7z \
+    -L$$OUT_PWD/../Libs/bfd -lbfd \
     -L$$OUT_PWD/../Libs/dxtc -ldxtc \
     -L$$OUT_PWD/../Libs/lzo2 -llzo2 \
     -L$$OUT_PWD/../Libs/omp -lomp \

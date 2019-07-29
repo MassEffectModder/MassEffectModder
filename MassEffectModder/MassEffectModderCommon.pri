@@ -4,12 +4,10 @@ CONFIG += ordered
 
 SUBDIRS += \
     Libs/7z \
+    Libs/bfd \
     Libs/dxtc \
     Libs/lzo2
 
-win32 {
-SUBDIRS += Libs/bfd
-}
 !win32 {
 SUBDIRS += Libs/omp
 }

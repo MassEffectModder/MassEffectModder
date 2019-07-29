@@ -18,14 +18,18 @@ SOURCES += \
     format.c \
     hash.c \
     hashtab.c \
+    lbasename.c \
     libbfd.c \
     linker.c \
-    pei-x86_64.c \
-    pex64igen.c \
+    mach-o-x86-64.c \
+    mach-o.c \
     objalloc.c \
     opncls.c \
+    pei-x86_64.c \
+    pex64igen.c \
     reloc.c \
     section.c \
+    stab-syms.c \
     syms.c \
     targets.c \
     unlink-if-ordinary.c \
@@ -54,6 +58,7 @@ HEADERS += \
     libcoff.h \
     libiberty.h \
     libpei.h \
+    mach-o.h \
     objalloc.h \
     peicode.h \
     symcat.h \

@@ -91,6 +91,30 @@ _bfd_new_bfd (void)
   return nbfd;
 }
 
+static const struct bfd_iovec opncls_iovec;
+
+/* Allocate a new BFD as a member of archive OBFD.  */
+
+bfd *
+_bfd_new_bfd_contained_in (bfd *obfd)
+{
+  bfd *nbfd;
+
+  nbfd = _bfd_new_bfd ();
+  if (nbfd == NULL)
+    return NULL;
+  nbfd->xvec = obfd->xvec;
+  nbfd->iovec = obfd->iovec;
+  if (obfd->iovec == &opncls_iovec)
+    nbfd->iostream = obfd->iostream;
+  nbfd->my_archive = obfd;
+  nbfd->direction = read_direction;
+  nbfd->target_defaulted = obfd->target_defaulted;
+  nbfd->lto_output = obfd->lto_output;
+  nbfd->no_export = obfd->no_export;
+  return nbfd;
+}
+
 /* Delete a BFD.  */
 
 static void

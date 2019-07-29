@@ -25,73 +25,9 @@
 #include <windows.h>
 #include <imagehlp.h>
 #include <string>
-
-#include <bfd.h>
 #include <cxxabi.h>
 
-int getInfoFromModule(char *moduleFilePath, DWORD64 offset, char *sourceFile,
-    char *sourceFunc, unsigned int *sourceLine)
-{
-    bfd *bfdHandle = bfd_openr(moduleFilePath, nullptr);
-    if (bfdHandle == nullptr)
-        return -1;
-
-    if (!bfd_check_format(bfdHandle, bfd_object))
-    {
-        bfd_close(bfdHandle);
-        return -1;
-    }
-
-    if ((bfd_get_file_flags(bfdHandle) & HAS_SYMS) != HAS_SYMS)
-    {
-        bfd_close(bfdHandle);
-        return 1;
-    }
-
-    bfd_symbol *symbolsTable;
-    unsigned int unused;
-    long int numberSymbols = bfd_read_minisymbols(bfdHandle, FALSE,
-                                                  reinterpret_cast<void **>(&symbolsTable), &unused);
-    if (numberSymbols == 0)
-    {
-        numberSymbols = bfd_read_minisymbols(bfdHandle, TRUE,
-                                             reinterpret_cast<void **>(&symbolsTable), &unused);
-        if (numberSymbols <= 0)
-        {
-            bfd_close(bfdHandle);
-            return 1;
-        }
-    }
-
-    asection *section = bfdHandle->sections;
-    while (section != nullptr)
-    {
-        if ((bfd_get_section_flags(bfdHandle, section) & SEC_ALLOC) == SEC_ALLOC)
-        {
-            bfd_vma address = bfd_get_section_vma(bfdHandle, section);
-            bfd_size_type sectionSize = bfd_get_section_size(section);
-            if (offset >= address && offset < address + sectionSize)
-            {
-                const char *filename = nullptr, *function = nullptr;
-                if (bfd_find_nearest_line(bfdHandle, section, reinterpret_cast<bfd_symbol **>(symbolsTable),
-                    offset - address, &filename, &function, sourceLine))
-                {
-                    if (filename)
-                        strcpy(sourceFile, filename);
-                    if (function)
-                        strcpy(sourceFunc, function);
-                    bfd_close(bfdHandle);
-                    return 0;
-                }
-            }
-        }
-        section = section->next;
-    }
-
-    bfd_close(bfdHandle);
-
-    return -1;
-}
+#include "Exceptions/Backtrace.h"
 
 static void getFilename(char *dst, const char *src)
 {
@@ -144,7 +80,7 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
         if (moduleBase && GetModuleFileNameA(reinterpret_cast<HINSTANCE>(moduleBase), moduleFilePath, MAX_PATH))
         {
             moduleName = moduleFilePath;
-            status = getInfoFromModule(moduleFilePath, stackFrame.AddrPC.Offset,
+            status = BacktraceGetInfoFromModule(moduleFilePath, stackFrame.AddrPC.Offset,
                                        sourceFile, sourceFunc, &sourceLine);
         }
         if (moduleName)

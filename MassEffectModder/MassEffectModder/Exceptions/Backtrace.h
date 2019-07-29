@@ -24,6 +24,8 @@
 
 #include <string>
 
+int BacktraceGetInfoFromModule(char *moduleFilePath, unsigned long long offset, char *sourceFile,
+    char *sourceFunc, unsigned int *sourceLine);
 bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode);
 
 #endif
