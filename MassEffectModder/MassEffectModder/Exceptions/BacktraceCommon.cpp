@@ -51,7 +51,7 @@ int BacktraceGetInfoFromModule(char *moduleFilePath, unsigned long long offset, 
     if ((bfd_get_file_flags(bfdHandle) & HAS_SYMS) != HAS_SYMS)
     {
         bfd_close(bfdHandle);
-        return 1;
+        return -1;
     }
 
     bfd_symbol *symbolsTable;
@@ -60,13 +60,8 @@ int BacktraceGetInfoFromModule(char *moduleFilePath, unsigned long long offset, 
                                                   reinterpret_cast<void **>(&symbolsTable), &unused);
     if (numberSymbols == 0)
     {
-        numberSymbols = bfd_read_minisymbols(bfdHandle, TRUE,
-                                             reinterpret_cast<void **>(&symbolsTable), &unused);
-        if (numberSymbols <= 0)
-        {
-            bfd_close(bfdHandle);
-            return 1;
-        }
+        bfd_close(bfdHandle);
+        return -1;
     }
 
     asection *section = bfdHandle->sections;

@@ -208,8 +208,10 @@ linux {
     QMAKE_CXXFLAGS += -fopenmp
     LIBS += -ldl
 
-    # backtrace require compile with 'dynamic' flag
-    QMAKE_LFLAGS += -rdynamic
+    equals(QMAKE_CXX, clang++) {
+        # backtrace require compile with 'dynamic' flag
+        QMAKE_LFLAGS += -rdynamic
+    }
 
     SOURCES += Exceptions/BacktraceLin.cpp
 }
