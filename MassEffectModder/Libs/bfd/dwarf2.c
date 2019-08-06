@@ -4906,13 +4906,14 @@ _bfd_dwarf2_cleanup_debug_info (bfd *abfd, void **pinfo)
    for error reporting.  */
 
 asymbol *
-_bfd_elf_find_function (bfd *abfd,
-			asymbol **symbols,
-			asection *section,
-			bfd_vma offset,
-			const char **filename_ptr,
-			const char **functionname_ptr)
+_bfd_elf_find_function (bfd *abfd ATTRIBUTE_UNUSED,
+            asymbol **symbols ATTRIBUTE_UNUSED,
+            asection *section ATTRIBUTE_UNUSED,
+            bfd_vma offset ATTRIBUTE_UNUSED,
+            const char **filename_ptr ATTRIBUTE_UNUSED,
+            const char **functionname_ptr ATTRIBUTE_UNUSED)
 {
+#ifdef __linux__
   struct elf_find_function_cache
   {
     asection *last_section;
@@ -4964,17 +4965,16 @@ _bfd_elf_find_function (bfd *abfd,
       for (p = symbols; *p != NULL; p++)
 	{
 	  asymbol *sym = *p;
-	  bfd_vma code_off;
+      bfd_vma code_off;
 	  bfd_size_type size;
 
 	  if ((sym->flags & BSF_FILE) != 0)
 	    {
 	      file = sym;
-	      if (state == symbol_seen)
+          if (state == symbol_seen)
 		state = file_after_symbol_seen;
 	      continue;
 	    }
-
 	  size = _bfd_elf_maybe_function_sym (sym, section, &code_off);
 	  if (size != 0
 	      && code_off <= offset
@@ -5005,4 +5005,7 @@ _bfd_elf_find_function (bfd *abfd,
     *functionname_ptr = bfd_asymbol_name (cache->func);
 
   return cache->func;
+#else
+  return NULL;
+#endif
 }
