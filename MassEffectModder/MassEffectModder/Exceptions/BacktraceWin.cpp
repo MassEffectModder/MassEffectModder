@@ -29,17 +29,6 @@
 
 #include "Exceptions/Backtrace.h"
 
-static void getFilename(char *dst, const char *src)
-{
-    long offset = 0;
-    for (auto *ptr = src; *ptr != 0 && (ptr - src < MAX_PATH); ptr++)
-    {
-        if (*ptr == '/' || *ptr == '\\')
-            offset = ptr - src + 1;
-    }
-    strncpy(dst, src + offset, MAX_PATH - 1);
-}
-
 bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
 {
     char symbolInfo[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)];
@@ -84,7 +73,7 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
                                        sourceFile, sourceFunc, &sourceLine);
         }
         if (moduleName)
-            getFilename(moduleFilePath, moduleName);
+            BacktraceGetFilename(moduleFilePath, moduleName, MAX_PATH);
         else
             strcpy(moduleFilePath, "???");
 
@@ -119,7 +108,7 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
                 output += std::string(sourceFunc) + "() ";
             }
 
-            getFilename(moduleFilePath, sourceFile);
+            BacktraceGetFilename(moduleFilePath, sourceFile, MAX_PATH);
             strcpy(sourceFile, moduleFilePath);
             output += "at " + std::string(sourceFile) + ":" + std::to_string(sourceLine) + "\n";
         }

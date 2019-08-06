@@ -24,6 +24,17 @@
 
 #include <bfd.h>
 
+void BacktraceGetFilename(char *dst, const char *src, int maxLen)
+{
+    long offset = 0;
+    for (auto *ptr = src; *ptr != 0 && (ptr - src < maxLen); ptr++)
+    {
+        if (*ptr == '/' || *ptr == '\\')
+            offset = ptr - src + 1;
+    }
+    strncpy(dst, src + offset, maxLen - 1);
+}
+
 int BacktraceGetInfoFromModule(char *moduleFilePath, unsigned long long offset, char *sourceFile,
     char *sourceFunc, unsigned int *sourceLine)
 {

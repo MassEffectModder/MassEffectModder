@@ -9,18 +9,26 @@
 #define __CONFIG_H__ 1
 
 /* Name of host specific core header file to include in elf.c. */
+#if defined(__linux__)
+#define CORE_HEADER "hosts/x86-64linux.h"
+#else
 /* #undef CORE_HEADER */
+#endif
 
 /* Define to 1 if you want to enable -z separate-code in ELF linker by
    default. */
+#if defined(__linux__)
+#define DEFAULT_LD_Z_SEPARATE_CODE 1
+#else
 #define DEFAULT_LD_Z_SEPARATE_CODE 0
+#endif
 
 /* Define to 1 if translation of program messages to the user's native
    language is requested. */
 /* #undef ENABLE_NLS */
 
 /* Define to 1 if you have the <alloca.h> header file. */
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__linux__)
 #define HAVE_ALLOCA_H 1
 #else
 /* #undef HAVE_ALLOCA_H */
@@ -32,10 +40,14 @@
 
 /* Define to 1 if you have the declaration of `basename', and to 0 if you
    don't. */
+#if defined(__linux__)
+#define HAVE_DECL_BASENAME 1
+#else
 #define HAVE_DECL_BASENAME 0
+#endif
 
 /* Define to 1 if you have the declaration of `ffs', and to 0 if you don't. */
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__linux__)
 #define HAVE_DECL_FFS 1
 #else
 #define HAVE_DECL_FFS 0
@@ -87,7 +99,7 @@
 
 /* Define to 1 if you have the declaration of `stpcpy', and to 0 if you don't.
    */
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__linux__)
 #define HAVE_DECL_STPCPY 1
 #else
 #define HAVE_DECL_STPCPY 0
@@ -114,13 +126,13 @@
 #define HAVE_DIRENT_H 1
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__linux__)
 #define HAVE_DLFCN_H 1
 #endif
 /* #undef HAVE_DLFCN_H */
 
 /* Define to 1 if you have the `fcntl' function. */
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__linux__)
 #define HAVE_FCNTL 1
 #endif
 /* #undef HAVE_FCNTL */
@@ -168,7 +180,7 @@
 #endif
 
 /* Define to 1 if you have the `getgid' function. */
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__linux__)
 #define HAVE_GETGID 1
 #else
 /* #undef HAVE_GETGID */
@@ -178,21 +190,21 @@
 #define HAVE_GETPAGESIZE 1
 
 /* Define to 1 if you have the `getrlimit' function. */
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__linux__)
 #define HAVE_GETRLIMIT 1
 #else
 /* #undef HAVE_GETRLIMIT */
 #endif
 
 /* Define to 1 if you have the `getuid' function. */
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__linux__)
 #define HAVE_GETUID 1
 #else
 /* #undef HAVE_GETUID */
 #endif
 
 /* Define if your compiler supports hidden visibility. */
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__linux__)
 #define HAVE_HIDDEN 1
 #else
 /* #undef HAVE_HIDDEN */
@@ -223,7 +235,7 @@
 /* #undef HAVE_LWPXSTATUS_T */
 
 /* Define to 1 if you have the `madvise' function. */
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__linux__)
 #define HAVE_MADVISE 1
 #else
 /* #undef HAVE_MADVISE */
@@ -233,7 +245,7 @@
 #define HAVE_MEMORY_H 1
 
 /* Define to 1 if you have a working `mmap' system call. */
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__linux__)
 #define HAVE_MMAP 1
 #else
 /* #undef HAVE_MMAP */
@@ -252,9 +264,15 @@
 /* #undef HAVE_PRPSINFO32_T_PR_PID */
 
 /* Define if <sys/procfs.h> has prpsinfo_t. */
+#if defined(__linux__)
+#define HAVE_PRPSINFO_T 1
+#endif
 /* #undef HAVE_PRPSINFO_T */
 
 /* Define if <sys/procfs.h> has prpsinfo_t.pr_pid. */
+#if defined(__linux__)
+#define HAVE_PRPSINFO_T_PR_PID 1
+#endif
 /* #undef HAVE_PRPSINFO_T_PR_PID */
 
 /* Define if <sys/procfs.h> has prstatus32_t. */
@@ -264,6 +282,9 @@
 /* #undef HAVE_PRSTATUS32_T_PR_WHO */
 
 /* Define if <sys/procfs.h> has prstatus_t. */
+#if defined(__linux__)
+#define HAVE_PRSTATUS_T 1
+#endif
 /* #undef HAVE_PRSTATUS_T */
 
 /* Define if <sys/procfs.h> has prstatus_t.pr_who. */
@@ -291,7 +312,7 @@
 /* #undef HAVE_PXSTATUS_T */
 
 /* Define to 1 if you have the `setitimer' function. */
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__linux__)
 #define HAVE_SETITIMER 1
 #else
 /* #undef HAVE_SETITIMER */
@@ -319,7 +340,7 @@
 /* #undef HAVE_ST_C_IMPL */
 
 /* Define to 1 if you have the `sysconf' function. */
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__linux__)
 #define HAVE_SYSCONF 1
 #else
 /* #undef HAVE_SYSCONF */
@@ -340,10 +361,13 @@
 #define HAVE_SYS_PARAM_H 1
 
 /* Define to 1 if you have the <sys/procfs.h> header file. */
+#if defined(__linux__)
+#define HAVE_SYS_PROCFS_H 1
+#endif
 /* #undef HAVE_SYS_PROCFS_H */
 
 /* Define to 1 if you have the <sys/resource.h> header file. */
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__linux__)
 #define HAVE_SYS_RESOURCE_H 1
 #else
 /* #undef HAVE_SYS_RESOURCE_H */

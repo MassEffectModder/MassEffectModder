@@ -28,7 +28,7 @@
 
 #define MAX_CALLSTACK 100
 
-void getExecutablePath(char *path, uint32_t maxLen)
+static void getExecutablePath(char *path, uint32_t maxLen)
 {
     if (_NSGetExecutablePath(path, &maxLen) != 0) {
         path[0] = '\0';

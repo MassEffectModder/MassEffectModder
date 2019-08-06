@@ -21,12 +21,8 @@ SOURCES += \
     lbasename.c \
     libbfd.c \
     linker.c \
-    mach-o-x86-64.c \
-    mach-o.c \
     objalloc.c \
     opncls.c \
-    pei-x86_64.c \
-    pex64igen.c \
     reloc.c \
     section.c \
     stab-syms.c \
@@ -37,6 +33,30 @@ SOURCES += \
     xmalloc.c \
     xstrdup.c \
     xstrerror.c
+
+win32 {
+SOURCES += \
+    pei-x86_64.c \
+    pex64igen.c
+}
+
+linux {
+SOURCES += \
+    elf.c \
+    elf64.c \
+    elf64-x86-64.c \
+    elfxx-x86.c \
+    elf-attrs.c \
+    elf-eh-frame.c \
+    elf-strtab.c \
+    elf-properties.c
+}
+
+macx {
+SOURCES += \
+    mach-o-x86-64.c \
+    mach-o.c
+}
 
 HEADERS += \
     ansidecl.h \

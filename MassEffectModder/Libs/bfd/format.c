@@ -209,9 +209,6 @@ DESCRIPTION
 bfd_boolean
 bfd_check_format_matches (bfd *abfd, bfd_format format, char ***matching)
 {
-#if BFD_SUPPORTS_PLUGINS
-  extern const bfd_target plugin_vec;
-#endif
   const bfd_target * const *target;
   const bfd_target **matching_vector = NULL;
   const bfd_target *save_targ, *right_targ, *ar_right_targ, *match_targ;
@@ -300,14 +297,6 @@ bfd_check_format_matches (bfd *abfd, bfd_format format, char ***matching)
       if (temp)
 	{
 	  int match_priority = temp->match_priority;
-#if BFD_SUPPORTS_PLUGINS
-	  /* If this object can be handled by a plugin, give that the
-	     lowest priority; objects both handled by a plugin and
-	     with an underlying object format will be claimed
-	     separately by the plugin.  */
-	  if (*target == &plugin_vec)
-	    match_priority = (*target)->match_priority;
-#endif
 
 	  match_targ = temp;
 	  if (preserve.marker != NULL)
@@ -444,14 +433,6 @@ bfd_check_format_matches (bfd *abfd, bfd_format format, char ***matching)
 	}
 
     ok_ret:
-      /* If the file was opened for update, then `output_has_begun'
-	 some time ago when the file was created.  Do not recompute
-	 sections sizes or alignments in _bfd_set_section_contents.
-	 We can not set this flag until after checking the format,
-	 because it will interfere with creation of BFD sections.  */
-      if (abfd->direction == both_direction)
-	abfd->output_has_begun = TRUE;
-
       if (matching_vector)
 	free (matching_vector);
 

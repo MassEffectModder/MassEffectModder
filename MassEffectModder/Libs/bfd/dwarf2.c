@@ -850,30 +850,9 @@ read_alt_indirect_ref (struct comp_unit * unit,
 static bfd_uint64_t
 read_address (struct comp_unit *unit, bfd_byte *buf, bfd_byte * buf_end)
 {
-  int signed_vma = 0;
-
-  if (bfd_get_flavour (unit->abfd) == bfd_target_elf_flavour)
-    signed_vma = get_elf_backend_data (unit->abfd)->sign_extend_vma;
-
   if (buf + unit->addr_size > buf_end)
     return 0;
 
-  if (signed_vma)
-    {
-      switch (unit->addr_size)
-	{
-	case 8:
-	  return bfd_get_signed_64 (unit->abfd, buf);
-	case 4:
-	  return bfd_get_signed_32 (unit->abfd, buf);
-	case 2:
-	  return bfd_get_signed_16 (unit->abfd, buf);
-	default:
-	  abort ();
-	}
-    }
-  else
-    {
       switch (unit->addr_size)
 	{
 	case 8:
@@ -885,7 +864,6 @@ read_address (struct comp_unit *unit, bfd_byte *buf, bfd_byte * buf_end)
 	default:
 	  abort ();
 	}
-    }
 }
 
 /* Lookup an abbrev_info structure in the abbrev hash table.  */
@@ -4974,7 +4952,6 @@ _bfd_elf_find_function (bfd *abfd,
 	 make a better choice of file name for local symbols by ignoring
 	 file symbols appearing after a given local symbol.  */
       enum { nothing_seen, symbol_seen, file_after_symbol_seen } state;
-      const struct elf_backend_data *bed = get_elf_backend_data (abfd);
 
       file = NULL;
       low_func = 0;
@@ -4998,7 +4975,7 @@ _bfd_elf_find_function (bfd *abfd,
 	      continue;
 	    }
 
-	  size = bed->maybe_function_sym (sym, section, &code_off);
+	  size = _bfd_elf_maybe_function_sym (sym, section, &code_off);
 	  if (size != 0
 	      && code_off <= offset
 	      && (code_off > low_func

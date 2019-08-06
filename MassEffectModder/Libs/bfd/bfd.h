@@ -86,10 +86,13 @@ extern "C" {
    been selected with --enable-targets, or if --enable-64-bit-bfd.  */
 #define BFD_ARCH_SIZE 64
 
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__linux__)
 /* The word size of the default bfd target.  */
+#ifdef __APPLE__
 #define BFD_DEFAULT_TARGET_SIZE 32
-
+#else
+#define BFD_DEFAULT_TARGET_SIZE 64
+#endif
 #define BFD_HOST_64BIT_LONG 1
 #define BFD_HOST_64BIT_LONG_LONG 0
 #if 1
@@ -143,7 +146,7 @@ typedef BFD_HOST_U_64_BIT bfd_uint64_t;
 #endif
 
 /* Declaring a type wide enough to hold a host long and a host pointer.  */
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__linux__)
 #define BFD_HOSTPTR_T unsigned long
 #else
 #define BFD_HOSTPTR_T unsigned long long

@@ -13,9 +13,9 @@ will never return a @code{NULL} pointer.
 
 */
 
+#include "config.h"
 #include <stdio.h>
 
-#include "config.h"
 #include "libiberty.h"
 
 #ifdef VMS

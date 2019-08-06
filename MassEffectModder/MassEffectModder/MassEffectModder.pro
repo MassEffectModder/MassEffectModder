@@ -118,6 +118,7 @@ QMAKE_RESOURCE_FLAGS += --no-compress
 precompile_header:!isEmpty(PRECOMPILED_HEADER) {
     DEFINES += USING_PCH
 }
+PRECOMPILED_DIR = ".pch"
 
 equals(GUI_MODE, true) {
     DEFINES += GUI
@@ -135,6 +136,7 @@ equals(RELEASE_IN_DEBUG_MODE, true) {
 
 QMAKE_CXXFLAGS +=
 QMAKE_CXXFLAGS_DEBUG += -g
+QMAKE_CXXFLAGS_RELEASE -= -O2
 
 win32-g++: {
     QMAKE_LFLAGS_RELEASE = "-Wl,--relax"
@@ -192,9 +194,6 @@ LIBS += \
 macx {
     QMAKE_CXXFLAGS += -Xpreprocessor -fopenmp
 
-    # WA: PCH file clash with targer file name
-    PRECOMPILED_DIR = ".pch"
-
     SOURCES += Exceptions/BacktraceMac.cpp
 }
 
@@ -208,9 +207,6 @@ win32 {
 linux {
     QMAKE_CXXFLAGS += -fopenmp
     LIBS += -ldl
-
-    # WA: PCH file clash with targer file name
-    PRECOMPILED_DIR = ".pch"
 
     # backtrace require compile with 'dynamic' flag
     QMAKE_LFLAGS += -rdynamic

@@ -59,7 +59,7 @@ int ProcessArguments()
     QString input, output, threshold, format, tfcName;
     QString dlcName, path, cacheAmount, filter;
     CmdLineTools tools;
-
+CRASH();
     QStringList args = QCoreApplication::arguments();
     if (args.count() != 0)
         args.removeFirst();

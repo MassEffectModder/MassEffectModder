@@ -612,9 +612,15 @@ static const bfd_target * const _bfd_target_vector[] =
 	   it wasn't omitted by mistake.  */
 
 #ifdef BFD64
-//	&x86_64_elf64_vec,
+#if defined(__linux__)
+	&x86_64_elf64_vec,
+#endif
+#if defined(__APPLE__)
 	&x86_64_mach_o_vec,
+#endif
+#if defined(__MINGW32__)
 	&x86_64_pei_vec,
+#endif
 #endif
 #endif /* not SELECT_VECS */
 
@@ -661,10 +667,18 @@ struct targmatch
 };
 
 static const struct targmatch bfd_target_match[] = {
-{ "x86_64-*-mingw*", NULL },{ "x86_64-*-pe", NULL },{ "x86_64-*-pep", NULL },{ "x86_64-*-cygwin",
+#if defined(__MINGW32__)
+{ "x86_64-*-mingw*",
 &x86_64_pei_vec },
+#endif
+#if defined(__APPLE__)
 { "x86_64-*-darwin*",
 &x86_64_mach_o_vec },
+#endif
+#if defined(__linux__)
+{ "x86_64-*-elf*",
+&x86_64_elf64_vec },
+#endif
   { NULL, NULL }
 };
 

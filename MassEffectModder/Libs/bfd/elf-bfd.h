@@ -269,30 +269,6 @@ weakdef (struct elf_link_hash_entry *h)
   return h;
 }
 
-/* Will references to this symbol always reference the symbol
-   in this object?  */
-#define SYMBOL_REFERENCES_LOCAL(INFO, H) \
-  _bfd_elf_symbol_refs_local_p (H, INFO, 0)
-
-/* Will _calls_ to this symbol always call the version in this object?  */
-#define SYMBOL_CALLS_LOCAL(INFO, H) \
-  _bfd_elf_symbol_refs_local_p (H, INFO, 1)
-
-/* Whether an undefined weak symbol should resolve to its link-time
-   value, even in PIC or PIE objects.  */
-#define UNDEFWEAK_NO_DYNAMIC_RELOC(INFO, H)		\
-  ((H)->root.type == bfd_link_hash_undefweak		\
-   && (ELF_ST_VISIBILITY ((H)->other) != STV_DEFAULT	\
-       || (INFO)->dynamic_undefined_weak == 0))
-
-/* Common symbols that are turned into definitions don't have the
-   DEF_REGULAR flag set, so they might appear to be undefined.
-   Symbols defined in linker scripts also don't have DEF_REGULAR set.  */
-#define ELF_COMMON_DEF_P(H) \
-  (!(H)->def_regular							\
-   && !(H)->def_dynamic							\
-   && (H)->root.type == bfd_link_hash_defined)
-
 /* Records local symbols to be emitted in the dynamic symbol table.  */
 
 struct elf_link_local_dynamic_entry
@@ -2734,8 +2710,6 @@ struct elf_dyn_relocs
   bfd_size_type pc_count;
 };
 
-extern bfd_boolean _bfd_elf_create_ifunc_sections
-  (bfd *, struct bfd_link_info *);
 extern bfd_boolean _bfd_elf_allocate_ifunc_dyn_relocs
   (struct bfd_link_info *, struct elf_link_hash_entry *,
    struct elf_dyn_relocs **, bfd_boolean *, unsigned int,
