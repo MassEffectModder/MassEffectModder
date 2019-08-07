@@ -84,12 +84,6 @@ bfd_elf_make_object (bfd *abfd)
                   bed->target_id);
 }
 
-bfd_boolean
-bfd_elf_mkcorefile (bfd *abfd ATTRIBUTE_UNUSED)
-{
-  return FALSE;
-}
-
 static char *
 bfd_elf_get_str_section (bfd *abfd, unsigned int shindex)
 {
@@ -487,18 +481,6 @@ _bfd_elf_setup_sections (bfd *abfd)
   return result;
 }
 
-bfd_boolean
-bfd_elf_is_group_section (bfd *abfd ATTRIBUTE_UNUSED, const asection *sec ATTRIBUTE_UNUSED)
-{
-  return FALSE;
-}
-
-static char *
-convert_zdebug_to_debug (bfd *abfd ATTRIBUTE_UNUSED, const char *name ATTRIBUTE_UNUSED)
-{
-  return NULL;
-}
-
 /* Make a BFD section from an ELF section.  We store a pointer to the
    BFD section in the bfd_section field of the header.  */
 
@@ -723,13 +705,7 @@ _bfd_elf_make_section_from_shdr (bfd *abfd,
 		  || (action == compress
 		      && (abfd->flags & BFD_COMPRESS_GABI) != 0)))
 	    {
-	      /* Convert section name from .zdebug_* to .debug_* so
-		 that linker will consider this section as a debug
-		 section.  */
-	      char *new_name = convert_zdebug_to_debug (abfd, name);
-	      if (new_name == NULL)
 		return FALSE;
-	      bfd_rename_section (abfd, newsect, new_name);
 	    }
 	}
       else
@@ -741,25 +717,18 @@ _bfd_elf_make_section_from_shdr (bfd *abfd,
   return TRUE;
 }
 
-const char *const bfd_elf_section_type_names[] =
-{
-  "SHT_NULL", "SHT_PROGBITS", "SHT_SYMTAB", "SHT_STRTAB",
-  "SHT_RELA", "SHT_HASH", "SHT_DYNAMIC", "SHT_NOTE",
-  "SHT_NOBITS", "SHT_REL", "SHT_SHLIB", "SHT_DYNSYM",
-};
-
 bfd_reloc_status_type
 bfd_elf_generic_reloc (bfd *abfd ATTRIBUTE_UNUSED,
                arelent *reloc_entry ATTRIBUTE_UNUSED,
                asymbol *symbol ATTRIBUTE_UNUSED,
-		       void *data ATTRIBUTE_UNUSED,
+               void *data ATTRIBUTE_UNUSED,
                asection *input_section ATTRIBUTE_UNUSED,
                bfd *output_bfd ATTRIBUTE_UNUSED,
-		       char **error_message ATTRIBUTE_UNUSED)
+               char **error_message ATTRIBUTE_UNUSED)
 {
   return bfd_reloc_continue;
 }
-
+
 bfd_boolean
 _bfd_elf_copy_private_bfd_data (bfd *ibfd ATTRIBUTE_UNUSED, bfd *obfd ATTRIBUTE_UNUSED)
 {
@@ -771,8 +740,6 @@ _bfd_elf_print_private_bfd_data (bfd *abfd ATTRIBUTE_UNUSED, void *farg ATTRIBUT
 {
   return TRUE;
 }
-
-/* Get version string.  */
 
 const char *
 _bfd_elf_get_symbol_version_string (bfd *abfd ATTRIBUTE_UNUSED, asymbol *symbol ATTRIBUTE_UNUSED,
@@ -788,7 +755,7 @@ bfd_elf_print_symbol (bfd *abfd ATTRIBUTE_UNUSED,
               bfd_print_symbol_type how ATTRIBUTE_UNUSED)
 {
 }
-
+
 /* ELF .o/exec file reading */
 
 /* Create a new bfd section from an ELF section header.  */
@@ -1278,16 +1245,6 @@ bfd_section_from_shdr (bfd *abfd, unsigned int shindex)
   return ret;
 }
 
-/* Return the local symbol specified by ABFD, R_SYMNDX.  */
-
-Elf_Internal_Sym *
-bfd_sym_from_r_symndx (struct sym_cache *cache ATTRIBUTE_UNUSED,
-               bfd *abfd ATTRIBUTE_UNUSED,
-               unsigned long r_symndx ATTRIBUTE_UNUSED)
-{
-  return NULL;
-}
-
 /* Given an ELF section number, retrieve the corresponding BFD
    section.  */
 
@@ -1297,20 +1254,6 @@ bfd_section_from_elf_index (bfd *abfd, unsigned int sec_index)
   if (sec_index >= elf_numsections (abfd))
     return NULL;
   return elf_elfsections (abfd)[sec_index]->bfd_section;
-}
-
-const struct bfd_elf_special_section *
-_bfd_elf_get_special_section (const char *name ATTRIBUTE_UNUSED,
-                  const struct bfd_elf_special_section *spec ATTRIBUTE_UNUSED,
-                  unsigned int rela ATTRIBUTE_UNUSED)
-{
-  return NULL;
-}
-
-const struct bfd_elf_special_section *
-_bfd_elf_get_sec_type_attr (bfd *abfd ATTRIBUTE_UNUSED, asection *sec ATTRIBUTE_UNUSED)
-{
-  return NULL;
 }
 
 bfd_boolean
@@ -1329,92 +1272,6 @@ _bfd_elf_new_section_hook (bfd *abfd, asection *sec)
     }
 
   return _bfd_generic_new_section_hook (abfd, sec);
-}
-
-bfd_boolean
-_bfd_elf_make_section_from_phdr (bfd *abfd ATTRIBUTE_UNUSED,
-                 Elf_Internal_Phdr *hdr ATTRIBUTE_UNUSED,
-                 int hdr_index ATTRIBUTE_UNUSED,
-                 const char *type_name ATTRIBUTE_UNUSED)
-{
-  return FALSE;
-}
-
-bfd_boolean
-bfd_section_from_phdr (bfd *abfd ATTRIBUTE_UNUSED,
-                       Elf_Internal_Phdr *hdr ATTRIBUTE_UNUSED, int hdr_index ATTRIBUTE_UNUSED)
-{
-  return FALSE;
-}
-
-Elf_Internal_Shdr *
-_bfd_elf_single_rel_hdr (asection *sec ATTRIBUTE_UNUSED)
-{
-  return NULL;
-}
-
-int
-bfd_elf_get_default_section_type (flagword flags ATTRIBUTE_UNUSED)
-{
-  return 0;
-}
-
-struct fake_section_arg
-{
-  struct bfd_link_info *link_info;
-  bfd_boolean failed;
-};
-
-void
-bfd_elf_set_group_contents (bfd *abfd ATTRIBUTE_UNUSED,
-                            asection *sec ATTRIBUTE_UNUSED, void *failedptrarg ATTRIBUTE_UNUSED)
-{
-}
-
-asection *
-_bfd_elf_plt_get_reloc_section (bfd *abfd ATTRIBUTE_UNUSED, const char *name ATTRIBUTE_UNUSED)
-{
-  return NULL;
-}
-
-unsigned int
-_bfd_elf_filter_global_symbols (bfd *abfd ATTRIBUTE_UNUSED, struct bfd_link_info *info ATTRIBUTE_UNUSED,
-                asymbol **syms ATTRIBUTE_UNUSED, long symcount ATTRIBUTE_UNUSED)
-{
-  return 0;
-}
-
-file_ptr
-_bfd_elf_assign_file_position_for_section (Elf_Internal_Shdr *i_shdrp ATTRIBUTE_UNUSED,
-                       file_ptr offset ATTRIBUTE_UNUSED,
-                       bfd_boolean align ATTRIBUTE_UNUSED)
-{
-  return 0;
-}
-
-bfd_boolean
-_bfd_elf_compute_section_file_positions (bfd *abfd ATTRIBUTE_UNUSED,
-                     struct bfd_link_info *link_info ATTRIBUTE_UNUSED)
-{
-  return TRUE;
-}
-
-Elf_Internal_Phdr *
-_bfd_elf_find_segment_containing_section (bfd * abfd ATTRIBUTE_UNUSED, asection * section ATTRIBUTE_UNUSED)
-{
-  return NULL;
-}
-
-unsigned int
-_bfd_elf_section_from_bfd_section (bfd *abfd ATTRIBUTE_UNUSED, struct bfd_section *asect ATTRIBUTE_UNUSED)
-{
-  return 0;
-}
-
-int
-_bfd_elf_symbol_from_bfd_symbol (bfd *abfd ATTRIBUTE_UNUSED, asymbol **asym_ptr_ptr ATTRIBUTE_UNUSED)
-{
-  return -1;
 }
 
 bfd_boolean
