@@ -69,21 +69,6 @@ read_byte (bfd_byte **iter, bfd_byte *end, unsigned char *result)
   return TRUE;
 }
 
-/* Move *ITER over LENGTH bytes, or up to END, whichever is closer.
-   Return true it was possible to move LENGTH bytes.  */
-
-static inline bfd_boolean
-skip_bytes (bfd_byte **iter, bfd_byte *end, bfd_size_type length)
-{
-  if ((bfd_size_type) (end - *iter) < length)
-    {
-      *iter = end;
-      return FALSE;
-    }
-  *iter += length;
-  return TRUE;
-}
-
 /* Move *ITER over an leb128, stopping at END.  Return true if the end
    of the leb128 was found.  */
 
@@ -95,45 +80,6 @@ skip_leb128 (bfd_byte **iter, bfd_byte *end)
     if (!read_byte (iter, end, &byte))
       return FALSE;
   while (byte & 0x80);
-  return TRUE;
-}
-
-/* Like skip_leb128, but treat the leb128 as an unsigned value and
-   store it in *VALUE.  */
-
-static bfd_boolean
-read_uleb128 (bfd_byte **iter, bfd_byte *end, bfd_vma *value)
-{
-  bfd_byte *start, *p;
-
-  start = *iter;
-  if (!skip_leb128 (iter, end))
-    return FALSE;
-
-  p = *iter;
-  *value = *--p;
-  while (p > start)
-    *value = (*value << 7) | (*--p & 0x7f);
-
-  return TRUE;
-}
-
-/* Like read_uleb128, but for signed values.  */
-
-static bfd_boolean
-read_sleb128 (bfd_byte **iter, bfd_byte *end, bfd_signed_vma *value)
-{
-  bfd_byte *start, *p;
-
-  start = *iter;
-  if (!skip_leb128 (iter, end))
-    return FALSE;
-
-  p = *iter;
-  *value = ((*--p & 0x7f) ^ 0x40) - 0x40;
-  while (p > start)
-    *value = (*value << 7) | (*--p & 0x7f);
-
   return TRUE;
 }
 
@@ -211,74 +157,6 @@ write_value (bfd *abfd, bfd_byte *buf, bfd_vma value, int width)
     }
 }
 
-/* Return one if C1 and C2 CIEs can be merged.  */
-
-static int
-cie_eq (const void *e1, const void *e2)
-{
-  const struct cie *c1 = (const struct cie *) e1;
-  const struct cie *c2 = (const struct cie *) e2;
-
-  if (c1->hash == c2->hash
-      && c1->length == c2->length
-      && c1->version == c2->version
-      && c1->local_personality == c2->local_personality
-      && strcmp (c1->augmentation, c2->augmentation) == 0
-      && strcmp (c1->augmentation, "eh") != 0
-      && c1->code_align == c2->code_align
-      && c1->data_align == c2->data_align
-      && c1->ra_column == c2->ra_column
-      && c1->augmentation_size == c2->augmentation_size
-      && memcmp (&c1->personality, &c2->personality,
-		 sizeof (c1->personality)) == 0
-      && (c1->cie_inf->u.cie.u.sec->output_section
-	  == c2->cie_inf->u.cie.u.sec->output_section)
-      && c1->per_encoding == c2->per_encoding
-      && c1->lsda_encoding == c2->lsda_encoding
-      && c1->fde_encoding == c2->fde_encoding
-      && c1->initial_insn_length == c2->initial_insn_length
-      && c1->initial_insn_length <= sizeof (c1->initial_instructions)
-      && memcmp (c1->initial_instructions,
-		 c2->initial_instructions,
-		 c1->initial_insn_length) == 0)
-    return 1;
-
-  return 0;
-}
-
-static hashval_t
-cie_hash (const void *e)
-{
-  const struct cie *c = (const struct cie *) e;
-  return c->hash;
-}
-
-static hashval_t
-cie_compute_hash (struct cie *c)
-{
-  hashval_t h = 0;
-  size_t len;
-  h = iterative_hash_object (c->length, h);
-  h = iterative_hash_object (c->version, h);
-  h = iterative_hash (c->augmentation, strlen (c->augmentation) + 1, h);
-  h = iterative_hash_object (c->code_align, h);
-  h = iterative_hash_object (c->data_align, h);
-  h = iterative_hash_object (c->ra_column, h);
-  h = iterative_hash_object (c->augmentation_size, h);
-  h = iterative_hash_object (c->personality, h);
-  h = iterative_hash_object (c->cie_inf->u.cie.u.sec->output_section, h);
-  h = iterative_hash_object (c->per_encoding, h);
-  h = iterative_hash_object (c->lsda_encoding, h);
-  h = iterative_hash_object (c->fde_encoding, h);
-  h = iterative_hash_object (c->initial_insn_length, h);
-  len = c->initial_insn_length;
-  if (len > sizeof (c->initial_instructions))
-    len = sizeof (c->initial_instructions);
-  h = iterative_hash (c->initial_instructions, len, h);
-  c->hash = h;
-  return h;
-}
-
 /* Return the number of extra bytes that we'll be inserting into
    ENTRY's augmentation string.  */
 
@@ -309,20 +187,6 @@ extra_augmentation_data_bytes (struct eh_cie_fde *entry)
   return size;
 }
 
-/* Return the size that ENTRY will have in the output.  */
-
-static unsigned int
-size_of_output_cie_fde (struct eh_cie_fde *entry)
-{
-  if (entry->removed)
-    return 0;
-  if (entry->size == 4)
-    return 4;
-  return (entry->size
-	  + extra_augmentation_string_bytes (entry)
-	  + extra_augmentation_data_bytes (entry));
-}
-
 /* Return the offset of the FDE or CIE after ENT.  */
 
 static unsigned int
@@ -336,111 +200,6 @@ next_cie_fde_offset (const struct eh_cie_fde *ent,
 	return ent->new_offset;
     }
   return sec->size;
-}
-
-/* Assume that the bytes between *ITER and END are CFA instructions.
-   Try to move *ITER past the first instruction and return true on
-   success.  ENCODED_PTR_WIDTH gives the width of pointer entries.  */
-
-static bfd_boolean
-skip_cfa_op (bfd_byte **iter, bfd_byte *end, unsigned int encoded_ptr_width)
-{
-  bfd_byte op;
-  bfd_vma length;
-
-  if (!read_byte (iter, end, &op))
-    return FALSE;
-
-  switch (op & 0xc0 ? op & 0xc0 : op)
-    {
-    case DW_CFA_nop:
-    case DW_CFA_advance_loc:
-    case DW_CFA_restore:
-    case DW_CFA_remember_state:
-    case DW_CFA_restore_state:
-    case DW_CFA_GNU_window_save:
-      /* No arguments.  */
-      return TRUE;
-
-    case DW_CFA_offset:
-    case DW_CFA_restore_extended:
-    case DW_CFA_undefined:
-    case DW_CFA_same_value:
-    case DW_CFA_def_cfa_register:
-    case DW_CFA_def_cfa_offset:
-    case DW_CFA_def_cfa_offset_sf:
-    case DW_CFA_GNU_args_size:
-      /* One leb128 argument.  */
-      return skip_leb128 (iter, end);
-
-    case DW_CFA_val_offset:
-    case DW_CFA_val_offset_sf:
-    case DW_CFA_offset_extended:
-    case DW_CFA_register:
-    case DW_CFA_def_cfa:
-    case DW_CFA_offset_extended_sf:
-    case DW_CFA_GNU_negative_offset_extended:
-    case DW_CFA_def_cfa_sf:
-      /* Two leb128 arguments.  */
-      return (skip_leb128 (iter, end)
-	      && skip_leb128 (iter, end));
-
-    case DW_CFA_def_cfa_expression:
-      /* A variable-length argument.  */
-      return (read_uleb128 (iter, end, &length)
-	      && skip_bytes (iter, end, length));
-
-    case DW_CFA_expression:
-    case DW_CFA_val_expression:
-      /* A leb128 followed by a variable-length argument.  */
-      return (skip_leb128 (iter, end)
-	      && read_uleb128 (iter, end, &length)
-	      && skip_bytes (iter, end, length));
-
-    case DW_CFA_set_loc:
-      return skip_bytes (iter, end, encoded_ptr_width);
-
-    case DW_CFA_advance_loc1:
-      return skip_bytes (iter, end, 1);
-
-    case DW_CFA_advance_loc2:
-      return skip_bytes (iter, end, 2);
-
-    case DW_CFA_advance_loc4:
-      return skip_bytes (iter, end, 4);
-
-    case DW_CFA_MIPS_advance_loc8:
-      return skip_bytes (iter, end, 8);
-
-    default:
-      return FALSE;
-    }
-}
-
-/* Try to interpret the bytes between BUF and END as CFA instructions.
-   If every byte makes sense, return a pointer to the first DW_CFA_nop
-   padding byte, or END if there is no padding.  Return null otherwise.
-   ENCODED_PTR_WIDTH is as for skip_cfa_op.  */
-
-static bfd_byte *
-skip_non_nops (bfd_byte *buf, bfd_byte *end, unsigned int encoded_ptr_width,
-	       unsigned int *set_loc_count)
-{
-  bfd_byte *last;
-
-  last = buf;
-  while (buf < end)
-    if (*buf == DW_CFA_nop)
-      buf++;
-    else
-      {
-	if (*buf == DW_CFA_set_loc)
-	  ++*set_loc_count;
-	if (!skip_cfa_op (&buf, end, encoded_ptr_width))
-	  return 0;
-	last = buf;
-      }
-  return last;
 }
 
 /* Convert absolute encoding ENCODING into PC-relative form.
@@ -487,43 +246,12 @@ bfd_elf_discard_eh_frame_entry (struct eh_frame_hdr_info *hdr_info)
     }
 }
 
-/* Add a .eh_frame_entry section.  */
-
-static void
-bfd_elf_record_eh_frame_entry (struct eh_frame_hdr_info *hdr_info,
-				 asection *sec)
-{
-  if (hdr_info->array_count == hdr_info->u.compact.allocated_entries)
-    {
-      if (hdr_info->u.compact.allocated_entries == 0)
-	{
-	  hdr_info->frame_hdr_is_compact = TRUE;
-	  hdr_info->u.compact.allocated_entries = 2;
-	  hdr_info->u.compact.entries =
-	    bfd_malloc (hdr_info->u.compact.allocated_entries
-			* sizeof (hdr_info->u.compact.entries[0]));
-	}
-      else
-	{
-	  hdr_info->u.compact.allocated_entries *= 2;
-	  hdr_info->u.compact.entries =
-	    bfd_realloc (hdr_info->u.compact.entries,
-			 hdr_info->u.compact.allocated_entries
-			   * sizeof (hdr_info->u.compact.entries[0]));
-	}
-
-      BFD_ASSERT (hdr_info->u.compact.entries);
-    }
-
-  hdr_info->u.compact.entries[hdr_info->array_count++] = sec;
-}
-
 /* Parse a .eh_frame_entry section.  Figure out which text section it
    references.  */
 
 bfd_boolean
-_bfd_elf_parse_eh_frame_entry (struct bfd_link_info *info,
-			       asection *sec, struct elf_reloc_cookie *cookie)
+_bfd_elf_parse_eh_frame_entry (struct bfd_link_info *info ATTRIBUTE_UNUSED,
+                   asection *sec ATTRIBUTE_UNUSED, struct elf_reloc_cookie *cookie ATTRIBUTE_UNUSED)
 {
   return TRUE;
 }
@@ -533,8 +261,8 @@ _bfd_elf_parse_eh_frame_entry (struct bfd_link_info *info,
    describes the relocations in SEC.  */
 
 void
-_bfd_elf_parse_eh_frame (bfd *abfd, struct bfd_link_info *info,
-			 asection *sec, struct elf_reloc_cookie *cookie)
+_bfd_elf_parse_eh_frame (bfd *abfd ATTRIBUTE_UNUSED, struct bfd_link_info *info ATTRIBUTE_UNUSED,
+             asection *sec ATTRIBUTE_UNUSED, struct elf_reloc_cookie *cookie ATTRIBUTE_UNUSED)
 {
 }
 
@@ -626,9 +354,9 @@ _bfd_elf_end_eh_frame_parsing (struct bfd_link_info *info)
    its "rel" field can be changed freely.  */
 
 static bfd_boolean
-mark_entry (struct bfd_link_info *info, asection *sec,
-	    struct eh_cie_fde *ent, elf_gc_mark_hook_fn gc_mark_hook,
-	    struct elf_reloc_cookie *cookie)
+mark_entry (struct bfd_link_info *info ATTRIBUTE_UNUSED, asection *sec ATTRIBUTE_UNUSED,
+        struct eh_cie_fde *ent ATTRIBUTE_UNUSED, elf_gc_mark_hook_fn gc_mark_hook ATTRIBUTE_UNUSED,
+        struct elf_reloc_cookie *cookie ATTRIBUTE_UNUSED)
 {
   return TRUE;
 }
@@ -660,22 +388,6 @@ _bfd_elf_gc_mark_fdes (struct bfd_link_info *info, asection *sec,
 	}
     }
   return TRUE;
-}
-
-/* Input section SEC of ABFD is an .eh_frame section that contains the
-   CIE described by CIE_INF.  Return a version of CIE_INF that is going
-   to be kept in the output, adding CIE_INF to the output if necessary.
-
-   HDR_INFO is the .eh_frame_hdr information and COOKIE describes the
-   relocations in REL.  */
-
-static struct eh_cie_fde *
-find_merged_cie (bfd *abfd, struct bfd_link_info *info, asection *sec,
-		 struct eh_frame_hdr_info *hdr_info,
-		 struct elf_reloc_cookie *cookie,
-		 struct eh_cie_fde *cie_inf)
-{
-  return NULL;
 }
 
 /* For a given OFFSET in SEC, return the delta to the new location
@@ -786,35 +498,6 @@ _bfd_elf_adjust_eh_frame_global_symbol (struct elf_link_hash_entry *h,
   return TRUE;
 }
 
-/* The same for all local symbols defined in .eh_frame.  Returns true
-   if any symbol was changed.  */
-
-static int
-adjust_eh_frame_local_symbols (const asection *sec,
-			       struct elf_reloc_cookie *cookie)
-{
-  unsigned int shndx;
-  Elf_Internal_Sym *sym;
-  Elf_Internal_Sym *end_sym;
-  int adjusted = 0;
-
-  shndx = elf_section_data (sec)->this_idx;
-  end_sym = cookie->locsyms + cookie->locsymcount;
-  for (sym = cookie->locsyms + 1; sym < end_sym; ++sym)
-    if (sym->st_info <= ELF_ST_INFO (STB_LOCAL, STT_OBJECT)
-	&& sym->st_shndx == shndx)
-      {
-	bfd_signed_vma delta = offset_adjust (sym->st_value, sec);
-
-	if (delta != 0)
-	  {
-	    adjusted = 1;
-	    sym->st_value += delta;
-	  }
-      }
-  return adjusted;
-}
-
 /* This function is called for each input file before the .eh_frame
    section is relocated.  It discards duplicate CIEs and FDEs for discarded
    functions.  The function returns TRUE iff any entries have been
@@ -822,9 +505,9 @@ adjust_eh_frame_local_symbols (const asection *sec,
 
 bfd_boolean
 _bfd_elf_discard_section_eh_frame
-   (bfd *abfd, struct bfd_link_info *info, asection *sec,
-    bfd_boolean (*reloc_symbol_deleted_p) (bfd_vma, void *),
-    struct elf_reloc_cookie *cookie)
+   (bfd *abfd ATTRIBUTE_UNUSED, struct bfd_link_info *info ATTRIBUTE_UNUSED, asection *sec ATTRIBUTE_UNUSED,
+    bfd_boolean (*reloc_symbol_deleted_p) (bfd_vma, void *) ATTRIBUTE_UNUSED,
+    struct elf_reloc_cookie *cookie ATTRIBUTE_UNUSED)
 {
   return FALSE;
 }
