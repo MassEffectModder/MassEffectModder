@@ -632,19 +632,7 @@ elf_slurp_symbol_table (bfd *abfd, asymbol **symptrs, bfd_boolean dynamic)
     }
   else
     {
-      hdr = &elf_tdata (abfd)->dynsymtab_hdr;
-      if (elf_dynversym (abfd) == 0)
-	verhdr = NULL;
-      else
-	verhdr = &elf_tdata (abfd)->dynversym_hdr;
-      if ((elf_dynverdef (abfd) != 0
-	   && elf_tdata (abfd)->verdef == NULL)
-	  || (elf_dynverref (abfd) != 0
-	      && elf_tdata (abfd)->verref == NULL))
-	{
-	  if (!_bfd_elf_slurp_version_tables (abfd, FALSE))
-	    return -1;
-	}
+      return -1;
     }
 
   symcount = hdr->sh_size / sizeof (Elf_External_Sym);
@@ -807,15 +795,6 @@ elf_slurp_symbol_table (bfd *abfd, asymbol **symptrs, bfd_boolean dynamic)
 
 	  if (dynamic)
 	    sym->symbol.flags |= BSF_DYNAMIC;
-
-	  if (xver != NULL)
-	    {
-	      Elf_Internal_Versym iversym;
-
-	      _bfd_elf_swap_versym_in (abfd, xver, &iversym);
-	      sym->version = iversym.vs_vers;
-	      xver++;
-	    }
 	}
     }
 

@@ -45,11 +45,7 @@ SOURCES += \
     elf.c \
     elf64.c \
     elf64-x86-64.c \
-    elfxx-x86.c \
-    elf-attrs.c \
-    elf-eh-frame.c \
-    elf-strtab.c \
-    elf-properties.c
+    elfxx-x86.c
 }
 
 macx {

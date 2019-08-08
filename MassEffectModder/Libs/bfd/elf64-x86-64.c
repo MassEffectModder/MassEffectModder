@@ -23,9 +23,6 @@
 #include "dwarf2.h"
 #include "libiberty.h"
 
-#include "opcode/i386.h"
-#include "elf/x86-64.h"
-
 #ifdef CORE_HEADER
 #include <stdarg.h>
 #include CORE_HEADER
@@ -162,25 +159,25 @@
 #define bfd_elf64_find_nearest_line	_bfd_elf_find_nearest_line
 #endif
 #ifndef bfd_elf64_find_line
-#define bfd_elf64_find_line		_bfd_elf_find_line
+#define bfd_elf64_find_line		_bfd_nosymbols_find_line
 #endif
 #ifndef bfd_elf64_find_inliner_info
-#define bfd_elf64_find_inliner_info	_bfd_elf_find_inliner_info
+#define bfd_elf64_find_inliner_info	_bfd_nosymbols_find_inliner_info
 #endif
 #define bfd_elf64_read_minisymbols	_bfd_elf_read_minisymbols
 #define bfd_elf64_minisymbol_to_symbol	_bfd_elf_minisymbol_to_symbol
 #define bfd_elf64_get_dynamic_symtab_upper_bound \
   _bfd_elf_get_dynamic_symtab_upper_bound
-#define bfd_elf64_get_lineno		_bfd_elf_get_lineno
+#define bfd_elf64_get_lineno		_bfd_nosymbols_get_lineno
 #ifndef bfd_elf64_get_reloc_upper_bound
 #define bfd_elf64_get_reloc_upper_bound _bfd_elf_get_reloc_upper_bound
 #endif
 #ifndef bfd_elf64_get_symbol_info
-#define bfd_elf64_get_symbol_info	_bfd_elf_get_symbol_info
+#define bfd_elf64_get_symbol_info	_bfd_nosymbols_get_symbol_info
 #endif
 #ifndef bfd_elf64_get_symbol_version_string
 #define bfd_elf64_get_symbol_version_string \
-  _bfd_elf_get_symbol_version_string
+  _bfd_nosymbols_get_symbol_version_string
 #endif
 #define bfd_elf64_canonicalize_symtab	_bfd_elf_canonicalize_symtab
 #define bfd_elf64_get_symtab_upper_bound _bfd_elf_get_symtab_upper_bound
@@ -328,24 +325,24 @@
 
 #ifndef bfd_elf64_bfd_copy_private_symbol_data
 #define bfd_elf64_bfd_copy_private_symbol_data \
-  _bfd_elf_copy_private_symbol_data
+  _bfd_generic_bfd_copy_private_symbol_data
 #endif
 
 #ifndef bfd_elf64_bfd_copy_private_section_data
 #define bfd_elf64_bfd_copy_private_section_data \
-  _bfd_elf_copy_private_section_data
+  _bfd_generic_bfd_copy_private_section_data
 #endif
 #ifndef bfd_elf64_bfd_copy_private_header_data
 #define bfd_elf64_bfd_copy_private_header_data \
-  _bfd_elf_copy_private_header_data
+  _bfd_generic_bfd_copy_private_header_data
 #endif
 #ifndef bfd_elf64_bfd_copy_private_bfd_data
 #define bfd_elf64_bfd_copy_private_bfd_data \
-  _bfd_elf_copy_private_bfd_data
+  _bfd_generic_bfd_copy_private_bfd_data
 #endif
 #ifndef bfd_elf64_bfd_print_private_bfd_data
 #define bfd_elf64_bfd_print_private_bfd_data \
-  _bfd_elf_print_private_bfd_data
+  _bfd_generic_bfd_print_private_bfd_data
 #endif
 #ifndef bfd_elf64_bfd_merge_private_bfd_data
 #define bfd_elf64_bfd_merge_private_bfd_data _bfd_bool_bfd_link_true
@@ -354,7 +351,7 @@
 #define bfd_elf64_bfd_set_private_flags _bfd_bool_bfd_uint_true
 #endif
 #ifndef bfd_elf64_bfd_is_local_label_name
-#define bfd_elf64_bfd_is_local_label_name _bfd_elf_is_local_label_name
+#define bfd_elf64_bfd_is_local_label_name bfd_generic_is_local_label_name
 #endif
 #ifndef bfd_elf64_bfd_is_target_special_symbol
 #define bfd_elf64_bfd_is_target_special_symbol _bfd_bool_bfd_asymbol_false
@@ -444,7 +441,7 @@
 #endif
 
 #ifndef bfd_elf64_print_symbol
-#define bfd_elf64_print_symbol bfd_elf_print_symbol
+#define bfd_elf64_print_symbol _bfd_nosymbols_print_symbol
 #endif
 
 #ifndef elf_symbol_leading_char

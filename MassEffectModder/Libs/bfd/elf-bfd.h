@@ -2104,16 +2104,6 @@ extern bfd_boolean _bfd_elf_size_group_sections
   (struct bfd_link_info *);
 extern bfd_boolean _bfd_elf_fixup_group_sections
 (bfd *, asection *);
-extern bfd_boolean _bfd_elf_copy_private_header_data
-  (bfd *, bfd *);
-extern bfd_boolean _bfd_elf_copy_private_symbol_data
-  (bfd *, asymbol *, bfd *, asymbol *);
-#define _bfd_generic_init_private_section_data \
-  _bfd_elf_init_private_section_data
-extern bfd_boolean _bfd_elf_init_private_section_data
-  (bfd *, asection *, bfd *, asection *, struct bfd_link_info *);
-extern bfd_boolean _bfd_elf_copy_private_section_data
-  (bfd *, asection *, bfd *, asection *);
 extern bfd_boolean _bfd_elf_write_object_contents
   (bfd *);
 extern bfd_boolean _bfd_elf_write_corefile_contents

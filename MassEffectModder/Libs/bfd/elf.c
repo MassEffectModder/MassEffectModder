@@ -41,23 +41,12 @@ SECTION
 #include "libbfd.h"
 #define ARCH_SIZE 0
 #include "elf-bfd.h"
-#include "libiberty.h"
-#include "elf-linux-core.h"
 
 #ifdef CORE_HEADER
 #include CORE_HEADER
 #endif
 
 #include <ctype.h>
-
-/* Swap in a Versym structure.  */
-
-void
-_bfd_elf_swap_versym_in (bfd *abfd ATTRIBUTE_UNUSED,
-             const Elf_External_Versym *src ATTRIBUTE_UNUSED,
-             Elf_Internal_Versym *dst ATTRIBUTE_UNUSED)
-{
-}
 
 /* Create a tdata field OBJECT_SIZE bytes in length, zeroed out and with
    the object_id field of an elf_obj_tdata field set to OBJECT_ID.  */
@@ -73,15 +62,6 @@ bfd_elf_allocate_object (bfd *abfd,
 
   elf_object_id (abfd) = object_id;
   return TRUE;
-}
-
-
-bfd_boolean
-bfd_elf_make_object (bfd *abfd)
-{
-  const struct elf_backend_data *bed = get_elf_backend_data (abfd);
-  return bfd_elf_allocate_object (abfd, sizeof (struct elf_obj_tdata),
-                  bed->target_id);
 }
 
 static char *
@@ -717,45 +697,6 @@ _bfd_elf_make_section_from_shdr (bfd *abfd,
   return TRUE;
 }
 
-bfd_reloc_status_type
-bfd_elf_generic_reloc (bfd *abfd ATTRIBUTE_UNUSED,
-               arelent *reloc_entry ATTRIBUTE_UNUSED,
-               asymbol *symbol ATTRIBUTE_UNUSED,
-               void *data ATTRIBUTE_UNUSED,
-               asection *input_section ATTRIBUTE_UNUSED,
-               bfd *output_bfd ATTRIBUTE_UNUSED,
-               char **error_message ATTRIBUTE_UNUSED)
-{
-  return bfd_reloc_continue;
-}
-
-bfd_boolean
-_bfd_elf_copy_private_bfd_data (bfd *ibfd ATTRIBUTE_UNUSED, bfd *obfd ATTRIBUTE_UNUSED)
-{
-  return TRUE;
-}
-
-bfd_boolean
-_bfd_elf_print_private_bfd_data (bfd *abfd ATTRIBUTE_UNUSED, void *farg ATTRIBUTE_UNUSED)
-{
-  return TRUE;
-}
-
-const char *
-_bfd_elf_get_symbol_version_string (bfd *abfd ATTRIBUTE_UNUSED, asymbol *symbol ATTRIBUTE_UNUSED,
-                    bfd_boolean *hidden ATTRIBUTE_UNUSED)
-{
-  return NULL;
-}
-
-void
-bfd_elf_print_symbol (bfd *abfd ATTRIBUTE_UNUSED,
-              void *filep ATTRIBUTE_UNUSED,
-              asymbol *symbol ATTRIBUTE_UNUSED,
-              bfd_print_symbol_type how ATTRIBUTE_UNUSED)
-{
-}
-
 /* ELF .o/exec file reading */
 
 /* Create a new bfd section from an ELF section header.  */
@@ -816,9 +757,6 @@ bfd_section_from_shdr (bfd *abfd, unsigned int shindex)
     case SHT_NULL:
     case SHT_NOTE:		/* .note section.  */
     case SHT_DYNAMIC:	/* Dynamic linking information.  */
-      goto success;
-
-    case SHT_PROGBITS:		/* Normal section with contents.  */
     case SHT_NOBITS:		/* .bss section.  */
     case SHT_HASH:		/* .hash section.  */
     case SHT_INIT_ARRAY:	/* .init_array section.  */
@@ -826,410 +764,106 @@ bfd_section_from_shdr (bfd *abfd, unsigned int shindex)
     case SHT_PREINIT_ARRAY:	/* .preinit_array section.  */
     case SHT_GNU_LIBLIST:	/* .gnu.liblist section.  */
     case SHT_GNU_HASH:		/* .gnu.hash section.  */
+    case SHT_SHLIB:
+    case SHT_GROUP:
+    case SHT_DYNSYM:		/* A dynamic symbol table.  */
+    case SHT_SYMTAB_SHNDX:	/* Symbol section indices when >64k sections.  */
+    case SHT_REL:
+    case SHT_RELA:
+    case SHT_GNU_versym:
+    case SHT_GNU_verdef:
+    case SHT_GNU_verneed:
+      goto success;
+
+    case SHT_PROGBITS:		/* Normal section with contents.  */
       ret = _bfd_elf_make_section_from_shdr (abfd, hdr, name, shindex);
       goto success;
 
     case SHT_SYMTAB:		/* A symbol table.  */
       if (elf_onesymtab (abfd) == shindex)
-	goto success;
+    goto success;
 
       if (hdr->sh_entsize != sizeof (Elf64_External_Sym))
     goto fail;
 
       if (hdr->sh_info * hdr->sh_entsize > hdr->sh_size)
-	{
-	  if (hdr->sh_size != 0)
-	    goto fail;
-	  /* Some assemblers erroneously set sh_info to one with a
-	     zero sh_size.  ld sees this as a global symbol count
-	     of (unsigned) -1.  Fix it here.  */
-	  hdr->sh_info = 0;
-	  goto success;
-	}
+    {
+      if (hdr->sh_size != 0)
+        goto fail;
+      /* Some assemblers erroneously set sh_info to one with a
+         zero sh_size.  ld sees this as a global symbol count
+         of (unsigned) -1.  Fix it here.  */
+      hdr->sh_info = 0;
+      goto success;
+    }
 
       /* PR 18854: A binary might contain more than one symbol table.
-	 Unusual, but possible.  Warn, but continue.  */
+     Unusual, but possible.  Warn, but continue.  */
       if (elf_onesymtab (abfd) != 0)
-	{
-	  _bfd_error_handler
-	    /* xgettext:c-format */
-	    (_("%pB: warning: multiple symbol tables detected"
-	       " - ignoring the table in section %u"),
-	     abfd, shindex);
-	  goto success;
-	}
+    {
+      _bfd_error_handler
+        /* xgettext:c-format */
+        (_("%pB: warning: multiple symbol tables detected"
+           " - ignoring the table in section %u"),
+         abfd, shindex);
+      goto success;
+    }
       elf_onesymtab (abfd) = shindex;
       elf_symtab_hdr (abfd) = *hdr;
       elf_elfsections (abfd)[shindex] = hdr = & elf_symtab_hdr (abfd);
       abfd->flags |= HAS_SYMS;
 
       /* Sometimes a shared object will map in the symbol table.  If
-	 SHF_ALLOC is set, and this is a shared object, then we also
-	 treat this section as a BFD section.  We can not base the
-	 decision purely on SHF_ALLOC, because that flag is sometimes
-	 set in a relocatable object file, which would confuse the
-	 linker.  */
+     SHF_ALLOC is set, and this is a shared object, then we also
+     treat this section as a BFD section.  We can not base the
+     decision purely on SHF_ALLOC, because that flag is sometimes
+     set in a relocatable object file, which would confuse the
+     linker.  */
       if ((hdr->sh_flags & SHF_ALLOC) != 0
-	  && (abfd->flags & DYNAMIC) != 0
-	  && ! _bfd_elf_make_section_from_shdr (abfd, hdr, name,
-						shindex))
-	goto fail;
-
-      /* Go looking for SHT_SYMTAB_SHNDX too, since if there is one we
-	 can't read symbols without that section loaded as well.  It
-	 is most likely specified by the next section header.  */
-      {
-	elf_section_list * entry;
-	unsigned int i, num_sec;
-
-	for (entry = elf_symtab_shndx_list (abfd); entry != NULL; entry = entry->next)
-	  if (entry->hdr.sh_link == shindex)
-	    goto success;
-
-	num_sec = elf_numsections (abfd);
-	for (i = shindex + 1; i < num_sec; i++)
-	  {
-	    Elf_Internal_Shdr *hdr2 = elf_elfsections (abfd)[i];
-
-	    if (hdr2->sh_type == SHT_SYMTAB_SHNDX
-		&& hdr2->sh_link == shindex)
-	      break;
-	  }
-
-	if (i == num_sec)
-	  for (i = 1; i < shindex; i++)
-	    {
-	      Elf_Internal_Shdr *hdr2 = elf_elfsections (abfd)[i];
-
-	      if (hdr2->sh_type == SHT_SYMTAB_SHNDX
-		  && hdr2->sh_link == shindex)
-		break;
-	    }
-
-	if (i != shindex)
-	  ret = bfd_section_from_shdr (abfd, i);
-	/* else FIXME: we have failed to find the symbol table - should we issue an error ? */
-	goto success;
-      }
-
-    case SHT_DYNSYM:		/* A dynamic symbol table.  */
-      if (elf_dynsymtab (abfd) == shindex)
-	goto success;
-
-      if (hdr->sh_entsize != sizeof (Elf64_External_Sym))
+      && (abfd->flags & DYNAMIC) != 0
+      && ! _bfd_elf_make_section_from_shdr (abfd, hdr, name,
+                        shindex))
     goto fail;
 
-      if (hdr->sh_info * hdr->sh_entsize > hdr->sh_size)
-	{
-	  if (hdr->sh_size != 0)
-	    goto fail;
-
-	  /* Some linkers erroneously set sh_info to one with a
-	     zero sh_size.  ld sees this as a global symbol count
-	     of (unsigned) -1.  Fix it here.  */
-	  hdr->sh_info = 0;
-	  goto success;
-	}
-
-      /* PR 18854: A binary might contain more than one dynamic symbol table.
-	 Unusual, but possible.  Warn, but continue.  */
-      if (elf_dynsymtab (abfd) != 0)
-	{
-	  _bfd_error_handler
-	    /* xgettext:c-format */
-	    (_("%pB: warning: multiple dynamic symbol tables detected"
-	       " - ignoring the table in section %u"),
-	     abfd, shindex);
-	  goto success;
-	}
-      elf_dynsymtab (abfd) = shindex;
-      elf_tdata (abfd)->dynsymtab_hdr = *hdr;
-      elf_elfsections (abfd)[shindex] = hdr = &elf_tdata (abfd)->dynsymtab_hdr;
-      abfd->flags |= HAS_SYMS;
-
-      /* Besides being a symbol table, we also treat this as a regular
-	 section, so that objcopy can handle it.  */
-      ret = _bfd_elf_make_section_from_shdr (abfd, hdr, name, shindex);
-      goto success;
-
-    case SHT_SYMTAB_SHNDX:	/* Symbol section indices when >64k sections.  */
+      /* Go looking for SHT_SYMTAB_SHNDX too, since if there is one we
+     can't read symbols without that section loaded as well.  It
+     is most likely specified by the next section header.  */
       {
-	elf_section_list * entry;
+    elf_section_list * entry;
+    unsigned int i, num_sec;
 
-	for (entry = elf_symtab_shndx_list (abfd); entry != NULL; entry = entry->next)
-	  if (entry->ndx == shindex)
-	    goto success;
+    for (entry = elf_symtab_shndx_list (abfd); entry != NULL; entry = entry->next)
+      if (entry->hdr.sh_link == shindex)
+        goto success;
 
-	entry = bfd_alloc (abfd, sizeof * entry);
-	if (entry == NULL)
-	  goto fail;
-	entry->ndx = shindex;
-	entry->hdr = * hdr;
-	entry->next = elf_symtab_shndx_list (abfd);
-	elf_symtab_shndx_list (abfd) = entry;
-	elf_elfsections (abfd)[shindex] = & entry->hdr;
-	goto success;
+    num_sec = elf_numsections (abfd);
+    for (i = shindex + 1; i < num_sec; i++)
+      {
+        Elf_Internal_Shdr *hdr2 = elf_elfsections (abfd)[i];
+
+        if (hdr2->sh_type == SHT_SYMTAB_SHNDX
+        && hdr2->sh_link == shindex)
+          break;
       }
 
-    case SHT_STRTAB:		/* A string table.  */
-      if (hdr->bfd_section != NULL)
-	goto success;
+    if (i == num_sec)
+      for (i = 1; i < shindex; i++)
+        {
+          Elf_Internal_Shdr *hdr2 = elf_elfsections (abfd)[i];
 
-      if (ehdr->e_shstrndx == shindex)
-	{
-	  elf_tdata (abfd)->shstrtab_hdr = *hdr;
-	  elf_elfsections (abfd)[shindex] = &elf_tdata (abfd)->shstrtab_hdr;
-	  goto success;
-	}
+          if (hdr2->sh_type == SHT_SYMTAB_SHNDX
+          && hdr2->sh_link == shindex)
+        break;
+        }
 
-      if (elf_elfsections (abfd)[elf_onesymtab (abfd)]->sh_link == shindex)
-	{
-	symtab_strtab:
-	  elf_tdata (abfd)->strtab_hdr = *hdr;
-	  elf_elfsections (abfd)[shindex] = &elf_tdata (abfd)->strtab_hdr;
-	  goto success;
-	}
-
-      if (elf_elfsections (abfd)[elf_dynsymtab (abfd)]->sh_link == shindex)
-	{
-	dynsymtab_strtab:
-	  elf_tdata (abfd)->dynstrtab_hdr = *hdr;
-	  hdr = &elf_tdata (abfd)->dynstrtab_hdr;
-	  elf_elfsections (abfd)[shindex] = hdr;
-	  /* We also treat this as a regular section, so that objcopy
-	     can handle it.  */
-	  ret = _bfd_elf_make_section_from_shdr (abfd, hdr, name,
-						 shindex);
-	  goto success;
-	}
-
-      /* If the string table isn't one of the above, then treat it as a
-	 regular section.  We need to scan all the headers to be sure,
-	 just in case this strtab section appeared before the above.  */
-      if (elf_onesymtab (abfd) == 0 || elf_dynsymtab (abfd) == 0)
-	{
-	  unsigned int i, num_sec;
-
-	  num_sec = elf_numsections (abfd);
-	  for (i = 1; i < num_sec; i++)
-	    {
-	      Elf_Internal_Shdr *hdr2 = elf_elfsections (abfd)[i];
-	      if (hdr2->sh_link == shindex)
-		{
-		  /* Prevent endless recursion on broken objects.  */
-		  if (i == shindex)
-		    goto fail;
-		  if (! bfd_section_from_shdr (abfd, i))
-		    goto fail;
-		  if (elf_onesymtab (abfd) == i)
-		    goto symtab_strtab;
-		  if (elf_dynsymtab (abfd) == i)
-		    goto dynsymtab_strtab;
-		}
-	    }
-	}
-      ret = _bfd_elf_make_section_from_shdr (abfd, hdr, name, shindex);
-      goto success;
-
-    case SHT_REL:
-    case SHT_RELA:
-      /* *These* do a lot of work -- but build no sections!  */
-      {
-	asection *target_sect;
-	Elf_Internal_Shdr *hdr2, **p_hdr;
-	unsigned int num_sec = elf_numsections (abfd);
-	struct bfd_elf_section_data *esdt;
-
-	/* Check for a bogus link to avoid crashing.  */
-	if (hdr->sh_link >= num_sec)
-	  {
-	    _bfd_error_handler
-	      /* xgettext:c-format */
-	      (_("%pB: invalid link %u for reloc section %s (index %u)"),
-	       abfd, hdr->sh_link, name, shindex);
-	    ret = _bfd_elf_make_section_from_shdr (abfd, hdr, name,
-						   shindex);
-	    goto success;
-	  }
-
-	/* For some incomprehensible reason Oracle distributes
-	   libraries for Solaris in which some of the objects have
-	   bogus sh_link fields.  It would be nice if we could just
-	   reject them, but, unfortunately, some people need to use
-	   them.  We scan through the section headers; if we find only
-	   one suitable symbol table, we clobber the sh_link to point
-	   to it.  I hope this doesn't break anything.
-
-	   Don't do it on executable nor shared library.  */
-	if ((abfd->flags & (DYNAMIC | EXEC_P)) == 0
-	    && elf_elfsections (abfd)[hdr->sh_link]->sh_type != SHT_SYMTAB
-	    && elf_elfsections (abfd)[hdr->sh_link]->sh_type != SHT_DYNSYM)
-	  {
-	    unsigned int scan;
-	    int found;
-
-	    found = 0;
-	    for (scan = 1; scan < num_sec; scan++)
-	      {
-		if (elf_elfsections (abfd)[scan]->sh_type == SHT_SYMTAB
-		    || elf_elfsections (abfd)[scan]->sh_type == SHT_DYNSYM)
-		  {
-		    if (found != 0)
-		      {
-			found = 0;
-			break;
-		      }
-		    found = scan;
-		  }
-	      }
-	    if (found != 0)
-	      hdr->sh_link = found;
-	  }
-
-	/* Get the symbol table.  */
-	if ((elf_elfsections (abfd)[hdr->sh_link]->sh_type == SHT_SYMTAB
-	     || elf_elfsections (abfd)[hdr->sh_link]->sh_type == SHT_DYNSYM)
-	    && ! bfd_section_from_shdr (abfd, hdr->sh_link))
-	  goto fail;
-
-	/* If this is an alloc section in an executable or shared
-	   library, or the reloc section does not use the main symbol
-	   table we don't treat it as a reloc section.  BFD can't
-	   adequately represent such a section, so at least for now,
-	   we don't try.  We just present it as a normal section.  We
-	   also can't use it as a reloc section if it points to the
-	   null section, an invalid section, another reloc section, or
-	   its sh_link points to the null section.  */
-	if (((abfd->flags & (DYNAMIC | EXEC_P)) != 0
-	     && (hdr->sh_flags & SHF_ALLOC) != 0)
-	    || hdr->sh_link == SHN_UNDEF
-	    || hdr->sh_link != elf_onesymtab (abfd)
-	    || hdr->sh_info == SHN_UNDEF
-	    || hdr->sh_info >= num_sec
-	    || elf_elfsections (abfd)[hdr->sh_info]->sh_type == SHT_REL
-	    || elf_elfsections (abfd)[hdr->sh_info]->sh_type == SHT_RELA)
-	  {
-	    ret = _bfd_elf_make_section_from_shdr (abfd, hdr, name,
-						   shindex);
-	    goto success;
-	  }
-
-	if (! bfd_section_from_shdr (abfd, hdr->sh_info))
-	  goto fail;
-
-	target_sect = bfd_section_from_elf_index (abfd, hdr->sh_info);
-	if (target_sect == NULL)
-	  goto fail;
-
-	esdt = elf_section_data (target_sect);
-	if (hdr->sh_type == SHT_RELA)
-	  p_hdr = &esdt->rela.hdr;
-	else
-	  p_hdr = &esdt->rel.hdr;
-
-	/* PR 17512: file: 0b4f81b7.  */
-	if (*p_hdr != NULL)
-	  goto fail;
-	hdr2 = (Elf_Internal_Shdr *) bfd_alloc (abfd, sizeof (*hdr2));
-	if (hdr2 == NULL)
-	  goto fail;
-	*hdr2 = *hdr;
-	*p_hdr = hdr2;
-	elf_elfsections (abfd)[shindex] = hdr2;
-/*    target_sect->reloc_count += (NUM_SHDR_ENTRIES (hdr)
-                     * bed->s->int_rels_per_ext_rel);*/
-	target_sect->flags |= SEC_RELOC;
-	target_sect->relocation = NULL;
-	target_sect->rel_filepos = hdr->sh_offset;
-	/* In the section to which the relocations apply, mark whether
-	   its relocations are of the REL or RELA variety.  */
-	if (hdr->sh_size != 0)
-	  {
-	    if (hdr->sh_type == SHT_RELA)
-	      target_sect->use_rela_p = 1;
-	  }
-	abfd->flags |= HAS_RELOC;
-	goto success;
+    if (i != shindex)
+      ret = bfd_section_from_shdr (abfd, i);
+    /* else FIXME: we have failed to find the symbol table - should we issue an error ? */
+    goto success;
       }
-
-    case SHT_GNU_verdef:
-      elf_dynverdef (abfd) = shindex;
-      elf_tdata (abfd)->dynverdef_hdr = *hdr;
-      ret = _bfd_elf_make_section_from_shdr (abfd, hdr, name, shindex);
-      goto success;
-
-    case SHT_GNU_versym:
-      if (hdr->sh_entsize != sizeof (Elf_External_Versym))
-	goto fail;
-
-      elf_dynversym (abfd) = shindex;
-      elf_tdata (abfd)->dynversym_hdr = *hdr;
-      ret = _bfd_elf_make_section_from_shdr (abfd, hdr, name, shindex);
-      goto success;
-
-    case SHT_GNU_verneed:
-      elf_dynverref (abfd) = shindex;
-      elf_tdata (abfd)->dynverref_hdr = *hdr;
-      ret = _bfd_elf_make_section_from_shdr (abfd, hdr, name, shindex);
-      goto success;
-
-    case SHT_SHLIB:
-    case SHT_GROUP:
-      goto success;
 
     default:
-      /* Possibly an attributes section.  */
-
-      if (hdr->sh_type >= SHT_LOUSER && hdr->sh_type <= SHT_HIUSER)
-	{
-	  if ((hdr->sh_flags & SHF_ALLOC) != 0)
-	    /* FIXME: How to properly handle allocated section reserved
-	       for applications?  */
-	    _bfd_error_handler
-	      /* xgettext:c-format */
-	      (_("%pB: unknown type [%#x] section `%s'"),
-	       abfd, hdr->sh_type, name);
-	  else
-	    {
-	      /* Allow sections reserved for applications.  */
-	      ret = _bfd_elf_make_section_from_shdr (abfd, hdr, name,
-						     shindex);
-	      goto success;
-	    }
-	}
-      else if (hdr->sh_type >= SHT_LOPROC
-	       && hdr->sh_type <= SHT_HIPROC)
-	/* FIXME: We should handle this section.  */
-	_bfd_error_handler
-	  /* xgettext:c-format */
-	  (_("%pB: unknown type [%#x] section `%s'"),
-	   abfd, hdr->sh_type, name);
-      else if (hdr->sh_type >= SHT_LOOS && hdr->sh_type <= SHT_HIOS)
-	{
-	  /* Unrecognised OS-specific sections.  */
-	  if ((hdr->sh_flags & SHF_OS_NONCONFORMING) != 0)
-	    /* SHF_OS_NONCONFORMING indicates that special knowledge is
-	       required to correctly process the section and the file should
-	       be rejected with an error message.  */
-	    _bfd_error_handler
-	      /* xgettext:c-format */
-	      (_("%pB: unknown type [%#x] section `%s'"),
-	       abfd, hdr->sh_type, name);
-	  else
-	    {
-	      /* Otherwise it should be processed.  */
-	      ret = _bfd_elf_make_section_from_shdr (abfd, hdr, name, shindex);
-	      goto success;
-	    }
-	}
-      else
-	/* FIXME: We should handle this section.  */
-	_bfd_error_handler
-	  /* xgettext:c-format */
-	  (_("%pB: unknown type [%#x] section `%s'"),
-	   abfd, hdr->sh_type, name);
-
-      goto fail;
+      goto success;
     }
 
  fail:
@@ -1274,41 +908,6 @@ _bfd_elf_new_section_hook (bfd *abfd, asection *sec)
   return _bfd_generic_new_section_hook (abfd, sec);
 }
 
-bfd_boolean
-_bfd_elf_init_private_section_data (bfd *ibfd ATTRIBUTE_UNUSED,
-                    asection *isec ATTRIBUTE_UNUSED,
-                    bfd *obfd ATTRIBUTE_UNUSED,
-                    asection *osec ATTRIBUTE_UNUSED,
-                    struct bfd_link_info *link_info ATTRIBUTE_UNUSED)
-
-{
-  return TRUE;
-}
-
-bfd_boolean
-_bfd_elf_copy_private_section_data (bfd *ibfd ATTRIBUTE_UNUSED,
-                    asection *isec ATTRIBUTE_UNUSED,
-                    bfd *obfd ATTRIBUTE_UNUSED,
-                    asection *osec ATTRIBUTE_UNUSED)
-{
-  return TRUE;
-}
-
-bfd_boolean
-_bfd_elf_copy_private_header_data (bfd *ibfd ATTRIBUTE_UNUSED, bfd *obfd ATTRIBUTE_UNUSED)
-{
-  return TRUE;
-}
-
-bfd_boolean
-_bfd_elf_copy_private_symbol_data (bfd *ibfd ATTRIBUTE_UNUSED,
-                   asymbol *isymarg ATTRIBUTE_UNUSED,
-                   bfd *obfd ATTRIBUTE_UNUSED,
-                   asymbol *osymarg ATTRIBUTE_UNUSED)
-{
-  return TRUE;
-}
-
 /* Return the number of bytes required to hold the symtab vector.
 
    Note that we base it on the count plus 1, since we will null terminate
@@ -1348,12 +947,6 @@ _bfd_elf_canonicalize_symtab (bfd *abfd, asymbol **allocation)
   return symcount;
 }
 
-bfd_boolean
-_bfd_elf_slurp_version_tables (bfd *abfd ATTRIBUTE_UNUSED, bfd_boolean default_imported_symver ATTRIBUTE_UNUSED)
-{
-  return TRUE;
-}
-
 asymbol *
 _bfd_elf_make_empty_symbol (bfd *abfd)
 {
@@ -1364,28 +957,6 @@ _bfd_elf_make_empty_symbol (bfd *abfd)
     return NULL;
   newsym->symbol.the_bfd = abfd;
   return &newsym->symbol;
-}
-
-void
-_bfd_elf_get_symbol_info (bfd *abfd ATTRIBUTE_UNUSED,
-              asymbol *symbol ATTRIBUTE_UNUSED,
-              symbol_info *ret ATTRIBUTE_UNUSED)
-{
-}
-
-bfd_boolean
-_bfd_elf_is_local_label_name (bfd *abfd ATTRIBUTE_UNUSED,
-                  const char *name ATTRIBUTE_UNUSED)
-{
-  return TRUE;
-}
-
-alent *
-_bfd_elf_get_lineno (bfd *abfd ATTRIBUTE_UNUSED,
-		     asymbol *symbol ATTRIBUTE_UNUSED)
-{
-  abort ();
-  return NULL;
 }
 
 /* Find the nearest line to a particular section and offset,
@@ -1429,29 +1000,11 @@ _bfd_elf_find_nearest_line (bfd *abfd,
 }
 
 bfd_boolean
-_bfd_elf_find_line (bfd *abfd ATTRIBUTE_UNUSED, asymbol **symbols ATTRIBUTE_UNUSED, asymbol *symbol ATTRIBUTE_UNUSED,
-            const char **filename_ptr ATTRIBUTE_UNUSED, unsigned int *line_ptr ATTRIBUTE_UNUSED)
-{
-    return FALSE;
-}
-
-bfd_boolean
-_bfd_elf_find_inliner_info (bfd *abfd ATTRIBUTE_UNUSED,
-                const char **filename_ptr ATTRIBUTE_UNUSED,
-                const char **functionname_ptr ATTRIBUTE_UNUSED,
-                unsigned int *line_ptr ATTRIBUTE_UNUSED)
-{
-  return FALSE;
-}
-
-bfd_boolean
 _bfd_elf_close_and_cleanup (bfd *abfd)
 {
   struct elf_obj_tdata *tdata = elf_tdata (abfd);
   if (bfd_get_format (abfd) == bfd_object && tdata != NULL)
     {
-      if (elf_tdata (abfd)->o != NULL && elf_shstrtab (abfd) != NULL)
-	_bfd_elf_strtab_free (elf_shstrtab (abfd));
       _bfd_dwarf2_cleanup_debug_info (abfd, &tdata->dwarf2_find_line_info);
     }
 

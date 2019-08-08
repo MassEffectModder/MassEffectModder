@@ -8,13 +8,6 @@
 #endif
 #define __CONFIG_H__ 1
 
-/* Name of host specific core header file to include in elf.c. */
-#if defined(__linux__)
-#define CORE_HEADER "hosts/x86-64linux.h"
-#else
-/* #undef CORE_HEADER */
-#endif
-
 /* Define to 1 if you want to enable -z separate-code in ELF linker by
    default. */
 #if defined(__linux__)
