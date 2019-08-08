@@ -560,29 +560,8 @@ _bfd_pex64i_slurp_codeview_record (bfd * abfd, file_ptr where, unsigned long len
 }
 
 bfd_boolean
-_bfd_pex64_print_ce_compressed_pdata (bfd * abfd ATTRIBUTE_UNUSED, void * vfile ATTRIBUTE_UNUSED)
-{
-  return TRUE;
-}
-
-bfd_boolean
 _bfd_pex64_bfd_copy_private_bfd_data_common (bfd * ibfd ATTRIBUTE_UNUSED, bfd * obfd ATTRIBUTE_UNUSED)
 {
   return TRUE;
 }
 
-bfd_boolean
-_bfd_pex64_bfd_copy_private_section_data (bfd *ibfd ATTRIBUTE_UNUSED,
-                       asection *isec ATTRIBUTE_UNUSED,
-                       bfd *obfd ATTRIBUTE_UNUSED,
-                       asection *osec ATTRIBUTE_UNUSED)
-{
-  return TRUE;
-}
-
-void
-_bfd_pex64_get_symbol_info (bfd * abfd ATTRIBUTE_UNUSED,
-                            asymbol *symbol ATTRIBUTE_UNUSED,
-                            symbol_info *ret ATTRIBUTE_UNUSED)
-{
-}

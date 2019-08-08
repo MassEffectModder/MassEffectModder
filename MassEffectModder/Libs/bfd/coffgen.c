@@ -375,44 +375,17 @@ coff_canonicalize_symtab (bfd *abfd, asymbol **alocation)
    >= SYMNMLEN + 1.  */
 
 const char *
-_bfd_coff_internal_syment_name (bfd *abfd,
-                const struct internal_syment *sym,
-                char *buf)
+_bfd_coff_internal_syment_name (bfd *abfd ATTRIBUTE_UNUSED,
+                const struct internal_syment *sym ATTRIBUTE_UNUSED,
+                char *buf ATTRIBUTE_UNUSED)
 {
-  /* FIXME: It's not clear this will work correctly if sizeof
-     (_n_zeroes) != 4.  */
-  if (sym->_n._n_n._n_zeroes != 0
-      || sym->_n._n_n._n_offset == 0)
-    {
-      memcpy (buf, sym->_n._n_name, SYMNMLEN);
-      buf[SYMNMLEN] = '\0';
-      return buf;
-    }
-  else
-    {
-      const char *strings;
-
-      BFD_ASSERT (sym->_n._n_n._n_offset >= STRING_SIZE_SIZE);
-      strings = obj_coff_strings (abfd);
-      if (strings == NULL)
-    {
-      strings = _bfd_coff_read_string_table (abfd);
-      if (strings == NULL)
-        return NULL;
-    }
-      /* PR 17910: Only check for string overflow if the length has been set.
-     Some DLLs, eg those produced by Visual Studio, may not set the length field.  */
-      if (obj_coff_strings_len (abfd) > 0
-      && sym->_n._n_n._n_offset >= obj_coff_strings_len (abfd))
-    return NULL;
-      return strings + sym->_n._n_n._n_offset;
-    }
+  return NULL;
 }
 
 alent *
-coff_get_lineno (bfd *ignore_abfd ATTRIBUTE_UNUSED, asymbol *symbol)
+coff_get_lineno (bfd *ignore_abfd ATTRIBUTE_UNUSED, asymbol *symbol ATTRIBUTE_UNUSED)
 {
-  return coffsymbol (symbol)->lineno;
+  return NULL;
 }
 
 /* This function transforms the offsets into the symbol table into
@@ -1259,15 +1232,10 @@ coff_find_nearest_line (bfd *abfd,
 }
 
 bfd_boolean
-coff_find_inliner_info (bfd *abfd,
-            const char **filename_ptr,
-            const char **functionname_ptr,
-            unsigned int *line_ptr)
+coff_find_inliner_info (bfd *abfd ATTRIBUTE_UNUSED,
+            const char **filename_ptr ATTRIBUTE_UNUSED,
+            const char **functionname_ptr ATTRIBUTE_UNUSED,
+            unsigned int *line_ptr ATTRIBUTE_UNUSED)
 {
-  bfd_boolean found;
-
-  found = _bfd_dwarf2_find_inliner_info (abfd, filename_ptr,
-                     functionname_ptr, line_ptr,
-                     &coff_data(abfd)->dwarf2_find_line_info);
-  return (found);
+  return FALSE;
 }

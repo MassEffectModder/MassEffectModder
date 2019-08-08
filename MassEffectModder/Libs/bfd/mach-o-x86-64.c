@@ -463,7 +463,7 @@ const bfd_target TARGET_NAME =
     _bfd_dummy_target,
     bfd_mach_o_object_p,
     _bfd_dummy_target,
-    bfd_mach_o_core_p
+    _bfd_dummy_target
   },
   {				/* bfd_set_format.  */
     _bfd_bool_bfd_false_error,

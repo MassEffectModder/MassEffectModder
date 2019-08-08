@@ -220,8 +220,8 @@
 #define GET_PDATA_ENTRY			 bfd_get_32
 
 #define _bfd_XX_bfd_copy_private_bfd_data_common	_bfd_pex64_bfd_copy_private_bfd_data_common
-#define _bfd_XX_bfd_copy_private_section_data		_bfd_pex64_bfd_copy_private_section_data
-#define _bfd_XX_get_symbol_info				_bfd_pex64_get_symbol_info
+#define _bfd_XX_bfd_copy_private_section_data		_bfd_generic_bfd_copy_private_section_data
+#define _bfd_XX_get_symbol_info				_bfd_nosymbols_get_symbol_info
 #define _bfd_XX_only_swap_filehdr_out			_bfd_pex64_only_swap_filehdr_out
 #define _bfd_XX_print_private_bfd_data_common		_bfd_pex64_print_private_bfd_data_common
 #define _bfd_XXi_final_link_postscript			_bfd_pex64i_final_link_postscript

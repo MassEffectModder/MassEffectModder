@@ -11,7 +11,6 @@ SOURCES += \
     cache.c \
     compress.c \
     cpu-i386.c \
-    coffgen.c \
     dwarf2.c \
     filename_cmp.c \
     fnmatch.c \
@@ -36,6 +35,7 @@ SOURCES += \
 
 win32 {
 SOURCES += \
+    coffgen.c \
     pei-x86_64.c \
     pex64igen.c
 }
