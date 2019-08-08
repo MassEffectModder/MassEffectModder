@@ -22,6 +22,7 @@
 #define PACKAGE "MEM"
 #define PACKAGE_VERSION ""
 
+#include <cstring>
 #include <bfd.h>
 
 void BacktraceGetFilename(char *dst, const char *src, int maxLen)

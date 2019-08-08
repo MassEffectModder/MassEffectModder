@@ -24,9 +24,10 @@
 #include <cxxabi.h>
 #include <mach-o/dyld.h>
 
-#include "Exceptions/Backtrace.h"
+#include "Wrappers.h"
 
 #define MAX_CALLSTACK 100
+#define PATH_MAX      1024
 
 static void getExecutablePath(char *path, uint32_t maxLen)
 {

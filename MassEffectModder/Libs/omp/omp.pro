@@ -68,5 +68,6 @@ HEADERS += \
 QMAKE_CXXFLAGS += -std=gnu++11 -O3 -DNDEBUG -D _GNU_SOURCE -D _REENTRANT \
                   -fno-exceptions -fno-rtti -w
 
-QMAKE_CXXLAGS_RELEASE += -g1
+QMAKE_CXXFLAGS_RELEASE -= -O2
+QMAKE_CXXFLAGS_RELEASE += -g1
 QMAKE_CXXFLAGS_DEBUG += -g

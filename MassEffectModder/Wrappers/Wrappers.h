@@ -74,4 +74,9 @@ void DecompressRGBBlock(BYTE rgbBlock[BLOCK_SIZE_4X4X4], UINT32 compressedBlock[
 void CompressAlphaBlock(BYTE alphaBlock[BLOCK_SIZE_4X4], UINT32 compressedBlock[2]);
 void DecompressAlphaBlock(BYTE alphaBlock[BLOCK_SIZE_4X4], UINT32 compressedBlock[2]);
 
+void BacktraceGetFilename(char *dst, const char *src, int maxLen);
+int BacktraceGetInfoFromModule(char *moduleFilePath, unsigned long long offset, char *sourceFile,
+    char *sourceFunc, unsigned int *sourceLine);
+bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode);
+
 #endif

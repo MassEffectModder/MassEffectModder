@@ -24,7 +24,7 @@
 #include <csignal>
 
 #include <Helpers/Logs.h>
-#include <Exceptions/Backtrace.h>
+#include <Wrappers.h>
 
 using namespace std;
 

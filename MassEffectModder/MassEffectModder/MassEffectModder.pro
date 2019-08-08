@@ -20,7 +20,6 @@ TEMPLATE = app
 
 SOURCES += \
     Exceptions/SignalHandler.cpp \
-    Exceptions/BacktraceCommon.cpp \
     Helpers/Crc32.cpp \
     Helpers/FileStream.cpp \
     Helpers/Logs.cpp \
@@ -75,7 +74,6 @@ HEADERS += \
 PRECOMPILED_HEADER = Precompiled.h
 
 HEADERS += \
-    Exceptions/Backtrace.h \
     Exceptions/Exception.h \
     Exceptions/SignalHandler.h \
     Helpers/ByteBuffer.h \
@@ -124,9 +122,9 @@ equals(GUI_MODE, true) {
     DEFINES += GUI
 }
 
+QMAKE_CXXFLAGS_RELEASE -= -O2
 equals(RELEASE_IN_DEBUG_MODE, true) {
     QMAKE_CXXFLAGS_RELEASE += -g
-    QMAKE_CXXFLAGS_RELEASE -= -O2
 } else {
     CONFIG(release, debug | release) {
         DEFINES += NDEBUG
@@ -136,7 +134,7 @@ equals(RELEASE_IN_DEBUG_MODE, true) {
 
 QMAKE_CXXFLAGS +=
 QMAKE_CXXFLAGS_DEBUG += -g
-QMAKE_CXXFLAGS_RELEASE -= -O2
+QMAKE_CXXFLAGS_RELEASE += -O3
 
 win32-g++: {
     QMAKE_LFLAGS_RELEASE = "-Wl,--relax"
@@ -146,7 +144,7 @@ win32-g++: {
     PRE_TARGETDEPS += $$OUT_PWD/../Wrappers/libWrappers.a
 }
 
-INCLUDEPATH += $$PWD/../Wrappers $$PWD/../Libs/bfd
+INCLUDEPATH += $$PWD/../Wrappers
 !win32 {
     INCLUDEPATH += $$PWD/../Libs/omp
 }
@@ -193,25 +191,18 @@ LIBS += \
 
 macx {
     QMAKE_CXXFLAGS += -Xpreprocessor -fopenmp
-
-    SOURCES += Exceptions/BacktraceMac.cpp
 }
 
 win32 {
     QMAKE_CXXFLAGS += -fopenmp
     LIBS += -limagehlp -lgomp
-
-    SOURCES += Exceptions/BacktraceWin.cpp
 }
 
 linux {
     QMAKE_CXXFLAGS += -fopenmp
     LIBS += -ldl
-
     equals(QMAKE_CXX, clang++) {
         # backtrace require compile with 'dynamic' flag
         QMAKE_LFLAGS += -rdynamic
     }
-
-    SOURCES += Exceptions/BacktraceLin.cpp
 }

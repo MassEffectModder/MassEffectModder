@@ -33,7 +33,8 @@ HEADERS += \
     pngpriv.h \
     pngstruct.h
 
-QMAKE_CFLAGS += -O2 -I../zlib -Wno-unused-parameter
+QMAKE_CFLAGS += -O3 -I../zlib -Wno-unused-parameter
+QMAKE_CFLAGS_RELEASE -= -O2
 QMAKE_CFLAGS_RELEASE += -g1
 QMAKE_CFLAGS_DEBUG += -g
 

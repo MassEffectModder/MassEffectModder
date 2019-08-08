@@ -22,7 +22,8 @@
 #include <cstring>
 #include <execinfo.h>
 #include <cxxabi.h>
-#include "Exceptions/Backtrace.h"
+
+#include "Wrappers/Wrappers.h"
 
 using namespace std;
 

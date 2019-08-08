@@ -27,7 +27,7 @@
 #include <string>
 #include <cxxabi.h>
 
-#include "Exceptions/Backtrace.h"
+#include "Wrappers/Wrappers.h"
 
 bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
 {
