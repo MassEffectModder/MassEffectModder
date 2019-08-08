@@ -35,13 +35,6 @@ bfd_mach_o_x86_64_object_p (bfd *abfd)
   return bfd_mach_o_header_p (abfd, 0, 0, BFD_MACH_O_CPU_TYPE_X86_64);
 }
 
-static const bfd_target *
-bfd_mach_o_x86_64_core_p (bfd *abfd)
-{
-  return bfd_mach_o_header_p (abfd, 0,
-			      BFD_MACH_O_MH_CORE, BFD_MACH_O_CPU_TYPE_X86_64);
-}
-
 /* In case we're on a 32-bit machine, construct a 64-bit "-1" value.  */
 #define MINUS_ONE (~ (bfd_vma) 0)
 
