@@ -283,8 +283,6 @@ static const mach_o_segment_name_xlat segsec_names_xlat[] =
     { NULL, NULL }
   };
 
-static const char dsym_subdir[] = ".dSYM/Contents/Resources/DWARF";
-
 /* For both cases bfd-name => mach-o name and vice versa, the specific target
    is checked before the generic.  This allows a target (e.g. ppc for cstring)
    to override the generic definition with a more specific one.  */
@@ -5670,120 +5668,6 @@ bfd_mach_o_core_file_failing_signal (bfd *abfd ATTRIBUTE_UNUSED)
   return 0;
 }
 
-static bfd_mach_o_uuid_command *
-bfd_mach_o_lookup_uuid_command (bfd *abfd)
-{
-  bfd_mach_o_load_command *uuid_cmd = NULL;
-  int ncmd = bfd_mach_o_lookup_command (abfd, BFD_MACH_O_LC_UUID, &uuid_cmd);
-  if (ncmd != 1 || uuid_cmd == NULL)
-    return FALSE;
-  return &uuid_cmd->command.uuid;
-}
-
-/* Return true if ABFD is a dSYM file and its UUID matches UUID_CMD. */
-
-static bfd_boolean
-bfd_mach_o_dsym_for_uuid_p (bfd *abfd, const bfd_mach_o_uuid_command *uuid_cmd)
-{
-  bfd_mach_o_uuid_command *dsym_uuid_cmd;
-
-  BFD_ASSERT (abfd);
-  BFD_ASSERT (uuid_cmd);
-
-  if (!bfd_check_format (abfd, bfd_object))
-    return FALSE;
-
-  if (bfd_get_flavour (abfd) != bfd_target_mach_o_flavour
-      || bfd_mach_o_get_data (abfd) == NULL
-      || bfd_mach_o_get_data (abfd)->header.filetype != BFD_MACH_O_MH_DSYM)
-    return FALSE;
-
-  dsym_uuid_cmd = bfd_mach_o_lookup_uuid_command (abfd);
-  if (dsym_uuid_cmd == NULL)
-    return FALSE;
-
-  if (memcmp (uuid_cmd->uuid, dsym_uuid_cmd->uuid,
-	      sizeof (uuid_cmd->uuid)) != 0)
-    return FALSE;
-
-  return TRUE;
-}
-
-/* Find a BFD in DSYM_FILENAME which matches ARCH and UUID_CMD.
-   The caller is responsible for closing the returned BFD object and
-   its my_archive if the returned BFD is in a fat dSYM. */
-
-static bfd *
-bfd_mach_o_find_dsym (const char *dsym_filename,
-		      const bfd_mach_o_uuid_command *uuid_cmd,
-		      const bfd_arch_info_type *arch)
-{
-  bfd *base_dsym_bfd, *dsym_bfd;
-
-  BFD_ASSERT (uuid_cmd);
-
-  base_dsym_bfd = bfd_openr (dsym_filename, NULL);
-  if (base_dsym_bfd == NULL)
-    return NULL;
-
-  dsym_bfd = bfd_mach_o_fat_extract (base_dsym_bfd, bfd_object, arch);
-  if (bfd_mach_o_dsym_for_uuid_p (dsym_bfd, uuid_cmd))
-    return dsym_bfd;
-
-  bfd_close (dsym_bfd);
-  if (base_dsym_bfd != dsym_bfd)
-    bfd_close (base_dsym_bfd);
-
-  return NULL;
-}
-
-/* Return a BFD created from a dSYM file for ABFD.
-   The caller is responsible for closing the returned BFD object, its
-   filename, and its my_archive if the returned BFD is in a fat dSYM. */
-
-static bfd *
-bfd_mach_o_follow_dsym (bfd *abfd)
-{
-  char *dsym_filename;
-  bfd_mach_o_uuid_command *uuid_cmd;
-  bfd *dsym_bfd, *base_bfd = abfd;
-  const char *base_basename;
-
-  if (abfd == NULL || bfd_get_flavour (abfd) != bfd_target_mach_o_flavour)
-    return NULL;
-
-  if (abfd->my_archive && !bfd_is_thin_archive (abfd->my_archive))
-    base_bfd = abfd->my_archive;
-  /* BFD may have been opened from a stream. */
-  if (base_bfd->filename == NULL)
-    {
-      bfd_set_error (bfd_error_invalid_operation);
-      return NULL;
-    }
-  base_basename = lbasename (base_bfd->filename);
-
-  uuid_cmd = bfd_mach_o_lookup_uuid_command (abfd);
-  if (uuid_cmd == NULL)
-    return NULL;
-
-  /* TODO: We assume the DWARF file has the same as the binary's.
-     It seems apple's GDB checks all files in the dSYM bundle directory.
-     http://opensource.apple.com/source/gdb/gdb-1708/src/gdb/macosx/macosx-tdep.c
-  */
-  dsym_filename = (char *)bfd_malloc (strlen (base_bfd->filename)
-				       + strlen (dsym_subdir) + 1
-				       + strlen (base_basename) + 1);
-  sprintf (dsym_filename, "%s%s/%s",
-	   base_bfd->filename, dsym_subdir, base_basename);
-
-  dsym_bfd = bfd_mach_o_find_dsym (dsym_filename, uuid_cmd,
-				   bfd_get_arch_info (abfd));
-  if (dsym_bfd == NULL)
-    free (dsym_filename);
-
-  return dsym_bfd;
-}
-
 bfd_boolean
 bfd_mach_o_find_nearest_line (bfd *abfd,
 			      asymbol **symbols,
@@ -5805,21 +5689,6 @@ bfd_mach_o_find_nearest_line (bfd *abfd,
     case BFD_MACH_O_MH_DYLIB:
     case BFD_MACH_O_MH_BUNDLE:
     case BFD_MACH_O_MH_KEXT_BUNDLE:
-      if (mdata->dwarf2_find_line_info == NULL)
-	{
-	  mdata->dsym_bfd = bfd_mach_o_follow_dsym (abfd);
-	  /* When we couldn't find dSYM for this binary, we look for
-	     the debug information in the binary itself. In this way,
-	     we won't try finding separated dSYM again because
-	     mdata->dwarf2_find_line_info will be filled. */
-	  if (! mdata->dsym_bfd)
-	    break;
-	  if (! _bfd_dwarf2_slurp_debug_info (abfd, mdata->dsym_bfd,
-					      dwarf_debug_sections, symbols,
-					      &mdata->dwarf2_find_line_info,
-					      FALSE))
-	    return FALSE;
-	}
       break;
     default:
       return FALSE;

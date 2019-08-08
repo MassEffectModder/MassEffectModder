@@ -46,10 +46,9 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
 {
     void *callstack[MAX_CALLSTACK];
     int status, count = 0;
-    //unsigned long long offset;
-    int offset;
+    unsigned long long offset;
     char moduleFilePath[PATH_MAX];
-    char /*sourceFile[PATH_MAX], */sourceFunc[PATH_MAX];
+    char sourceFile[PATH_MAX], sourceFunc[PATH_MAX];
 
     int numberOfTraces = backtrace(callstack, MAX_CALLSTACK);
     char **strings = backtrace_symbols(callstack, numberOfTraces);
@@ -69,8 +68,8 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
         char address[strlen(strings[i]) + 1];
         char sourceFunction[strlen(strings[i]) + 1];
         char moduleName[strlen(strings[i]) + 1];
-        std::sscanf(strings[i], "%*d %s %s %s %*s %d",
-                    moduleName, address, sourceFunction, &offset);
+        std::sscanf(strings[i], "%*d %s %s %s %*s %*d",
+                    moduleName, address, sourceFunction);
         if (crashMode && i <= 2)
             continue;
         if (exceptionMode && i <= 1)
@@ -84,10 +83,14 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
             continue;
         }
 
-        //offset = strtoull(address, nullptr, 16);
-        //unsigned int sourceLine = 0;
-        //status = BacktraceGetInfoFromModule(moduleFilePath, offset,
-        //                           sourceFile, sourceFunc, &sourceLine);
+        offset = strtoull(address, nullptr, 16);
+        unsigned int sourceLine = 0;
+        status = BacktraceGetInfoFromModule(moduleFilePath, offset,
+                                   sourceFile, sourceFunc, &sourceLine);
+        if (status != 0)
+        {
+            continue;
+        }
         output += std::to_string(count) + "  ";
         char *funcNewName = abi::__cxa_demangle(sourceFunction, nullptr, nullptr, &status);
         if (status == 0)
@@ -100,8 +103,7 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
             output += std::string(sourceFunc) + "()";
         }
 
-        output += " offset " + std::to_string(offset) + "\n";
-        //output += " at " + std::string(sourceFile) + ":" + std::to_string(sourceLine) + "\n";
+        output += " at " + std::string(sourceFile) + ":" + std::to_string(sourceLine) + "\n";
         count++;
     }
     free(strings);
