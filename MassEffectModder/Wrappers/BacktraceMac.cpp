@@ -85,11 +85,13 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
 
         offset = strtoull(address, nullptr, 16);
         unsigned int sourceLine = 0;
+        sourceFile[0] = 0;
         status = BacktraceGetInfoFromModule(moduleFilePath, offset,
                                    sourceFile, sourceFunc, &sourceLine);
-        if (status != 0)
+        if (status == 0)
         {
-            continue;
+            BacktraceGetFilename(moduleFilePath, sourceFile, strlen(strings[i]) + 1);
+            strcpy(sourceFile, moduleFilePath);
         }
         output += std::to_string(count) + "  ";
         char *funcNewName = abi::__cxa_demangle(sourceFunction, nullptr, nullptr, &status);
@@ -100,10 +102,14 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
         }
         else
         {
-            output += std::string(sourceFunc) + "()";
+            output += std::string(sourceFunction) + "()";
         }
 
-        output += " at " + std::string(sourceFile) + ":" + std::to_string(sourceLine) + "\n";
+        if (sourceFile[0] != 0)
+            output += " at " + std::string(sourceFile);
+        if (sourceLine != 0)
+            output += ":" + std::to_string(sourceLine);
+        output += "\n";
         count++;
     }
     free(strings);
