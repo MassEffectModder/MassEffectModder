@@ -135,7 +135,7 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
         if (sourceFile[0] != 0)
             output += " at " + std::string(sourceFile);
         if (sourceLine != 0)
-            output += ":" + std::to_string(sourceLine);
+            output += ": line " + std::to_string(sourceLine);
 
         output += "\n";
         count++;

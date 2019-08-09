@@ -29,6 +29,23 @@
 #define MAX_CALLSTACK 100
 #define PATH_MAX      1024
 
+static intptr_t GetLoadAddressShift()
+{
+    char path[PATH_MAX];
+    uint32_t maxLen = PATH_MAX;
+
+    if (_NSGetExecutablePath(path, &maxLen) != 0)
+        return 0;
+
+    for (uint32_t i = 0; i < _dyld_image_count(); i++)
+    {
+        if (strcmp(_dyld_get_image_name(i), path) == 0)
+            return _dyld_get_image_vmaddr_slide(i);
+    }
+
+    return 0;
+}
+
 static void getExecutablePath(char *path, uint32_t maxLen)
 {
     if (_NSGetExecutablePath(path, &maxLen) != 0) {
@@ -84,6 +101,7 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
         }
 
         offset = strtoull(address, nullptr, 16);
+        offset -= GetLoadAddressShift();
         unsigned int sourceLine = 0;
         sourceFile[0] = 0;
         status = BacktraceGetInfoFromModule(moduleFilePath, offset,
@@ -107,7 +125,7 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
         if (sourceFile[0] != 0)
             output += " at " + std::string(sourceFile);
         if (sourceLine != 0)
-            output += ":" + std::to_string(sourceLine);
+            output += ": line " + std::to_string(sourceLine);
         output += "\n";
         count++;
     }

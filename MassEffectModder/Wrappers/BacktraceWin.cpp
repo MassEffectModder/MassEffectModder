@@ -110,7 +110,7 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
 
             BacktraceGetFilename(moduleFilePath, sourceFile, MAX_PATH);
             strcpy(sourceFile, moduleFilePath);
-            output += "at " + std::string(sourceFile) + ":" + std::to_string(sourceLine) + "\n";
+            output += "at " + std::string(sourceFile) + ": line " + std::to_string(sourceLine) + "\n";
         }
         else if (status == 1)
         {
