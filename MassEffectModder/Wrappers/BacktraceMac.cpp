@@ -90,8 +90,7 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
                                    sourceFile, sourceFunc, &sourceLine);
         if (status == 0)
         {
-            BacktraceGetFilename(moduleFilePath, sourceFile, strlen(strings[i]) + 1);
-            strcpy(sourceFile, moduleFilePath);
+            BacktraceGetFilename(sourceFile, sourceFile, PATH_MAX - 1);
         }
         output += std::to_string(count) + "  ";
         char *funcNewName = abi::__cxa_demangle(sourceFunction, nullptr, nullptr, &status);
