@@ -128,6 +128,9 @@ equals(RELEASE_IN_DEBUG_MODE, true) {
 } else {
     CONFIG(release, debug | release) {
         DEFINES += NDEBUG
+        macx {
+            QMAKE_POST_LINK += dsymutil $$TARGET -o "$$TARGET".dSYM
+        }
     }
     QMAKE_CXXFLAGS_RELEASE += -g1
 }
