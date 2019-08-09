@@ -36,6 +36,7 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
     void *callstack[MAX_CALLSTACK];
     unsigned long long symbolOffset;
     int status, count = 0;
+    char sourceFile[MAX_PATH + 1];
 
     int numberTraces = backtrace(callstack, MAX_CALLSTACK);
     char **strings = backtrace_symbols(callstack, numberTraces);
@@ -45,7 +46,6 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
         char address[strlen(strings[i]) + 1];
         char offset[strlen(strings[i]) + 1];
         char moduleFilePath[strlen(strings[i]) + 1];
-        char sourceFile[strlen(strings[i]) + 1];
         char sourceFunc[strlen(strings[i]) + 1];
         sourceFunc[0] = 0;
         address[0] = 0;
@@ -99,6 +99,8 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
 
         symbolOffset = strtoull(address, nullptr, 16);
         unsigned int sourceLine = 0;
+        sourceFile[0] = 0;
+        sourceFunc[0] = 0;
         status = BacktraceGetInfoFromModule(moduleFilePath, symbolOffset,
                                    sourceFile, sourceFunc, &sourceLine);
         if (status != 0)
@@ -130,7 +132,12 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
 
         BacktraceGetFilename(moduleFilePath, sourceFile, strlen(strings[i]) + 1);
         strcpy(sourceFile, moduleFilePath);
-        output += " at " + std::string(sourceFile) + ":" + std::to_string(sourceLine) + "\n";
+        if (sourceFile[0] != 0)
+            output += " at " + std::string(sourceFile);
+        if (sourceLine != 0)
+            output += ":" + std::to_string(sourceLine);
+
+        output += "\n";
         count++;
     }
     free(strings);
