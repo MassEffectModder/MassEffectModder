@@ -133,15 +133,15 @@ equals(RELEASE_IN_DEBUG_MODE, true) {
         }
     }
     QMAKE_CXXFLAGS_RELEASE += -g1
+    win32-g++: {
+        QMAKE_CXXFLAGS_RELEASE += -O2
+    } else {
+        QMAKE_CXXFLAGS_RELEASE += -O3
+    }
 }
 
 QMAKE_CXXFLAGS +=
 QMAKE_CXXFLAGS_DEBUG += -g
-win32-g++: {
-	QMAKE_CXXFLAGS_RELEASE += -O2
-} else {
-	QMAKE_CXXFLAGS_RELEASE += -O3
-}
 
 win32-g++: {
     QMAKE_LFLAGS_RELEASE = "-Wl,--relax"
