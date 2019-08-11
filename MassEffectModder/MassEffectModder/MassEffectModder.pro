@@ -19,12 +19,12 @@ equals(GUI_MODE, true) {
 TEMPLATE = app
 
 SOURCES += \
-    Exceptions/SignalHandler.cpp \
     Helpers/Crc32.cpp \
     Helpers/FileStream.cpp \
     Helpers/Logs.cpp \
     Helpers/MemoryStream.cpp \
     Helpers/MiscHelpers.cpp \
+    Helpers/SignalHandler.cpp \
     Helpers/Stream.cpp \
     CmdLineHelp.cpp \
     CmdLineParams.cpp \
@@ -74,16 +74,16 @@ HEADERS += \
 PRECOMPILED_HEADER = Precompiled.h
 
 HEADERS += \
-    Exceptions/Exception.h \
-    Exceptions/SignalHandler.h \
     Helpers/ByteBuffer.h \
     Helpers/BinarySearch.h \
     Helpers/Crc32.h \
+    Helpers/Exception.h \
     Helpers/FileStream.h \
     Helpers/Logs.h \
     Helpers/MemoryStream.h \
     Helpers/MiscHelpers.h \
     Helpers/QSort.h \
+    Helpers/SignalHandler.h \
     Helpers/Stream.h \
     CmdLineParams.h \
     CmdLineTools.h \

@@ -68,7 +68,7 @@
 
 #include <omp.h>
 
-#include "Exceptions/Exception.h"
+#include "Helpers/Exception.h"
 
 extern bool g_ipc;
 

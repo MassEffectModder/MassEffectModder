@@ -19,7 +19,6 @@
  *
  */
 
-#include "Exceptions/SignalHandler.h"
 #include "Helpers/MiscHelpers.h"
 #include "Helpers/Logs.h"
 #include "Helpers/Crc32.h"

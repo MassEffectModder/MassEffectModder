@@ -19,7 +19,7 @@
  *
  */
 
-#include "Exceptions/SignalHandler.h"
+#include "Helpers/SignalHandler.h"
 #include "Helpers/Logs.h"
 #include "Helpers/MiscHelpers.h"
 #ifdef GUI
