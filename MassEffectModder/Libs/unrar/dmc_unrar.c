@@ -69,15 +69,16 @@
 
 /* Version history:
  *
- * Someday, ????-??-?? (Version ?)
+ * 2017-01-25 (Pawel Kolodziejski)
+ * - Added support for windows file io
+ *
+ * Monday, 2019-08-12 (Version 1.6.0)
  * - Implemented the Itanium filter
  * - Fixed RAR5 file block extra data parsing
  * - Fixed RAR4 UTF-16 filenames with non-Latin characters
  * - Plugged a potential leak when growing internal structures
  * - Correctly implemented dmc_unrar_extract_file_with_callback()
- *
- * 2017-01-25 (Pawel Kolodziejski)
- * - Added support for windows file io
+ * - Fixed an off-by-one error in the RAR5 ARM filter
  *
  * Sunday, 2017-03-19 (Version 1.5.1)
  * - Removed usage of variable name "unix"
@@ -11340,7 +11341,7 @@ static dmc_unrar_return dmc_unrar_filters_50_x86_e9_func(uint8_t *memory, size_t
 static void dmc_unrar_filters_50_arm_filter(uint8_t *memory, size_t length, int32_t file_pos) {
 	size_t i;
 
-	for (i = 0; i < length - 4; i += 4) {
+	for (i = 0; i <= length - 4; i += 4) {
 		if (memory[i + 3] == 0xEB) {
 			uint32_t offset = memory[i] + (memory[i + 1] << 8) + (memory[i + 2] << 16);
 
