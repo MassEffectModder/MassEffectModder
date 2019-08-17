@@ -38,9 +38,14 @@ void Logs::ChangeLogLevel(LOG_LEVEL level)
     logLevel = level;
 }
 
-void Logs::ClearErrors()
+void Logs::BufferClearErrors()
 {
     errorsString = "";
+}
+
+QString Logs::BufferGetErrors()
+{
+    return errorsString;
 }
 
 void Logs::EnableOutputConsole(bool enable)
@@ -58,7 +63,7 @@ void Logs::EnableTimeStamp(bool enable)
     timeStampEnabled = enable;
 }
 
-void Logs::EnableErrorsBuffer(bool enable)
+void Logs::BufferEnableErrors(bool enable)
 {
     errorBufferEnabled = enable;
 }

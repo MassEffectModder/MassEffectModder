@@ -61,11 +61,12 @@ public:
     void PrintDebug(const QString &message);
 
     void ChangeLogLevel(LOG_LEVEL level);
-    void ClearErrors();
+    void BufferClearErrors();
+    QString BufferGetErrors();
+    void BufferEnableErrors(bool enable);
     void EnableOutputConsole(bool enable);
     void EnableOutputFile(bool enable);
     void EnableTimeStamp(bool enable);
-    void EnableErrorsBuffer(bool enable);
 };
 
 extern Logs *g_logs;
