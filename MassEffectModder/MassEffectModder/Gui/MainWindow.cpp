@@ -25,7 +25,7 @@
 #include "Helpers/MiscHelpers.h"
 
 MainWindow::MainWindow()
-    : gameType(MeType::UNKNOWN_TYPE)
+    : gameType(MeType::UNKNOWN_TYPE), busy(false)
 {
     statusBar()->clearMessage();
     QString title = QString("Mass Effect Modder v%1").arg(MEM_VERSION);
@@ -54,7 +54,11 @@ void MainWindow::SwitchLayoutById(int id)
     CRASH();
 }
 
-void MainWindow::closeEvent(QCloseEvent */*event*/)
+void MainWindow::closeEvent(QCloseEvent *event)
 {
-    // TODO: handle some confirmation
+    if (busy)
+    {
+        QMessageBox::information(this, "Closing application", "Application is busy.");
+        event->ignore();
+    }
 }

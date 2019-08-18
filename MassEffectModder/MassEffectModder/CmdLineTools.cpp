@@ -1044,18 +1044,20 @@ bool CmdLineTools::RemoveMipmaps(MipMaps &mipMaps, QList<FoundTexture> &textures
     return true;
 }
 
-void CmdLineTools::Repack(MeType gameId)
+void CmdLineTools::Repack(MeType gameId,
+                          ExtractCallback callback, void *callbackHandle)
 {
     for (int i = 0; i < g_GameData->packageFiles.count(); i++)
     {
         pkgsToRepack.push_back(g_GameData->packageFiles[i]);
     }
-    RepackME23(gameId, false);
+    RepackME23(gameId, false, callback, callbackHandle);
     if (GameData::gameType == MeType::ME3_TYPE)
         TOCBinFile::UpdateAllTOCBinFiles();
 }
 
-void CmdLineTools::RepackME23(MeType gameId, bool appendMarker)
+void CmdLineTools::RepackME23(MeType gameId, bool appendMarker,
+                              ExtractCallback callback, void *callbackHandle)
 {
     PINFO("Repack started...\n");
     if (g_ipc)
@@ -1069,23 +1071,33 @@ void CmdLineTools::RepackME23(MeType gameId, bool appendMarker)
     int lastProgress = -1;
     for (int i = 0; i < pkgsToRepack.count(); i++)
     {
+#ifdef GUI
+        QApplication::processEvents();
+#endif
         if (g_ipc)
         {
             ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + pkgsToRepack[i]);
             ConsoleSync();
         }
-        else
+        else if (!callback)
         {
             PINFO(QString("Repack " + QString::number(i + 1) + "/" +
                                  QString::number(pkgsToRepack.count()) +
                                  " ") + pkgsToRepack[i] + "\n");
         }
         int newProgress = (i * 100 / pkgsToRepack.count());
-        if (g_ipc && lastProgress != newProgress)
+        if (lastProgress != newProgress)
+        {
+            lastProgress = newProgress;
+        }
+        if (g_ipc)
         {
             ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + QString::number(newProgress));
             ConsoleSync();
-            lastProgress = newProgress;
+        }
+        if (callback)
+        {
+            callback(callbackHandle, lastProgress);
         }
         auto package = new Package();
         package->Open(g_GameData->GamePath() + pkgsToRepack[i], true);

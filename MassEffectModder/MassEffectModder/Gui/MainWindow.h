@@ -62,11 +62,13 @@ private:
 
     QStackedLayout  *stackedLayout;
     MeType           gameType;
+    bool             busy;
 
 public:
     MainWindow();
 
     QStackedLayout  *GetLayout() { return stackedLayout; }
+    void            LockClose(bool state) { busy = state; }
 };
 
 #endif // MAINWINDOW_H

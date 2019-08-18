@@ -41,12 +41,12 @@ private:
     bool RemoveMipmaps(MipMaps &mipMaps, QList<FoundTexture> &textures,
                        QStringList &pkgsToMarker, QStringList &pkgsToRepack,
                        bool repack, bool appendMarker);
-    void RepackME23(MeType gameId, bool appendMarker);
 
 public:
+    typedef void (*ExtractCallback)(void *handle, int progress);
 
     int scanTextures(MeType gameId, bool removeEmptyMips);
-    void Repack(MeType gameId);
+    void Repack(MeType gameId, ExtractCallback callback = nullptr, void *callbackHandle = nullptr);
     bool updateTOCs();
     bool unpackAllDLCs();
     bool repackGame(MeType gameId);
@@ -82,6 +82,10 @@ public:
     bool FixMissingPropertyInTextures(MeType gameId, const QString& filter);
     bool checkGameFilesAfter(MeType gameType);
     bool detectsMismatchPackagesAfter(MeType gameType);
+
+private:
+    void RepackME23(MeType gameId, bool appendMarker,
+                    ExtractCallback callback = nullptr, void *callbackHandle = nullptr);
 };
 
 #endif

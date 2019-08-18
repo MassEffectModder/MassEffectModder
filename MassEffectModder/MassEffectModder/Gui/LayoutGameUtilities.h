@@ -32,8 +32,7 @@ class LayoutGameUtilities: public LayoutHandle
 
 public:
     explicit LayoutGameUtilities(MainWindow *window = nullptr);
-    void LockGui();
-    void UnlockGui();
+    void LockGui(bool enable);
 
 private slots:
     void CheckGameFilesSelected();
@@ -58,6 +57,7 @@ private:
     MainWindow *mainWindow;
 
     static void ExtractDlcCallback(void *handle, int progress);
+    static void RepackCallback(void *handle, int progress);
 };
 
 #endif // LAYOUT_GAME_UTILITIES_H
