@@ -753,7 +753,7 @@ bool Misc::ParseBinaryModFileName(const QString &file, QString &pkgName, QString
     return true;
 }
 
-uint GetCrcFromTpfList(QStringList &ddsList, const QString &filename)
+static uint GetCrcFromTpfList(QStringList &ddsList, const QString &filename)
 {
     uint crc = 0;
     foreach (QString dds, ddsList)
