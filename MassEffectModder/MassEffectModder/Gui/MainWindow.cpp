@@ -25,10 +25,9 @@
 #include "Helpers/MiscHelpers.h"
 
 MainWindow::MainWindow()
-    : statusBar(new QStatusBar(this)),
-      gameType(MeType::UNKNOWN_TYPE)
+    : gameType(MeType::UNKNOWN_TYPE)
 {
-    setStatusBar(statusBar);
+    statusBar()->clearMessage();
     QString title = QString("Mass Effect Modder v%1").arg(MEM_VERSION);
     if (DetectAdminRights())
         title += " (run as Administrator)";

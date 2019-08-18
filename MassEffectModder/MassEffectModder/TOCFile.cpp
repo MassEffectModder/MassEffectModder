@@ -38,6 +38,9 @@ void TOCBinFile::GenerateMainTocBinFile()
     QDirIterator MainIterator(g_GameData->MainData(), QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
     while (MainIterator.hasNext())
     {
+#ifdef GUI
+        QApplication::processEvents();
+#endif
         MainIterator.next();
         if (MainIterator.filePath().endsWith(".pcc", Qt::CaseInsensitive) ||
             MainIterator.filePath().endsWith(".upk", Qt::CaseInsensitive) ||

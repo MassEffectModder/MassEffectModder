@@ -22,8 +22,11 @@
 #include "Gui/LayoutMeSelect.h"
 #include "Gui/LayoutGameUtilities.h"
 #include "Gui/MainWindow.h"
+#include "Gui/MessageWindow.h"
 #include "Helpers/MiscHelpers.h"
+#include "Helpers/Logs.h"
 #include "GameData.h"
+#include "DLC.h"
 #include "TOCFile.h"
 
 LayoutGameUtilities::LayoutGameUtilities(MainWindow *window)
@@ -31,6 +34,7 @@ LayoutGameUtilities::LayoutGameUtilities(MainWindow *window)
 {
     if (window == nullptr)
         CRASH();
+    wnd = window;
 
     layoutId = MainWindow::kLayoutGameUtilities;
 
@@ -60,7 +64,7 @@ LayoutGameUtilities::LayoutGameUtilities(MainWindow *window)
 #endif
 
     QPushButton *ButtonRepackGameFiles = nullptr;
-    if (mainWindow->gameType != MeType::ME3_TYPE)
+    if (mainWindow->gameType != MeType::ME1_TYPE)
     {
         ButtonRepackGameFiles = new QPushButton("Repack Game Files");
         ButtonRepackGameFiles->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -120,12 +124,29 @@ LayoutGameUtilities::LayoutGameUtilities(MainWindow *window)
     horizontalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 40));
 }
 
+void LayoutGameUtilities::LockGui()
+{
+    foreach (QWidget *widget, this->findChildren<QWidget*>())
+    {
+        widget->setEnabled(false);
+    }
+}
+
+void LayoutGameUtilities::UnlockGui()
+{
+    foreach (QWidget *widget, this->findChildren<QWidget*>())
+    {
+        widget->setEnabled(true);
+    }
+}
+
 void LayoutGameUtilities::CheckGameFilesSelected()
 {
 }
 
 void LayoutGameUtilities::ChangeGamePathSelected()
 {
+    LockGui();
     ConfigIni configIni{};
     g_GameData->Init(mainWindow->gameType, configIni);
     QString filter, exeSuffix;
@@ -170,10 +191,12 @@ void LayoutGameUtilities::ChangeGamePathSelected()
     {
         QMessageBox::information(this, "Changing game path", "Game path NOT changed.");
     }
+    UnlockGui();
 }
 
 void LayoutGameUtilities::ChangeUserPathSelected()
 {
+    LockGui();
     ConfigIni configIni{};
     g_GameData->Init(mainWindow->gameType, configIni);
     QString caption = "Please select the Mass Effect " +
@@ -199,6 +222,7 @@ void LayoutGameUtilities::ChangeUserPathSelected()
         QMessageBox::information(this, "Changing user configuration path",
                                  "User configuration path NOT changed.");
     }
+    UnlockGui();
 }
 
 void LayoutGameUtilities::RepackGameFilesSelected()
@@ -207,20 +231,61 @@ void LayoutGameUtilities::RepackGameFilesSelected()
 
 void LayoutGameUtilities::UpdateTOCsSelected()
 {
+    LockGui();
+    mainWindow->statusBar()->showMessage("Updating TOC files...");
+
     ConfigIni configIni{};
     g_GameData->Init(MeType::ME3_TYPE, configIni);
     if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
     {
-        QMessageBox::critical(this, "Updating TOC files.", "Game data not found.");
+        mainWindow->statusBar()->clearMessage();
+        QMessageBox::critical(this, "Updating TOC files", "Game data not found.");
+        UnlockGui();
         return;
     }
 
     TOCBinFile::UpdateAllTOCBinFiles();
-    QMessageBox::information(this, "Updating TOC files.", "All TOC files updated.");
+    mainWindow->statusBar()->clearMessage();
+    QMessageBox::information(this, "Updating TOC files", "All TOC files updated.");
+    UnlockGui();
 }
 
 void LayoutGameUtilities::ExtractDLCsSelected()
 {
+    LockGui();
+    mainWindow->statusBar()->showMessage("Unpacking DLCs...");
+
+    ConfigIni configIni{};
+    g_GameData->Init(MeType::ME3_TYPE, configIni);
+    if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
+    {
+        mainWindow->statusBar()->clearMessage();
+        QMessageBox::critical(this, "Unpacking DLCs", "Game data not found.");
+        UnlockGui();
+        return;
+    }
+
+    g_logs->BufferClearErrors();
+    g_logs->BufferEnableErrors(true);
+    ME3DLC::unpackAllDLC(&LayoutGameUtilities::ExtractDlcCallback, mainWindow);
+    g_logs->BufferEnableErrors(false);
+    mainWindow->statusBar()->clearMessage();
+    if (g_logs->BufferGetErrors() != "")
+    {
+        MessageWindow msg;
+        msg.Show("Errors while unpacking DLCs", g_logs->BufferGetErrors());
+    }
+    else
+    {
+        QMessageBox::information(this, "Unpacking DLCs", "All DLCs unpacked.");
+    }
+    UnlockGui();
+}
+
+void LayoutGameUtilities::ExtractDlcCallback(void *handle, int progress)
+{
+    auto *win = static_cast<MainWindow *>(handle);
+    win->statusBar()->showMessage(QString("Unpacking DLCs, progress: ") + QString::number(progress) + "%");
 }
 
 void LayoutGameUtilities::ReturnSelected()

@@ -23,6 +23,9 @@
 #define DLC_H
 
 #include "Helpers/Stream.h"
+#ifdef GUI
+#include "Gui/LayoutGameUtilities.h"
+#endif
 
 #define SfarTag          0x53464152 // 'SFAR'
 #define SfarVersion      0x00010000
@@ -61,8 +64,12 @@ class ME3DLC
     bool loadHeader(Stream *stream);
 
 public:
-    bool extract(QString &SFARfilename, int &currentProgress, int totalNumber);
-    static void unpackAllDLC();
+    typedef void (*ExtractCallback)(void *handle, int progress);
+
+    bool extract(QString &SFARfilename, int &currentProgress,
+                 int totalNumber, ExtractCallback callback = nullptr,
+                 void *callbackHandle = nullptr);
+    static void unpackAllDLC(ExtractCallback callback = nullptr, void *callbackHandle = nullptr);
 };
 
 #endif

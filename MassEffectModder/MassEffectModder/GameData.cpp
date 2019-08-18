@@ -40,6 +40,9 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
         int pathLen = _path.length();
         while (iterator.hasNext())
         {
+#ifdef GUI
+            QApplication::processEvents();
+#endif
             iterator.next();
             QString path = iterator.filePath().mid(pathLen);
             if (gameType == MeType::ME1_TYPE)
@@ -81,6 +84,9 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
                 bool isValid = false;
                 while (iterator.hasNext())
                 {
+#ifdef GUI
+                    QApplication::processEvents();
+#endif
                     iterator.next();
                     QString path = iterator.filePath().mid(pathLen);
                     if (gameType == MeType::ME2_TYPE)

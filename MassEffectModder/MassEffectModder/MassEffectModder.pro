@@ -55,6 +55,7 @@ SOURCES += \
 equals(GUI_MODE, true) {
 SOURCES += \
     Gui/MainWindow.cpp \
+    Gui/MessageWindow.cpp \
     Gui/LayoutGameUtilities.cpp \
     Gui/LayoutMeSelect.cpp \
     Gui/LayoutModsManager.cpp \
@@ -63,6 +64,7 @@ SOURCES += \
     Gui/LayoutTextureUtilities.cpp
 HEADERS += \
     Gui/MainWindow.h \
+    Gui/MessageWindow.h \
     Gui/LayoutGameUtilities.h \
     Gui/LayoutMeSelect.h \
     Gui/LayoutModsManager.h \

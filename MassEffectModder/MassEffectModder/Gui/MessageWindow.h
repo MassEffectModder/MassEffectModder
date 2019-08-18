@@ -19,30 +19,14 @@
  *
  */
 
-#ifndef LAYOUT_GAME_UTILITIES_H
-#define LAYOUT_GAME_UTILITIES_H
+#ifndef MESSAGEWINDOW_H
+#define MESSAGEWINDOW_H
 
-#include <Gui/MainWindow.h>
+#include <MemTypes.h>
 
-class LayoutGameUtilities: public LayoutHandle
+class MessageWindow : public QWidget
 {
     Q_OBJECT
-
-    MainWindow *wnd;
-
-public:
-    explicit LayoutGameUtilities(MainWindow *window = nullptr);
-    void LockGui();
-    void UnlockGui();
-
-private slots:
-    void CheckGameFilesSelected();
-    void ChangeGamePathSelected();
-    void ChangeUserPathSelected();
-    void RepackGameFilesSelected();
-    void UpdateTOCsSelected();
-    void ExtractDLCsSelected();
-    void ReturnSelected();
 
 private:
     const int kButtonMinWidth = 300;
@@ -55,9 +39,13 @@ private:
     const int kFontSize = 15;
 #endif
 
-    MainWindow *mainWindow;
+    QDialog         dialog;
 
-    static void ExtractDlcCallback(void *handle, int progress);
+private slots:
+    void            CloseSelected();
+
+public:
+    void            Show(const QString &title, const QString &msg);
 };
 
-#endif // LAYOUT_GAME_UTILITIES_H
+#endif // MESSAGEWINDOW_H

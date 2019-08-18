@@ -64,6 +64,9 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QDialog>
+#include <QPlainTextEdit>
+#include <QVBoxLayout>
 #endif
 
 #include <omp.h>

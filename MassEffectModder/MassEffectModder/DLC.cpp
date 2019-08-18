@@ -142,7 +142,9 @@ bool ME3DLC::loadHeader(Stream *stream)
     return true;
 }
 
-bool ME3DLC::extract(QString &SFARfilename, int &currentProgress, int totalNumber)
+bool ME3DLC::extract(QString &SFARfilename, int &currentProgress,
+                     int totalNumber, ExtractCallback Callback,
+                     void *handle)
 {
     if (!QFile(SFARfilename).exists())
     {
@@ -158,6 +160,9 @@ bool ME3DLC::extract(QString &SFARfilename, int &currentProgress, int totalNumbe
     int lastProgress = -1;
     for (uint i = 0; i < filesCount; i++, currentProgress++)
     {
+#ifdef GUI
+        QApplication::processEvents();
+#endif
         if ((uint)filenamesIndex == i)
             continue;
         if (filesList[i].filenamePath.length() == 0)
@@ -166,15 +171,17 @@ bool ME3DLC::extract(QString &SFARfilename, int &currentProgress, int totalNumbe
             return false;
         }
 
-        if (g_ipc)
+        int newProgress = (100 * currentProgress) / totalNumber;
+        if (lastProgress != newProgress)
         {
-            int newProgress = (100 * currentProgress) / totalNumber;
-            if (lastProgress != newProgress)
+            if (g_ipc)
             {
                 ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + QString::number(newProgress));
                 ConsoleSync();
-                lastProgress = newProgress;
             }
+            if (Callback)
+                Callback(handle, newProgress);
+            lastProgress = newProgress;
         }
 
         QString filename = filesList[i].filenamePath.mid(QString(R"(BIOGame/DLC/)").length());
@@ -258,7 +265,7 @@ bool ME3DLC::extract(QString &SFARfilename, int &currentProgress, int totalNumbe
     return true;
 }
 
-void ME3DLC::unpackAllDLC()
+void ME3DLC::unpackAllDLC(ExtractCallback callback, void *callbackHandle)
 {
     if (!QDir(g_GameData->DLCData()).exists())
         return;
@@ -268,6 +275,9 @@ void ME3DLC::unpackAllDLC()
     QStringList DLCs = QDir(g_GameData->DLCData(), "DLC_*", QDir::NoSort, QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
     foreach (QString DLCDir, DLCs)
     {
+#ifdef GUI
+        QApplication::processEvents();
+#endif
         QDirIterator iterator(g_GameData->DLCData() + "/" + DLCDir, QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
         bool isValid = true;
         QString sfarFile;
@@ -320,11 +330,12 @@ void ME3DLC::unpackAllDLC()
             ConsoleWrite("[IPC]PROCESSING_FILE " + g_GameData->RelativeGameData(sfarFiles[i]));
             ConsoleSync();
         }
-        else
+        else if (!callback)
         {
             PINFO("Unpacking SFAR: " + g_GameData->RelativeGameData(sfarFiles[i]) + "\n");
         }
-        if (!dlc.extract(sfarFiles[i], currentProgress, totalNumFiles))
+
+        if (!dlc.extract(sfarFiles[i], currentProgress, totalNumFiles, callback, callbackHandle))
         {
             if (g_ipc)
             {

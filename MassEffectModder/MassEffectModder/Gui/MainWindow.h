@@ -24,7 +24,7 @@
 
 #include <MemTypes.h>
 
-class LayoutHandle: public QWidget
+class LayoutHandle : public QWidget
 {
     Q_OBJECT
 
@@ -60,14 +60,12 @@ private:
     friend class LayoutGameUtilities;
     friend class LayoutModsManager;
 
-    QStatusBar      *statusBar;
     QStackedLayout  *stackedLayout;
     MeType           gameType;
 
 public:
     MainWindow();
 
-    QStatusBar      *GetStatusBar() { return statusBar; }
     QStackedLayout  *GetLayout() { return stackedLayout; }
 };
 
