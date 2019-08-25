@@ -53,6 +53,7 @@ struct BinaryMod
 class Misc
 {
 public:
+    typedef void (*ProgressCallback)(void *handle, int progress);
 
     static bool SetGameDataPath(MeType gameId, const QString &path);
     static bool SetGameUserPath(MeType gameId, const QString &path);
@@ -99,7 +100,8 @@ public:
     static void detectMods(QStringList &mods);
     static void detectBrokenMod(QStringList &mods);
     static bool unpackSFARisNeeded();
-    static bool checkGameFiles(MeType gameType, Resources &resources, QString &errors, QStringList &mods);
+    static bool checkGameFiles(MeType gameType, Resources &resources, QString &errors, QStringList &mods,
+                               ProgressCallback callback = nullptr, void *callbackHandle = nullptr);
 };
 
 #endif

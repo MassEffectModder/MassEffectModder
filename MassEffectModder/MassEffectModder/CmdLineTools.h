@@ -43,10 +43,10 @@ private:
                        bool repack, bool appendMarker);
 
 public:
-    typedef void (*ExtractCallback)(void *handle, int progress);
+    typedef void (*ProgressCallback)(void *handle, int progress);
 
     int scanTextures(MeType gameId, bool removeEmptyMips);
-    void Repack(MeType gameId, ExtractCallback callback = nullptr, void *callbackHandle = nullptr);
+    void Repack(MeType gameId, ProgressCallback callback = nullptr, void *callbackHandle = nullptr);
     bool updateTOCs();
     bool unpackAllDLCs();
     bool repackGame(MeType gameId);
@@ -85,7 +85,7 @@ public:
 
 private:
     void RepackME23(MeType gameId, bool appendMarker,
-                    ExtractCallback callback = nullptr, void *callbackHandle = nullptr);
+                    ProgressCallback callback = nullptr, void *callbackHandle = nullptr);
 };
 
 #endif

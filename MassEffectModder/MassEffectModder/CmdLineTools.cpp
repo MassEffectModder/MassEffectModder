@@ -831,7 +831,6 @@ bool CmdLineTools::CheckGameData(MeType gameId)
 
     if (!g_ipc)
     {
-        PERROR(errors);
         if (modList.count() != 0)
         {
             PERROR("\n------- Detected mods --------\n");
@@ -1045,7 +1044,7 @@ bool CmdLineTools::RemoveMipmaps(MipMaps &mipMaps, QList<FoundTexture> &textures
 }
 
 void CmdLineTools::Repack(MeType gameId,
-                          ExtractCallback callback, void *callbackHandle)
+                          ProgressCallback callback, void *callbackHandle)
 {
     for (int i = 0; i < g_GameData->packageFiles.count(); i++)
     {
@@ -1057,7 +1056,7 @@ void CmdLineTools::Repack(MeType gameId,
 }
 
 void CmdLineTools::RepackME23(MeType gameId, bool appendMarker,
-                              ExtractCallback callback, void *callbackHandle)
+                              ProgressCallback callback, void *callbackHandle)
 {
     PINFO("Repack started...\n");
     if (g_ipc)
@@ -1089,15 +1088,15 @@ void CmdLineTools::RepackME23(MeType gameId, bool appendMarker,
         if (lastProgress != newProgress)
         {
             lastProgress = newProgress;
-        }
-        if (g_ipc)
-        {
-            ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + QString::number(newProgress));
-            ConsoleSync();
-        }
-        if (callback)
-        {
-            callback(callbackHandle, lastProgress);
+            if (g_ipc)
+            {
+                ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + QString::number(newProgress));
+                ConsoleSync();
+            }
+            if (callback)
+            {
+                callback(callbackHandle, newProgress);
+            }
         }
         auto package = new Package();
         package->Open(g_GameData->GamePath() + pkgsToRepack[i], true);

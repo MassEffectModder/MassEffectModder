@@ -64,12 +64,12 @@ class ME3DLC
     bool loadHeader(Stream *stream);
 
 public:
-    typedef void (*ExtractCallback)(void *handle, int progress);
+    typedef void (*ProgressCallback)(void *handle, int progress);
 
     bool extract(QString &SFARfilename, int &currentProgress,
-                 int totalNumber, ExtractCallback callback = nullptr,
+                 int totalNumber, ProgressCallback callback = nullptr,
                  void *callbackHandle = nullptr);
-    static void unpackAllDLC(ExtractCallback callback = nullptr, void *callbackHandle = nullptr);
+    static void unpackAllDLC(ProgressCallback callback = nullptr, void *callbackHandle = nullptr);
 };
 
 #endif

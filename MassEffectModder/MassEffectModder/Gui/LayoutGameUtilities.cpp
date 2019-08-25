@@ -29,6 +29,7 @@
 #include "DLC.h"
 #include "TOCFile.h"
 #include "CmdLineTools.h"
+#include "Misc.h"
 
 LayoutGameUtilities::LayoutGameUtilities(MainWindow *window)
     : mainWindow(window)
@@ -136,6 +137,71 @@ void LayoutGameUtilities::LockGui(bool enable)
 
 void LayoutGameUtilities::CheckGameFilesSelected()
 {
+    LockGui(true);
+    mainWindow->statusBar()->showMessage("Checking game files...");
+
+    ConfigIni configIni{};
+    g_GameData->Init(mainWindow->gameType, configIni);
+    if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
+    {
+        mainWindow->statusBar()->clearMessage();
+        QMessageBox::critical(this, "Checking game files", "Game data not found.");
+        LockGui(false);
+        return;
+    }
+
+    QString errors;
+    QStringList modList;
+    Resources resources;
+
+    resources.loadMD5Tables();
+
+    bool vanilla = Misc::checkGameFiles(mainWindow->gameType, resources,
+                                        errors, modList,
+                                        &LayoutGameUtilities::CheckCallback,
+                                        mainWindow);
+
+    g_logs->BufferClearErrors();
+    g_logs->BufferEnableErrors(true);
+    if (modList.count() != 0)
+    {
+        PERROR("\n------- Detected mods --------\n");
+        for (int l = 0; l < modList.count(); l++)
+        {
+            PERROR(modList[l] + "\n");
+        }
+        PERROR("------------------------------\n\n");
+    }
+
+    if (!vanilla)
+    {
+        PERROR("===========================================================================\n");
+        PERROR("WARNING: looks like the following file(s) are not vanilla or not recognized\n");
+        PERROR("===========================================================================\n\n");
+        PERROR(errors);
+    }
+    g_logs->BufferEnableErrors(false);
+
+    mainWindow->statusBar()->clearMessage();
+
+    if (g_logs->BufferGetErrors() != "")
+    {
+        MessageWindow msg;
+        msg.Show("Checked game files", g_logs->BufferGetErrors());
+    }
+    else
+    {
+        QMessageBox::information(this, "Checking game", "All game files checked.");
+    }
+
+    LockGui(false);
+}
+
+void LayoutGameUtilities::CheckCallback(void *handle, int progress)
+{
+    auto *win = static_cast<MainWindow *>(handle);
+    win->statusBar()->showMessage(QString("Checking game files... Progress: ") + QString::number(progress) + "%");
+    QApplication::processEvents();
 }
 
 void LayoutGameUtilities::ChangeGamePathSelected()
@@ -223,6 +289,7 @@ void LayoutGameUtilities::RepackCallback(void *handle, int progress)
 {
     auto *win = static_cast<MainWindow *>(handle);
     win->statusBar()->showMessage(QString("Repacking PCC files... Progress: ") + QString::number(progress) + "%");
+    QApplication::processEvents();
 }
 
 void LayoutGameUtilities::RepackGameFilesSelected()
@@ -304,6 +371,7 @@ void LayoutGameUtilities::ExtractDlcCallback(void *handle, int progress)
 {
     auto *win = static_cast<MainWindow *>(handle);
     win->statusBar()->showMessage(QString("Unpacking DLCs... Progress: ") + QString::number(progress) + "%");
+    QApplication::processEvents();
 }
 
 void LayoutGameUtilities::ReturnSelected()

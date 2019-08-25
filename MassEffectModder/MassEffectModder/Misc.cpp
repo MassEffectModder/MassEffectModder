@@ -1456,7 +1456,8 @@ bool Misc::unpackSFARisNeeded()
     return false;
 }
 
-bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors, QStringList &mods)
+bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors,
+                          QStringList &mods, ProgressCallback callback, void *callbackHandle)
 {
     bool vanilla = true;
     QList<MD5FileEntry> entries;
@@ -1489,17 +1490,24 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
     int lastProgress = -1;
     for (int l = 0; l < g_GameData->packageFiles.count(); l++)
     {
+#ifdef GUI
+        QApplication::processEvents();
+#endif
         int newProgress = (l + progress) * 100 / allFilesCount;
-        if (g_ipc)
+        if (lastProgress != newProgress)
         {
-            if (lastProgress != newProgress)
+            lastProgress = newProgress;
+            if (g_ipc)
             {
                 ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + QString::number(newProgress));
                 ConsoleSync();
-                lastProgress = newProgress;
+            }
+            if (callback)
+            {
+                callback(callbackHandle, newProgress);
             }
         }
-        else
+        if (!g_ipc && !callback)
         {
             PINFO("Checking: " + g_GameData->packageFiles[l] + "\n");
         }
@@ -1606,9 +1614,9 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
             errors += "File " + g_GameData->packageFiles[l] + " has wrong MD5 checksum: ";
             for (int i = 0; i < md5.count(); i++)
             {
-                errors += QString::number(md5[i], 16);
+                errors += QString::number((quint8)md5[i], 16);
             }
-            errors += "\n, expected: ";
+            errors += ", expected: ";
             for (unsigned char i : md5Entry)
             {
                 errors += QString::number(i, 16);
@@ -1625,17 +1633,24 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
 
     for (int l = 0; l < g_GameData->sfarFiles.count(); l++)
     {
-        if (g_ipc)
+#ifdef GUI
+        QApplication::processEvents();
+#endif
+        int newProgress = (l + progress) * 100 / allFilesCount;
+        if (lastProgress != newProgress)
         {
-            int newProgress = (l + progress) * 100 / allFilesCount;
-            if (lastProgress != newProgress)
+            lastProgress = newProgress;
+            if (g_ipc)
             {
                 ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + QString::number(newProgress));
                 ConsoleSync();
-                lastProgress = newProgress;
+            }
+            if (callback)
+            {
+                callback(callbackHandle, newProgress);
             }
         }
-        else
+        if (!g_ipc && !callback)
         {
             PINFO("Checking: " + g_GameData->sfarFiles[l] + "\n");
         }
@@ -1670,9 +1685,9 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
             errors += "File " + g_GameData->sfarFiles[l] + " has wrong MD5 checksum: ";
             for (int i = 0; i < md5.count(); i++)
             {
-                errors += QString::number(md5[i], 16);
+                errors += QString::number((quint8)md5[i], 16);
             }
-            errors += "\n, expected: ";
+            errors += ", expected: ";
             for (unsigned char i : entries[index].md5)
             {
                 errors += QString::number(i, 16);
@@ -1690,17 +1705,24 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
 
     for (int l = 0; l < g_GameData->tfcFiles.count(); l++)
     {
-        if (g_ipc)
+#ifdef GUI
+        QApplication::processEvents();
+#endif
+        int newProgress = (l + progress) * 100 / allFilesCount;
+        if (lastProgress != newProgress)
         {
-            int newProgress = (l + progress) * 100 / allFilesCount;
-            if (lastProgress != newProgress)
+            lastProgress = newProgress;
+            if (g_ipc)
             {
                 ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + QString::number(newProgress));
                 ConsoleSync();
-                lastProgress = newProgress;
+            }
+            if (callback)
+            {
+                callback(callbackHandle, newProgress);
             }
         }
-        else
+        if (!g_ipc && !callback)
         {
             PINFO("Checking: " + g_GameData->tfcFiles[l] + "\n");
         }
@@ -1735,9 +1757,9 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
             errors += "File " + g_GameData->tfcFiles[l] + " has wrong MD5 checksum: ";
             for (int i = 0; i < md5.count(); i++)
             {
-                errors += QString::number(md5[i], 16);
+                errors += QString::number((quint8)md5[i], 16);
             }
-            errors += "\n, expected: ";
+            errors += ", expected: ";
             for (unsigned char i : entries[index].md5)
             {
                 errors += QString::number(i, 16);

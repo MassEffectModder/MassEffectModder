@@ -143,7 +143,7 @@ bool ME3DLC::loadHeader(Stream *stream)
 }
 
 bool ME3DLC::extract(QString &SFARfilename, int &currentProgress,
-                     int totalNumber, ExtractCallback Callback,
+                     int totalNumber, ProgressCallback Callback,
                      void *handle)
 {
     if (!QFile(SFARfilename).exists())
@@ -174,14 +174,16 @@ bool ME3DLC::extract(QString &SFARfilename, int &currentProgress,
         int newProgress = (100 * currentProgress) / totalNumber;
         if (lastProgress != newProgress)
         {
+            lastProgress = newProgress;
             if (g_ipc)
             {
                 ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + QString::number(newProgress));
                 ConsoleSync();
             }
             if (Callback)
+            {
                 Callback(handle, newProgress);
-            lastProgress = newProgress;
+            }
         }
 
         QString filename = filesList[i].filenamePath.mid(QString(R"(BIOGame/DLC/)").length());
@@ -265,7 +267,7 @@ bool ME3DLC::extract(QString &SFARfilename, int &currentProgress,
     return true;
 }
 
-void ME3DLC::unpackAllDLC(ExtractCallback callback, void *callbackHandle)
+void ME3DLC::unpackAllDLC(ProgressCallback callback, void *callbackHandle)
 {
     if (!QDir(g_GameData->DLCData()).exists())
         return;

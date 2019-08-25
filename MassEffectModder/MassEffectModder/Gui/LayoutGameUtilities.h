@@ -56,6 +56,7 @@ private:
 
     MainWindow *mainWindow;
 
+    static void CheckCallback(void *handle, int progress);
     static void ExtractDlcCallback(void *handle, int progress);
     static void RepackCallback(void *handle, int progress);
 };
