@@ -141,7 +141,7 @@ bool Misc::ChangeProductNameForME1Exe()
         ByteBuffer buffer = fs.ReadAllToBuffer();
         quint8 *ptr = buffer.ptr();
         int pos = -1;
-        for (int i = 0; i < buffer.size(); i++)
+        for (quint64 i = 0; i < buffer.size(); i++)
         {
             if (ptr[i] == pattern[0])
             {
@@ -678,7 +678,7 @@ bool Misc::CheckImage(Image &image, FoundTexture &f, const QString &file, int in
             else
             {
                 PERROR(QString("Error in texture: ") + f.name + QString().sprintf("_0x%08X", f.crc) +
-                    " This texture has wrong aspect ratio, skipping texture, entry: " + (index + 1) +
+                    " This texture has wrong aspect ratio, skipping texture, entry: " + QString::number(index + 1) +
                     " - mod: " + BaseName(file) + "\n");
             }
         }
@@ -1111,7 +1111,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                     else
                     {
                         PERROR(QString("Skipping file: ") + fileName + " not found in definition file, entry: " +
-                            (i + 1) + " - mod: " + BaseName(file) + "\n");
+                            QString::number(i + 1) + " - mod: " + BaseName(file) + "\n");
                     }
                     ZipGoToNextFile(handle);
                     continue;
@@ -1143,7 +1143,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                     else
                     {
                         PERROR(QString("Error in texture: ") + textureName + QString().sprintf("_0x%08X", crc) +
-                            ", skipping texture, entry: " + (i + 1) + " - mod: " + BaseName(file) + "\n");
+                            ", skipping texture, entry: " + QString::number(i + 1) + " - mod: " + BaseName(file) + "\n");
                     }
                     mod.data.Free();
                     continue;
