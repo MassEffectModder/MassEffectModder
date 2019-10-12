@@ -1162,7 +1162,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
                     newPixelFormat = changeTextureType(gameId, f.pixfmt, image.getPixelFormat(), f.flags);
                     if (f.pixfmt == newPixelFormat)
                         PINFO(QString("Warning for texture: ") + mod.textureName +
-                              " This texture con be converted to desire format...\n");
+                              " This texture can not be converted to desire format...\n");
                 }
 
                 int numMips = GetNumberOfMipsFromMap(f);
@@ -1203,7 +1203,8 @@ end:
             if (crc == 0)
                 continue;
 
-            markToConvert = DetectMarkToConvertFromFile(file);
+            if (DetectMarkToConvertFromFile(file))
+                markToConvert = true;
 
             bool forceHash = DetectHashFromFile(file);
             if (!forceHash)
