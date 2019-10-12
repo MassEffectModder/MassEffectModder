@@ -16,7 +16,7 @@ SOURCES += \
     ../MassEffectModder/Helpers/MiscHelpers.cpp \
     ../MassEffectModder/Helpers/SignalHandler.cpp \
     ../MassEffectModder/Helpers/Stream.cpp \
-    ../Wrappers/WrapperZlib.cpp \
+    ../Wrappers/Wrapper7Zip.cpp \
     Main.cpp \
     MD5EntriesME1.cpp \
     MD5EntriesME1PL.cpp \
@@ -45,17 +45,17 @@ PRECOMPILED_DIR = ".pch"
 QMAKE_CXXFLAGS +=
 QMAKE_CXXFLAGS_DEBUG += -g
 
-INCLUDEPATH += $$PWD/../Wrappers $$PWD/../MassEffectModder
+INCLUDEPATH += $$PWD/../Wrappers $$PWD/../Libs/7z $$PWD/../MassEffectModder
 !win32 {
     INCLUDEPATH += $$PWD/../Libs/omp
 }
 
 win32-g++: {
 Release:LIBS += \
-    -L$$OUT_PWD/../Libs/zlib/release -lzlib
+    -L$$OUT_PWD/../Libs/7z/release -l7z
 Debug:LIBS += \
-    -L$$OUT_PWD/../Libs/zlib/debug -lzlib
+    -L$$OUT_PWD/../Libs/7z/debug -l7z
 } else:unix: {
 LIBS += \
-    -L$$OUT_PWD/../Libs/zlib -lzlib
+    -L$$OUT_PWD/../Libs/7z -l7z
 }

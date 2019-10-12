@@ -100,7 +100,7 @@ void generateBinFile(int gameId)
         fs.WriteInt32(tmp.size());
         quint8 *compressed = nullptr;
         uint compressedSize = 0;
-        ZlibCompress(tmp.ptr(), tmp.size(), &compressed, &compressedSize, 9);
+        LzmaCompress(tmp.ptr(), tmp.size(), &compressed, &compressedSize, 9);
         fs.WriteFromBuffer(compressed, compressedSize);
         delete[] compressed;
     }
@@ -158,7 +158,7 @@ void generateBinFile(int gameId)
             fs.WriteInt32(tmp.size());
             quint8 *compressed = nullptr;
             uint compressedSize = 0;
-            ZlibCompress(tmp.ptr(), tmp.size(), &compressed, &compressedSize, 9);
+            LzmaCompress(tmp.ptr(), tmp.size(), &compressed, &compressedSize, 9);
             fs.WriteFromBuffer(compressed, compressedSize);
             delete[] compressed;
         }

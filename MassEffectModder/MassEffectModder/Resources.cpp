@@ -35,7 +35,7 @@ void Resources::loadMD5Table(const QString &path, QStringList &tables, QList<MD5
         decompressed = ByteBuffer(tmp.ReadInt32());
         compressed = tmp.ReadToBuffer((uint)tmp.Length() - 8);
         uint dstLen = decompressed.size();
-        ZlibDecompress(compressed.ptr(), compressed.size(), decompressed.ptr(), &dstLen);
+        LzmaDecompress(compressed.ptr(), compressed.size(), decompressed.ptr(), &dstLen);
         if (decompressed.size() != dstLen)
             CRASH();
     }
@@ -47,7 +47,6 @@ void Resources::loadMD5Table(const QString &path, QStringList &tables, QList<MD5
         {
             QString pkg;
             tmp.ReadStringASCIINull(pkg);
-            pkg.replace(QChar('\\'), QChar('/'), Qt::CaseInsensitive);
             tables.push_back(pkg);
         }
         count = tmp.ReadInt32();

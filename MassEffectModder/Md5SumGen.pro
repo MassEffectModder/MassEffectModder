@@ -3,5 +3,5 @@ TEMPLATE = subdirs
 CONFIG += ordered
 
 SUBDIRS += \
-    Libs/zlib \
+    Libs/7z \
     Md5SumGen
