@@ -9,6 +9,7 @@ equals(GUI_MODE, true) {
 
 CONFIG += c++17 static precompile_header
 CONFIG -= app_bundle
+CONFIG += sdk_no_version_check
 
 equals(GUI_MODE, true) {
     TARGET = MassEffectModder
