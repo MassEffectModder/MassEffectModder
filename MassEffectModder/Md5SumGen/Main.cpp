@@ -93,7 +93,7 @@ void generateBinFile(int gameId)
         stream.WriteFromBuffer(const_cast<quint8 *>(entries[p].md5), 16);
     }
     {
-        FileStream fs = FileStream(QString("MD5EntriesME") + gameId + ".bin",
+        FileStream fs = FileStream(QString("MD5EntriesME") + QString::number(gameId) + ".bin",
                                    FileMode::Create, FileAccess::WriteOnly);
         fs.WriteUInt32(md5Tag);
         ByteBuffer tmp = stream.ToArray();
@@ -112,7 +112,7 @@ void generateBinFile(int gameId)
         // Polish version DB
         entries = entriesME1PL;
         entriesCount = MD5EntriesME1PLSize;
-        stream = MemoryStream();
+        MemoryStream streamPL;
         for (int p = 0; p < entriesCount; p++)
         {
             bool found = false;
@@ -128,13 +128,13 @@ void generateBinFile(int gameId)
                 files.append(entries[p].path);
         }
 
-        stream.WriteInt32(files.count());
+        streamPL.WriteInt32(files.count());
         for (int p = 0; p < files.count(); p++)
         {
-            stream.WriteStringASCIINull(files[p]);
+            streamPL.WriteStringASCIINull(files[p]);
         }
 
-        stream.WriteInt32(entriesCount);
+        streamPL.WriteInt32(entriesCount);
         for (int p = 0; p < entriesCount; p++)
         {
             int index = -1;
@@ -146,15 +146,15 @@ void generateBinFile(int gameId)
                     break;
                 }
             }
-            stream.WriteInt32(index);
-            stream.WriteInt32(entries[p].size);
-            stream.WriteFromBuffer(const_cast<quint8 *>(entries[p].md5), 16);
+            streamPL.WriteInt32(index);
+            streamPL.WriteInt32(entries[p].size);
+            streamPL.WriteFromBuffer(const_cast<quint8 *>(entries[p].md5), 16);
         }
         {
             FileStream fs = FileStream(QString("MD5EntriesME1PL.bin"),
                                        FileMode::Create, FileAccess::WriteOnly);
             fs.WriteUInt32(md5Tag);
-            ByteBuffer tmp = stream.ToArray();
+            ByteBuffer tmp = streamPL.ToArray();
             fs.WriteInt32(tmp.size());
             quint8 *compressed = nullptr;
             uint compressedSize = 0;
