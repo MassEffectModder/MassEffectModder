@@ -141,12 +141,12 @@ bool Misc::ChangeProductNameForME1Exe()
         ByteBuffer buffer = fs.ReadAllToBuffer();
         quint8 *ptr = buffer.ptr();
         int pos = -1;
-        for (quint64 i = 0; i < buffer.size(); i++)
+        for (qint64 i = 0; i < buffer.size(); i++)
         {
             if (ptr[i] == pattern[0])
             {
                 bool found = true;
-                for (unsigned long l = 1; l < sizeof (pattern); l++)
+                for (unsigned long long l = 1; l < sizeof (pattern); l++)
                 {
                     if (ptr[i + l] != pattern[l])
                     {
