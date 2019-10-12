@@ -599,7 +599,11 @@ void Package::saveNames(Stream &output)
         for (int i = 0; i < namesTable.count(); i++)
         {
             NameEntry entry = namesTable[i];
-            if (packageFileVersion == packageFileVersionME3)
+            if (entry.name.length() == 0)
+            {
+                output.WriteInt32(0);
+            }
+            else if (packageFileVersion == packageFileVersionME3)
             {
                 output.WriteInt32(-(entry.name.length() + 1));
                 output.WriteStringUnicode16Null(entry.name);
@@ -671,7 +675,11 @@ void Package::saveExtraNames(Stream &output, bool rawMode)
         }
         else
         {
-            if (packageFileVersion == packageFileVersionME3)
+            if (extraNamesTable[c].name.length() == 0)
+            {
+                output.WriteInt32(0);
+            }
+            else if (packageFileVersion == packageFileVersionME3)
             {
                 output.WriteInt32(-(extraNamesTable[c].name.length() + 1));
                 output.WriteStringUnicode16Null(extraNamesTable[c].name);
