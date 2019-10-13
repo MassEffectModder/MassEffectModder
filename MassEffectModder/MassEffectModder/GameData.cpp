@@ -86,6 +86,15 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
                 coalescedFiles.push_back(path);
             }
         }
+        if (gameType == MeType::ME3_TYPE)
+        {
+            QString patchPath = bioGamePath() + "/Patches/PCConsole/Patch_001.sfar";
+            QString path = patchPath.mid(pathLen);
+            if (QFile::exists(patchPath))
+            {
+                sfarFiles.push_back(path);
+            }
+        }
         if (gameType == MeType::ME2_TYPE ||
             gameType == MeType::ME3_TYPE)
         {
