@@ -80,7 +80,7 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
         if (gameType == MeType::ME2_TYPE)
         {
             QString iniPath = bioGamePath() + "/Config/PC/Cooked/Coalesced.ini";
-            QString path = iterator.filePath().mid(pathLen);
+            QString path = iniPath.mid(pathLen);
             if (QFile::exists(iniPath))
             {
                 coalescedFiles.push_back(path);
@@ -90,10 +90,10 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
             gameType == MeType::ME3_TYPE)
         {
             QDirIterator iterator(bioGamePath() + "/Movies", QDir::Files | QDir::NoSymLinks);
-            QString path = iterator.filePath().mid(pathLen);
             while (iterator.hasNext())
             {
                 iterator.next();
+                QString path = iterator.filePath().mid(pathLen);
                 if (path.endsWith(".bik", Qt::CaseInsensitive))
                 {
                     bikFiles.push_back(path);
@@ -138,26 +138,16 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
 #ifdef GUI
                         QApplication::processEvents();
 #endif
-                        iterator.next();
-                        QString path = iterator.filePath().mid(pathLen);
+                        iterator2.next();
+                        QString path = iterator2.filePath().mid(pathLen);
                         if (path.endsWith(".bik", Qt::CaseInsensitive))
                         {
                             bikFiles.push_back(path);
                         }
                     }
-                }
-
-                if (gameType == MeType::ME3_TYPE)
-                {
-                    if (isValid)
-                        DLCFiles += files;
-                }
-                else
-                {
                     DLCFiles += files;
                 }
             }
-
         }
 
         if (gameType == MeType::ME2_TYPE)
