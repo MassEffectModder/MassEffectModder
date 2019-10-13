@@ -52,7 +52,7 @@ void TreeScan::loadTexturesMap(MeType gameId, Resources &resources, QList<FoundT
     ByteBuffer decompressed(tmp.ReadInt32());
     ByteBuffer compressed = tmp.ReadToBuffer(tmp.ReadUInt32());
     uint dstLen = decompressed.size();
-    ZlibDecompress(compressed.ptr(), compressed.size(), decompressed.ptr(), &dstLen);
+    LzmaDecompress(compressed.ptr(), compressed.size(), decompressed.ptr(), &dstLen);
     compressed.Free();
     if (decompressed.size() != dstLen)
         CRASH();
@@ -618,7 +618,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
             quint8 *compressed = nullptr;
             uint compressedSize = 0;
             ByteBuffer decompressed = mem.ToArray();
-            ZlibCompress(decompressed.ptr(), mem.Length(), &compressed, &compressedSize, 9);
+            LzmaCompress(decompressed.ptr(), decompressed.size(), &compressed, &compressedSize, 9);
             decompressed.Free();
             fs.WriteUInt32(compressedSize);
             fs.WriteFromBuffer(compressed, compressedSize);
