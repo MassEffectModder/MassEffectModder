@@ -1480,6 +1480,9 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
     int allFilesCount = g_GameData->packageFiles.count();
     allFilesCount += g_GameData->sfarFiles.count();
     allFilesCount += g_GameData->tfcFiles.count();
+    allFilesCount += g_GameData->coalescedFiles.count();
+    allFilesCount += g_GameData->afcFiles.count();
+    allFilesCount += g_GameData->bikFiles.count();
 
     mods.clear();
     FileStream *fs;
@@ -1774,6 +1777,220 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
         }
     }
     progress += g_GameData->tfcFiles.count();
+
+    for (int l = 0; l < g_GameData->coalescedFiles.count(); l++)
+    {
+#ifdef GUI
+        QApplication::processEvents();
+#endif
+        int newProgress = (l + progress) * 100 / allFilesCount;
+        if (lastProgress != newProgress)
+        {
+            lastProgress = newProgress;
+            if (g_ipc)
+            {
+                ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + QString::number(newProgress));
+                ConsoleSync();
+            }
+            if (callback)
+            {
+                callback(callbackHandle, newProgress);
+            }
+        }
+        if (!g_ipc && !callback)
+        {
+            PINFO("Checking: " + g_GameData->coalescedFiles[l] + "\n");
+        }
+        QByteArray md5 = calculateMD5(g_GameData->GamePath() + g_GameData->coalescedFiles[l]);
+        bool found = false;
+        for (int p = 0; p < entries.count(); p++)
+        {
+            if (memcmp(md5.data(), entries[p].md5, 16) == 0)
+            {
+                found = true;
+                break;
+            }
+        }
+        if (found)
+            continue;
+        int index = -1;
+        for (int p = 0; p < entries.count(); p++)
+        {
+            if (g_GameData->coalescedFiles[l].compare(entries[p].path, Qt::CaseInsensitive) == 0)
+            {
+                index = p;
+                break;
+            }
+        }
+        if (index == -1)
+            continue;
+
+        vanilla = false;
+
+        if (!generateMd5Entries && !generateModsMd5Entries)
+        {
+            errors += "File " + g_GameData->coalescedFiles[l] + " has wrong MD5 checksum: ";
+            for (int i = 0; i < md5.count(); i++)
+            {
+                errors += QString::number((quint8)md5[i], 16);
+            }
+            errors += ", expected: ";
+            for (unsigned char i : entries[index].md5)
+            {
+                errors += QString::number(i, 16);
+            }
+            errors += "\n";
+            if (g_ipc)
+            {
+                ConsoleWrite(QString("[IPC]ERROR ") + g_GameData->coalescedFiles[l]);
+                ConsoleSync();
+            }
+        }
+    }
+    progress += g_GameData->coalescedFiles.count();
+
+    for (int l = 0; l < g_GameData->afcFiles.count(); l++)
+    {
+#ifdef GUI
+        QApplication::processEvents();
+#endif
+        int newProgress = (l + progress) * 100 / allFilesCount;
+        if (lastProgress != newProgress)
+        {
+            lastProgress = newProgress;
+            if (g_ipc)
+            {
+                ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + QString::number(newProgress));
+                ConsoleSync();
+            }
+            if (callback)
+            {
+                callback(callbackHandle, newProgress);
+            }
+        }
+        if (!g_ipc && !callback)
+        {
+            PINFO("Checking: " + g_GameData->afcFiles[l] + "\n");
+        }
+        QByteArray md5 = calculateMD5(g_GameData->GamePath() + g_GameData->afcFiles[l]);
+        bool found = false;
+        for (int p = 0; p < entries.count(); p++)
+        {
+            if (memcmp(md5.data(), entries[p].md5, 16) == 0)
+            {
+                found = true;
+                break;
+            }
+        }
+        if (found)
+            continue;
+        int index = -1;
+        for (int p = 0; p < entries.count(); p++)
+        {
+            if (g_GameData->afcFiles[l].compare(entries[p].path, Qt::CaseInsensitive) == 0)
+            {
+                index = p;
+                break;
+            }
+        }
+        if (index == -1)
+            continue;
+
+        vanilla = false;
+
+        if (!generateMd5Entries && !generateModsMd5Entries)
+        {
+            errors += "File " + g_GameData->afcFiles[l] + " has wrong MD5 checksum: ";
+            for (int i = 0; i < md5.count(); i++)
+            {
+                errors += QString::number((quint8)md5[i], 16);
+            }
+            errors += ", expected: ";
+            for (unsigned char i : entries[index].md5)
+            {
+                errors += QString::number(i, 16);
+            }
+            errors += "\n";
+            if (g_ipc)
+            {
+                ConsoleWrite(QString("[IPC]ERROR ") + g_GameData->afcFiles[l]);
+                ConsoleSync();
+            }
+        }
+    }
+    progress += g_GameData->afcFiles.count();
+
+    for (int l = 0; l < g_GameData->bikFiles.count(); l++)
+    {
+#ifdef GUI
+        QApplication::processEvents();
+#endif
+        int newProgress = (l + progress) * 100 / allFilesCount;
+        if (lastProgress != newProgress)
+        {
+            lastProgress = newProgress;
+            if (g_ipc)
+            {
+                ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + QString::number(newProgress));
+                ConsoleSync();
+            }
+            if (callback)
+            {
+                callback(callbackHandle, newProgress);
+            }
+        }
+        if (!g_ipc && !callback)
+        {
+            PINFO("Checking: " + g_GameData->bikFiles[l] + "\n");
+        }
+        QByteArray md5 = calculateMD5(g_GameData->GamePath() + g_GameData->bikFiles[l]);
+        bool found = false;
+        for (int p = 0; p < entries.count(); p++)
+        {
+            if (memcmp(md5.data(), entries[p].md5, 16) == 0)
+            {
+                found = true;
+                break;
+            }
+        }
+        if (found)
+            continue;
+        int index = -1;
+        for (int p = 0; p < entries.count(); p++)
+        {
+            if (g_GameData->bikFiles[l].compare(entries[p].path, Qt::CaseInsensitive) == 0)
+            {
+                index = p;
+                break;
+            }
+        }
+        if (index == -1)
+            continue;
+
+        vanilla = false;
+
+        if (!generateMd5Entries && !generateModsMd5Entries)
+        {
+            errors += "File " + g_GameData->bikFiles[l] + " has wrong MD5 checksum: ";
+            for (int i = 0; i < md5.count(); i++)
+            {
+                errors += QString::number((quint8)md5[i], 16);
+            }
+            errors += ", expected: ";
+            for (unsigned char i : entries[index].md5)
+            {
+                errors += QString::number(i, 16);
+            }
+            errors += "\n";
+            if (g_ipc)
+            {
+                ConsoleWrite(QString("[IPC]ERROR ") + g_GameData->bikFiles[l]);
+                ConsoleSync();
+            }
+        }
+    }
+    progress += g_GameData->bikFiles.count();
+
     if (generateModsMd5Entries || generateMd5Entries)
     {
         fs->Close();

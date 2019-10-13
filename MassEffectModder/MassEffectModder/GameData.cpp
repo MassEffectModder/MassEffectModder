@@ -51,25 +51,52 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
                     continue;
                 if (path.endsWith("refshadercache-pc-d3d-sm3.upk", Qt::CaseInsensitive))
                     continue;
+                if (path.compare("niebieska_pl.bik") == 0)
+                    FullScanGame = true;
+                if (path.endsWith(".bik", Qt::CaseInsensitive))
+                    bikFiles.push_back(path);
+            }
+            else if (gameType == MeType::ME2_TYPE)
+            {
+                if (path.endsWith(".afc", Qt::CaseInsensitive))
+                    afcFiles.push_back(path);
+                else if (path.endsWith(".tfc", Qt::CaseInsensitive))
+                    tfcFiles.push_back(path);
             }
             else if (gameType == MeType::ME3_TYPE)
             {
                 if (path.contains("guidcache", Qt::CaseInsensitive))
                     continue;
+                if (path.endsWith("Coalesced.bin", Qt::CaseInsensitive))
+                    coalescedFiles.push_back(path);
+                else if (path.endsWith(".afc", Qt::CaseInsensitive))
+                    afcFiles.push_back(path);
+                else if (path.endsWith(".tfc", Qt::CaseInsensitive))
+                    tfcFiles.push_back(path);
             }
-            packageMainFiles.push_back(path);
+            mainFiles.push_back(path);
         };
 
-        if (gameType == MeType::ME1_TYPE)
+        if (gameType == MeType::ME2_TYPE)
         {
-            QDirIterator iterator(GamePath() + "/Movies", QDir::Files | QDir::NoSymLinks);
+            QString iniPath = bioGamePath() + "/Config/PC/Cooked/Coalesced.ini";
+            QString path = iterator.filePath().mid(pathLen);
+            if (QFile::exists(iniPath))
+            {
+                coalescedFiles.push_back(path);
+            }
+        }
+        if (gameType == MeType::ME2_TYPE ||
+            gameType == MeType::ME3_TYPE)
+        {
+            QDirIterator iterator(bioGamePath() + "/Movies", QDir::Files | QDir::NoSymLinks);
+            QString path = iterator.filePath().mid(pathLen);
             while (iterator.hasNext())
             {
                 iterator.next();
-                if (iterator.fileName().compare("niebieska_pl.bik") == 0)
+                if (path.endsWith(".bik", Qt::CaseInsensitive))
                 {
-                    FullScanGame = true;
-                    break;
+                    bikFiles.push_back(path);
                 }
             }
         }
@@ -79,9 +106,11 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
             QStringList DLCs = QDir(DLCData(), "DLC_*", QDir::NoSort, QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
             foreach (QString DLCDir, DLCs)
             {
-                QStringList packages;
+                QStringList files;
                 QDirIterator iterator(DLCData() + "/" + DLCDir + DLCDataSuffix(), QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
-                bool isValid = false;
+                bool isValid = true;
+                if (gameType == MeType::ME3_TYPE)
+                    isValid = false;
                 while (iterator.hasNext())
                 {
 #ifdef GUI
@@ -89,85 +118,115 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
 #endif
                     iterator.next();
                     QString path = iterator.filePath().mid(pathLen);
-                    if (gameType == MeType::ME2_TYPE)
-                    {
-                        if (path.endsWith(".tfc", Qt::CaseInsensitive))
-                            tfcFiles.push_back(path);
-                    }
-                    else if (gameType == MeType::ME3_TYPE)
+                    if (filterPath != "" && !path.contains(filterPath, Qt::CaseInsensitive))
+                        continue;
+                    if (gameType == MeType::ME3_TYPE)
                     {
                         if (path.contains("guidcache", Qt::CaseInsensitive))
                             continue;
-                        if (path.endsWith(".tfc", Qt::CaseInsensitive))
-                            tfcFiles.push_back(path);
-                        else if (path.endsWith(".sfar", Qt::CaseInsensitive))
-                        {
-                            sfarFiles.push_back(path);
+                        if (path.endsWith(".sfar", Qt::CaseInsensitive))
                             isValid = true;
+                    }
+                    files.push_back(path);
+                }
+
+                if (isValid)
+                {
+                    QDirIterator iterator2(DLCData() + "/" + DLCDir + "/Movies", QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
+                    while (iterator2.hasNext())
+                    {
+#ifdef GUI
+                        QApplication::processEvents();
+#endif
+                        iterator.next();
+                        QString path = iterator.filePath().mid(pathLen);
+                        if (path.endsWith(".bik", Qt::CaseInsensitive))
+                        {
+                            bikFiles.push_back(path);
                         }
                     }
-                    if (filterPath != "" && !path.contains(filterPath, Qt::CaseInsensitive))
-                        continue;
-                    packages.push_back(path);
                 }
+
                 if (gameType == MeType::ME3_TYPE)
                 {
                     if (isValid)
-                        packageDLCFiles += packages;
+                        DLCFiles += files;
                 }
                 else
                 {
-                    packageDLCFiles += packages;
+                    DLCFiles += files;
                 }
             }
 
-            std::sort(tfcFiles.begin(), tfcFiles.end(), comparePath);
         }
 
+        if (gameType == MeType::ME2_TYPE)
+        {
+            for (int i = 0; i < DLCFiles.count(); i++)
+            {
+                if (DLCFiles[i].endsWith(".tfc", Qt::CaseInsensitive))
+                    tfcFiles.push_back(DLCFiles[i]);
+                else if (DLCFiles[i].endsWith(".afc", Qt::CaseInsensitive))
+                    afcFiles.push_back(DLCFiles[i]);
+            }
+        }
+        else if (gameType == MeType::ME3_TYPE)
+        {
+            for (int i = 0; i < DLCFiles.count(); i++)
+            {
+                if (DLCFiles[i].endsWith(".tfc", Qt::CaseInsensitive))
+                    tfcFiles.push_back(DLCFiles[i]);
+                else if (DLCFiles[i].endsWith(".afc", Qt::CaseInsensitive))
+                    afcFiles.push_back(DLCFiles[i]);
+                else if (DLCFiles[i].endsWith(".sfar", Qt::CaseInsensitive))
+                    sfarFiles.push_back(DLCFiles[i]);
+            }
+        }
+        std::sort(tfcFiles.begin(), tfcFiles.end(), comparePath);
 
         if (gameType == MeType::ME1_TYPE)
         {
-            for (int i = 0; i < packageMainFiles.count(); i++)
+            for (int i = 0; i < mainFiles.count(); i++)
             {
-                if (filterPath != "" && !packageMainFiles[i].contains(filterPath, Qt::CaseInsensitive))
+                if (filterPath != "" && !mainFiles[i].contains(filterPath, Qt::CaseInsensitive))
                     continue;
-                if (packageMainFiles[i].endsWith(".u", Qt::CaseInsensitive) ||
-                    packageMainFiles[i].endsWith(".upk", Qt::CaseInsensitive) ||
-                    packageMainFiles[i].endsWith(".sfm", Qt::CaseInsensitive))
+                if (mainFiles[i].endsWith(".u", Qt::CaseInsensitive) ||
+                    mainFiles[i].endsWith(".upk", Qt::CaseInsensitive) ||
+                    mainFiles[i].endsWith(".sfm", Qt::CaseInsensitive))
                 {
-                    packageFiles += packageMainFiles[i];
+                    packageFiles += mainFiles[i];
                 }
             }
-            for (int i = 0; i < packageDLCFiles.count(); i++)
+            for (int i = 0; i < DLCFiles.count(); i++)
             {
-                if (filterPath != "" && !packageDLCFiles[i].contains(filterPath, Qt::CaseInsensitive))
+                if (filterPath != "" && !DLCFiles[i].contains(filterPath, Qt::CaseInsensitive))
                     continue;
-                if (packageDLCFiles[i].endsWith(".u", Qt::CaseInsensitive) ||
-                    packageDLCFiles[i].endsWith(".upk", Qt::CaseInsensitive) ||
-                    packageDLCFiles[i].endsWith(".sfm", Qt::CaseInsensitive))
+                if (DLCFiles[i].endsWith(".u", Qt::CaseInsensitive) ||
+                    DLCFiles[i].endsWith(".upk", Qt::CaseInsensitive) ||
+                    DLCFiles[i].endsWith(".sfm", Qt::CaseInsensitive))
                 {
-                    packageFiles += packageDLCFiles[i];
+                    packageFiles += DLCFiles[i];
                 }
             }
         }
         else
         {
-            for (int i = 0; i < packageMainFiles.count(); i++)
+            for (int i = 0; i < mainFiles.count(); i++)
             {
-                if (filterPath != "" && !packageMainFiles[i].contains(filterPath, Qt::CaseInsensitive))
+                if (filterPath != "" && !mainFiles[i].contains(filterPath, Qt::CaseInsensitive))
                     continue;
-                if (packageMainFiles[i].endsWith(".pcc", Qt::CaseInsensitive))
+                if (mainFiles[i].endsWith(".pcc", Qt::CaseInsensitive))
                 {
-                    packageFiles += packageMainFiles[i];
+                    packageFiles += mainFiles[i];
                 }
             }
-            for (int i = 0; i < packageDLCFiles.count(); i++)
+            for (int i = 0; i < DLCFiles.count(); i++)
             {
-                if (filterPath != "" && !packageDLCFiles[i].contains(filterPath, Qt::CaseInsensitive))
+                if (filterPath != "" && !DLCFiles[i].contains(filterPath, Qt::CaseInsensitive))
                     continue;
-                if (packageDLCFiles[i].endsWith(".pcc", Qt::CaseInsensitive))
+                if (DLCFiles[i].endsWith(".pcc", Qt::CaseInsensitive))
                 {
-                    packageFiles += packageDLCFiles[i];
+                    packageFiles += DLCFiles[i];
                 }
             }
         }
@@ -199,9 +258,9 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
                     break;
                 }
             }
-            for (int i = 0; i < packageMainFiles.count(); i++)
+            for (int i = 0; i < mainFiles.count(); i++)
             {
-                QString path = packageMainFiles[i];
+                QString path = mainFiles[i];
                 if (path.contains("_DE.", Qt::CaseInsensitive) ||
                     path.contains("_FR.", Qt::CaseInsensitive) ||
                     path.contains("_IT.", Qt::CaseInsensitive) ||
@@ -452,9 +511,12 @@ const QString GameData::RelativeGameData(const QString &path)
 void GameData::ClosePackagesList()
 {
     packageFiles.clear();
-    packageMainFiles.clear();
-    packageDLCFiles.clear();
+    mainFiles.clear();
+    DLCFiles.clear();
     tfcFiles.clear();
+    coalescedFiles.clear();
+    afcFiles.clear();
+    bikFiles.clear();
     mapME1PackageUpperNames.clear();
     packageME1UpperNames.clear();
 }

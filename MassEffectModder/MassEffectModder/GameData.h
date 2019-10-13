@@ -38,10 +38,13 @@ private:
 public:
     static MeType gameType;
     QStringList packageFiles;
-    QStringList packageMainFiles;
-    QStringList packageDLCFiles;
+    QStringList mainFiles;
+    QStringList DLCFiles;
     QStringList sfarFiles;
     QStringList tfcFiles;
+    QStringList coalescedFiles;
+    QStringList afcFiles;
+    QStringList bikFiles;
     QStringList packageME1UpperNames;
     QMap<QString, int> mapME1PackageUpperNames;
     bool FullScanGame;
