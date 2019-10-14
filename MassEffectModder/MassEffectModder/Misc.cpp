@@ -1489,7 +1489,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
     if (generateModsMd5Entries)
         fs = new FileStream("MD5ModEntries.cpp", FileMode::Create, FileAccess::WriteOnly);
     if (generateMd5Entries)
-        fs = new FileStream("MD5FileEntry" + QString::number((int)gameType) + ".cpp", FileMode::Create, FileAccess::WriteOnly);
+        fs = new FileStream("MD5FileEntryME" + QString::number((int)gameType) + ".cpp", FileMode::Create, FileAccess::WriteOnly);
 
     int lastProgress = -1;
     for (int l = 0; l < g_GameData->packageFiles.count(); l++)
@@ -1596,21 +1596,22 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
 
         if (generateModsMd5Entries)
         {
-            fs->WriteStringASCII(QString("{\"") + g_GameData->packageFiles[l] + "\",\n{ ");
+            fs->WriteStringASCII(QString("{\n\"") + g_GameData->packageFiles[l] + "\",\n{ ");
             for (int i = 0; i < md5.count(); i++)
             {
-                fs->WriteStringASCII(QString::number(md5[i], 16));
+                fs->WriteStringASCII(QString().sprintf("0x%02X, ", (quint8)md5[i]));
             }
             fs->WriteStringASCII("},\n\"\",\n},\n");
         }
         if (generateMd5Entries)
         {
-            fs->WriteStringASCII(QString("{\"") + g_GameData->packageFiles[l] + "\",\n{ ");
+            fs->WriteStringASCII(QString("{\n\"") + g_GameData->packageFiles[l] + "\",\n{ ");
             for (int i = 0; i < md5.count(); i++)
             {
-                fs->WriteStringASCII(QString::number(md5[i], 16));
+                fs->WriteStringASCII(QString().sprintf("0x%02X, ", (quint8)md5[i]));
             }
-            fs->WriteStringASCII(QString("},\n") + QString::number(QFile(g_GameData->packageFiles[l]).size()) + ",\n},\n");
+            fs->WriteStringASCII(QString("},\n") +
+                                 QString::number(QFile(g_GameData->GamePath() + g_GameData->packageFiles[l]).size()) + ",\n},\n");
         }
 
         if (!generateMd5Entries && !generateModsMd5Entries)
@@ -1618,12 +1619,12 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
             errors += "File " + g_GameData->packageFiles[l] + " has wrong MD5 checksum: ";
             for (int i = 0; i < md5.count(); i++)
             {
-                errors += QString::number((quint8)md5[i], 16);
+                errors += QString().sprintf("%02X", (quint8)md5[i]);
             }
             errors += ", expected: ";
             for (unsigned char i : md5Entry)
             {
-                errors += QString::number(i, 16);
+                errors += QString().sprintf("%02X", i);
             }
             errors += "\n";
             if (g_ipc)
@@ -1689,12 +1690,12 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
             errors += "File " + g_GameData->sfarFiles[l] + " has wrong MD5 checksum: ";
             for (int i = 0; i < md5.count(); i++)
             {
-                errors += QString::number((quint8)md5[i], 16);
+                errors += QString().sprintf("%02X", (quint8)md5[i]);
             }
             errors += ", expected: ";
             for (unsigned char i : entries[index].md5)
             {
-                errors += QString::number(i, 16);
+                errors += QString().sprintf("%02X", i);
             }
             errors += "\n";
 
@@ -1761,12 +1762,12 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
             errors += "File " + g_GameData->tfcFiles[l] + " has wrong MD5 checksum: ";
             for (int i = 0; i < md5.count(); i++)
             {
-                errors += QString::number((quint8)md5[i], 16);
+                errors += QString().sprintf("%02X", (quint8)md5[i]);
             }
             errors += ", expected: ";
             for (unsigned char i : entries[index].md5)
             {
-                errors += QString::number(i, 16);
+                errors += QString().sprintf("%02X", i);
             }
             errors += "\n";
             if (g_ipc)
@@ -1822,22 +1823,42 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
                 break;
             }
         }
-        if (index == -1)
+        if (index == -1 && !generateMd5Entries && !generateModsMd5Entries)
             continue;
 
         vanilla = false;
+
+        if (generateModsMd5Entries)
+        {
+            fs->WriteStringASCII(QString("{\n\"") + g_GameData->coalescedFiles[l] + "\",\n{ ");
+            for (int i = 0; i < md5.count(); i++)
+            {
+                fs->WriteStringASCII(QString().sprintf("0x%02X, ", (quint8)md5[i]));
+            }
+            fs->WriteStringASCII("},\n\"\",\n},\n");
+        }
+        if (generateMd5Entries)
+        {
+            fs->WriteStringASCII(QString("{\n\"") + g_GameData->coalescedFiles[l] + "\",\n{ ");
+            for (int i = 0; i < md5.count(); i++)
+            {
+                fs->WriteStringASCII(QString().sprintf("0x%02X, ", (quint8)md5[i]));
+            }
+            fs->WriteStringASCII(QString("},\n") +
+                                 QString::number(QFile(g_GameData->GamePath() + g_GameData->coalescedFiles[l]).size()) + ",\n},\n");
+        }
 
         if (!generateMd5Entries && !generateModsMd5Entries)
         {
             errors += "File " + g_GameData->coalescedFiles[l] + " has wrong MD5 checksum: ";
             for (int i = 0; i < md5.count(); i++)
             {
-                errors += QString::number((quint8)md5[i], 16);
+                errors += QString().sprintf("%02X", (quint8)md5[i]);
             }
             errors += ", expected: ";
             for (unsigned char i : entries[index].md5)
             {
-                errors += QString::number(i, 16);
+                errors += QString().sprintf("%02X", i);
             }
             errors += "\n";
             if (g_ipc)
@@ -1893,22 +1914,42 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
                 break;
             }
         }
-        if (index == -1)
+        if (index == -1 && !generateMd5Entries && !generateModsMd5Entries)
             continue;
 
         vanilla = false;
+
+        if (generateModsMd5Entries)
+        {
+            fs->WriteStringASCII(QString("{\n\"") + g_GameData->afcFiles[l] + "\",\n{ ");
+            for (int i = 0; i < md5.count(); i++)
+            {
+                fs->WriteStringASCII(QString().sprintf("0x%02X, ", (quint8)md5[i]));
+            }
+            fs->WriteStringASCII("},\n\"\",\n},\n");
+        }
+        if (generateMd5Entries)
+        {
+            fs->WriteStringASCII(QString("{\n\"") + g_GameData->afcFiles[l] + "\",\n{ ");
+            for (int i = 0; i < md5.count(); i++)
+            {
+                fs->WriteStringASCII(QString().sprintf("0x%02X, ", (quint8)md5[i]));
+            }
+            fs->WriteStringASCII(QString("},\n") +
+                                 QString::number(QFile(g_GameData->GamePath() + g_GameData->afcFiles[l]).size()) + ",\n},\n");
+        }
 
         if (!generateMd5Entries && !generateModsMd5Entries)
         {
             errors += "File " + g_GameData->afcFiles[l] + " has wrong MD5 checksum: ";
             for (int i = 0; i < md5.count(); i++)
             {
-                errors += QString::number((quint8)md5[i], 16);
+                errors += QString().sprintf("%02X", (quint8)md5[i]);
             }
             errors += ", expected: ";
             for (unsigned char i : entries[index].md5)
             {
-                errors += QString::number(i, 16);
+                errors += QString().sprintf("%02X", i);
             }
             errors += "\n";
             if (g_ipc)
@@ -1964,22 +2005,42 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
                 break;
             }
         }
-        if (index == -1)
+        if (index == -1 && !generateMd5Entries && !generateModsMd5Entries)
             continue;
 
         vanilla = false;
+
+        if (generateModsMd5Entries)
+        {
+            fs->WriteStringASCII(QString("{\n\"") + g_GameData->bikFiles[l] + "\",\n{ ");
+            for (int i = 0; i < md5.count(); i++)
+            {
+                fs->WriteStringASCII(QString().sprintf("0x%02X, ", (quint8)md5[i]));
+            }
+            fs->WriteStringASCII("},\n\"\",\n},\n");
+        }
+        if (generateMd5Entries)
+        {
+            fs->WriteStringASCII(QString("{\n\"") + g_GameData->bikFiles[l] + "\",\n{ ");
+            for (int i = 0; i < md5.count(); i++)
+            {
+                fs->WriteStringASCII(QString().sprintf("0x%02X, ", (quint8)md5[i]));
+            }
+            fs->WriteStringASCII(QString("},\n") +
+                                 QString::number(QFile(g_GameData->GamePath() + g_GameData->bikFiles[l]).size()) + ",\n},\n");
+        }
 
         if (!generateMd5Entries && !generateModsMd5Entries)
         {
             errors += "File " + g_GameData->bikFiles[l] + " has wrong MD5 checksum: ";
             for (int i = 0; i < md5.count(); i++)
             {
-                errors += QString::number((quint8)md5[i], 16);
+                errors += QString().sprintf("%02X", (quint8)md5[i]);
             }
             errors += ", expected: ";
             for (unsigned char i : entries[index].md5)
             {
-                errors += QString::number(i, 16);
+                errors += QString().sprintf("%02X", i);
             }
             errors += "\n";
             if (g_ipc)
