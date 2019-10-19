@@ -58,19 +58,30 @@
  * ideas for improvements, feature requests, etc. You can reach me at
  * <drmccoy@drmccoy.de>, or via the GitHub project page at
  * <https://github.com/DrMcCoy/dmc_unrar>.
+ *
+ * If you send patches and/or pull requests, please keep the style of
+ * your changes similar to the existing style. Also note that dmc_unrar
+ * should stay C89-clean-ish. This means that gcc and clang with the
+ * compiler options
+ * -std=gnu89 -Wall -Wextra -pedantic -Wno-long-long
+ * and
+ * -std=c89 -Wall -Wextra -pedantic -Wno-long-long -DDMC_UNRAR_DISABLE_BE32TOH_BE64TOH=1
+ * should report no warnings.
  */
 
 /* Contributors:
  *
  * Amos Wenger <amoswenger@gmail.com>
+ * Matthew Hoops <clone2727@gmail.com>
  * Pawel Kolodziejski
  *
  */
 
 /* Version history:
  *
- * 2017-01-25 (Pawel Kolodziejski)
- * - Added support for windows file io
+ *
+ * (Pawel Kolodziejski)
+ * - Added support for Windows file I/O
  *
  * Monday, 2019-08-12 (Version 1.6.0)
  * - Implemented the Itanium filter
@@ -2087,7 +2098,7 @@ void dmc_unrar_archive_close(dmc_unrar_archive *archive) {
     }
 #endif /* DMC_UNRAR_DISABLE_STDIO */
 
-    /* If we're using our own memory reader, clean and free its context. */
+	/* If we're using our own memory reader, clean and free its context. */
 	if (dmc_unrar_io_is_mem_reader(&archive->io)) {
 		dmc_unrar_free(&archive->alloc, archive->io.opaque);
 		DMC_UNRAR_CLEAR_OBJ(archive->io);
@@ -3005,11 +3016,11 @@ static dmc_unrar_return dmc_unrar_rar5_read_file_header(dmc_unrar_archive *archi
 			switch (type) {
 				case DMC_UNRAR_FILE5_PROPERTY_ENCRYPTION:
 					file->is_encrypted = true;
-                break;
+					break;
 
 				case DMC_UNRAR_FILE5_PROPERTY_LINK:
 					file->is_link = true;
-                break;
+					break;
 
 				default:
 					break;
@@ -3097,7 +3108,7 @@ static bool dmc_unrar_unicode_utf32_is_overlong(uint32_t code, size_t length) {
 }
 
 /** Return the number of octets the Unicode codepoint takes as a UTF-8 code unit. */
-static size_t dmc_unrar_unicode_utf8_get_octect_count(uint32_t code) {
+static size_t dmc_unrar_unicode_utf8_get_octet_count(uint32_t code) {
 	if (!dmc_unrar_unicode_utf32_is_valid(code))
 		return 0;
 
@@ -3285,7 +3296,7 @@ static bool dmc_unrar_unicode_utf16_to_utf8(const void *utf16_data, size_t utf16
 		  /* Codepoint is not valid => broken data. */
 			return false;
 
-		length = dmc_unrar_unicode_utf8_get_octect_count(codepoint);
+		length = dmc_unrar_unicode_utf8_get_octet_count(codepoint);
 		if (utf8_size < length)
 			break;
 
