@@ -30,6 +30,7 @@ class LayoutModsManager: public LayoutHandle
 
 public:
     explicit LayoutModsManager(MainWindow *window = nullptr);
+    void LockGui(bool enable);
 
 private slots:
     void InstallModsSelected();
@@ -50,6 +51,8 @@ private:
 #endif
 
     MainWindow *mainWindow;
+
+    static void ExtractMEMCallback(void *handle, int progress);
 };
 
 #endif // LAYOUT_MODS_MANAGER_H

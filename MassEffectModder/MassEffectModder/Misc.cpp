@@ -1372,6 +1372,193 @@ end:
     return true;
 }
 
+bool Misc::extractMEM(MeType gameId, QFileInfoList &inputList, QString &outputDir,
+                      ProgressCallback callback, void *callbackHandle)
+{
+    QList<FoundTexture> textures;
+    Resources resources;
+    resources.loadMD5Tables();
+
+    TreeScan::loadTexturesMap(gameId, resources, textures);
+
+    PINFO("Extract MEM files started...\n");
+
+    outputDir = QDir::cleanPath(outputDir);
+    if (outputDir.length() != 0)
+    {
+        QDir().mkpath(outputDir);
+        outputDir += "/";
+    }
+
+    Misc::startTimer();
+
+    int currentNumberOfTotalMods = 1;
+    int totalNumberOfMods = 0;
+    for (int i = 0; i < inputList.count(); i++)
+    {
+        FileStream fs = FileStream(inputList[i].absoluteFilePath(), FileMode::Open, FileAccess::ReadOnly);
+        uint tag = fs.ReadUInt32();
+        uint version = fs.ReadUInt32();
+        if (tag != TextureModTag || version != TextureModVersion)
+            continue;
+        fs.JumpTo(fs.ReadInt64());
+        fs.SkipInt32();
+        totalNumberOfMods += fs.ReadInt32();
+    }
+
+    int lastProgress = -1;
+    foreach (QFileInfo file, inputList)
+    {
+        if (g_ipc)
+        {
+            ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + file.fileName());
+            ConsoleSync();
+        }
+        else
+        {
+            PINFO(QString("Extract MEM: ") + file.absoluteFilePath() + "\n");
+        }
+        QString outputMODdir = outputDir + BaseNameWithoutExt(file.fileName());
+        QDir().mkpath(outputMODdir);
+
+        FileStream fs = FileStream(file.absoluteFilePath(), FileMode::Open, FileAccess::ReadOnly);
+        if (!Misc::CheckMEMHeader(fs, file.absoluteFilePath()))
+            continue;
+
+        if (!Misc::CheckMEMGameVersion(fs, file.absoluteFilePath(), gameId))
+            continue;
+
+        int numFiles = fs.ReadInt32();
+        QList<FileMod> modFiles = QList<FileMod>();
+        for (int i = 0; i < numFiles; i++)
+        {
+            FileMod fileMod{};
+            fileMod.tag = fs.ReadUInt32();
+            fs.ReadStringASCIINull(fileMod.name);
+            int idx = fileMod.name.indexOf("-hash");
+            if (idx != -1)
+                fileMod.name = fileMod.name.left(idx);
+            fileMod.offset = fs.ReadInt64();
+            fileMod.size = fs.ReadInt64();
+            modFiles.push_back(fileMod);
+        }
+        numFiles = modFiles.count();
+
+        for (int i = 0; i < numFiles; i++, currentNumberOfTotalMods++)
+        {
+#ifdef GUI
+            QApplication::processEvents();
+#endif
+            QString name;
+            uint crc = 0;
+            long size = 0;
+            int exportId = -1;
+            QString pkgPath;
+            fs.JumpTo(modFiles[i].offset);
+            size = modFiles[i].size;
+            if (modFiles[i].tag == FileTextureTag || modFiles[i].tag == FileTextureTag2)
+            {
+                fs.ReadStringASCIINull(name);
+                crc = fs.ReadUInt32();
+            }
+            else if (modFiles[i].tag == FileBinaryTag || modFiles[i].tag == FileXdeltaTag)
+            {
+                name = modFiles[i].name;
+                exportId = fs.ReadInt32();
+                fs.ReadStringASCIINull(pkgPath);
+                pkgPath.replace('\\', '/');
+            }
+
+            PINFO(QString("Processing MEM mod ") + file.fileName() +
+                             " - File " + QString::number(i + 1) + " of " +
+                             QString::number(numFiles) + " - " + name + "\n");
+            int newProgress = currentNumberOfTotalMods * 100 / totalNumberOfMods;
+            if (lastProgress != newProgress)
+            {
+                lastProgress = newProgress;
+                if (g_ipc)
+                {
+                    ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + QString::number(newProgress));
+                    ConsoleSync();
+                }
+                if (callback)
+                {
+                    callback(callbackHandle, newProgress);
+                }
+            }
+
+            ByteBuffer dst = MipMaps::decompressData(fs, size);
+            if (dst.size() == 0)
+            {
+                if (g_ipc)
+                {
+                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + file.absoluteFilePath());
+                    ConsoleSync();
+                }
+                PERROR(QString("Failed decompress data: ") + file.absoluteFilePath() + "\n");
+                PERROR("Extract MEM mod files failed.\n\n");
+                return false;
+            }
+
+            if (modFiles[i].tag == FileTextureTag || modFiles[i].tag == FileTextureTag2)
+            {
+                int idx = name.indexOf("-hash");
+                if (idx != -1)
+                    name = name.left(idx);
+                QString filename = outputMODdir + "/" +
+                        BaseName(name + QString().sprintf("_0x%08X", crc));
+                if (idx != -1)
+                    filename += "-hash";
+                if (modFiles[i].tag == FileTextureTag)
+                    filename += ".dds";
+                else
+                    filename += "-memconvert.dds";
+                FileStream output = FileStream(filename, FileMode::Create, FileAccess::ReadWrite);
+                output.WriteFromBuffer(dst);
+            }
+            else if (modFiles[i].tag == FileBinaryTag || modFiles[i].tag == FileXdeltaTag)
+            {
+                const QString& path = pkgPath;
+                QString newFilename;
+                if (path.contains("/DLC/"))
+                {
+                    QString dlcName = path.split('/')[3];
+                    newFilename = "D" + QString::number(dlcName.size()) + "-" + dlcName + "-";
+                }
+                else
+                {
+                    newFilename = "B";
+                }
+                newFilename += QString::number(BaseName(path).size()) +
+                        "-" + BaseName(path) + "-E" + QString::number(exportId);
+                if (modFiles[i].tag == FileBinaryTag)
+                    newFilename += ".bin";
+                else
+                    newFilename += ".xdelta";
+                newFilename = outputMODdir + "/" + newFilename;
+                FileStream output = FileStream(newFilename, FileMode::Create, FileAccess::WriteOnly);
+                output.WriteFromBuffer(dst);
+            }
+            else
+            {
+                if (g_ipc)
+                {
+                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + file.absoluteFilePath());
+                    ConsoleSync();
+                }
+                PERROR(QString("Unknown tag for file: ") + name + "\n");
+            }
+            dst.Free();
+        }
+    }
+
+    long elapsed = Misc::elapsedTime();
+    PINFO(Misc::getTimerFormat(elapsed) + "\n");
+
+    PINFO("Extract MEM mod files completed.\n\n");
+    return true;
+}
+
 QByteArray Misc::calculateMD5(const QString &filePath)
 {
     QFile file(filePath);

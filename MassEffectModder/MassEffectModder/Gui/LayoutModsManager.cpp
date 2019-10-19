@@ -22,6 +22,12 @@
 #include "Gui/LayoutMeSelect.h"
 #include "Gui/LayoutModsManager.h"
 #include "Gui/MainWindow.h"
+#include "Gui/MessageWindow.h"
+#include "Helpers/MiscHelpers.h"
+#include "Helpers/Logs.h"
+#include "GameData.h"
+#include "Misc.h"
+#include "MipMaps.h"
 
 LayoutModsManager::LayoutModsManager(MainWindow *window)
     : mainWindow(window)
@@ -82,12 +88,81 @@ LayoutModsManager::LayoutModsManager(MainWindow *window)
     horizontalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 40));
 }
 
+void LayoutModsManager::LockGui(bool enable)
+{
+    foreach (QWidget *widget, this->findChildren<QWidget*>())
+    {
+        widget->setEnabled(!enable);
+    }
+    mainWindow->LockClose(enable);
+}
+
 void LayoutModsManager::InstallModsSelected()
 {
 }
 
+void LayoutModsManager::ExtractMEMCallback(void *handle, int progress)
+{
+    auto *win = static_cast<MainWindow *>(handle);
+    win->statusBar()->showMessage(QString("Extracting MEM files... Progress: ") + QString::number(progress) + "%");
+    QApplication::processEvents();
+}
+
 void LayoutModsManager::ExtractModsSelected()
 {
+    LockGui(true);
+    QStringList files = QFileDialog::getOpenFileNames(this,
+            "Please select Mod file", "", "MEM mod file (*.mem)");
+    if (files.count() == 0)
+    {
+        LockGui(false);
+        return;
+    }
+    QString outDir = QFileDialog::getExistingDirectory(this,
+            "Please select destination directory for MEM extraction");
+    if (outDir == "")
+    {
+        LockGui(false);
+        return;
+    }
+    outDir = QDir::cleanPath(outDir);
+    QFileInfoList list;
+    long diskFreeSpace = Misc::getDiskFreeSpace(outDir);
+    long diskUsage = 0;
+    foreach (QString file, files)
+    {
+        auto info = QFileInfo(file);
+        diskUsage += info.size();
+        list.push_back(info);
+    }
+    diskUsage = (long)(diskUsage * 2.5);
+    if (diskUsage >= diskFreeSpace)
+    {
+        QMessageBox::critical(this, "Extracting MEM file(s)",
+                              "You have not enough disk space remaining. You need about " +
+                              Misc::getBytesFormat(diskUsage) + " free disk space.");
+        LockGui(false);
+        return;
+    }
+
+    g_logs->BufferClearErrors();
+    g_logs->BufferEnableErrors(true);
+    mainWindow->statusBar()->clearMessage();
+    Misc::extractMEM(mainWindow->gameType, list, outDir,
+                     &LayoutModsManager::ExtractMEMCallback, mainWindow);
+    mainWindow->statusBar()->clearMessage();
+    g_logs->BufferEnableErrors(false);
+    if (g_logs->BufferGetErrors() != "")
+    {
+        MessageWindow msg;
+        msg.Show("Extracting MEM file(s)", g_logs->BufferGetErrors());
+    }
+    else
+    {
+        QMessageBox::information(this, "Checking game", "All game files checked.");
+    }
+
+    LockGui(false);
 }
 
 void LayoutModsManager::CreateModSelected()
