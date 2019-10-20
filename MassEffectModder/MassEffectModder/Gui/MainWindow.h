@@ -52,6 +52,7 @@ private:
     static const int kLayoutTextureUtilities = 4;
     static const int kLayoutGameUtilities = 5;
     static const int kLayoutModsManager = 6;
+    static const int kLayoutInstallModsManager = 7;
 
     friend class LayoutMeSelect;
     friend class LayoutModules;
@@ -59,6 +60,7 @@ private:
     friend class LayoutTextureUtilities;
     friend class LayoutGameUtilities;
     friend class LayoutModsManager;
+    friend class LayoutInstallModsManager;
 
     QStackedLayout  *stackedLayout;
     MeType           gameType;

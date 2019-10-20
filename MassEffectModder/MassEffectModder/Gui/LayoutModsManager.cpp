@@ -21,6 +21,7 @@
 
 #include "Gui/LayoutMeSelect.h"
 #include "Gui/LayoutModsManager.h"
+#include "Gui/LayoutInstallModsManager.h"
 #include "Gui/MainWindow.h"
 #include "Gui/MessageWindow.h"
 #include "Helpers/MiscHelpers.h"
@@ -109,6 +110,8 @@ void LayoutModsManager::LockGui(bool enable)
 
 void LayoutModsManager::InstallModsSelected()
 {
+    mainWindow->GetLayout()->addWidget(new LayoutInstallModsManager(mainWindow));
+    mainWindow->SwitchLayoutById(MainWindow::kLayoutInstallModsManager);
 }
 
 void LayoutModsManager::ExtractModCallback(void *handle, int progress)

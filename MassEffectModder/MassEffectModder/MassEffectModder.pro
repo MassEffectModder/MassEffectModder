@@ -58,6 +58,7 @@ SOURCES += \
     Gui/MainWindow.cpp \
     Gui/MessageWindow.cpp \
     Gui/LayoutGameUtilities.cpp \
+    Gui/LayoutInstallModsManager.cpp \
     Gui/LayoutMeSelect.cpp \
     Gui/LayoutModsManager.cpp \
     Gui/LayoutModules.cpp \
@@ -67,6 +68,7 @@ HEADERS += \
     Gui/MainWindow.h \
     Gui/MessageWindow.h \
     Gui/LayoutGameUtilities.h \
+    Gui/LayoutInstallModsManager.h \
     Gui/LayoutMeSelect.h \
     Gui/LayoutModsManager.h \
     Gui/LayoutModules.h \
