@@ -54,6 +54,6 @@ typedef enum
 #define MEMendFileMarker      "ThisIsMEMEndOfFileMarker"
 #define MEMMarkerLenght       (sizeof(MEMendFileMarker) - 1)
 
-#define PERCENT_OF_SIZE(x, y) (((x) * 100) / (y))
+#define PERCENT_OF_SIZE(x, y) (((x) * (y)) / 100)
 
 #endif
