@@ -25,9 +25,11 @@
 #include "Gui/MessageWindow.h"
 #include "Helpers/MiscHelpers.h"
 #include "Helpers/Logs.h"
+#include "Wrappers.h"
 #include "GameData.h"
 #include "Misc.h"
 #include "MipMaps.h"
+#include "Package.h"
 
 LayoutModsManager::LayoutModsManager(MainWindow *window)
     : mainWindow(window)
@@ -171,6 +173,240 @@ void LayoutModsManager::CreateModSelected()
 
 void LayoutModsManager::CreateBinaryModSelected()
 {
+    LockGui(true);
+
+    ConfigIni configIni{};
+    g_GameData->Init(mainWindow->gameType, configIni);
+    if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
+    {
+        QMessageBox::critical(this, "Creating Binary mod files", "Game data not found.");
+        LockGui(false);
+        return;
+    }
+
+    QString modsDir = QFileDialog::getExistingDirectory(this,
+            "Please select source directory of modded package files");
+    if (modsDir == "")
+    {
+        LockGui(false);
+        return;
+    }
+    modsDir = QDir::cleanPath(modsDir);
+
+    mainWindow->statusBar()->showMessage(QString("Checking source intergrity..."));
+    bool foundExe = false;
+    QDirIterator iterator(modsDir, QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
+    while (iterator.hasNext())
+    {
+        QApplication::processEvents();
+        iterator.next();
+        if (iterator.filePath().endsWith(".exe", Qt::CaseInsensitive))
+        {
+            foundExe = true;
+            break;
+        }
+    }
+    if (!foundExe)
+    {
+        mainWindow->statusBar()->clearMessage();
+        QMessageBox::critical(this, "Creating Binary mod files",
+                              "The source directory doesn't seems right, aborting...");
+        LockGui(false);
+        return;
+    }
+
+    QStringList packagesList;
+    QDirIterator iterator2(modsDir, QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
+    while (iterator2.hasNext())
+    {
+        QApplication::processEvents();
+        iterator.next();
+        if (iterator2.filePath().endsWith(".upk", Qt::CaseInsensitive) ||
+            iterator2.filePath().endsWith(".u", Qt::CaseInsensitive) ||
+            iterator2.filePath().endsWith(".sfm", Qt::CaseInsensitive) ||
+            iterator2.filePath().endsWith(".pcc", Qt::CaseInsensitive))
+        {
+            packagesList.append(iterator2.filePath());
+        }
+    }
+    for (int i = 0; i < packagesList.count(); i++)
+    {
+        FileStream fs = FileStream(packagesList[i], FileMode::Open, FileAccess::ReadOnly);
+        fs.SeekEnd();
+        fs.Seek(-MEMMarkerLenght, SeekOrigin::Current);
+        QString marker;
+        fs.ReadStringASCII(marker, MEMMarkerLenght);
+        if (marker == QString(MEMendFileMarker))
+        {
+            mainWindow->statusBar()->clearMessage();
+            QMessageBox::critical(this, "Creating Binary mod files",
+                                  "Mod files must be based on vanilla game data, aborting...");
+            LockGui(false);
+            return;
+        }
+    }
+
+    mainWindow->statusBar()->showMessage(QString("Scanning mods..."));
+    QList<BinaryMod> modFiles;
+    for (int i = 0; i < packagesList.count(); i++)
+    {
+        Package vanillaPkg;
+        Package modPkg;
+        bool vanilla = true;
+        bool found = false;
+        for (int v = 0; v < g_GameData->packageFiles.count(); v++)
+        {
+            if (BaseName(packagesList[i]).compare(BaseName(g_GameData->packageFiles[v]), Qt::CaseInsensitive) == 0)
+            {
+                modPkg.Open(packagesList[i]);
+                vanillaPkg.Open(g_GameData->GamePath() + g_GameData->packageFiles[v]);
+                if (modPkg.exportsTable.count() != vanillaPkg.exportsTable.count() ||
+                    modPkg.namesTable.count() != vanillaPkg.namesTable.count() ||
+                    modPkg.importsTable.count() != vanillaPkg.importsTable.count())
+                {
+                    found = true;
+                    vanilla = false;
+                    continue;
+                }
+                found = true;
+                break;
+            }
+        }
+        if (found && !vanilla)
+        {
+            mainWindow->statusBar()->clearMessage();
+            QMessageBox::critical(this, "Creating Binary mod files",
+                                  "Package file is not compatible: " + packagesList[i] + ", aborting...");
+            LockGui(false);
+            return;
+        }
+        if (!found)
+        {
+            mainWindow->statusBar()->clearMessage();
+            QMessageBox::critical(this, "Creating Binary mod files",
+                                  "Package is not present in vanilla game data: " + packagesList[i] + ", aborting...");
+            LockGui(false);
+            return;
+        }
+
+        mainWindow->statusBar()->showMessage(QString("Creating mods..."));
+        for (int e = 0; e < modPkg.exportsTable.count(); e++)
+        {
+            auto vanillaExport = vanillaPkg.getExportData(e);
+            auto modExport = modPkg.getExportData(e);
+            if (vanillaExport.size() == modExport.size())
+            {
+                if (memcmp(vanillaExport.ptr(), modExport.ptr(), vanillaExport.size()) == 0)
+                    continue;
+            }
+
+            BinaryMod mod;
+            mod.packagePath = vanillaPkg.packagePath;
+            mod.exportId = e;
+
+            if (vanillaExport.size() == modExport.size())
+            {
+                unsigned char *delta;
+                unsigned int deltaSize;
+                XDelta3Compress(vanillaExport.ptr(), modExport.ptr(), vanillaExport.size(),
+                                delta, &deltaSize);
+                mod.data = ByteBuffer(delta, deltaSize);
+                mod.binaryModType = 2;
+            }
+            else
+            {
+                mod.data = ByteBuffer(modExport.ptr(), modExport.size());
+                mod.binaryModType = 1;
+            }
+
+            QString name;
+            if (mod.packagePath.contains("/DLC/", Qt::CaseInsensitive))
+            {
+                QString dlcName = mod.packagePath.split(QChar('/'))[3];
+                name = "D" + QString::number(dlcName.size()) + "-" + dlcName + "-";
+            }
+            else
+            {
+                name = "B";
+            }
+            name += QString::number(BaseName(mod.packagePath).size()) +
+                    "-" + BaseName(mod.packagePath) +
+                    "-E" + QString::number(mod.exportId);
+
+            if (mod.binaryModType == 1)
+                name += ".bin";
+            else if (mod.binaryModType == 2)
+                name += ".xdelta";
+
+            mod.textureName = name;
+            modFiles.append(mod);
+        }
+
+        if (modFiles.count() == 0)
+        {
+            mainWindow->statusBar()->clearMessage();
+            QMessageBox::critical(this, "Creating Binary mod files",
+                                  "Nothing to mod, exiting...");
+            LockGui(false);
+            return;
+        }
+
+        mainWindow->statusBar()->showMessage(QString("Creating mem mod file..."));
+
+        QString modFile = QFileDialog::getOpenFileName(this,
+                "Please selecct new MEM mod file", "", "MEM mod file (*.mem)");
+        if (modFile == "")
+        {
+            mainWindow->statusBar()->clearMessage();
+            LockGui(false);
+            return;
+        }
+
+        if (QFile::exists(modFile))
+            QFile::remove(modFile);
+
+        FileStream outFs = FileStream(modFile, FileMode::Create, FileAccess::WriteOnly);
+        outFs.WriteUInt32(TextureModTag);
+        outFs.WriteUInt32(TextureModVersion);
+        outFs.WriteInt64(0); // filled later
+
+        for (int i = 0; i < modFiles.count(); i++)
+        {
+            std::unique_ptr<Stream> dst (new MemoryStream());
+            MipMaps::compressData(modFiles[i].data, *dst);
+            BinaryMod bmod = modFiles[i];
+            bmod.offset = outFs.Position();
+            bmod.size = dst->Length();
+            modFiles[i] = bmod;
+            outFs.WriteInt32(modFiles[i].exportId);
+            outFs.WriteStringASCIINull(modFiles[i].packagePath);
+            outFs.CopyFrom(*dst, dst->Length());
+        }
+
+        long pos = outFs.Position();
+        outFs.SeekBegin();
+        outFs.WriteUInt32(TextureModTag);
+        outFs.WriteUInt32(TextureModVersion);
+        outFs.WriteInt64(pos);
+        outFs.JumpTo(pos);
+        outFs.WriteUInt32((uint)mainWindow->gameType);
+        outFs.WriteInt32(modFiles.count());
+
+        for (int i = 0; i < modFiles.count(); i++)
+        {
+            if (modFiles[i].binaryModType == 1)
+                outFs.WriteUInt32(FileBinaryTag);
+            else if (modFiles[i].binaryModType == 2)
+                outFs.WriteUInt32(FileXdeltaTag);
+            outFs.WriteStringASCIINull(modFiles[i].textureName);
+            outFs.WriteInt64(modFiles[i].offset);
+            outFs.WriteInt64(modFiles[i].size);
+        }
+    }
+
+    mainWindow->statusBar()->clearMessage();
+    QMessageBox::information(this, "Creating Binary mod files", "Finished.");
+    LockGui(false);
 }
 
 void LayoutModsManager::ReturnSelected()
