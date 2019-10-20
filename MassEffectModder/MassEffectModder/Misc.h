@@ -77,8 +77,9 @@ public:
     static uint scanFilenameForCRC(const QString &inputFile);
     static FoundTexture FoundTextureInTheMap(QList<FoundTexture> &textures, uint crc);
     static bool convertDataModtoMem(QString &inputDir, QString &memFilePath,
-                                    MeType gameId, QList<FoundTexture> &textures, bool markToConvert,
-                                    bool onlyIndividual);
+                                    MeType gameId, QList<FoundTexture> &textures,
+                                    bool markToConvert, bool onlyIndividual,
+                                    ProgressCallback callback = nullptr, void *callbackHandle = nullptr);
     static bool extractMEM(MeType gameId, QFileInfoList &inputList, QString &outputDir,
                            ProgressCallback callback = nullptr, void *callbackHandle = nullptr);
     static bool CorrectTexture(Image &image, FoundTexture &f, int numMips, bool markToConvert,

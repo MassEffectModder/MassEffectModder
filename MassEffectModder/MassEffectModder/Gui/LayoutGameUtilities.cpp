@@ -230,8 +230,14 @@ void LayoutGameUtilities::ChangeGamePathSelected()
     case MeType::UNKNOWN_TYPE:
         CRASH();
     }
-    QString path = QFileDialog::getOpenFileName(this, caption,
-                                                g_GameData->GamePath() + exeSuffix, filter);
+    QString path;
+    QFileDialog dialog = QFileDialog(this, caption,
+                                     g_GameData->GamePath() + exeSuffix, filter);
+    dialog.setFileMode(QFileDialog::ExistingFile);
+    if (dialog.exec())
+    {
+        path = dialog.selectedFiles().first();
+    }
     if (path.length() != 0 && QFile(path).exists())
     {
         if (mainWindow->gameType == MeType::ME3_TYPE)

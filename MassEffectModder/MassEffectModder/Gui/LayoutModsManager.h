@@ -35,6 +35,7 @@ public:
 private slots:
     void InstallModsSelected();
     void ExtractModsSelected();
+    void ConvertModSelected();
     void CreateModSelected();
     void CreateBinaryModSelected();
     void ReturnSelected();
@@ -52,7 +53,9 @@ private:
 
     MainWindow *mainWindow;
 
-    static void ExtractMEMCallback(void *handle, int progress);
+    static void ExtractModCallback(void *handle, int progress);
+    static void ConvertModCallback(void *handle, int progress);
+    static void CreateModCallback(void *handle, int progress);
 };
 
 #endif // LAYOUT_MODS_MANAGER_H

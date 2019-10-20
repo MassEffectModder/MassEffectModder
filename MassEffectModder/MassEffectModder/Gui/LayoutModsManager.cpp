@@ -55,6 +55,13 @@ LayoutModsManager::LayoutModsManager(MainWindow *window)
     ButtonExtractMods->setFont(ButtonFont);
     connect(ButtonExtractMods, &QPushButton::clicked, this, &LayoutModsManager::ExtractModsSelected);
 
+    auto ButtonConvertMod = new QPushButton("Convert Mod");
+    ButtonConvertMod->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+    ButtonConvertMod->setMinimumWidth(kButtonMinWidth);
+    ButtonConvertMod->setMinimumHeight(kButtonMinHeight);
+    ButtonConvertMod->setFont(ButtonFont);
+    connect(ButtonConvertMod, &QPushButton::clicked, this, &LayoutModsManager::ConvertModSelected);
+
     auto ButtonCreateMod = new QPushButton("Create Mod");
     ButtonCreateMod->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     ButtonCreateMod->setMinimumWidth(kButtonMinWidth);
@@ -82,6 +89,7 @@ LayoutModsManager::LayoutModsManager(MainWindow *window)
     verticalLayout->setAlignment(Qt::AlignVCenter);
     verticalLayout->addWidget(ButtonInstallMods, 1);
     verticalLayout->addWidget(ButtonExtractMods, 1);
+    verticalLayout->addWidget(ButtonConvertMod, 1);
     verticalLayout->addWidget(ButtonCreateMod, 1);
     verticalLayout->addWidget(ButtonCreateBinaryMod, 1);
     verticalLayout->addSpacing(20);
@@ -103,7 +111,7 @@ void LayoutModsManager::InstallModsSelected()
 {
 }
 
-void LayoutModsManager::ExtractMEMCallback(void *handle, int progress)
+void LayoutModsManager::ExtractModCallback(void *handle, int progress)
 {
     auto *win = static_cast<MainWindow *>(handle);
     win->statusBar()->showMessage(QString("Extracting MEM files... Progress: ") + QString::number(progress) + "%");
@@ -151,7 +159,7 @@ void LayoutModsManager::ExtractModsSelected()
     g_logs->BufferEnableErrors(true);
     mainWindow->statusBar()->clearMessage();
     Misc::extractMEM(mainWindow->gameType, list, outDir,
-                     &LayoutModsManager::ExtractMEMCallback, mainWindow);
+                     &LayoutModsManager::ExtractModCallback, mainWindow);
     mainWindow->statusBar()->clearMessage();
     g_logs->BufferEnableErrors(false);
     if (g_logs->BufferGetErrors() != "")
@@ -167,8 +175,141 @@ void LayoutModsManager::ExtractModsSelected()
     LockGui(false);
 }
 
+void LayoutModsManager::ConvertModCallback(void *handle, int progress)
+{
+    auto *win = static_cast<MainWindow *>(handle);
+    win->statusBar()->showMessage(QString("Converting to MEM mod... Progress: ") + QString::number(progress) + "%");
+    QApplication::processEvents();
+}
+
+void LayoutModsManager::ConvertModSelected()
+{
+    LockGui(true);
+
+    QString path;
+    QFileDialog dialog = QFileDialog(this, "Please select mod file to convert",
+                                     "", "Mod file (*.mod, *.tpf)");
+    dialog.setFileMode(QFileDialog::ExistingFile);
+    if (dialog.exec())
+    {
+        path = dialog.selectedFiles().first();
+    }
+    if (path.length() == 0 || !QFile(path).exists())
+    {
+        LockGui(false);
+        return;
+    }
+
+    QString modFile = QFileDialog::getSaveFileName(this,
+            "Please select new MEM mod file", "", "MEM mod file (*.mem)");
+    if (modFile == "")
+    {
+        LockGui(false);
+        return;
+    }
+
+    g_logs->BufferClearErrors();
+    g_logs->BufferEnableErrors(true);
+
+    QList<FoundTexture> textures;
+    Resources resources;
+    resources.loadMD5Tables();
+    TreeScan::loadTexturesMap(mainWindow->gameType, resources, textures);
+    Misc::convertDataModtoMem(path, modFile, mainWindow->gameType, textures, false, true,
+                              &LayoutModsManager::ConvertModCallback, mainWindow);
+    g_logs->BufferEnableErrors(false);
+    if (g_logs->BufferGetErrors() != "")
+    {
+        MessageWindow msg;
+        msg.Show("Converting to MEM mod", g_logs->BufferGetErrors());
+    }
+    else
+    {
+        QMessageBox::information(this, "Converting to MEM mod", "Mod converted.");
+    }
+    mainWindow->statusBar()->clearMessage();
+    LockGui(false);
+}
+
+void LayoutModsManager::CreateModCallback(void *handle, int progress)
+{
+    auto *win = static_cast<MainWindow *>(handle);
+    win->statusBar()->showMessage(QString("Creating MEM mod... Progress: ") + QString::number(progress) + "%");
+    QApplication::processEvents();
+}
+
 void LayoutModsManager::CreateModSelected()
 {
+    LockGui(true);
+
+    QString inputDir = QFileDialog::getExistingDirectory(this,
+            "Please select source directory");
+    if (inputDir == "")
+    {
+        LockGui(false);
+        return;
+    }
+    inputDir = QDir::cleanPath(inputDir);
+
+    QString modFile = QFileDialog::getSaveFileName(this,
+            "Please select new MEM mod file", "", "MEM mod file (*.mem)");
+    if (modFile == "")
+    {
+        LockGui(false);
+        return;
+    }
+
+    QString outDir = DirName(modFile);
+    long diskFreeSpace = Misc::getDiskFreeSpace(outDir);
+    long diskUsage = 0;
+    QDirIterator iterator(outDir, QDir::Files | QDir::NoSymLinks);
+    while (iterator.hasNext())
+    {
+        QApplication::processEvents();
+        iterator.next();
+        if (iterator.filePath().endsWith(".dds", Qt::CaseInsensitive) ||
+            iterator.filePath().endsWith(".bmp", Qt::CaseInsensitive) ||
+            iterator.filePath().endsWith(".png", Qt::CaseInsensitive) ||
+            iterator.filePath().endsWith(".tga", Qt::CaseInsensitive) ||
+            iterator.filePath().endsWith(".jpg", Qt::CaseInsensitive) ||
+            iterator.filePath().endsWith(".jpeg", Qt::CaseInsensitive) ||
+            iterator.filePath().endsWith(".bin", Qt::CaseInsensitive) ||
+            iterator.filePath().endsWith(".xdelta", Qt::CaseInsensitive))
+        {
+            diskUsage += QFileInfo(iterator.filePath()).size();
+        }
+    }
+    diskUsage = (long)(diskUsage / 1.5);
+    if (diskUsage >= diskFreeSpace)
+    {
+        QMessageBox::critical(this, "Creating MEM mod",
+                              "You have not enough disk space remaining. You need about " +
+                              Misc::getBytesFormat(diskUsage) + " free disk space.");
+        LockGui(false);
+        return;
+    }
+
+    g_logs->BufferClearErrors();
+    g_logs->BufferEnableErrors(true);
+
+    QList<FoundTexture> textures;
+    Resources resources;
+    resources.loadMD5Tables();
+    TreeScan::loadTexturesMap(mainWindow->gameType, resources, textures);
+    Misc::convertDataModtoMem(inputDir, modFile, mainWindow->gameType, textures, false, false,
+                                            &LayoutModsManager::CreateModCallback, mainWindow);
+    g_logs->BufferEnableErrors(false);
+    if (g_logs->BufferGetErrors() != "")
+    {
+        MessageWindow msg;
+        msg.Show("Creating MEM mod", g_logs->BufferGetErrors());
+    }
+    else
+    {
+        QMessageBox::information(this, "Creating MEM mod", "Mod created.");
+    }
+    mainWindow->statusBar()->clearMessage();
+    LockGui(false);
 }
 
 void LayoutModsManager::CreateBinaryModSelected()
@@ -306,8 +447,8 @@ void LayoutModsManager::CreateBinaryModSelected()
 
             if (vanillaExport.size() == modExport.size())
             {
-                unsigned char *delta;
-                unsigned int deltaSize;
+                unsigned char *delta = nullptr;
+                unsigned int deltaSize = 0;
                 XDelta3Compress(vanillaExport.ptr(), modExport.ptr(), vanillaExport.size(),
                                 delta, &deltaSize);
                 mod.data = ByteBuffer(delta, deltaSize);
@@ -353,8 +494,8 @@ void LayoutModsManager::CreateBinaryModSelected()
 
         mainWindow->statusBar()->showMessage(QString("Creating mem mod file..."));
 
-        QString modFile = QFileDialog::getOpenFileName(this,
-                "Please selecct new MEM mod file", "", "MEM mod file (*.mem)");
+        QString modFile = QFileDialog::getSaveFileName(this,
+                "Please select new MEM mod file", "", "MEM mod file (*.mem)");
         if (modFile == "")
         {
             mainWindow->statusBar()->clearMessage();

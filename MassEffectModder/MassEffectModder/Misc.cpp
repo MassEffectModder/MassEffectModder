@@ -227,7 +227,7 @@ long Misc::getDirectorySize(QString &dir)
     return QFileInfo(dir).size();
 }
 
-QString getBytesFormat(long size)
+QString Misc::getBytesFormat(long size)
 {
     if (size / 1024 == 0)
         return QString::number(size, 'f', 2) + " Bytes";
@@ -803,7 +803,9 @@ static bool compareFileInfoPath(const QFileInfo &e1, const QFileInfo &e2)
 }
 
 bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
-    MeType gameId, QList<FoundTexture> &textures, bool markToConvert, bool onlyIndividual)
+                               MeType gameId, QList<FoundTexture> &textures,
+                               bool markToConvert, bool onlyIndividual,
+                               ProgressCallback callback, void *callbackHandle)
 {
     PINFO("Mods conversion started...\n");
 
@@ -860,13 +862,21 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
         if (g_ipc)
         {
             ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + BaseName(file));
-            int newProgress = (n * 100) / list.count();
-            if (lastProgress != newProgress)
+            ConsoleSync();
+        }
+        int newProgress = (n * 100) / list.count();
+        if (lastProgress != newProgress)
+        {
+            lastProgress = newProgress;
+            if (g_ipc)
             {
                 ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + QString::number(newProgress));
-                lastProgress = newProgress;
+                ConsoleSync();
             }
-            ConsoleSync();
+            if (callback)
+            {
+                callback(callbackHandle, newProgress);
+            }
         }
         else
         {
@@ -886,6 +896,9 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
             int numFiles = fs.ReadInt32();
             for (int l = 0; l < numFiles; l++)
             {
+#ifdef GUI
+                QApplication::processEvents();
+#endif
                 FileMod fileMod{};
                 fileMod.tag = fs.ReadUInt32();
                 fs.ReadStringASCIINull(fileMod.name);
@@ -924,7 +937,9 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
             for (int i = 0; i < numEntries; i++)
             {
                 BinaryMod mod{};
-
+#ifdef GUI
+                QApplication::processEvents();
+#endif
                 QString scriptLegacy;
                 bool binary;
                 QString textureName;
@@ -1090,7 +1105,9 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
             for (int i = 0; i < numEntries; i++)
             {
                 BinaryMod mod{};
-
+#ifdef GUI
+                QApplication::processEvents();
+#endif
                 if (i == indexTpf)
                 {
                     result = ZipGoToNextFile(handle);
@@ -1257,9 +1274,11 @@ end:
             mods.push_back(mod);
         }
 
-
         for (int l = 0; l < mods.count(); l++)
         {
+#ifdef GUI
+            QApplication::processEvents();
+#endif
             FileMod fileMod{};
             std::unique_ptr<Stream> dst (new MemoryStream());
             if (mods[l].data.size() != 0)
