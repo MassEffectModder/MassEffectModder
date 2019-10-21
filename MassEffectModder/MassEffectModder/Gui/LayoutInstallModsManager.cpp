@@ -23,6 +23,11 @@
 #include "Gui/LayoutModsManager.h"
 #include "Gui/LayoutInstallModsManager.h"
 #include "Gui/MainWindow.h"
+#include "Gui/MessageWindow.h"
+#include "Helpers/MiscHelpers.h"
+#include "Helpers/FileStream.h"
+#include "Helpers/Logs.h"
+#include "Misc.h"
 
 LayoutInstallModsManager::LayoutInstallModsManager(MainWindow *window)
     : mainWindow(window)
@@ -32,9 +37,10 @@ LayoutInstallModsManager::LayoutInstallModsManager(MainWindow *window)
 
     layoutId = MainWindow::kLayoutInstallModsManager;
 
-    auto ListViewMods = new QListView();
-    ListViewMods->setMinimumWidth(kButtonMinWidth);
-    ListViewMods->setMinimumHeight(kButtonMinHeight / 2);
+    ListMods = new QListWidget();
+    ListMods->setMinimumWidth(kButtonMinWidth);
+    ListMods->setMinimumHeight(kButtonMinHeight / 2);
+    ListMods->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
     auto LabelListMods = new QLabel("List of loaded mods:");
     LabelListMods->setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum));
@@ -44,7 +50,7 @@ LayoutInstallModsManager::LayoutInstallModsManager(MainWindow *window)
 
     auto *verticalLayoutList = new QVBoxLayout();
     verticalLayoutList->addWidget(LabelListMods, 1);
-    verticalLayoutList->addWidget(ListViewMods, 1);
+    verticalLayoutList->addWidget(ListMods, 1);
 
     auto ButtonAdd = new QPushButton("Add to list");
     ButtonAdd->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -55,7 +61,7 @@ LayoutInstallModsManager::LayoutInstallModsManager(MainWindow *window)
     ButtonAdd->setFont(ButtonFont);
     connect(ButtonAdd, &QPushButton::clicked, this, &LayoutInstallModsManager::AddSelected);
 
-    auto ButtonRemove = new QPushButton("Remove from list");
+    auto ButtonRemove = new QPushButton("Remove selected from list");
     ButtonRemove->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     ButtonRemove->setMinimumWidth(kButtonMinWidth);
     ButtonRemove->setMinimumHeight(kButtonMinHeight / 2);
@@ -63,6 +69,15 @@ LayoutInstallModsManager::LayoutInstallModsManager(MainWindow *window)
     ButtonFont.setPointSize(kFontSize);
     ButtonRemove->setFont(ButtonFont);
     connect(ButtonRemove, &QPushButton::clicked, this, &LayoutInstallModsManager::RemoveSelected);
+
+    auto ButtonClear = new QPushButton("Clear list");
+    ButtonClear->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+    ButtonClear->setMinimumWidth(kButtonMinWidth);
+    ButtonClear->setMinimumHeight(kButtonMinHeight / 2);
+    ButtonFont = ButtonClear->font();
+    ButtonFont.setPointSize(kFontSize);
+    ButtonClear->setFont(ButtonFont);
+    connect(ButtonClear, &QPushButton::clicked, this, &LayoutInstallModsManager::ClearSelected);
 
     auto ButtonInstall = new QPushButton("Install selected mods");
     ButtonInstall->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -95,6 +110,7 @@ LayoutInstallModsManager::LayoutInstallModsManager(MainWindow *window)
     verticalLayout->setAlignment(Qt::AlignVCenter);
     verticalLayout->addWidget(ButtonAdd, 1);
     verticalLayout->addWidget(ButtonRemove, 1);
+    verticalLayout->addWidget(ButtonClear, 1);
     verticalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 3));
     verticalLayout->addWidget(ButtonInstall, 1);
     verticalLayout->addWidget(ButtonInstallAll, 1);
@@ -108,12 +124,68 @@ LayoutInstallModsManager::LayoutInstallModsManager(MainWindow *window)
     horizontalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 20));
 }
 
+void LayoutInstallModsManager::LockGui(bool enable)
+{
+    foreach (QWidget *widget, this->findChildren<QWidget*>())
+    {
+        widget->setEnabled(!enable);
+    }
+    mainWindow->LockClose(enable);
+}
+
 void LayoutInstallModsManager::AddSelected()
 {
+    QFileDialog dialog = QFileDialog(this, "Please select MEM mod file(s)",
+                                     "", "MEM file (*.mem)");
+    QStringList files;
+    dialog.setFileMode(QFileDialog::ExistingFiles);
+    if (dialog.exec())
+    {
+        files = dialog.selectedFiles();
+    }
+    if (files.count() == 0)
+    {
+        LockGui(false);
+        return;
+    }
+    files.sort(Qt::CaseInsensitive);
+
+    g_logs->BufferClearErrors();
+    g_logs->BufferEnableErrors(true);
+    foreach (QString file, files)
+    {
+        FileStream fs = FileStream(file, FileMode::Open, FileAccess::ReadOnly);
+        if (!Misc::CheckMEMHeader(fs, file))
+            continue;
+        if (!Misc::CheckMEMGameVersion(fs, file, mainWindow->gameType))
+            continue;
+
+        QListWidgetItem *item = new QListWidgetItem(BaseNameWithoutExt(file));
+        item->setData(Qt::UserRole, file);
+        ListMods->addItem(item);
+    }
+    g_logs->BufferEnableErrors(false);
+    if (g_logs->BufferGetErrors() != "")
+    {
+        MessageWindow msg;
+        msg.Show("Ading MEM file(s)", g_logs->BufferGetErrors());
+    }
+
+    LockGui(false);
 }
 
 void LayoutInstallModsManager::RemoveSelected()
 {
+    foreach (QListWidgetItem *item, ListMods->selectedItems())
+    {
+        ListMods->removeItemWidget(item);
+        delete item;
+    }
+}
+
+void LayoutInstallModsManager::ClearSelected()
+{
+    ListMods->clear();
 }
 
 void LayoutInstallModsManager::InstallSelected()

@@ -67,7 +67,8 @@
 #include <QDialog>
 #include <QPlainTextEdit>
 #include <QVBoxLayout>
-#include <QListView>
+#include <QListWidget>
+#include <QListWidgetItem>
 #endif
 
 #include <omp.h>

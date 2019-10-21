@@ -30,10 +30,12 @@ class LayoutInstallModsManager: public LayoutHandle
 
 public:
     explicit LayoutInstallModsManager(MainWindow *window = nullptr);
+    void LockGui(bool enable);
 
 private slots:
     void AddSelected();
     void RemoveSelected();
+    void ClearSelected();
     void InstallSelected();
     void InstallAllSelected();
     void ReturnSelected();
@@ -52,6 +54,7 @@ private:
 #endif
 
     MainWindow *mainWindow;
+    QListWidget *ListMods;
 };
 
 #endif // LAYOUT_INSTALL_MODS_MANAGER_H
