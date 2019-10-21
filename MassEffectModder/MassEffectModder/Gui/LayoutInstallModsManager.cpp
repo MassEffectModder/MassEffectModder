@@ -188,12 +188,72 @@ void LayoutInstallModsManager::ClearSelected()
     ListMods->clear();
 }
 
+void LayoutInstallModsManager::InstallModsCallback(void *handle, int progress)
+{
+    auto *win = static_cast<MainWindow *>(handle);
+    win->statusBar()->showMessage(QString("Installing MEM mods... Progress: ") + QString::number(progress) + "%");
+    QApplication::processEvents();
+}
+
+void LayoutInstallModsManager::InstallMods(MeType gameId, QStringList &mods)
+{
+}
+
 void LayoutInstallModsManager::InstallSelected()
 {
+    LockGui(true);
+    QStringList mods;
+    foreach (QListWidgetItem *item, ListMods->selectedItems())
+    {
+        auto file = item->data(Qt::UserRole).toString();
+        mods.append(file);
+    }
+
+    g_logs->BufferClearErrors();
+    g_logs->BufferEnableErrors(true);
+
+    InstallMods(mainWindow->gameType, mods);
+
+    g_logs->BufferEnableErrors(false);
+    if (g_logs->BufferGetErrors() != "")
+    {
+        MessageWindow msg;
+        msg.Show("Installing MEM file(s)", g_logs->BufferGetErrors());
+    }
+    else
+    {
+        QMessageBox::information(this, "Installing MEM file(s)", "All MEM files installed.");
+    }
+    LockGui(false);
 }
 
 void LayoutInstallModsManager::InstallAllSelected()
 {
+    LockGui(true);
+    QStringList mods;
+    for (int i = 0; i < ListMods->count(); i++)
+    {
+        QListWidgetItem *item = ListMods->item(i);
+        auto file = item->data(Qt::UserRole).toString();
+        mods.append(file);
+    }
+
+    g_logs->BufferClearErrors();
+    g_logs->BufferEnableErrors(true);
+
+    InstallMods(mainWindow->gameType, mods);
+
+    g_logs->BufferEnableErrors(false);
+    if (g_logs->BufferGetErrors() != "")
+    {
+        MessageWindow msg;
+        msg.Show("Installing MEM file(s)", g_logs->BufferGetErrors());
+    }
+    else
+    {
+        QMessageBox::information(this, "Installing MEM file(s)", "All MEM files installed.");
+    }
+    LockGui(false);
 }
 
 void LayoutInstallModsManager::ReturnSelected()

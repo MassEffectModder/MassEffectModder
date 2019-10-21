@@ -55,6 +55,9 @@ private:
 
     MainWindow *mainWindow;
     QListWidget *ListMods;
+
+    static void InstallModsCallback(void *handle, int progress);
+    void InstallMods(MeType gameId, QStringList &mods);
 };
 
 #endif // LAYOUT_INSTALL_MODS_MANAGER_H
