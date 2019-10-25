@@ -143,8 +143,8 @@ bool ME3DLC::loadHeader(Stream *stream)
 }
 
 bool ME3DLC::extract(QString &SFARfilename, int &currentProgress,
-                     int totalNumber, ProgressCallback Callback,
-                     void *handle)
+                     int totalNumber, ProgressCallback callback,
+                     void *callbackHandle)
 {
     if (!QFile(SFARfilename).exists())
     {
@@ -180,9 +180,9 @@ bool ME3DLC::extract(QString &SFARfilename, int &currentProgress,
                 ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + QString::number(newProgress));
                 ConsoleSync();
             }
-            if (Callback)
+            else if (callback)
             {
-                Callback(handle, newProgress);
+                callback(callbackHandle, newProgress, "DLC Unpack");
             }
         }
 
