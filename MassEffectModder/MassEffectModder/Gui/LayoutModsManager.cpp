@@ -19,18 +19,18 @@
  *
  */
 
-#include "Gui/LayoutMeSelect.h"
-#include "Gui/LayoutModsManager.h"
-#include "Gui/LayoutInstallModsManager.h"
-#include "Gui/MainWindow.h"
-#include "Gui/MessageWindow.h"
-#include "Helpers/MiscHelpers.h"
-#include "Helpers/Logs.h"
-#include "Wrappers.h"
-#include "GameData.h"
-#include "Misc.h"
-#include "MipMaps.h"
-#include "Package.h"
+#include <Gui/LayoutMeSelect.h>
+#include <Gui/LayoutModsManager.h>
+#include <Gui/LayoutInstallModsManager.h>
+#include <Gui/MainWindow.h>
+#include <Gui/MessageWindow.h>
+#include <Helpers/MiscHelpers.h>
+#include <Helpers/Logs.h>
+#include <Wrappers.h>
+#include <GameData/GameData.h>
+#include <GameData/Package.h>
+#include <Misc/Misc.h>
+#include <MipMaps/MipMaps.h>
 
 LayoutModsManager::LayoutModsManager(MainWindow *window)
     : mainWindow(window)
@@ -114,7 +114,7 @@ void LayoutModsManager::InstallModsSelected()
     mainWindow->SwitchLayoutById(MainWindow::kLayoutInstallModsManager);
 }
 
-void LayoutModsManager::ExtractModCallback(void *handle, int progress)
+void LayoutModsManager::ExtractModCallback(void *handle, int progress, const QString & /*stage*/)
 {
     auto *win = static_cast<MainWindow *>(handle);
     win->statusBar()->showMessage(QString("Extracting MEM files... Progress: ") + QString::number(progress) + "%");
@@ -178,7 +178,7 @@ void LayoutModsManager::ExtractModsSelected()
     LockGui(false);
 }
 
-void LayoutModsManager::ConvertModCallback(void *handle, int progress)
+void LayoutModsManager::ConvertModCallback(void *handle, int progress, const QString & /*stage*/)
 {
     auto *win = static_cast<MainWindow *>(handle);
     win->statusBar()->showMessage(QString("Converting to MEM mod... Progress: ") + QString::number(progress) + "%");
@@ -234,7 +234,7 @@ void LayoutModsManager::ConvertModSelected()
     LockGui(false);
 }
 
-void LayoutModsManager::CreateModCallback(void *handle, int progress)
+void LayoutModsManager::CreateModCallback(void *handle, int progress, const QString & /*stage*/)
 {
     auto *win = static_cast<MainWindow *>(handle);
     win->statusBar()->showMessage(QString("Creating MEM mod... Progress: ") + QString::number(progress) + "%");

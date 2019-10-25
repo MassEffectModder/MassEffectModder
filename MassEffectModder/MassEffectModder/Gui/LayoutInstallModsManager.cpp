@@ -19,15 +19,16 @@
  *
  */
 
-#include "Gui/LayoutMeSelect.h"
-#include "Gui/LayoutModsManager.h"
-#include "Gui/LayoutInstallModsManager.h"
-#include "Gui/MainWindow.h"
-#include "Gui/MessageWindow.h"
-#include "Helpers/MiscHelpers.h"
-#include "Helpers/FileStream.h"
-#include "Helpers/Logs.h"
-#include "Misc.h"
+#include <Gui/LayoutMeSelect.h>
+#include <Gui/LayoutModsManager.h>
+#include <Gui/LayoutInstallModsManager.h>
+#include <Gui/MainWindow.h>
+#include <Gui/MessageWindow.h>
+#include <Helpers/MiscHelpers.h>
+#include <Helpers/FileStream.h>
+#include <Helpers/Logs.h>
+#include <Misc/Misc.h>
+#include <GameData/GameData.h>
 
 LayoutInstallModsManager::LayoutInstallModsManager(MainWindow *window)
     : mainWindow(window)
@@ -188,15 +189,51 @@ void LayoutInstallModsManager::ClearSelected()
     ListMods->clear();
 }
 
-void LayoutInstallModsManager::InstallModsCallback(void *handle, int progress)
+void LayoutInstallModsManager::InstallModsCallback(void *handle, int progress, const QString &stage)
 {
     auto *win = static_cast<MainWindow *>(handle);
-    win->statusBar()->showMessage(QString("Installing MEM mods... Progress: ") + QString::number(progress) + "%");
+    win->statusBar()->showMessage(QString("Installing MEM mods... Stage: ") + stage + " -  Progress: " + QString::number(progress) + "%");
     QApplication::processEvents();
 }
 
-void LayoutInstallModsManager::InstallMods(MeType gameId, QStringList &mods)
+void LayoutInstallModsManager::InstallMods(QStringList &mods)
 {
+    LockGui(true);
+
+    ConfigIni configIni{};
+    g_GameData->Init(mainWindow->gameType, configIni);
+    if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
+    {
+        mainWindow->statusBar()->clearMessage();
+        QMessageBox::critical(this, "Installing MEM mods", "Game data not found.");
+        LockGui(false);
+        return;
+    }
+
+    QList<FoundTexture> textures;
+    Resources resources;
+    resources.loadMD5Tables();
+
+    TreeScan::loadTexturesMap(mainWindow->gameType, resources, textures);
+
+    g_logs->BufferClearErrors();
+    g_logs->BufferEnableErrors(true);
+
+    Misc::InstallMods(mainWindow->gameType, resources, mods, false, false, false, false, 0,
+                      &LayoutInstallModsManager::InstallModsCallback, mainWindow);
+
+    g_logs->BufferEnableErrors(false);
+    mainWindow->statusBar()->clearMessage();
+    if (g_logs->BufferGetErrors() != "")
+    {
+        MessageWindow msg;
+        msg.Show("Errors while unpacking DLCs", g_logs->BufferGetErrors());
+    }
+    else
+    {
+        QMessageBox::information(this, "Unpacking DLCs", "All DLCs unpacked.");
+    }
+    LockGui(false);
 }
 
 void LayoutInstallModsManager::InstallSelected()
@@ -212,7 +249,7 @@ void LayoutInstallModsManager::InstallSelected()
     g_logs->BufferClearErrors();
     g_logs->BufferEnableErrors(true);
 
-    InstallMods(mainWindow->gameType, mods);
+    InstallMods(mods);
 
     g_logs->BufferEnableErrors(false);
     if (g_logs->BufferGetErrors() != "")
@@ -241,7 +278,7 @@ void LayoutInstallModsManager::InstallAllSelected()
     g_logs->BufferClearErrors();
     g_logs->BufferEnableErrors(true);
 
-    InstallMods(mainWindow->gameType, mods);
+    InstallMods(mods);
 
     g_logs->BufferEnableErrors(false);
     if (g_logs->BufferGetErrors() != "")

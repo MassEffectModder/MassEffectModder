@@ -19,15 +19,15 @@
  *
  */
 
-#include "Gui/LayoutMeSelect.h"
-#include "Gui/LayoutTextureUtilities.h"
-#include "Gui/MainWindow.h"
-#include "Helpers/MiscHelpers.h"
-#include "Helpers/Logs.h"
-#include "ConfigIni.h"
-#include "GameData.h"
-#include "Misc.h"
-#include "LODSettings.h"
+#include <Gui/LayoutMeSelect.h>
+#include <Gui/LayoutTextureUtilities.h>
+#include <Gui/MainWindow.h>
+#include <Helpers/MiscHelpers.h>
+#include <Helpers/Logs.h>
+#include <Program/ConfigIni.h>
+#include <GameData/GameData.h>
+#include <GameData/LODSettings.h>
+#include <Misc/Misc.h>
 
 LayoutTextureUtilities::LayoutTextureUtilities(MainWindow *window)
     : mainWindow(window)

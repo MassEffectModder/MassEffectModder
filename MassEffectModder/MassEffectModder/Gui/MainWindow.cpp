@@ -19,10 +19,10 @@
  *
  */
 
-#include "Gui/MainWindow.h"
-#include "Gui/LayoutMeSelect.h"
-#include "Gui/LayoutModules.h"
-#include "Helpers/MiscHelpers.h"
+#include <Gui/MainWindow.h>
+#include <Gui/LayoutMeSelect.h>
+#include <Gui/LayoutModules.h>
+#include <Helpers/MiscHelpers.h>
 
 MainWindow::MainWindow()
     : gameType(MeType::UNKNOWN_TYPE), busy(false)

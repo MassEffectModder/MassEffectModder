@@ -22,8 +22,8 @@
 #ifndef MEMORYSTREAM_H
 #define MEMORYSTREAM_H
 
-#include "Helpers/Stream.h"
-#include "Helpers/ByteBuffer.h"
+#include "Stream.h"
+#include "ByteBuffer.h"
 
 class MemoryStream : public Stream
 {

@@ -20,38 +20,43 @@ equals(GUI_MODE, true) {
 TEMPLATE = app
 
 SOURCES += \
+    CmdLine/CmdLineHelp.cpp \
+    CmdLine/CmdLineParams.cpp \
+    CmdLine/CmdLineTools.cpp \
+    GameData/DLC.cpp \
+    GameData/GameData.cpp \
+    GameData/LODSettings.cpp \
+    GameData/Package.cpp \
+    GameData/TOCFile.cpp \
     Helpers/Crc32.cpp \
     Helpers/FileStream.cpp \
     Helpers/Logs.cpp \
     Helpers/MemoryStream.cpp \
     Helpers/MiscHelpers.cpp \
-    Helpers/SignalHandler.cpp \
     Helpers/Stream.cpp \
-    CmdLineHelp.cpp \
-    CmdLineParams.cpp \
-    CmdLineTools.cpp \
-    ConfigIni.cpp \
-    DLC.cpp \
-    Image.cpp \
-    ImageBMP.cpp \
-    ImageDDS.cpp \
-    ImageTGA.cpp \
-    GameData.cpp \
-    LODSettings.cpp \
-    MD5BadEntries.cpp \
-    MD5ModEntries.cpp \
-    Main.cpp \
-    MipMap.cpp \
-    Misc.cpp \
-    Package.cpp \
-    Resources.cpp \
-    Texture.cpp \
-    TextureEmptyMips.cpp \
-    TextureProcess.cpp \
-    TextureProps.cpp \
-    TextureReplace.cpp \
-    TOCFile.cpp \
-    TreeScan.cpp
+    Image/Image.cpp \
+    Image/ImageBMP.cpp \
+    Image/ImageDDS.cpp \
+    Image/ImageTGA.cpp \
+    Md5/MD5BadEntries.cpp \
+    Md5/MD5ModEntries.cpp \
+    MipMaps/MipMap.cpp \
+    MipMaps/MipMaps.cpp \
+    MipMaps/MipMapsEmptyMips.cpp \
+    MipMaps/MipMapsReplace.cpp \
+    Misc/Misc.cpp \
+    Misc/MiscCheckGame.cpp \
+    Misc/MiscMods.cpp \
+    Misc/MiscModsInstall.cpp \
+    Misc/MiscProcessGame.cpp \
+    Misc/MiscTexture.cpp \
+    Program/ConfigIni.cpp \
+    Program/Main.cpp \
+    Program/SignalHandler.cpp \
+    Resources/Resources.cpp \
+    Texture/Texture.cpp \
+    Texture/TextureProps.cpp \
+    Texture/TextureScan.cpp
 
 equals(GUI_MODE, true) {
 SOURCES += \
@@ -76,9 +81,16 @@ HEADERS += \
     Gui/LayoutTextureUtilities.h
 }
 
-PRECOMPILED_HEADER = Precompiled.h
+PRECOMPILED_HEADER = Types/Precompiled.h
 
 HEADERS += \
+    CmdLine/CmdLineParams.h \
+    CmdLine/CmdLineTools.h \
+    GameData/DLC.h \
+    GameData/GameData.h \
+    GameData/LODSettings.h \
+    GameData/Package.h \
+    GameData/TOCFile.h \
     Helpers/ByteBuffer.h \
     Helpers/BinarySearch.h \
     Helpers/Crc32.h \
@@ -88,34 +100,27 @@ HEADERS += \
     Helpers/MemoryStream.h \
     Helpers/MiscHelpers.h \
     Helpers/QSort.h \
-    Helpers/SignalHandler.h \
     Helpers/Stream.h \
-    CmdLineParams.h \
-    CmdLineTools.h \
-    ConfigIni.h \
-    DLC.h \
-    Image.h \
-    GameData.h \
-    LODSettings.h \
-    MD5BadEntries.h \
-    MD5ModEntries.h \
-    Misc.h \
-    MipMap.h \
-    MipMaps.h \
-    MemTypes.h \
-    Package.h \
-    Resources.h \
-    Texture.h \
-    TextureProps.h \
-    TOCFile.h \
-    TreeScan.h
+    Image/Image.h \
+    Md5/MD5BadEntries.h \
+    Md5/MD5ModEntries.h \
+    Misc/Misc.h \
+    MipMaps/MipMap.h \
+    MipMaps/MipMaps.h \
+    Program/ConfigIni.h \
+    Program/SignalHandler.h \
+    Resources/Resources.h \
+    Texture/Texture.h \
+    Texture/TextureProps.h \
+    Texture/TextureScan.h \
+    Types/MemTypes.h
 
-include(Version.pri)
+include(Program/Version.pri)
 
 DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += MEM_VERSION=\"$$VERSION\" MEM_YEAR=\"$$MEM_YEAR\"
 
-RESOURCES = Resources.qrc
+RESOURCES = Resources/Resources.qrc
 QMAKE_RESOURCE_FLAGS += --no-compress
 
 precompile_header:!isEmpty(PRECOMPILED_HEADER) {

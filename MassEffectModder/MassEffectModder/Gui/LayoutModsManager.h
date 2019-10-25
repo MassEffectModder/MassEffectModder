@@ -53,9 +53,9 @@ private:
 
     MainWindow *mainWindow;
 
-    static void ExtractModCallback(void *handle, int progress);
-    static void ConvertModCallback(void *handle, int progress);
-    static void CreateModCallback(void *handle, int progress);
+    static void ExtractModCallback(void *handle, int progress, const QString &stage);
+    static void ConvertModCallback(void *handle, int progress, const QString &stage);
+    static void CreateModCallback(void *handle, int progress, const QString &stage);
 };
 
 #endif // LAYOUT_MODS_MANAGER_H

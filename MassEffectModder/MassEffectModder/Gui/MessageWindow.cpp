@@ -19,7 +19,7 @@
  *
  */
 
-#include "Gui/MessageWindow.h"
+#include <Gui/MessageWindow.h>
 
 void MessageWindow::Show(const QString &title, const QString &msg)
 {

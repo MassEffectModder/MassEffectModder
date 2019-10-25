@@ -19,7 +19,7 @@
  *
  */
 
-#include "Helpers/FileStream.h"
+#include "FileStream.h"
 
 void FileStream::CheckFileIOErrorStatus()
 {

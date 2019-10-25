@@ -19,7 +19,7 @@
  *
  */
 
-#include "Helpers/MemoryStream.h"
+#include "MemoryStream.h"
 
 MemoryStream::MemoryStream()
 {

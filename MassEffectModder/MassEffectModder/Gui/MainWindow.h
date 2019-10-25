@@ -22,7 +22,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <MemTypes.h>
+#include <Types/MemTypes.h>
 
 class LayoutHandle : public QWidget
 {

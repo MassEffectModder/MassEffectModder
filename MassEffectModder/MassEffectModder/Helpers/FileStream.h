@@ -22,7 +22,7 @@
 #ifndef FILESTREAM_H
 #define FILESTREAM_H
 
-#include "Helpers/Stream.h"
+#include "Stream.h"
 
 typedef enum
 {

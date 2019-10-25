@@ -56,9 +56,9 @@ private:
 
     MainWindow *mainWindow;
 
-    static void CheckCallback(void *handle, int progress);
-    static void ExtractDlcCallback(void *handle, int progress);
-    static void RepackCallback(void *handle, int progress);
+    static void CheckCallback(void *handle, int progress, const QString &stage);
+    static void ExtractDlcCallback(void *handle, int progress, const QString &stage);
+    static void RepackCallback(void *handle, int progress, const QString &stage);
 };
 
 #endif // LAYOUT_GAME_UTILITIES_H

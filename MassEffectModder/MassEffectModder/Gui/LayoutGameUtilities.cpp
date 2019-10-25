@@ -19,17 +19,16 @@
  *
  */
 
-#include "Gui/LayoutMeSelect.h"
-#include "Gui/LayoutGameUtilities.h"
-#include "Gui/MainWindow.h"
-#include "Gui/MessageWindow.h"
-#include "Helpers/MiscHelpers.h"
-#include "Helpers/Logs.h"
-#include "GameData.h"
-#include "DLC.h"
-#include "TOCFile.h"
-#include "CmdLineTools.h"
-#include "Misc.h"
+#include <Gui/LayoutMeSelect.h>
+#include <Gui/LayoutGameUtilities.h>
+#include <Gui/MainWindow.h>
+#include <Gui/MessageWindow.h>
+#include <Helpers/MiscHelpers.h>
+#include <Helpers/Logs.h>
+#include <GameData/GameData.h>
+#include <GameData/DLC.h>
+#include <GameData/TOCFile.h>
+#include <Misc/Misc.h>
 
 LayoutGameUtilities::LayoutGameUtilities(MainWindow *window)
     : mainWindow(window)
@@ -197,7 +196,7 @@ void LayoutGameUtilities::CheckGameFilesSelected()
     LockGui(false);
 }
 
-void LayoutGameUtilities::CheckCallback(void *handle, int progress)
+void LayoutGameUtilities::CheckCallback(void *handle, int progress, const QString & /*stage*/)
 {
     auto *win = static_cast<MainWindow *>(handle);
     win->statusBar()->showMessage(QString("Checking game files... Progress: ") + QString::number(progress) + "%");
@@ -291,7 +290,7 @@ void LayoutGameUtilities::ChangeUserPathSelected()
     LockGui(false);
 }
 
-void LayoutGameUtilities::RepackCallback(void *handle, int progress)
+void LayoutGameUtilities::RepackCallback(void *handle, int progress, const QString & /*stage*/)
 {
     auto *win = static_cast<MainWindow *>(handle);
     win->statusBar()->showMessage(QString("Repacking PCC files... Progress: ") + QString::number(progress) + "%");
@@ -313,8 +312,7 @@ void LayoutGameUtilities::RepackGameFilesSelected()
         return;
     }
 
-    CmdLineTools tools;
-    tools.Repack(mainWindow->gameType, &LayoutGameUtilities::RepackCallback, mainWindow);
+    Misc::Repack(mainWindow->gameType, &LayoutGameUtilities::RepackCallback, mainWindow);
     mainWindow->statusBar()->clearMessage();
     QMessageBox::information(this, "Repacking PCC files", "All PCC files repacked.");
     LockGui(false);
@@ -373,7 +371,7 @@ void LayoutGameUtilities::ExtractDLCsSelected()
     LockGui(false);
 }
 
-void LayoutGameUtilities::ExtractDlcCallback(void *handle, int progress)
+void LayoutGameUtilities::ExtractDlcCallback(void *handle, int progress, const QString & /*stage*/)
 {
     auto *win = static_cast<MainWindow *>(handle);
     win->statusBar()->showMessage(QString("Unpacking DLCs... Progress: ") + QString::number(progress) + "%");

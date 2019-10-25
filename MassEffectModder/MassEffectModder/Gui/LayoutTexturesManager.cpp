@@ -19,9 +19,9 @@
  *
  */
 
-#include "Gui/LayoutMeSelect.h"
-#include "Gui/LayoutTexturesManager.h"
-#include "Gui/MainWindow.h"
+#include <Gui/LayoutMeSelect.h>
+#include <Gui/LayoutTexturesManager.h>
+#include <Gui/MainWindow.h>
 
 LayoutTexturesManager::LayoutTexturesManager(MainWindow *window)
     : mainWindow(window)

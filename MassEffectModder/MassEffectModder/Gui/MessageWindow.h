@@ -22,7 +22,7 @@
 #ifndef MESSAGEWINDOW_H
 #define MESSAGEWINDOW_H
 
-#include <MemTypes.h>
+#include <Types/MemTypes.h>
 
 class MessageWindow : public QWidget
 {

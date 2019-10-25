@@ -19,14 +19,14 @@
  *
  */
 
-#include "Gui/LayoutModules.h"
-#include "Gui/LayoutTexturesManager.h"
-#include "Gui/LayoutTextureUtilities.h"
-#include "Gui/LayoutGameUtilities.h"
-#include "Gui/LayoutModsManager.h"
-#include "Gui/MainWindow.h"
-#include "Helpers/MiscHelpers.h"
-#include "MemTypes.h"
+#include <Gui/LayoutModules.h>
+#include <Gui/LayoutTexturesManager.h>
+#include <Gui/LayoutTextureUtilities.h>
+#include <Gui/LayoutGameUtilities.h>
+#include <Gui/LayoutModsManager.h>
+#include <Gui/MainWindow.h>
+#include <Helpers/MiscHelpers.h>
+#include <Types/MemTypes.h>
 
 LayoutModules::LayoutModules(MainWindow *window)
     : mainWindow(window)

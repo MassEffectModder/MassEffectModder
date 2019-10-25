@@ -19,11 +19,11 @@
  *
  */
 
-#include "Gui/MainWindow.h"
-#include "Gui/LayoutMeSelect.h"
-#include "Gui/LayoutModules.h"
-#include "Helpers/MiscHelpers.h"
-#include "MemTypes.h"
+#include <Gui/MainWindow.h>
+#include <Gui/LayoutMeSelect.h>
+#include <Gui/LayoutModules.h>
+#include <Helpers/MiscHelpers.h>
+#include <Types/MemTypes.h>
 
 LayoutMeSelect::LayoutMeSelect(MainWindow *window)
     : mainWindow(window)

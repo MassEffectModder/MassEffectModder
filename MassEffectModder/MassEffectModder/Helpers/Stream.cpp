@@ -19,6 +19,6 @@
  *
  */
 
-#include "Helpers/Stream.h"
+#include "Stream.h"
 
 Stream::~Stream() = default;
