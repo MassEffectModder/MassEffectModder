@@ -78,7 +78,7 @@ void Logs::Print(int level, const QString &message, int flags)
 
     lock.lock();
 
-    if (errorBufferEnabled && (flags & LOG_ERROR_BUFFER))
+    if (errorBufferEnabled && (flags & LOG_ERROR_BUFFER) && level == LOG_ERROR)
         errorsString += message;
 
     if (timeStampEnabled)

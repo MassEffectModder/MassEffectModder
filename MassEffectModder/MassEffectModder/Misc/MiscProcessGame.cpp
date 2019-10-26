@@ -392,7 +392,7 @@ void Misc::RepackME23(MeType gameId, bool appendMarker, QStringList &pkgsToRepac
                                  QString::number(pkgsToRepack.count()) +
                                  " ") + pkgsToRepack[i] + "\n");
         }
-        int newProgress = (i * 100 / pkgsToRepack.count());
+        int newProgress = i * 100 / pkgsToRepack.count();
         if (lastProgress != newProgress)
         {
             lastProgress = newProgress;
@@ -401,10 +401,10 @@ void Misc::RepackME23(MeType gameId, bool appendMarker, QStringList &pkgsToRepac
                 ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + QString::number(newProgress));
                 ConsoleSync();
             }
-            if (callback)
-            {
-                callback(callbackHandle, newProgress, "Repacking");
-            }
+        }
+        if (callback)
+        {
+            callback(callbackHandle, newProgress, QString("Repacking package: ") + pkgsToRepack[i]);
         }
         auto package = new Package();
         package->Open(g_GameData->GamePath() + pkgsToRepack[i], true);

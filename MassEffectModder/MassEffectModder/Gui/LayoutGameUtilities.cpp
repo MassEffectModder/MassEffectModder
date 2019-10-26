@@ -196,10 +196,10 @@ void LayoutGameUtilities::CheckGameFilesSelected()
     LockGui(false);
 }
 
-void LayoutGameUtilities::CheckCallback(void *handle, int progress, const QString & /*stage*/)
+void LayoutGameUtilities::CheckCallback(void *handle, int progress, const QString &stage)
 {
     auto *win = static_cast<MainWindow *>(handle);
-    win->statusBar()->showMessage(QString("Checking game files... Progress: ") + QString::number(progress) + "%");
+    win->statusBar()->showMessage(QString("Total progress: ") + QString::number(progress) + "% - " + stage);
     QApplication::processEvents();
 }
 
@@ -290,31 +290,42 @@ void LayoutGameUtilities::ChangeUserPathSelected()
     LockGui(false);
 }
 
-void LayoutGameUtilities::RepackCallback(void *handle, int progress, const QString & /*stage*/)
+void LayoutGameUtilities::RepackCallback(void *handle, int progress, const QString &stage)
 {
     auto *win = static_cast<MainWindow *>(handle);
-    win->statusBar()->showMessage(QString("Repacking PCC files... Progress: ") + QString::number(progress) + "%");
+    win->statusBar()->showMessage(QString("Total progress: ") + QString::number(progress) + "% - " + stage);
     QApplication::processEvents();
 }
 
 void LayoutGameUtilities::RepackGameFilesSelected()
 {
     LockGui(true);
-    mainWindow->statusBar()->showMessage("Repacking PCC files...");
+    mainWindow->statusBar()->showMessage("Repacking package files...");
 
     ConfigIni configIni{};
     g_GameData->Init(mainWindow->gameType, configIni);
     if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
     {
         mainWindow->statusBar()->clearMessage();
-        QMessageBox::critical(this, "Repacking PCC files", "Game data not found.");
+        QMessageBox::critical(this, "Repacking package files", "Game data not found.");
         LockGui(false);
         return;
     }
 
+    g_logs->BufferClearErrors();
+    g_logs->BufferEnableErrors(true);
     Misc::Repack(mainWindow->gameType, &LayoutGameUtilities::RepackCallback, mainWindow);
+    g_logs->BufferEnableErrors(false);
     mainWindow->statusBar()->clearMessage();
-    QMessageBox::information(this, "Repacking PCC files", "All PCC files repacked.");
+    if (g_logs->BufferGetErrors() != "")
+    {
+        MessageWindow msg;
+        msg.Show("Errors while repacking package files", g_logs->BufferGetErrors());
+    }
+    else
+    {
+        QMessageBox::information(this, "Repacking package files", "All package files repacked.");
+    }
     LockGui(false);
 }
 
@@ -371,10 +382,10 @@ void LayoutGameUtilities::ExtractDLCsSelected()
     LockGui(false);
 }
 
-void LayoutGameUtilities::ExtractDlcCallback(void *handle, int progress, const QString & /*stage*/)
+void LayoutGameUtilities::ExtractDlcCallback(void *handle, int progress, const QString &stage)
 {
     auto *win = static_cast<MainWindow *>(handle);
-    win->statusBar()->showMessage(QString("Unpacking DLCs... Progress: ") + QString::number(progress) + "%");
+    win->statusBar()->showMessage(QString("Total progress: ") + QString::number(progress) + "% - " + stage);
     QApplication::processEvents();
 }
 

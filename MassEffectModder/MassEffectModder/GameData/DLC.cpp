@@ -180,10 +180,10 @@ bool ME3DLC::extract(QString &SFARfilename, int &currentProgress,
                 ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + QString::number(newProgress));
                 ConsoleSync();
             }
-            else if (callback)
-            {
-                callback(callbackHandle, newProgress, "Unpacking DLCs");
-            }
+        }
+        if (callback)
+        {
+            callback(callbackHandle, newProgress, "Unpacking DLC: " + g_GameData->RelativeGameData(SFARfilename));
         }
 
         QString filename = filesList[i].filenamePath.mid(QString(R"(BIOGame/DLC/)").length());
@@ -341,12 +341,12 @@ void ME3DLC::unpackAllDLC(ProgressCallback callback, void *callbackHandle)
         {
             if (g_ipc)
             {
-                ConsoleWrite("[IPC]ERROR Failed unpack DLC");
+                ConsoleWrite("[IPC]ERROR Failed to unpack DLC");
                 ConsoleSync();
             }
             else
             {
-                PERROR("Error: Failed unpack: " + g_GameData->RelativeGameData(sfarFiles[i]) + "\n");
+                PERROR("Error: Failed to unpack: " + g_GameData->RelativeGameData(sfarFiles[i]) + "\n");
             }
         }
     }

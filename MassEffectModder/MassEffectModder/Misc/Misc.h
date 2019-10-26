@@ -57,6 +57,15 @@ class Misc
 public:
     typedef void (*ProgressCallback)(void *handle, int progress, const QString &stage);
 
+private:
+
+    static bool checkGameFilesSub(FileStream *fs, QStringList &files, QList<MD5FileEntry> &entries,
+                                  int &lastProgress, int &progress, int allFilesCount,
+                                  QString &errors, QStringList &mods,
+                                  ProgressCallback callback, void *callbackHandle);
+
+public:
+
     static bool SetGameDataPath(MeType gameId, const QString &path);
     static bool SetGameUserPath(MeType gameId, const QString &path);
     static bool ConvertEndLines(const QString &path, bool unixMode);
