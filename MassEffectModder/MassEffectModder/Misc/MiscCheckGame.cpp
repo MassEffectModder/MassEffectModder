@@ -240,7 +240,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
     allFilesCount += g_GameData->bikFiles.count();
 
     mods.clear();
-    FileStream *fs;
+    FileStream *fs = nullptr;
     if (generateModsMd5Entries)
         fs = new FileStream("MD5ModEntries.cpp", FileMode::Create, FileAccess::WriteOnly);
     if (generateMd5Entries)
