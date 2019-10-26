@@ -14,8 +14,8 @@ SOURCES += \
     ../MassEffectModder/Helpers/Logs.cpp \
     ../MassEffectModder/Helpers/MemoryStream.cpp \
     ../MassEffectModder/Helpers/MiscHelpers.cpp \
-    ../MassEffectModder/Helpers/SignalHandler.cpp \
     ../MassEffectModder/Helpers/Stream.cpp \
+    ../MassEffectModder/Program/SignalHandler.cpp \
     ../Wrappers/Wrapper7Zip.cpp \
     Main.cpp \
     MD5EntriesME1.cpp \
@@ -23,7 +23,7 @@ SOURCES += \
     MD5EntriesME2.cpp \
     MD5EntriesME3.cpp
 
-PRECOMPILED_HEADER = ../MassEffectModder/Precompiled.h
+PRECOMPILED_HEADER = ../MassEffectModder/Types/Precompiled.h
 
 HEADERS += \
     ../MassEffectModder/Helpers/ByteBuffer.h \
@@ -43,6 +43,7 @@ precompile_header:!isEmpty(PRECOMPILED_HEADER) {
 PRECOMPILED_DIR = ".pch"
 
 QMAKE_CXXFLAGS +=
+
 QMAKE_CXXFLAGS_DEBUG += -g
 
 INCLUDEPATH += $$PWD/../Wrappers $$PWD/../Libs/7z $$PWD/../MassEffectModder
@@ -51,6 +52,8 @@ INCLUDEPATH += $$PWD/../Wrappers $$PWD/../Libs/7z $$PWD/../MassEffectModder
 }
 
 win32-g++: {
+# Disable compiler warning
+QMAKE_CXXFLAGS += -Wno-deprecated-copy
 Release:LIBS += \
     -L$$OUT_PWD/../Libs/7z/release -l7z
 Debug:LIBS += \
