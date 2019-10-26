@@ -154,6 +154,8 @@ QMAKE_CXXFLAGS +=
 QMAKE_CXXFLAGS_DEBUG += -g
 
 win32-g++: {
+    # Disable compiler warning
+    QMAKE_CXXFLAGS += -Wno-deprecated-copy
     QMAKE_LFLAGS_RELEASE = "-Wl,--relax"
     Release:PRE_TARGETDEPS += $$OUT_PWD/../Wrappers/release/libWrappers.a
     Debug:PRE_TARGETDEPS += $$OUT_PWD/../Wrappers/debug/libWrappers.a
