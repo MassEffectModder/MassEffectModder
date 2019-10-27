@@ -20,9 +20,6 @@ equals(GUI_MODE, true) {
 TEMPLATE = app
 
 SOURCES += \
-    CmdLine/CmdLineHelp.cpp \
-    CmdLine/CmdLineParams.cpp \
-    CmdLine/CmdLineTools.cpp \
     GameData/DLC.cpp \
     GameData/GameData.cpp \
     GameData/LODSettings.cpp \
@@ -69,23 +66,16 @@ SOURCES += \
     Gui/LayoutModules.cpp \
     Gui/LayoutTexturesManager.cpp \
     Gui/LayoutTextureUtilities.cpp
-HEADERS += \
-    Gui/MainWindow.h \
-    Gui/MessageWindow.h \
-    Gui/LayoutGameUtilities.h \
-    Gui/LayoutInstallModsManager.h \
-    Gui/LayoutMeSelect.h \
-    Gui/LayoutModsManager.h \
-    Gui/LayoutModules.h \
-    Gui/LayoutTexturesManager.h \
-    Gui/LayoutTextureUtilities.h
+} else {
+SOURCES += \
+    CmdLine/CmdLineHelp.cpp \
+    CmdLine/CmdLineParams.cpp \
+    CmdLine/CmdLineTools.cpp
 }
 
 PRECOMPILED_HEADER = Types/Precompiled.h
 
 HEADERS += \
-    CmdLine/CmdLineParams.h \
-    CmdLine/CmdLineTools.h \
     GameData/DLC.h \
     GameData/GameData.h \
     GameData/LODSettings.h \
@@ -114,6 +104,22 @@ HEADERS += \
     Texture/TextureProps.h \
     Texture/TextureScan.h \
     Types/MemTypes.h
+equals(GUI_MODE, true) {
+HEADERS += \
+    Gui/MainWindow.h \
+    Gui/MessageWindow.h \
+    Gui/LayoutGameUtilities.h \
+    Gui/LayoutInstallModsManager.h \
+    Gui/LayoutMeSelect.h \
+    Gui/LayoutModsManager.h \
+    Gui/LayoutModules.h \
+    Gui/LayoutTexturesManager.h \
+    Gui/LayoutTextureUtilities.h
+} else {
+HEADERS += \
+    CmdLine/CmdLineParams.h \
+    CmdLine/CmdLineTools.h
+}
 
 include(Program/Version.pri)
 
