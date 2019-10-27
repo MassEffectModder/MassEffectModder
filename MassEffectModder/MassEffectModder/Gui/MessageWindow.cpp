@@ -21,14 +21,16 @@
 
 #include <Gui/MessageWindow.h>
 
-void MessageWindow::Show(const QString &title, const QString &msg)
+void MessageWindow::Show(QWidget *parent, const QString &title, const QString &msg)
 {
     QPlainTextEdit textWidtget;
     QVBoxLayout layout;
     QPushButton closeButton;
-    auto window = QApplication::activeWindow();
-    dialog.setBaseSize(window->size());
-    dialog.setMinimumSize(window->size());
+    if (parent != nullptr)
+    {
+        dialog.setBaseSize(parent->size());
+        dialog.setMinimumSize(parent->size());
+    }
     dialog.setWindowTitle(title);
     textWidtget.setLineWrapMode(QPlainTextEdit::NoWrap);
     textWidtget.setReadOnly(true);

@@ -45,7 +45,7 @@ void TreeScan::loadTexturesMap(MeType gameId, Resources &resources, QList<FoundT
     else
         pkgs = resources.tablePkgsME3;
 
-    FileStream tmp = FileStream(QString(":/Resources/me%1map.bin").arg((int)gameId), FileMode::Open, FileAccess::ReadOnly);
+    FileStream tmp = FileStream(QString(":/me%1map.bin").arg((int)gameId), FileMode::Open, FileAccess::ReadOnly);
     if (tmp.ReadUInt32() != 0x504D5443)
         CRASH();
     ByteBuffer decompressed(tmp.ReadInt32());
@@ -225,7 +225,7 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<FoundTexture> &textures)
     return !foundRemoved && !foundAdded;
 }
 
-int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
+bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
                                     QList<FoundTexture> &textures, bool removeEmptyMips,
                                     bool saveMapFile,
                                     ProgressCallback callback, void *callbackHandle)
@@ -682,7 +682,7 @@ int TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
         PINFO("\nRemove empty mips finished.\n\n");
     }
 
-    return 0;
+    return true;
 }
 
 void TreeScan::FindTextures(MeType gameId, QList<FoundTexture> &textures, const QString &packagePath,

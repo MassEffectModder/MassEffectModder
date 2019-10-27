@@ -63,7 +63,6 @@ private:
                                   int &lastProgress, int &progress, int allFilesCount,
                                   QString &errors, QStringList &mods,
                                   ProgressCallback callback, void *callbackHandle);
-
 public:
 
     static bool SetGameDataPath(MeType gameId, const QString &path);
@@ -75,9 +74,9 @@ public:
     static bool checkWriteAccessFile(QString &path);
     static bool isRunAsAdministrator();
     static bool CheckAndCorrectAccessToGame();
-    static long getDiskFreeSpace(QString &path);
-    static long getDirectorySize(QString &dir);
-    static QString getBytesFormat(long size);
+    static quint64 getDiskFreeSpace(QString &path);
+    static quint64 getDirectorySize(QString &dir);
+    static QString getBytesFormat(quint64 size);
     static void startTimer();
     static long elapsedTime();
     static QString getTimerFormat(long time);
@@ -92,9 +91,9 @@ public:
                                          TexProperty::TextureTypes flags);
     static uint scanFilenameForCRC(const QString &inputFile);
     static FoundTexture FoundTextureInTheMap(QList<FoundTexture> &textures, uint crc);
-    static bool convertDataModtoMem(QString &inputDir, QString &memFilePath,
-                                    MeType gameId, QList<FoundTexture> &textures,
-                                    bool markToConvert, bool onlyIndividual,
+    static bool compareFileInfoPath(const QFileInfo &e1, const QFileInfo &e2);
+    static bool convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
+                                    MeType gameId, QList<FoundTexture> &textures, bool markToConvert,
                                     ProgressCallback callback, void *callbackHandle);
     static void RepackME23(MeType gameId, bool appendMarker, QStringList &pkgsToRepack,
                            ProgressCallback callback, void *callbackHandle);

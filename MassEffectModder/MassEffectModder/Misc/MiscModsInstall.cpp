@@ -372,8 +372,12 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
             pkgsToMarker.removeOne("/BioGame/CookedPC/BIOC_Materials.pcc");
 
         PINFO("Scan textures started...\n");
-        TreeScan::PrepareListOfTextures(gameId, resources, textures, false, true,
-                                        callback, callbackHandle);
+        if (!TreeScan::PrepareListOfTextures(gameId, resources, textures, false, true,
+                                        callback, callbackHandle))
+        {
+            PERROR("Failed to scan textures!\n");
+            return false;
+        }
         PINFO("Scan textures finished.\n\n");
     }
 

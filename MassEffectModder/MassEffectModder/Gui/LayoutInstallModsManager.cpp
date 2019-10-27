@@ -98,7 +98,7 @@ LayoutInstallModsManager::LayoutInstallModsManager(MainWindow *window)
     ButtonInstallAll->setFont(ButtonFont);
     connect(ButtonInstallAll, &QPushButton::clicked, this, &LayoutInstallModsManager::InstallAllSelected);
 
-    auto ButtonReturn = new QPushButton("Return");
+    auto ButtonReturn = new QPushButton("Exit Mods Manager");
     ButtonReturn->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     ButtonReturn->setMinimumWidth(kButtonMinWidth);
     ButtonReturn->setMinimumHeight(kButtonMinHeight / 2);
@@ -169,7 +169,7 @@ void LayoutInstallModsManager::AddSelected()
     if (g_logs->BufferGetErrors() != "")
     {
         MessageWindow msg;
-        msg.Show("Ading MEM file(s)", g_logs->BufferGetErrors());
+        msg.Show(mainWindow, "Ading MEM file(s)", g_logs->BufferGetErrors());
     }
 
     LockGui(false);
@@ -198,8 +198,8 @@ void LayoutInstallModsManager::InstallModsCallback(void *handle, int progress, c
 
 void LayoutInstallModsManager::InstallMods(QStringList &mods)
 {
-    LockGui(true);
-
+    if (mods.count() == 0)
+        return;
     ConfigIni configIni{};
     g_GameData->Init(mainWindow->gameType, configIni);
     if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
@@ -219,21 +219,23 @@ void LayoutInstallModsManager::InstallMods(QStringList &mods)
     g_logs->BufferClearErrors();
     g_logs->BufferEnableErrors(true);
 
-    Misc::InstallMods(mainWindow->gameType, resources, mods, false, false, false, false, 0,
-                      &LayoutInstallModsManager::InstallModsCallback, mainWindow);
+    if (!Misc::InstallMods(mainWindow->gameType, resources, mods, false, false, false, false, 0,
+                      &LayoutInstallModsManager::InstallModsCallback, mainWindow))
+    {
+        QMessageBox::critical(this, "Installing MEM mods", "Installation failed!");
+    }
+    mainWindow->statusBar()->clearMessage();
 
     g_logs->BufferEnableErrors(false);
-    mainWindow->statusBar()->clearMessage();
     if (g_logs->BufferGetErrors() != "")
     {
         MessageWindow msg;
-        msg.Show("Errors while unpacking DLCs", g_logs->BufferGetErrors());
+        msg.Show(mainWindow, "Errors while installing MEM mods", g_logs->BufferGetErrors());
     }
     else
     {
-        QMessageBox::information(this, "Unpacking DLCs", "All DLCs unpacked.");
+        QMessageBox::information(this, "Installing MEM mods", "All MEM mods installed.");
     }
-    LockGui(false);
 }
 
 void LayoutInstallModsManager::InstallSelected()
@@ -246,21 +248,7 @@ void LayoutInstallModsManager::InstallSelected()
         mods.append(file);
     }
 
-    g_logs->BufferClearErrors();
-    g_logs->BufferEnableErrors(true);
-
     InstallMods(mods);
-
-    g_logs->BufferEnableErrors(false);
-    if (g_logs->BufferGetErrors() != "")
-    {
-        MessageWindow msg;
-        msg.Show("Installing MEM file(s)", g_logs->BufferGetErrors());
-    }
-    else
-    {
-        QMessageBox::information(this, "Installing MEM file(s)", "All MEM files installed.");
-    }
     LockGui(false);
 }
 
@@ -275,21 +263,7 @@ void LayoutInstallModsManager::InstallAllSelected()
         mods.append(file);
     }
 
-    g_logs->BufferClearErrors();
-    g_logs->BufferEnableErrors(true);
-
     InstallMods(mods);
-
-    g_logs->BufferEnableErrors(false);
-    if (g_logs->BufferGetErrors() != "")
-    {
-        MessageWindow msg;
-        msg.Show("Installing MEM file(s)", g_logs->BufferGetErrors());
-    }
-    else
-    {
-        QMessageBox::information(this, "Installing MEM file(s)", "All MEM files installed.");
-    }
     LockGui(false);
 }
 

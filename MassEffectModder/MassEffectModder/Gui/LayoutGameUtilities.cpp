@@ -186,7 +186,7 @@ void LayoutGameUtilities::CheckGameFilesSelected()
     if (g_logs->BufferGetErrors() != "")
     {
         MessageWindow msg;
-        msg.Show("Checked game files", g_logs->BufferGetErrors());
+        msg.Show(mainWindow, "Checked game files", g_logs->BufferGetErrors());
     }
     else
     {
@@ -320,7 +320,7 @@ void LayoutGameUtilities::RepackGameFilesSelected()
     if (g_logs->BufferGetErrors() != "")
     {
         MessageWindow msg;
-        msg.Show("Errors while repacking package files", g_logs->BufferGetErrors());
+        msg.Show(mainWindow, "Errors while repacking package files", g_logs->BufferGetErrors());
     }
     else
     {
@@ -373,7 +373,7 @@ void LayoutGameUtilities::ExtractDLCsSelected()
     if (g_logs->BufferGetErrors() != "")
     {
         MessageWindow msg;
-        msg.Show("Errors while unpacking DLCs", g_logs->BufferGetErrors());
+        msg.Show(mainWindow, "Errors while unpacking DLCs", g_logs->BufferGetErrors());
     }
     else
     {

@@ -78,6 +78,11 @@ bool Misc::CheckGamePath()
     return true;
 }
 
+bool Misc::compareFileInfoPath(const QFileInfo &e1, const QFileInfo &e2)
+{
+    return e1.absoluteFilePath().compare(e2.absoluteFilePath(), Qt::CaseInsensitive) < 0;
+}
+
 bool Misc::ConvertEndLines(const QString &path, bool unixMode)
 {
     auto inputFile = new QFile(path);
@@ -140,17 +145,17 @@ bool Misc::CheckAndCorrectAccessToGame()
     return true;
 }
 
-long Misc::getDiskFreeSpace(QString &path)
+quint64 Misc::getDiskFreeSpace(QString &path)
 {
     return QStorageInfo(path).bytesFree();
 }
 
-long Misc::getDirectorySize(QString &dir)
+quint64 Misc::getDirectorySize(QString &dir)
 {
     return QFileInfo(dir).size();
 }
 
-QString Misc::getBytesFormat(long size)
+QString Misc::getBytesFormat(quint64 size)
 {
     if (size / 1024 == 0)
         return QString::number(size, 'f', 2) + " Bytes";

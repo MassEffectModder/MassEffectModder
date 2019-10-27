@@ -124,15 +124,16 @@ void LayoutModsManager::ExtractModCallback(void *handle, int progress, const QSt
 void LayoutModsManager::ExtractModsSelected()
 {
     LockGui(true);
+
     QStringList files = QFileDialog::getOpenFileNames(this,
-            "Please select Mod file", "", "MEM mod file (*.mem)");
+            "Please select MEM Mod file", "", "MEM mod file (*.mem)");
     if (files.count() == 0)
     {
         LockGui(false);
         return;
     }
     QString outDir = QFileDialog::getExistingDirectory(this,
-            "Please select destination directory for MEM extraction");
+            "Please select destination directory for MEM file extraction");
     if (outDir == "")
     {
         LockGui(false);
@@ -140,15 +141,15 @@ void LayoutModsManager::ExtractModsSelected()
     }
     outDir = QDir::cleanPath(outDir);
     QFileInfoList list;
-    long diskFreeSpace = Misc::getDiskFreeSpace(outDir);
-    long diskUsage = 0;
+    quint64 diskFreeSpace = Misc::getDiskFreeSpace(outDir);
+    quint64 diskUsage = 0;
     foreach (QString file, files)
     {
         auto info = QFileInfo(file);
         diskUsage += info.size();
         list.push_back(info);
     }
-    diskUsage = (long)(diskUsage * 2.5);
+    diskUsage = (quint64)(diskUsage * 2.5);
     if (diskUsage >= diskFreeSpace)
     {
         QMessageBox::critical(this, "Extracting MEM file(s)",
@@ -161,18 +162,21 @@ void LayoutModsManager::ExtractModsSelected()
     g_logs->BufferClearErrors();
     g_logs->BufferEnableErrors(true);
     mainWindow->statusBar()->clearMessage();
-    Misc::extractMEM(mainWindow->gameType, list, outDir,
-                     &LayoutModsManager::ExtractModCallback, mainWindow);
+    if (!Misc::extractMEM(mainWindow->gameType, list, outDir,
+                     &LayoutModsManager::ExtractModCallback, mainWindow))
+    {
+        QMessageBox::critical(this, "Extracting MEM file(s)", "Extraction failed!");
+    }
     mainWindow->statusBar()->clearMessage();
     g_logs->BufferEnableErrors(false);
     if (g_logs->BufferGetErrors() != "")
     {
         MessageWindow msg;
-        msg.Show("Extracting MEM file(s)", g_logs->BufferGetErrors());
+        msg.Show(mainWindow, "Extracting MEM file(s)", g_logs->BufferGetErrors());
     }
     else
     {
-        QMessageBox::information(this, "Checking game", "All game files checked.");
+        QMessageBox::information(this, "Extracting MEM file(s)", "All files extracted.");
     }
 
     LockGui(false);
@@ -211,26 +215,34 @@ void LayoutModsManager::ConvertModSelected()
         return;
     }
 
-    g_logs->BufferClearErrors();
-    g_logs->BufferEnableErrors(true);
+    QFileInfoList file;
+    file.append(QFileInfo(path));
 
     QList<FoundTexture> textures;
     Resources resources;
     resources.loadMD5Tables();
+
+    g_logs->BufferClearErrors();
+    g_logs->BufferEnableErrors(true);
+
     TreeScan::loadTexturesMap(mainWindow->gameType, resources, textures);
-    Misc::convertDataModtoMem(path, modFile, mainWindow->gameType, textures, false, true,
-                              &LayoutModsManager::ConvertModCallback, mainWindow);
+    if (!Misc::convertDataModtoMem(file, modFile, mainWindow->gameType, textures, false,
+                              &LayoutModsManager::ConvertModCallback, mainWindow))
+    {
+        QMessageBox::critical(this, "Converting to MEM mod", "Convertion failed!");
+    }
+    mainWindow->statusBar()->clearMessage();
+
     g_logs->BufferEnableErrors(false);
     if (g_logs->BufferGetErrors() != "")
     {
         MessageWindow msg;
-        msg.Show("Converting to MEM mod", g_logs->BufferGetErrors());
+        msg.Show(mainWindow, "Converting to MEM mod", g_logs->BufferGetErrors());
     }
     else
     {
         QMessageBox::information(this, "Converting to MEM mod", "Mod converted.");
     }
-    mainWindow->statusBar()->clearMessage();
     LockGui(false);
 }
 
@@ -262,27 +274,28 @@ void LayoutModsManager::CreateModSelected()
         return;
     }
 
+    QFileInfoList list;
+    QFileInfoList list2;
+    list = QDir(inputDir, "*.mem", QDir::SortFlag::IgnoreCase | QDir::SortFlag::Name, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
+    list2 = QDir(inputDir, "*.tpf", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
+    list2 += QDir(inputDir, "*.mod", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
+    list2 += QDir(inputDir, "*.bin", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
+    list2 += QDir(inputDir, "*.xdelta", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
+    list2 += QDir(inputDir, "*.dds", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
+    list2 += QDir(inputDir, "*.png", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
+    list2 += QDir(inputDir, "*.bmp", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
+    list2 += QDir(inputDir, "*.tga", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
+    std::sort(list2.begin(), list2.end(), Misc::compareFileInfoPath);
+    list.append(list2);
+
     QString outDir = DirName(modFile);
-    long diskFreeSpace = Misc::getDiskFreeSpace(outDir);
-    long diskUsage = 0;
-    QDirIterator iterator(outDir, QDir::Files | QDir::NoSymLinks);
-    while (iterator.hasNext())
+    quint64 diskFreeSpace = Misc::getDiskFreeSpace(outDir);
+    quint64 diskUsage = 0;
+    foreach (QFileInfo info, list)
     {
-        QApplication::processEvents();
-        iterator.next();
-        if (iterator.filePath().endsWith(".dds", Qt::CaseInsensitive) ||
-            iterator.filePath().endsWith(".bmp", Qt::CaseInsensitive) ||
-            iterator.filePath().endsWith(".png", Qt::CaseInsensitive) ||
-            iterator.filePath().endsWith(".tga", Qt::CaseInsensitive) ||
-            iterator.filePath().endsWith(".jpg", Qt::CaseInsensitive) ||
-            iterator.filePath().endsWith(".jpeg", Qt::CaseInsensitive) ||
-            iterator.filePath().endsWith(".bin", Qt::CaseInsensitive) ||
-            iterator.filePath().endsWith(".xdelta", Qt::CaseInsensitive))
-        {
-            diskUsage += QFileInfo(iterator.filePath()).size();
-        }
+        diskUsage += info.size();
     }
-    diskUsage = (long)(diskUsage / 1.5);
+    diskUsage = (quint64)(diskUsage / 1.5);
     if (diskUsage >= diskFreeSpace)
     {
         QMessageBox::critical(this, "Creating MEM mod",
@@ -299,19 +312,22 @@ void LayoutModsManager::CreateModSelected()
     Resources resources;
     resources.loadMD5Tables();
     TreeScan::loadTexturesMap(mainWindow->gameType, resources, textures);
-    Misc::convertDataModtoMem(inputDir, modFile, mainWindow->gameType, textures, false, false,
-                                            &LayoutModsManager::CreateModCallback, mainWindow);
+    if (!Misc::convertDataModtoMem(list, modFile, mainWindow->gameType, textures, false,
+                              &LayoutModsManager::CreateModCallback, mainWindow))
+    {
+        QMessageBox::critical(this, "Creating MEM mod", "Creating MEM mod failed!");
+    }
+    mainWindow->statusBar()->clearMessage();
     g_logs->BufferEnableErrors(false);
     if (g_logs->BufferGetErrors() != "")
     {
         MessageWindow msg;
-        msg.Show("Creating MEM mod", g_logs->BufferGetErrors());
+        msg.Show(mainWindow, "Creating MEM mod", g_logs->BufferGetErrors());
     }
     else
     {
         QMessageBox::information(this, "Creating MEM mod", "Mod created.");
     }
-    mainWindow->statusBar()->clearMessage();
     LockGui(false);
 }
 
@@ -329,7 +345,7 @@ void LayoutModsManager::CreateBinaryModSelected()
     }
 
     QString modsDir = QFileDialog::getExistingDirectory(this,
-            "Please select source directory of modded package files");
+            "Please select source game directory of modded package files");
     if (modsDir == "")
     {
         LockGui(false);
@@ -337,34 +353,12 @@ void LayoutModsManager::CreateBinaryModSelected()
     }
     modsDir = QDir::cleanPath(modsDir);
 
-    mainWindow->statusBar()->showMessage(QString("Checking source intergrity..."));
-    bool foundExe = false;
-    QDirIterator iterator(modsDir, QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
-    while (iterator.hasNext())
-    {
-        QApplication::processEvents();
-        iterator.next();
-        if (iterator.filePath().endsWith(".exe", Qt::CaseInsensitive))
-        {
-            foundExe = true;
-            break;
-        }
-    }
-    if (!foundExe)
-    {
-        mainWindow->statusBar()->clearMessage();
-        QMessageBox::critical(this, "Creating Binary mod files",
-                              "The source directory doesn't seems right, aborting...");
-        LockGui(false);
-        return;
-    }
-
     QStringList packagesList;
     QDirIterator iterator2(modsDir, QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
     while (iterator2.hasNext())
     {
         QApplication::processEvents();
-        iterator.next();
+        iterator2.next();
         if (iterator2.filePath().endsWith(".upk", Qt::CaseInsensitive) ||
             iterator2.filePath().endsWith(".u", Qt::CaseInsensitive) ||
             iterator2.filePath().endsWith(".sfm", Qt::CaseInsensitive) ||
@@ -375,6 +369,7 @@ void LayoutModsManager::CreateBinaryModSelected()
     }
     for (int i = 0; i < packagesList.count(); i++)
     {
+        QApplication::processEvents();
         FileStream fs = FileStream(packagesList[i], FileMode::Open, FileAccess::ReadOnly);
         fs.SeekEnd();
         fs.Seek(-MEMMarkerLenght, SeekOrigin::Current);
@@ -390,18 +385,30 @@ void LayoutModsManager::CreateBinaryModSelected()
         }
     }
 
-    mainWindow->statusBar()->showMessage(QString("Scanning mods..."));
     QList<BinaryMod> modFiles;
     for (int i = 0; i < packagesList.count(); i++)
     {
+        mainWindow->statusBar()->showMessage(QString("Scanning mods...     Total progress - " +
+                                                     QString::number(i * 100 / packagesList.count())) + " %");
+        QApplication::processEvents();
+
+        if (packagesList[i].endsWith("localshadercache-pc-d3d-sm3.upk", Qt::CaseInsensitive))
+            continue;
+        if (packagesList[i].endsWith("refshadercache-pc-d3d-sm3.upk", Qt::CaseInsensitive))
+            continue;
+        if (packagesList[i].contains("guidcache", Qt::CaseInsensitive))
+            continue;
+
         Package vanillaPkg;
         Package modPkg;
-        bool vanilla = true;
+        bool vanilla = false;
         bool found = false;
         for (int v = 0; v < g_GameData->packageFiles.count(); v++)
         {
+            QApplication::processEvents();
             if (BaseName(packagesList[i]).compare(BaseName(g_GameData->packageFiles[v]), Qt::CaseInsensitive) == 0)
             {
+                vanilla = true;
                 modPkg.Open(packagesList[i]);
                 vanillaPkg.Open(g_GameData->GamePath() + g_GameData->packageFiles[v]);
                 if (modPkg.exportsTable.count() != vanillaPkg.exportsTable.count() ||
@@ -433,9 +440,12 @@ void LayoutModsManager::CreateBinaryModSelected()
             return;
         }
 
-        mainWindow->statusBar()->showMessage(QString("Creating mods..."));
+        mainWindow->statusBar()->showMessage(QString("Comparing package... Total progress - " +
+                                                     QString::number(i * 100 / packagesList.count())) + " % - " +
+                                             vanillaPkg.packagePath);
         for (int e = 0; e < modPkg.exportsTable.count(); e++)
         {
+            QApplication::processEvents();
             auto vanillaExport = vanillaPkg.getExportData(e);
             auto modExport = modPkg.getExportData(e);
             if (vanillaExport.size() == modExport.size())
@@ -450,11 +460,15 @@ void LayoutModsManager::CreateBinaryModSelected()
 
             if (vanillaExport.size() == modExport.size())
             {
-                unsigned char *delta = nullptr;
+                auto delta = ByteBuffer(vanillaExport.size());
                 unsigned int deltaSize = 0;
-                XDelta3Compress(vanillaExport.ptr(), modExport.ptr(), vanillaExport.size(),
-                                delta, &deltaSize);
-                mod.data = ByteBuffer(delta, deltaSize);
+                if (XDelta3Compress(vanillaExport.ptr(), modExport.ptr(), vanillaExport.size(),
+                                    delta.ptr(), &deltaSize) != 0)
+                {
+                    CRASH();
+                }
+                mod.data = ByteBuffer(delta.ptr(), deltaSize);
+                delta.Free();
                 mod.binaryModType = 2;
             }
             else
@@ -462,6 +476,8 @@ void LayoutModsManager::CreateBinaryModSelected()
                 mod.data = ByteBuffer(modExport.ptr(), modExport.size());
                 mod.binaryModType = 1;
             }
+            vanillaExport.Free();
+            modExport.Free();
 
             QString name;
             if (mod.packagePath.contains("/DLC/", Qt::CaseInsensitive))
@@ -485,67 +501,68 @@ void LayoutModsManager::CreateBinaryModSelected()
             mod.textureName = name;
             modFiles.append(mod);
         }
+    }
 
-        if (modFiles.count() == 0)
-        {
-            mainWindow->statusBar()->clearMessage();
-            QMessageBox::critical(this, "Creating Binary mod files",
-                                  "Nothing to mod, exiting...");
-            LockGui(false);
-            return;
-        }
+    if (modFiles.count() == 0)
+    {
+        mainWindow->statusBar()->clearMessage();
+        QMessageBox::critical(this, "Creating Binary mod files",
+                              "Nothing to mod, exiting...");
+        LockGui(false);
+        return;
+    }
 
-        mainWindow->statusBar()->showMessage(QString("Creating mem mod file..."));
+    mainWindow->statusBar()->showMessage(QString("Creating mem mod file..."));
 
-        QString modFile = QFileDialog::getSaveFileName(this,
-                "Please select new MEM mod file", "", "MEM mod file (*.mem)");
-        if (modFile == "")
-        {
-            mainWindow->statusBar()->clearMessage();
-            LockGui(false);
-            return;
-        }
+    QString modFile = QFileDialog::getSaveFileName(this,
+            "Please select new MEM mod file", "", "MEM mod file (*.mem)");
+    if (modFile == "")
+    {
+        mainWindow->statusBar()->clearMessage();
+        LockGui(false);
+        return;
+    }
 
-        if (QFile::exists(modFile))
-            QFile::remove(modFile);
+    if (QFile::exists(modFile))
+        QFile::remove(modFile);
 
-        FileStream outFs = FileStream(modFile, FileMode::Create, FileAccess::WriteOnly);
-        outFs.WriteUInt32(TextureModTag);
-        outFs.WriteUInt32(TextureModVersion);
-        outFs.WriteInt64(0); // filled later
+    FileStream outFs = FileStream(modFile, FileMode::Create, FileAccess::WriteOnly);
+    outFs.WriteUInt32(TextureModTag);
+    outFs.WriteUInt32(TextureModVersion);
+    outFs.WriteInt64(0); // filled later
 
-        for (int i = 0; i < modFiles.count(); i++)
-        {
-            std::unique_ptr<Stream> dst (new MemoryStream());
-            MipMaps::compressData(modFiles[i].data, *dst);
-            BinaryMod bmod = modFiles[i];
-            bmod.offset = outFs.Position();
-            bmod.size = dst->Length();
-            modFiles[i] = bmod;
-            outFs.WriteInt32(modFiles[i].exportId);
-            outFs.WriteStringASCIINull(modFiles[i].packagePath);
-            outFs.CopyFrom(*dst, dst->Length());
-        }
+    for (int i = 0; i < modFiles.count(); i++)
+    {
+        std::unique_ptr<Stream> dst (new MemoryStream());
+        MipMaps::compressData(modFiles[i].data, *dst);
+        BinaryMod bmod = modFiles[i];
+        bmod.offset = outFs.Position();
+        bmod.size = dst->Length();
+        modFiles[i] = bmod;
+        outFs.WriteInt32(modFiles[i].exportId);
+        outFs.WriteStringASCIINull(modFiles[i].packagePath.replace('/', '\\'));
+        dst->SeekBegin();
+        outFs.CopyFrom(*dst, dst->Length());
+    }
 
-        long pos = outFs.Position();
-        outFs.SeekBegin();
-        outFs.WriteUInt32(TextureModTag);
-        outFs.WriteUInt32(TextureModVersion);
-        outFs.WriteInt64(pos);
-        outFs.JumpTo(pos);
-        outFs.WriteUInt32((uint)mainWindow->gameType);
-        outFs.WriteInt32(modFiles.count());
+    long pos = outFs.Position();
+    outFs.SeekBegin();
+    outFs.WriteUInt32(TextureModTag);
+    outFs.WriteUInt32(TextureModVersion);
+    outFs.WriteInt64(pos);
+    outFs.JumpTo(pos);
+    outFs.WriteUInt32((uint)mainWindow->gameType);
+    outFs.WriteInt32(modFiles.count());
 
-        for (int i = 0; i < modFiles.count(); i++)
-        {
-            if (modFiles[i].binaryModType == 1)
-                outFs.WriteUInt32(FileBinaryTag);
-            else if (modFiles[i].binaryModType == 2)
-                outFs.WriteUInt32(FileXdeltaTag);
-            outFs.WriteStringASCIINull(modFiles[i].textureName);
-            outFs.WriteInt64(modFiles[i].offset);
-            outFs.WriteInt64(modFiles[i].size);
-        }
+    for (int i = 0; i < modFiles.count(); i++)
+    {
+        if (modFiles[i].binaryModType == 1)
+            outFs.WriteUInt32(FileBinaryTag);
+        else if (modFiles[i].binaryModType == 2)
+            outFs.WriteUInt32(FileXdeltaTag);
+        outFs.WriteStringASCIINull(modFiles[i].textureName);
+        outFs.WriteInt64(modFiles[i].offset);
+        outFs.WriteInt64(modFiles[i].size);
     }
 
     mainWindow->statusBar()->clearMessage();

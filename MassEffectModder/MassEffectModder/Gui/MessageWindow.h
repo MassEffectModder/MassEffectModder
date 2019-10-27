@@ -45,7 +45,7 @@ private slots:
     void            CloseSelected();
 
 public:
-    void            Show(const QString &title, const QString &msg);
+    void            Show(QWidget *parent, const QString &title, const QString &msg);
 };
 
 #endif // MESSAGEWINDOW_H

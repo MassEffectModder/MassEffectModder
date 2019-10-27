@@ -348,34 +348,11 @@ bool Misc::DetectHashFromFile(const QString &file)
     return idx > 0;
 }
 
-static bool compareFileInfoPath(const QFileInfo &e1, const QFileInfo &e2)
-{
-    return e1.absoluteFilePath().compare(e2.absoluteFilePath(), Qt::CaseInsensitive) < 0;
-}
-
-bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
-                               MeType gameId, QList<FoundTexture> &textures,
-                               bool markToConvert, bool onlyIndividual,
+bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
+                               MeType gameId, QList<FoundTexture> &textures, bool markToConvert,
                                ProgressCallback callback, void *callbackHandle)
 {
     PINFO("Mods conversion started...\n");
-
-    QFileInfoList list;
-    QFileInfoList list2;
-    if (!onlyIndividual)
-    {
-        list = QDir(inputDir, "*.mem", QDir::SortFlag::IgnoreCase | QDir::SortFlag::Name, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
-        list2 = QDir(inputDir, "*.tpf", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
-        list2 += QDir(inputDir, "*.mod", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
-    }
-    list2 += QDir(inputDir, "*.bin", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
-    list2 += QDir(inputDir, "*.xdelta", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
-    list2 += QDir(inputDir, "*.dds", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
-    list2 += QDir(inputDir, "*.png", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
-    list2 += QDir(inputDir, "*.bmp", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
-    list2 += QDir(inputDir, "*.tga", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
-    std::sort(list2.begin(), list2.end(), compareFileInfoPath);
-    list.append(list2);
 
     int result;
     QString fileName;
@@ -401,7 +378,7 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
     outFs.WriteInt64(0); // filled later
 
     int lastProgress = -1;
-    for (int n = 0; n < list.count(); n++)
+    for (int n = 0; n < files.count(); n++)
     {
 #ifdef GUI
         QApplication::processEvents();
@@ -412,13 +389,13 @@ bool Misc::convertDataModtoMem(QString &inputDir, QString &memFilePath,
         }
         mods.clear();
 
-        QString file = list[n].absoluteFilePath();
+        QString file = files[n].absoluteFilePath();
         if (g_ipc)
         {
             ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + BaseName(file));
             ConsoleSync();
         }
-        int newProgress = (n * 100) / list.count();
+        int newProgress = (n * 100) / files.count();
         if (lastProgress != newProgress)
         {
             lastProgress = newProgress;
@@ -919,7 +896,7 @@ end:
             return true;
         }
 
-        PERROR("MEM file not created!\n");
+        PERROR("MEM file not created, nothing to build!\n");
         return false;
     }
 

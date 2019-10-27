@@ -502,7 +502,7 @@ const QString GameData::RelativeGameData(const QString &path)
         CRASH_MSG("Game path not set!");
 
     if (!path.contains(_path.toLower(), Qt::CaseInsensitive))
-        CRASH_MSG("The path not found in game path!");
+        return path;
 
     return path.mid(_path.length());
 }
