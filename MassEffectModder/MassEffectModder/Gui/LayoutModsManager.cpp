@@ -40,7 +40,7 @@ LayoutModsManager::LayoutModsManager(MainWindow *window)
 
     layoutId = MainWindow::kLayoutModsManager;
 
-    auto ButtonInstallMods = new QPushButton("Install Mods");
+    auto ButtonInstallMods = new QPushButton("Mods Installer");
     ButtonInstallMods->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     ButtonInstallMods->setMinimumWidth(kButtonMinWidth);
     ButtonInstallMods->setMinimumHeight(kButtonMinHeight);
@@ -97,6 +97,8 @@ LayoutModsManager::LayoutModsManager(MainWindow *window)
     verticalLayout->addWidget(ButtonReturn, 1);
     horizontalLayout->addLayout(verticalLayout);
     horizontalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 40));
+
+    mainWindow->SetTitle("Mods Manager");
 }
 
 void LayoutModsManager::LockGui(bool enable)
@@ -229,7 +231,7 @@ void LayoutModsManager::ConvertModSelected()
     if (!Misc::convertDataModtoMem(file, modFile, mainWindow->gameType, textures, false,
                               &LayoutModsManager::ConvertModCallback, mainWindow))
     {
-        QMessageBox::critical(this, "Converting to MEM mod", "Convertion failed!");
+        QMessageBox::critical(this, "Converting to MEM mod", "Conversion failed!");
     }
     mainWindow->statusBar()->clearMessage();
 
@@ -574,4 +576,5 @@ void LayoutModsManager::ReturnSelected()
 {
     mainWindow->SwitchLayoutById(MainWindow::kLayoutModules);
     mainWindow->GetLayout()->removeWidget(this);
+    mainWindow->SetTitle("Modules Selection");
 }

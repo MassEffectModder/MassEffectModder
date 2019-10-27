@@ -98,7 +98,7 @@ LayoutInstallModsManager::LayoutInstallModsManager(MainWindow *window)
     ButtonInstallAll->setFont(ButtonFont);
     connect(ButtonInstallAll, &QPushButton::clicked, this, &LayoutInstallModsManager::InstallAllSelected);
 
-    auto ButtonReturn = new QPushButton("Exit Mods Manager");
+    auto ButtonReturn = new QPushButton("Exit Mods Installer");
     ButtonReturn->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     ButtonReturn->setMinimumWidth(kButtonMinWidth);
     ButtonReturn->setMinimumHeight(kButtonMinHeight / 2);
@@ -123,6 +123,8 @@ LayoutInstallModsManager::LayoutInstallModsManager(MainWindow *window)
     horizontalLayout->addLayout(verticalLayoutList);
     horizontalLayout->addLayout(verticalLayout);
     horizontalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 20));
+
+    mainWindow->SetTitle("Mods Installer");
 }
 
 void LayoutInstallModsManager::LockGui(bool enable)
@@ -271,4 +273,5 @@ void LayoutInstallModsManager::ReturnSelected()
 {
     mainWindow->SwitchLayoutById(MainWindow::kLayoutModsManager);
     mainWindow->GetLayout()->removeWidget(this);
+    mainWindow->SetTitle("Mods Manager");
 }

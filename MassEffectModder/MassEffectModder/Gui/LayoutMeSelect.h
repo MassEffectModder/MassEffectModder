@@ -49,6 +49,8 @@ private:
 #endif
 
     MainWindow *mainWindow;
+
+    void MESelected();
 };
 
 #endif // LAYOUT_ME_SELECT_H

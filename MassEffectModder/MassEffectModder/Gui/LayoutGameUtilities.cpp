@@ -123,6 +123,8 @@ LayoutGameUtilities::LayoutGameUtilities(MainWindow *window)
     verticalLayout->addWidget(ButtonReturn, 1);
     horizontalLayout->addLayout(verticalLayout);
     horizontalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 40));
+
+    mainWindow->SetTitle("Game Utitlities");
 }
 
 void LayoutGameUtilities::LockGui(bool enable)
@@ -393,4 +395,5 @@ void LayoutGameUtilities::ReturnSelected()
 {
     mainWindow->SwitchLayoutById(MainWindow::kLayoutModules);
     mainWindow->GetLayout()->removeWidget(this);
+    mainWindow->SetTitle("Modules Selection");
 }

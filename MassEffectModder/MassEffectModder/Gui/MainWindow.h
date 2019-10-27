@@ -71,6 +71,7 @@ public:
 
     QStackedLayout  *GetLayout() { return stackedLayout; }
     void            LockClose(bool state) { busy = state; }
+    void            SetTitle(const QString &appendText);
 };
 
 #endif // MAINWINDOW_H

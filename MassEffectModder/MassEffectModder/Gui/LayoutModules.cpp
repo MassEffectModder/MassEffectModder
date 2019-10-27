@@ -86,6 +86,8 @@ LayoutModules::LayoutModules(MainWindow *window)
     verticalLayout->addWidget(ButtonReturn, 1);
     horizontalLayout->addLayout(verticalLayout);
     horizontalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 40));
+
+    mainWindow->SetTitle("Modules Selection");
 }
 
 void LayoutModules::TexturesManagerSelected()
@@ -114,11 +116,11 @@ void LayoutModules::ModsManagerSelected()
 
 void LayoutModules::ReturnSelected()
 {
-    QString title = QString("Mass Effect Modder v%1").arg(MEM_VERSION);
-    if (DetectAdminRights())
-        title += " (run as Administrator)";
-    mainWindow->setWindowTitle(title);
     mainWindow->gameType = MeType::UNKNOWN_TYPE;
     mainWindow->SwitchLayoutById(MainWindow::kLayoutMeSelect);
     mainWindow->GetLayout()->removeWidget(this);
+    QString title = QString("Mass Effect Modder v%1 - ME Game Selection").arg(MEM_VERSION);
+    if (DetectAdminRights())
+        title += " (run as Administrator)";
+    mainWindow->setWindowTitle(title);
 }

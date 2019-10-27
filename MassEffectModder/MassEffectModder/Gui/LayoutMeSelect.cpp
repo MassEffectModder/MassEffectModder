@@ -75,39 +75,35 @@ LayoutMeSelect::LayoutMeSelect(MainWindow *window)
     verticalLayout->addWidget(ButtonExit, 1);
     horizontalLayout->addLayout(verticalLayout);
     horizontalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 40));
+
+    QString title = QString("Mass Effect Modder v%1 - ME Game Selection").arg(MEM_VERSION);
+    if (DetectAdminRights())
+        title += " (run as Administrator)";
+    mainWindow->setWindowTitle(title);
+}
+
+void LayoutMeSelect::MESelected()
+{
+    mainWindow->GetLayout()->addWidget(new LayoutModules(mainWindow));
+    mainWindow->SwitchLayoutById(MainWindow::kLayoutModules);
 }
 
 void LayoutMeSelect::ME1Selected()
 {
     mainWindow->gameType = MeType::ME1_TYPE;
-    QString title = QString("Mass Effect Modder v%1 - ME1").arg(MEM_VERSION);
-    if (DetectAdminRights())
-        title += " (run as Administrator)";
-    mainWindow->setWindowTitle(title);
-    mainWindow->GetLayout()->addWidget(new LayoutModules(mainWindow));
-    mainWindow->SwitchLayoutById(MainWindow::kLayoutModules);
+    MESelected();
 }
 
 void LayoutMeSelect::ME2Selected()
 {
     mainWindow->gameType = MeType::ME2_TYPE;
-    QString title = QString("Mass Effect Modder v%1 - ME2").arg(MEM_VERSION);
-    if (DetectAdminRights())
-        title += " (run as Administrator)";
-    mainWindow->setWindowTitle(title);
-    mainWindow->GetLayout()->addWidget(new LayoutModules(mainWindow));
-    mainWindow->SwitchLayoutById(MainWindow::kLayoutModules);
+    MESelected();
 }
 
 void LayoutMeSelect::ME3Selected()
 {
     mainWindow->gameType = MeType::ME3_TYPE;
-    QString title = QString("Mass Effect Modder v%1 - ME3").arg(MEM_VERSION);
-    if (DetectAdminRights())
-        title += " (run as Administrator)";
-    mainWindow->setWindowTitle(title);
-    mainWindow->GetLayout()->addWidget(new LayoutModules(mainWindow));
-    mainWindow->SwitchLayoutById(MainWindow::kLayoutModules);
+    MESelected();
 }
 
 void LayoutMeSelect::ExitSelected()

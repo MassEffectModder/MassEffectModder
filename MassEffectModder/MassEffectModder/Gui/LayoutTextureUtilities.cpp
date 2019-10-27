@@ -116,6 +116,8 @@ LayoutTextureUtilities::LayoutTextureUtilities(MainWindow *window)
     verticalLayout->addWidget(ButtonReturn, 1);
     horizontalLayout->addLayout(verticalLayout);
     horizontalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 40));
+
+    mainWindow->SetTitle("Texture Utilities");
 }
 
 void LayoutTextureUtilities::RemoveScanFileSelected()
@@ -254,4 +256,5 @@ void LayoutTextureUtilities::ReturnSelected()
 {
     mainWindow->SwitchLayoutById(MainWindow::kLayoutModules);
     mainWindow->GetLayout()->removeWidget(this);
+    mainWindow->SetTitle("Modules Selection");
 }

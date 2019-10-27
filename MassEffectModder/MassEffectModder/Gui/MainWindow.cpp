@@ -29,7 +29,7 @@ MainWindow::MainWindow()
     : gameType(MeType::UNKNOWN_TYPE), busy(false)
 {
     statusBar()->clearMessage();
-    QString title = QString("Mass Effect Modder v%1").arg(MEM_VERSION);
+    QString title = QString("Mass Effect Modder v%1 - ME Game Selection").arg(MEM_VERSION);
     if (DetectAdminRights())
         title += " (run as Administrator)";
     setWindowTitle(title);
@@ -62,4 +62,12 @@ void MainWindow::closeEvent(QCloseEvent *event)
         QMessageBox::information(this, "Closing application", "Application is busy.");
         event->ignore();
     }
+}
+
+void MainWindow::SetTitle(const QString &appendText)
+{
+    QString title = QString("Mass Effect Modder v%1 - ME%2 - %3").arg(MEM_VERSION).arg((int)gameType).arg(appendText);
+    if (DetectAdminRights())
+        title += " (run as Administrator)";
+    setWindowTitle(title);
 }

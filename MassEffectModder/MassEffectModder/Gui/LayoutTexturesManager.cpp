@@ -32,7 +32,7 @@ LayoutTexturesManager::LayoutTexturesManager(MainWindow *window)
 
     layoutId = MainWindow::kLayoutTexturesManager;
 
-    auto ButtonReturn = new QPushButton("Return");
+    auto ButtonReturn = new QPushButton("Exit Texture Manager");
     ButtonReturn->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     ButtonReturn->setMinimumWidth(kButtonMinWidth);
     ButtonReturn->setMinimumHeight(kButtonMinHeight / 2);
@@ -48,10 +48,13 @@ LayoutTexturesManager::LayoutTexturesManager(MainWindow *window)
     verticalLayout->addWidget(ButtonReturn, 1);
     horizontalLayout->addLayout(verticalLayout);
     horizontalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 40));
+
+    mainWindow->SetTitle("Texture Manager");
 }
 
 void LayoutTexturesManager::ReturnSelected()
 {
     mainWindow->SwitchLayoutById(MainWindow::kLayoutModules);
     mainWindow->GetLayout()->removeWidget(this);
+    mainWindow->SetTitle("Modules Selection");
 }
