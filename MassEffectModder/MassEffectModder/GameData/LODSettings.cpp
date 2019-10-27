@@ -20,6 +20,7 @@
  */
 
 #include <GameData/LODSettings.h>
+#include <Helpers/Exception.h>
 #include <Helpers/MiscHelpers.h>
 
 void LODSettings::readLOD(MeType gameId, ConfigIni &engineConf, QString &log)

@@ -22,6 +22,7 @@
 #include <Gui/MainWindow.h>
 #include <Gui/LayoutMeSelect.h>
 #include <Gui/LayoutModules.h>
+#include <Helpers/Exception.h>
 #include <Helpers/MiscHelpers.h>
 
 MainWindow::MainWindow()

@@ -22,6 +22,7 @@
 #include <Gui/LayoutMeSelect.h>
 #include <Gui/LayoutTexturesManager.h>
 #include <Gui/MainWindow.h>
+#include <Helpers/Exception.h>
 
 LayoutTexturesManager::LayoutTexturesManager(MainWindow *window)
     : mainWindow(window)

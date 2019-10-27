@@ -22,6 +22,8 @@
 #ifndef BYTE_BUFFER_H
 #define BYTE_BUFFER_H
 
+#include <Helpers/Exception.h>
+
 struct ByteBuffer
 {
 private:

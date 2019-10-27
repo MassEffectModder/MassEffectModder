@@ -25,6 +25,7 @@
 #include <Gui/LayoutGameUtilities.h>
 #include <Gui/LayoutModsManager.h>
 #include <Gui/MainWindow.h>
+#include <Helpers/Exception.h>
 #include <Helpers/MiscHelpers.h>
 #include <Types/MemTypes.h>
 

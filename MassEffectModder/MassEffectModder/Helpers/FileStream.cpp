@@ -163,7 +163,7 @@ void FileStream::ReadStringASCIINull(QString &str)
 void FileStream::ReadStringUnicode16(QString &str, qint64 count)
 {
     str = "";
-    for (int n = 0; n < count; n++)
+    for (qint64 n = 0; n < count; n++)
     {
         quint16 c = ReadUInt16();
         CheckFileIOErrorStatus();

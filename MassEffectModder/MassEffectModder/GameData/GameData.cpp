@@ -20,6 +20,7 @@
  */
 
 #include <GameData/GameData.h>
+#include <Helpers/Exception.h>
 #include <Helpers/MiscHelpers.h>
 
 MeType GameData::gameType = UNKNOWN_TYPE;
