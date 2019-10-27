@@ -142,12 +142,7 @@ equals(RELEASE_IN_DEBUG_MODE, true) {
             QMAKE_POST_LINK += dsymutil $$TARGET -o "$$TARGET".dSYM
         }
     }
-    QMAKE_CXXFLAGS_RELEASE += -g1
-    win32-g++: {
-        QMAKE_CXXFLAGS_RELEASE += -O2
-    } else {
-        QMAKE_CXXFLAGS_RELEASE += -O3
-    }
+    QMAKE_CXXFLAGS_RELEASE += -g1 -O3
 }
 
 QMAKE_CXXFLAGS +=
