@@ -390,8 +390,29 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 errors += Misc::CorrectTexture(image, texture, pixelFormat, newPixelFormat,
                                                mod.markConvert, mod.textureName);
 
-                // remove lower mipmaps below 4x4
-                RemoveLowerMips(image);
+                // remove lower mipmaps below 4x4 for DXT compressed textures
+                if (mod.cachedPixelFormat == PixelFormat::DXT1 ||
+                    mod.cachedPixelFormat == PixelFormat::DXT3 ||
+                    mod.cachedPixelFormat == PixelFormat::DXT5 ||
+                    mod.cachedPixelFormat == PixelFormat::ATI2)
+                {
+                    RemoveLowerMips(image);
+                }
+                if (image->getMipMaps().count() == 0)
+                {
+                    if (g_ipc)
+                    {
+                        ConsoleWrite(QString("[IPC]ERROR Texture ") + mod.textureName +
+                                     " has zero mips after mips filtering.\nSkipping...");
+                        ConsoleSync();
+                    }
+                    else
+                    {
+                        PERROR(QString("Error: Texture ") + mod.textureName +
+                               " has zero mips after mips filtering.\nSkipping...\n");
+                    }
+                    continue;
+                }
 
                 if (verify)
                     matched.crcs.clear();
