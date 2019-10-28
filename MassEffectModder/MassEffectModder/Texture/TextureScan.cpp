@@ -303,6 +303,7 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
                 str.contains("_RA.") ||
                 str.contains("_RU.") ||
                 str.contains("_PLPC.") ||
+                str.contains("_BRA.") ||
                 str.contains("_DEU.") ||
                 str.contains("_FRA.") ||
                 str.contains("_ITA.") ||
