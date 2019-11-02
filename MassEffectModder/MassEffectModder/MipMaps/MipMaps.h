@@ -155,8 +155,6 @@ public:
                                 QStringList &pkgsToRepack,QList<ModEntry> &modsToReplace, bool repack,
                                 bool appendMarker, bool verify, bool removeMips, int cacheAmount,
                                 ProgressCallback callback, void *callbackHandle);
-    static void RemoveLowerMips(Image *image, Texture *texture);
-    static void AddMissingLowerMips(Image *image, Texture *texture);
     static void RemoveLowerMips(Image *image);
 };
 
