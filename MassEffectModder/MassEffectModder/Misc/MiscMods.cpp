@@ -789,7 +789,7 @@ end:
                     newPixelFormat = changeTextureType(gameId, f.pixfmt, image.getPixelFormat(), f.flags);
                     if (f.pixfmt == newPixelFormat)
                         PINFO(QString("Warning for texture: ") + mod.textureName +
-                              " This texture con be converted to desired format...\n");
+                              " This texture can not be converted to desired format...\n");
                 }
 
                 int numMips = Misc::GetNumberOfMipsFromMap(f);
