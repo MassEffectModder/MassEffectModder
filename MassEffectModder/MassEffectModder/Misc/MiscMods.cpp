@@ -746,12 +746,13 @@ end:
         {
             BinaryMod mod{};
             FoundTexture f;
+            bool entryMarkToConvert = markToConvert;
             uint crc = scanFilenameForCRC(file);
             if (crc == 0)
                 continue;
 
             if (DetectMarkToConvertFromFile(file))
-                markToConvert = true;
+                entryMarkToConvert = true;
 
             bool forceHash = DetectHashFromFile(file);
             if (!forceHash)
@@ -783,7 +784,7 @@ end:
             if (!forceHash)
             {
                 PixelFormat newPixelFormat = f.pixfmt;
-                if (markToConvert)
+                if (entryMarkToConvert)
                 {
                     newPixelFormat = changeTextureType(gameId, f.pixfmt, image.getPixelFormat(), f.flags);
                     if (f.pixfmt == newPixelFormat)
@@ -792,7 +793,7 @@ end:
                 }
 
                 int numMips = Misc::GetNumberOfMipsFromMap(f);
-                CorrectTexture(image, f, numMips, markToConvert,
+                CorrectTexture(image, f, numMips, entryMarkToConvert,
                                f.pixfmt, newPixelFormat, file);
             }
 
@@ -800,7 +801,7 @@ end:
             mod.textureName = f.name;
             mod.binaryModType = 0;
             mod.textureCrc = crc;
-            mod.markConvert = markToConvert;
+            mod.markConvert = entryMarkToConvert;
             mods.push_back(mod);
         }
 
