@@ -395,6 +395,10 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
             ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + BaseName(file));
             ConsoleSync();
         }
+        else
+        {
+            PINFO(QString("File: ") + BaseName(file) + "\n");
+        }
         int newProgress = (n * 100) / files.count();
         if (lastProgress != newProgress)
         {
@@ -409,11 +413,6 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
                 callback(callbackHandle, newProgress, "Converting");
             }
         }
-        else
-        {
-            PINFO(QString("File: ") + BaseName(file) + "\n");
-        }
-
 
         if (file.endsWith(".mem", Qt::CaseInsensitive))
         {
