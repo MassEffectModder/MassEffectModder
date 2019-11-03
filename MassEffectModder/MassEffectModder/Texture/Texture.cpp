@@ -608,14 +608,15 @@ const ByteBuffer Texture::toArray(uint pccTextureDataOffset, bool updateOffset)
         newData.WriteInt32(mipmap.compressedSize);
         if (mipmap.storageType == StorageTypes::pccUnc)
         {
-            newData.WriteUInt32(0);
+            mipmap.dataOffset = newData.Position() + pccTextureDataOffset + 4;
+            newData.WriteUInt32(mipmap.dataOffset);
             textureData->JumpTo(mipmap.internalOffset);
             if (updateOffset)
                 mipmap.internalOffset = newData.Position();
             newData.CopyFrom(*textureData, mipmap.uncompressedSize);
         }
         else if (mipmap.storageType == StorageTypes::pccLZO ||
-            mipmap.storageType == StorageTypes::pccZlib)
+                 mipmap.storageType == StorageTypes::pccZlib)
         {
             mipmap.dataOffset = newData.Position() + pccTextureDataOffset + 4;
             newData.WriteUInt32(mipmap.dataOffset);

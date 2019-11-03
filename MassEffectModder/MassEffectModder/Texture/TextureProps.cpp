@@ -550,21 +550,27 @@ void TexProperty::setStructValue(const QString &name, const QString &valueName, 
     }
     else
     {
-        CRASH("Not implemented.\n");
+        texProperty.valueRaw = ByteBuffer(valueStruct.size() + 8);
+        texProperty.valueStruct = ByteBuffer(valueStruct.size());
+        texProperty.type = "StructProperty";
+        if (!package->existsNameId(texProperty.type))
+            package->addName(texProperty.type);
     }
 
     if (!package->existsNameId(name))
         package->addName(name);
     texProperty.name = name;
     texProperty.fetched = true;
+    texProperty.valueName = valueName;
+    texProperty.valueInt = 0;
 
     if (!package->existsNameId(valueName))
         package->addName(valueName);
 
     qint32 nameId = package->getNameId(valueName);
     memcpy(texProperty.valueRaw.ptr(), &nameId, sizeof(qint32));
+    memcpy(texProperty.valueRaw.ptr() + 4, &texProperty.valueInt, sizeof(qint32));
     memcpy(texProperty.valueRaw.ptr() + 8, valueStruct.ptr(), valueStruct.size());
-    texProperty.valueName = valueName;
     memcpy(texProperty.valueStruct.ptr(), valueStruct.ptr(), valueStruct.size());
 
     if (exists(name))

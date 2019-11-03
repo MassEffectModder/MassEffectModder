@@ -746,33 +746,29 @@ bool CmdLineTools::RepackTFCInDLC(MeType gameId, QString &dlcName, bool pullText
                 texture.getProperties().setStructValue("TFCFileGuid", "Guid", guid);
             }
 
+            ByteBuffer bufferProperties = texture.getProperties().toArray();
             {
                 MemoryStream newData;
-                ByteBuffer buffer = texture.getProperties().toArray();
-                newData.WriteFromBuffer(buffer);
-                buffer.Free();
-                buffer = texture.toArray(0, false); // filled later
-                newData.WriteFromBuffer(buffer);
-                buffer.Free();
-                buffer = newData.ToArray();
-                package.setExportData(e, buffer);
-                buffer.Free();
+                newData.WriteFromBuffer(bufferProperties);
+                ByteBuffer bufferTextureData = texture.toArray(0, false); // filled later
+                newData.WriteFromBuffer(bufferTextureData);
+                bufferTextureData.Free();
+                ByteBuffer bufferTexture = newData.ToArray();
+                package.setExportData(e, bufferTexture);
+                bufferTexture.Free();
             }
-
-            uint packageDataOffset;
             {
                 MemoryStream newData;
-                ByteBuffer buffer = texture.getProperties().toArray();
-                newData.WriteFromBuffer(buffer);
-                buffer.Free();
-                packageDataOffset = package.exportsTable[e].getDataOffset() + (uint)newData.Position();
-                buffer = texture.toArray(packageDataOffset);
-                newData.WriteFromBuffer(buffer);
-                buffer.Free();
-                buffer = newData.ToArray();
-                package.setExportData(e, buffer);
-                buffer.Free();
+                newData.WriteFromBuffer(bufferProperties);
+                uint packageDataOffset = package.exportsTable[e].getDataOffset() + (uint)newData.Position();
+                ByteBuffer bufferTextureData = texture.toArray(packageDataOffset);
+                newData.WriteFromBuffer(bufferTextureData);
+                bufferTextureData.Free();
+                ByteBuffer bufferTexture = newData.ToArray();
+                package.setExportData(e, bufferTexture);
+                bufferTexture.Free();
             }
+            bufferProperties.Free();
         }
         if (!package.SaveToFile(compressed, !compressed, false))
         {
