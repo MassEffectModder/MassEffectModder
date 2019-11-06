@@ -101,9 +101,9 @@ LayoutGameUtilities::LayoutGameUtilities(MainWindow *window)
     ButtonReturn->setFont(ButtonFont);
     connect(ButtonReturn, &QPushButton::clicked, this, &LayoutGameUtilities::ReturnSelected);
 
-    auto *horizontalLayout = new QHBoxLayout(this);
+    auto horizontalLayout = new QHBoxLayout(this);
     horizontalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 40));
-    auto *verticalLayout = new QVBoxLayout();
+    auto verticalLayout = new QVBoxLayout();
     verticalLayout->setAlignment(Qt::AlignVCenter);
     verticalLayout->addWidget(ButtonCheckGameFiles, 1);
     verticalLayout->addWidget(ButtonChangeGamePath, 1);

@@ -35,7 +35,7 @@ MainWindow::MainWindow()
     setWindowTitle(title);
     setMinimumSize(kMinWindowWidth, kMinWindowHeight);
 
-    auto *widget = new QWidget;
+    auto widget = new QWidget;
     setCentralWidget(widget);
     stackedLayout = new QStackedLayout(widget);
     stackedLayout->addWidget(new LayoutMeSelect(this));
@@ -45,7 +45,7 @@ void MainWindow::SwitchLayoutById(int id)
 {
     for (int i = 0; i < stackedLayout->count(); i++)
     {
-        auto *handle = dynamic_cast<LayoutHandle *>(stackedLayout->widget(i));
+        auto handle = dynamic_cast<LayoutHandle *>(stackedLayout->widget(i));
         if (handle->GetLayoutId() == id)
         {
             stackedLayout->setCurrentIndex(i);

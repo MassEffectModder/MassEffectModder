@@ -64,9 +64,9 @@ LayoutMeSelect::LayoutMeSelect(MainWindow *window)
     ButtonExit->setFont(ButtonFont);
     connect(ButtonExit, &QPushButton::clicked, this, &LayoutMeSelect::ExitSelected);
 
-    auto *horizontalLayout = new QHBoxLayout(this);
+    auto horizontalLayout = new QHBoxLayout(this);
     horizontalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 40));
-    auto *verticalLayout = new QVBoxLayout();
+    auto verticalLayout = new QVBoxLayout();
     verticalLayout->setAlignment(Qt::AlignVCenter);
     verticalLayout->addWidget(ButtonME1, 1);
     verticalLayout->addWidget(ButtonME2, 1);

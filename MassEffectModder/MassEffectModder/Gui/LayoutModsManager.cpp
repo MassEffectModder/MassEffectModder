@@ -84,9 +84,9 @@ LayoutModsManager::LayoutModsManager(MainWindow *window)
     ButtonReturn->setFont(ButtonFont);
     connect(ButtonReturn, &QPushButton::clicked, this, &LayoutModsManager::ReturnSelected);
 
-    auto *horizontalLayout = new QHBoxLayout(this);
+    auto horizontalLayout = new QHBoxLayout(this);
     horizontalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 40));
-    auto *verticalLayout = new QVBoxLayout();
+    auto verticalLayout = new QVBoxLayout();
     verticalLayout->setAlignment(Qt::AlignVCenter);
     verticalLayout->addWidget(ButtonInstallMods, 1);
     verticalLayout->addWidget(ButtonExtractMods, 1);

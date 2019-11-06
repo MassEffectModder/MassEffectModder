@@ -43,8 +43,8 @@ private slots:
 private:
     const int kButtonMinWidth = 300;
     const int kButtonMinHeight = 80;
-    const int kListViewModsMinWidth = 400;
-    const int kListViewModsMinHeight = 400;
+    const int kListViewModsMinWidth = 300;
+    const int kListViewModsMinHeight = 200;
 #if defined(__APPLE__)
     const int kFontSize = 20;
 #elif defined(__linux__)

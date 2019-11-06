@@ -23,7 +23,7 @@
 
 void MessageWindow::Show(QWidget *parent, const QString &title, const QString &msg)
 {
-    QPlainTextEdit textWidtget;
+    QPlainTextEdit textWidget;
     QVBoxLayout layout;
     QPushButton closeButton;
     if (parent != nullptr)
@@ -32,9 +32,9 @@ void MessageWindow::Show(QWidget *parent, const QString &title, const QString &m
         dialog.setMinimumSize(parent->size());
     }
     dialog.setWindowTitle(title);
-    textWidtget.setLineWrapMode(QPlainTextEdit::NoWrap);
-    textWidtget.setReadOnly(true);
-    textWidtget.setPlainText(msg);
+    textWidget.setLineWrapMode(QPlainTextEdit::NoWrap);
+    textWidget.setReadOnly(true);
+    textWidget.setPlainText(msg);
     closeButton.setText("Close");
     closeButton.setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     closeButton.setMinimumWidth(kButtonMinWidth);
@@ -44,7 +44,7 @@ void MessageWindow::Show(QWidget *parent, const QString &title, const QString &m
     ButtonFont.setPointSize(kFontSize);
     closeButton.setFont(ButtonFont);
     QObject::connect(&closeButton, &QPushButton::clicked, this, &MessageWindow::CloseSelected);
-    layout.addWidget(&textWidtget);
+    layout.addWidget(&textWidget);
     layout.addWidget(&closeButton, 0, Qt::AlignCenter);
     dialog.setLayout(&layout);
     dialog.exec();

@@ -39,8 +39,8 @@ LayoutInstallModsManager::LayoutInstallModsManager(MainWindow *window)
     layoutId = MainWindow::kLayoutInstallModsManager;
 
     ListMods = new QListWidget();
-    ListMods->setMinimumWidth(kButtonMinWidth);
-    ListMods->setMinimumHeight(kButtonMinHeight / 2);
+    ListMods->setMinimumWidth(kListViewModsMinWidth);
+    ListMods->setMinimumHeight(kListViewModsMinHeight);
     ListMods->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
     auto LabelListMods = new QLabel("List of loaded mods:");
@@ -49,7 +49,7 @@ LayoutInstallModsManager::LayoutInstallModsManager(MainWindow *window)
     LabelListModsFont.setPointSize(kFontSize);
     LabelListMods->setFont(LabelListModsFont);
 
-    auto *verticalLayoutList = new QVBoxLayout();
+    auto verticalLayoutList = new QVBoxLayout();
     verticalLayoutList->addWidget(LabelListMods, 1);
     verticalLayoutList->addWidget(ListMods, 1);
 
@@ -107,7 +107,7 @@ LayoutInstallModsManager::LayoutInstallModsManager(MainWindow *window)
     ButtonReturn->setFont(ButtonFont);
     connect(ButtonReturn, &QPushButton::clicked, this, &LayoutInstallModsManager::ReturnSelected);
 
-    auto *verticalLayout = new QVBoxLayout();
+    auto verticalLayout = new QVBoxLayout();
     verticalLayout->setAlignment(Qt::AlignVCenter);
     verticalLayout->addWidget(ButtonAdd, 1);
     verticalLayout->addWidget(ButtonRemove, 1);
@@ -118,7 +118,7 @@ LayoutInstallModsManager::LayoutInstallModsManager(MainWindow *window)
     verticalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 3));
     verticalLayout->addWidget(ButtonReturn, 1);
 
-    auto *horizontalLayout = new QHBoxLayout(this);
+    auto horizontalLayout = new QHBoxLayout(this);
     horizontalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 20));
     horizontalLayout->addLayout(verticalLayoutList);
     horizontalLayout->addLayout(verticalLayout);
