@@ -94,7 +94,7 @@ void MipMaps::RemoveLowerMips(Image *image)
 {
     for (int t = 0; t < image->getMipMaps().count(); t++)
     {
-        if (image->getMipMaps()[t]->getOrigWidth() < 4 ||
+        if (image->getMipMaps()[t]->getOrigWidth() < 4 &&
             image->getMipMaps()[t]->getOrigHeight() < 4)
         {
             image->removeMipByIndex(t--);
