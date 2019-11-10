@@ -815,8 +815,9 @@ bool CmdLineTools::RepackTFCInDLC(MeType gameId, QString &dlcName, bool pullText
     return true;
 }
 
-bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool png,
-                                      bool pccOnly, bool tfcOnly, QString &textureTfcFilter)
+bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, QString &inputFile,
+                                      bool png, bool pccOnly, bool tfcOnly,
+                                      QString &textureTfcFilter)
 {
     Resources resources;
     resources.loadMD5Tables();
@@ -825,18 +826,35 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
     if (!Misc::CheckGamePath())
         return false;
 
+    QStringList packages;
+    if (inputFile != "")
+    {
+        inputFile = QDir::cleanPath(inputFile);
+        QString relPath = g_GameData->RelativeGameData(inputFile);
+        if (inputFile == relPath)
+        {
+            PERROR(QString("ERROR: Input package path: ") + inputFile + " is not part of game!\n");
+            return false;
+        }
+        packages.append(relPath);
+    }
+    else
+    {
+        packages = g_GameData->packageFiles;
+    }
+
     QDir().mkpath(outputDir);
 
-    for (int i = 0; i < g_GameData->packageFiles.count(); i++)
+    for (int i = 0; i < packages.count(); i++)
     {
         PINFO(QString("Package ") + QString::number(i + 1) + "/" +
-                             QString::number(g_GameData->packageFiles.count()) + " : " +
-                             g_GameData->packageFiles[i] + "\n");
+                             QString::number(packages.count()) + " : " +
+                             packages[i] + "\n");
 
         Package package;
-        if (package.Open(g_GameData->GamePath() + g_GameData->packageFiles[i]) != 0)
+        if (package.Open(g_GameData->GamePath() + packages[i]) != 0)
         {
-            PERROR(QString("ERROR: Issue opening package file: ") + g_GameData->packageFiles[i] + "\n");
+            PERROR(QString("ERROR: Issue opening package file: ") + packages[i] + "\n");
             continue;
         }
 
@@ -854,7 +872,7 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
                 {
                     PERROR(QString("Error: Texture ") + exp.objectName +
                                  " has broken export data in package: " +
-                                 g_GameData->packageFiles[i] +"\nExport Id: " + QString::number(i + 1) + "\nSkipping...\n");
+                                 packages[i] +"\nExport Id: " + QString::number(i + 1) + "\nSkipping...\n");
                     continue;
                 }
                 Texture texture(package, i, exportData);
@@ -887,7 +905,7 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, bool pn
                 if (crc == 0)
                 {
                     PERROR(QString("Error: Texture ") + name + " is broken in package: " +
-                                 g_GameData->packageFiles[i] +"\nExport Id: " + QString::number(i + 1) + "\nSkipping...\n");
+                                 packages[i] +"\nExport Id: " + QString::number(i + 1) + "\nSkipping...\n");
                     continue;
                 }
                 QString outputFile = outputDir + "/" +  name +

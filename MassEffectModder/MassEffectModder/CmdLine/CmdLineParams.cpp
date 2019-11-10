@@ -242,6 +242,17 @@ int ProcessArguments()
             tfcOnly = true;
             args.removeAt(l--);
         }
+        else if (arg == "--package-path" && hasValue(args, l))
+        {
+            input = args[l + 1].replace('\\', '/');
+            if (input.length() == 0)
+            {
+                PERROR("Input package path param wrong!\n");
+                return -1;
+            }
+            args.removeAt(l);
+            args.removeAt(l--);
+        }
         else if (arg == "--threshold" && hasValue(args, l))
         {
             threshold = args[l + 1];
@@ -664,7 +675,13 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.extractAllTextures(gameId, output, false, pccOnly, tfcOnly, tfcName))
+        if (input.length() != 0 && !QFile(input).exists())
+        {
+            PERROR("Input package doesn't exists! " + input + "\n");
+            errorCode = 1;
+            break;
+        }
+        if (!tools.extractAllTextures(gameId, output, input, false, pccOnly, tfcOnly, tfcName))
             errorCode = 1;
         break;
     case CmdType::EXTRACT_ALL_PNG:
@@ -680,7 +697,13 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.extractAllTextures(gameId, output, true, pccOnly, tfcOnly, tfcName))
+        if (input.length() != 0 && !QFile(input).exists())
+        {
+            PERROR("Input package doesn't exists! " + input + "\n");
+            errorCode = 1;
+            break;
+        }
+        if (!tools.extractAllTextures(gameId, output, input, true, pccOnly, tfcOnly, tfcName))
             errorCode = 1;
         break;
     case CmdType::COMPACT_DLC:
