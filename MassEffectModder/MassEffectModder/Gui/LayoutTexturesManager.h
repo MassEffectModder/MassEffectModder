@@ -50,7 +50,7 @@ private:
 #if defined(__APPLE__)
     const int kFontSize = 12;
 #elif defined(__linux__)
-    const int kFontSize = 13;
+    const int kFontSize = 8;
 #else
     const int kFontSize = 8;
 #endif
