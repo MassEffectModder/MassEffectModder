@@ -52,7 +52,7 @@ private:
 #elif defined(__linux__)
     const int kFontSize = 13;
 #else
-    const int kFontSize = 15;
+    const int kFontSize = 8;
 #endif
     const int kWidgetImage = 0;
     const int kWidgetText = 1;
