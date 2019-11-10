@@ -32,20 +32,59 @@ public:
     explicit LayoutTexturesManager(MainWindow *window = nullptr);
 
 private slots:
-    void ReturnSelected();
+    void ReplaceSelected();
+    void ReplaceConvertSelected();
+    void ExtractDDSSelected();
+    void ExtractPNGSelected();
+    void ViewImageSelected();
+    void ViewSingleSelected();
+    void ViewMultiSelected();
+    void PackageSingleSelected();
+    void PackageMutiSelected();
+    void SearchSelected();
+    void ExitSelected();
 
 private:
-    const int kButtonMinWidth = 300;
-    const int kButtonMinHeight = 80;
+    const int kButtonMinWidth = 200;
+    const int kButtonMinHeight = 22;
 #if defined(__APPLE__)
-    const int kFontSize = 20;
+    const int kFontSize = 12;
 #elif defined(__linux__)
     const int kFontSize = 13;
 #else
     const int kFontSize = 15;
 #endif
+    const int kLayoutText = 1;
+    const int kLayoutImage = 2;
 
-    MainWindow *mainWindow;
+    MainWindow     *mainWindow;
+    QListWidget    *listLeft;
+    QListWidget    *listMiddle;
+    QListWidget    *listRight;
+    QStackedWidget *rightView;
+    QPlainTextEdit *textRight;
+    QLabel         *labelImage;
+    QSplitter      *splitter;
+    QPushButton    *buttonReplace;
+    QPushButton    *buttonReplaceConvert;
+    QPushButton    *buttonExtractToDDS;
+    QPushButton    *buttonExtractToPNG;
+    QPushButton    *buttonViewImage;
+    QPushButton    *buttonInfoSingle;
+    QPushButton    *buttonInfoAll;
+    QPushButton    *buttonPackageSingle;
+    QPushButton    *buttonPackageMulti;
+    QPushButton    *buttonSearch;
+    QPushButton    *buttonExit;
+
+    bool           singlePackageMode = false;
+    bool           singleViewMode = true;
+    bool           imageViewMode = true;
+    bool           textureSelected = false;
+    bool           packageSelected = false;
+
+    void LockGui(bool enable);
+    void UpdateGui();
 };
 
 #endif // LAYOUT_TEXTURES_MANAGER_H

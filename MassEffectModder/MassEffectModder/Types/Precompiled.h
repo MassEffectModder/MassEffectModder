@@ -69,6 +69,9 @@
 #include <QVBoxLayout>
 #include <QListWidget>
 #include <QListWidgetItem>
+#include <QSplitter>
+#include <QGroupBox>
+#include <QStackedWidget>
 #endif
 
 #include <omp.h>
