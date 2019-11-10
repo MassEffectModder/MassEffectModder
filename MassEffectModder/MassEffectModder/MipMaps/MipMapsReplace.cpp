@@ -391,6 +391,14 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
                 {
                     mipmap.storageType = Texture::StorageTypes::pccUnc;
                 }
+                else if (pixelFormat == PixelFormat::G8 &&
+                         textures[entryMap.texturesIndex].list.count() == 1 &&
+                         !texture.HasExternalMips())
+                {
+                    mipmap.storageType = Texture::StorageTypes::pccUnc;
+                    if (!texture.getProperties().exists("NeverStream"))
+                        texture.getProperties().setBoolValue("NeverStream", true);
+                }
                 else
                 {
                     if (GameData::gameType == MeType::ME1_TYPE)
