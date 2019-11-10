@@ -54,8 +54,9 @@ private:
 #else
     const int kFontSize = 15;
 #endif
-    const int kLayoutText = 1;
-    const int kLayoutImage = 2;
+    const int kWidgetImage = 0;
+    const int kWidgetText = 1;
+    const int kWidgetList = 2;
 
     MainWindow     *mainWindow;
     QListWidget    *listLeft;

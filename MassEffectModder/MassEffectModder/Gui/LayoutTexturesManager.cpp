@@ -221,7 +221,7 @@ void LayoutTexturesManager::UpdateGui()
     buttonExtractToPNG->setEnabled(textureSelected);
     if (imageViewMode)
     {
-        rightView->setCurrentIndex(0);
+        rightView->setCurrentIndex(kWidgetImage);
         buttonViewImage->setEnabled(false);
         buttonInfoSingle->setEnabled(packageSelected);
         buttonInfoAll->setEnabled(packageSelected);
@@ -231,9 +231,9 @@ void LayoutTexturesManager::UpdateGui()
     else
     {
         if (singlePackageMode)
-            rightView->setCurrentIndex(2);
+            rightView->setCurrentIndex(kWidgetImage);
         else
-            rightView->setCurrentIndex(1);
+            rightView->setCurrentIndex(kWidgetText);
         buttonViewImage->setEnabled(packageSelected);
         buttonInfoSingle->setEnabled(!packageSelected);
         buttonInfoAll->setEnabled(!packageSelected);
