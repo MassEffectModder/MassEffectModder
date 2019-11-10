@@ -32,9 +32,6 @@
 LayoutTextureUtilities::LayoutTextureUtilities(MainWindow *window)
     : mainWindow(window)
 {
-    if (window == nullptr)
-        CRASH();
-
     layoutId = MainWindow::kLayoutTextureUtilities;
 
     auto ButtonRemoveScanFile = new QPushButton("Delete Textures Scan File");

@@ -33,10 +33,6 @@
 LayoutGameUtilities::LayoutGameUtilities(MainWindow *window)
     : mainWindow(window)
 {
-    if (window == nullptr)
-        CRASH();
-    wnd = window;
-
     layoutId = MainWindow::kLayoutGameUtilities;
 
     auto ButtonCheckGameFiles = new QPushButton("Check Game Files");

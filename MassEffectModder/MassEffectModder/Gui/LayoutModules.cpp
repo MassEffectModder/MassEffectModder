@@ -32,9 +32,6 @@
 LayoutModules::LayoutModules(MainWindow *window)
     : mainWindow(window)
 {
-    if (window == nullptr)
-        CRASH();
-
     layoutId = MainWindow::kLayoutModules;
 
     auto ButtonTexturesManager = new QPushButton("Textures Manager");

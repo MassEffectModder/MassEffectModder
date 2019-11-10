@@ -29,9 +29,6 @@
 LayoutMeSelect::LayoutMeSelect(MainWindow *window)
     : mainWindow(window)
 {
-    if (window == nullptr)
-        CRASH();
-
     layoutId = MainWindow::kLayoutMeSelect;
 
     auto ButtonME1 = new QPushButton("Mass Effect");

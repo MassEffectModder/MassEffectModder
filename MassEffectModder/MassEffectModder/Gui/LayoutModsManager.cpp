@@ -35,9 +35,6 @@
 LayoutModsManager::LayoutModsManager(MainWindow *window)
     : mainWindow(window)
 {
-    if (window == nullptr)
-        CRASH();
-
     layoutId = MainWindow::kLayoutModsManager;
 
     auto ButtonInstallMods = new QPushButton("Mods Installer");

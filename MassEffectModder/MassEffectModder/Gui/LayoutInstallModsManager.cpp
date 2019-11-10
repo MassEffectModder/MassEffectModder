@@ -33,9 +33,6 @@
 LayoutInstallModsManager::LayoutInstallModsManager(MainWindow *window)
     : mainWindow(window)
 {
-    if (window == nullptr)
-        CRASH();
-
     layoutId = MainWindow::kLayoutInstallModsManager;
 
     ListMods = new QListWidget();

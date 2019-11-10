@@ -27,9 +27,6 @@
 LayoutTexturesManager::LayoutTexturesManager(MainWindow *window)
     : mainWindow(window)
 {
-    if (window == nullptr)
-        CRASH();
-
     layoutId = MainWindow::kLayoutTexturesManager;
 
     auto ButtonReturn = new QPushButton("Exit Texture Manager");

@@ -28,8 +28,6 @@ class LayoutGameUtilities: public LayoutHandle
 {
     Q_OBJECT
 
-    MainWindow *wnd;
-
 public:
     explicit LayoutGameUtilities(MainWindow *window = nullptr);
     void LockGui(bool enable);
