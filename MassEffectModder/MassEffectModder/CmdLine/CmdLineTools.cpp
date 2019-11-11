@@ -1166,12 +1166,11 @@ bool CmdLineTools::FixMissingPropertyInTextures(MeType gameId, const QString& fi
                     continue;
                 }
 
+                ByteBuffer properties = texture.getProperties().toArray();
                 {
                     MemoryStream newData;
-                    ByteBuffer buffer = texture.getProperties().toArray();
-                    newData.WriteFromBuffer(buffer);
-                    buffer.Free();
-                    buffer = texture.toArray(0, false); // filled later
+                    newData.WriteFromBuffer(properties);
+                    ByteBuffer buffer = texture.toArray(0, false); // filled later
                     newData.WriteFromBuffer(buffer);
                     buffer.Free();
                     buffer = newData.ToArray();
@@ -1182,17 +1181,16 @@ bool CmdLineTools::FixMissingPropertyInTextures(MeType gameId, const QString& fi
                 uint packageDataOffset;
                 {
                     MemoryStream newData;
-                    ByteBuffer buffer = texture.getProperties().toArray();
-                    newData.WriteFromBuffer(buffer);
-                    buffer.Free();
+                    newData.WriteFromBuffer(properties);
                     packageDataOffset = package.exportsTable[e].getDataOffset() + (uint)newData.Position();
-                    buffer = texture.toArray(packageDataOffset);
+                    ByteBuffer buffer = texture.toArray(packageDataOffset);
                     newData.WriteFromBuffer(buffer);
                     buffer.Free();
                     buffer = newData.ToArray();
                     package.setExportData(e, buffer);
                     buffer.Free();
                 }
+                properties.Free();
             }
         }
         if (modified)
