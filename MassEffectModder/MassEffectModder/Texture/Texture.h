@@ -25,7 +25,7 @@
 #include <Helpers/FileStream.h>
 #include <Helpers/MemoryStream.h>
 #include <GameData/Package.h>
-#include <Texture/TextureProps.h>
+#include <Texture/TextureProperty.h>
 
 class Texture
 {
@@ -42,7 +42,7 @@ private:
     MemoryStream *textureData = nullptr;
     ByteBuffer restOfData;
     QString packagePath;
-    TexProperty *properties;
+    TextureProperty *properties;
 
 public:
 
@@ -91,7 +91,7 @@ public:
     void replaceMipMaps(const QList<TextureMipMap> &newMipMaps);
     static const ByteBuffer compressTexture(const ByteBuffer &inputData, StorageTypes type, bool repack = true);
     static const ByteBuffer decompressTexture(Stream &stream, StorageTypes type, int uncompressedSize, int compressedSize);
-    TexProperty& getProperties() { return *properties; }
+    TextureProperty& getProperties() { return *properties; }
     uint getCrcData(ByteBuffer data);
     uint getCrcMipmap(TextureMipMap &mipmap);
     uint getCrcTopMipmap();

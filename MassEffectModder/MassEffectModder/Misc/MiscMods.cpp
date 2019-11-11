@@ -78,7 +78,7 @@ uint Misc::scanFilenameForCRC(const QString &inputFile)
     return crc;
 }
 
-int Misc::ParseLegacyMe3xScriptMod(QList<FoundTexture> &textures, QString &script, QString &textureName)
+int Misc::ParseLegacyMe3xScriptMod(QList<TextureMapEntry> &textures, QString &script, QString &textureName)
 {
     QRegularExpression regex("pccs.Add[(]\"[A-z,0-9/,..]*\"");
     auto match = regex.match(script);
@@ -349,7 +349,7 @@ bool Misc::DetectHashFromFile(const QString &file)
 }
 
 bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
-                               MeType gameId, QList<FoundTexture> &textures, bool markToConvert,
+                               MeType gameId, QList<TextureMapEntry> &textures, bool markToConvert,
                                ProgressCallback callback, void *callbackHandle)
 {
     PINFO("Mods conversion started...\n");
@@ -516,7 +516,7 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
                         }
                         continue;
                     }
-                    FoundTexture f = textures[index];
+                    TextureMapEntry f = textures[index];
                     mod.textureCrc = f.crc;
                     mod.textureName = f.name;
                     mod.binaryModType = 0;
@@ -664,7 +664,7 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
                     continue;
                 }
 
-                FoundTexture f = FoundTextureInTheMap(textures, crc);
+                TextureMapEntry f = FoundTextureInTheMap(textures, crc);
                 if (f.crc == 0)
                 {
                     PINFO(QString("Texture skipped. File ") + fileName + QString().sprintf("_0x%08X", crc) +
@@ -745,7 +745,7 @@ end:
                  file.endsWith(".tga", Qt::CaseInsensitive))
         {
             BinaryMod mod{};
-            FoundTexture f;
+            TextureMapEntry f;
             bool entryMarkToConvert = markToConvert;
             uint crc = scanFilenameForCRC(file);
             if (crc == 0)
@@ -1103,7 +1103,7 @@ bool Misc::extractMEM(MeType gameId, QFileInfoList &inputList, QString &outputDi
     return true;
 }
 
-bool Misc::extractMOD(QFileInfoList &list, QList<FoundTexture> &textures, QString &outputDir)
+bool Misc::extractMOD(QFileInfoList &list, QList<TextureMapEntry> &textures, QString &outputDir)
 {
     PINFO("Extract MOD files started...\n");
 

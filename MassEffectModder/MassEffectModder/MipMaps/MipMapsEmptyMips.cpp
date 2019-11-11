@@ -25,7 +25,7 @@
 #include <Helpers/MiscHelpers.h>
 #include <Helpers/Logs.h>
 
-void MipMaps::prepareListToRemove(QList<FoundTexture> &textures, QList<RemoveMipsEntry> &list)
+void MipMaps::prepareListToRemove(QList<TextureMapEntry> &textures, QList<RemoveMipsEntry> &list)
 {
     for (int k = 0; k < textures.count(); k++)
     {
@@ -58,7 +58,7 @@ void MipMaps::prepareListToRemove(QList<FoundTexture> &textures, QList<RemoveMip
     }
 }
 
-void MipMaps::removeMipMaps(int phase, QList<FoundTexture> &textures, QStringList &pkgsToMarker,
+void MipMaps::removeMipMaps(int phase, QList<TextureMapEntry> &textures, QStringList &pkgsToMarker,
                             QStringList &pkgsToRepack, bool repack, bool appendMarker,
                             ProgressCallback callback, void *callbackHandle)
 {
@@ -144,7 +144,7 @@ void MipMaps::removeMipMaps(int phase, QList<FoundTexture> &textures, QStringLis
     }
 }
 
-void MipMaps::removeMipMapsPerPackage(int phase, QList<FoundTexture> &textures, Package &package,
+void MipMaps::removeMipMapsPerPackage(int phase, QList<TextureMapEntry> &textures, Package &package,
                                       RemoveMipsEntry &removeEntry, QStringList &pkgsToMarker,
                                       QStringList &pkgsToRepack, bool repack, bool appendMarker)
 {
@@ -180,7 +180,7 @@ void MipMaps::removeMipMapsPerPackage(int phase, QList<FoundTexture> &textures, 
         texture.getProperties().setIntValue("SizeY", texture.mipMapsList.first().height);
         texture.getProperties().setIntValue("MipTailBaseIdx", texture.mipMapsList.count() - 1);
 
-        MatchedTexture m;
+        TextureMapPackageEntry m;
         int foundListEntry = -1;
         int foundTextureEntry = -1;
         if (GameData::gameType == ME1_TYPE)
@@ -223,7 +223,7 @@ void MipMaps::removeMipMapsPerPackage(int phase, QList<FoundTexture> &textures, 
                     continue;
                 }
 
-                const MatchedTexture& foundMasterTex = textures[foundTextureEntry].list[m.linkToMaster];
+                const TextureMapPackageEntry& foundMasterTex = textures[foundTextureEntry].list[m.linkToMaster];
                 if (texture.mipMapsList.count() != foundMasterTex.masterDataOffset.count())
                 {
                     if (g_ipc)

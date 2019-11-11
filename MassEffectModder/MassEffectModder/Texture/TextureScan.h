@@ -23,10 +23,10 @@
 #define TREESCAN_H
 
 #include <Types/MemTypes.h>
-#include <Texture/TextureProps.h>
+#include <Texture/TextureProperty.h>
 #include <Resources/Resources.h>
 
-struct MatchedTexture
+struct TextureMapPackageEntry
 {
     int exportID;
     QString packageName; // only used while texture scan for ME1
@@ -42,13 +42,13 @@ struct MatchedTexture
     int numMips;
 };
 
-struct FoundTexture
+struct TextureMapEntry
 {
     QString name;
     uint crc;
-    QList<MatchedTexture> list;
+    QList<TextureMapPackageEntry> list;
     PixelFormat pixfmt;
-    TexProperty::TextureTypes flags;
+    TextureProperty::TextureTypes flags;
     int width, height;
 };
 
@@ -56,18 +56,18 @@ class TreeScan
 {
 private:
 
-    static void FindTextures(MeType gameId, QList<FoundTexture> &textures, const QString &packagePath,
-                             bool modified);
+    static void FindTextures(MeType gameId, QList<TextureMapEntry> &textures,
+                             const QString &packagePath, bool modified);
 
 public:
 
     typedef void (*ProgressCallback)(void *handle, int progress, const QString &stage);
 
     TreeScan() = default;
-    static void loadTexturesMap(MeType gameId, Resources &resources, QList<FoundTexture> &textures);
-    static bool loadTexturesMapFile(QString &path, QList<FoundTexture> &textures);
+    static void loadTexturesMap(MeType gameId, Resources &resources, QList<TextureMapEntry> &textures);
+    static bool loadTexturesMapFile(QString &path, QList<TextureMapEntry> &textures);
     static bool PrepareListOfTextures(MeType gameId, Resources &resources,
-                                     QList<FoundTexture> &textures, bool removeEmptyMips,
+                                     QList<TextureMapEntry> &textures, bool removeEmptyMips,
                                      bool saveMapFile,
                                      ProgressCallback callback, void *callbackHandle);
 };

@@ -441,7 +441,7 @@ void Misc::Repack(MeType gameId, ProgressCallback callback, void *callbackHandle
         TOCBinFile::UpdateAllTOCBinFiles();
 }
 
-bool Misc::RemoveMipmaps(MipMaps &mipMaps, QList<FoundTexture> &textures,
+bool Misc::RemoveMipmaps(MipMaps &mipMaps, QList<TextureMapEntry> &textures,
                          QStringList &pkgsToMarker, QStringList &pkgsToRepack,
                          bool repack, bool appendMarker,
                          ProgressCallback callback, void *callbackHandle)

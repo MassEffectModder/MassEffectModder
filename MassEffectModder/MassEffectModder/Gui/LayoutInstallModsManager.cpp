@@ -209,7 +209,7 @@ void LayoutInstallModsManager::InstallMods(QStringList &mods)
         return;
     }
 
-    QList<FoundTexture> textures;
+    QList<TextureMapEntry> textures;
     Resources resources;
     resources.loadMD5Tables();
 

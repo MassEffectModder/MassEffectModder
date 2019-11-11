@@ -40,8 +40,8 @@ public:
     bool unpackArchive(const QString &inputFile, QString &outputDir);
     bool applyModTag(MeType gameId, int MeuitmV, int AlotV);
     bool ConvertToMEM(MeType gameId, QString &inputDir, QString &memFile, bool markToConvert);
-    bool convertGameTexture(MeType gameId, const QString &inputFile, QString &outputFile, QList<FoundTexture> &textures,
-                            bool markToConvert);
+    bool convertGameTexture(MeType gameId, const QString &inputFile, QString &outputFile,
+                            QList<TextureMapEntry> &textures, bool markToConvert);
     bool convertGameImage(MeType gameId, QString &inputFile, QString &outputFile, bool markToConvert);
     bool convertGameImages(MeType gameId, QString &inputDir, QString &outputDir, bool markToConvert);
     bool convertImage(QString &inputFile, QString &outputFile, QString &format, int dxt1Threshold);

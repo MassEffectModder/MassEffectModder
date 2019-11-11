@@ -22,19 +22,19 @@
 #include <Helpers/MiscHelpers.h>
 #include <Helpers/Logs.h>
 #include <Wrappers.h>
-#include <Texture/TextureProps.h>
+#include <Texture/TextureProperty.h>
 #include <Program/ConfigIni.h>
 #include <GameData/GameData.h>
 #include <Types/MemTypes.h>
 
-TexProperty::TexProperty(Package &pkg, const ByteBuffer &data)
+TextureProperty::TextureProperty(Package &pkg, const ByteBuffer &data)
 {
     package = &pkg;
     headerData = *reinterpret_cast<quint32 *>(data.ptr());
     getProperty(data.ptr(), 4);
 }
 
-TexProperty::~TexProperty()
+TextureProperty::~TextureProperty()
 {
     for (int i = 0; i < texPropertyList.count(); i++)
     {
@@ -43,9 +43,9 @@ TexProperty::~TexProperty()
     }
 }
 
-void TexProperty::getProperty(quint8 *data, int offset)
+void TextureProperty::getProperty(quint8 *data, int offset)
 {
-    TexPropertyEntry texProperty{};
+    TexturePropertyEntry texProperty{};
     int size, valueRawPos, nextOffset;
 
     texProperty.name = package->getName(*reinterpret_cast<quint32 *>(data + offset));
@@ -100,7 +100,7 @@ void TexProperty::getProperty(quint8 *data, int offset)
         getProperty(data, nextOffset);
 }
 
-TexProperty::TexPropertyEntry TexProperty::getProperty(const QString &name)
+TextureProperty::TexturePropertyEntry TextureProperty::getProperty(const QString &name)
 {
     fetchValue(name);
     for (int i = 0; i < texPropertyList.count(); i++)
@@ -113,7 +113,7 @@ TexProperty::TexPropertyEntry TexProperty::getProperty(const QString &name)
     CRASH("");
 }
 
-void TexProperty::fetchValue(const QString &name)
+void TextureProperty::fetchValue(const QString &name)
 {
     for (int i = 0; i < texPropertyList.count(); i++)
     {
@@ -125,11 +125,11 @@ void TexProperty::fetchValue(const QString &name)
     }
 }
 
-void TexProperty::fetchValue(int index)
+void TextureProperty::fetchValue(int index)
 {
     if (index < 0 || index >= texPropertyList.count())
         CRASH("");
-    TexPropertyEntry texProperty = texPropertyList[index];
+    TexturePropertyEntry texProperty = texPropertyList[index];
     if (texProperty.fetched || texProperty.type == "None")
         return;
     if (texProperty.type == "IntProperty")
@@ -180,14 +180,14 @@ void TexProperty::fetchValue(int index)
     texPropertyList[index] = texProperty;
 }
 
-QString TexProperty::getDisplayString(int index)
+QString TextureProperty::getDisplayString(int index)
 {
     QString result = "";
     if (index < 0 || index >= texPropertyList.count())
         CRASH();
 
     fetchValue(index);
-    TexPropertyEntry texProperty = texPropertyList[index];
+    TexturePropertyEntry texProperty = texPropertyList[index];
     if (texProperty.type == "None")
         return result;
 
@@ -231,7 +231,7 @@ QString TexProperty::getDisplayString(int index)
     return result;
 }
 
-bool TexProperty::exists(const QString &name)
+bool TextureProperty::exists(const QString &name)
 {
     for (int i = 0; i < texPropertyList.count(); i++)
     {
@@ -241,7 +241,7 @@ bool TexProperty::exists(const QString &name)
     return false;
 }
 
-void TexProperty::removeProperty(const QString &name)
+void TextureProperty::removeProperty(const QString &name)
 {
     for (int i = 0; i < texPropertyList.count(); i++)
     {
@@ -253,9 +253,9 @@ void TexProperty::removeProperty(const QString &name)
     }
 }
 
-void TexProperty::setIntValue(const QString &name, qint32 value)
+void TextureProperty::setIntValue(const QString &name, qint32 value)
 {
-    TexPropertyEntry texProperty{};
+    TexturePropertyEntry texProperty{};
     if (exists(name))
     {
         for (int i = 0; i < texPropertyList.count(); i++)
@@ -299,9 +299,9 @@ void TexProperty::setIntValue(const QString &name, qint32 value)
         texPropertyList.push_front(texProperty);
 }
 
-void TexProperty::setFloatValue(const QString &name, float value)
+void TextureProperty::setFloatValue(const QString &name, float value)
 {
-    TexPropertyEntry texProperty{};
+    TexturePropertyEntry texProperty{};
     if (exists(name))
     {
         for (int i = 0; i < texPropertyList.count(); i++)
@@ -345,10 +345,10 @@ void TexProperty::setFloatValue(const QString &name, float value)
         texPropertyList.push_front(texProperty);
 }
 
-void TexProperty::setByteValue(const QString &name, const QString &valueName,
+void TextureProperty::setByteValue(const QString &name, const QString &valueName,
                                const QString &valueNameType, qint32 valueInt)
 {
-    TexPropertyEntry texProperty{};
+    TexturePropertyEntry texProperty{};
     if (exists(name))
     {
         for (int i = 0; i < texPropertyList.count(); i++)
@@ -418,9 +418,9 @@ void TexProperty::setByteValue(const QString &name, const QString &valueName,
         texPropertyList.push_front(texProperty);
 }
 
-void TexProperty::setBoolValue(const QString &name, bool value)
+void TextureProperty::setBoolValue(const QString &name, bool value)
 {
-    TexPropertyEntry texProperty{};
+    TexturePropertyEntry texProperty{};
     if (exists(name))
     {
         for (int i = 0; i < texPropertyList.count(); i++)
@@ -476,9 +476,9 @@ void TexProperty::setBoolValue(const QString &name, bool value)
         texPropertyList.push_front(texProperty);
 }
 
-void TexProperty::setNameValue(const QString &name, const QString &valueName, qint32 valueInt)
+void TextureProperty::setNameValue(const QString &name, const QString &valueName, qint32 valueInt)
 {
-    TexPropertyEntry texProperty{};
+    TexturePropertyEntry texProperty{};
     if (exists(name))
     {
         for (int i = 0; i < texPropertyList.count(); i++)
@@ -529,9 +529,9 @@ void TexProperty::setNameValue(const QString &name, const QString &valueName, qi
         texPropertyList.push_front(texProperty);
 }
 
-void TexProperty::setStructValue(const QString &name, const QString &valueName, ByteBuffer valueStruct)
+void TextureProperty::setStructValue(const QString &name, const QString &valueName, ByteBuffer valueStruct)
 {
-    TexPropertyEntry texProperty{};
+    TexturePropertyEntry texProperty{};
     if (exists(name))
     {
         int index = -1;
@@ -588,7 +588,7 @@ void TexProperty::setStructValue(const QString &name, const QString &valueName, 
         texPropertyList.push_front(texProperty);
 }
 
-ByteBuffer TexProperty::toArray()
+ByteBuffer TextureProperty::toArray()
 {
     MemoryStream mem;
     mem.WriteUInt32(headerData);

@@ -24,43 +24,43 @@
 #include <Helpers/Logs.h>
 
 PixelFormat Misc::changeTextureType(MeType gameId, PixelFormat gamePixelFormat, PixelFormat texturePixelFormat,
-                                    TexProperty::TextureTypes flags)
+                                    TextureProperty::TextureTypes flags)
 {
     if ((gamePixelFormat == PixelFormat::DXT5 || gamePixelFormat == PixelFormat::DXT1 || gamePixelFormat == PixelFormat::ATI2) &&
         (texturePixelFormat == PixelFormat::RGB || texturePixelFormat == PixelFormat::ARGB ||
          texturePixelFormat == PixelFormat::ATI2 || texturePixelFormat == PixelFormat::V8U8))
     {
-        if (texturePixelFormat == PixelFormat::ARGB && flags == TexProperty::TextureTypes::OneBitAlpha)
+        if (texturePixelFormat == PixelFormat::ARGB && flags == TextureProperty::TextureTypes::OneBitAlpha)
         {
             gamePixelFormat = PixelFormat::ARGB;
         }
         else if (texturePixelFormat == PixelFormat::ATI2 &&
             gamePixelFormat == PixelFormat::DXT1 &&
-            flags == TexProperty::TextureTypes::Normalmap)
+            flags == TextureProperty::TextureTypes::Normalmap)
         {
             gamePixelFormat = PixelFormat::ATI2;
         }
         else if (gameId != MeType::ME3_TYPE && texturePixelFormat == PixelFormat::ARGB &&
-            flags == TexProperty::TextureTypes::Normalmap)
+            flags == TextureProperty::TextureTypes::Normalmap)
         {
             gamePixelFormat = PixelFormat::ARGB;
         }
         else if ((gamePixelFormat == PixelFormat::DXT5 || gamePixelFormat == PixelFormat::DXT1) &&
             (texturePixelFormat == PixelFormat::ARGB || texturePixelFormat == PixelFormat::RGB) &&
-            flags == TexProperty::TextureTypes::Normal)
+            flags == TextureProperty::TextureTypes::Normal)
         {
             gamePixelFormat = PixelFormat::ARGB;
         }
         else if (gamePixelFormat == PixelFormat::DXT5 && texturePixelFormat == PixelFormat::ARGB &&
             gameId == MeType::ME3_TYPE &&
-            flags == TexProperty::TextureTypes::Normalmap)
+            flags == TextureProperty::TextureTypes::Normalmap)
         {
             gamePixelFormat = PixelFormat::ARGB;
         }
         else if ((gamePixelFormat == PixelFormat::DXT5 || gamePixelFormat == PixelFormat::DXT1) &&
             (texturePixelFormat == PixelFormat::ARGB || texturePixelFormat == PixelFormat::V8U8) &&
             gameId == MeType::ME3_TYPE &&
-            flags == TexProperty::TextureTypes::Normalmap)
+            flags == TextureProperty::TextureTypes::Normalmap)
         {
             gamePixelFormat = PixelFormat::V8U8;
         }
@@ -69,9 +69,9 @@ PixelFormat Misc::changeTextureType(MeType gameId, PixelFormat gamePixelFormat, 
     return gamePixelFormat;
 }
 
-FoundTexture Misc::FoundTextureInTheMap(QList<FoundTexture> &textures, uint crc)
+TextureMapEntry Misc::FoundTextureInTheMap(QList<TextureMapEntry> &textures, uint crc)
 {
-    FoundTexture f{};
+    TextureMapEntry f{};
     for (int s = 0; s < textures.count(); s++)
     {
         if (textures[s].crc == crc)
@@ -83,7 +83,7 @@ FoundTexture Misc::FoundTextureInTheMap(QList<FoundTexture> &textures, uint crc)
     return f;
 }
 
-uint Misc::GetCRCFromTextureMap(QList<FoundTexture> &textures, int exportId,
+uint Misc::GetCRCFromTextureMap(QList<TextureMapEntry> &textures, int exportId,
                                 const QString &path)
 {
     for (int k = 0; k < textures.count(); k++)
@@ -99,7 +99,7 @@ uint Misc::GetCRCFromTextureMap(QList<FoundTexture> &textures, int exportId,
     return 0;
 }
 
-bool Misc::CorrectTexture(Image &image, FoundTexture &f, int numMips, bool markToConvert,
+bool Misc::CorrectTexture(Image &image, TextureMapEntry &f, int numMips, bool markToConvert,
                           PixelFormat pixelFormat, PixelFormat newPixelFormat,
                           const QString &file)
 {
@@ -119,7 +119,7 @@ bool Misc::CorrectTexture(Image &image, FoundTexture &f, int numMips, bool markT
         }
         bool dxt1HasAlpha = false;
         quint8 dxt1Threshold = 128;
-        if (f.flags == TexProperty::TextureTypes::OneBitAlpha)
+        if (f.flags == TextureProperty::TextureTypes::OneBitAlpha)
         {
             dxt1HasAlpha = true;
             if (image.getPixelFormat() == PixelFormat::ARGB ||
@@ -167,7 +167,7 @@ QString Misc::CorrectTexture(Image *image, Texture &texture, PixelFormat pixelFo
     return errors;
 }
 
-bool Misc::CheckImage(Image &image, FoundTexture &f, const QString &file, int index)
+bool Misc::CheckImage(Image &image, TextureMapEntry &f, const QString &file, int index)
 {
     if (image.getMipMaps().count() == 0)
     {
@@ -237,7 +237,7 @@ bool Misc::CheckImage(Image &image, Texture &texture, const QString &textureName
     return true;
 }
 
-int Misc::GetNumberOfMipsFromMap(FoundTexture &f)
+int Misc::GetNumberOfMipsFromMap(TextureMapEntry &f)
 {
     for (int s = 0; s < f.list.count(); s++)
     {

@@ -26,11 +26,11 @@
 #include <Helpers/MemoryStream.h>
 #include <GameData/Package.h>
 
-class TexProperty
+class TextureProperty
 {
 public:
 
-    struct TexPropertyEntry
+    struct TexturePropertyEntry
     {
         QString type;
         QString name;
@@ -54,7 +54,7 @@ public:
         Displacementmap,
     };
 
-    QList<TexPropertyEntry> texPropertyList;
+    QList<TexturePropertyEntry> texPropertyList;
     int propertyEndOffset{};
 
 private:
@@ -64,9 +64,9 @@ private:
 
 public:
 
-    TexProperty(Package &pkg, const ByteBuffer &data);
-    ~TexProperty();
-    TexPropertyEntry getProperty(const QString &name);
+    TextureProperty(Package &pkg, const ByteBuffer &data);
+    ~TextureProperty();
+    TexturePropertyEntry getProperty(const QString &name);
     void fetchValue(const QString &name);
     void fetchValue(int index);
     QString getDisplayString(int index);

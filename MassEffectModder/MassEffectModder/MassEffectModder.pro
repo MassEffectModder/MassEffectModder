@@ -52,7 +52,7 @@ SOURCES += \
     Program/SignalHandler.cpp \
     Resources/Resources.cpp \
     Texture/Texture.cpp \
-    Texture/TextureProps.cpp \
+    Texture/TextureProperty.cpp \
     Texture/TextureScan.cpp
 
 equals(GUI_MODE, true) {
@@ -101,7 +101,7 @@ HEADERS += \
     Program/SignalHandler.h \
     Resources/Resources.h \
     Texture/Texture.h \
-    Texture/TextureProps.h \
+    Texture/TextureProperty.h \
     Texture/TextureScan.h \
     Types/MemTypes.h
 equals(GUI_MODE, true) {

@@ -217,7 +217,7 @@ void LayoutModsManager::ConvertModSelected()
     QFileInfoList file;
     file.append(QFileInfo(path));
 
-    QList<FoundTexture> textures;
+    QList<TextureMapEntry> textures;
     Resources resources;
     resources.loadMD5Tables();
 
@@ -307,7 +307,7 @@ void LayoutModsManager::CreateModSelected()
     g_logs->BufferClearErrors();
     g_logs->BufferEnableErrors(true);
 
-    QList<FoundTexture> textures;
+    QList<TextureMapEntry> textures;
     Resources resources;
     resources.loadMD5Tables();
     TreeScan::loadTexturesMap(mainWindow->gameType, resources, textures);

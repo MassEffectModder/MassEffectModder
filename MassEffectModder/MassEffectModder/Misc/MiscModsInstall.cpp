@@ -30,7 +30,7 @@
 #include <Helpers/Logs.h>
 #include <Helpers/FileStream.h>
 
-bool Misc::applyMods(QStringList &files, QList<FoundTexture> &textures,
+bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
                      QStringList &pkgsToRepack, QStringList &pkgsToMarker,
                      MipMaps &mipMaps, bool repack,
                      bool modded, bool verify, int cacheAmount,
@@ -134,7 +134,7 @@ bool Misc::applyMods(QStringList &files, QList<FoundTexture> &textures,
 
             if (modFiles[l].tag == FileTextureTag || modFiles[l].tag == FileTextureTag2)
             {
-                FoundTexture f = Misc::FoundTextureInTheMap(textures, crc);
+                TextureMapEntry f = Misc::FoundTextureInTheMap(textures, crc);
                 if (f.crc != 0)
                 {
                     ModEntry entry{};
@@ -358,7 +358,7 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
             pkgsToRepack.removeOne("/BioGame/CookedPC/BIOC_Materials.pcc");
     }
 
-    QList<FoundTexture> textures;
+    QList<TextureMapEntry> textures;
 
     if (!modded)
     {

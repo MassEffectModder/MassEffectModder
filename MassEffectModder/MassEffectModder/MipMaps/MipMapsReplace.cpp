@@ -102,7 +102,7 @@ void MipMaps::RemoveLowerMips(Image *image)
     }
 }
 
-bool MipMaps::VerifyTextures(QList<FoundTexture> &textures,
+bool MipMaps::VerifyTextures(QList<TextureMapEntry> &textures,
                              ProgressCallback callback, void *callbackHandle)
 {
     bool errors = false;
@@ -129,10 +129,10 @@ bool MipMaps::VerifyTextures(QList<FoundTexture> &textures,
         }
         for (int t = 0; t < textures[k].list.count(); t++)
         {
-            FoundTexture foundTexture = textures[k];
+            TextureMapEntry foundTexture = textures[k];
             if (textures[k].list[t].path.length() == 0)
                 continue;
-            MatchedTexture matchedTexture = textures[k].list[t];
+            TextureMapPackageEntry matchedTexture = textures[k].list[t];
             if (matchedTexture.crcs.count() != 0)
             {
                 if (!g_ipc)
@@ -197,7 +197,7 @@ bool MipMaps::VerifyTextures(QList<FoundTexture> &textures,
     return errors;
 }
 
-QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTexture> &textures,
+QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapEntry> &textures,
                                  QStringList &pkgsToMarker, QStringList &pkgsToRepack,
                                  QList<ModEntry> &modsToReplace, bool repack,
                                  bool appendMarker, bool verify, bool removeMips, int cacheAmount,
@@ -266,7 +266,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<FoundTextur
         for (int p = 0; p < map[e].textures.count(); p++)
         {
             MapPackagesToModEntry entryMap = map[e].textures[p];
-            MatchedTexture matched = textures[entryMap.texturesIndex].list[entryMap.listIndex];
+            TextureMapPackageEntry matched = textures[entryMap.texturesIndex].list[entryMap.listIndex];
             ModEntry mod = modsToReplace[entryMap.modIndex];
             auto exportData = package.getExportData(matched.exportID);
             if (exportData.ptr() == nullptr)
@@ -835,7 +835,7 @@ static int comparePaths(const MapTexturesToMod &e1, const MapTexturesToMod &e2)
     return 0;
 }
 
-QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList &pkgsToMarker,
+QString MipMaps::replaceModsFromList(QList<TextureMapEntry> &textures, QStringList &pkgsToMarker,
                                      QStringList &pkgsToRepack, QList<ModEntry> &modsToReplace,
                                      bool repack, bool appendMarker, bool verify, bool removeMips,
                                      int cacheAmount, ProgressCallback callback, void *callbackHandle)
@@ -982,7 +982,7 @@ QString MipMaps::replaceModsFromList(QList<FoundTexture> &textures, QStringList 
                         if (!mapPackages[e].slave && mapPackages[e].packagePath == textures[k].list[t].path)
                         {
                             mapPackages[e].removeMips.exportIDs.push_back(textures[k].list[t].exportID);
-                            MatchedTexture f = textures[k].list[t];
+                            TextureMapPackageEntry f = textures[k].list[t];
                             f.removeEmptyMips = false;
                             textures[k].list[t] = f;
                             break;

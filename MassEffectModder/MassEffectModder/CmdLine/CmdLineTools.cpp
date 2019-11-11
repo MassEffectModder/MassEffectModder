@@ -46,7 +46,7 @@ int CmdLineTools::scanTextures(MeType gameId, bool removeEmptyMips)
 
     PINFO("Scan textures started...\n");
 
-    QList<FoundTexture> textures;
+    QList<TextureMapEntry> textures;
     Resources resources;
 
     resources.loadMD5Tables();
@@ -129,7 +129,7 @@ bool CmdLineTools::unpackArchive(const QString &inputFile, QString &outputDir)
 
 bool CmdLineTools::ConvertToMEM(MeType gameId, QString &inputDir, QString &memFile, bool markToConvert)
 {
-    QList<FoundTexture> textures;
+    QList<TextureMapEntry> textures;
     Resources resources;
     resources.loadMD5Tables();
     TreeScan::loadTexturesMap(gameId, resources, textures);
@@ -151,14 +151,15 @@ bool CmdLineTools::ConvertToMEM(MeType gameId, QString &inputDir, QString &memFi
     return Misc::convertDataModtoMem(list, memFile, gameId, textures, markToConvert, nullptr, nullptr);
 }
 
-bool CmdLineTools::convertGameTexture(MeType gameId, const QString &inputFile, QString &outputFile, QList<FoundTexture> &textures,
+bool CmdLineTools::convertGameTexture(MeType gameId, const QString &inputFile,
+                                      QString &outputFile, QList<TextureMapEntry> &textures,
                                       bool markToConvert)
 {
     uint crc = Misc::scanFilenameForCRC(inputFile);
     if (crc == 0)
         return false;
 
-    FoundTexture foundTex = Misc::FoundTextureInTheMap(textures, crc);
+    TextureMapEntry foundTex = Misc::FoundTextureInTheMap(textures, crc);
     if (foundTex.crc == 0)
     {
         PINFO(QString("Texture skipped. Texture ") + BaseName(inputFile) +
@@ -176,7 +177,7 @@ bool CmdLineTools::convertGameTexture(MeType gameId, const QString &inputFile, Q
 
     bool dxt1HasAlpha = false;
     quint8 dxt1Threshold = 128;
-    if (foundTex.flags == TexProperty::TextureTypes::OneBitAlpha)
+    if (foundTex.flags == TextureProperty::TextureTypes::OneBitAlpha)
     {
         dxt1HasAlpha = true;
         if (image.getPixelFormat() == PixelFormat::ARGB ||
@@ -200,7 +201,7 @@ bool CmdLineTools::convertGameTexture(MeType gameId, const QString &inputFile, Q
 
 bool CmdLineTools::convertGameImage(MeType gameId, QString &inputFile, QString &outputFile, bool markToConvert)
 {
-    QList<FoundTexture> textures;
+    QList<TextureMapEntry> textures;
     Resources resources;
     resources.loadMD5Tables();
 
@@ -210,7 +211,7 @@ bool CmdLineTools::convertGameImage(MeType gameId, QString &inputFile, QString &
 
 bool CmdLineTools::convertGameImages(MeType gameId, QString &inputDir, QString &outputDir, bool markToConvert)
 {
-    QList<FoundTexture> textures;
+    QList<TextureMapEntry> textures;
     Resources resources;
     resources.loadMD5Tables();
 
@@ -306,7 +307,7 @@ bool CmdLineTools::extractTPF(QString &inputDir, QString &outputDir)
 
 bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputDir)
 {
-    QList<FoundTexture> textures;
+    QList<TextureMapEntry> textures;
     Resources resources;
     resources.loadMD5Tables();
 
@@ -562,7 +563,7 @@ bool CmdLineTools::RepackTFCInDLC(MeType gameId, QString &dlcName, bool pullText
 
     PINFO("Scan textures started...\n");
 
-    QList<FoundTexture> textures;
+    QList<TextureMapEntry> textures;
     Resources resources;
     resources.loadMD5Tables();
     g_GameData->FullScanGame = true;
@@ -826,7 +827,7 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, QString
     if (!Misc::CheckGamePath())
         return false;
 
-    QList<FoundTexture> textures;
+    QList<TextureMapEntry> textures;
     if (mapCrc)
         TreeScan::loadTexturesMap(gameId, resources, textures);
 
