@@ -83,6 +83,22 @@ FoundTexture Misc::FoundTextureInTheMap(QList<FoundTexture> &textures, uint crc)
     return f;
 }
 
+uint Misc::GetCRCFromTextureMap(QList<FoundTexture> &textures, int exportId,
+                                const QString &path)
+{
+    for (int k = 0; k < textures.count(); k++)
+    {
+        for (int t = 0; t < textures[k].list.count(); t++)
+        {
+            if (textures[k].list[t].path.length() == 0)
+                continue;
+            if (exportId == textures[k].list[t].exportID && path == textures[k].list[t].path)
+                return textures[k].crc;
+        }
+    }
+    return 0;
+}
+
 bool Misc::CorrectTexture(Image &image, FoundTexture &f, int numMips, bool markToConvert,
                           PixelFormat pixelFormat, PixelFormat newPixelFormat,
                           const QString &file)

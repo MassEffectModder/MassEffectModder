@@ -172,22 +172,24 @@ void DisplayHelp()
         "     output pixel format: DXT1 (no alpha), DXT1a (alpha), DXT3, DXT5, ATI2, V8U8, G8, ARGB, RGB\n" \
         "     For DXT1a you have to set the alpha threshold (0-255). 128 is suggested as a default value.\n" \
         "\n" \
-        "  --extract-all-dds --gameid <game id> --output <output dir> [--tfc-name <filter name>|--pcc-only|--tfc-only] [--package-path <path>]\n" \
+        "  --extract-all-dds --gameid <game id> --output <output dir> [--tfc-name <filter name>|--pcc-only|--tfc-only] [--package-path <path>] [--map-crc]\n" \
         "     game id: 1 for ME1, 2 for ME2, 3 for ME3\n" \
         "     output dir: directory where textures converted to DDS are placed\n" \
         "     TFC filter name: it will filter only textures stored in specific TFC file.\n" \
         "     Or option: --pcc-only to extract only textures stored in packages.\n" \
         "     Or option: --tfc-only to extract only textures stored in TFC files.\n" \
         "     Package path: single package mode.\n" \
+        "     Map Crc: it will try to find vanilla texture crc from texture map.\n" \
         "     Textures are extracted as they are in game data, only DDS header is added.\n" \
         "\n" \
-        "  --extract-all-png --gameid <game id> --output <output dir> [--tfc-name <filter name>|--pcc-only|--tfc-only] [--package-path <path>]\n" \
+        "  --extract-all-png --gameid <game id> --output <output dir> [--tfc-name <filter name>|--pcc-only|--tfc-only] [--package-path <path>] [--map-crc]\n" \
         "     game id: 1 for ME1, 2 for ME2, 3 for ME3\n" \
         "     output dir: directory where textures converted to PNG are placed\n" \
         "     TFC filter name: it will filter only textures stored in specific TFC file.\n" \
         "     Or option: --pcc-only to extract only textures stored in packages.\n" \
         "     Or option: --tfc-only to extract only textures stored in TFC files.\n" \
         "     Package path: single package mode.\n" \
+        "     Map Crc: it will try to find vanilla texture crc from texture map.\n" \
         "     Textures are extracted with only top mipmap.\n" \
         "\n" \
         "  --compact-dlc --gameid <game id> --dlc-name <DLC name> [--pull-textures] [--no-compression] [--ipc]\n" \

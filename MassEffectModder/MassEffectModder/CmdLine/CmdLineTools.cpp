@@ -816,7 +816,7 @@ bool CmdLineTools::RepackTFCInDLC(MeType gameId, QString &dlcName, bool pullText
 }
 
 bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, QString &inputFile,
-                                      bool png, bool pccOnly, bool tfcOnly,
+                                      bool png, bool pccOnly, bool tfcOnly, bool mapCrc,
                                       QString &textureTfcFilter)
 {
     Resources resources;
@@ -825,6 +825,10 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, QString
     g_GameData->Init(gameId, configIni);
     if (!Misc::CheckGamePath())
         return false;
+
+    QList<FoundTexture> textures;
+    if (mapCrc)
+        TreeScan::loadTexturesMap(gameId, resources, textures);
 
     QStringList packages;
     if (inputFile != "")
@@ -845,37 +849,37 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, QString
 
     QDir().mkpath(outputDir);
 
-    for (int i = 0; i < packages.count(); i++)
+    for (int p = 0; p < packages.count(); p++)
     {
-        PINFO(QString("Package ") + QString::number(i + 1) + "/" +
+        PINFO(QString("Package ") + QString::number(p + 1) + "/" +
                              QString::number(packages.count()) + " : " +
-                             packages[i] + "\n");
+                             packages[p] + "\n");
 
         Package package;
-        if (package.Open(g_GameData->GamePath() + packages[i]) != 0)
+        if (package.Open(g_GameData->GamePath() + packages[p]) != 0)
         {
-            PERROR(QString("ERROR: Issue opening package file: ") + packages[i] + "\n");
+            PERROR(QString("ERROR: Issue opening package file: ") + packages[p] + "\n");
             continue;
         }
 
-        for (int i = 0; i < package.exportsTable.count(); i++)
+        for (int e = 0; e < package.exportsTable.count(); e++)
         {
-            Package::ExportEntry& exp = package.exportsTable[i];
+            Package::ExportEntry& exp = package.exportsTable[e];
             int id = package.getClassNameId(exp.getClassId());
             if (id == package.nameIdTexture2D ||
                 id == package.nameIdLightMapTexture2D ||
                 id == package.nameIdShadowMapTexture2D ||
                 id == package.nameIdTextureFlipBook)
             {
-                ByteBuffer exportData = package.getExportData(i);
+                ByteBuffer exportData = package.getExportData(e);
                 if (exportData.ptr() == nullptr)
                 {
                     PERROR(QString("Error: Texture ") + exp.objectName +
                                  " has broken export data in package: " +
-                                 packages[i] +"\nExport Id: " + QString::number(i + 1) + "\nSkipping...\n");
+                                 packages[p] +"\nExport Id: " + QString::number(e + 1) + "\nSkipping...\n");
                     continue;
                 }
-                Texture texture(package, i, exportData);
+                Texture texture(package, e, exportData);
                 exportData.Free();
                 if (!texture.hasImageData())
                 {
@@ -901,11 +905,15 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, QString
                     }
                 }
                 QString name = exp.objectName;
-                uint crc = texture.getCrcTopMipmap();
+                uint crc = 0;
+                if (mapCrc)
+                    crc = Misc::GetCRCFromTextureMap(textures, e, packages[p]);
+                if (crc == 0)
+                    crc = texture.getCrcTopMipmap();
                 if (crc == 0)
                 {
                     PERROR(QString("Error: Texture ") + name + " is broken in package: " +
-                                 packages[i] +"\nExport Id: " + QString::number(i + 1) + "\nSkipping...\n");
+                                 packages[p] +"\nExport Id: " + QString::number(e + 1) + "\nSkipping...\n");
                     continue;
                 }
                 QString outputFile = outputDir + "/" +  name +

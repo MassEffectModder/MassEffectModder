@@ -62,7 +62,8 @@ public:
     bool RepackTFCInDLC(MeType gameId, QString &dlcName, bool pullTextures,
                         bool compressed);
     bool extractAllTextures(MeType gameId, QString &outputDir, QString &inputFile,
-                            bool png, bool pccOnly, bool tfcOnly, QString &textureTfcFilter);
+                            bool png, bool pccOnly, bool tfcOnly, bool mapCrc,
+                            QString &textureTfcFilter);
     bool CheckTextures(MeType gameId);
     bool FixMissingPropertyInTextures(MeType gameId, const QString& filter);
     bool checkGameFilesAfter(MeType gameType);

@@ -49,6 +49,7 @@ int ProcessArguments()
     bool pccOnly = false;
     bool tfcOnly = false;
     bool verify = false;
+    bool mapCRC = false;
     bool removeEmptyMips = false;
     bool pullTextures = false;
     bool compressed = true;
@@ -251,6 +252,11 @@ int ProcessArguments()
                 return -1;
             }
             args.removeAt(l);
+            args.removeAt(l--);
+        }
+        else if (arg == "--map-crc")
+        {
+            mapCRC = true;
             args.removeAt(l--);
         }
         else if (arg == "--threshold" && hasValue(args, l))
@@ -681,7 +687,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.extractAllTextures(gameId, output, input, false, pccOnly, tfcOnly, tfcName))
+        if (!tools.extractAllTextures(gameId, output, input, false, pccOnly, tfcOnly, mapCRC, tfcName))
             errorCode = 1;
         break;
     case CmdType::EXTRACT_ALL_PNG:
@@ -703,7 +709,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.extractAllTextures(gameId, output, input, true, pccOnly, tfcOnly, tfcName))
+        if (!tools.extractAllTextures(gameId, output, input, true, pccOnly, tfcOnly, mapCRC, tfcName))
             errorCode = 1;
         break;
     case CmdType::COMPACT_DLC:

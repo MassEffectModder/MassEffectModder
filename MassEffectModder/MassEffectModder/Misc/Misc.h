@@ -90,6 +90,8 @@ public:
                                          PixelFormat texturePixelFormat,
                                          TexProperty::TextureTypes flags);
     static uint scanFilenameForCRC(const QString &inputFile);
+    static uint GetCRCFromTextureMap(QList<FoundTexture> &textures, int exportId,
+                                     const QString &path);
     static FoundTexture FoundTextureInTheMap(QList<FoundTexture> &textures, uint crc);
     static bool compareFileInfoPath(const QFileInfo &e1, const QFileInfo &e2);
     static bool convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
