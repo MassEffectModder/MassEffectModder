@@ -139,7 +139,7 @@ void LayoutGameUtilities::CheckGameFilesSelected()
 
     ConfigIni configIni{};
     g_GameData->Init(mainWindow->gameType, configIni);
-    if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
+    if (!Misc::CheckGamePath())
     {
         mainWindow->statusBar()->clearMessage();
         QMessageBox::critical(this, "Checking game files", "Game data not found.");
@@ -302,7 +302,7 @@ void LayoutGameUtilities::RepackGameFilesSelected()
 
     ConfigIni configIni{};
     g_GameData->Init(mainWindow->gameType, configIni);
-    if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
+    if (!Misc::CheckGamePath())
     {
         mainWindow->statusBar()->clearMessage();
         QMessageBox::critical(this, "Repacking package files", "Game data not found.");
@@ -334,7 +334,7 @@ void LayoutGameUtilities::UpdateTOCsSelected()
 
     ConfigIni configIni{};
     g_GameData->Init(MeType::ME3_TYPE, configIni);
-    if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
+    if (!Misc::CheckGamePath())
     {
         mainWindow->statusBar()->clearMessage();
         QMessageBox::critical(this, "Updating TOC files", "Game data not found.");
@@ -355,7 +355,7 @@ void LayoutGameUtilities::ExtractDLCsSelected()
 
     ConfigIni configIni{};
     g_GameData->Init(MeType::ME3_TYPE, configIni);
-    if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
+    if (!Misc::CheckGamePath())
     {
         mainWindow->statusBar()->clearMessage();
         QMessageBox::critical(this, "Unpacking DLCs", "Game data not found.");
