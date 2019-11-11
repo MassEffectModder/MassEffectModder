@@ -82,7 +82,7 @@ LayoutGameUtilities::LayoutGameUtilities(MainWindow *window)
         ButtonUpdateTOCs->setFont(ButtonFont);
         connect(ButtonUpdateTOCs, &QPushButton::clicked, this, &LayoutGameUtilities::UpdateTOCsSelected);
 
-        ButtonExtractDLCs = new QPushButton("Extract DLCs");
+        ButtonExtractDLCs = new QPushButton("Unpack DLCs");
         ButtonExtractDLCs->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
         ButtonExtractDLCs->setMinimumWidth(kButtonMinWidth);
         ButtonExtractDLCs->setMinimumHeight(kButtonMinHeight);
@@ -310,6 +310,17 @@ void LayoutGameUtilities::RepackGameFilesSelected()
         return;
     }
 
+    if (!Misc::checkWriteAccessDir(g_GameData->MainData()))
+    {
+        mainWindow->statusBar()->clearMessage();
+        QMessageBox::critical(this, "Repacking package files",
+                              QString("Detected program has not write access to game folder.") +
+              "\n\nCorrect access to game directory." +
+              "\n\nThen start again.");
+        LockGui(false);
+        return;
+    }
+
     g_logs->BufferClearErrors();
     g_logs->BufferEnableErrors(true);
     Misc::Repack(mainWindow->gameType, &LayoutGameUtilities::RepackCallback, mainWindow);
@@ -342,6 +353,17 @@ void LayoutGameUtilities::UpdateTOCsSelected()
         return;
     }
 
+    if (!Misc::checkWriteAccessDir(g_GameData->MainData()))
+    {
+        mainWindow->statusBar()->clearMessage();
+        QMessageBox::critical(this, "Updating TOC files",
+                              QString("Detected program has not write access to game folder.") +
+              "\n\nCorrect access to game directory." +
+              "\n\nThen start again.");
+        LockGui(false);
+        return;
+    }
+
     TOCBinFile::UpdateAllTOCBinFiles();
     mainWindow->statusBar()->clearMessage();
     QMessageBox::information(this, "Updating TOC files", "All TOC files updated.");
@@ -359,6 +381,17 @@ void LayoutGameUtilities::ExtractDLCsSelected()
     {
         mainWindow->statusBar()->clearMessage();
         QMessageBox::critical(this, "Unpacking DLCs", "Game data not found.");
+        LockGui(false);
+        return;
+    }
+
+    if (!Misc::checkWriteAccessDir(g_GameData->MainData()))
+    {
+        mainWindow->statusBar()->clearMessage();
+        QMessageBox::critical(this, "Unpacking DLCs",
+                              QString("Detected program has not write access to game folder.") +
+              "\n\nCorrect access to game directory." +
+              "\n\nThen start again.");
         LockGui(false);
         return;
     }
