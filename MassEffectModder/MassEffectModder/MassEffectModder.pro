@@ -211,6 +211,7 @@ LIBS += \
 
 macx {
     QMAKE_CXXFLAGS += -Xpreprocessor -fopenmp
+    QMAKE_CXXFLAGS_RELEASE += -fvisibility=hidden -fvisibility-inlines-hidden
 }
 
 win32 {
