@@ -30,7 +30,7 @@ class LayoutInstallModsManager: public LayoutHandle
 
 public:
     explicit LayoutInstallModsManager(MainWindow *window = nullptr);
-    void LockGui(bool enable);
+    void LockGui(bool lock);
 
 private slots:
     void AddSelected();

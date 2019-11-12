@@ -124,13 +124,13 @@ LayoutInstallModsManager::LayoutInstallModsManager(MainWindow *window)
     mainWindow->SetTitle("Mods Installer");
 }
 
-void LayoutInstallModsManager::LockGui(bool enable)
+void LayoutInstallModsManager::LockGui(bool lock)
 {
     foreach (QWidget *widget, this->findChildren<QWidget*>())
     {
-        widget->setEnabled(!enable);
+        widget->setEnabled(!lock);
     }
-    mainWindow->LockClose(enable);
+    mainWindow->LockClose(lock);
 }
 
 void LayoutInstallModsManager::AddSelected()
@@ -160,7 +160,7 @@ void LayoutInstallModsManager::AddSelected()
         if (!Misc::CheckMEMGameVersion(fs, file, mainWindow->gameType))
             continue;
 
-        QListWidgetItem *item = new QListWidgetItem(BaseNameWithoutExt(file));
+        auto item = new QListWidgetItem(BaseNameWithoutExt(file));
         item->setData(Qt::UserRole, file);
         ListMods->addItem(item);
     }

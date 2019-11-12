@@ -123,13 +123,13 @@ LayoutGameUtilities::LayoutGameUtilities(MainWindow *window)
     mainWindow->SetTitle("Game Utitlities");
 }
 
-void LayoutGameUtilities::LockGui(bool enable)
+void LayoutGameUtilities::LockGui(bool lock)
 {
     foreach (QWidget *widget, this->findChildren<QWidget*>())
     {
-        widget->setEnabled(!enable);
+        widget->setEnabled(!lock);
     }
-    mainWindow->LockClose(enable);
+    mainWindow->LockClose(lock);
 }
 
 void LayoutGameUtilities::CheckGameFilesSelected()

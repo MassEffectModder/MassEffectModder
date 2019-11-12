@@ -98,13 +98,13 @@ LayoutModsManager::LayoutModsManager(MainWindow *window)
     mainWindow->SetTitle("Mods Manager");
 }
 
-void LayoutModsManager::LockGui(bool enable)
+void LayoutModsManager::LockGui(bool lock)
 {
     foreach (QWidget *widget, this->findChildren<QWidget*>())
     {
-        widget->setEnabled(!enable);
+        widget->setEnabled(!lock);
     }
-    mainWindow->LockClose(enable);
+    mainWindow->LockClose(lock);
 }
 
 void LayoutModsManager::InstallModsSelected()

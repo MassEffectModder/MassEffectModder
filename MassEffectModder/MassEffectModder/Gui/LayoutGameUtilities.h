@@ -30,7 +30,7 @@ class LayoutGameUtilities: public LayoutHandle
 
 public:
     explicit LayoutGameUtilities(MainWindow *window = nullptr);
-    void LockGui(bool enable);
+    void LockGui(bool lock);
 
 private slots:
     void CheckGameFilesSelected();
