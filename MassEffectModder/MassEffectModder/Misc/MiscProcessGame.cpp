@@ -168,7 +168,7 @@ bool Misc::CheckForMarkers(ProgressCallback callback, void *callbackHandle)
         QApplication::processEvents();
 #endif
         int newProgress = (i + 1) * 100 / packages.count();
-        if ((newProgress - lastProgress) < 5)
+        if ((newProgress - lastProgress) >= 5)
         {
             lastProgress = newProgress;
             if (g_ipc)
@@ -310,7 +310,7 @@ void Misc::AddMarkers(QStringList &pkgsToMarker,
         QApplication::processEvents();
 #endif
         int newProgress = (i + 1) * 100 / pkgsToMarker.count();
-        if ((newProgress - lastProgress) < 5)
+        if ((newProgress - lastProgress) >= 5)
         {
             lastProgress = newProgress;
             if (g_ipc)
