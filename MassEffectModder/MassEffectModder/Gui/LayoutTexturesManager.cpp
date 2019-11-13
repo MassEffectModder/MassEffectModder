@@ -387,7 +387,7 @@ void LayoutTexturesManager::Startup()
                               QString("Replacing textures and creating mods requires generating a map of the game's textures.\n") +
                               "You only need to do it once.\n\n" +
                               "IMPORTANT! Your game needs to be in vanilla state and have optional DLC/PCC mods installed.\n\n" +
-                              "You can continue or skip this step", "Continue", "Exit");
+                              "You can continue or abort", "Continue", "Abort");
         if (result != 0)
         {
             buttonExit->setEnabled(true);
