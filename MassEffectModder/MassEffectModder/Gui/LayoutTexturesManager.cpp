@@ -434,8 +434,6 @@ void LayoutTexturesManager::Startup()
     int lastProgress = -1;
     for (int t = 0; t < textures.count(); t++)
     {
-        if (t % 50 == 0)
-            QApplication::processEvents();
         int newProgress = t * 100 / textures.count();
         if (lastProgress != newProgress)
         {
@@ -452,13 +450,12 @@ void LayoutTexturesManager::Startup()
             bool found = false;
             for (int n = 0; n < tree.count(); n++)
             {
-                auto item = tree[n];
-                if (item.packageName == packageName)
+                if (tree[n].packageName == packageName)
                 {
                     bool found2 = false;
-                    for (int x = 0; x < item.list.count(); x++)
+                    for (int x = 0; x < tree[n].list.count(); x++)
                     {
-                        if (item.list[x].crc == textures[t].crc)
+                        if (tree[n].list[x].crc == textures[t].crc)
                         {
                             found2 = true;
                             break;
@@ -469,7 +466,7 @@ void LayoutTexturesManager::Startup()
                         ViewTexture texture;
                         texture.crc = textures[t].crc;
                         texture.name = textures[t].name;
-                        item.list.append(texture);
+                        tree[n].list.append(texture);
                     }
                     found = true;
                     break;
@@ -502,7 +499,6 @@ void LayoutTexturesManager::Startup()
         auto item = new QListWidgetItem(tree[n].packageName);
         item->setData(Qt::UserRole, QVariant::fromValue<QList<ViewTexture>>(list));
         listLeft->addItem(item);
-        item->setData(Qt::UserRole, QVariant::fromValue<QList<ViewTexture>>(list));
     }
     listLeft->sortItems();
     listLeft->setUpdatesEnabled(true);
