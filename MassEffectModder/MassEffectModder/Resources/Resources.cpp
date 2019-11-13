@@ -29,6 +29,9 @@ void Resources::loadMD5Table(const QString &path, QStringList &tables, QList<MD5
     ByteBuffer decompressed;
     ByteBuffer compressed;
 
+#ifdef GUI
+    QApplication::processEvents();
+#endif
     {
         auto tmp = FileStream(path, FileMode::Open, FileAccess::ReadOnly);
         tmp.SkipInt32();

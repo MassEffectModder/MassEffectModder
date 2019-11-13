@@ -191,7 +191,10 @@ void LayoutInstallModsManager::ClearSelected()
 void LayoutInstallModsManager::InstallModsCallback(void *handle, int progress, const QString &stage)
 {
     auto *win = static_cast<MainWindow *>(handle);
-    win->statusBar()->showMessage(QString("Installing MEM mods... Stage: ") + stage + " -  Progress: " + QString::number(progress) + "%");
+    QString progressMsg;
+    if (progress != -1)
+        progressMsg = " -  Progress: " + QString::number(progress) + "%";
+    win->statusBar()->showMessage(QString("Installing MEM mods... Stage: ") + stage + progressMsg);
     QApplication::processEvents();
 }
 
@@ -199,8 +202,11 @@ void LayoutInstallModsManager::InstallMods(QStringList &mods)
 {
     if (mods.count() == 0)
         return;
+
+    mainWindow->statusBar()->showMessage("Detecting game data...");
+    QApplication::processEvents();
     ConfigIni configIni{};
-    g_GameData->Init(mainWindow->gameType, configIni);
+    g_GameData->Init(mainWindow->gameType, configIni, true);
     if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
     {
         mainWindow->statusBar()->clearMessage();

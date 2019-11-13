@@ -335,7 +335,7 @@ void LayoutModsManager::CreateBinaryModSelected()
     LockGui(true);
 
     ConfigIni configIni{};
-    g_GameData->Init(mainWindow->gameType, configIni);
+    g_GameData->Init(mainWindow->gameType, configIni, true);
     if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
     {
         QMessageBox::critical(this, "Creating Binary mod files", "Game data not found.");

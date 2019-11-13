@@ -362,6 +362,8 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
 
     if (!modded)
     {
+        if (callback)
+            callback(callbackHandle, -1, "Preparing to scan textures...");
         for (int i = 0; i < g_GameData->packageFiles.count(); i++)
         {
             pkgsToMarker.push_back(g_GameData->packageFiles[i]);

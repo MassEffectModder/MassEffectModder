@@ -135,10 +135,11 @@ void LayoutGameUtilities::LockGui(bool lock)
 void LayoutGameUtilities::CheckGameFilesSelected()
 {
     LockGui(true);
-    mainWindow->statusBar()->showMessage("Checking game files...");
 
+    mainWindow->statusBar()->showMessage("Detecting game data...");
+    QApplication::processEvents();
     ConfigIni configIni{};
-    g_GameData->Init(mainWindow->gameType, configIni);
+    g_GameData->Init(mainWindow->gameType, configIni, true);
     if (!Misc::CheckGamePath())
     {
         mainWindow->statusBar()->clearMessage();
@@ -204,8 +205,11 @@ void LayoutGameUtilities::CheckCallback(void *handle, int progress, const QStrin
 void LayoutGameUtilities::ChangeGamePathSelected()
 {
     LockGui(true);
+
+    mainWindow->statusBar()->showMessage("Detecting game data...");
+    QApplication::processEvents();
     ConfigIni configIni{};
-    g_GameData->Init(mainWindow->gameType, configIni);
+    g_GameData->Init(mainWindow->gameType, configIni, true);
     QString filter, exeSuffix;
     QString caption = "Please select the Mass Effect " +
             QString::number(static_cast<int>(mainWindow->gameType)) +
@@ -260,8 +264,11 @@ void LayoutGameUtilities::ChangeGamePathSelected()
 void LayoutGameUtilities::ChangeUserPathSelected()
 {
     LockGui(true);
+
+    mainWindow->statusBar()->showMessage("Detecting game data...");
+    QApplication::processEvents();
     ConfigIni configIni{};
-    g_GameData->Init(mainWindow->gameType, configIni);
+    g_GameData->Init(mainWindow->gameType, configIni, true);
     QString caption = "Please select the Mass Effect " +
             QString::number(static_cast<int>(mainWindow->gameType)) +
             " user configuration path";
@@ -298,10 +305,11 @@ void LayoutGameUtilities::RepackCallback(void *handle, int progress, const QStri
 void LayoutGameUtilities::RepackGameFilesSelected()
 {
     LockGui(true);
-    mainWindow->statusBar()->showMessage("Repacking package files...");
 
+    mainWindow->statusBar()->showMessage("Detecting game data...");
+    QApplication::processEvents();
     ConfigIni configIni{};
-    g_GameData->Init(mainWindow->gameType, configIni);
+    g_GameData->Init(mainWindow->gameType, configIni, true);
     if (!Misc::CheckGamePath())
     {
         mainWindow->statusBar()->clearMessage();
@@ -341,10 +349,11 @@ void LayoutGameUtilities::RepackGameFilesSelected()
 void LayoutGameUtilities::UpdateTOCsSelected()
 {
     LockGui(true);
-    mainWindow->statusBar()->showMessage("Updating TOC files...");
 
+    mainWindow->statusBar()->showMessage("Detecting game data...");
+    QApplication::processEvents();
     ConfigIni configIni{};
-    g_GameData->Init(MeType::ME3_TYPE, configIni);
+    g_GameData->Init(MeType::ME3_TYPE, configIni, true);
     if (!Misc::CheckGamePath())
     {
         mainWindow->statusBar()->clearMessage();
@@ -373,10 +382,11 @@ void LayoutGameUtilities::UpdateTOCsSelected()
 void LayoutGameUtilities::ExtractDLCsSelected()
 {
     LockGui(true);
-    mainWindow->statusBar()->showMessage("Unpacking DLCs...");
 
+    mainWindow->statusBar()->showMessage("Detecting game data...");
+    QApplication::processEvents();
     ConfigIni configIni{};
-    g_GameData->Init(MeType::ME3_TYPE, configIni);
+    g_GameData->Init(MeType::ME3_TYPE, configIni, true);
     if (!Misc::CheckGamePath())
     {
         mainWindow->statusBar()->clearMessage();

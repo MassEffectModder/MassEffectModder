@@ -264,6 +264,9 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
 
         loadTexturesMap(gameId, resources, textures);
 
+#ifdef GUI
+        QApplication::processEvents();
+#endif
         for (int k = 0; k < textures.count(); k++)
         {
             bool found = false;
@@ -292,6 +295,9 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
 
     if (!g_GameData->FullScanGame)
     {
+#ifdef GUI
+        QApplication::processEvents();
+#endif
         int count = g_GameData->packageFiles.count();
         for (int i = 0; i < count; i++)
         {
@@ -335,6 +341,9 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
         QStringList addedFiles;
         QStringList modifiedFiles;
 
+#ifdef GUI
+        QApplication::processEvents();
+#endif
         for (int i = 0; i < g_GameData->packageFiles.count(); i++)
         {
             bool modified = true;
@@ -474,6 +483,9 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
             FindTextures(gameId, textures, g_GameData->packageFiles[i], false);
         }
     }
+
+    if (callback)
+        callback(callbackHandle, 100, "Scanning textures");
 
     if (gameId == MeType::ME1_TYPE)
     {
