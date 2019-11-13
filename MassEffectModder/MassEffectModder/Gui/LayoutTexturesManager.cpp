@@ -335,7 +335,7 @@ void LayoutTexturesManager::Startup()
     QApplication::processEvents();
     bool gameHasEmptyMips = false;
     QString packageVerify;
-    int exportIdVerify;
+    int exportIdVerify = 0;
     if (GameData::gameType == MeType::ME1_TYPE)
     {
         packageVerify = "/BioGame/CookedPC/Packages/VFX_Prototype/v_Explosion_PrototypeTest_01.upk";
