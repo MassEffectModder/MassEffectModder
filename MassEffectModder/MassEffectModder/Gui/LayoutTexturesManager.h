@@ -23,6 +23,15 @@
 #define LAYOUT_TEXTURES_MANAGER_H
 
 #include <Gui/MainWindow.h>
+#include <Program/ConfigIni.h>
+#include <Resources/Resources.h>
+#include <Texture/TextureScan.h>
+
+struct ViewTexture {
+    QString name;
+    uint    crc;
+};
+Q_DECLARE_METATYPE(ViewTexture)
 
 class LayoutTexturesManager: public LayoutHandle
 {
@@ -30,6 +39,7 @@ class LayoutTexturesManager: public LayoutHandle
 
 public:
     explicit LayoutTexturesManager(MainWindow *window = nullptr);
+    void Startup();
 
 private slots:
     void ReplaceSelected();
@@ -58,6 +68,11 @@ private:
     const int kWidgetText = 1;
     const int kWidgetList = 2;
 
+    struct TreeItem {
+        QString            packageName;
+        QList<ViewTexture> list;
+    };
+
     MainWindow     *mainWindow;
     QListWidget    *listLeft;
     QListWidget    *listMiddle;
@@ -78,13 +93,18 @@ private:
     QPushButton    *buttonSearch;
     QPushButton    *buttonExit;
 
-    bool           singlePackageMode = false;
-    bool           singleViewMode = true;
-    bool           imageViewMode = true;
-    bool           textureSelected = false;
-    bool           packageSelected = false;
+    bool           singlePackageMode{};
+    bool           singleViewMode{};
+    bool           imageViewMode{};
+    bool           textureSelected{};
+    bool           packageSelected{};
 
-    void LockGui(bool enable);
+    ConfigIni      configIni{};
+    QList<TextureMapEntry> textures;
+    Resources      resources;
+
+    static void ScanTexturesCallback(void *handle, int progress, const QString &stage);
+    void LockGui(bool lock);
     void UpdateGui();
 };
 

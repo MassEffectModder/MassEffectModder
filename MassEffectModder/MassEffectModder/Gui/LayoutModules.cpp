@@ -89,8 +89,10 @@ LayoutModules::LayoutModules(MainWindow *window)
 
 void LayoutModules::TexturesManagerSelected()
 {
-    mainWindow->GetLayout()->addWidget(new LayoutTexturesManager(mainWindow));
+    auto TextureManager = new LayoutTexturesManager(mainWindow);
+    mainWindow->GetLayout()->addWidget(TextureManager);
     mainWindow->SwitchLayoutById(MainWindow::kLayoutTexturesManager);
+    TextureManager->Startup();
 }
 
 void LayoutModules::TextureUtilitiesSelected()
