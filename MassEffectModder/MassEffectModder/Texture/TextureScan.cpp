@@ -254,6 +254,10 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
         QDir(path).mkpath(path);
     QString filename = path + QString("/me%1map.bin").arg((int)gameId);
 
+#ifdef GUI
+    QElapsedTimer timer;
+    timer.start();
+#endif
     if (!generateBuiltinMapFiles && !g_GameData->FullScanGame)
     {
         if (g_ipc)
@@ -264,11 +268,15 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
 
         loadTexturesMap(gameId, resources, textures);
 
-#ifdef GUI
-        QApplication::processEvents();
-#endif
         for (int k = 0; k < textures.count(); k++)
         {
+#ifdef GUI
+            if (timer.elapsed() > 200)
+            {
+                QApplication::processEvents();
+                timer.restart();
+            }
+#endif
             bool found = false;
             for (int t = 0; t < textures[k].list.count(); t++)
             {
@@ -295,12 +303,16 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
 
     if (!g_GameData->FullScanGame)
     {
-#ifdef GUI
-        QApplication::processEvents();
-#endif
         int count = g_GameData->packageFiles.count();
         for (int i = 0; i < count; i++)
         {
+#ifdef GUI
+            if (timer.elapsed() > 200)
+            {
+                QApplication::processEvents();
+                timer.restart();
+            }
+#endif
             QString str = g_GameData->packageFiles[i];
             if (str.contains("_IT.") ||
                 str.contains("_FR.") ||
@@ -341,11 +353,15 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
         QStringList addedFiles;
         QStringList modifiedFiles;
 
-#ifdef GUI
-        QApplication::processEvents();
-#endif
         for (int i = 0; i < g_GameData->packageFiles.count(); i++)
         {
+#ifdef GUI
+            if (timer.elapsed() > 200)
+            {
+                QApplication::processEvents();
+                timer.restart();
+            }
+#endif
             bool modified = true;
             bool foundPkg = false;
             QString package = g_GameData->packageFiles[i].toLower();
@@ -381,7 +397,11 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
         for (int i = 0; i < modifiedFiles.count(); i++, currentPackage++)
         {
 #ifdef GUI
-            QApplication::processEvents();
+            if (timer.elapsed() > 200)
+            {
+                QApplication::processEvents();
+                timer.restart();
+            }
 #endif
             if (g_ipc)
             {
@@ -415,7 +435,11 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
         for (int i = 0; i < addedFiles.count(); i++, currentPackage++)
         {
 #ifdef GUI
-            QApplication::processEvents();
+            if (timer.elapsed() > 200)
+            {
+                QApplication::processEvents();
+                timer.restart();
+            }
 #endif
             if (g_ipc)
             {
@@ -452,7 +476,11 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
         for (int i = 0; i < g_GameData->packageFiles.count(); i++)
         {
 #ifdef GUI
-            QApplication::processEvents();
+            if (timer.elapsed() > 200)
+            {
+                QApplication::processEvents();
+                timer.restart();
+            }
 #endif
             if (g_ipc)
             {

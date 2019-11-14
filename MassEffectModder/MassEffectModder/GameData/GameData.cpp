@@ -37,12 +37,20 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
 
     if (packageFiles.count() == 0)
     {
+#ifdef GUI
+        QElapsedTimer timer;
+        timer.start();
+#endif
         QDirIterator iterator(MainData(), QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
         int pathLen = _path.length();
         while (iterator.hasNext())
         {
 #ifdef GUI
-            QApplication::processEvents();
+            if (timer.elapsed() > 200)
+            {
+                QApplication::processEvents();
+                timer.restart();
+            }
 #endif
             iterator.next();
             QString path = iterator.filePath().mid(pathLen);
@@ -124,7 +132,11 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
                 while (iterator.hasNext())
                 {
 #ifdef GUI
-                    QApplication::processEvents();
+                    if (timer.elapsed() > 200)
+                    {
+                        QApplication::processEvents();
+                        timer.restart();
+                    }
 #endif
                     iterator.next();
                     QString path = iterator.filePath().mid(pathLen);
@@ -146,7 +158,11 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
                     while (iterator2.hasNext())
                     {
 #ifdef GUI
-                        QApplication::processEvents();
+                        if (timer.elapsed() > 200)
+                        {
+                            QApplication::processEvents();
+                            timer.restart();
+                        }
 #endif
                         iterator2.next();
                         QString path = iterator2.filePath().mid(pathLen);

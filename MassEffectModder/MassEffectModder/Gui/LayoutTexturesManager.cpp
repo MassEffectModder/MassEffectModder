@@ -435,11 +435,18 @@ void LayoutTexturesManager::Startup()
         msg.Show(mainWindow, "Errors while scanning package files", g_logs->BufferGetErrors());
     }
 
+    QElapsedTimer timer;
+    timer.start();
     mainWindow->statusBar()->showMessage("Preparing tree view...");
     QApplication::processEvents();
     QVector<ViewTexture> ViewTextureList;
     for (int t = 0; t < textures.count(); t++)
     {
+        if (timer.elapsed() > 200)
+        {
+            QApplication::processEvents();
+            timer.restart();
+        }
         for (int l = 0; l < textures[t].list.count(); l++)
         {
             if (textures[t].list[l].path.length() == 0)
@@ -459,6 +466,11 @@ void LayoutTexturesManager::Startup()
     listLeft->setUpdatesEnabled(false);
     for (int l = 0; l < ViewTextureList.count(); l++)
     {
+        if (timer.elapsed() > 200)
+        {
+            QApplication::processEvents();
+            timer.restart();
+        }
         if (ViewTextureList[l].packageName != lastPackageName)
         {
             QVector<ViewTexture> list;

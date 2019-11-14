@@ -157,11 +157,19 @@ bool ME3DLC::extract(QString &SFARfilename, int &currentProgress,
     if (!loadHeader(stream.get()))
         return false;
 
+#ifdef GUI
+    QElapsedTimer timer;
+    timer.start();
+#endif
     int lastProgress = -1;
     for (uint i = 0; i < filesCount; i++, currentProgress++)
     {
 #ifdef GUI
-        QApplication::processEvents();
+        if (timer.elapsed() > 100)
+        {
+            QApplication::processEvents();
+            timer.restart();
+        }
 #endif
         if ((uint)filenamesIndex == i)
             continue;
@@ -272,13 +280,21 @@ void ME3DLC::unpackAllDLC(ProgressCallback callback, void *callbackHandle)
     if (!QDir(g_GameData->DLCData()).exists())
         return;
 
+#ifdef GUI
+    QElapsedTimer timer;
+    timer.start();
+#endif
     QStringList sfarFiles;
     int totalSfars = 0;
     QStringList DLCs = QDir(g_GameData->DLCData(), "DLC_*", QDir::NoSort, QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
     foreach (QString DLCDir, DLCs)
     {
 #ifdef GUI
-        QApplication::processEvents();
+        if (timer.elapsed() > 100)
+        {
+            QApplication::processEvents();
+            timer.restart();
+        }
 #endif
         QDirIterator iterator(g_GameData->DLCData() + "/" + DLCDir, QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
         bool isValid = true;

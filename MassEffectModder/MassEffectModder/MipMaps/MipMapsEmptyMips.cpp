@@ -72,10 +72,18 @@ void MipMaps::removeMipMaps(int phase, QList<TextureMapEntry> &textures, QString
         path = "/BioGame/CookedPC/testVolumeLight_VFX.upk";
     else if (GameData::gameType == ME2_TYPE)
         path = "/BioGame/CookedPC/BIOC_Materials.pcc";
+#ifdef GUI
+    QElapsedTimer timer;
+    timer.start();
+#endif
     for (int i = 0; i < list.count(); i++)
     {
 #ifdef GUI
-        QApplication::processEvents();
+        if (timer.elapsed() > 100)
+        {
+            QApplication::processEvents();
+            timer.restart();
+        }
 #endif
         if (path.length() != 0 && path.compare(list[i].pkgPath, Qt::CaseInsensitive) == 0)
             continue;
