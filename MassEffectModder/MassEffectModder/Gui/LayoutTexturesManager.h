@@ -30,6 +30,7 @@
 struct ViewTexture {
     QString name;
     uint    crc;
+    QString packageName;
 };
 Q_DECLARE_METATYPE(ViewTexture)
 

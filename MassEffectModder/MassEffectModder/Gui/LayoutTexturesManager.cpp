@@ -194,6 +194,11 @@ LayoutTexturesManager::LayoutTexturesManager(MainWindow *window)
     mainWindow->SetTitle("Texture Manager");
 }
 
+static bool compareViewTexture(const ViewTexture &e1, const ViewTexture &e2)
+{
+    return e1.packageName.compare(e2.packageName, Qt::CaseInsensitive) < 0;
+}
+
 void LayoutTexturesManager::Startup()
 {
     LockGui(true);
@@ -430,79 +435,54 @@ void LayoutTexturesManager::Startup()
         msg.Show(mainWindow, "Errors while scanning package files", g_logs->BufferGetErrors());
     }
 
-    QList<TreeItem> tree;
-    int lastProgress = -1;
+    mainWindow->statusBar()->showMessage("Preparing tree view...");
+    QApplication::processEvents();
+    QVector<ViewTexture> ViewTextureList;
     for (int t = 0; t < textures.count(); t++)
     {
-        int newProgress = t * 100 / textures.count();
-        if (lastProgress != newProgress)
-        {
-            lastProgress = newProgress;
-            mainWindow->statusBar()->showMessage("Preparing tree view... Progress: " + QString::number(newProgress) + " %");
-            QApplication::processEvents();
-        }
         for (int l = 0; l < textures[t].list.count(); l++)
         {
             if (textures[t].list[l].path.length() == 0)
                 continue;
-
             QString packageName = BaseNameWithoutExt(textures[t].list[l].path);
-            bool found = false;
-            for (int n = 0; n < tree.count(); n++)
-            {
-                if (tree[n].packageName == packageName)
-                {
-                    bool found2 = false;
-                    for (int x = 0; x < tree[n].list.count(); x++)
-                    {
-                        if (tree[n].list[x].crc == textures[t].crc)
-                        {
-                            found2 = true;
-                            break;
-                        }
-                    }
-                    if (!found2)
-                    {
-                        ViewTexture texture;
-                        texture.crc = textures[t].crc;
-                        texture.name = textures[t].name;
-                        tree[n].list.append(texture);
-                    }
-                    found = true;
-                    break;
-                }
-            }
-            if (!found)
-            {
-                ViewTexture texture;
-                texture.crc = textures[t].crc;
-                texture.name = textures[t].name;
-                TreeItem item;
-                item.packageName = packageName;
-                item.list.append(texture);
-                tree.append(item);
-            }
+            ViewTexture texture;
+            texture.crc = textures[t].crc;
+            texture.name = textures[t].name;
+            texture.packageName = packageName;
+            ViewTextureList.append(texture);
         }
     }
+    std::sort(ViewTextureList.begin(), ViewTextureList.end(), compareViewTexture);
 
+    QString lastPackageName;
+    int index = -1;
     listLeft->setUpdatesEnabled(false);
-    for (int n = 0; n < tree.count(); n++)
+    for (int l = 0; l < ViewTextureList.count(); l++)
     {
-        QList<ViewTexture> list;
-        for (int l = 0; l < tree[n].list.count(); l++)
+        if (ViewTextureList[l].packageName != lastPackageName)
+        {
+            QVector<ViewTexture> list;
+            ViewTexture texture;
+            texture.crc = ViewTextureList[l].crc;
+            texture.name = ViewTextureList[l].name;
+            list.append(texture);
+            auto item = new QListWidgetItem(ViewTextureList[l].packageName);
+            item->setData(Qt::UserRole, QVariant::fromValue<QVector<ViewTexture>>(list));
+            listLeft->addItem(item);
+            lastPackageName = ViewTextureList[l].packageName;
+            index++;
+        }
+        else
         {
             ViewTexture texture;
-            texture.crc = tree[n].list[l].crc;
-            texture.name = tree[n].list[l].name;
+            texture.crc = ViewTextureList[l].crc;
+            texture.name = ViewTextureList[l].name;
+            auto item = listLeft->item(index);
+            auto list = item->data(Qt::UserRole).value<QVector<ViewTexture>>();
             list.append(texture);
         }
-        auto item = new QListWidgetItem(tree[n].packageName);
-        item->setData(Qt::UserRole, QVariant::fromValue<QList<ViewTexture>>(list));
-        listLeft->addItem(item);
     }
-    listLeft->sortItems();
     listLeft->setUpdatesEnabled(true);
-
     mainWindow->statusBar()->clearMessage();
 
     singlePackageMode = false;
