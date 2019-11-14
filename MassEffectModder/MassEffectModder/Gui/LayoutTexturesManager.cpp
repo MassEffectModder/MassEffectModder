@@ -34,21 +34,26 @@ LayoutTexturesManager::LayoutTexturesManager(MainWindow *window)
 {
     layoutId = MainWindow::kLayoutTexturesManager;
 
-    listLeft = new QListWidget();
+    listLeftPackages = new QListWidget();
+    listLeftSearch = new QListWidget();
+    leftWidget = new QStackedWidget();
+    leftWidget->addWidget(listLeftPackages);
+    leftWidget->addWidget(listLeftSearch);
+    leftWidget->setCurrentIndex(kLeftWidgetPackages);
     listMiddle = new QListWidget();
 
     labelImage = new QLabel();
-    labelImage->setAutoFillBackground(true);
     textRight = new QPlainTextEdit;
     listRight = new QListWidget;
     rightView = new QStackedWidget();
     rightView->addWidget(labelImage);
     rightView->addWidget(textRight);
     rightView->addWidget(listRight);
+    rightView->setCurrentIndex(kRightWidgetList);
 
     splitter = new QSplitter();
     splitter->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-    splitter->addWidget(listLeft);
+    splitter->addWidget(leftWidget);
     splitter->addWidget(listMiddle);
     splitter->addWidget(rightView);
 
@@ -463,7 +468,7 @@ void LayoutTexturesManager::Startup()
 
     QString lastPackageName;
     int index = -1;
-    listLeft->setUpdatesEnabled(false);
+    listLeftPackages->setUpdatesEnabled(false);
     for (int l = 0; l < ViewTextureList.count(); l++)
     {
         if (timer.elapsed() > 200)
@@ -480,7 +485,7 @@ void LayoutTexturesManager::Startup()
             list.append(texture);
             auto item = new QListWidgetItem(ViewTextureList[l].packageName);
             item->setData(Qt::UserRole, QVariant::fromValue<QVector<ViewTexture>>(list));
-            listLeft->addItem(item);
+            listLeftPackages->addItem(item);
             lastPackageName = ViewTextureList[l].packageName;
             index++;
         }
@@ -489,12 +494,12 @@ void LayoutTexturesManager::Startup()
             ViewTexture texture;
             texture.crc = ViewTextureList[l].crc;
             texture.name = ViewTextureList[l].name;
-            auto item = listLeft->item(index);
+            auto item = listLeftPackages->item(index);
             auto list = item->data(Qt::UserRole).value<QVector<ViewTexture>>();
             list.append(texture);
         }
     }
-    listLeft->setUpdatesEnabled(true);
+    listLeftPackages->setUpdatesEnabled(true);
     mainWindow->statusBar()->clearMessage();
 
     singlePackageMode = false;
@@ -517,7 +522,8 @@ void LayoutTexturesManager::ScanTexturesCallback(void *handle, int progress, con
 
 void LayoutTexturesManager::LockGui(bool lock)
 {
-    listLeft->setEnabled(!lock);
+    listLeftPackages->setEnabled(!lock);
+    listLeftSearch->setEnabled(!lock);
     listMiddle->setEnabled(!lock);
     listRight->setEnabled(!lock);
     textRight->setEnabled(!lock);
@@ -545,7 +551,7 @@ void LayoutTexturesManager::UpdateGui()
     buttonExtractToPNG->setEnabled(textureSelected);
     if (imageViewMode)
     {
-        rightView->setCurrentIndex(kWidgetImage);
+        rightView->setCurrentIndex(kRightWidgetImage);
         buttonViewImage->setEnabled(false);
         if (mainWindow->gameType != MeType::ME1_TYPE)
             buttonInfoSingle->setEnabled(packageSelected);
@@ -556,9 +562,9 @@ void LayoutTexturesManager::UpdateGui()
     else
     {
         if (singlePackageMode)
-            rightView->setCurrentIndex(kWidgetImage);
+            rightView->setCurrentIndex(kRightWidgetImage);
         else
-            rightView->setCurrentIndex(kWidgetText);
+            rightView->setCurrentIndex(kRightWidgetText);
         buttonViewImage->setEnabled(packageSelected);
         buttonInfoSingle->setEnabled(!packageSelected);
         buttonInfoAll->setEnabled(!packageSelected);

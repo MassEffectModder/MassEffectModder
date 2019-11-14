@@ -65,9 +65,11 @@ private:
 #else
     const int kFontSize = 8;
 #endif
-    const int kWidgetImage = 0;
-    const int kWidgetText = 1;
-    const int kWidgetList = 2;
+    const int kRightWidgetImage = 0;
+    const int kRightWidgetText = 1;
+    const int kRightWidgetList = 2;
+    const int kLeftWidgetPackages = 0;
+    const int kLeftWidgetSearch = 1;
 
     struct TreeItem {
         QString            packageName;
@@ -75,9 +77,11 @@ private:
     };
 
     MainWindow     *mainWindow;
-    QListWidget    *listLeft;
+    QListWidget    *listLeftPackages;
+    QListWidget    *listLeftSearch;
     QListWidget    *listMiddle;
     QListWidget    *listRight;
+    QStackedWidget *leftWidget;
     QStackedWidget *rightView;
     QPlainTextEdit *textRight;
     QLabel         *labelImage;
