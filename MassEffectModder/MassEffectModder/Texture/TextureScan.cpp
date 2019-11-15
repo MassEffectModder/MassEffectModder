@@ -711,10 +711,10 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
         MipMaps mipMaps;
         QStringList pkgsToMarkers;
         QStringList pkgsToRepack;
-        mipMaps.removeMipMaps(1, textures, pkgsToMarkers, pkgsToRepack, false, false,
+        mipMaps.removeMipMaps(1, textures, pkgsToMarkers, pkgsToRepack, false, false, false,
                               callback, callbackHandle);
         if (GameData::gameType == MeType::ME1_TYPE)
-            mipMaps.removeMipMaps(2, textures, pkgsToMarkers, pkgsToRepack, false, false,
+            mipMaps.removeMipMaps(2, textures, pkgsToMarkers, pkgsToRepack, false, false, false,
                                   callback, callbackHandle);
         if (GameData::gameType == MeType::ME3_TYPE)
             TOCBinFile::UpdateAllTOCBinFiles();

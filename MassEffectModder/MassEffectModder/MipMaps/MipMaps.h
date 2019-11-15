@@ -123,7 +123,7 @@ class MipMaps
         maxBlockSize = 0x20000, // 128KB
     };
 
-    void prepareListToRemove(QList<TextureMapEntry> &textures, QList<RemoveMipsEntry> &list);
+    void prepareListToRemove(QList<TextureMapEntry> &textures, QList<RemoveMipsEntry> &list, bool force);
 
 public:
 
@@ -134,7 +134,7 @@ public:
     void extractTextureToPng(QString &outputFile, QString &packagePath, int exportID);
 
     void removeMipMaps(int phase, QList<TextureMapEntry> &textures, QStringList &pkgsToMarker,
-                       QStringList &pkgsToRepack, bool repack, bool appendMarker,
+                       QStringList &pkgsToRepack, bool repack, bool appendMarker, bool force,
                        ProgressCallback callback, void *callbackHandle);
     void removeMipMapsPerPackage(int phase, QList<TextureMapEntry> &textures, Package &package,
                                  RemoveMipsEntry &removeEntry,

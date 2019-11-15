@@ -404,7 +404,7 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
 
 
     if (!modded)
-        RemoveMipmaps(mipMaps, textures, pkgsToMarker, pkgsToRepack, repack, true,
+        RemoveMipmaps(mipMaps, textures, pkgsToMarker, pkgsToRepack, repack, true, false,
                       callback, callbackHandle);
 
 

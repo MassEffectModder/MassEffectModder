@@ -25,15 +25,26 @@
 #include <Helpers/MiscHelpers.h>
 #include <Helpers/Logs.h>
 
-void MipMaps::prepareListToRemove(QList<TextureMapEntry> &textures, QList<RemoveMipsEntry> &list)
+void MipMaps::prepareListToRemove(QList<TextureMapEntry> &textures, QList<RemoveMipsEntry> &list, bool force)
 {
+#ifdef GUI
+    QElapsedTimer timer;
+    timer.start();
+#endif
     for (int k = 0; k < textures.count(); k++)
     {
+#ifdef GUI
+        if (timer.elapsed() > 100)
+        {
+            QApplication::processEvents();
+            timer.restart();
+        }
+#endif
         for (int t = 0; t < textures[k].list.count(); t++)
         {
             if (textures[k].list[t].path.length() == 0)
                 continue;
-            if (textures[k].list[t].removeEmptyMips)
+            if (textures[k].list[t].removeEmptyMips || force)
             {
                 bool found = false;
                 for (int e = 0; e < list.count(); e++)
@@ -57,13 +68,13 @@ void MipMaps::prepareListToRemove(QList<TextureMapEntry> &textures, QList<Remove
 }
 
 void MipMaps::removeMipMaps(int phase, QList<TextureMapEntry> &textures, QStringList &pkgsToMarker,
-                            QStringList &pkgsToRepack, bool repack, bool appendMarker,
+                            QStringList &pkgsToRepack, bool repack, bool appendMarker, bool force,
                             ProgressCallback callback, void *callbackHandle)
 {
     int lastProgress = -1;
 
     QList<RemoveMipsEntry> list;
-    prepareListToRemove(textures, list);
+    prepareListToRemove(textures, list, force);
 
     QString path;
     if (GameData::gameType == ME1_TYPE)

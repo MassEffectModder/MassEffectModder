@@ -20,6 +20,7 @@
  */
 
 #include <GameData/GameData.h>
+#include <GameData/TOCFile.h>
 #include <Gui/LayoutMeSelect.h>
 #include <Gui/LayoutTexturesManager.h>
 #include <Gui/MainWindow.h>
@@ -27,6 +28,7 @@
 #include <Helpers/Exception.h>
 #include <Helpers/Logs.h>
 #include <Helpers/MiscHelpers.h>
+#include <MipMaps/MipMaps.h>
 #include <Misc/Misc.h>
 
 LayoutTexturesManager::LayoutTexturesManager(MainWindow *window)
@@ -301,13 +303,19 @@ void LayoutTexturesManager::Startup()
                 return;
             }
         }
-        QApplication::processEvents();
+        if (!TreeScan::loadTexturesMapFile(filename, textures))
+        {
+            QMessageBox::critical(this, "Texture Manager", "Failed to load texture map.");
+            buttonExit->setEnabled(true);
+            mainWindow->LockClose(false);
+            return;
+        }
     }
     else
     {
         bool modded = Misc::detectMod(mainWindow->gameType);
         if (!modded)
-            modded = Misc::CheckForMarkers(&LayoutTexturesManager::ScanTexturesCallback, mainWindow);
+            modded = Misc::CheckForMarkers(&LayoutTexturesManager::PrepareTexturesCallback, mainWindow);
         mainWindow->statusBar()->clearMessage();
         if (!modded)
         {
@@ -391,7 +399,7 @@ void LayoutTexturesManager::Startup()
     mainWindow->statusBar()->clearMessage();
     QApplication::processEvents();
     bool removeEmptyMips = true;
-    if (gameHasEmptyMips)
+    if (!QFile::exists(filename))
     {
         int result = QMessageBox::question(this, "Texture Manager",
                               QString("Replacing textures and creating mods requires generating a map of the game's textures.\n") +
@@ -404,6 +412,10 @@ void LayoutTexturesManager::Startup()
             mainWindow->LockClose(false);
             return;
         }
+    }
+
+    if (gameHasEmptyMips)
+    {
         int answer = QMessageBox::question(this, "Texture Manager",
                               QString("Detected empty mips in game files.") +
               "\n\nYou can remove empty mips or you can skip this step.", "Remove", "Skip");
@@ -422,22 +434,49 @@ void LayoutTexturesManager::Startup()
         return;
     }
 
-    mainWindow->statusBar()->showMessage("Preparing to scan textures...");
-    QApplication::processEvents();
-    resources.loadMD5Tables();
-    g_logs->BufferClearErrors();
-    g_logs->BufferEnableErrors(true);
-    TreeScan::PrepareListOfTextures(mainWindow->gameType, resources,
-                                    textures, removeEmptyMips, true,
-                                    &LayoutTexturesManager::ScanTexturesCallback,
-                                    mainWindow);
-    g_logs->BufferEnableErrors(false);
-    mainWindow->statusBar()->clearMessage();
-    QApplication::processEvents();
-    if (g_logs->BufferGetErrors() != "")
+    if (!QFile::exists(filename))
     {
-        MessageWindow msg;
-        msg.Show(mainWindow, "Errors while scanning package files", g_logs->BufferGetErrors());
+        mainWindow->statusBar()->showMessage("Preparing to scan textures...");
+        QApplication::processEvents();
+        resources.loadMD5Tables();
+        g_logs->BufferClearErrors();
+        g_logs->BufferEnableErrors(true);
+        TreeScan::PrepareListOfTextures(mainWindow->gameType, resources,
+                                        textures, removeEmptyMips, true,
+                                        &LayoutTexturesManager::PrepareTexturesCallback,
+                                        mainWindow);
+        g_logs->BufferEnableErrors(false);
+        mainWindow->statusBar()->clearMessage();
+        QApplication::processEvents();
+        if (g_logs->BufferGetErrors() != "")
+        {
+            MessageWindow msg;
+            msg.Show(mainWindow, "Errors while scanning package files", g_logs->BufferGetErrors());
+        }
+    }
+    else if (removeEmptyMips)
+    {
+        mainWindow->statusBar()->showMessage("Preparing to remove empty mips...");
+        QApplication::processEvents();
+        MipMaps mipMaps;
+        QStringList pkgsToRepack;
+        QStringList pkgsToMarker;
+        g_logs->BufferClearErrors();
+        g_logs->BufferEnableErrors(true);
+        Misc::RemoveMipmaps(mipMaps, textures, pkgsToMarker, pkgsToRepack, false, false, true,
+                            &LayoutTexturesManager::PrepareTexturesCallback, mainWindow);
+        mainWindow->statusBar()->clearMessage();
+        QApplication::processEvents();
+        if (g_logs->BufferGetErrors() != "")
+        {
+            MessageWindow msg;
+            msg.Show(mainWindow, "Errors while removing empty mips", g_logs->BufferGetErrors());
+            buttonExit->setEnabled(true);
+            mainWindow->LockClose(false);
+            return;
+        }
+        if (GameData::gameType == MeType::ME3_TYPE)
+            TOCBinFile::UpdateAllTOCBinFiles();
     }
 
     QElapsedTimer timer;
@@ -512,7 +551,7 @@ void LayoutTexturesManager::Startup()
     UpdateGui();
 }
 
-void LayoutTexturesManager::ScanTexturesCallback(void *handle, int progress, const QString &stage)
+void LayoutTexturesManager::PrepareTexturesCallback(void *handle, int progress, const QString &stage)
 {
     auto *win = static_cast<MainWindow *>(handle);
     win->statusBar()->showMessage(QString("Preparing... Stage: ") + stage +

@@ -443,7 +443,7 @@ void Misc::Repack(MeType gameId, ProgressCallback callback, void *callbackHandle
 
 bool Misc::RemoveMipmaps(MipMaps &mipMaps, QList<TextureMapEntry> &textures,
                          QStringList &pkgsToMarker, QStringList &pkgsToRepack,
-                         bool repack, bool appendMarker,
+                         bool repack, bool appendMarker, bool force,
                          ProgressCallback callback, void *callbackHandle)
 {
     PINFO("Remove empty mipmaps started...\n");
@@ -453,10 +453,10 @@ bool Misc::RemoveMipmaps(MipMaps &mipMaps, QList<TextureMapEntry> &textures,
         ConsoleSync();
     }
 
-    mipMaps.removeMipMaps(1, textures, pkgsToMarker, pkgsToRepack, repack, appendMarker,
+    mipMaps.removeMipMaps(1, textures, pkgsToMarker, pkgsToRepack, repack, appendMarker, force,
                           callback, callbackHandle);
     if (GameData::gameType == MeType::ME1_TYPE)
-        mipMaps.removeMipMaps(2, textures, pkgsToMarker, pkgsToRepack, repack, appendMarker,
+        mipMaps.removeMipMaps(2, textures, pkgsToMarker, pkgsToRepack, repack, appendMarker, force,
                               callback, callbackHandle);
 
     PINFO("Remove empty mipmaps finished.\n\n");

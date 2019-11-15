@@ -108,7 +108,7 @@ private:
     QList<TextureMapEntry> textures;
     Resources      resources;
 
-    static void ScanTexturesCallback(void *handle, int progress, const QString &stage);
+    static void PrepareTexturesCallback(void *handle, int progress, const QString &stage);
     void LockGui(bool lock);
     void UpdateGui();
 };

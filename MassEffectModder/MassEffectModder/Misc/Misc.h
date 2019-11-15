@@ -104,7 +104,7 @@ public:
                            ProgressCallback callback, void *callbackHandle);
     static bool RemoveMipmaps(MipMaps &mipMaps, QList<TextureMapEntry> &textures,
                               QStringList &pkgsToMarker, QStringList &pkgsToRepack,
-                              bool repack, bool appendMarker,
+                              bool repack, bool appendMarker, bool force,
                               ProgressCallback callback, void *callbackHandle);
 
     static bool extractMEM(MeType gameId, QFileInfoList &inputList, QString &outputDir,
