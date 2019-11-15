@@ -280,10 +280,9 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
             bool found = false;
             for (int t = 0; t < textures[k].list.count(); t++)
             {
-                QString pkgPath = textures[k].list[t].path;
                 if (std::binary_search(g_GameData->packageFiles.begin(),
                                        g_GameData->packageFiles.end(),
-                                       pkgPath, comparePath))
+                                       textures[k].list[t].path, comparePath))
                 {
                     found = true;
                     continue;
@@ -568,11 +567,10 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
                 QList<TextureMapPackageEntry> texList;
                 for (int t = 0; t < textures[k].list.count(); t++)
                 {
-                    TextureMapPackageEntry tex = textures[k].list[t];
-                    if (tex.weakSlave)
-                        texList.push_back(tex);
+                    if (textures[k].list[t].weakSlave)
+                        texList.push_back(textures[k].list[t]);
                     else
-                        texList.push_front(tex);
+                        texList.push_front(textures[k].list[t]);
                 }
                 TextureMapEntry f = textures[k];
                 f.list = texList;
