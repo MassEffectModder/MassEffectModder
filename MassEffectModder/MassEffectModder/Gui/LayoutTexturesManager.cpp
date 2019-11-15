@@ -37,6 +37,8 @@ LayoutTexturesManager::LayoutTexturesManager(MainWindow *window)
     layoutId = MainWindow::kLayoutTexturesManager;
 
     listLeftPackages = new QListWidget();
+    connect(listLeftPackages, &QListWidget::currentItemChanged, this, &LayoutTexturesManager::ListLeftPackagesSelected);
+
     listLeftSearch = new QListWidget();
     leftWidget = new QStackedWidget();
     leftWidget->addWidget(listLeftPackages);
@@ -521,6 +523,7 @@ void LayoutTexturesManager::Startup()
             ViewTexture texture;
             texture.crc = ViewTextureList[l].crc;
             texture.name = ViewTextureList[l].name;
+            texture.packageName = ViewTextureList[l].packageName;
             list.append(texture);
             auto item = new QListWidgetItem(ViewTextureList[l].packageName);
             item->setData(Qt::UserRole, QVariant::fromValue<QVector<ViewTexture>>(list));
@@ -536,6 +539,7 @@ void LayoutTexturesManager::Startup()
             auto item = listLeftPackages->item(index);
             auto list = item->data(Qt::UserRole).value<QVector<ViewTexture>>();
             list.append(texture);
+            item->setData(Qt::UserRole, QVariant::fromValue<QVector<ViewTexture>>(list));
         }
     }
     listLeftPackages->setUpdatesEnabled(true);
@@ -610,6 +614,22 @@ void LayoutTexturesManager::UpdateGui()
         buttonPackageSingle->setEnabled(!packageSelected);
         buttonPackageMulti->setEnabled(!packageSelected);
     }
+}
+
+void LayoutTexturesManager::ListLeftPackagesSelected(QListWidgetItem *current,
+                                                     QListWidgetItem * /*previous*/)
+{
+    listMiddle->setUpdatesEnabled(false);
+    listMiddle->clear();
+    auto list = current->data(Qt::UserRole).value<QVector<ViewTexture>>();
+    for (int i = 0; i < list.count(); i++)
+    {
+        auto textureItem = new QListWidgetItem(list[i].name);
+        textureItem->setData(Qt::UserRole, QVariant::fromValue<int>(i));
+        listMiddle->addItem(textureItem);
+    }
+    listMiddle->sortItems();
+    listMiddle->setUpdatesEnabled(true);
 }
 
 void LayoutTexturesManager::ReplaceSelected()

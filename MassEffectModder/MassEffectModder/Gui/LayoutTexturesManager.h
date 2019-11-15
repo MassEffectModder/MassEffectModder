@@ -43,6 +43,7 @@ public:
     void Startup();
 
 private slots:
+    void ListLeftPackagesSelected(QListWidgetItem *current, QListWidgetItem *previous);
     void ReplaceSelected();
     void ReplaceConvertSelected();
     void ExtractDDSSelected();
