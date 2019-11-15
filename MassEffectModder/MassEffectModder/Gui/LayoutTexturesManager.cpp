@@ -486,7 +486,7 @@ void LayoutTexturesManager::Startup()
     QVector<ViewTexture> ViewTextureList;
     for (int t = 0; t < textures.count(); t++)
     {
-        if (timer.elapsed() > 200)
+        if (timer.elapsed() > 100)
         {
             QApplication::processEvents();
             timer.restart();
@@ -510,7 +510,7 @@ void LayoutTexturesManager::Startup()
     listLeftPackages->setUpdatesEnabled(false);
     for (int l = 0; l < ViewTextureList.count(); l++)
     {
-        if (timer.elapsed() > 200)
+        if (timer.elapsed() > 100)
         {
             QApplication::processEvents();
             timer.restart();

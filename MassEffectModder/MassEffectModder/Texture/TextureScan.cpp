@@ -271,7 +271,7 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
         for (int k = 0; k < textures.count(); k++)
         {
 #ifdef GUI
-            if (timer.elapsed() > 200)
+            if (timer.elapsed() > 100)
             {
                 QApplication::processEvents();
                 timer.restart();
@@ -306,7 +306,7 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
         for (int i = 0; i < count; i++)
         {
 #ifdef GUI
-            if (timer.elapsed() > 200)
+            if (timer.elapsed() > 100)
             {
                 QApplication::processEvents();
                 timer.restart();
@@ -355,7 +355,7 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
         for (int i = 0; i < g_GameData->packageFiles.count(); i++)
         {
 #ifdef GUI
-            if (timer.elapsed() > 200)
+            if (timer.elapsed() > 100)
             {
                 QApplication::processEvents();
                 timer.restart();
@@ -396,7 +396,7 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
         for (int i = 0; i < modifiedFiles.count(); i++, currentPackage++)
         {
 #ifdef GUI
-            if (timer.elapsed() > 200)
+            if (timer.elapsed() > 100)
             {
                 QApplication::processEvents();
                 timer.restart();
@@ -434,7 +434,7 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
         for (int i = 0; i < addedFiles.count(); i++, currentPackage++)
         {
 #ifdef GUI
-            if (timer.elapsed() > 200)
+            if (timer.elapsed() > 100)
             {
                 QApplication::processEvents();
                 timer.restart();
@@ -475,7 +475,7 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
         for (int i = 0; i < g_GameData->packageFiles.count(); i++)
         {
 #ifdef GUI
-            if (timer.elapsed() > 200)
+            if (timer.elapsed() > 100)
             {
                 QApplication::processEvents();
                 timer.restart();

@@ -41,19 +41,31 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
         QElapsedTimer timer;
         timer.start();
 #endif
+        QStringList files;
         QDirIterator iterator(MainData(), QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
         int pathLen = _path.length();
         while (iterator.hasNext())
         {
 #ifdef GUI
-            if (timer.elapsed() > 200)
+            if (timer.elapsed() > 100)
             {
                 QApplication::processEvents();
                 timer.restart();
             }
 #endif
             iterator.next();
-            QString path = iterator.filePath().mid(pathLen);
+            files.append(iterator.filePath().mid(pathLen));
+        }
+        for (int f = 0; f < files.count(); f++)
+        {
+#ifdef GUI
+            if (timer.elapsed() > 100)
+            {
+                QApplication::processEvents();
+                timer.restart();
+            }
+#endif
+            const QString& path = files[f];
             if (gameType == MeType::ME1_TYPE)
             {
                 if (path.endsWith("localshadercache-pc-d3d-sm3.upk", Qt::CaseInsensitive))
@@ -132,7 +144,7 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
                 while (iterator.hasNext())
                 {
 #ifdef GUI
-                    if (timer.elapsed() > 200)
+                    if (timer.elapsed() > 100)
                     {
                         QApplication::processEvents();
                         timer.restart();
