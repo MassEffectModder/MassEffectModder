@@ -50,6 +50,7 @@ public:
 
 private slots:
     void ListLeftPackagesSelected(QListWidgetItem *current, QListWidgetItem *previous);
+    void UpdateRightText(const ViewTexture &viewTexture);
     void ListMiddleTextureSelected(QListWidgetItem *current, QListWidgetItem *previous);
     void ReplaceSelected();
     void ReplaceConvertSelected();

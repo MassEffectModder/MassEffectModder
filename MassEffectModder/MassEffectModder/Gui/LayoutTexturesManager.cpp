@@ -25,11 +25,13 @@
 #include <Gui/LayoutTexturesManager.h>
 #include <Gui/MainWindow.h>
 #include <Gui/MessageWindow.h>
+#include <Image/Image.h>
 #include <Helpers/Exception.h>
 #include <Helpers/Logs.h>
 #include <Helpers/MiscHelpers.h>
 #include <MipMaps/MipMaps.h>
 #include <Misc/Misc.h>
+#include <Texture/Texture.h>
 
 LayoutTexturesManager::LayoutTexturesManager(MainWindow *window)
     : mainWindow(window)
@@ -561,7 +563,7 @@ void LayoutTexturesManager::Startup()
 
     singlePackageMode = false;
     singleViewMode = true;
-    imageViewMode = false;
+    imageViewMode = true;
     textureSelected = false;
     packageSelected = false;
 
@@ -646,13 +648,49 @@ void LayoutTexturesManager::ListLeftPackagesSelected(QListWidgetItem *current,
     listMiddle->setUpdatesEnabled(true);
 }
 
-void LayoutTexturesManager::ListMiddleTextureSelected(QListWidgetItem *current,
-                                                      QListWidgetItem * /*previous*/)
+void LayoutTexturesManager::UpdateRightText(const ViewTexture &viewTexture)
 {
-    auto viewTexture = current->data(Qt::UserRole).value<ViewTexture>();
     if (imageViewMode)
     {
-
+        TextureMapPackageEntry nodeTexture;
+        for (int index = 0; index < textures[viewTexture.indexInTextures].list.count(); index++)
+        {
+            if (textures[viewTexture.indexInTextures].list[index].path.length() != 0)
+            {
+                nodeTexture = textures[viewTexture.indexInTextures].list[index];
+            }
+        }
+        Package package;
+        package.Open(g_GameData->GamePath() + nodeTexture.path);
+        ByteBuffer exportData = package.getExportData(nodeTexture.exportID);
+        if (exportData.ptr() == nullptr)
+        {
+            PERROR(QString(QString("Error: Texture ") + package.exportsTable[nodeTexture.exportID].objectName +
+                    " has broken export data in package: " +
+                    nodeTexture.path +"\nExport Id: " + QString::number(nodeTexture.exportID + 1) +
+                    "\nSkipping...\n").toStdString().c_str());
+            return;
+        }
+        Texture texture(package, nodeTexture.exportID, exportData);
+        exportData.Free();
+        ByteBuffer data = texture.getTopImageData();
+        if (data.ptr() == nullptr)
+        {
+            PERROR(QString(QString("Error: Texture ") + package.exportsTable[nodeTexture.exportID].objectName +
+                    " has broken export data in package: " +
+                    nodeTexture.path +"\nExport Id: " + QString::number(nodeTexture.exportID + 1) +
+                    "\nSkipping...\n").toStdString().c_str());
+            return;
+        }
+        int width = texture.getTopMipmap().width;
+        int height = texture.getTopMipmap().height;
+        PixelFormat pixelFormat = Image::getPixelFormatType(texture.getProperties().getProperty("Format").valueName);
+        auto bitmap = Image::convertRawToARGB(data.ptr(), width, height, pixelFormat);
+        data.Free();
+        QImage image(bitmap.ptr(), width, height, width * 4, QImage::Format::Format_ARGB32);
+        auto pixmap = QPixmap::fromImage(image);
+        labelImage->setPixmap(pixmap.scaled(labelImage->size(), Qt::KeepAspectRatio));
+        bitmap.Free();
     }
     else
     {
@@ -713,6 +751,16 @@ void LayoutTexturesManager::ListMiddleTextureSelected(QListWidgetItem *current,
     }
 }
 
+void LayoutTexturesManager::ListMiddleTextureSelected(QListWidgetItem *current,
+                                                      QListWidgetItem * /*previous*/)
+{
+    if (current != nullptr)
+    {
+        auto viewTexture = current->data(Qt::UserRole).value<ViewTexture>();
+        UpdateRightText(viewTexture);
+    }
+}
+
 void LayoutTexturesManager::ReplaceSelected()
 {
 }
@@ -735,10 +783,28 @@ void LayoutTexturesManager::ViewImageSelected()
 
 void LayoutTexturesManager::ViewSingleSelected()
 {
+    if (!singleViewMode)
+    {
+        singleViewMode = true;
+        auto item = listMiddle->currentItem();
+        if (item != nullptr)
+        {
+            UpdateRightText(item->data(Qt::UserRole).value<ViewTexture>());
+        }
+    }
 }
 
 void LayoutTexturesManager::ViewMultiSelected()
 {
+    if (singleViewMode)
+    {
+        singleViewMode = false;
+        auto item = listMiddle->currentItem();
+        if (item != nullptr)
+        {
+            UpdateRightText(item->data(Qt::UserRole).value<ViewTexture>());
+        }
+    }
 }
 
 void LayoutTexturesManager::PackageSingleSelected()

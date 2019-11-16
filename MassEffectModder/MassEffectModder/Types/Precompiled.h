@@ -72,6 +72,8 @@
 #include <QSplitter>
 #include <QGroupBox>
 #include <QStackedWidget>
+#include <QPixmap>
+#include <QImage>
 #endif
 
 #include <omp.h>
