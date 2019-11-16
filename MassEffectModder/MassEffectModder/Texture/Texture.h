@@ -88,6 +88,7 @@ public:
 
     Texture(Package &package, int exportId, const ByteBuffer &data, bool fixDim = true);
     ~Texture();
+    static const QString StorageTypeToString(StorageTypes type);
     void replaceMipMaps(const QList<TextureMipMap> &newMipMaps);
     static const ByteBuffer compressTexture(const ByteBuffer &inputData, StorageTypes type, bool repack = true);
     static const ByteBuffer decompressTexture(Stream &stream, StorageTypes type, int uncompressedSize, int compressedSize);

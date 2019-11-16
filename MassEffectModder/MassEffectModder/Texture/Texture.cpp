@@ -152,6 +152,29 @@ Texture::~Texture()
     }
 }
 
+const QString Texture::StorageTypeToString(StorageTypes type)
+{
+    switch (type)
+    {
+    case StorageTypes::pccUnc:
+        return "pccUnc";
+    case StorageTypes::pccLZO:
+        return "pccLZO";
+    case StorageTypes::pccZlib:
+        return "pccZlib";
+    case StorageTypes::extUnc:
+        return "extUnc";
+    case StorageTypes::extLZO:
+        return "extLZO";
+    case StorageTypes::extZlib:
+        return "extZlib";
+    case StorageTypes::empty:
+        return "empty";
+    default:
+        CRASH();
+    }
+}
+
 void Texture::replaceMipMaps(const QList<TextureMipMap> &newMipMaps)
 {
     for (int l = 0; l < mipMapsList.count(); l++)

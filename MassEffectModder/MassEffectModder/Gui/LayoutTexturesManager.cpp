@@ -45,9 +45,15 @@ LayoutTexturesManager::LayoutTexturesManager(MainWindow *window)
     leftWidget->addWidget(listLeftSearch);
     leftWidget->setCurrentIndex(kLeftWidgetPackages);
     listMiddle = new QListWidget();
+    connect(listMiddle, &QListWidget::currentItemChanged, this, &LayoutTexturesManager::ListMiddleTextureSelected);
 
     labelImage = new QLabel();
     textRight = new QPlainTextEdit;
+    textRight->setReadOnly(true);
+
+    QFont font("Monaco");
+    font.setPixelSize(10);
+    textRight->setFont(font);
     listRight = new QListWidget;
     rightView = new QStackedWidget();
     rightView->addWidget(labelImage);
@@ -203,7 +209,7 @@ LayoutTexturesManager::LayoutTexturesManager(MainWindow *window)
     mainWindow->SetTitle("Texture Manager");
 }
 
-static bool compareViewTexture(const ViewTexture &e1, const ViewTexture &e2)
+static bool compareViewPackage(const ViewPackage &e1, const ViewPackage &e2)
 {
     return e1.packageName.compare(e2.packageName, Qt::CaseInsensitive) < 0;
 }
@@ -485,7 +491,7 @@ void LayoutTexturesManager::Startup()
     timer.start();
     mainWindow->statusBar()->showMessage("Preparing tree view...");
     QApplication::processEvents();
-    QVector<ViewTexture> ViewTextureList;
+    QVector<ViewPackage> ViewPackageList;
     for (int t = 0; t < textures.count(); t++)
     {
         if (timer.elapsed() > 100)
@@ -497,45 +503,45 @@ void LayoutTexturesManager::Startup()
         {
             if (textures[t].list[l].path.length() == 0)
                 continue;
-            QString packageName = BaseNameWithoutExt(textures[t].list[l].path);
-            ViewTexture texture;
-            texture.crc = textures[t].crc;
-            texture.name = textures[t].name;
-            texture.packageName = packageName;
-            ViewTextureList.append(texture);
+            ViewPackage texture;
+            texture.packageName = BaseNameWithoutExt(textures[t].list[l].path);
+            texture.indexInTextures = t;
+            texture.indexInPackages = l;
+            ViewPackageList.append(texture);
         }
     }
-    std::sort(ViewTextureList.begin(), ViewTextureList.end(), compareViewTexture);
+    std::sort(ViewPackageList.begin(), ViewPackageList.end(), compareViewPackage);
 
     QString lastPackageName;
     int index = -1;
     listLeftPackages->setUpdatesEnabled(false);
-    for (int l = 0; l < ViewTextureList.count(); l++)
+    for (int l = 0; l < ViewPackageList.count(); l++)
     {
         if (timer.elapsed() > 100)
         {
             QApplication::processEvents();
             timer.restart();
         }
-        if (ViewTextureList[l].packageName != lastPackageName)
+        if (ViewPackageList[l].packageName != lastPackageName)
         {
             QVector<ViewTexture> list;
             ViewTexture texture;
-            texture.crc = ViewTextureList[l].crc;
-            texture.name = ViewTextureList[l].name;
-            texture.packageName = ViewTextureList[l].packageName;
+            texture.name = textures[ViewPackageList[l].indexInTextures].name;
+            texture.indexInTextures = ViewPackageList[l].indexInTextures;
+            texture.indexInPackages = ViewPackageList[l].indexInPackages;
             list.append(texture);
-            auto item = new QListWidgetItem(ViewTextureList[l].packageName);
+            auto item = new QListWidgetItem(ViewPackageList[l].packageName);
             item->setData(Qt::UserRole, QVariant::fromValue<QVector<ViewTexture>>(list));
             listLeftPackages->addItem(item);
-            lastPackageName = ViewTextureList[l].packageName;
+            lastPackageName = ViewPackageList[l].packageName;
             index++;
         }
         else
         {
             ViewTexture texture;
-            texture.crc = ViewTextureList[l].crc;
-            texture.name = ViewTextureList[l].name;
+            texture.name = textures[ViewPackageList[l].indexInTextures].name;
+            texture.indexInTextures = ViewPackageList[l].indexInTextures;
+            texture.indexInPackages = ViewPackageList[l].indexInPackages;
             auto item = listLeftPackages->item(index);
             auto list = item->data(Qt::UserRole).value<QVector<ViewTexture>>();
             list.append(texture);
@@ -547,7 +553,7 @@ void LayoutTexturesManager::Startup()
 
     singlePackageMode = false;
     singleViewMode = true;
-    imageViewMode = true;
+    imageViewMode = false;
     textureSelected = false;
     packageSelected = false;
 
@@ -625,11 +631,78 @@ void LayoutTexturesManager::ListLeftPackagesSelected(QListWidgetItem *current,
     for (int i = 0; i < list.count(); i++)
     {
         auto textureItem = new QListWidgetItem(list[i].name);
-        textureItem->setData(Qt::UserRole, QVariant::fromValue<int>(i));
+        textureItem->setData(Qt::UserRole, QVariant::fromValue<ViewTexture>(list[i]));
         listMiddle->addItem(textureItem);
     }
     listMiddle->sortItems();
     listMiddle->setUpdatesEnabled(true);
+}
+
+void LayoutTexturesManager::ListMiddleTextureSelected(QListWidgetItem *current,
+                                                      QListWidgetItem * /*previous*/)
+{
+    auto viewTexture = current->data(Qt::UserRole).value<ViewTexture>();
+    if (imageViewMode)
+    {
+
+    }
+    else
+    {
+        QString text;
+        text += "Texture original CRC:  " +
+                QString().sprintf("0x%08X", textures[viewTexture.indexInTextures].crc) + "\n";
+        text += "Node name:     " + textures[viewTexture.indexInTextures].name + "\n";
+        for (int index2 = 0; index2 < (!singleViewMode ? textures[viewTexture.indexInTextures].list.count() : 1); index2++)
+        {
+            if (textures[viewTexture.indexInTextures].list[index2].path.count() == 0)
+                continue;
+            TextureMapPackageEntry nodeTexture = textures[viewTexture.indexInTextures].list[index2];
+            Package package;
+            package.Open(g_GameData->GamePath() + nodeTexture.path);
+            ByteBuffer exportData = package.getExportData(nodeTexture.exportID);
+            if (exportData.ptr() == nullptr)
+            {
+                text += "Error: Texture " + package.exportsTable[nodeTexture.exportID].objectName +
+                        " has broken export data in package: " +
+                        nodeTexture.path +"\nExport Id: " + QString::number(nodeTexture.exportID + 1) +
+                        "\nSkipping...\n";
+                continue;
+            }
+            Texture texture(package, nodeTexture.exportID, exportData);
+            exportData.Free();
+            text += "\nTexture instance: " + QString::number(index2 + 1) + "\n";
+            text += "  Texture name:       " + package.exportsTable[nodeTexture.exportID].objectName + "\n";
+            text += "  Export Id:          " + QString::number(nodeTexture.exportID + 1) + "\n";
+            if (g_GameData->GamePath() == MeType::ME1_TYPE)
+            {
+                if (nodeTexture.linkToMaster == -1)
+                    text += "  Master Texture\n";
+                else
+                {
+                    text += "  Slave Texture\n";
+                    text += "    Refer to package: " + texture.basePackageName + "\n";
+                    text += "    Refer to texture: " + QString::number(nodeTexture.linkToMaster + 1) + "\n";
+                }
+            }
+            text += "  Package path:       " + nodeTexture.path + "\n";
+            text += "  Texture properties:\n";
+            for (int l = 0; l < texture.getProperties().texPropertyList.count(); l++)
+            {
+                text += "  " + texture.getProperties().getDisplayString(l);
+            }
+            text += "\n";
+            for (int l = 0; l < texture.mipMapsList.count(); l++)
+            {
+                text += "  MipMap: " + QString::number(l) + ", " + QString::number(texture.mipMapsList[l].width) +
+                        "x" + QString::number(texture.mipMapsList[l].height) + "\n";
+                text += "    StorageType: " + Texture::StorageTypeToString(texture.mipMapsList[l].storageType) + "\n";
+                text += "    DataOffset:  " + QString::number((int)texture.mipMapsList[l].dataOffset) + "\n";
+                text += "    CompSize:    " + QString::number(texture.mipMapsList[l].compressedSize) + "\n";
+                text += "    UnCompSize:  " + QString::number(texture.mipMapsList[l].uncompressedSize) + "\n";
+            }
+        }
+        textRight->setPlainText(text);
+    }
 }
 
 void LayoutTexturesManager::ReplaceSelected()

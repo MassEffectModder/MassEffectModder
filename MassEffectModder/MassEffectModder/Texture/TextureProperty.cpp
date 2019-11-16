@@ -130,7 +130,7 @@ void TextureProperty::fetchValue(int index)
     if (index < 0 || index >= texPropertyList.count())
         CRASH("");
     TexturePropertyEntry texProperty = texPropertyList[index];
-    if (texProperty.fetched || texProperty.type == "None")
+    if (texProperty.fetched || texProperty.name == "None")
         return;
     if (texProperty.type == "IntProperty")
     {
@@ -188,7 +188,7 @@ QString TextureProperty::getDisplayString(int index)
 
     fetchValue(index);
     TexturePropertyEntry texProperty = texPropertyList[index];
-    if (texProperty.type == "None")
+    if (texProperty.name == "None")
         return result;
 
     result = "  " + texProperty.name + ": ";

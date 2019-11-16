@@ -27,10 +27,16 @@
 #include <Resources/Resources.h>
 #include <Texture/TextureScan.h>
 
+struct ViewPackage {
+    QString packageName;
+    int     indexInTextures;
+    int     indexInPackages;
+};
+
 struct ViewTexture {
     QString name;
-    uint    crc;
-    QString packageName;
+    int     indexInTextures;
+    int     indexInPackages;
 };
 Q_DECLARE_METATYPE(ViewTexture)
 
@@ -44,6 +50,7 @@ public:
 
 private slots:
     void ListLeftPackagesSelected(QListWidgetItem *current, QListWidgetItem *previous);
+    void ListMiddleTextureSelected(QListWidgetItem *current, QListWidgetItem *previous);
     void ReplaceSelected();
     void ReplaceConvertSelected();
     void ExtractDDSSelected();
