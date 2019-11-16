@@ -210,7 +210,7 @@ LIBS += \
 }
 
 macx {
-    QMAKE_CXXFLAGS += -Xpreprocessor -fopenmp
+    QMAKE_CXXFLAGS += -Xpreprocessor -fopenmp -mmacosx-version-min=10.12
     QMAKE_CXXFLAGS_RELEASE += -fvisibility=hidden -fvisibility-inlines-hidden
 }
 
