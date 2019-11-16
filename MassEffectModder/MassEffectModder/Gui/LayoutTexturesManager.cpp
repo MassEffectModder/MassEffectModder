@@ -50,9 +50,17 @@ LayoutTexturesManager::LayoutTexturesManager(MainWindow *window)
     labelImage = new QLabel();
     textRight = new QPlainTextEdit;
     textRight->setReadOnly(true);
-
+#if defined(__APPLE__)
     QFont font("Monaco");
     font.setPixelSize(10);
+#elif defined(__linux__)
+    QFont font("Monospace");
+    font.setPixelSize(10);
+#else
+    QFont font("Monospace");
+    font.setPixelSize(11);
+#endif
+    font.setFixedPitch(true);
     textRight->setFont(font);
     listRight = new QListWidget;
     rightView = new QStackedWidget();
