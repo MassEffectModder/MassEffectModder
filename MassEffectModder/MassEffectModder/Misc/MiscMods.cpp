@@ -299,7 +299,7 @@ bool Misc::ParseBinaryModFileName(const QString &file, QString &pkgName, QString
     if (filename.toUpper()[posStr++] != 'E')
         return false;
     QString tmpExp = filename.mid(posStr);
-    exportId = tmpExp.midRef(0).toInt();
+    exportId = tmpExp.midRef(0).toInt() - 1;
 
     return true;
 }
@@ -1074,7 +1074,7 @@ bool Misc::extractMEM(MeType gameId, QFileInfoList &inputList, QString &outputDi
                     newFilename = "B";
                 }
                 newFilename += QString::number(BaseName(path).size()) +
-                        "-" + BaseName(path) + "-E" + QString::number(exportId);
+                        "-" + BaseName(path) + "-E" + QString::number(exportId + 1);
                 if (modFiles[i].tag == FileBinaryTag)
                     newFilename += ".bin";
                 else
@@ -1162,7 +1162,7 @@ bool Misc::extractMOD(QFileInfoList &list, QList<TextureMapEntry> &textures, QSt
                     newFilename = "B";
                 }
                 newFilename += QString::number(BaseName(path).size()) + "-" +
-                        BaseName(path) + "-E" + QString::number(exportId) + ".bin";
+                        BaseName(path) + "-E" + QString::number(exportId + 1) + ".bin";
                 QString outputFile = outputMODdir + "/" + newFilename;
                 if (QFile(outputFile).exists())
                     QFile(outputFile).remove();
