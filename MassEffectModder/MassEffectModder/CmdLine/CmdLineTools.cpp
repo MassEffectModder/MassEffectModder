@@ -487,7 +487,7 @@ bool CmdLineTools::DetectMods(MeType gameId)
 }
 
 bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool repack,
-                               bool guiInstaller, bool limit2k, bool verify, int cacheAmount)
+                               bool alotMode, bool limit2k, bool verify, int cacheAmount)
 {
     Resources resources;
     resources.loadMD5Tables();
@@ -506,7 +506,7 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool repack,
     }
 
     return Misc::InstallMods(gameId, resources, modFiles, repack,
-                             guiInstaller, limit2k, verify, cacheAmount,
+                             alotMode, limit2k, verify, cacheAmount,
                              nullptr, nullptr);
 }
 

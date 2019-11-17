@@ -258,7 +258,7 @@ bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
 }
 
 bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFiles,
-                       bool repack, bool guiInstaller, bool limit2k, bool verify, int cacheAmount,
+                       bool repack, bool alotMode, bool limit2k, bool verify, int cacheAmount,
                        ProgressCallback callback, void *callbackHandle)
 {
     MipMaps mipMaps;
@@ -271,7 +271,7 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
         return false;
     }
 
-    if (!guiInstaller)
+    if (!alotMode)
     {
         if (gameId == MeType::ME1_TYPE && !QFile(GameData::EngineConfigIniPath(gameId)).exists())
         {
@@ -416,7 +416,7 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
         Misc::AddMarkers(pkgsToMarker, callback, callbackHandle);
 
 
-    if (!guiInstaller)
+    if (!alotMode)
     {
         if (!applyModTag(gameId, 0, 0))
             PERROR("Failed applying stamp for installation!\n");

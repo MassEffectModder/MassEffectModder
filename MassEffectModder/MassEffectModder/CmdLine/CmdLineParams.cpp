@@ -41,7 +41,7 @@ int ProcessArguments()
     int cmd = CmdType::UNKNOWN;
     MeType gameId = MeType::UNKNOWN_TYPE;
     bool markToConvert = false;
-    bool guiMode = false;
+    bool alotMode = false;
     bool repackMode = false;
     bool meuitmMode = false;
     bool softShadowsMods = false;
@@ -195,7 +195,7 @@ int ProcessArguments()
         }
         else if (arg == "--alot-mode")
         {
-            guiMode = true;
+            alotMode = true;
             args.removeAt(l--);
         }
         else if (arg == "--repack-mode")
@@ -490,7 +490,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.InstallMods(gameId, input, repackMode, guiMode, limit2k, verify, cacheAmountValue))
+        if (!tools.InstallMods(gameId, input, repackMode, alotMode, limit2k, verify, cacheAmountValue))
         {
             errorCode = 1;
         }

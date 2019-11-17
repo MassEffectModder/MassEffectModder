@@ -100,7 +100,7 @@ public:
     static void RepackME23(MeType gameId, bool appendMarker, QStringList &pkgsToRepack,
                            ProgressCallback callback, void *callbackHandle);
     static bool InstallMods(MeType gameId, Resources &resources, QStringList &modFiles,
-                           bool repack, bool guiInstaller, bool limit2k, bool verify, int cacheAmount,
+                           bool repack, bool alotMode, bool limit2k, bool verify, int cacheAmount,
                            ProgressCallback callback, void *callbackHandle);
     static bool RemoveMipmaps(MipMaps &mipMaps, QList<TextureMapEntry> &textures,
                               QStringList &pkgsToMarker, QStringList &pkgsToRepack,
