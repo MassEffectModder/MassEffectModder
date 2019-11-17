@@ -579,6 +579,14 @@ void LayoutTexturesManager::PrepareTexturesCallback(void *handle, int progress, 
     QApplication::processEvents();
 }
 
+void LayoutTexturesManager::ReplaceTextureCallback(void *handle, int progress, const QString & /*stage*/)
+{
+    auto *win = static_cast<MainWindow *>(handle);
+    win->statusBar()->showMessage(QString("Replacing texture...") +
+                                  " -  Progress: " + QString::number(progress) + "%");
+    QApplication::processEvents();
+}
+
 void LayoutTexturesManager::LockGui(bool lock)
 {
     listLeftPackages->setEnabled(!lock);
@@ -658,6 +666,7 @@ void LayoutTexturesManager::UpdateRightText(const ViewTexture &viewTexture)
             if (textures[viewTexture.indexInTextures].list[index].path.length() != 0)
             {
                 nodeTexture = textures[viewTexture.indexInTextures].list[index];
+                break;
             }
         }
         Package package;
@@ -761,24 +770,239 @@ void LayoutTexturesManager::ListMiddleTextureSelected(QListWidgetItem *current,
     }
 }
 
+void LayoutTexturesManager::ReplaceTexture(const ViewTexture& viewTexture, bool convertMode)
+{
+    LockGui(true);
+
+    QString file = QFileDialog::getOpenFileName(this,
+            "Please select texture file", "", "Texture (*.dds *.png *.bmp *.tga)");
+    if (file.length() == 0)
+    {
+        LockGui(false);
+        return;
+    }
+
+    g_logs->BufferClearErrors();
+    g_logs->BufferEnableErrors(true);
+    auto image = new Image(file);
+    mainWindow->statusBar()->clearMessage();
+    g_logs->BufferEnableErrors(false);
+    if (g_logs->BufferGetErrors() != "")
+    {
+        MessageWindow msg;
+        msg.Show(mainWindow, "Replacing texture", g_logs->BufferGetErrors());
+        LockGui(false);
+        return;
+    }
+
+    TextureMapPackageEntry nodeTexture;
+    for (int index = 0; index < textures[viewTexture.indexInTextures].list.count(); index++)
+    {
+        if (textures[viewTexture.indexInTextures].list[index].path.length() != 0)
+        {
+            nodeTexture = textures[viewTexture.indexInTextures].list[index];
+            break;
+        }
+    }
+    MipMaps mipMaps;
+    QList<ModEntry> modsToReplace;
+    QStringList pkgsToMarker;
+    QStringList pkgsToRepack;
+    ModEntry modEntry;
+    modEntry.injectedTexture = image;
+    modEntry.textureCrc = textures[viewTexture.indexInTextures].crc;
+    modEntry.textureName = textures[viewTexture.indexInTextures].name;
+    modEntry.markConvert = convertMode;
+    modEntry.instance = 1;
+    modsToReplace.append(modEntry);
+    mainWindow->statusBar()->clearMessage();
+    g_logs->BufferEnableErrors(false);
+    if (singlePackageMode)
+    {
+        MapPackagesToModEntry entry{};
+        entry.texturesIndex = viewTexture.indexInTextures;
+        entry.listIndex = viewTexture.indexInPackages;
+        MapPackagesToMod mapEntry;
+        mapEntry.textures.append(entry);
+        mapEntry.packagePath = textures[viewTexture.indexInTextures].list[viewTexture.indexInPackages].path;
+        QList<MapPackagesToMod> mapPackages;
+        mapPackages.append(mapEntry);
+        mipMaps.replaceTextures(mapPackages, textures, pkgsToMarker, pkgsToRepack, modsToReplace,
+                                false, false, true, false, 0,
+                                &LayoutTexturesManager::ReplaceTextureCallback, mainWindow);
+    }
+    else
+    {
+        mipMaps.replaceModsFromList(textures, pkgsToMarker, pkgsToRepack, modsToReplace,
+                                    false, false, true, false, 0,
+                                    &LayoutTexturesManager::ReplaceTextureCallback, mainWindow);
+    }
+    mainWindow->statusBar()->clearMessage();
+    if (g_logs->BufferGetErrors() != "")
+    {
+        MessageWindow msg;
+        msg.Show(mainWindow, "Replacing texture", g_logs->BufferGetErrors());
+    }
+    else
+    {
+        QMessageBox::information(this, "Replacing texture", "Replacing texture completed.");
+    }
+
+    LockGui(false);
+}
+
 void LayoutTexturesManager::ReplaceSelected()
 {
+    auto item = listMiddle->currentItem();
+    if (item != nullptr)
+    {
+        ReplaceTexture(item->data(Qt::UserRole).value<ViewTexture>(), false);
+    }
 }
 
 void LayoutTexturesManager::ReplaceConvertSelected()
 {
+    auto item = listMiddle->currentItem();
+    if (item != nullptr)
+    {
+        ReplaceTexture(item->data(Qt::UserRole).value<ViewTexture>(), true);
+    }
+}
+
+void LayoutTexturesManager::ExtractTexture(const ViewTexture& viewTexture, bool png)
+{
+    LockGui(true);
+
+    QString outputDir = QFileDialog::getExistingDirectory(this,
+            "Please select destination directory for extracted file");
+    if (outputDir == "")
+    {
+        LockGui(false);
+        return;
+    }
+    outputDir = QDir::cleanPath(outputDir);
+
+    TextureMapPackageEntry nodeTexture;
+    for (int index = 0; index < textures[viewTexture.indexInTextures].list.count(); index++)
+    {
+        if (textures[viewTexture.indexInTextures].list[index].path.length() != 0)
+        {
+            nodeTexture = textures[viewTexture.indexInTextures].list[index];
+            break;
+        }
+    }
+    Package package;
+    package.Open(g_GameData->GamePath() + nodeTexture.path);
+    ByteBuffer exportData = package.getExportData(nodeTexture.exportID);
+    if (exportData.ptr() == nullptr)
+    {
+        QMessageBox::critical(this, "Extracting texture", QString("Error: Texture ") +
+                              package.exportsTable[nodeTexture.exportID].objectName +
+                              " has broken export data in package: " +
+                              nodeTexture.path +"\nExport Id: " + QString::number(nodeTexture.exportID + 1));
+        LockGui(false);
+        return;
+    }
+    Texture texture(package, nodeTexture.exportID, exportData);
+    exportData.Free();
+
+    uint crc = Misc::GetCRCFromTextureMap(textures, nodeTexture.exportID, nodeTexture.path);
+    if (crc == 0)
+        crc = texture.getCrcTopMipmap();
+    if (crc == 0)
+    {
+        QMessageBox::critical(this, "Extracting texture", QString("Error: Texture ") +
+                              package.exportsTable[nodeTexture.exportID].objectName +
+                              " has broken export data in package: " +
+                              nodeTexture.path +"\nExport Id: " + QString::number(nodeTexture.exportID + 1));
+        LockGui(false);
+        return;
+    }
+
+    QString outputFile = outputDir + "/" +
+            package.exportsTable[nodeTexture.exportID].objectName +
+            QString().sprintf("_0x%08X", crc);
+    if (png)
+    {
+        outputFile += ".png";
+    }
+    else
+    {
+        outputFile += ".dds";
+    }
+    if (QFile(outputFile).exists())
+        QFile(outputFile).remove();
+
+    PixelFormat pixelFormat = Image::getPixelFormatType(texture.getProperties().getProperty("Format").valueName);
+    if (png)
+    {
+        ByteBuffer data = texture.getTopImageData();
+        if (data.ptr() == nullptr)
+        {
+            QMessageBox::critical(this, "Extracting texture", QString("Error: Texture ") +
+                                  package.exportsTable[nodeTexture.exportID].objectName +
+                                  " has broken export data in package: " +
+                                  nodeTexture.path +"\nExport Id: " + QString::number(nodeTexture.exportID + 1));
+            LockGui(false);
+            return;
+        }
+        Texture::TextureMipMap mipmap = texture.getTopMipmap();
+        Image::saveToPng(data.ptr(), mipmap.width, mipmap.height, pixelFormat, outputFile);
+        data.Free();
+    }
+    else
+    {
+        texture.removeEmptyMips();
+        QList<MipMap *> mipmaps = QList<MipMap *>();
+        for (int k = 0; k < texture.mipMapsList.count(); k++)
+        {
+            ByteBuffer data = texture.getMipMapDataByIndex(k);
+            if (data.ptr() == nullptr)
+            {
+                QMessageBox::critical(this, "Extracting texture", QString("Error: Texture ") +
+                                      package.exportsTable[nodeTexture.exportID].objectName +
+                                      " has broken export data in package: " +
+                                      nodeTexture.path +"\nExport Id: " + QString::number(nodeTexture.exportID + 1));
+                LockGui(false);
+                return;
+            }
+            mipmaps.push_back(new MipMap(data, texture.mipMapsList[k].width, texture.mipMapsList[k].height, pixelFormat));
+            data.Free();
+        }
+        Image image = Image(mipmaps, pixelFormat);
+        FileStream fs = FileStream(outputFile, FileMode::Create, FileAccess::WriteOnly);
+        image.StoreImageToDDS(fs);
+    }
+
+    QMessageBox::information(this, "Extracting texture", "Completed extracting texture.");
+
+    LockGui(false);
 }
 
 void LayoutTexturesManager::ExtractDDSSelected()
 {
+    auto item = listMiddle->currentItem();
+    if (item != nullptr)
+    {
+        ExtractTexture(item->data(Qt::UserRole).value<ViewTexture>(), false);
+    }
 }
 
 void LayoutTexturesManager::ExtractPNGSelected()
 {
+    auto item = listMiddle->currentItem();
+    if (item != nullptr)
+    {
+        ExtractTexture(item->data(Qt::UserRole).value<ViewTexture>(), true);
+    }
 }
 
 void LayoutTexturesManager::ViewImageSelected()
 {
+    if (!imageViewMode)
+    {
+        imageViewMode = true;
+    }
 }
 
 void LayoutTexturesManager::ViewSingleSelected()
@@ -786,6 +1010,7 @@ void LayoutTexturesManager::ViewSingleSelected()
     if (!singleViewMode)
     {
         singleViewMode = true;
+        imageViewMode = false;
         auto item = listMiddle->currentItem();
         if (item != nullptr)
         {
@@ -799,6 +1024,7 @@ void LayoutTexturesManager::ViewMultiSelected()
     if (singleViewMode)
     {
         singleViewMode = false;
+        imageViewMode = false;
         auto item = listMiddle->currentItem();
         if (item != nullptr)
         {
@@ -809,14 +1035,145 @@ void LayoutTexturesManager::ViewMultiSelected()
 
 void LayoutTexturesManager::PackageSingleSelected()
 {
+    if (!singlePackageMode)
+    {
+        singlePackageMode = true;
+        imageViewMode = false;
+    }
 }
 
 void LayoutTexturesManager::PackageMutiSelected()
 {
+    if (singlePackageMode)
+    {
+        singlePackageMode = false;
+        imageViewMode = false;
+    }
+}
+
+void LayoutTexturesManager::selectFoundTexture(const QListWidgetItem *item)
+{
+    leftWidget->setCurrentIndex(kLeftWidgetPackages);
+    auto searchTexture = item->data(Qt::UserRole).value<ViewTexture>();
+    for (int p = 0; p < listLeftPackages->count(); p++)
+    {
+        auto itemPackage = listLeftPackages->item(p);
+        QString packageName = textures[searchTexture.indexInTextures].list[searchTexture.indexInPackages].packageName.toLower();
+        if (itemPackage->text().toLower() == packageName)
+        {
+            itemPackage->setSelected(true);
+            for (int t = 0; t < listMiddle->count(); t++)
+            {
+                auto searchItem = listMiddle->item(t);
+                auto viewTexture = searchItem->data(Qt::UserRole).value<ViewTexture>();
+                if (viewTexture.indexInTextures == searchTexture.indexInTextures)
+                {
+                    searchItem->setSelected(true);
+                    return;
+                }
+            }
+        }
+    }
+}
+
+void LayoutTexturesManager::SearchTexture(const QString &name, uint crc)
+{
+    listLeftSearch->clear();
+    for (int l = 0; l < textures.count(); l++)
+    {
+        const TextureMapEntry& foundTexture = textures[l];
+        bool found = false;
+        if (name != "")
+        {
+            if (name.contains("*"))
+            {
+                QRegExp regex(name.toLower());
+                regex.setPatternSyntax(QRegExp::Wildcard);
+                if (regex.exactMatch(foundTexture.name.toLower()))
+                {
+                    found = true;
+                }
+            }
+            else if (foundTexture.name.toLower() == name.toLower())
+            {
+                found = true;
+            }
+        }
+        else if (crc != 0 && foundTexture.crc == crc)
+        {
+            found = true;
+        }
+        if (found)
+        {
+            TextureMapPackageEntry nodeTexture;
+            int indexInPackages;
+            for (indexInPackages = 0; indexInPackages < foundTexture.list.count(); indexInPackages++)
+            {
+                if (foundTexture.list[indexInPackages].path.length() != 0)
+                {
+                    nodeTexture = foundTexture.list[indexInPackages];
+                    break;
+                }
+            }
+            auto item = new QListWidgetItem(foundTexture.name + " (" + nodeTexture.path + ")");
+            ViewTexture texture;
+            texture.name = foundTexture.name;
+            texture.indexInTextures = l;
+            texture.indexInPackages = indexInPackages;
+            item->setData(Qt::UserRole, QVariant::fromValue<ViewTexture>(texture));
+            listLeftSearch->addItem(item);
+        }
+    }
+    if (listLeftSearch->count() > 1)
+    {
+        leftWidget->setCurrentIndex(kLeftWidgetSearch);
+        listMiddle->clear();
+        rightView->hide();
+    }
+    if (listLeftSearch->count() == 1)
+    {
+        listMiddle->setFocus(Qt::OtherFocusReason);
+        selectFoundTexture(listLeftSearch->item(0));
+    }
+    if (listLeftSearch->count() == 0)
+    {
+        QMessageBox::information(this, "Search texture", "Texture not found.");
+    }
 }
 
 void LayoutTexturesManager::SearchSelected()
 {
+    bool ok;
+    QString text = QInputDialog::getText(this, "Search texture",
+                                         "Please enter texture name or CRC (0xhhhhhhhh).\n\nYou can use * as wilcards.",
+                                         QLineEdit::Normal, "", &ok);
+    if (!ok || text.length() == 0)
+        return;
+
+    LockGui(true);
+    uint crc = 0;
+    if (text.contains("0x"))
+    {
+        int idx = text.indexOf("0x");
+        if (text.size() - idx >= 10)
+        {
+            QString crcStr = text.mid(idx, 10);
+            bool ok;
+            crc = crcStr.toUInt(&ok, 16);
+        }
+    }
+
+    if (crc != 0)
+    {
+        SearchTexture("", crc);
+    }
+    else
+    {
+        text = text.split('.').first(); // in case filename
+        SearchTexture(text, 0);
+    }
+
+    LockGui(false);
 }
 
 void LayoutTexturesManager::ExitSelected()

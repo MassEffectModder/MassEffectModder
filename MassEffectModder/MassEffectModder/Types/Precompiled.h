@@ -74,6 +74,7 @@
 #include <QStackedWidget>
 #include <QPixmap>
 #include <QImage>
+#include <QInputDialog>
 #endif
 
 #include <omp.h>

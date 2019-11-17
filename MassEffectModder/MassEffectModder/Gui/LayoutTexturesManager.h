@@ -23,6 +23,7 @@
 #define LAYOUT_TEXTURES_MANAGER_H
 
 #include <Gui/MainWindow.h>
+#include <Image/Image.h>
 #include <Program/ConfigIni.h>
 #include <Resources/Resources.h>
 #include <Texture/TextureScan.h>
@@ -118,8 +119,13 @@ private:
     Resources      resources;
 
     static void PrepareTexturesCallback(void *handle, int progress, const QString &stage);
+    static void ReplaceTextureCallback(void *handle, int progress, const QString &stage);
     void LockGui(bool lock);
     void UpdateGui();
+    void ExtractTexture(const ViewTexture& viewTexture, bool png);
+    void ReplaceTexture(const ViewTexture& viewTexture, bool convertMode);
+    void SearchTexture(const QString &name, uint crc);
+    void selectFoundTexture(const QListWidgetItem *item);
 };
 
 #endif // LAYOUT_TEXTURES_MANAGER_H
