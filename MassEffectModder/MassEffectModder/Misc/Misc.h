@@ -119,7 +119,7 @@ public:
     static bool ReportMods();
     static bool applyMods(QStringList &files, QList<TextureMapEntry> &textures,
                           QStringList &pkgsToRepack, QStringList &pkgsToMarker,
-                          MipMaps &mipMaps, bool repack,
+                          MipMaps &mipMaps, bool repack, bool alotMode,
                           bool modded, bool verify, int cacheAmount,
                           ProgressCallback callback, void *callbackHandle);
     static bool CorrectTexture(Image &image, TextureMapEntry &f, int numMips, bool markToConvert,

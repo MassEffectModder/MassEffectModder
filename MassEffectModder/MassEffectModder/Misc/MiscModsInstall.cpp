@@ -32,7 +32,7 @@
 
 bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
                      QStringList &pkgsToRepack, QStringList &pkgsToMarker,
-                     MipMaps &mipMaps, bool repack,
+                     MipMaps &mipMaps, bool repack, bool alotMode,
                      bool modded, bool verify, int cacheAmount,
                      ProgressCallback callback, void *callbackHandle)
 {
@@ -233,7 +233,7 @@ bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
     }
 
     mipMaps.replaceModsFromList(textures, pkgsToMarker, pkgsToRepack, modsToReplace,
-                                repack, !modded, verify, !modded, cacheAmount,
+                                repack, alotMode, verify, !modded, cacheAmount,
                                 callback, callbackHandle);
 
     PINFO("Process textures finished.\n\n");
@@ -364,14 +364,17 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
     {
         if (callback)
             callback(callbackHandle, -1, "Preparing to scan textures...");
-        for (int i = 0; i < g_GameData->packageFiles.count(); i++)
+        if (alotMode)
         {
-            pkgsToMarker.push_back(g_GameData->packageFiles[i]);
+            for (int i = 0; i < g_GameData->packageFiles.count(); i++)
+            {
+                pkgsToMarker.push_back(g_GameData->packageFiles[i]);
+            }
+            if (GameData::gameType == MeType::ME1_TYPE)
+                pkgsToMarker.removeOne("/BioGame/CookedPC/testVolumeLight_VFX.upk");
+            else if (GameData::gameType == MeType::ME2_TYPE)
+                pkgsToMarker.removeOne("/BioGame/CookedPC/BIOC_Materials.pcc");
         }
-        if (GameData::gameType == MeType::ME1_TYPE)
-            pkgsToMarker.removeOne("/BioGame/CookedPC/testVolumeLight_VFX.upk");
-        else if (GameData::gameType == MeType::ME2_TYPE)
-            pkgsToMarker.removeOne("/BioGame/CookedPC/BIOC_Materials.pcc");
 
         PINFO("Scan textures started...\n");
         if (!TreeScan::PrepareListOfTextures(gameId, resources, textures, false, true,
@@ -400,19 +403,19 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
     }
 
     Misc::applyMods(modFiles, textures, pkgsToRepack, pkgsToMarker, mipMaps,
-                    repack, modded, verify, cacheAmount, callback, callbackHandle);
+                    repack, alotMode, modded, verify, cacheAmount, callback, callbackHandle);
 
 
     if (!modded)
-        RemoveMipmaps(mipMaps, textures, pkgsToMarker, pkgsToRepack, repack, true, false,
+        RemoveMipmaps(mipMaps, textures, pkgsToMarker, pkgsToRepack, repack, alotMode, false,
                       callback, callbackHandle);
 
 
     if (repack)
-        Misc::RepackME23(gameId, !modded, pkgsToRepack, callback, callbackHandle);
+        Misc::RepackME23(gameId, !modded && alotMode, pkgsToRepack, callback, callbackHandle);
 
 
-    if (!modded)
+    if (!modded && alotMode)
         Misc::AddMarkers(pkgsToMarker, callback, callbackHandle);
 
 
