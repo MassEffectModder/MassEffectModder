@@ -58,6 +58,7 @@ struct ModEntry
     uint textureCrc;
     bool markConvert;
     QList<MipMap> cacheCprMipmaps;
+    Image *injectedTexture;
     Texture::StorageTypes cacheCprMipmapsStorageType;
     quint64 cacheSize;
     QList<int> cacheCprMipmapsDecompressedSize;

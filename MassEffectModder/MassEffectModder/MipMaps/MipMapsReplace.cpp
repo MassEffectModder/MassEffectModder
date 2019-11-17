@@ -298,22 +298,29 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
             Image *image = nullptr;
             if (mod.cacheCprMipmaps.count() == 0)
             {
-                FileStream fs = FileStream(mod.memPath, FileMode::Open, FileAccess::ReadOnly);
-                fs.JumpTo(mod.memEntryOffset);
-                ByteBuffer data = decompressData(fs, mod.memEntrySize);
-                if (data.size() == 0)
+                if (mod.injectedTexture != nullptr)
                 {
-                    if (g_ipc)
-                    {
-                        ConsoleWrite(QString("[IPC]ERROR ") + mod.textureName + " MEM file: " + mod.memPath);
-                        ConsoleSync();
-                    }
-                    PERROR(QString("Failed decompress data: ") + mod.textureName +
-                           " MEM file: " + mod.memPath + "\n");
-                    continue;
+                    image = mod.injectedTexture;
                 }
-                image = new Image(data, ImageFormat::DDS);
-                data.Free();
+                else
+                {
+                    FileStream fs = FileStream(mod.memPath, FileMode::Open, FileAccess::ReadOnly);
+                    fs.JumpTo(mod.memEntryOffset);
+                    ByteBuffer data = decompressData(fs, mod.memEntrySize);
+                    if (data.size() == 0)
+                    {
+                        if (g_ipc)
+                        {
+                            ConsoleWrite(QString("[IPC]ERROR ") + mod.textureName + " MEM file: " + mod.memPath);
+                            ConsoleSync();
+                        }
+                        PERROR(QString("Failed decompress data: ") + mod.textureName +
+                               " MEM file: " + mod.memPath + "\n");
+                        continue;
+                    }
+                    image = new Image(data, ImageFormat::DDS);
+                    data.Free();
+                }
 
                 if (!Misc::CheckImage(*image, texture, mod.textureName))
                 {

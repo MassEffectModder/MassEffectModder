@@ -145,6 +145,7 @@ bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
                     entry.memPath = files[i];
                     entry.memEntryOffset = fs.Position();
                     entry.memEntrySize = size;
+                    entry.injectedTexture = nullptr;
                     modsToReplace.push_back(entry);
                 }
                 else
