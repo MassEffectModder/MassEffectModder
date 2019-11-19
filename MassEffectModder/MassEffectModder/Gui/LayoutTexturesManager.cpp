@@ -33,6 +33,40 @@
 #include <Misc/Misc.h>
 #include <Texture/Texture.h>
 
+PixmapLabel::PixmapLabel(QWidget *parent) :
+    QLabel(parent)
+{
+    setMinimumSize(1, 1);
+}
+
+void PixmapLabel::setPixmap(const QPixmap &p)
+{
+    pixmapImage = p;
+    QLabel::setPixmap(resizePixmap());
+}
+
+int PixmapLabel::heightForWidth(int w) const
+{
+    if (pixmapImage.isNull())
+        return height();
+    return ((qreal)pixmapImage.height() * w) / pixmapImage.width();
+}
+
+void PixmapLabel::resizeEvent(QResizeEvent *event)
+{
+    if (!pixmapImage.isNull())
+        QLabel::setPixmap(resizePixmap());
+    QLabel::resizeEvent(event);
+}
+
+QPixmap PixmapLabel::resizePixmap() const
+{
+    auto resizedPixmap = pixmapImage.scaled(size() * devicePixelRatioF(),
+                                            Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    resizedPixmap.setDevicePixelRatio(devicePixelRatioF());
+    return resizedPixmap;
+}
+
 LayoutTexturesManager::LayoutTexturesManager(MainWindow *window)
     : mainWindow(window)
 {
@@ -42,6 +76,8 @@ LayoutTexturesManager::LayoutTexturesManager(MainWindow *window)
     connect(listLeftPackages, &QListWidget::currentItemChanged, this, &LayoutTexturesManager::ListLeftPackagesSelected);
 
     listLeftSearch = new QListWidget();
+    connect(listLeftSearch, &QListWidget::itemDoubleClicked, this, &LayoutTexturesManager::SearchListSelected);
+
     leftWidget = new QStackedWidget();
     leftWidget->addWidget(listLeftPackages);
     leftWidget->addWidget(listLeftSearch);
@@ -49,7 +85,7 @@ LayoutTexturesManager::LayoutTexturesManager(MainWindow *window)
     listMiddle = new QListWidget();
     connect(listMiddle, &QListWidget::currentItemChanged, this, &LayoutTexturesManager::ListMiddleTextureSelected);
 
-    labelImage = new QLabel();
+    labelImage = new PixmapLabel();
     textRight = new QPlainTextEdit;
     textRight->setReadOnly(true);
 #if defined(__APPLE__)
@@ -65,6 +101,7 @@ LayoutTexturesManager::LayoutTexturesManager(MainWindow *window)
     font.setFixedPitch(true);
     textRight->setFont(font);
     listRight = new QListWidget;
+    connect(listRight, &QListWidget::currentItemChanged, this, &LayoutTexturesManager::ListRightSelected);
     rightView = new QStackedWidget();
     rightView->addWidget(labelImage);
     rightView->addWidget(textRight);
@@ -141,7 +178,7 @@ LayoutTexturesManager::LayoutTexturesManager(MainWindow *window)
     ButtonFont = buttonInfoSingle->font();
     ButtonFont.setPointSize(kFontSize);
     buttonInfoSingle->setFont(ButtonFont);
-    connect(buttonInfoSingle, &QPushButton::clicked, this, &LayoutTexturesManager::ViewSingleSelected);
+    connect(buttonInfoSingle, &QPushButton::clicked, this, &LayoutTexturesManager::InfoSingleSelected);
 
     buttonInfoAll = new QPushButton("Info - All");
     buttonInfoAll->setMinimumWidth(kButtonMinWidth);
@@ -149,7 +186,7 @@ LayoutTexturesManager::LayoutTexturesManager(MainWindow *window)
     ButtonFont = buttonInfoAll->font();
     ButtonFont.setPointSize(kFontSize);
     buttonInfoAll->setFont(ButtonFont);
-    connect(buttonInfoAll, &QPushButton::clicked, this, &LayoutTexturesManager::ViewMultiSelected);
+    connect(buttonInfoAll, &QPushButton::clicked, this, &LayoutTexturesManager::InfoAllSelected);
 
     buttonPackageSingle = new QPushButton("Single Package");
     buttonPackageSingle->setMinimumWidth(kButtonMinWidth);
@@ -562,10 +599,11 @@ void LayoutTexturesManager::Startup()
     mainWindow->statusBar()->clearMessage();
 
     singlePackageMode = false;
-    singleViewMode = true;
+    singleInfoMode = true;
     imageViewMode = true;
     textureSelected = false;
     packageSelected = false;
+    textureInstanceSelected = false;
 
     LockGui(false);
     UpdateGui();
@@ -608,56 +646,75 @@ void LayoutTexturesManager::LockGui(bool lock)
     buttonSearch->setEnabled(!lock);
     buttonExit->setEnabled(!lock);
     mainWindow->LockClose(lock);
+    if (!lock)
+        UpdateGui();
 }
 
 void LayoutTexturesManager::UpdateGui()
 {
-    buttonReplace->setEnabled(textureSelected);
-    buttonReplaceConvert->setEnabled(textureSelected);
-    buttonExtractToDDS->setEnabled(textureSelected);
-    buttonExtractToPNG->setEnabled(textureSelected);
+    bool enableTextureButtons = ((singlePackageMode && textureInstanceSelected) ||
+                                 !singlePackageMode) && textureSelected;
+    buttonReplace->setEnabled(enableTextureButtons);
+    buttonReplaceConvert->setEnabled(enableTextureButtons);
+    buttonExtractToDDS->setEnabled(enableTextureButtons);
+    buttonExtractToPNG->setEnabled(enableTextureButtons);
     if (imageViewMode)
     {
-        rightView->setCurrentIndex(kRightWidgetImage);
+        if (singlePackageMode)
+            rightView->setCurrentIndex(kRightWidgetList);
+        else
+            rightView->setCurrentIndex(kRightWidgetImage);
         buttonViewImage->setEnabled(false);
+        buttonInfoSingle->setEnabled(textureSelected && !singlePackageMode);
+        buttonInfoAll->setEnabled(textureSelected && !singlePackageMode);
         if (mainWindow->gameType != MeType::ME1_TYPE)
-            buttonInfoSingle->setEnabled(packageSelected);
-        buttonInfoAll->setEnabled(packageSelected);
-        buttonPackageSingle->setEnabled(packageSelected);
-        buttonPackageMulti->setEnabled(packageSelected);
+            buttonPackageSingle->setEnabled(textureSelected && !singlePackageMode);
+        buttonPackageMulti->setEnabled(textureSelected && singlePackageMode);
     }
     else
     {
         if (singlePackageMode)
-            rightView->setCurrentIndex(kRightWidgetImage);
+            rightView->setCurrentIndex(kRightWidgetList);
         else
             rightView->setCurrentIndex(kRightWidgetText);
-        buttonViewImage->setEnabled(packageSelected);
-        buttonInfoSingle->setEnabled(!packageSelected);
-        buttonInfoAll->setEnabled(!packageSelected);
-        buttonPackageSingle->setEnabled(!packageSelected);
-        buttonPackageMulti->setEnabled(!packageSelected);
+        buttonViewImage->setEnabled(textureSelected && !singlePackageMode);
+        buttonInfoSingle->setEnabled(textureSelected && !singleInfoMode && !singlePackageMode);
+        buttonInfoAll->setEnabled(textureSelected && singleInfoMode && !singlePackageMode);
+        buttonPackageSingle->setEnabled(textureSelected && !singlePackageMode);
+        buttonPackageMulti->setEnabled(textureSelected & singlePackageMode);
     }
 }
 
 void LayoutTexturesManager::ListLeftPackagesSelected(QListWidgetItem *current,
                                                      QListWidgetItem * /*previous*/)
 {
-    listMiddle->setUpdatesEnabled(false);
     listMiddle->clear();
-    auto list = current->data(Qt::UserRole).value<QVector<ViewTexture>>();
-    for (int i = 0; i < list.count(); i++)
+    listMiddle->setUpdatesEnabled(false);
+    listRight->clear();
+    labelImage->clear();
+    if (current == nullptr)
     {
-        auto textureItem = new QListWidgetItem(list[i].name);
-        textureItem->setData(Qt::UserRole, QVariant::fromValue<ViewTexture>(list[i]));
-        listMiddle->addItem(textureItem);
+        packageSelected = false;
     }
-    listMiddle->sortItems();
+    else
+    {
+        packageSelected = true;
+        auto list = current->data(Qt::UserRole).value<QVector<ViewTexture>>();
+        for (int i = 0; i < list.count(); i++)
+        {
+            auto textureItem = new QListWidgetItem(list[i].name);
+            textureItem->setData(Qt::UserRole, QVariant::fromValue<ViewTexture>(list[i]));
+            listMiddle->addItem(textureItem);
+        }
+        listMiddle->sortItems();
+    }
     listMiddle->setUpdatesEnabled(true);
+    UpdateGui();
 }
 
-void LayoutTexturesManager::UpdateRightText(const ViewTexture &viewTexture)
+void LayoutTexturesManager::UpdateRight(const QListWidgetItem *item)
 {
+    auto viewTexture = item->data(Qt::UserRole).value<ViewTexture>();
     if (imageViewMode)
     {
         TextureMapPackageEntry nodeTexture;
@@ -698,7 +755,7 @@ void LayoutTexturesManager::UpdateRightText(const ViewTexture &viewTexture)
         data.Free();
         QImage image(bitmap.ptr(), width, height, width * 4, QImage::Format::Format_ARGB32);
         auto pixmap = QPixmap::fromImage(image);
-        labelImage->setPixmap(pixmap.scaled(labelImage->size(), Qt::KeepAspectRatio));
+        labelImage->setPixmap(pixmap);
         bitmap.Free();
     }
     else
@@ -707,7 +764,7 @@ void LayoutTexturesManager::UpdateRightText(const ViewTexture &viewTexture)
         text += "Texture original CRC:  " +
                 QString().sprintf("0x%08X", textures[viewTexture.indexInTextures].crc) + "\n";
         text += "Node name:     " + textures[viewTexture.indexInTextures].name + "\n";
-        for (int index2 = 0; index2 < (!singleViewMode ? textures[viewTexture.indexInTextures].list.count() : 1); index2++)
+        for (int index2 = 0; index2 < (!singleInfoMode ? textures[viewTexture.indexInTextures].list.count() : 1); index2++)
         {
             if (textures[viewTexture.indexInTextures].list[index2].path.count() == 0)
                 continue;
@@ -765,15 +822,27 @@ void LayoutTexturesManager::ListMiddleTextureSelected(QListWidgetItem *current,
 {
     if (current != nullptr)
     {
-        auto viewTexture = current->data(Qt::UserRole).value<ViewTexture>();
-        UpdateRightText(viewTexture);
+        if (singlePackageMode)
+            UpdateRightList(current);
+        else
+            UpdateRight(current);
+        textureSelected = true;
     }
+    else
+    {
+        textureSelected = false;
+        textRight->clear();
+        listRight->clear();
+        labelImage->clear();
+    }
+    UpdateGui();
 }
 
-void LayoutTexturesManager::ReplaceTexture(const ViewTexture& viewTexture, bool convertMode)
+void LayoutTexturesManager::ReplaceTexture(const QListWidgetItem *item, bool convertMode)
 {
     LockGui(true);
 
+    auto viewTexture = item->data(Qt::UserRole).value<ViewTexture>();
     QString file = QFileDialog::getOpenFileName(this,
             "Please select texture file", "", "Texture (*.dds *.png *.bmp *.tga)");
     if (file.length() == 0)
@@ -837,7 +906,9 @@ void LayoutTexturesManager::ReplaceTexture(const ViewTexture& viewTexture, bool 
                                     false, false, true, false, 0,
                                     &LayoutTexturesManager::ReplaceTextureCallback, mainWindow);
     }
+    delete image;
     mainWindow->statusBar()->clearMessage();
+    UpdateRight(item);
     if (g_logs->BufferGetErrors() != "")
     {
         MessageWindow msg;
@@ -853,19 +924,25 @@ void LayoutTexturesManager::ReplaceTexture(const ViewTexture& viewTexture, bool 
 
 void LayoutTexturesManager::ReplaceSelected()
 {
-    auto item = listMiddle->currentItem();
+    QListWidgetItem *item;
+    if (singlePackageMode)
+        item = listRight->currentItem();
+    else
+        item = listMiddle->currentItem();
     if (item != nullptr)
-    {
-        ReplaceTexture(item->data(Qt::UserRole).value<ViewTexture>(), false);
-    }
+        ReplaceTexture(item, false);
 }
 
 void LayoutTexturesManager::ReplaceConvertSelected()
 {
-    auto item = listMiddle->currentItem();
+    QListWidgetItem *item;
+    if (singlePackageMode)
+        item = listRight->currentItem();
+    else
+        item = listMiddle->currentItem();
     if (item != nullptr)
     {
-        ReplaceTexture(item->data(Qt::UserRole).value<ViewTexture>(), true);
+        ReplaceTexture(item, true);
     }
 }
 
@@ -883,12 +960,19 @@ void LayoutTexturesManager::ExtractTexture(const ViewTexture& viewTexture, bool 
     outputDir = QDir::cleanPath(outputDir);
 
     TextureMapPackageEntry nodeTexture;
-    for (int index = 0; index < textures[viewTexture.indexInTextures].list.count(); index++)
+    if (singlePackageMode)
     {
-        if (textures[viewTexture.indexInTextures].list[index].path.length() != 0)
+        nodeTexture = textures[viewTexture.indexInTextures].list[viewTexture.indexInPackages];
+    }
+    else
+    {
+        for (int index = 0; index < textures[viewTexture.indexInTextures].list.count(); index++)
         {
-            nodeTexture = textures[viewTexture.indexInTextures].list[index];
-            break;
+            if (textures[viewTexture.indexInTextures].list[index].path.length() != 0)
+            {
+                nodeTexture = textures[viewTexture.indexInTextures].list[index];
+                break;
+            }
         }
     }
     Package package;
@@ -981,87 +1065,117 @@ void LayoutTexturesManager::ExtractTexture(const ViewTexture& viewTexture, bool 
 
 void LayoutTexturesManager::ExtractDDSSelected()
 {
-    auto item = listMiddle->currentItem();
+    QListWidgetItem *item;
+    if (singlePackageMode)
+        item = listRight->currentItem();
+    else
+        item = listMiddle->currentItem();
     if (item != nullptr)
-    {
         ExtractTexture(item->data(Qt::UserRole).value<ViewTexture>(), false);
-    }
 }
 
 void LayoutTexturesManager::ExtractPNGSelected()
 {
-    auto item = listMiddle->currentItem();
+    QListWidgetItem *item;
+    if (singlePackageMode)
+        item = listRight->currentItem();
+    else
+        item = listMiddle->currentItem();
     if (item != nullptr)
-    {
         ExtractTexture(item->data(Qt::UserRole).value<ViewTexture>(), true);
-    }
 }
 
 void LayoutTexturesManager::ViewImageSelected()
 {
     if (!imageViewMode)
     {
+        singleInfoMode = false;
         imageViewMode = true;
+        UpdateGui();
     }
 }
 
-void LayoutTexturesManager::ViewSingleSelected()
+void LayoutTexturesManager::InfoSingleSelected()
 {
-    if (!singleViewMode)
-    {
-        singleViewMode = true;
-        imageViewMode = false;
-        auto item = listMiddle->currentItem();
-        if (item != nullptr)
-        {
-            UpdateRightText(item->data(Qt::UserRole).value<ViewTexture>());
-        }
-    }
+    singleInfoMode = true;
+    imageViewMode = false;
+    auto item = listMiddle->currentItem();
+    if (item != nullptr)
+        UpdateRight(item);
+    UpdateGui();
 }
 
-void LayoutTexturesManager::ViewMultiSelected()
+void LayoutTexturesManager::InfoAllSelected()
 {
-    if (singleViewMode)
+    singleInfoMode = false;
+    imageViewMode = false;
+    auto item = listMiddle->currentItem();
+    if (item != nullptr)
+        UpdateRight(item);
+    UpdateGui();
+}
+
+void LayoutTexturesManager::ListRightSelected(QListWidgetItem *current,
+                                              QListWidgetItem * /*previous*/)
+{
+    if (current != nullptr)
+        textureInstanceSelected = true;
+    else
+        textureInstanceSelected = false;
+    UpdateGui();
+}
+
+void LayoutTexturesManager::UpdateRightList(const QListWidgetItem *item)
+{
+    listRight->clear();
+    int indexInTextures = item->data(Qt::UserRole).value<ViewTexture>().indexInTextures;
+    for (int index = 0; index < textures[indexInTextures].list.count(); index++)
     {
-        singleViewMode = false;
-        imageViewMode = false;
-        auto item = listMiddle->currentItem();
-        if (item != nullptr)
+        if (textures[indexInTextures].list[index].path.length() != 0)
         {
-            UpdateRightText(item->data(Qt::UserRole).value<ViewTexture>());
+            ViewTexture newTexture;
+            newTexture.indexInTextures = indexInTextures;
+            newTexture.indexInPackages = index;
+            auto textureItem = new QListWidgetItem(QString::number(index + 1) + " - " +
+                                                   BaseNameWithoutExt(textures[indexInTextures].list[index].path));
+            textureItem->setData(Qt::UserRole, QVariant::fromValue<ViewTexture>(newTexture));
+            listRight->addItem(textureItem);
         }
     }
 }
 
 void LayoutTexturesManager::PackageSingleSelected()
 {
-    if (!singlePackageMode)
-    {
-        singlePackageMode = true;
-        imageViewMode = false;
-    }
+    singlePackageMode = true;
+    listRight->clear();
+    auto item = listMiddle->currentItem();
+    if (item != nullptr)
+        UpdateRightList(item);
+    UpdateGui();
 }
 
 void LayoutTexturesManager::PackageMutiSelected()
 {
-    if (singlePackageMode)
-    {
-        singlePackageMode = false;
-        imageViewMode = false;
-    }
+    singlePackageMode = false;
+    listRight->clear();
+    auto item = listMiddle->currentItem();
+    if (item != nullptr)
+        UpdateRightList(item);
+    UpdateGui();
 }
 
 void LayoutTexturesManager::selectFoundTexture(const QListWidgetItem *item)
 {
     leftWidget->setCurrentIndex(kLeftWidgetPackages);
     auto searchTexture = item->data(Qt::UserRole).value<ViewTexture>();
+    QString packageName = BaseNameWithoutExt(textures[searchTexture.indexInTextures].list[searchTexture.indexInPackages].path);
     for (int p = 0; p < listLeftPackages->count(); p++)
     {
         auto itemPackage = listLeftPackages->item(p);
-        QString packageName = textures[searchTexture.indexInTextures].list[searchTexture.indexInPackages].packageName.toLower();
-        if (itemPackage->text().toLower() == packageName)
+        if (itemPackage->text() == packageName)
         {
             itemPackage->setSelected(true);
+            listLeftPackages->setCurrentRow(p);
             for (int t = 0; t < listMiddle->count(); t++)
             {
                 auto searchItem = listMiddle->item(t);
@@ -1069,6 +1183,7 @@ void LayoutTexturesManager::selectFoundTexture(const QListWidgetItem *item)
                 if (viewTexture.indexInTextures == searchTexture.indexInTextures)
                 {
                     searchItem->setSelected(true);
+                    listMiddle->setCurrentRow(t);
                     return;
                 }
             }
@@ -1076,8 +1191,19 @@ void LayoutTexturesManager::selectFoundTexture(const QListWidgetItem *item)
     }
 }
 
+void LayoutTexturesManager::SearchListSelected(QListWidgetItem *item)
+{
+    if (item != nullptr)
+    {
+        LockGui(true);
+        selectFoundTexture(item);
+        LockGui(false);
+    }
+}
+
 void LayoutTexturesManager::SearchTexture(const QString &name, uint crc)
 {
+    listLeftSearch->setUpdatesEnabled(false);
     listLeftSearch->clear();
     for (int l = 0; l < textures.count(); l++)
     {
@@ -1115,7 +1241,8 @@ void LayoutTexturesManager::SearchTexture(const QString &name, uint crc)
                     break;
                 }
             }
-            auto item = new QListWidgetItem(foundTexture.name + " (" + nodeTexture.path + ")");
+            auto item = new QListWidgetItem(foundTexture.name +
+                                            " (" + BaseNameWithoutExt(nodeTexture.path) + ")");
             ViewTexture texture;
             texture.name = foundTexture.name;
             texture.indexInTextures = l;
@@ -1124,11 +1251,13 @@ void LayoutTexturesManager::SearchTexture(const QString &name, uint crc)
             listLeftSearch->addItem(item);
         }
     }
+    listLeftSearch->sortItems();
+    listLeftSearch->setUpdatesEnabled(true);
     if (listLeftSearch->count() > 1)
     {
         leftWidget->setCurrentIndex(kLeftWidgetSearch);
         listMiddle->clear();
-        rightView->hide();
+        labelImage->clear();
     }
     if (listLeftSearch->count() == 1)
     {

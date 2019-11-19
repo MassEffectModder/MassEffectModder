@@ -28,6 +28,26 @@
 #include <Resources/Resources.h>
 #include <Texture/TextureScan.h>
 
+class PixmapLabel : public QLabel
+{
+    Q_OBJECT
+
+private:
+    QPixmap pixmapImage;
+
+public slots:
+    void setPixmap(const QPixmap &p);
+
+protected:
+    void resizeEvent(QResizeEvent* event) override;
+
+public:
+    explicit PixmapLabel(QWidget *parent = nullptr);
+
+    [[nodiscard]] QPixmap resizePixmap() const;
+    [[nodiscard]] int heightForWidth(int w) const override;
+};
+
 struct ViewPackage {
     QString packageName;
     int     indexInTextures;
@@ -51,15 +71,15 @@ public:
 
 private slots:
     void ListLeftPackagesSelected(QListWidgetItem *current, QListWidgetItem *previous);
-    void UpdateRightText(const ViewTexture &viewTexture);
     void ListMiddleTextureSelected(QListWidgetItem *current, QListWidgetItem *previous);
+    void ListRightSelected(QListWidgetItem *current, QListWidgetItem *previous);
     void ReplaceSelected();
     void ReplaceConvertSelected();
     void ExtractDDSSelected();
     void ExtractPNGSelected();
     void ViewImageSelected();
-    void ViewSingleSelected();
-    void ViewMultiSelected();
+    void InfoSingleSelected();
+    void InfoAllSelected();
     void PackageSingleSelected();
     void PackageMutiSelected();
     void SearchSelected();
@@ -94,7 +114,7 @@ private:
     QStackedWidget *leftWidget;
     QStackedWidget *rightView;
     QPlainTextEdit *textRight;
-    QLabel         *labelImage;
+    PixmapLabel    *labelImage;
     QSplitter      *splitter;
     QPushButton    *buttonReplace;
     QPushButton    *buttonReplaceConvert;
@@ -109,10 +129,11 @@ private:
     QPushButton    *buttonExit;
 
     bool           singlePackageMode{};
-    bool           singleViewMode{};
+    bool           singleInfoMode{};
     bool           imageViewMode{};
     bool           textureSelected{};
     bool           packageSelected{};
+    bool           textureInstanceSelected{};
 
     ConfigIni      configIni{};
     QList<TextureMapEntry> textures;
@@ -123,9 +144,12 @@ private:
     void LockGui(bool lock);
     void UpdateGui();
     void ExtractTexture(const ViewTexture& viewTexture, bool png);
-    void ReplaceTexture(const ViewTexture& viewTexture, bool convertMode);
+    void ReplaceTexture(const QListWidgetItem *item, bool convertMode);
     void SearchTexture(const QString &name, uint crc);
     void selectFoundTexture(const QListWidgetItem *item);
+    void UpdateRight(const QListWidgetItem *item);
+    void SearchListSelected(QListWidgetItem *item);
+    void UpdateRightList(const QListWidgetItem *item);
 };
 
 #endif // LAYOUT_TEXTURES_MANAGER_H
