@@ -789,7 +789,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                 mod.masterTextures.clear();
             }
 
-            delete image;
+            if (mod.injectedTexture == nullptr)
+                delete image;
 
             if (cacheUsage > cacheLimit)
             {
