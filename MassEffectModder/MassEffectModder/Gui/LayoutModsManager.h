@@ -52,6 +52,7 @@ private:
 #endif
 
     MainWindow *mainWindow;
+    QLabel     *iconLogo;
 
     static void ExtractModCallback(void *handle, int progress, const QString &stage);
     static void ConvertModCallback(void *handle, int progress, const QString &stage);

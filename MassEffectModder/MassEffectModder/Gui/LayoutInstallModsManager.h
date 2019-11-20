@@ -53,8 +53,9 @@ private:
     const int kFontSize = 8;
 #endif
 
-    MainWindow *mainWindow;
+    MainWindow  *mainWindow;
     QListWidget *ListMods;
+    QLabel      *iconLogo;
 
     static void InstallModsCallback(void *handle, int progress, const QString &stage);
     void InstallMods(QStringList &mods);

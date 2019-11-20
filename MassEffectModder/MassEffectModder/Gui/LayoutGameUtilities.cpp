@@ -99,9 +99,9 @@ LayoutGameUtilities::LayoutGameUtilities(MainWindow *window)
 
     QPixmap pixmap(QString(":/logo_me%1.png").arg((int)mainWindow->gameType));
     pixmap = pixmap.scaled(300, 80, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    auto icon = new QLabel;
-    icon->setPixmap(pixmap);
-    icon->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+    iconLogo = new QLabel;
+    iconLogo->setPixmap(pixmap);
+    iconLogo->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
 
     auto verticalLayout = new QVBoxLayout();
     verticalLayout->setAlignment(Qt::AlignCenter);
@@ -131,7 +131,7 @@ LayoutGameUtilities::LayoutGameUtilities(MainWindow *window)
 
     auto verticalLayoutMain = new QVBoxLayout();
     verticalLayoutMain->setAlignment(Qt::AlignCenter);
-    verticalLayoutMain->addWidget(icon);
+    verticalLayoutMain->addWidget(iconLogo);
     verticalLayoutMain->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowHeight, 10));
     verticalLayoutMain->addWidget(GroupBoxView);
 
@@ -148,6 +148,7 @@ void LayoutGameUtilities::LockGui(bool lock)
     {
         widget->setEnabled(!lock);
     }
+    iconLogo->setEnabled(true);
     mainWindow->LockClose(lock);
 }
 

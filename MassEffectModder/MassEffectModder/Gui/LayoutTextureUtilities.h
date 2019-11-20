@@ -52,6 +52,7 @@ private:
 #endif
 
     MainWindow *mainWindow;
+    QLabel     *iconLogo;
 
     void ApplyLODs(bool lods2k);
     void ApplyHQGfx(bool softShadows);

@@ -106,9 +106,9 @@ LayoutInstallModsManager::LayoutInstallModsManager(MainWindow *window)
 
     QPixmap pixmap(QString(":/logo_me%1.png").arg((int)mainWindow->gameType));
     pixmap = pixmap.scaled(300, 80, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    auto icon = new QLabel;
-    icon->setPixmap(pixmap);
-    icon->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+    iconLogo = new QLabel;
+    iconLogo->setPixmap(pixmap);
+    iconLogo->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
 
     auto verticalLayout = new QVBoxLayout();
     verticalLayout->addWidget(ButtonAdd, 1);
@@ -135,7 +135,7 @@ LayoutInstallModsManager::LayoutInstallModsManager(MainWindow *window)
 
     auto verticalLayoutLogo = new QVBoxLayout();
     verticalLayoutLogo->setAlignment(Qt::AlignTop | Qt::AlignCenter);
-    verticalLayoutLogo->addWidget(icon);
+    verticalLayoutLogo->addWidget(iconLogo);
 
     auto verticalLayoutMain = new QVBoxLayout(this);
     verticalLayoutMain->setAlignment(Qt::AlignTop | Qt::AlignCenter);
@@ -152,6 +152,7 @@ void LayoutInstallModsManager::LockGui(bool lock)
     {
         widget->setEnabled(!lock);
     }
+    iconLogo->setEnabled(true);
     mainWindow->LockClose(lock);
 }
 

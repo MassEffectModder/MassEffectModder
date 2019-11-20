@@ -53,6 +53,7 @@ private:
 #endif
 
     MainWindow *mainWindow;
+    QLabel     *iconLogo;
 
     static void CheckCallback(void *handle, int progress, const QString &stage);
     static void ExtractDlcCallback(void *handle, int progress, const QString &stage);

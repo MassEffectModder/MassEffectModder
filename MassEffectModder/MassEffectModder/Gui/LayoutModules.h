@@ -50,6 +50,7 @@ private:
 #endif
 
     MainWindow *mainWindow;
+    QLabel     *iconLogo;
 };
 
 #endif // LAYOUT_MODULES_H
