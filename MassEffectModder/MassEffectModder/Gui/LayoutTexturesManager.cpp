@@ -897,13 +897,13 @@ void LayoutTexturesManager::ReplaceTexture(const QListWidgetItem *item, bool con
         QList<MapPackagesToMod> mapPackages;
         mapPackages.append(mapEntry);
         mipMaps.replaceTextures(mapPackages, textures, pkgsToMarker, pkgsToRepack, modsToReplace,
-                                false, false, true, false, 0,
+                                false, false, true, false, -1,
                                 &LayoutTexturesManager::ReplaceTextureCallback, mainWindow);
     }
     else
     {
         mipMaps.replaceModsFromList(textures, pkgsToMarker, pkgsToRepack, modsToReplace,
-                                    false, false, true, false, 0,
+                                    false, false, true, false, -1,
                                     &LayoutTexturesManager::ReplaceTextureCallback, mainWindow);
     }
     delete image;
