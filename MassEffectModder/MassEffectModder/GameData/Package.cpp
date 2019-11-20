@@ -859,14 +859,11 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
     if (forceCompressed)
         targetCompression = CompressionType::Zlib;
 
-    if (!appendMarker)
-    {
-        QString marker;
-        packageStream->Seek(-MEMMarkerLenght, SeekOrigin::End);
-        packageStream->ReadStringASCII(marker, MEMMarkerLenght);
-        if (marker == QString(MEMendFileMarker))
-            appendMarker = true;
-    }
+    QString marker;
+    packageStream->Seek(-MEMMarkerLenght, SeekOrigin::End);
+    packageStream->ReadStringASCII(marker, MEMMarkerLenght);
+    if (marker == QString(MEMendFileMarker))
+        appendMarker = !appendMarker;
 
     MemoryStream tempOutput;
     tempOutput.WriteFromBuffer(packageHeader, packageHeaderSize);
