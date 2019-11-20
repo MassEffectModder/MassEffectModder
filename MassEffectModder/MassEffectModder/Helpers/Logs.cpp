@@ -31,9 +31,6 @@ Logs::Logs() :
         errorBufferEnabled(false)
 {
     startedTimestamp = QDateTime::currentMSecsSinceEpoch();
-    FILE *file = fopen("MEMLog.txt", "w");
-    if (file)
-        fclose(file);
 }
 
 void Logs::ChangeLogLevel(LOG_LEVEL level)
@@ -58,6 +55,9 @@ void Logs::EnableOutputConsole(bool enable)
 
 void Logs::EnableOutputFile(bool enable)
 {
+    FILE *file = fopen("MEMLog.txt", "w");
+    if (file)
+        fclose(file);
     fileEnabled = enable;
 }
 
