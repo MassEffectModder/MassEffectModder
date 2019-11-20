@@ -97,28 +97,47 @@ LayoutGameUtilities::LayoutGameUtilities(MainWindow *window)
     ButtonReturn->setFont(ButtonFont);
     connect(ButtonReturn, &QPushButton::clicked, this, &LayoutGameUtilities::ReturnSelected);
 
-    auto horizontalLayout = new QHBoxLayout(this);
-    horizontalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 40));
+    QPixmap pixmap(QString(":/logo_me%1.png").arg((int)mainWindow->gameType));
+    pixmap = pixmap.scaled(300, 80, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    auto icon = new QLabel;
+    icon->setPixmap(pixmap);
+    icon->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+
     auto verticalLayout = new QVBoxLayout();
-    verticalLayout->setAlignment(Qt::AlignVCenter);
+    verticalLayout->setAlignment(Qt::AlignCenter);
     verticalLayout->addWidget(ButtonCheckGameFiles, 1);
+    verticalLayout->addSpacing(10);
     verticalLayout->addWidget(ButtonChangeGamePath, 1);
 #if !defined(_WIN32)
     verticalLayout->addWidget(ButtonChangeUserPath, 1);
 #endif
     if (mainWindow->gameType != MeType::ME1_TYPE)
     {
+        verticalLayout->addSpacing(10);
         verticalLayout->addWidget(ButtonRepackGameFiles, 1);
     }
     if (mainWindow->gameType == MeType::ME3_TYPE)
     {
-        verticalLayout->addWidget(ButtonUpdateTOCs, 1);
         verticalLayout->addWidget(ButtonExtractDLCs, 1);
+        verticalLayout->addSpacing(10);
+        verticalLayout->addWidget(ButtonUpdateTOCs, 1);
     }
     verticalLayout->addSpacing(20);
     verticalLayout->addWidget(ButtonReturn, 1);
-    horizontalLayout->addLayout(verticalLayout);
-    horizontalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 40));
+
+    auto GroupBoxView = new QGroupBox;
+    GroupBoxView->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
+    GroupBoxView->setLayout(verticalLayout);
+
+    auto verticalLayoutMain = new QVBoxLayout();
+    verticalLayoutMain->setAlignment(Qt::AlignCenter);
+    verticalLayoutMain->addWidget(icon);
+    verticalLayoutMain->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowHeight, 10));
+    verticalLayoutMain->addWidget(GroupBoxView);
+
+    auto horizontalLayout = new QHBoxLayout(this);
+    horizontalLayout->setAlignment(Qt::AlignTop);
+    horizontalLayout->addLayout(verticalLayoutMain);
 
     mainWindow->SetTitle("Game Utitlities");
 }

@@ -36,12 +36,12 @@ LayoutInstallModsManager::LayoutInstallModsManager(MainWindow *window)
     layoutId = MainWindow::kLayoutInstallModsManager;
 
     ListMods = new QListWidget();
-    ListMods->setMinimumWidth(kListViewModsMinWidth);
-    ListMods->setMinimumHeight(kListViewModsMinHeight);
+    ListMods->setMaximumWidth(kListViewModsMinWidth);
+    ListMods->setMaximumHeight(kListViewModsMinHeight);
     ListMods->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
     auto LabelListMods = new QLabel("List of loaded mods:");
-    LabelListMods->setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum));
+    LabelListMods->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     QFont LabelListModsFont = LabelListMods->font();
     LabelListModsFont.setPointSize(kFontSize);
     LabelListMods->setFont(LabelListModsFont);
@@ -104,22 +104,44 @@ LayoutInstallModsManager::LayoutInstallModsManager(MainWindow *window)
     ButtonReturn->setFont(ButtonFont);
     connect(ButtonReturn, &QPushButton::clicked, this, &LayoutInstallModsManager::ReturnSelected);
 
+    QPixmap pixmap(QString(":/logo_me%1.png").arg((int)mainWindow->gameType));
+    pixmap = pixmap.scaled(300, 80, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    auto icon = new QLabel;
+    icon->setPixmap(pixmap);
+    icon->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+
     auto verticalLayout = new QVBoxLayout();
-    verticalLayout->setAlignment(Qt::AlignVCenter);
     verticalLayout->addWidget(ButtonAdd, 1);
     verticalLayout->addWidget(ButtonRemove, 1);
     verticalLayout->addWidget(ButtonClear, 1);
-    verticalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 3));
+    verticalLayout->addSpacing(10);
     verticalLayout->addWidget(ButtonInstall, 1);
     verticalLayout->addWidget(ButtonInstallAll, 1);
-    verticalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 3));
+    verticalLayout->addSpacing(20);
     verticalLayout->addWidget(ButtonReturn, 1);
 
-    auto horizontalLayout = new QHBoxLayout(this);
-    horizontalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 20));
-    horizontalLayout->addLayout(verticalLayoutList);
-    horizontalLayout->addLayout(verticalLayout);
-    horizontalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 20));
+    auto GroupBoxView = new QGroupBox;
+    GroupBoxView->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    GroupBoxView->setLayout(verticalLayout);
+
+    auto verticalLayoutMods = new QVBoxLayout();
+    verticalLayoutMods->addWidget(LabelListMods);
+    verticalLayoutMods->addWidget(ListMods);
+
+    auto horizontalLayoutMain = new QHBoxLayout();
+    horizontalLayoutMain->setAlignment(Qt::AlignTop | Qt::AlignCenter);
+    horizontalLayoutMain->addLayout(verticalLayoutMods);
+    horizontalLayoutMain->addWidget(GroupBoxView);
+
+    auto verticalLayoutLogo = new QVBoxLayout();
+    verticalLayoutLogo->setAlignment(Qt::AlignTop | Qt::AlignCenter);
+    verticalLayoutLogo->addWidget(icon);
+
+    auto verticalLayoutMain = new QVBoxLayout(this);
+    verticalLayoutMain->setAlignment(Qt::AlignTop | Qt::AlignCenter);
+    verticalLayoutMain->addLayout(verticalLayoutLogo);
+    verticalLayoutMain->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowHeight, 10));
+    verticalLayoutMain->addLayout(horizontalLayoutMain);
 
     mainWindow->SetTitle("Mods Installer");
 }

@@ -41,16 +41,16 @@ private slots:
     void ReturnSelected();
 
 private:
-    const int kButtonMinWidth = 300;
-    const int kButtonMinHeight = 80;
+    const int kButtonMinWidth = 200;
+    const int kButtonMinHeight = 22;
     const int kListViewModsMinWidth = 300;
-    const int kListViewModsMinHeight = 200;
+    const int kListViewModsMinHeight = 300;
 #if defined(__APPLE__)
-    const int kFontSize = 20;
+    const int kFontSize = 12;
 #elif defined(__linux__)
-    const int kFontSize = 13;
+    const int kFontSize = 8;
 #else
-    const int kFontSize = 15;
+    const int kFontSize = 8;
 #endif
 
     MainWindow *mainWindow;

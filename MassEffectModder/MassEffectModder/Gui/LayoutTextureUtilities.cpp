@@ -78,7 +78,7 @@ LayoutTextureUtilities::LayoutTextureUtilities(MainWindow *window)
     QPushButton *ButtonApplyHQGfxSoftShadows = nullptr;
     if (mainWindow->gameType == MeType::ME1_TYPE)
     {
-        ButtonApplyHQGfxSoftShadows = new QPushButton("Apply HQ GFX Settings\n(Soft Shadows)");
+        ButtonApplyHQGfxSoftShadows = new QPushButton("Apply HQ GFX Settings (Soft)");
         ButtonApplyHQGfxSoftShadows->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
         ButtonApplyHQGfxSoftShadows->setMinimumWidth(kButtonMinWidth);
         ButtonApplyHQGfxSoftShadows->setMinimumHeight(kButtonMinHeight);
@@ -93,17 +93,23 @@ LayoutTextureUtilities::LayoutTextureUtilities(MainWindow *window)
     ButtonReturn->setFont(ButtonFont);
     connect(ButtonReturn, &QPushButton::clicked, this, &LayoutTextureUtilities::ReturnSelected);
 
-    auto horizontalLayout = new QHBoxLayout(this);
-    horizontalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 40));
+    QPixmap pixmap(QString(":/logo_me%1.png").arg((int)mainWindow->gameType));
+    pixmap = pixmap.scaled(300, 80, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    auto icon = new QLabel;
+    icon->setPixmap(pixmap);
+    icon->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+
     auto verticalLayout = new QVBoxLayout();
-    verticalLayout->setAlignment(Qt::AlignVCenter);
+    verticalLayout->setAlignment(Qt::AlignCenter);
     verticalLayout->addWidget(ButtonRemoveScanFile, 1);
+    verticalLayout->addSpacing(10);
     verticalLayout->addWidget(ButtonApplyHQLODs, 1);
     if (mainWindow->gameType == MeType::ME1_TYPE)
     {
         verticalLayout->addWidget(ButtonApply2kLODs, 1);
     }
     verticalLayout->addWidget(ButtonApplyVanillaLODs, 1);
+    verticalLayout->addSpacing(10);
     verticalLayout->addWidget(ButtonApplyHQGfx, 1);
     if (mainWindow->gameType == MeType::ME1_TYPE)
     {
@@ -111,8 +117,20 @@ LayoutTextureUtilities::LayoutTextureUtilities(MainWindow *window)
     }
     verticalLayout->addSpacing(20);
     verticalLayout->addWidget(ButtonReturn, 1);
-    horizontalLayout->addLayout(verticalLayout);
-    horizontalLayout->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowWidth, 40));
+
+    auto GroupBoxView = new QGroupBox;
+    GroupBoxView->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
+    GroupBoxView->setLayout(verticalLayout);
+
+    auto verticalLayoutMain = new QVBoxLayout();
+    verticalLayoutMain->setAlignment(Qt::AlignCenter);
+    verticalLayoutMain->addWidget(icon);
+    verticalLayoutMain->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowHeight, 10));
+    verticalLayoutMain->addWidget(GroupBoxView);
+
+    auto horizontalLayout = new QHBoxLayout(this);
+    horizontalLayout->setAlignment(Qt::AlignTop);
+    horizontalLayout->addLayout(verticalLayoutMain);
 
     mainWindow->SetTitle("Texture Utilities");
 }
