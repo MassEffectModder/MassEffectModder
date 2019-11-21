@@ -453,7 +453,7 @@ void LayoutTexturesManager::Startup()
 
     mainWindow->statusBar()->clearMessage();
     QApplication::processEvents();
-    bool removeEmptyMips = true;
+    bool removeEmptyMips = false;
     if (!QFile::exists(filename))
     {
         int result = QMessageBox::question(this, "Texture Manager",
@@ -474,8 +474,8 @@ void LayoutTexturesManager::Startup()
         int answer = QMessageBox::question(this, "Texture Manager",
                               QString("Detected empty mips in game files.") +
               "\n\nYou can remove empty mips or you can skip this step.", "Remove", "Skip");
-        if (answer != 0)
-            removeEmptyMips = false;
+        if (answer == 0)
+            removeEmptyMips = true;
     }
 
     if (!Misc::checkWriteAccessDir(g_GameData->MainData()))
