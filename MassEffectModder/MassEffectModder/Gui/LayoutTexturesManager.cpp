@@ -122,7 +122,7 @@ LayoutTexturesManager::LayoutTexturesManager(MainWindow *window)
     buttonReplace->setFont(ButtonFont);
     connect(buttonReplace, &QPushButton::clicked, this, &LayoutTexturesManager::ReplaceSelected);
 
-    buttonReplaceConvert = new QPushButton("Replace (Force Convert)");
+    buttonReplaceConvert = new QPushButton("Replace (Uncompressed)");
     buttonReplaceConvert->setMinimumWidth(kButtonMinWidth);
     buttonReplaceConvert->setMinimumHeight(kButtonMinHeight);
     ButtonFont = buttonReplaceConvert->font();
