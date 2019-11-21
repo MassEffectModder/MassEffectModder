@@ -8,7 +8,11 @@ equals(GUI_MODE, true) {
 }
 
 CONFIG += c++17 static precompile_header
-CONFIG -= app_bundle
+equals(GUI_MODE, true) {
+    CONFIG += app_bundle
+} else {
+    CONFIG -= app_bundle
+}
 CONFIG += sdk_no_version_check
 
 equals(GUI_MODE, true) {
@@ -145,7 +149,11 @@ equals(RELEASE_IN_DEBUG_MODE, true) {
     CONFIG(release, debug | release) {
         DEFINES += NDEBUG
         macx {
-            QMAKE_POST_LINK += dsymutil $$TARGET -o "$$TARGET".dSYM
+            equals(GUI_MODE, true) {
+                QMAKE_POST_LINK += dsymutil "$$TARGET".app/Contents/MacOS/$$TARGET -o "$$TARGET".app/Contents/MacOS/"$$TARGET".dSYM
+            } else {
+                QMAKE_POST_LINK += dsymutil $$TARGET -o "$$TARGET".dSYM
+            }
         }
     }
     QMAKE_CXXFLAGS_RELEASE += -g1 -O3
@@ -210,8 +218,9 @@ LIBS += \
 }
 
 macx {
-    QMAKE_CXXFLAGS += -Xpreprocessor -fopenmp -mmacosx-version-min=10.12
+    QMAKE_CXXFLAGS += -Xpreprocessor -fopenmp
     QMAKE_CXXFLAGS_RELEASE += -fvisibility=hidden -fvisibility-inlines-hidden
+    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.12
 }
 
 win32 {
