@@ -53,9 +53,14 @@ void Logs::EnableOutputConsole(bool enable)
     consoleEnabled = enable;
 }
 
-void Logs::EnableOutputFile(bool enable)
+void Logs::EnableOutputFile(const QString &path, bool enable)
 {
-    FILE *file = fopen("MEMLog.txt", "w");
+    logPath = path;
+#if defined(_WIN32)
+    FILE *file = _wfopen(logPath.toStdWString().c_str(), L"w");
+#else
+    FILE *file = fopen(logPath.toStdString().c_str(), "w");
+#endif
     if (file)
         fclose(file);
     fileEnabled = enable;
@@ -98,7 +103,11 @@ void Logs::Print(int level, const QString &message, int flags)
 
     if (fileEnabled && (flags & LOG_FILE))
     {
-        FILE *file = fopen("MEMLog.txt", "a");
+#if defined(_WIN32)
+        FILE *file = _wfopen(logPath.toStdWString().c_str(), L"a");
+#else
+        FILE *file = fopen(logPath.toStdString().c_str(), "a");
+#endif
         if (file)
         {
 #if defined(_WIN32)

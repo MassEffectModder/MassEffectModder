@@ -34,6 +34,7 @@ int runQtApplication(int argc, char *argv[])
 {
     QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
 
+    CreateGameData();
 #ifdef GUI
     qputenv("QT_AUTO_SCREEN_SCALE_FACTOR", QByteArray("1"));
 
@@ -42,39 +43,13 @@ int runQtApplication(int argc, char *argv[])
     QApplication::setOrganizationName(APP_NAME);
     QApplication::setApplicationName(APP_NAME);
     QApplication::setWindowIcon(QIcon(":/MEM.png"));
-    MainWindow window;
-    window.show();
 
-    return QApplication::exec();
-#else
-    QCoreApplication application(argc, argv);
-
-    QCoreApplication::setOrganizationName(APP_NAME);
-    QCoreApplication::setApplicationName(APP_NAME);
-    PINFO(QString("\nMassEffectModder (MEM) v%1 command line version\n"
-                  "Copyright (C) 2014-%2 Pawel Kolodziejski\n"
-                  "This is free software; see the source for copying conditions.  There is NO.\n"
-                  "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n"
-                  ).arg(MEM_VERSION).arg(MEM_YEAR));
-
-    return ProcessArguments();
-#endif
-}
-
-int main(int argc, char *argv[])
-{
-    InstallSignalsHandler();
-    CreateGameData();
-    CreateLogs();
-
-#ifdef GUI
-    g_logs->EnableOutputFile(true);
-#else
-    g_logs->EnableOutputConsole(true);
-#endif
+    QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
+            "/MassEffectModder/Logs";
+    QDir().mkpath(path);
+    g_logs->EnableOutputFile(path + "/MEMLog.txt", true);
     g_logs->ChangeLogLevel(LOG_INFO);
 
-#ifdef GUI
     PINFO(QString("\n----------------------------------------------------\n"
                   "Log started at: %1\n"
                   "%2 v%3\n"
@@ -87,12 +62,38 @@ int main(int argc, char *argv[])
                    QSysInfo::productType(),
                    QSysInfo::productVersion(),
                    QString::number(DetectAmountMemoryGB())));
+
+    MainWindow window;
+    window.show();
+
+    return QApplication::exec();
+#else
+    QCoreApplication application(argc, argv);
+
+    g_logs->EnableOutputConsole(true);
+    g_logs->ChangeLogLevel(LOG_INFO);
+
+    QCoreApplication::setOrganizationName(APP_NAME);
+    QCoreApplication::setApplicationName(APP_NAME);
+    PINFO(QString("\nMassEffectModder (MEM) v%1 command line version\n"
+                  "Copyright (C) 2014-%2 Pawel Kolodziejski\n"
+                  "This is free software; see the source for copying conditions.  There is NO.\n"
+                  "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n"
+                  ).arg(MEM_VERSION).arg(MEM_YEAR));
+
+    return ProcessArguments();
 #endif
+    ReleaseGameData();
+}
+
+int main(int argc, char *argv[])
+{
+    InstallSignalsHandler();
+    CreateLogs();
 
     int status = runQtApplication(argc, argv);
 
     ReleaseLogs();
-    ReleaseGameData();
 
     return status;
 }

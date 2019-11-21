@@ -42,6 +42,7 @@ private:
     std::mutex      lock;
     qint64          startedTimestamp;
     int             logLevel;
+    QString         logPath;
     QString         errorsString;
 
     bool            timeStampEnabled;
@@ -65,7 +66,7 @@ public:
     QString BufferGetErrors();
     void BufferEnableErrors(bool enable);
     void EnableOutputConsole(bool enable);
-    void EnableOutputFile(bool enable);
+    void EnableOutputFile(const QString &path, bool enable);
     void EnableTimeStamp(bool enable);
 };
 
