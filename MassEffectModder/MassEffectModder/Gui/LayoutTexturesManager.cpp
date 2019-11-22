@@ -27,6 +27,7 @@
 #include <Gui/MessageWindow.h>
 #include <Image/Image.h>
 #include <Helpers/Exception.h>
+#include <Helpers/QSort.h>
 #include <Helpers/Logs.h>
 #include <Helpers/MiscHelpers.h>
 #include <MipMaps/MipMaps.h>
@@ -256,9 +257,21 @@ LayoutTexturesManager::LayoutTexturesManager(MainWindow *window)
     mainWindow->SetTitle("Texture Manager");
 }
 
-static bool compareViewPackage(const ViewPackage &e1, const ViewPackage &e2)
+static int compareTextures(const ViewPackage &e1, const ViewPackage &e2)
 {
-    return e1.packageName.compare(e2.packageName, Qt::CaseInsensitive) < 0;
+    if (e1.packageName.compare(e2.packageName, Qt::CaseInsensitive) < 0)
+        return -1;
+    if (e1.packageName.compare(e2.packageName, Qt::CaseInsensitive) > 0)
+        return 1;
+    if (e1.indexInTextures < e2.indexInTextures)
+        return -1;
+    if (e1.indexInTextures > e2.indexInTextures)
+        return 1;
+    if (e1.indexInPackages < e2.indexInPackages)
+        return -1;
+    if (e1.indexInPackages > e2.indexInPackages)
+        return 1;
+    return 0;
 }
 
 void LayoutTexturesManager::Startup()
@@ -557,9 +570,10 @@ void LayoutTexturesManager::Startup()
             ViewPackageList.append(texture);
         }
     }
-    std::sort(ViewPackageList.begin(), ViewPackageList.end(), compareViewPackage);
+    QSort(ViewPackageList, 0, ViewPackageList.count() - 1, compareTextures);
 
     QString lastPackageName;
+    int lastIndexInTextures = -1;
     int index = -1;
     listLeftPackages->setUpdatesEnabled(false);
     for (int l = 0; l < ViewPackageList.count(); l++)
@@ -569,26 +583,26 @@ void LayoutTexturesManager::Startup()
             QApplication::processEvents();
             timer.restart();
         }
+        ViewTexture texture;
+        texture.name = textures[ViewPackageList[l].indexInTextures].name;
+        texture.indexInTextures = ViewPackageList[l].indexInTextures;
+        texture.indexInPackages = ViewPackageList[l].indexInPackages;
         if (ViewPackageList[l].packageName != lastPackageName)
         {
             QVector<ViewTexture> list;
-            ViewTexture texture;
-            texture.name = textures[ViewPackageList[l].indexInTextures].name;
-            texture.indexInTextures = ViewPackageList[l].indexInTextures;
-            texture.indexInPackages = ViewPackageList[l].indexInPackages;
             list.append(texture);
             auto item = new QListWidgetItem(ViewPackageList[l].packageName);
             item->setData(Qt::UserRole, QVariant::fromValue<QVector<ViewTexture>>(list));
             listLeftPackages->addItem(item);
             lastPackageName = ViewPackageList[l].packageName;
+            lastIndexInTextures = ViewPackageList[l].indexInTextures;
             index++;
         }
         else
         {
-            ViewTexture texture;
-            texture.name = textures[ViewPackageList[l].indexInTextures].name;
-            texture.indexInTextures = ViewPackageList[l].indexInTextures;
-            texture.indexInPackages = ViewPackageList[l].indexInPackages;
+            if (ViewPackageList[l].indexInTextures == lastIndexInTextures)
+                continue;
+            lastIndexInTextures = ViewPackageList[l].indexInTextures;
             auto item = listLeftPackages->item(index);
             auto list = item->data(Qt::UserRole).value<QVector<ViewTexture>>();
             list.append(texture);
