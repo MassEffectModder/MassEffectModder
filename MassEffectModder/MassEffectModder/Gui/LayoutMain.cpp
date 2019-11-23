@@ -614,6 +614,7 @@ void LayoutMain::HideAllSubMenusME1()
     buttonExtractModsME1->hide();
     buttonConvertModME1->hide();
     buttonCreateModME1->hide();
+    buttonCreateBinaryModME1->show();
     buttonCreateBinaryModME1->hide();
 }
 
@@ -638,6 +639,7 @@ void LayoutMain::HideAllSubMenusME2()
     buttonExtractModsME2->hide();
     buttonConvertModME2->hide();
     buttonCreateModME2->hide();
+    buttonCreateBinaryModME2->show();
     buttonCreateBinaryModME2->hide();
 }
 
@@ -664,6 +666,7 @@ void LayoutMain::HideAllSubMenusME3()
     buttonExtractModsME3->hide();
     buttonConvertModME3->hide();
     buttonCreateModME3->hide();
+    buttonCreateBinaryModME3->show();
     buttonCreateBinaryModME3->hide();
 }
 
