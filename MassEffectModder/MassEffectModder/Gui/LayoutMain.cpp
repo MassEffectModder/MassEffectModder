@@ -612,7 +612,9 @@ void LayoutMain::HideAllSubMenusME1()
     buttonGameUtilitiesME1->setChecked(false);
     buttonCheckGameFilesME1->hide();
     buttonChangeGamePathME1->hide();
+#if !defined(_WIN32)
     buttonChangeUserPathME1->hide();
+#endif
     spacerBottomGameUtilitiesME1->changeSize(0, 0);
     buttonModsManagerME1->setChecked(false);
     buttonInstallModsME1->hide();
