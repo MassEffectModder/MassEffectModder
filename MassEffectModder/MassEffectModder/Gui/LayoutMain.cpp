@@ -546,21 +546,14 @@ LayoutMain::LayoutMain(MainWindow *window)
     auto GroupBoxViewME1 = new QGroupBox;
     GroupBoxViewME1->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
     GroupBoxViewME1->setLayout(verticalLayoutMenuME1);
-    auto sizePolicy = GroupBoxViewME1->sizePolicy();
-    sizePolicy.setRetainSizeWhenHidden(true);
-    GroupBoxViewME1->setSizePolicy(sizePolicy);
 
     auto GroupBoxViewME2 = new QGroupBox;
     GroupBoxViewME2->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
     GroupBoxViewME2->setLayout(verticalLayoutMenuME2);
-    sizePolicy.setRetainSizeWhenHidden(true);
-    GroupBoxViewME2->setSizePolicy(sizePolicy);
 
     auto GroupBoxViewME3 = new QGroupBox;
     GroupBoxViewME3->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
     GroupBoxViewME3->setLayout(verticalLayoutMenuME3);
-    sizePolicy.setRetainSizeWhenHidden(true);
-    GroupBoxViewME3->setSizePolicy(sizePolicy);
 
     auto verticalLayoutMainME1 = new QVBoxLayout();
     verticalLayoutMainME1->setAlignment(Qt::AlignCenter);
