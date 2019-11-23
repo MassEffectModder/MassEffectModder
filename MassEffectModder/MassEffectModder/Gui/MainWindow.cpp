@@ -20,7 +20,7 @@
  */
 
 #include <Gui/MainWindow.h>
-#include <Gui/LayoutMeSelect.h>
+#include <Gui/LayoutMain.h>
 #include <Gui/LayoutModules.h>
 #include <Helpers/Exception.h>
 #include <Helpers/MiscHelpers.h>
@@ -29,7 +29,7 @@ MainWindow::MainWindow()
     : gameType(MeType::UNKNOWN_TYPE), busy(false)
 {
     statusBar()->clearMessage();
-    QString title = QString("Mass Effect Modder v%1 - ME Game Selection").arg(MEM_VERSION);
+    QString title = QString("Mass Effect Modder v%1").arg(MEM_VERSION);
     if (DetectAdminRights())
         title += " (run as Administrator)";
     setWindowTitle(title);
@@ -38,7 +38,7 @@ MainWindow::MainWindow()
     auto widget = new QWidget;
     setCentralWidget(widget);
     stackedLayout = new QStackedLayout(widget);
-    stackedLayout->addWidget(new LayoutMeSelect(this));
+    stackedLayout->addWidget(new LayoutMain(this));
 }
 
 void MainWindow::SwitchLayoutById(int id)
@@ -66,7 +66,11 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::SetTitle(const QString &appendText)
 {
-    QString title = QString("Mass Effect Modder v%1 - ME%2 - %3").arg(MEM_VERSION).arg((int)gameType).arg(appendText);
+    auto title = QString("Mass Effect Modder v%1").arg(MEM_VERSION);
+    if (gameType != MeType::UNKNOWN_TYPE)
+        title += QString(" - ME%2").arg((int)gameType);
+    if (appendText != "")
+        title += " - " + appendText;
     if (DetectAdminRights())
         title += " (run as Administrator)";
     setWindowTitle(title);

@@ -46,6 +46,7 @@ protected:
 private:
     static const int kMinWindowWidth = 1024;
     static const int kMinWindowHeight = 600;
+    static const int kLayoutMain = 1;
     static const int kLayoutMeSelect = 1;
     static const int kLayoutModules = 2;
     static const int kLayoutTexturesManager = 3;
@@ -54,6 +55,7 @@ private:
     static const int kLayoutModsManager = 6;
     static const int kLayoutInstallModsManager = 7;
 
+    friend class LayoutMain;
     friend class LayoutMeSelect;
     friend class LayoutModules;
     friend class LayoutTexturesManager;
