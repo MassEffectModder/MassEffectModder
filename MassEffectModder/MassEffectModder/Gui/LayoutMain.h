@@ -44,7 +44,8 @@ private slots:
     void ButtonModsManagerME3Selected();
 
 private:
-    const int kButtonMinWidth = 200;
+    const int kButtonMinWidth = 270;
+    const int kButtonMinSmallWidth = 220;
     const int kButtonMinHeight = 22;
 #if defined(__APPLE__)
     const int kFontSize = 12;
