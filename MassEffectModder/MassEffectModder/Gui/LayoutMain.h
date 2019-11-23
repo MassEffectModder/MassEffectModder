@@ -68,7 +68,9 @@ private:
     QPushButton   *buttonGameUtilitiesME1;
     QPushButton   *buttonCheckGameFilesME1;
     QPushButton   *buttonChangeGamePathME1;
+#if !defined(_WIN32)
     QPushButton   *buttonChangeUserPathME1;
+#endif
     QSpacerItem   *spacerBottomGameUtilitiesME1;
     QPushButton   *buttonModsManagerME1;
     QPushButton   *buttonInstallModsME1;
@@ -87,7 +89,9 @@ private:
     QPushButton   *buttonCheckGameFilesME2;
     QPushButton   *buttonRepackGameFilesME2;
     QPushButton   *buttonChangeGamePathME2;
+#if !defined(_WIN32)
     QPushButton   *buttonChangeUserPathME2;
+#endif
     QSpacerItem   *spacerBottomGameUtilitiesME2;
     QPushButton   *buttonModsManagerME2;
     QPushButton   *buttonInstallModsME2;
@@ -108,7 +112,9 @@ private:
     QPushButton   *buttonUpdateTOCs;
     QPushButton   *buttonExtractDLCs;
     QPushButton   *buttonChangeGamePathME3;
+#if !defined(_WIN32)
     QPushButton   *buttonChangeUserPathME3;
+#endif
     QSpacerItem   *spacerBottomGameUtilitiesME3;
     QPushButton   *buttonModsManagerME3;
     QPushButton   *buttonInstallModsME3;
