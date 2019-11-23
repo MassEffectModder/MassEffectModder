@@ -69,7 +69,7 @@ int runQtApplication(int argc, char *argv[])
     MainWindow window;
     window.show();
 
-    return QApplication::exec();
+    int status = QApplication::exec();
 #else
     QCoreApplication application(argc, argv);
 
@@ -84,9 +84,10 @@ int runQtApplication(int argc, char *argv[])
                   "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n"
                   ).arg(MEM_VERSION).arg(MEM_YEAR));
 
-    return ProcessArguments();
+    int status = ProcessArguments();
 #endif
     ReleaseGameData();
+    return status;
 }
 
 int main(int argc, char *argv[])
