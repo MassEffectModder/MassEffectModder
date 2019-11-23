@@ -445,22 +445,30 @@ LayoutMain::LayoutMain(MainWindow *window)
 
     auto verticalLayoutMenuME1 = new QVBoxLayout();
     verticalLayoutMenuME1->setAlignment(Qt::AlignCenter);
+#if defined(__APPLE__)
     verticalLayoutMenuME1->addSpacing(10);
+#endif
     verticalLayoutMenuME1->addWidget(ButtonTexturesManagerME1, 1);
 
     auto verticalLayoutMenuME2 = new QVBoxLayout();
     verticalLayoutMenuME2->setAlignment(Qt::AlignCenter);
+#if defined(__APPLE__)
     verticalLayoutMenuME2->addSpacing(10);
+#endif
     verticalLayoutMenuME2->addWidget(ButtonTexturesManagerME2, 1);
 
     auto verticalLayoutMenuME3 = new QVBoxLayout();
     verticalLayoutMenuME3->setAlignment(Qt::AlignCenter);
+#if defined(__APPLE__)
     verticalLayoutMenuME3->addSpacing(10);
+#endif
     verticalLayoutMenuME3->addWidget(ButtonTexturesManagerME3, 1);
 
     auto groupVertTextureUtilitiesME1 = new QVBoxLayout();
     groupVertTextureUtilitiesME1->setAlignment(Qt::AlignRight);
+#if defined(__APPLE__)
     verticalLayoutMenuME1->addSpacing(4);
+#endif
     verticalLayoutMenuME1->addWidget(buttonTextureUtilitiesME1, 1);
     groupVertTextureUtilitiesME1->addWidget(buttonRemoveScanFileME1, 1);
     groupVertTextureUtilitiesME1->addWidget(buttonApplyHQLODsME1, 1);
@@ -468,31 +476,35 @@ LayoutMain::LayoutMain(MainWindow *window)
     groupVertTextureUtilitiesME1->addWidget(buttonApplyVanillaLODsME1, 1);
     groupVertTextureUtilitiesME1->addWidget(buttonApplyHQGfxME1, 1);
     groupVertTextureUtilitiesME1->addWidget(buttonApplyHQGfxSoftShadows, 1);
-    spacerBottomTextureUtilitiesME1 = new QSpacerItem(0, 10);
+    spacerBottomTextureUtilitiesME1 = new QSpacerItem(0, 20);
     groupVertTextureUtilitiesME1->addItem(spacerBottomTextureUtilitiesME1);
     verticalLayoutMenuME1->addLayout(groupVertTextureUtilitiesME1);
 
     auto groupVertTextureUtilitiesME2 = new QVBoxLayout();
     groupVertTextureUtilitiesME2->setAlignment(Qt::AlignRight);
+#if defined(__APPLE__)
     verticalLayoutMenuME2->addSpacing(4);
+#endif
     verticalLayoutMenuME2->addWidget(buttonTextureUtilitiesME2, 1);
     groupVertTextureUtilitiesME2->addWidget(buttonRemoveScanFileME2, 1);
     groupVertTextureUtilitiesME2->addWidget(buttonApplyHQLODsME2, 1);
     groupVertTextureUtilitiesME2->addWidget(buttonApplyVanillaLODsME2, 1);
     groupVertTextureUtilitiesME2->addWidget(buttonApplyHQGfxME2, 1);
-    spacerBottomTextureUtilitiesME2 = new QSpacerItem(0, 10);
+    spacerBottomTextureUtilitiesME2 = new QSpacerItem(0, 20);
     groupVertTextureUtilitiesME2->addItem(spacerBottomTextureUtilitiesME2);
     verticalLayoutMenuME2->addLayout(groupVertTextureUtilitiesME2);
 
     auto groupVertTextureUtilitiesME3 = new QVBoxLayout();
     groupVertTextureUtilitiesME3->setAlignment(Qt::AlignRight);
+#if defined(__APPLE__)
     verticalLayoutMenuME3->addSpacing(4);
+#endif
     verticalLayoutMenuME3->addWidget(buttonTextureUtilitiesME3, 1);
     groupVertTextureUtilitiesME3->addWidget(buttonRemoveScanFileME3, 1);
     groupVertTextureUtilitiesME3->addWidget(buttonApplyHQLODsME3, 1);
     groupVertTextureUtilitiesME3->addWidget(buttonApplyVanillaLODsME3, 1);
     groupVertTextureUtilitiesME3->addWidget(buttonApplyHQGfxME3, 1);
-    spacerBottomTextureUtilitiesME3 = new QSpacerItem(0, 10);
+    spacerBottomTextureUtilitiesME3 = new QSpacerItem(0, 20);
     groupVertTextureUtilitiesME3->addItem(spacerBottomTextureUtilitiesME3);
     verticalLayoutMenuME3->addLayout(groupVertTextureUtilitiesME3);
 
@@ -504,7 +516,7 @@ LayoutMain::LayoutMain(MainWindow *window)
 #if !defined(_WIN32)
     groupVertGameUtilitiesME1->addWidget(buttonChangeUserPathME1, 1);
 #endif
-    spacerBottomGameUtilitiesME1 = new QSpacerItem(0, 10);
+    spacerBottomGameUtilitiesME1 = new QSpacerItem(0, 20);
     groupVertGameUtilitiesME1->addItem(spacerBottomGameUtilitiesME1);
     verticalLayoutMenuME1->addLayout(groupVertGameUtilitiesME1);
 
@@ -517,7 +529,7 @@ LayoutMain::LayoutMain(MainWindow *window)
 #if !defined(_WIN32)
     groupVertGameUtilitiesME2->addWidget(buttonChangeUserPathME2, 1);
 #endif
-    spacerBottomGameUtilitiesME2 = new QSpacerItem(0, 10);
+    spacerBottomGameUtilitiesME2 = new QSpacerItem(0, 20);
     groupVertGameUtilitiesME2->addItem(spacerBottomGameUtilitiesME2);
     verticalLayoutMenuME2->addLayout(groupVertGameUtilitiesME2);
 
@@ -532,7 +544,7 @@ LayoutMain::LayoutMain(MainWindow *window)
 #if !defined(_WIN32)
     groupVertGameUtilitiesME3->addWidget(buttonChangeUserPathME3, 1);
 #endif
-    spacerBottomGameUtilitiesME3 = new QSpacerItem(0, 10);
+    spacerBottomGameUtilitiesME3 = new QSpacerItem(0, 20);
     groupVertGameUtilitiesME3->addItem(spacerBottomGameUtilitiesME3);
     verticalLayoutMenuME3->addLayout(groupVertGameUtilitiesME3);
 
@@ -707,7 +719,7 @@ void LayoutMain::ButtonTextureUtilitiesME1Selected()
     buttonApplyVanillaLODsME1->setHidden(!checked);
     buttonApplyHQGfxME1->setHidden(!checked);
     buttonApplyHQGfxSoftShadows->setHidden(!checked);
-    spacerBottomTextureUtilitiesME1->changeSize(0, checked ? 10 : 0);
+    spacerBottomTextureUtilitiesME1->changeSize(0, checked ? 20 : 0);
     buttonTextureUtilitiesME1->show();
 }
 
@@ -725,7 +737,7 @@ void LayoutMain::ButtonTextureUtilitiesME2Selected()
     buttonApplyHQLODsME2->setHidden(!checked);
     buttonApplyVanillaLODsME2->setHidden(!checked);
     buttonApplyHQGfxME2->setHidden(!checked);
-    spacerBottomTextureUtilitiesME2->changeSize(0, checked ? 10 : 0);
+    spacerBottomTextureUtilitiesME2->changeSize(0, checked ? 20 : 0);
     buttonTextureUtilitiesME2->show();
 }
 
@@ -743,7 +755,7 @@ void LayoutMain::ButtonTextureUtilitiesME3Selected()
     buttonApplyHQLODsME3->setHidden(!checked);
     buttonApplyVanillaLODsME3->setHidden(!checked);
     buttonApplyHQGfxME3->setHidden(!checked);
-    spacerBottomTextureUtilitiesME3->changeSize(0, checked ? 10 : 0);
+    spacerBottomTextureUtilitiesME3->changeSize(0, checked ? 20 : 0);
     buttonTextureUtilitiesME3->show();
 }
 
@@ -762,7 +774,7 @@ void LayoutMain::ButtonGameUtilitiesME1Selected()
 #if !defined(_WIN32)
     buttonChangeUserPathME1->setHidden(!checked);
 #endif
-    spacerBottomGameUtilitiesME1->changeSize(0, checked ? 10 : 0);
+    spacerBottomGameUtilitiesME1->changeSize(0, checked ? 20 : 0);
     buttonGameUtilitiesME1->show();
 }
 
@@ -782,7 +794,7 @@ void LayoutMain::ButtonGameUtilitiesME2Selected()
 #if !defined(_WIN32)
     buttonChangeUserPathME2->setHidden(!checked);
 #endif
-    spacerBottomGameUtilitiesME2->changeSize(0, checked ? 10 : 0);
+    spacerBottomGameUtilitiesME2->changeSize(0, checked ? 20 : 0);
     buttonGameUtilitiesME2->show();
 }
 
@@ -804,7 +816,7 @@ void LayoutMain::ButtonGameUtilitiesME3Selected()
 #if !defined(_WIN32)
     buttonChangeUserPathME3->setHidden(!checked);
 #endif
-    spacerBottomGameUtilitiesME3->changeSize(0, checked ? 10 : 0);
+    spacerBottomGameUtilitiesME3->changeSize(0, checked ? 20 : 0);
     buttonGameUtilitiesME3->show();
 }
 
