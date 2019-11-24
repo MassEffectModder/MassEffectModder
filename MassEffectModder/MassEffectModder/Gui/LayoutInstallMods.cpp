@@ -19,9 +19,8 @@
  *
  */
 
-#include <Gui/LayoutMeSelect.h>
-#include <Gui/LayoutModsManager.h>
-#include <Gui/LayoutInstallModsManager.h>
+#include <Gui/LayoutInstallMods.h>
+#include <Gui/LayoutMain.h>
 #include <Gui/MainWindow.h>
 #include <Gui/MessageWindow.h>
 #include <Helpers/MiscHelpers.h>
@@ -30,8 +29,8 @@
 #include <Misc/Misc.h>
 #include <GameData/GameData.h>
 
-LayoutInstallModsManager::LayoutInstallModsManager(MainWindow *window)
-    : mainWindow(window)
+LayoutInstallModsManager::LayoutInstallModsManager(MainWindow *window, MeType type)
+    : mainWindow(window), gameType(type)
 {
     layoutId = MainWindow::kLayoutInstallModsManager;
 
@@ -104,7 +103,7 @@ LayoutInstallModsManager::LayoutInstallModsManager(MainWindow *window)
     ButtonReturn->setFont(ButtonFont);
     connect(ButtonReturn, &QPushButton::clicked, this, &LayoutInstallModsManager::ReturnSelected);
 
-    QPixmap pixmap(QString(":/logo_me%1.png").arg((int)mainWindow->gameType));
+    QPixmap pixmap(QString(":/logo_me%1.png").arg((int)gameType));
     pixmap = pixmap.scaled(300, 80, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     iconLogo = new QLabel;
     iconLogo->setPixmap(pixmap);
@@ -143,7 +142,7 @@ LayoutInstallModsManager::LayoutInstallModsManager(MainWindow *window)
     verticalLayoutMain->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowHeight, 10));
     verticalLayoutMain->addLayout(horizontalLayoutMain);
 
-    mainWindow->SetTitle("Mods Installer");
+    mainWindow->SetTitle(MeType::UNKNOWN_TYPE, "Mods Installer");
 }
 
 void LayoutInstallModsManager::LockGui(bool lock)
@@ -180,7 +179,7 @@ void LayoutInstallModsManager::AddSelected()
         FileStream fs = FileStream(file, FileMode::Open, FileAccess::ReadOnly);
         if (!Misc::CheckMEMHeader(fs, file))
             continue;
-        if (!Misc::CheckMEMGameVersion(fs, file, mainWindow->gameType))
+        if (!Misc::CheckMEMGameVersion(fs, file, gameType))
             continue;
 
         auto item = new QListWidgetItem(BaseNameWithoutExt(file));
@@ -229,7 +228,7 @@ void LayoutInstallModsManager::InstallMods(QStringList &mods)
     mainWindow->statusBar()->showMessage("Detecting game data...");
     QApplication::processEvents();
     ConfigIni configIni{};
-    g_GameData->Init(mainWindow->gameType, configIni, true);
+    g_GameData->Init(gameType, configIni, true);
     if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
     {
         mainWindow->statusBar()->clearMessage();
@@ -252,12 +251,12 @@ void LayoutInstallModsManager::InstallMods(QStringList &mods)
     Resources resources;
     resources.loadMD5Tables();
 
-    TreeScan::loadTexturesMap(mainWindow->gameType, resources, textures);
+    TreeScan::loadTexturesMap(gameType, resources, textures);
 
     g_logs->BufferClearErrors();
     g_logs->BufferEnableErrors(true);
 
-    if (!Misc::InstallMods(mainWindow->gameType, resources, mods, false, false, false, false, -1,
+    if (!Misc::InstallMods(gameType, resources, mods, false, false, false, false, -1,
                       &LayoutInstallModsManager::InstallModsCallback, mainWindow))
     {
         QMessageBox::critical(this, "Installing MEM mods", "Installation failed!");
@@ -307,7 +306,7 @@ void LayoutInstallModsManager::InstallAllSelected()
 
 void LayoutInstallModsManager::ReturnSelected()
 {
-    mainWindow->SwitchLayoutById(MainWindow::kLayoutModsManager);
+    mainWindow->SwitchLayoutById(MainWindow::kLayoutMain);
     mainWindow->GetLayout()->removeWidget(this);
-    mainWindow->SetTitle("Mods Manager");
+    mainWindow->SetTitle(MeType::UNKNOWN_TYPE, "");
 }

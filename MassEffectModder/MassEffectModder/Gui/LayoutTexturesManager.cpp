@@ -21,7 +21,7 @@
 
 #include <GameData/GameData.h>
 #include <GameData/TOCFile.h>
-#include <Gui/LayoutMeSelect.h>
+#include <Gui/LayoutMain.h>
 #include <Gui/LayoutTexturesManager.h>
 #include <Gui/MainWindow.h>
 #include <Gui/MessageWindow.h>
@@ -68,8 +68,8 @@ QPixmap PixmapLabel::resizePixmap() const
     return resizedPixmap;
 }
 
-LayoutTexturesManager::LayoutTexturesManager(MainWindow *window)
-    : mainWindow(window)
+LayoutTexturesManager::LayoutTexturesManager(MainWindow *window, MeType type)
+    : mainWindow(window), gameType(type)
 {
     layoutId = MainWindow::kLayoutTexturesManager;
 
@@ -254,7 +254,7 @@ LayoutTexturesManager::LayoutTexturesManager(MainWindow *window)
     VerticalLayout->addWidget(splitter);
     VerticalLayout->addWidget(WidgetBottom);
 
-    mainWindow->SetTitle("Texture Manager");
+    mainWindow->SetTitle(gameType, "Texture Manager");
 }
 
 static int compareTextures(const ViewPackage &e1, const ViewPackage &e2)
@@ -280,7 +280,7 @@ void LayoutTexturesManager::Startup()
 
     mainWindow->statusBar()->showMessage("Detecting game data...");
     QApplication::processEvents();
-    g_GameData->Init(mainWindow->gameType, configIni, true);
+    g_GameData->Init(gameType, configIni, true);
     if (!Misc::CheckGamePath())
     {
         QMessageBox::critical(this, "Texture Manager", "Game data not found.");
@@ -290,7 +290,7 @@ void LayoutTexturesManager::Startup()
         return;
     }
 
-    if (mainWindow->gameType == MeType::ME3_TYPE && Misc::unpackSFARisNeeded())
+    if (gameType == MeType::ME3_TYPE && Misc::unpackSFARisNeeded())
     {
         QMessageBox::critical(this, "Texture Manager", QString("Game has NOT unpacked DLCs.") +
                               "\n\nPlease select 'Unpack DLCs'\n" + "from the 'Game Utilities'\n" +
@@ -303,7 +303,7 @@ void LayoutTexturesManager::Startup()
 
     QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
             "/MassEffectModder";
-    QString filename = path + QString("/me%1map.bin").arg(static_cast<int>(mainWindow->gameType));
+    QString filename = path + QString("/me%1map.bin").arg(static_cast<int>(gameType));
     if (QFile::exists(filename))
     {
         FileStream fs = FileStream(filename, FileMode::Open, FileAccess::ReadOnly);
@@ -381,7 +381,7 @@ void LayoutTexturesManager::Startup()
     }
     else
     {
-        bool modded = Misc::detectMod(mainWindow->gameType);
+        bool modded = Misc::detectMod(gameType);
         if (!modded)
             modded = Misc::CheckForMarkers(&LayoutTexturesManager::PrepareTexturesCallback, mainWindow);
         mainWindow->statusBar()->clearMessage();
@@ -509,7 +509,7 @@ void LayoutTexturesManager::Startup()
         resources.loadMD5Tables();
         g_logs->BufferClearErrors();
         g_logs->BufferEnableErrors(true);
-        TreeScan::PrepareListOfTextures(mainWindow->gameType, resources,
+        TreeScan::PrepareListOfTextures(gameType, resources,
                                         textures, removeEmptyMips, true,
                                         &LayoutTexturesManager::PrepareTexturesCallback,
                                         mainWindow);
@@ -681,7 +681,7 @@ void LayoutTexturesManager::UpdateGui()
         buttonViewImage->setEnabled(false);
         buttonInfoSingle->setEnabled(textureSelected && !singlePackageMode);
         buttonInfoAll->setEnabled(textureSelected && !singlePackageMode);
-        if (mainWindow->gameType != MeType::ME1_TYPE)
+        if (gameType != MeType::ME1_TYPE)
             buttonPackageSingle->setEnabled(textureSelected && !singlePackageMode);
         buttonPackageMulti->setEnabled(textureSelected && singlePackageMode);
     }
@@ -1321,7 +1321,7 @@ void LayoutTexturesManager::SearchSelected()
 
 void LayoutTexturesManager::ExitSelected()
 {
-    mainWindow->SwitchLayoutById(MainWindow::kLayoutModules);
+    mainWindow->SwitchLayoutById(MainWindow::kLayoutMain);
     mainWindow->GetLayout()->removeWidget(this);
-    mainWindow->SetTitle("Modules Selection");
+    mainWindow->SetTitle(MeType::UNKNOWN_TYPE, "");
 }

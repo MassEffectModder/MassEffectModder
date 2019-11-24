@@ -66,7 +66,7 @@ class LayoutTexturesManager: public LayoutHandle
     Q_OBJECT
 
 public:
-    explicit LayoutTexturesManager(MainWindow *window = nullptr);
+    explicit LayoutTexturesManager(MainWindow *window, MeType type);
     void Startup();
 
 private slots:
@@ -138,6 +138,7 @@ private:
     ConfigIni      configIni{};
     QList<TextureMapEntry> textures;
     Resources      resources;
+    MeType         gameType;
 
     static void PrepareTexturesCallback(void *handle, int progress, const QString &stage);
     static void ReplaceTextureCallback(void *handle, int progress, const QString &stage);

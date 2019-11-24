@@ -19,30 +19,32 @@
  *
  */
 
-#ifndef LAYOUT_TEXTURE_UTILITIES_H
-#define LAYOUT_TEXTURE_UTILITIES_H
+#ifndef LAYOUT_INSTALL_MODS_MANAGER_H
+#define LAYOUT_INSTALL_MODS_MANAGER_H
 
 #include <Gui/MainWindow.h>
 
-class LayoutTextureUtilities: public LayoutHandle
+class LayoutInstallModsManager: public LayoutHandle
 {
     Q_OBJECT
 
 public:
-    explicit LayoutTextureUtilities(MainWindow *window = nullptr);
+    explicit LayoutInstallModsManager(MainWindow *window, MeType type);
+    void LockGui(bool lock);
 
 private slots:
-    void RemoveScanFileSelected();
-    void ApplyHQLODsSelected();
-    void Apply2kLODsSelected();
-    void ApplyVanillaLODsSelected();
-    void ApplyHQGfxSelected();
-    void ApplyHQGfxSoftShadowsSelected();
+    void AddSelected();
+    void RemoveSelected();
+    void ClearSelected();
+    void InstallSelected();
+    void InstallAllSelected();
     void ReturnSelected();
 
 private:
     const int kButtonMinWidth = 200;
     const int kButtonMinHeight = 22;
+    const int kListViewModsMinWidth = 300;
+    const int kListViewModsMinHeight = 300;
 #if defined(__APPLE__)
     const int kFontSize = 12;
 #elif defined(__linux__)
@@ -51,11 +53,13 @@ private:
     const int kFontSize = 8;
 #endif
 
-    MainWindow *mainWindow;
-    QLabel     *iconLogo;
+    MainWindow  *mainWindow;
+    QListWidget *ListMods;
+    QLabel      *iconLogo;
+    MeType      gameType;
 
-    void ApplyLODs(bool lods2k);
-    void ApplyHQGfx(bool softShadows);
+    static void InstallModsCallback(void *handle, int progress, const QString &stage);
+    void InstallMods(QStringList &mods);
 };
 
-#endif // LAYOUT_TEXTURE_UTILITIES_H
+#endif // LAYOUT_INSTALL_MODS_MANAGER_H

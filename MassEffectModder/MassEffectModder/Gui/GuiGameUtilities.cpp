@@ -19,8 +19,7 @@
  *
  */
 
-#include <Gui/LayoutMeSelect.h>
-#include <Gui/LayoutGameUtilities.h>
+#include <Gui/LayoutMain.h>
 #include <Gui/MainWindow.h>
 #include <Gui/MessageWindow.h>
 #include <Helpers/MiscHelpers.h>
@@ -30,136 +29,14 @@
 #include <GameData/TOCFile.h>
 #include <Misc/Misc.h>
 
-LayoutGameUtilities::LayoutGameUtilities(MainWindow *window)
-    : mainWindow(window)
-{
-    layoutId = MainWindow::kLayoutGameUtilities;
-
-    auto ButtonCheckGameFiles = new QPushButton("Check Game Files");
-    ButtonCheckGameFiles->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    ButtonCheckGameFiles->setMinimumWidth(kButtonMinWidth);
-    ButtonCheckGameFiles->setMinimumHeight(kButtonMinHeight);
-    QFont ButtonFont = ButtonCheckGameFiles->font();
-    ButtonFont.setPointSize(kFontSize);
-    ButtonCheckGameFiles->setFont(ButtonFont);
-    connect(ButtonCheckGameFiles, &QPushButton::clicked, this, &LayoutGameUtilities::CheckGameFilesSelected);
-
-    auto ButtonChangeGamePath = new QPushButton("Change Game Path");
-    ButtonChangeGamePath->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    ButtonChangeGamePath->setMinimumWidth(kButtonMinWidth);
-    ButtonChangeGamePath->setMinimumHeight(kButtonMinHeight);
-    ButtonChangeGamePath->setFont(ButtonFont);
-    connect(ButtonChangeGamePath, &QPushButton::clicked, this, &LayoutGameUtilities::ChangeGamePathSelected);
-
-#if !defined(_WIN32)
-    auto ButtonChangeUserPath = new QPushButton("Change User Path");
-    ButtonChangeUserPath->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    ButtonChangeUserPath->setMinimumWidth(kButtonMinWidth);
-    ButtonChangeUserPath->setMinimumHeight(kButtonMinHeight);
-    ButtonChangeUserPath->setFont(ButtonFont);
-    connect(ButtonChangeUserPath, &QPushButton::clicked, this, &LayoutGameUtilities::ChangeUserPathSelected);
-#endif
-
-    QPushButton *ButtonRepackGameFiles = nullptr;
-    if (mainWindow->gameType != MeType::ME1_TYPE)
-    {
-        ButtonRepackGameFiles = new QPushButton("Repack Game Files");
-        ButtonRepackGameFiles->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-        ButtonRepackGameFiles->setMinimumWidth(kButtonMinWidth);
-        ButtonRepackGameFiles->setMinimumHeight(kButtonMinHeight);
-        ButtonRepackGameFiles->setFont(ButtonFont);
-        connect(ButtonRepackGameFiles, &QPushButton::clicked, this, &LayoutGameUtilities::RepackGameFilesSelected);
-    }
-
-    QPushButton *ButtonUpdateTOCs = nullptr;
-    QPushButton *ButtonExtractDLCs = nullptr;
-    if (mainWindow->gameType == MeType::ME3_TYPE)
-    {
-        ButtonUpdateTOCs = new QPushButton("Update TOCs");
-        ButtonUpdateTOCs->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-        ButtonUpdateTOCs->setMinimumWidth(kButtonMinWidth);
-        ButtonUpdateTOCs->setMinimumHeight(kButtonMinHeight);
-        ButtonUpdateTOCs->setFont(ButtonFont);
-        connect(ButtonUpdateTOCs, &QPushButton::clicked, this, &LayoutGameUtilities::UpdateTOCsSelected);
-
-        ButtonExtractDLCs = new QPushButton("Unpack DLCs");
-        ButtonExtractDLCs->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-        ButtonExtractDLCs->setMinimumWidth(kButtonMinWidth);
-        ButtonExtractDLCs->setMinimumHeight(kButtonMinHeight);
-        ButtonExtractDLCs->setFont(ButtonFont);
-        connect(ButtonExtractDLCs, &QPushButton::clicked, this, &LayoutGameUtilities::ExtractDLCsSelected);
-    }
-
-    auto ButtonReturn = new QPushButton("Return");
-    ButtonReturn->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    ButtonReturn->setMinimumWidth(kButtonMinWidth);
-    ButtonReturn->setMinimumHeight(kButtonMinHeight / 2);
-    ButtonReturn->setFont(ButtonFont);
-    connect(ButtonReturn, &QPushButton::clicked, this, &LayoutGameUtilities::ReturnSelected);
-
-    QPixmap pixmap(QString(":/logo_me%1.png").arg((int)mainWindow->gameType));
-    pixmap = pixmap.scaled(300, 80, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    iconLogo = new QLabel;
-    iconLogo->setPixmap(pixmap);
-    iconLogo->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-
-    auto verticalLayout = new QVBoxLayout();
-    verticalLayout->setAlignment(Qt::AlignCenter);
-    verticalLayout->addWidget(ButtonCheckGameFiles, 1);
-    verticalLayout->addSpacing(10);
-    verticalLayout->addWidget(ButtonChangeGamePath, 1);
-#if !defined(_WIN32)
-    verticalLayout->addWidget(ButtonChangeUserPath, 1);
-#endif
-    if (mainWindow->gameType != MeType::ME1_TYPE)
-    {
-        verticalLayout->addSpacing(10);
-        verticalLayout->addWidget(ButtonRepackGameFiles, 1);
-    }
-    if (mainWindow->gameType == MeType::ME3_TYPE)
-    {
-        verticalLayout->addWidget(ButtonExtractDLCs, 1);
-        verticalLayout->addSpacing(10);
-        verticalLayout->addWidget(ButtonUpdateTOCs, 1);
-    }
-    verticalLayout->addSpacing(20);
-    verticalLayout->addWidget(ButtonReturn, 1);
-
-    auto GroupBoxView = new QGroupBox;
-    GroupBoxView->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
-    GroupBoxView->setLayout(verticalLayout);
-
-    auto verticalLayoutMain = new QVBoxLayout();
-    verticalLayoutMain->setAlignment(Qt::AlignCenter);
-    verticalLayoutMain->addWidget(iconLogo);
-    verticalLayoutMain->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowHeight, 10));
-    verticalLayoutMain->addWidget(GroupBoxView);
-
-    auto horizontalLayout = new QHBoxLayout(this);
-    horizontalLayout->setAlignment(Qt::AlignTop);
-    horizontalLayout->addLayout(verticalLayoutMain);
-
-    mainWindow->SetTitle("Game Utitlities");
-}
-
-void LayoutGameUtilities::LockGui(bool lock)
-{
-    foreach (QWidget *widget, this->findChildren<QWidget*>())
-    {
-        widget->setEnabled(!lock);
-    }
-    iconLogo->setEnabled(true);
-    mainWindow->LockClose(lock);
-}
-
-void LayoutGameUtilities::CheckGameFilesSelected()
+void LayoutMain::CheckGameFilesSelected(MeType gameType)
 {
     LockGui(true);
 
     mainWindow->statusBar()->showMessage("Detecting game data...");
     QApplication::processEvents();
     ConfigIni configIni{};
-    g_GameData->Init(mainWindow->gameType, configIni, true);
+    g_GameData->Init(gameType, configIni, true);
     if (!Misc::CheckGamePath())
     {
         mainWindow->statusBar()->clearMessage();
@@ -174,9 +51,9 @@ void LayoutGameUtilities::CheckGameFilesSelected()
 
     resources.loadMD5Tables();
 
-    bool vanilla = Misc::checkGameFiles(mainWindow->gameType, resources,
+    bool vanilla = Misc::checkGameFiles(gameType, resources,
                                         errors, modList,
-                                        &LayoutGameUtilities::CheckCallback,
+                                        &LayoutMain::CheckCallback,
                                         mainWindow);
 
     g_logs->BufferClearErrors();
@@ -215,26 +92,26 @@ void LayoutGameUtilities::CheckGameFilesSelected()
     LockGui(false);
 }
 
-void LayoutGameUtilities::CheckCallback(void *handle, int progress, const QString &stage)
+void LayoutMain::CheckCallback(void *handle, int progress, const QString &stage)
 {
     auto *win = static_cast<MainWindow *>(handle);
     win->statusBar()->showMessage(QString("Total progress: ") + QString::number(progress) + "% - " + stage);
     QApplication::processEvents();
 }
 
-void LayoutGameUtilities::ChangeGamePathSelected()
+void LayoutMain::ChangeGamePathSelected(MeType gameType)
 {
     LockGui(true);
 
     mainWindow->statusBar()->showMessage("Detecting game data...");
     QApplication::processEvents();
     ConfigIni configIni{};
-    g_GameData->Init(mainWindow->gameType, configIni, true);
+    g_GameData->Init(gameType, configIni, true);
     QString filter, exeSuffix;
     QString caption = "Please select the Mass Effect " +
-            QString::number(static_cast<int>(mainWindow->gameType)) +
+            QString::number(static_cast<int>(gameType)) +
             " executable file";
-    switch (mainWindow->gameType)
+    switch (gameType)
     {
     case MeType::ME1_TYPE:
         filter = "ME1 executable file (MassEffect.exe)";
@@ -261,17 +138,17 @@ void LayoutGameUtilities::ChangeGamePathSelected()
     }
     if (path.length() != 0 && QFile(path).exists())
     {
-        if (mainWindow->gameType == MeType::ME3_TYPE)
+        if (gameType == MeType::ME3_TYPE)
             path = DirName(DirName(DirName(path)));
         else
             path = DirName(DirName(path));
-        QString key = QString("ME%1").arg(static_cast<int>(mainWindow->gameType));
+        QString key = QString("ME%1").arg(static_cast<int>(gameType));
 #if defined(_WIN32)
         configIni.Write(key, QString(path).replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameDataPath");
 #else
         configIni.Write(key, path, "GameDataPath");
 #endif
-        g_GameData->Init(mainWindow->gameType, configIni, true);
+        g_GameData->Init(gameType, configIni, true);
         QMessageBox::information(this, "Changing game path", "Game path changed to\n" + path);
     }
     else
@@ -281,29 +158,30 @@ void LayoutGameUtilities::ChangeGamePathSelected()
     LockGui(false);
 }
 
-void LayoutGameUtilities::ChangeUserPathSelected()
+#if !defined(_WIN32)
+void LayoutMain::ChangeUserPathSelected(MeType gameType)
 {
     LockGui(true);
 
     mainWindow->statusBar()->showMessage("Detecting game data...");
     QApplication::processEvents();
     ConfigIni configIni{};
-    g_GameData->Init(mainWindow->gameType, configIni, true);
+    g_GameData->Init(gameType, configIni, true);
     QString caption = "Please select the Mass Effect " +
-            QString::number(static_cast<int>(mainWindow->gameType)) +
+            QString::number(static_cast<int>(gameType)) +
             " user configuration path";
     QString path = QFileDialog::getExistingDirectory(this, caption,
-                                                     GameData::GameUserPath(mainWindow->gameType),
+                                                     GameData::GameUserPath(gameType),
                                                      QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     if (path.length() != 0 && QDir(path).exists())
     {
-        QString key = QString("ME%1").arg(static_cast<int>(mainWindow->gameType));
+        QString key = QString("ME%1").arg(static_cast<int>(gameType));
 #if defined(_WIN32)
         configIni.Write(key, QString(path).replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameUserPath");
 #else
         configIni.Write(key, path, "GameUserPath");
 #endif
-        QString newPath = GameData::GameUserPath(mainWindow->gameType);
+        QString newPath = GameData::GameUserPath(gameType);
         QMessageBox::information(this, "Changing user configuration path",
                                  "User configuration path changed to\n" + newPath);
     }
@@ -314,22 +192,23 @@ void LayoutGameUtilities::ChangeUserPathSelected()
     }
     LockGui(false);
 }
+#endif
 
-void LayoutGameUtilities::RepackCallback(void *handle, int progress, const QString &stage)
+void LayoutMain::RepackCallback(void *handle, int progress, const QString &stage)
 {
     auto *win = static_cast<MainWindow *>(handle);
     win->statusBar()->showMessage(QString("Total progress: ") + QString::number(progress) + "% - " + stage);
     QApplication::processEvents();
 }
 
-void LayoutGameUtilities::RepackGameFilesSelected()
+void LayoutMain::RepackGameFilesSelected(MeType gameType)
 {
     LockGui(true);
 
     mainWindow->statusBar()->showMessage("Detecting game data...");
     QApplication::processEvents();
     ConfigIni configIni{};
-    g_GameData->Init(mainWindow->gameType, configIni, true);
+    g_GameData->Init(gameType, configIni, true);
     if (!Misc::CheckGamePath())
     {
         mainWindow->statusBar()->clearMessage();
@@ -351,7 +230,7 @@ void LayoutGameUtilities::RepackGameFilesSelected()
 
     g_logs->BufferClearErrors();
     g_logs->BufferEnableErrors(true);
-    Misc::Repack(mainWindow->gameType, &LayoutGameUtilities::RepackCallback, mainWindow);
+    Misc::Repack(gameType, &LayoutMain::RepackCallback, mainWindow);
     g_logs->BufferEnableErrors(false);
     mainWindow->statusBar()->clearMessage();
     if (g_logs->BufferGetErrors() != "")
@@ -366,7 +245,7 @@ void LayoutGameUtilities::RepackGameFilesSelected()
     LockGui(false);
 }
 
-void LayoutGameUtilities::UpdateTOCsSelected()
+void LayoutMain::UpdateTOCsSelected()
 {
     LockGui(true);
 
@@ -399,7 +278,7 @@ void LayoutGameUtilities::UpdateTOCsSelected()
     LockGui(false);
 }
 
-void LayoutGameUtilities::ExtractDLCsSelected()
+void LayoutMain::ExtractDLCsSelected()
 {
     LockGui(true);
 
@@ -428,7 +307,7 @@ void LayoutGameUtilities::ExtractDLCsSelected()
 
     g_logs->BufferClearErrors();
     g_logs->BufferEnableErrors(true);
-    ME3DLC::unpackAllDLC(&LayoutGameUtilities::ExtractDlcCallback, mainWindow);
+    ME3DLC::unpackAllDLC(&LayoutMain::ExtractDlcCallback, mainWindow);
     g_logs->BufferEnableErrors(false);
     mainWindow->statusBar()->clearMessage();
     if (g_logs->BufferGetErrors() != "")
@@ -443,16 +322,9 @@ void LayoutGameUtilities::ExtractDLCsSelected()
     LockGui(false);
 }
 
-void LayoutGameUtilities::ExtractDlcCallback(void *handle, int progress, const QString &stage)
+void LayoutMain::ExtractDlcCallback(void *handle, int progress, const QString &stage)
 {
     auto *win = static_cast<MainWindow *>(handle);
     win->statusBar()->showMessage(QString("Total progress: ") + QString::number(progress) + "% - " + stage);
     QApplication::processEvents();
-}
-
-void LayoutGameUtilities::ReturnSelected()
-{
-    mainWindow->SwitchLayoutById(MainWindow::kLayoutModules);
-    mainWindow->GetLayout()->removeWidget(this);
-    mainWindow->SetTitle("Modules Selection");
 }

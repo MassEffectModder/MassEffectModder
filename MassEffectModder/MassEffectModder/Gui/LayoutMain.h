@@ -58,6 +58,9 @@ public:
 
 private slots:
 
+    void ButtonTexturesMenagaerME1Selected() { ButtonTexturesMenagaerSelected(MeType::ME1_TYPE); }
+    void ButtonTexturesMenagaerME2Selected() { ButtonTexturesMenagaerSelected(MeType::ME2_TYPE); }
+    void ButtonTexturesMenagaerME3Selected() { ButtonTexturesMenagaerSelected(MeType::ME3_TYPE); }
     void ButtonTextureUtilitiesME1Selected();
     void ButtonTextureUtilitiesME2Selected();
     void ButtonTextureUtilitiesME3Selected();
@@ -67,6 +70,53 @@ private slots:
     void ButtonModsManagerME1Selected();
     void ButtonModsManagerME2Selected();
     void ButtonModsManagerME3Selected();
+
+    void RemoveScanFileME1Selected() { RemoveScanFileSelected(MeType::ME1_TYPE); }
+    void RemoveScanFileME2Selected() { RemoveScanFileSelected(MeType::ME2_TYPE); }
+    void RemoveScanFileME3Selected() { RemoveScanFileSelected(MeType::ME3_TYPE); }
+    void ApplyHQLODsME1Selected() { ApplyHQLODsSelected(MeType::ME1_TYPE); }
+    void ApplyHQLODsME2Selected() { ApplyHQLODsSelected(MeType::ME2_TYPE); }
+    void ApplyHQLODsME3Selected() { ApplyHQLODsSelected(MeType::ME3_TYPE); }
+    void Apply2kLODsSelected();
+    void ApplyVanillaLODsME1Selected() { ApplyVanillaLODsSelected(MeType::ME1_TYPE); }
+    void ApplyVanillaLODsME2Selected() { ApplyVanillaLODsSelected(MeType::ME2_TYPE); }
+    void ApplyVanillaLODsME3Selected() { ApplyVanillaLODsSelected(MeType::ME3_TYPE); }
+    void ApplyHQGfxME1Selected() { ApplyHQGfxSelected(MeType::ME1_TYPE); }
+    void ApplyHQGfxME2Selected() { ApplyHQGfxSelected(MeType::ME2_TYPE); }
+    void ApplyHQGfxME3Selected() { ApplyHQGfxSelected(MeType::ME3_TYPE); }
+    void ApplyHQGfxSoftShadowsSelected();
+
+    void CheckGameFilesME1Selected() { CheckGameFilesSelected(MeType::ME1_TYPE); }
+    void CheckGameFilesME2Selected() { CheckGameFilesSelected(MeType::ME2_TYPE); }
+    void CheckGameFilesME3Selected() { CheckGameFilesSelected(MeType::ME3_TYPE); }
+    void ChangeGamePathME1Selected() { ChangeGamePathSelected(MeType::ME1_TYPE); }
+    void ChangeGamePathME2Selected() { ChangeGamePathSelected(MeType::ME2_TYPE); }
+    void ChangeGamePathME3Selected() { ChangeGamePathSelected(MeType::ME3_TYPE); }
+#if !defined(_WIN32)
+    void ChangeUserPathME1Selected() { ChangeUserPathSelected(MeType::ME1_TYPE); }
+    void ChangeUserPathME2Selected() { ChangeUserPathSelected(MeType::ME2_TYPE); }
+    void ChangeUserPathME3Selected() { ChangeUserPathSelected(MeType::ME3_TYPE); }
+#endif
+    void RepackGameFilesME2Selected() { RepackGameFilesSelected(MeType::ME2_TYPE); }
+    void RepackGameFilesME3Selected() { RepackGameFilesSelected(MeType::ME3_TYPE); }
+    void UpdateTOCsSelected();
+    void ExtractDLCsSelected();
+
+    void InstallModsME1Selected() { ButtonModsInstallerSelected(MeType::ME1_TYPE); }
+    void InstallModsME2Selected() { ButtonModsInstallerSelected(MeType::ME2_TYPE); }
+    void InstallModsME3Selected() { ButtonModsInstallerSelected(MeType::ME3_TYPE); }
+    void ExtractModsME1Selected() { ExtractModsSelected(MeType::ME1_TYPE); }
+    void ExtractModsME2Selected() { ExtractModsSelected(MeType::ME2_TYPE); }
+    void ExtractModsME3Selected() { ExtractModsSelected(MeType::ME3_TYPE); }
+    void ConvertModME1Selected() { ConvertModSelected(MeType::ME1_TYPE); }
+    void ConvertModME2Selected() { ConvertModSelected(MeType::ME2_TYPE); }
+    void ConvertModME3Selected() { ConvertModSelected(MeType::ME3_TYPE); }
+    void CreateModME1Selected() { CreateModSelected(MeType::ME1_TYPE); }
+    void CreateModME2Selected() { CreateModSelected(MeType::ME2_TYPE); }
+    void CreateModME3Selected() { CreateModSelected(MeType::ME3_TYPE); }
+    void CreateBinaryModME1Selected() { CreateBinaryModSelected(MeType::ME1_TYPE); }
+    void CreateBinaryModME2Selected() { CreateBinaryModSelected(MeType::ME2_TYPE); }
+    void CreateBinaryModME3Selected() { CreateBinaryModSelected(MeType::ME3_TYPE); }
 
     friend class HoverLabel;
 
@@ -82,6 +132,7 @@ private:
     const int kFontSize = 8;
 #endif
 
+    int           currentMESelection;
     MainWindow    *mainWindow;
 
     HoverLabel    *labelME1;
@@ -159,12 +210,44 @@ private:
     QPushButton   *buttonCreateBinaryModME3;
     QGroupBox     *groupBoxViewME3;
 
+    void OnStackChanged() override;
+
+    void LockGui(bool lock);
     void DefaultMenuState();
     void HoverInME(int id);
     void HoverOutME(int id);
+    void RemoveEffectsOnMenus();
     void HideAllSubMenusME1();
     void HideAllSubMenusME2();
     void HideAllSubMenusME3();
+
+    void ButtonTexturesMenagaerSelected(MeType gameType);
+    void ButtonModsInstallerSelected(MeType gameType);
+
+    void RemoveScanFileSelected(MeType gameType);
+    void ApplyHQLODsSelected(MeType gameType);
+    void ApplyVanillaLODsSelected(MeType gameType);
+    void ApplyHQGfxSelected(MeType gameType);
+    void ApplyLODs(MeType gameType, bool lods2k);
+    void ApplyHQGfx(MeType gameType, bool softShadows);
+
+    void CheckGameFilesSelected(MeType gameType);
+    void ChangeGamePathSelected(MeType gameType);
+#if !defined(_WIN32)
+    void ChangeUserPathSelected(MeType gameType);
+#endif
+    void RepackGameFilesSelected(MeType gameType);
+    static void CheckCallback(void *handle, int progress, const QString &stage);
+    static void ExtractDlcCallback(void *handle, int progress, const QString &stage);
+    static void RepackCallback(void *handle, int progress, const QString &stage);
+
+    void ExtractModsSelected(MeType gameType);
+    void ConvertModSelected(MeType gameType);
+    void CreateModSelected(MeType gameType);
+    void CreateBinaryModSelected(MeType gameType);
+    static void ExtractModCallback(void *handle, int progress, const QString &stage);
+    static void ConvertModCallback(void *handle, int progress, const QString &stage);
+    static void CreateModCallback(void *handle, int progress, const QString &stage);
 };
 
-#endif // LAYOUT_ME_SELECT_H
+#endif // LAYOUT_MAIN_H

@@ -23,9 +23,6 @@
 #define DLC_H
 
 #include <Helpers/Stream.h>
-#ifdef GUI
-#include <Gui/LayoutGameUtilities.h>
-#endif
 
 #define SfarTag          0x53464152 // 'SFAR'
 #define SfarVersion      0x00010000

@@ -20,8 +20,9 @@
  */
 
 #include <Gui/MainWindow.h>
+#include <Gui/LayoutTexturesManager.h>
+#include <Gui/LayoutInstallMods.h>
 #include <Gui/LayoutMain.h>
-#include <Gui/LayoutModules.h>
 #include <Helpers/Exception.h>
 #include <Helpers/MiscHelpers.h>
 #include <Types/MemTypes.h>
@@ -44,8 +45,17 @@ void HoverLabel::leaveEvent(QEvent *ev)
     QLabel::leaveEvent(ev);
 }
 
+void LayoutMain::LockGui(bool lock)
+{
+    foreach (QWidget *widget, this->findChildren<QWidget*>())
+    {
+        widget->setEnabled(!lock);
+    }
+    mainWindow->LockClose(lock);
+}
+
 LayoutMain::LayoutMain(MainWindow *window)
-    : mainWindow(window)
+    : currentMESelection(-1), mainWindow(window)
 {
     layoutId = MainWindow::kLayoutMain;
 
@@ -74,21 +84,21 @@ LayoutMain::LayoutMain(MainWindow *window)
     QFont ButtonFont = ButtonTexturesManagerME1->font();
     ButtonFont.setPointSize(kFontSize);
     ButtonTexturesManagerME1->setFont(ButtonFont);
-    //connect(ButtonTexturesManagerME1, &QPushButton::clicked, this, &LayoutModules::TexturesManagerSelected);
+    connect(ButtonTexturesManagerME1, &QPushButton::clicked, this, &LayoutMain::ButtonTexturesMenagaerME1Selected);
 
     auto ButtonTexturesManagerME2 = new QPushButton("Textures Manager");
     ButtonTexturesManagerME2->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     ButtonTexturesManagerME2->setMinimumWidth(kButtonMinWidth);
     ButtonTexturesManagerME2->setMinimumHeight(kButtonMinHeight);
     ButtonTexturesManagerME2->setFont(ButtonFont);
-    //connect(ButtonTexturesManagerME2, &QPushButton::clicked, this, &LayoutModules::TexturesManagerSelected);
+    connect(ButtonTexturesManagerME2, &QPushButton::clicked, this, &LayoutMain::ButtonTexturesMenagaerME2Selected);
 
     auto ButtonTexturesManagerME3 = new QPushButton("Textures Manager");
     ButtonTexturesManagerME3->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     ButtonTexturesManagerME3->setMinimumWidth(kButtonMinWidth);
     ButtonTexturesManagerME3->setMinimumHeight(kButtonMinHeight);
     ButtonTexturesManagerME3->setFont(ButtonFont);
-    //connect(ButtonTexturesManagerME3, &QPushButton::clicked, this, &LayoutModules::TexturesManagerSelected);
+    connect(ButtonTexturesManagerME3, &QPushButton::clicked, this, &LayoutMain::ButtonTexturesMenagaerME3Selected);
 
     buttonTextureUtilitiesME1 = new QPushButton("Texture Utilities");
     buttonTextureUtilitiesME1->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -168,112 +178,112 @@ LayoutMain::LayoutMain(MainWindow *window)
     buttonRemoveScanFileME1->setMinimumWidth(kButtonMinSmallWidth);
     buttonRemoveScanFileME1->setMinimumHeight(kButtonMinHeight);
     buttonRemoveScanFileME1->setFont(ButtonFont);
-    //connect(buttonRemoveScanFileME1, &QPushButton::clicked, this, &LayoutTextureUtilities::RemoveScanFileSelected);
+    connect(buttonRemoveScanFileME1, &QPushButton::clicked, this, &LayoutMain::RemoveScanFileME1Selected);
 
     buttonRemoveScanFileME2 = new QPushButton("Delete Textures Scan File");
     buttonRemoveScanFileME2->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonRemoveScanFileME2->setMinimumWidth(kButtonMinSmallWidth);
     buttonRemoveScanFileME2->setMinimumHeight(kButtonMinHeight);
     buttonRemoveScanFileME2->setFont(ButtonFont);
-    //connect(buttonRemoveScanFileME2, &QPushButton::clicked, this, &LayoutTextureUtilities::RemoveScanFileSelected);
+    connect(buttonRemoveScanFileME2, &QPushButton::clicked, this, &LayoutMain::RemoveScanFileME2Selected);
 
     buttonRemoveScanFileME3 = new QPushButton("Delete Textures Scan File");
     buttonRemoveScanFileME3->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonRemoveScanFileME3->setMinimumWidth(kButtonMinSmallWidth);
     buttonRemoveScanFileME3->setMinimumHeight(kButtonMinHeight);
     buttonRemoveScanFileME3->setFont(ButtonFont);
-    //connect(buttonRemoveScanFileME3, &QPushButton::clicked, this, &LayoutTextureUtilities::RemoveScanFileSelected);
+    connect(buttonRemoveScanFileME3, &QPushButton::clicked, this, &LayoutMain::RemoveScanFileME3Selected);
 
     buttonApplyHQLODsME1 = new QPushButton("Apply HQ LODs Settings");
     buttonApplyHQLODsME1->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonApplyHQLODsME1->setMinimumWidth(kButtonMinSmallWidth);
     buttonApplyHQLODsME1->setMinimumHeight(kButtonMinHeight);
     buttonApplyHQLODsME1->setFont(ButtonFont);
-    //connect(buttonApplyHQLODsME1, &QPushButton::clicked, this, &LayoutTextureUtilities::ApplyHQLODsSelected);
+    connect(buttonApplyHQLODsME1, &QPushButton::clicked, this, &LayoutMain::ApplyHQLODsME1Selected);
 
     buttonApplyHQLODsME2 = new QPushButton("Apply HQ LODs Settings");
     buttonApplyHQLODsME2->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonApplyHQLODsME2->setMinimumWidth(kButtonMinSmallWidth);
     buttonApplyHQLODsME2->setMinimumHeight(kButtonMinHeight);
     buttonApplyHQLODsME2->setFont(ButtonFont);
-    //connect(buttonApplyHQLODsME2, &QPushButton::clicked, this, &LayoutTextureUtilities::ApplyHQLODsSelected);
+    connect(buttonApplyHQLODsME2, &QPushButton::clicked, this, &LayoutMain::ApplyHQLODsME2Selected);
 
     buttonApplyHQLODsME3 = new QPushButton("Apply HQ LODs Settings");
     buttonApplyHQLODsME3->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonApplyHQLODsME3->setMinimumWidth(kButtonMinSmallWidth);
     buttonApplyHQLODsME3->setMinimumHeight(kButtonMinHeight);
     buttonApplyHQLODsME3->setFont(ButtonFont);
-    //connect(buttonApplyHQLODsME3, &QPushButton::clicked, this, &LayoutTextureUtilities::ApplyHQLODsSelected);
+    connect(buttonApplyHQLODsME3, &QPushButton::clicked, this, &LayoutMain::ApplyHQLODsME3Selected);
 
     buttonApply2kLODsME1 = new QPushButton("Apply 2k LODs Settings");
     buttonApply2kLODsME1->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonApply2kLODsME1->setMinimumWidth(kButtonMinSmallWidth);
     buttonApply2kLODsME1->setMinimumHeight(kButtonMinHeight);
     buttonApply2kLODsME1->setFont(ButtonFont);
-    //connect(buttonApply2kLODsME1, &QPushButton::clicked, this, &LayoutTextureUtilities::Apply2kLODsSelected);
+    connect(buttonApply2kLODsME1, &QPushButton::clicked, this, &LayoutMain::Apply2kLODsSelected);
 
     buttonApplyVanillaLODsME1 = new QPushButton("Apply Vanilla LODs Settings");
     buttonApplyVanillaLODsME1->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonApplyVanillaLODsME1->setMinimumWidth(kButtonMinSmallWidth);
     buttonApplyVanillaLODsME1->setMinimumHeight(kButtonMinHeight);
     buttonApplyVanillaLODsME1->setFont(ButtonFont);
-    //connect(buttonApplyVanillaLODsME2, &QPushButton::clicked, this, &LayoutTextureUtilities::ApplyVanillaLODsSelected);
+    connect(buttonApplyVanillaLODsME1, &QPushButton::clicked, this, &LayoutMain::ApplyVanillaLODsME1Selected);
 
     buttonApplyVanillaLODsME2 = new QPushButton("Apply Vanilla LODs Settings");
     buttonApplyVanillaLODsME2->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonApplyVanillaLODsME2->setMinimumWidth(kButtonMinSmallWidth);
     buttonApplyVanillaLODsME2->setMinimumHeight(kButtonMinHeight);
     buttonApplyVanillaLODsME2->setFont(ButtonFont);
-    //connect(buttonApplyVanillaLODsME2, &QPushButton::clicked, this, &LayoutTextureUtilities::ApplyVanillaLODsSelected);
+    connect(buttonApplyVanillaLODsME2, &QPushButton::clicked, this, &LayoutMain::ApplyVanillaLODsME2Selected);
 
     buttonApplyVanillaLODsME3 = new QPushButton("Apply Vanilla LODs Settings");
     buttonApplyVanillaLODsME3->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonApplyVanillaLODsME3->setMinimumWidth(kButtonMinSmallWidth);
     buttonApplyVanillaLODsME3->setMinimumHeight(kButtonMinHeight);
     buttonApplyVanillaLODsME3->setFont(ButtonFont);
-    //connect(buttonApplyVanillaLODsME3, &QPushButton::clicked, this, &LayoutTextureUtilities::ApplyVanillaLODsSelected);
+    connect(buttonApplyVanillaLODsME3, &QPushButton::clicked, this, &LayoutMain::ApplyVanillaLODsME3Selected);
 
     buttonApplyHQGfxME1 = new QPushButton("Apply HQ GFX Settings");
     buttonApplyHQGfxME1->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonApplyHQGfxME1->setMinimumWidth(kButtonMinSmallWidth);
     buttonApplyHQGfxME1->setMinimumHeight(kButtonMinHeight);
     buttonApplyHQGfxME1->setFont(ButtonFont);
-    //connect(buttonApplyHQGfxME1, &QPushButton::clicked, this, &LayoutTextureUtilities::ApplyHQGfxSelected);
+    connect(buttonApplyHQGfxME1, &QPushButton::clicked, this, &LayoutMain::ApplyHQGfxME1Selected);
 
     buttonApplyHQGfxME2 = new QPushButton("Apply HQ GFX Settings");
     buttonApplyHQGfxME2->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonApplyHQGfxME2->setMinimumWidth(kButtonMinSmallWidth);
     buttonApplyHQGfxME2->setMinimumHeight(kButtonMinHeight);
     buttonApplyHQGfxME2->setFont(ButtonFont);
-    //connect(buttonApplyHQGfxME2, &QPushButton::clicked, this, &LayoutTextureUtilities::ApplyHQGfxSelected);
+    connect(buttonApplyHQGfxME2, &QPushButton::clicked, this, &LayoutMain::ApplyHQGfxME2Selected);
 
     buttonApplyHQGfxME3 = new QPushButton("Apply HQ GFX Settings");
     buttonApplyHQGfxME3->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonApplyHQGfxME3->setMinimumWidth(kButtonMinSmallWidth);
     buttonApplyHQGfxME3->setMinimumHeight(kButtonMinHeight);
     buttonApplyHQGfxME3->setFont(ButtonFont);
-    //connect(buttonApplyHQGfxME3, &QPushButton::clicked, this, &LayoutTextureUtilities::ApplyHQGfxSelected);
+    connect(buttonApplyHQGfxME3, &QPushButton::clicked, this, &LayoutMain::ApplyHQGfxME3Selected);
 
     buttonApplyHQGfxSoftShadows = new QPushButton("Apply HQ GFX Settings (Soft)");
     buttonApplyHQGfxSoftShadows->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonApplyHQGfxSoftShadows->setMinimumWidth(kButtonMinSmallWidth);
     buttonApplyHQGfxSoftShadows->setMinimumHeight(kButtonMinHeight);
     buttonApplyHQGfxSoftShadows->setFont(ButtonFont);
-    //connect(buttonApplyHQGfxSoftShadows, &QPushButton::clicked, this, &LayoutTextureUtilities::ApplyHQGfxSoftShadowsSelected);
+    connect(buttonApplyHQGfxSoftShadows, &QPushButton::clicked, this, &LayoutMain::ApplyHQGfxSoftShadowsSelected);
 
     buttonCheckGameFilesME1 = new QPushButton("Check Game Files");
     buttonCheckGameFilesME1->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonCheckGameFilesME1->setMinimumWidth(kButtonMinSmallWidth);
     buttonCheckGameFilesME1->setMinimumHeight(kButtonMinHeight);
     buttonCheckGameFilesME1->setFont(ButtonFont);
-    //connect(buttonCheckGameFilesME1, &QPushButton::clicked, this, &LayoutGameUtilities::CheckGameFilesSelected);
+    connect(buttonCheckGameFilesME1, &QPushButton::clicked, this, &LayoutMain::CheckGameFilesME1Selected);
 
     buttonCheckGameFilesME2 = new QPushButton("Check Game Files");
     buttonCheckGameFilesME2->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonCheckGameFilesME2->setMinimumWidth(kButtonMinSmallWidth);
     buttonCheckGameFilesME2->setMinimumHeight(kButtonMinHeight);
     buttonCheckGameFilesME2->setFont(ButtonFont);
-    //connect(buttonCheckGameFilesME2, &QPushButton::clicked, this, &LayoutGameUtilities::CheckGameFilesSelected);
+    connect(buttonCheckGameFilesME2, &QPushButton::clicked, this, &LayoutMain::CheckGameFilesME2Selected);
 
     buttonCheckGameFilesME3 = new QPushButton("Check Game Files");
     buttonCheckGameFilesME3->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -281,56 +291,56 @@ LayoutMain::LayoutMain(MainWindow *window)
     buttonCheckGameFilesME3->setMinimumHeight(kButtonMinHeight);
     ButtonFont.setPointSize(kFontSize);
     buttonCheckGameFilesME3->setFont(ButtonFont);
-    //connect(buttonCheckGameFilesME3, &QPushButton::clicked, this, &LayoutGameUtilities::CheckGameFilesSelected);
+    connect(buttonCheckGameFilesME3, &QPushButton::clicked, this, &LayoutMain::CheckGameFilesME3Selected);
 
     buttonRepackGameFilesME2 = new QPushButton("Repack Game Files");
     buttonRepackGameFilesME2->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonRepackGameFilesME2->setMinimumWidth(kButtonMinSmallWidth);
     buttonRepackGameFilesME2->setMinimumHeight(kButtonMinHeight);
     buttonRepackGameFilesME2->setFont(ButtonFont);
-    //connect(buttonRepackGameFilesME2, &QPushButton::clicked, this, &LayoutGameUtilities::RepackGameFilesSelected);
+    connect(buttonRepackGameFilesME2, &QPushButton::clicked, this, &LayoutMain::RepackGameFilesME2Selected);
 
     buttonRepackGameFilesME3 = new QPushButton("Repack Game Files");
     buttonRepackGameFilesME3->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonRepackGameFilesME3->setMinimumWidth(kButtonMinSmallWidth);
     buttonRepackGameFilesME3->setMinimumHeight(kButtonMinHeight);
     buttonRepackGameFilesME3->setFont(ButtonFont);
-    //connect(buttonRepackGameFilesME3, &QPushButton::clicked, this, &LayoutGameUtilities::RepackGameFilesSelected);
+    connect(buttonRepackGameFilesME3, &QPushButton::clicked, this, &LayoutMain::RepackGameFilesME3Selected);
 
     buttonUpdateTOCs = new QPushButton("Update TOCs");
     buttonUpdateTOCs->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonUpdateTOCs->setMinimumWidth(kButtonMinSmallWidth);
     buttonUpdateTOCs->setMinimumHeight(kButtonMinHeight);
     buttonUpdateTOCs->setFont(ButtonFont);
-    //connect(buttonUpdateTOCs, &QPushButton::clicked, this, &LayoutGameUtilities::UpdateTOCsSelected);
+    connect(buttonUpdateTOCs, &QPushButton::clicked, this, &LayoutMain::UpdateTOCsSelected);
 
     buttonExtractDLCs = new QPushButton("Unpack DLCs");
     buttonExtractDLCs->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonExtractDLCs->setMinimumWidth(kButtonMinSmallWidth);
     buttonExtractDLCs->setMinimumHeight(kButtonMinHeight);
     buttonExtractDLCs->setFont(ButtonFont);
-    //connect(buttonExtractDLCs, &QPushButton::clicked, this, &LayoutGameUtilities::ExtractDLCsSelected);
+    connect(buttonExtractDLCs, &QPushButton::clicked, this, &LayoutMain::ExtractDLCsSelected);
 
     buttonChangeGamePathME1 = new QPushButton("Change Game Path");
     buttonChangeGamePathME1->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonChangeGamePathME1->setMinimumWidth(kButtonMinSmallWidth);
     buttonChangeGamePathME1->setMinimumHeight(kButtonMinHeight);
     buttonChangeGamePathME1->setFont(ButtonFont);
-    //connect(buttonChangeGamePathME1, &QPushButton::clicked, this, &LayoutGameUtilities::ChangeGamePathSelected);
+    connect(buttonChangeGamePathME1, &QPushButton::clicked, this, &LayoutMain::ChangeGamePathME1Selected);
 
     buttonChangeGamePathME2 = new QPushButton("Change Game Path");
     buttonChangeGamePathME2->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonChangeGamePathME2->setMinimumWidth(kButtonMinSmallWidth);
     buttonChangeGamePathME2->setMinimumHeight(kButtonMinHeight);
     buttonChangeGamePathME2->setFont(ButtonFont);
-    //connect(buttonChangeGamePathME2, &QPushButton::clicked, this, &LayoutGameUtilities::ChangeGamePathSelected);
+    connect(buttonChangeGamePathME2, &QPushButton::clicked, this, &LayoutMain::ChangeGamePathME2Selected);
 
     buttonChangeGamePathME3 = new QPushButton("Change Game Path");
     buttonChangeGamePathME3->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonChangeGamePathME3->setMinimumWidth(kButtonMinSmallWidth);
     buttonChangeGamePathME3->setMinimumHeight(kButtonMinHeight);
     buttonChangeGamePathME3->setFont(ButtonFont);
-    //connect(buttonChangeGamePathME3, &QPushButton::clicked, this, &LayoutGameUtilities::ChangeGamePathSelected);
+    connect(buttonChangeGamePathME3, &QPushButton::clicked, this, &LayoutMain::ChangeGamePathME3Selected);
 
 #if !defined(_WIN32)
     buttonChangeUserPathME1 = new QPushButton("Change User Path");
@@ -338,21 +348,21 @@ LayoutMain::LayoutMain(MainWindow *window)
     buttonChangeUserPathME1->setMinimumWidth(kButtonMinSmallWidth);
     buttonChangeUserPathME1->setMinimumHeight(kButtonMinHeight);
     buttonChangeUserPathME1->setFont(ButtonFont);
-    //connect(buttonChangeUserPathME1, &QPushButton::clicked, this, &LayoutGameUtilities::ChangeUserPathSelected);
+    connect(buttonChangeUserPathME1, &QPushButton::clicked, this, &LayoutMain::ChangeUserPathME1Selected);
 
     buttonChangeUserPathME2 = new QPushButton("Change User Path");
     buttonChangeUserPathME2->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonChangeUserPathME2->setMinimumWidth(kButtonMinSmallWidth);
     buttonChangeUserPathME2->setMinimumHeight(kButtonMinHeight);
     buttonChangeUserPathME2->setFont(ButtonFont);
-    //connect(buttonChangeUserPathME2, &QPushButton::clicked, this, &LayoutGameUtilities::ChangeUserPathSelected);
+    connect(buttonChangeUserPathME2, &QPushButton::clicked, this, &LayoutMain::ChangeUserPathME2Selected);
 
     buttonChangeUserPathME3 = new QPushButton("Change User Path");
     buttonChangeUserPathME3->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonChangeUserPathME3->setMinimumWidth(kButtonMinSmallWidth);
     buttonChangeUserPathME3->setMinimumHeight(kButtonMinHeight);
     buttonChangeUserPathME3->setFont(ButtonFont);
-    //connect(buttonChangeUserPathME3, &QPushButton::clicked, this, &LayoutGameUtilities::ChangeUserPathSelected);
+    connect(buttonChangeUserPathME3, &QPushButton::clicked, this, &LayoutMain::ChangeUserPathME3Selected);
 #endif
 
     buttonInstallModsME1 = new QPushButton("Mods Installer");
@@ -360,105 +370,105 @@ LayoutMain::LayoutMain(MainWindow *window)
     buttonInstallModsME1->setMinimumWidth(kButtonMinSmallWidth);
     buttonInstallModsME1->setMinimumHeight(kButtonMinHeight);
     buttonInstallModsME1->setFont(ButtonFont);
-    //connect(buttonInstallModsME1, &QPushButton::clicked, this, &LayoutModsManager::InstallModsSelected);
+    connect(buttonInstallModsME1, &QPushButton::clicked, this, &LayoutMain::InstallModsME1Selected);
 
     buttonInstallModsME2 = new QPushButton("Mods Installer");
     buttonInstallModsME2->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonInstallModsME2->setMinimumWidth(kButtonMinSmallWidth);
     buttonInstallModsME2->setMinimumHeight(kButtonMinHeight);
     buttonInstallModsME2->setFont(ButtonFont);
-    //connect(buttonInstallModsME2, &QPushButton::clicked, this, &LayoutModsManager::InstallModsSelected);
+    connect(buttonInstallModsME2, &QPushButton::clicked, this, &LayoutMain::InstallModsME2Selected);
 
     buttonInstallModsME3 = new QPushButton("Mods Installer");
     buttonInstallModsME3->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonInstallModsME3->setMinimumWidth(kButtonMinSmallWidth);
     buttonInstallModsME3->setMinimumHeight(kButtonMinHeight);
     buttonInstallModsME3->setFont(ButtonFont);
-    //connect(buttonInstallModsME3, &QPushButton::clicked, this, &LayoutModsManager::InstallModsSelected);
+    connect(buttonInstallModsME3, &QPushButton::clicked, this, &LayoutMain::InstallModsME3Selected);
 
     buttonExtractModsME1 = new QPushButton("Extract Mods");
     buttonExtractModsME1->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonExtractModsME1->setMinimumWidth(kButtonMinSmallWidth);
     buttonExtractModsME1->setMinimumHeight(kButtonMinHeight);
     buttonExtractModsME1->setFont(ButtonFont);
-    //connect(buttonExtractModsME1, &QPushButton::clicked, this, &LayoutModsManager::ExtractModsSelected);
+    connect(buttonExtractModsME1, &QPushButton::clicked, this, &LayoutMain::ExtractModsME1Selected);
 
     buttonExtractModsME2 = new QPushButton("Extract Mods");
     buttonExtractModsME2->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonExtractModsME2->setMinimumWidth(kButtonMinSmallWidth);
     buttonExtractModsME2->setMinimumHeight(kButtonMinHeight);
     buttonExtractModsME2->setFont(ButtonFont);
-    //connect(buttonExtractModsME2, &QPushButton::clicked, this, &LayoutModsManager::ExtractModsSelected);
+    connect(buttonExtractModsME2, &QPushButton::clicked, this, &LayoutMain::ExtractModsME2Selected);
 
     buttonExtractModsME3 = new QPushButton("Extract Mods");
     buttonExtractModsME3->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonExtractModsME3->setMinimumWidth(kButtonMinSmallWidth);
     buttonExtractModsME3->setMinimumHeight(kButtonMinHeight);
     buttonExtractModsME3->setFont(ButtonFont);
-    //connect(buttonExtractModsME3, &QPushButton::clicked, this, &LayoutModsManager::ExtractModsSelected);
+    connect(buttonExtractModsME3, &QPushButton::clicked, this, &LayoutMain::ExtractModsME3Selected);
 
     buttonConvertModME1 = new QPushButton("Convert Mod");
     buttonConvertModME1->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonConvertModME1->setMinimumWidth(kButtonMinSmallWidth);
     buttonConvertModME1->setMinimumHeight(kButtonMinHeight);
     buttonConvertModME1->setFont(ButtonFont);
-    //connect(buttonConvertModME1, &QPushButton::clicked, this, &LayoutModsManager::ConvertModSelected);
+    connect(buttonConvertModME1, &QPushButton::clicked, this, &LayoutMain::ConvertModME1Selected);
 
     buttonConvertModME2 = new QPushButton("Convert Mod");
     buttonConvertModME2->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonConvertModME2->setMinimumWidth(kButtonMinSmallWidth);
     buttonConvertModME2->setMinimumHeight(kButtonMinHeight);
     buttonConvertModME2->setFont(ButtonFont);
-    //connect(buttonConvertModME2, &QPushButton::clicked, this, &LayoutModsManager::ConvertModSelected);
+    connect(buttonConvertModME2, &QPushButton::clicked, this, &LayoutMain::ConvertModME2Selected);
 
     buttonConvertModME3 = new QPushButton("Convert Mod");
     buttonConvertModME3->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonConvertModME3->setMinimumWidth(kButtonMinSmallWidth);
     buttonConvertModME3->setMinimumHeight(kButtonMinHeight);
     buttonConvertModME3->setFont(ButtonFont);
-    //connect(buttonConvertModME3, &QPushButton::clicked, this, &LayoutModsManager::ConvertModSelected);
+    connect(buttonConvertModME3, &QPushButton::clicked, this, &LayoutMain::ConvertModME3Selected);
 
     buttonCreateModME1 = new QPushButton("Create Mod");
     buttonCreateModME1->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonCreateModME1->setMinimumWidth(kButtonMinSmallWidth);
     buttonCreateModME1->setMinimumHeight(kButtonMinHeight);
     buttonCreateModME1->setFont(ButtonFont);
-    //connect(buttonCreateModME1, &QPushButton::clicked, this, &LayoutModsManager::CreateModSelected);
+    connect(buttonCreateModME1, &QPushButton::clicked, this, &LayoutMain::CreateModME1Selected);
 
     buttonCreateModME2 = new QPushButton("Create Mod");
     buttonCreateModME2->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonCreateModME2->setMinimumWidth(kButtonMinSmallWidth);
     buttonCreateModME2->setMinimumHeight(kButtonMinHeight);
     buttonCreateModME2->setFont(ButtonFont);
-    //connect(buttonCreateModME2, &QPushButton::clicked, this, &LayoutModsManager::CreateModSelected);
+    connect(buttonCreateModME2, &QPushButton::clicked, this, &LayoutMain::CreateModME2Selected);
 
     buttonCreateModME3 = new QPushButton("Create Mod");
     buttonCreateModME3->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonCreateModME3->setMinimumWidth(kButtonMinSmallWidth);
     buttonCreateModME3->setMinimumHeight(kButtonMinHeight);
     buttonCreateModME3->setFont(ButtonFont);
-    //connect(buttonCreateModME3, &QPushButton::clicked, this, &LayoutModsManager::CreateModSelected);
+    connect(buttonCreateModME3, &QPushButton::clicked, this, &LayoutMain::CreateModME3Selected);
 
     buttonCreateBinaryModME1 = new QPushButton("Create Binary Mod");
     buttonCreateBinaryModME1->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonCreateBinaryModME1->setMinimumWidth(kButtonMinSmallWidth);
     buttonCreateBinaryModME1->setMinimumHeight(kButtonMinHeight);
     buttonCreateBinaryModME1->setFont(ButtonFont);
-    //connect(buttonCreateBinaryModME1, &QPushButton::clicked, this, &LayoutModsManager::CreateBinaryModSelected);
+    connect(buttonCreateBinaryModME1, &QPushButton::clicked, this, &LayoutMain::CreateBinaryModME1Selected);
 
     buttonCreateBinaryModME2 = new QPushButton("Create Binary Mod");
     buttonCreateBinaryModME2->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonCreateBinaryModME2->setMinimumWidth(kButtonMinSmallWidth);
     buttonCreateBinaryModME2->setMinimumHeight(kButtonMinHeight);
     buttonCreateBinaryModME2->setFont(ButtonFont);
-    //connect(buttonCreateBinaryModME2, &QPushButton::clicked, this, &LayoutModsManager::CreateBinaryModSelected);
+    connect(buttonCreateBinaryModME2, &QPushButton::clicked, this, &LayoutMain::CreateBinaryModME2Selected);
 
     buttonCreateBinaryModME3 = new QPushButton("Create Binary Mod");
     buttonCreateBinaryModME3->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonCreateBinaryModME3->setMinimumWidth(kButtonMinSmallWidth);
     buttonCreateBinaryModME3->setMinimumHeight(kButtonMinHeight);
     buttonCreateBinaryModME3->setFont(ButtonFont);
-    //connect(buttonCreateBinaryModME3, &QPushButton::clicked, this, &LayoutModsManager::CreateBinaryModSelected);
+    connect(buttonCreateBinaryModME3, &QPushButton::clicked, this, &LayoutMain::CreateBinaryModME3Selected);
 
 
     auto verticalLayoutMenuME1 = new QVBoxLayout();
@@ -650,34 +660,48 @@ LayoutMain::LayoutMain(MainWindow *window)
     HideAllSubMenusME3();
     DefaultMenuState();
 
-    mainWindow->SetTitle("");
+    mainWindow->SetTitle(MeType::UNKNOWN_TYPE, "");
+}
+
+void LayoutMain::OnStackChanged()
+{
+    DefaultMenuState();
 }
 
 void LayoutMain::DefaultMenuState()
 {
-    auto effect1 = new QGraphicsOpacityEffect(this);
-    groupBoxViewME1->setGraphicsEffect(effect1);
-    effect1->setOpacity(0.5);
-    auto effect2 = new QGraphicsOpacityEffect(this);
-    groupBoxViewME2->setGraphicsEffect(effect2);
-    effect2->setOpacity(0.5);
-    auto effect3 = new QGraphicsOpacityEffect(this);
-    groupBoxViewME3->setGraphicsEffect(effect3);
-    effect3->setOpacity(0.5);
-
-    auto effectGr1 = new QGraphicsColorizeEffect(this);
-    effectGr1->setColor(QColor(0, 0, 0));
-    iconME1Logo->setGraphicsEffect(effectGr1);
-    auto effectGr2 = new QGraphicsColorizeEffect(this);
-    effectGr2->setColor(QColor(0, 0, 0));
-    iconME2Logo->setGraphicsEffect(effectGr2);
-    auto effectGr3 = new QGraphicsColorizeEffect(this);
-    effectGr3->setColor(QColor(0, 0, 0));
-    iconME3Logo->setGraphicsEffect(effectGr3);
+    if (currentMESelection != 1)
+    {
+        auto effect1 = new QGraphicsOpacityEffect(this);
+        groupBoxViewME1->setGraphicsEffect(effect1);
+        effect1->setOpacity(0.5);
+        auto effectGr1 = new QGraphicsColorizeEffect(this);
+        effectGr1->setColor(QColor(0, 0, 0));
+        iconME1Logo->setGraphicsEffect(effectGr1);
+    }
+    if (currentMESelection != 2)
+    {
+        auto effect2 = new QGraphicsOpacityEffect(this);
+        groupBoxViewME2->setGraphicsEffect(effect2);
+        effect2->setOpacity(0.5);
+        auto effectGr2 = new QGraphicsColorizeEffect(this);
+        effectGr2->setColor(QColor(0, 0, 0));
+        iconME2Logo->setGraphicsEffect(effectGr2);
+    }
+    if (currentMESelection != 3)
+    {
+        auto effect3 = new QGraphicsOpacityEffect(this);
+        groupBoxViewME3->setGraphicsEffect(effect3);
+        effect3->setOpacity(0.5);
+        auto effectGr3 = new QGraphicsColorizeEffect(this);
+        effectGr3->setColor(QColor(0, 0, 0));
+        iconME3Logo->setGraphicsEffect(effectGr3);
+    }
 }
 
 void LayoutMain::HoverInME(int id)
 {
+    currentMESelection = id;
     auto effect = new QGraphicsOpacityEffect(this);
     if (id == 1)
     {
@@ -736,6 +760,17 @@ void LayoutMain::HoverOutME(int id)
     animGr->setEndValue(1);
     animGr->setEasingCurve(QEasingCurve::OutBack);
     animGr->start(QPropertyAnimation::DeleteWhenStopped);
+}
+
+void LayoutMain::RemoveEffectsOnMenus()
+{
+    DefaultMenuState();
+    groupBoxViewME1->setGraphicsEffect(nullptr);
+    iconME1Logo->setGraphicsEffect(nullptr);
+    groupBoxViewME2->setGraphicsEffect(nullptr);
+    iconME2Logo->setGraphicsEffect(nullptr);
+    groupBoxViewME3->setGraphicsEffect(nullptr);
+    iconME3Logo->setGraphicsEffect(nullptr);
 }
 
 void LayoutMain::HideAllSubMenusME1()
@@ -811,6 +846,20 @@ void LayoutMain::HideAllSubMenusME3()
     buttonConvertModME3->hide();
     buttonCreateModME3->hide();
     buttonCreateBinaryModME3->hide();
+}
+
+void LayoutMain::ButtonTexturesMenagaerSelected(MeType gameType)
+{
+    RemoveEffectsOnMenus();
+    mainWindow->GetLayout()->addWidget(new LayoutTexturesManager(mainWindow, gameType));
+    mainWindow->SwitchLayoutById(MainWindow::kLayoutTexturesManager);
+}
+
+void LayoutMain::ButtonModsInstallerSelected(MeType gameType)
+{
+    RemoveEffectsOnMenus();
+    mainWindow->GetLayout()->addWidget(new LayoutInstallModsManager(mainWindow, gameType));
+    mainWindow->SwitchLayoutById(MainWindow::kLayoutInstallModsManager);
 }
 
 void LayoutMain::ButtonTextureUtilitiesME1Selected()

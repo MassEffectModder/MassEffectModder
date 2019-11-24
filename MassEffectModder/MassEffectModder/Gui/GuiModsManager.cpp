@@ -19,9 +19,8 @@
  *
  */
 
-#include <Gui/LayoutMeSelect.h>
-#include <Gui/LayoutModsManager.h>
-#include <Gui/LayoutInstallModsManager.h>
+#include <Gui/LayoutInstallMods.h>
+#include <Gui/LayoutMain.h>
 #include <Gui/MainWindow.h>
 #include <Gui/MessageWindow.h>
 #include <Helpers/MiscHelpers.h>
@@ -32,112 +31,14 @@
 #include <Misc/Misc.h>
 #include <MipMaps/MipMaps.h>
 
-LayoutModsManager::LayoutModsManager(MainWindow *window)
-    : mainWindow(window)
-{
-    layoutId = MainWindow::kLayoutModsManager;
-
-    auto ButtonInstallMods = new QPushButton("Mods Installer");
-    ButtonInstallMods->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    ButtonInstallMods->setMinimumWidth(kButtonMinWidth);
-    ButtonInstallMods->setMinimumHeight(kButtonMinHeight);
-    QFont ButtonFont = ButtonInstallMods->font();
-    ButtonFont.setPointSize(kFontSize);
-    ButtonInstallMods->setFont(ButtonFont);
-    connect(ButtonInstallMods, &QPushButton::clicked, this, &LayoutModsManager::InstallModsSelected);
-
-    auto ButtonExtractMods = new QPushButton("Extract Mods");
-    ButtonExtractMods->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    ButtonExtractMods->setMinimumWidth(kButtonMinWidth);
-    ButtonExtractMods->setMinimumHeight(kButtonMinHeight);
-    ButtonExtractMods->setFont(ButtonFont);
-    connect(ButtonExtractMods, &QPushButton::clicked, this, &LayoutModsManager::ExtractModsSelected);
-
-    auto ButtonConvertMod = new QPushButton("Convert Mod");
-    ButtonConvertMod->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    ButtonConvertMod->setMinimumWidth(kButtonMinWidth);
-    ButtonConvertMod->setMinimumHeight(kButtonMinHeight);
-    ButtonConvertMod->setFont(ButtonFont);
-    connect(ButtonConvertMod, &QPushButton::clicked, this, &LayoutModsManager::ConvertModSelected);
-
-    auto ButtonCreateMod = new QPushButton("Create Mod");
-    ButtonCreateMod->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    ButtonCreateMod->setMinimumWidth(kButtonMinWidth);
-    ButtonCreateMod->setMinimumHeight(kButtonMinHeight);
-    ButtonCreateMod->setFont(ButtonFont);
-    connect(ButtonCreateMod, &QPushButton::clicked, this, &LayoutModsManager::CreateModSelected);
-
-    auto ButtonCreateBinaryMod = new QPushButton("Create Binary Mod");
-    ButtonCreateBinaryMod->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    ButtonCreateBinaryMod->setMinimumWidth(kButtonMinWidth);
-    ButtonCreateBinaryMod->setMinimumHeight(kButtonMinHeight);
-    ButtonCreateBinaryMod->setFont(ButtonFont);
-    connect(ButtonCreateBinaryMod, &QPushButton::clicked, this, &LayoutModsManager::CreateBinaryModSelected);
-
-    auto ButtonReturn = new QPushButton("Return");
-    ButtonReturn->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    ButtonReturn->setMinimumWidth(kButtonMinWidth);
-    ButtonReturn->setMinimumHeight(kButtonMinHeight / 2);
-    ButtonReturn->setFont(ButtonFont);
-    connect(ButtonReturn, &QPushButton::clicked, this, &LayoutModsManager::ReturnSelected);
-
-    QPixmap pixmap(QString(":/logo_me%1.png").arg((int)mainWindow->gameType));
-    pixmap = pixmap.scaled(300, 80, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    iconLogo = new QLabel;
-    iconLogo->setPixmap(pixmap);
-    iconLogo->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-
-    auto verticalLayout = new QVBoxLayout();
-    verticalLayout->setAlignment(Qt::AlignCenter);
-    verticalLayout->addWidget(ButtonInstallMods, 1);
-    verticalLayout->addWidget(ButtonExtractMods, 1);
-    verticalLayout->addWidget(ButtonConvertMod, 1);
-    verticalLayout->addWidget(ButtonCreateMod, 1);
-    verticalLayout->addWidget(ButtonCreateBinaryMod, 1);
-    verticalLayout->addSpacing(20);
-    verticalLayout->addWidget(ButtonReturn, 1);
-
-    auto GroupBoxView = new QGroupBox;
-    GroupBoxView->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
-    GroupBoxView->setLayout(verticalLayout);
-
-    auto verticalLayoutMain = new QVBoxLayout();
-    verticalLayoutMain->setAlignment(Qt::AlignCenter);
-    verticalLayoutMain->addWidget(iconLogo);
-    verticalLayoutMain->addSpacing(PERCENT_OF_SIZE(MainWindow::kMinWindowHeight, 10));
-    verticalLayoutMain->addWidget(GroupBoxView);
-
-    auto horizontalLayout = new QHBoxLayout(this);
-    horizontalLayout->setAlignment(Qt::AlignTop);
-    horizontalLayout->addLayout(verticalLayoutMain);
-
-    mainWindow->SetTitle("Mods Manager");
-}
-
-void LayoutModsManager::LockGui(bool lock)
-{
-    foreach (QWidget *widget, this->findChildren<QWidget*>())
-    {
-        widget->setEnabled(!lock);
-    }
-    iconLogo->setEnabled(true);
-    mainWindow->LockClose(lock);
-}
-
-void LayoutModsManager::InstallModsSelected()
-{
-    mainWindow->GetLayout()->addWidget(new LayoutInstallModsManager(mainWindow));
-    mainWindow->SwitchLayoutById(MainWindow::kLayoutInstallModsManager);
-}
-
-void LayoutModsManager::ExtractModCallback(void *handle, int progress, const QString & /*stage*/)
+void LayoutMain::ExtractModCallback(void *handle, int progress, const QString & /*stage*/)
 {
     auto *win = static_cast<MainWindow *>(handle);
     win->statusBar()->showMessage(QString("Extracting MEM files... Progress: ") + QString::number(progress) + "%");
     QApplication::processEvents();
 }
 
-void LayoutModsManager::ExtractModsSelected()
+void LayoutMain::ExtractModsSelected(MeType gameType)
 {
     LockGui(true);
 
@@ -178,8 +79,8 @@ void LayoutModsManager::ExtractModsSelected()
     g_logs->BufferClearErrors();
     g_logs->BufferEnableErrors(true);
     mainWindow->statusBar()->clearMessage();
-    if (!Misc::extractMEM(mainWindow->gameType, list, outDir,
-                     &LayoutModsManager::ExtractModCallback, mainWindow))
+    if (!Misc::extractMEM(gameType, list, outDir,
+                     &LayoutMain::ExtractModCallback, mainWindow))
     {
         QMessageBox::critical(this, "Extracting MEM file(s)", "Extraction failed!");
     }
@@ -198,14 +99,14 @@ void LayoutModsManager::ExtractModsSelected()
     LockGui(false);
 }
 
-void LayoutModsManager::ConvertModCallback(void *handle, int progress, const QString & /*stage*/)
+void LayoutMain::ConvertModCallback(void *handle, int progress, const QString & /*stage*/)
 {
     auto *win = static_cast<MainWindow *>(handle);
     win->statusBar()->showMessage(QString("Converting to MEM mod... Progress: ") + QString::number(progress) + "%");
     QApplication::processEvents();
 }
 
-void LayoutModsManager::ConvertModSelected()
+void LayoutMain::ConvertModSelected(MeType gameType)
 {
     LockGui(true);
 
@@ -241,9 +142,9 @@ void LayoutModsManager::ConvertModSelected()
     g_logs->BufferClearErrors();
     g_logs->BufferEnableErrors(true);
 
-    TreeScan::loadTexturesMap(mainWindow->gameType, resources, textures);
-    if (!Misc::convertDataModtoMem(file, modFile, mainWindow->gameType, textures, false,
-                              &LayoutModsManager::ConvertModCallback, mainWindow))
+    TreeScan::loadTexturesMap(gameType, resources, textures);
+    if (!Misc::convertDataModtoMem(file, modFile, gameType, textures, false,
+                              &LayoutMain::ConvertModCallback, mainWindow))
     {
         QMessageBox::critical(this, "Converting to MEM mod", "Conversion failed!");
     }
@@ -262,14 +163,14 @@ void LayoutModsManager::ConvertModSelected()
     LockGui(false);
 }
 
-void LayoutModsManager::CreateModCallback(void *handle, int progress, const QString & /*stage*/)
+void LayoutMain::CreateModCallback(void *handle, int progress, const QString & /*stage*/)
 {
     auto *win = static_cast<MainWindow *>(handle);
     win->statusBar()->showMessage(QString("Creating MEM mod... Progress: ") + QString::number(progress) + "%");
     QApplication::processEvents();
 }
 
-void LayoutModsManager::CreateModSelected()
+void LayoutMain::CreateModSelected(MeType gameType)
 {
     LockGui(true);
 
@@ -327,9 +228,9 @@ void LayoutModsManager::CreateModSelected()
     QList<TextureMapEntry> textures;
     Resources resources;
     resources.loadMD5Tables();
-    TreeScan::loadTexturesMap(mainWindow->gameType, resources, textures);
-    if (!Misc::convertDataModtoMem(list, modFile, mainWindow->gameType, textures, false,
-                              &LayoutModsManager::CreateModCallback, mainWindow))
+    TreeScan::loadTexturesMap(gameType, resources, textures);
+    if (!Misc::convertDataModtoMem(list, modFile, gameType, textures, false,
+                              &LayoutMain::CreateModCallback, mainWindow))
     {
         QMessageBox::critical(this, "Creating MEM mod", "Creating MEM mod failed!");
     }
@@ -347,12 +248,12 @@ void LayoutModsManager::CreateModSelected()
     LockGui(false);
 }
 
-void LayoutModsManager::CreateBinaryModSelected()
+void LayoutMain::CreateBinaryModSelected(MeType gameType)
 {
     LockGui(true);
 
     ConfigIni configIni{};
-    g_GameData->Init(mainWindow->gameType, configIni, true);
+    g_GameData->Init(gameType, configIni, true);
     if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
     {
         QMessageBox::critical(this, "Creating Binary mod files", "Game data not found.");
@@ -567,7 +468,7 @@ void LayoutModsManager::CreateBinaryModSelected()
     outFs.WriteUInt32(TextureModVersion);
     outFs.WriteInt64(pos);
     outFs.JumpTo(pos);
-    outFs.WriteUInt32((uint)mainWindow->gameType);
+    outFs.WriteUInt32((uint)gameType);
     outFs.WriteInt32(modFiles.count());
 
     for (int i = 0; i < modFiles.count(); i++)
@@ -584,11 +485,4 @@ void LayoutModsManager::CreateBinaryModSelected()
     mainWindow->statusBar()->clearMessage();
     QMessageBox::information(this, "Creating Binary mod files", "Finished.");
     LockGui(false);
-}
-
-void LayoutModsManager::ReturnSelected()
-{
-    mainWindow->SwitchLayoutById(MainWindow::kLayoutModules);
-    mainWindow->GetLayout()->removeWidget(this);
-    mainWindow->SetTitle("Modules Selection");
 }

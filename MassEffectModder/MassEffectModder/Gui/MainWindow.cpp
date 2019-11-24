@@ -21,12 +21,11 @@
 
 #include <Gui/MainWindow.h>
 #include <Gui/LayoutMain.h>
-#include <Gui/LayoutModules.h>
 #include <Helpers/Exception.h>
 #include <Helpers/MiscHelpers.h>
 
 MainWindow::MainWindow()
-    : gameType(MeType::UNKNOWN_TYPE), busy(false)
+    : busy(false)
 {
     statusBar()->clearMessage();
     QString title = QString("Mass Effect Modder v%1").arg(MEM_VERSION);
@@ -39,6 +38,7 @@ MainWindow::MainWindow()
     setCentralWidget(widget);
     stackedLayout = new QStackedLayout(widget);
     stackedLayout->addWidget(new LayoutMain(this));
+    connect(stackedLayout, &QStackedLayout::currentChanged, this, &MainWindow::stackChanged);
 }
 
 void MainWindow::SwitchLayoutById(int id)
@@ -55,6 +55,12 @@ void MainWindow::SwitchLayoutById(int id)
     CRASH();
 }
 
+void MainWindow::stackChanged(int index)
+{
+    auto handle = dynamic_cast<LayoutHandle *>(stackedLayout->widget(index));
+    handle->OnStackChanged();
+}
+
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     if (busy)
@@ -64,11 +70,11 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
 }
 
-void MainWindow::SetTitle(const QString &appendText)
+void MainWindow::SetTitle(MeType gameType, const QString &appendText)
 {
     auto title = QString("Mass Effect Modder v%1").arg(MEM_VERSION);
     if (gameType != MeType::UNKNOWN_TYPE)
-        title += QString(" - ME%2").arg((int)gameType);
+        title += QString(" - ME%1").arg((int)gameType);
     if (appendText != "")
         title += " - " + appendText;
     if (DetectAdminRights())

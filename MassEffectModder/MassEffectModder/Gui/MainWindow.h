@@ -33,6 +33,7 @@ protected:
 
 public:
     int              GetLayoutId() { return layoutId; }
+    virtual void     OnStackChanged() { }
 };
 
 class MainWindow : public QMainWindow
@@ -43,29 +44,21 @@ protected:
     void            closeEvent(QCloseEvent *event) override;
     void            SwitchLayoutById(int id);
 
+private slots:
+    void            stackChanged(int index);
+
 private:
     static const int kMinWindowWidth = 1024;
     static const int kMinWindowHeight = 600;
     static const int kLayoutMain = 1;
-    static const int kLayoutMeSelect = 1;
-    static const int kLayoutModules = 2;
-    static const int kLayoutTexturesManager = 3;
-    static const int kLayoutTextureUtilities = 4;
-    static const int kLayoutGameUtilities = 5;
-    static const int kLayoutModsManager = 6;
-    static const int kLayoutInstallModsManager = 7;
+    static const int kLayoutTexturesManager = 2;
+    static const int kLayoutInstallModsManager = 3;
 
     friend class LayoutMain;
-    friend class LayoutMeSelect;
-    friend class LayoutModules;
     friend class LayoutTexturesManager;
-    friend class LayoutTextureUtilities;
-    friend class LayoutGameUtilities;
-    friend class LayoutModsManager;
     friend class LayoutInstallModsManager;
 
     QStackedLayout  *stackedLayout;
-    MeType           gameType;
     bool             busy;
 
 public:
@@ -73,7 +66,7 @@ public:
 
     QStackedLayout  *GetLayout() { return stackedLayout; }
     void            LockClose(bool state) { busy = state; }
-    void            SetTitle(const QString &appendText);
+    void            SetTitle(MeType gameType, const QString &appendText);
 };
 
 #endif // MAINWINDOW_H

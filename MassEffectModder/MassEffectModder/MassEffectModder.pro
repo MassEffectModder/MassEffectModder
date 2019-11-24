@@ -63,14 +63,12 @@ equals(GUI_MODE, true) {
 SOURCES += \
     Gui/MainWindow.cpp \
     Gui/MessageWindow.cpp \
-    Gui/LayoutGameUtilities.cpp \
-    Gui/LayoutInstallModsManager.cpp \
+    Gui/GuiGameUtilities.cpp \
+    Gui/GuiModsManager.cpp \
+    Gui/GuiTextureUtilities.cpp \
+    Gui/LayoutInstallMods.cpp \
     Gui/LayoutMain.cpp \
-    Gui/LayoutMeSelect.cpp \
-    Gui/LayoutModsManager.cpp \
-    Gui/LayoutModules.cpp \
-    Gui/LayoutTexturesManager.cpp \
-    Gui/LayoutTextureUtilities.cpp
+    Gui/LayoutTexturesManager.cpp
 } else {
 SOURCES += \
     CmdLine/CmdLineHelp.cpp \
@@ -113,14 +111,9 @@ equals(GUI_MODE, true) {
 HEADERS += \
     Gui/MainWindow.h \
     Gui/MessageWindow.h \
-    Gui/LayoutGameUtilities.h \
-    Gui/LayoutInstallModsManager.h \
+    Gui/LayoutInstallMods.h \
     Gui/LayoutMain.h \
-    Gui/LayoutMeSelect.h \
-    Gui/LayoutModsManager.h \
-    Gui/LayoutModules.h \
-    Gui/LayoutTexturesManager.h \
-    Gui/LayoutTextureUtilities.h
+    Gui/LayoutTexturesManager.h
 } else {
 HEADERS += \
     CmdLine/CmdLineParams.h \
