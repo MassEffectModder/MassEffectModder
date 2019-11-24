@@ -851,8 +851,10 @@ void LayoutMain::HideAllSubMenusME3()
 void LayoutMain::ButtonTexturesMenagaerSelected(MeType gameType)
 {
     RemoveEffectsOnMenus();
-    mainWindow->GetLayout()->addWidget(new LayoutTexturesManager(mainWindow, gameType));
+    auto TextureManager = new LayoutTexturesManager(mainWindow, gameType);
+    mainWindow->GetLayout()->addWidget(TextureManager);
     mainWindow->SwitchLayoutById(MainWindow::kLayoutTexturesManager);
+    TextureManager->Startup();
 }
 
 void LayoutMain::ButtonModsInstallerSelected(MeType gameType)
