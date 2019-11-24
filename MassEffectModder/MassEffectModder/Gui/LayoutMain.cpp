@@ -657,13 +657,13 @@ void LayoutMain::DefaultMenuState()
 {
     auto effect1 = new QGraphicsOpacityEffect(this);
     groupBoxViewME1->setGraphicsEffect(effect1);
-    effect1->setOpacity(0);
+    effect1->setOpacity(0.5);
     auto effect2 = new QGraphicsOpacityEffect(this);
     groupBoxViewME2->setGraphicsEffect(effect2);
-    effect2->setOpacity(0);
+    effect2->setOpacity(0.5);
     auto effect3 = new QGraphicsOpacityEffect(this);
     groupBoxViewME3->setGraphicsEffect(effect3);
-    effect3->setOpacity(0);
+    effect3->setOpacity(0.5);
 
     auto effectGr1 = new QGraphicsColorizeEffect(this);
     effectGr1->setColor(QColor(0, 0, 0));
@@ -726,7 +726,7 @@ void LayoutMain::HoverOutME(int id)
     auto anim = new QPropertyAnimation(effect, "opacity");
     anim->setDuration(500);
     anim->setStartValue(1);
-    anim->setEndValue(0);
+    anim->setEndValue(0.5);
     anim->setEasingCurve(QEasingCurve::OutBack);
     anim->start(QPropertyAnimation::DeleteWhenStopped);
 
