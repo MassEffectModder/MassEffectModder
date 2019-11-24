@@ -29,14 +29,14 @@ class MessageWindow : public QWidget
     Q_OBJECT
 
 private:
-    const int kButtonMinWidth = 300;
-    const int kButtonMinHeight = 80;
+    const int kButtonMinWidth = 270;
+    const int kButtonMinHeight = 22;
 #if defined(__APPLE__)
-    const int kFontSize = 20;
+    const int kFontSize = 12;
 #elif defined(__linux__)
-    const int kFontSize = 13;
+    const int kFontSize = 8;
 #else
-    const int kFontSize = 15;
+    const int kFontSize = 8;
 #endif
 
     QDialog         dialog;
