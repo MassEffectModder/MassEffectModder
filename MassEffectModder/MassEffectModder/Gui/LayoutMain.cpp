@@ -26,6 +26,24 @@
 #include <Helpers/MiscHelpers.h>
 #include <Types/MemTypes.h>
 
+void HoverLabel::enterEvent(QEvent *ev)
+{
+    if (!hover) {
+        hover = true;
+        layoutMain->HoverInME(idLabel);
+    }
+    QLabel::enterEvent(ev);
+}
+
+void HoverLabel::leaveEvent(QEvent *ev)
+{
+    if (hover) {
+        hover = false;
+        layoutMain->HoverOutME(idLabel);
+    }
+    QLabel::leaveEvent(ev);
+}
+
 LayoutMain::LayoutMain(MainWindow *window)
     : mainWindow(window)
 {
@@ -33,19 +51,19 @@ LayoutMain::LayoutMain(MainWindow *window)
 
     QPixmap pixmapME1(QString(":/logo_me1.png"));
     pixmapME1 = pixmapME1.scaled(300, 80, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    auto iconME1Logo = new QLabel;
+    iconME1Logo = new QLabel;
     iconME1Logo->setPixmap(pixmapME1);
     iconME1Logo->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
 
     QPixmap pixmapME2(QString(":/logo_me2.png"));
     pixmapME2 = pixmapME2.scaled(300, 80, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    auto iconME2Logo = new QLabel;
+    iconME2Logo = new QLabel;
     iconME2Logo->setPixmap(pixmapME2);
     iconME2Logo->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
 
     QPixmap pixmapME3(QString(":/logo_me3.png"));
     pixmapME3 = pixmapME3.scaled(300, 80, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    auto iconME3Logo = new QLabel;
+    iconME3Logo = new QLabel;
     iconME3Logo->setPixmap(pixmapME3);
     iconME3Logo->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
 
@@ -578,54 +596,146 @@ LayoutMain::LayoutMain(MainWindow *window)
     groupVertModManagerME3->addWidget(buttonCreateBinaryModME3, 1);
     verticalLayoutMenuME3->addLayout(groupVertModManagerME3);
 
+    labelME1 = new HoverLabel(1, this);
+    groupBoxViewME1 = new QGroupBox(labelME1);
+    groupBoxViewME1->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
+    groupBoxViewME1->setLayout(verticalLayoutMenuME1);
 
-    auto GroupBoxViewME1 = new QGroupBox;
-    GroupBoxViewME1->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
-    GroupBoxViewME1->setLayout(verticalLayoutMenuME1);
+    labelME2 = new HoverLabel(2, this);
+    groupBoxViewME2 = new QGroupBox(labelME2);
+    groupBoxViewME2->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Maximum);
+    groupBoxViewME2->setLayout(verticalLayoutMenuME2);
 
-    auto GroupBoxViewME2 = new QGroupBox;
-    GroupBoxViewME2->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Maximum);
-    GroupBoxViewME2->setLayout(verticalLayoutMenuME2);
-
-    auto GroupBoxViewME3 = new QGroupBox;
-    GroupBoxViewME3->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
-    GroupBoxViewME3->setLayout(verticalLayoutMenuME3);
+    labelME3 = new HoverLabel(3, this);
+    groupBoxViewME3 = new QGroupBox(labelME3);
+    groupBoxViewME3->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
+    groupBoxViewME3->setLayout(verticalLayoutMenuME3);
 
     auto verticalLayoutMainME1 = new QVBoxLayout();
     verticalLayoutMainME1->setAlignment(Qt::AlignCenter);
-    verticalLayoutMainME1->addWidget(GroupBoxViewME1);
+    verticalLayoutMainME1->addWidget(groupBoxViewME1);
 
     auto verticalLayoutMainME2 = new QVBoxLayout();
     verticalLayoutMainME2->setAlignment(Qt::AlignCenter);
-    verticalLayoutMainME2->addWidget(GroupBoxViewME2);
+    verticalLayoutMainME2->addWidget(groupBoxViewME2);
 
     auto verticalLayoutMainME3 = new QVBoxLayout();
     verticalLayoutMainME3->setAlignment(Qt::AlignCenter);
-    verticalLayoutMainME3->addWidget(GroupBoxViewME3);
+    verticalLayoutMainME3->addWidget(groupBoxViewME3);
 
-    auto verticalLayoutME1 = new QVBoxLayout();
+    auto verticalLayoutME1 = new QVBoxLayout(labelME1);
     verticalLayoutME1->setAlignment(Qt::AlignCenter | Qt::AlignTop);
     verticalLayoutME1->addWidget(iconME1Logo, 1);
-    verticalLayoutME1->addWidget(GroupBoxViewME1, 1);
+    verticalLayoutME1->addWidget(groupBoxViewME1, 1);
     auto verticalLayoutME2 = new QVBoxLayout();
     verticalLayoutME2->setAlignment(Qt::AlignCenter | Qt::AlignTop);
     verticalLayoutME2->addWidget(iconME2Logo, 1);
-    verticalLayoutME2->addWidget(GroupBoxViewME2, 1);
+    verticalLayoutME2->addWidget(groupBoxViewME2, 1);
     auto verticalLayoutME3 = new QVBoxLayout();
     verticalLayoutME3->setAlignment(Qt::AlignCenter | Qt::AlignTop);
     verticalLayoutME3->addWidget(iconME3Logo, 1);
-    verticalLayoutME3->addWidget(GroupBoxViewME3, 1);
+    verticalLayoutME3->addWidget(groupBoxViewME3, 1);
+
+    labelME1->setLayout(verticalLayoutME1);
+    labelME2->setLayout(verticalLayoutME2);
+    labelME3->setLayout(verticalLayoutME3);
 
     auto horizontalLayoutMain = new QHBoxLayout(this);
-    horizontalLayoutMain->addLayout(verticalLayoutME1);
-    horizontalLayoutMain->addLayout(verticalLayoutME2);
-    horizontalLayoutMain->addLayout(verticalLayoutME3);
+    horizontalLayoutMain->addWidget(labelME1);
+    horizontalLayoutMain->addWidget(labelME2);
+    horizontalLayoutMain->addWidget(labelME3);
 
     HideAllSubMenusME1();
     HideAllSubMenusME2();
     HideAllSubMenusME3();
+    DefaultMenuState();
 
     mainWindow->SetTitle("");
+}
+
+void LayoutMain::DefaultMenuState()
+{
+    auto effect1 = new QGraphicsOpacityEffect(this);
+    groupBoxViewME1->setGraphicsEffect(effect1);
+    effect1->setOpacity(0);
+    auto effect2 = new QGraphicsOpacityEffect(this);
+    groupBoxViewME2->setGraphicsEffect(effect2);
+    effect2->setOpacity(0);
+    auto effect3 = new QGraphicsOpacityEffect(this);
+    groupBoxViewME3->setGraphicsEffect(effect3);
+    effect3->setOpacity(0);
+
+    auto effectGr1 = new QGraphicsColorizeEffect(this);
+    effectGr1->setColor(QColor(0, 0, 0));
+    iconME1Logo->setGraphicsEffect(effectGr1);
+    auto effectGr2 = new QGraphicsColorizeEffect(this);
+    effectGr2->setColor(QColor(0, 0, 0));
+    iconME2Logo->setGraphicsEffect(effectGr2);
+    auto effectGr3 = new QGraphicsColorizeEffect(this);
+    effectGr3->setColor(QColor(0, 0, 0));
+    iconME3Logo->setGraphicsEffect(effectGr3);
+}
+
+void LayoutMain::HoverInME(int id)
+{
+    auto effect = new QGraphicsOpacityEffect(this);
+    if (id == 1)
+    {
+        groupBoxViewME1->setGraphicsEffect(effect);
+        auto effectGr1 = new QGraphicsColorizeEffect(this);
+        effectGr1->setStrength(0);
+        iconME1Logo->setGraphicsEffect(effectGr1);
+    }
+    else if (id == 2)
+    {
+        groupBoxViewME2->setGraphicsEffect(effect);
+        auto effectGr2 = new QGraphicsColorizeEffect(this);
+        effectGr2->setStrength(0);
+        iconME2Logo->setGraphicsEffect(effectGr2);
+    }
+    else if (id == 3)
+    {
+        groupBoxViewME3->setGraphicsEffect(effect);
+        auto effectGr3 = new QGraphicsColorizeEffect(this);
+        effectGr3->setStrength(0);
+        iconME3Logo->setGraphicsEffect(effectGr3);
+    }
+    effect->setOpacity(1);
+}
+
+void LayoutMain::HoverOutME(int id)
+{
+    auto effect = new QGraphicsOpacityEffect(this);
+    auto effectGr = new QGraphicsColorizeEffect(this);
+    effectGr->setColor(QColor(0, 0, 0));
+    if (id == 1)
+    {
+        groupBoxViewME1->setGraphicsEffect(effect);
+        iconME1Logo->setGraphicsEffect(effectGr);
+    }
+    else if (id == 2)
+    {
+        groupBoxViewME2->setGraphicsEffect(effect);
+        iconME2Logo->setGraphicsEffect(effectGr);
+    }
+    else if (id == 3)
+    {
+        groupBoxViewME3->setGraphicsEffect(effect);
+        iconME3Logo->setGraphicsEffect(effectGr);
+    }
+    auto anim = new QPropertyAnimation(effect, "opacity");
+    anim->setDuration(500);
+    anim->setStartValue(1);
+    anim->setEndValue(0);
+    anim->setEasingCurve(QEasingCurve::OutBack);
+    anim->start(QPropertyAnimation::DeleteWhenStopped);
+
+    auto animGr = new QPropertyAnimation(effectGr, "strength");
+    animGr->setDuration(500);
+    animGr->setStartValue(0);
+    animGr->setEndValue(1);
+    animGr->setEasingCurve(QEasingCurve::OutBack);
+    animGr->start(QPropertyAnimation::DeleteWhenStopped);
 }
 
 void LayoutMain::HideAllSubMenusME1()

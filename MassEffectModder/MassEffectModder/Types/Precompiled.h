@@ -75,6 +75,10 @@
 #include <QPixmap>
 #include <QImage>
 #include <QInputDialog>
+#include <QGraphicsOpacityEffect>
+#include <QGraphicsColorizeEffect>
+#include <QPropertyAnimation>
+#include <QParallelAnimationGroup>
 #endif
 
 #include <omp.h>

@@ -24,7 +24,32 @@
 
 #include <Gui/MainWindow.h>
 
-class LayoutMain: public LayoutHandle
+class LayoutMain;
+
+class HoverLabel : public QLabel
+{
+    Q_OBJECT
+
+private:
+    bool       hover;
+    int        idLabel;
+    LayoutMain *layoutMain;
+
+public:
+    explicit HoverLabel(int id, LayoutMain *layout)
+    {
+        hover = false;
+        idLabel = id;
+        layoutMain = layout;
+        setAttribute(Qt::WA_Hover, true);
+    }
+
+protected:
+    void enterEvent(QEvent *ev) override;
+    void leaveEvent(QEvent *ev) override;
+};
+
+class LayoutMain : public LayoutHandle
 {
     Q_OBJECT
 
@@ -43,6 +68,8 @@ private slots:
     void ButtonModsManagerME2Selected();
     void ButtonModsManagerME3Selected();
 
+    friend class HoverLabel;
+
 private:
     const int kButtonMinWidth = 270;
     const int kButtonMinSmallWidth = 220;
@@ -57,6 +84,8 @@ private:
 
     MainWindow    *mainWindow;
 
+    HoverLabel    *labelME1;
+    QLabel        *iconME1Logo;
     QPushButton   *buttonTextureUtilitiesME1;
     QPushButton   *buttonRemoveScanFileME1;
     QPushButton   *buttonApplyHQLODsME1;
@@ -78,7 +107,10 @@ private:
     QPushButton   *buttonConvertModME1;
     QPushButton   *buttonCreateModME1;
     QPushButton   *buttonCreateBinaryModME1;
+    QGroupBox     *groupBoxViewME1;
 
+    HoverLabel    *labelME2;
+    QLabel        *iconME2Logo;
     QPushButton   *buttonTextureUtilitiesME2;
     QPushButton   *buttonRemoveScanFileME2;
     QPushButton   *buttonApplyHQLODsME2;
@@ -99,7 +131,10 @@ private:
     QPushButton   *buttonConvertModME2;
     QPushButton   *buttonCreateModME2;
     QPushButton   *buttonCreateBinaryModME2;
+    QGroupBox     *groupBoxViewME2;
 
+    HoverLabel    *labelME3;
+    QLabel        *iconME3Logo;
     QPushButton   *buttonTextureUtilitiesME3;
     QPushButton   *buttonRemoveScanFileME3;
     QPushButton   *buttonApplyHQLODsME3;
@@ -122,7 +157,11 @@ private:
     QPushButton   *buttonConvertModME3;
     QPushButton   *buttonCreateModME3;
     QPushButton   *buttonCreateBinaryModME3;
+    QGroupBox     *groupBoxViewME3;
 
+    void DefaultMenuState();
+    void HoverInME(int id);
+    void HoverOutME(int id);
     void HideAllSubMenusME1();
     void HideAllSubMenusME2();
     void HideAllSubMenusME3();
