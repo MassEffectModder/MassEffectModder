@@ -483,7 +483,7 @@ LayoutMain::LayoutMain(MainWindow *window)
     verticalLayoutMenuME3->addWidget(ButtonTexturesManagerME3, 1);
 
     auto groupVertTextureUtilitiesME1 = new QVBoxLayout();
-    groupVertTextureUtilitiesME1->setAlignment(Qt::AlignRight);
+    groupVertTextureUtilitiesME1->setAlignment(Qt::AlignCenter);
 #if defined(__APPLE__)
     verticalLayoutMenuME1->addSpacing(4);
 #endif
@@ -499,7 +499,7 @@ LayoutMain::LayoutMain(MainWindow *window)
     verticalLayoutMenuME1->addLayout(groupVertTextureUtilitiesME1);
 
     auto groupVertTextureUtilitiesME2 = new QVBoxLayout();
-    groupVertTextureUtilitiesME2->setAlignment(Qt::AlignRight);
+    groupVertTextureUtilitiesME2->setAlignment(Qt::AlignCenter);
 #if defined(__APPLE__)
     verticalLayoutMenuME2->addSpacing(4);
 #endif
@@ -513,7 +513,7 @@ LayoutMain::LayoutMain(MainWindow *window)
     verticalLayoutMenuME2->addLayout(groupVertTextureUtilitiesME2);
 
     auto groupVertTextureUtilitiesME3 = new QVBoxLayout();
-    groupVertTextureUtilitiesME3->setAlignment(Qt::AlignRight);
+    groupVertTextureUtilitiesME3->setAlignment(Qt::AlignCenter);
 #if defined(__APPLE__)
     verticalLayoutMenuME3->addSpacing(4);
 #endif
@@ -527,7 +527,7 @@ LayoutMain::LayoutMain(MainWindow *window)
     verticalLayoutMenuME3->addLayout(groupVertTextureUtilitiesME3);
 
     auto groupVertGameUtilitiesME1 = new QVBoxLayout();
-    groupVertGameUtilitiesME1->setAlignment(Qt::AlignRight);
+    groupVertGameUtilitiesME1->setAlignment(Qt::AlignCenter);
     verticalLayoutMenuME1->addWidget(buttonGameUtilitiesME1, 1);
     groupVertGameUtilitiesME1->addWidget(buttonCheckGameFilesME1, 1);
     groupVertGameUtilitiesME1->addWidget(buttonChangeGamePathME1, 1);
@@ -539,7 +539,7 @@ LayoutMain::LayoutMain(MainWindow *window)
     verticalLayoutMenuME1->addLayout(groupVertGameUtilitiesME1);
 
     auto groupVertGameUtilitiesME2 = new QVBoxLayout();
-    groupVertGameUtilitiesME2->setAlignment(Qt::AlignRight);
+    groupVertGameUtilitiesME2->setAlignment(Qt::AlignCenter);
     verticalLayoutMenuME2->addWidget(buttonGameUtilitiesME2, 1);
     groupVertGameUtilitiesME2->addWidget(buttonCheckGameFilesME2, 1);
     groupVertGameUtilitiesME2->addWidget(buttonRepackGameFilesME2, 1);
@@ -552,7 +552,7 @@ LayoutMain::LayoutMain(MainWindow *window)
     verticalLayoutMenuME2->addLayout(groupVertGameUtilitiesME2);
 
     auto groupVertGameUtilitiesME3 = new QVBoxLayout();
-    groupVertGameUtilitiesME3->setAlignment(Qt::AlignRight);
+    groupVertGameUtilitiesME3->setAlignment(Qt::AlignCenter);
     verticalLayoutMenuME3->addWidget(buttonGameUtilitiesME3, 1);
     groupVertGameUtilitiesME3->addWidget(buttonCheckGameFilesME3, 1);
     groupVertGameUtilitiesME3->addWidget(buttonRepackGameFilesME3, 1);
@@ -567,7 +567,7 @@ LayoutMain::LayoutMain(MainWindow *window)
     verticalLayoutMenuME3->addLayout(groupVertGameUtilitiesME3);
 
     auto groupVertModManagerME1 = new QVBoxLayout();
-    groupVertModManagerME1->setAlignment(Qt::AlignRight);
+    groupVertModManagerME1->setAlignment(Qt::AlignCenter);
     verticalLayoutMenuME1->addWidget(buttonModsManagerME1, 1);
     groupVertModManagerME1->addWidget(buttonInstallModsME1, 1);
     groupVertModManagerME1->addWidget(buttonExtractModsME1, 1);
@@ -577,7 +577,7 @@ LayoutMain::LayoutMain(MainWindow *window)
     verticalLayoutMenuME1->addLayout(groupVertModManagerME1);
 
     auto groupVertModManagerME2 = new QVBoxLayout();
-    groupVertModManagerME2->setAlignment(Qt::AlignRight);
+    groupVertModManagerME2->setAlignment(Qt::AlignCenter);
     verticalLayoutMenuME2->addWidget(buttonModsManagerME2, 1);
     groupVertModManagerME2->addWidget(buttonInstallModsME2, 1);
     groupVertModManagerME2->addWidget(buttonExtractModsME2, 1);
@@ -587,7 +587,7 @@ LayoutMain::LayoutMain(MainWindow *window)
     verticalLayoutMenuME2->addLayout(groupVertModManagerME2);
 
     auto groupVertModManagerME3 = new QVBoxLayout();
-    groupVertModManagerME3->setAlignment(Qt::AlignRight);
+    groupVertModManagerME3->setAlignment(Qt::AlignCenter);
     verticalLayoutMenuME3->addWidget(buttonModsManagerME3, 1);
     groupVertModManagerME3->addWidget(buttonInstallModsME3, 1);
     groupVertModManagerME3->addWidget(buttonExtractModsME3, 1);
