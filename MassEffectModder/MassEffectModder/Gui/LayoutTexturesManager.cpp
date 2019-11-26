@@ -1182,7 +1182,7 @@ void LayoutTexturesManager::InfoAllSelected()
 {
     if (!textureSelected)
         return;
-    if (!singleInfoMode)
+    if (!singleInfoMode && !imageViewMode && !imageViewAlphaMode)
         return;
     if (singlePackageMode)
         return;
