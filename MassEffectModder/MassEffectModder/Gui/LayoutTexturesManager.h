@@ -39,7 +39,7 @@ public slots:
     void setPixmap(const QPixmap &p);
 
 protected:
-    void resizeEvent(QResizeEvent* event) override;
+    void resizeEvent(QResizeEvent *event) override;
 
 public:
     explicit PixmapLabel(QWidget *parent = nullptr);
@@ -144,7 +144,7 @@ private:
     static void ReplaceTextureCallback(void *handle, int progress, const QString &stage);
     void LockGui(bool lock);
     void UpdateGui();
-    void ExtractTexture(const ViewTexture& viewTexture, bool png);
+    void ExtractTexture(const ViewTexture &viewTexture, bool png);
     void ReplaceTexture(const QListWidgetItem *item, bool convertMode);
     void SearchTexture(const QString &name, uint crc);
     void selectFoundTexture(const QListWidgetItem *item);
