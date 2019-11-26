@@ -554,12 +554,6 @@ void LayoutTexturesManager::Startup()
 
 void LayoutTexturesManager::ListMiddleContextMenu(const QPoint &pos)
 {
-    bool enableViewMode = false;
-    if (!imageViewMode && !imageViewAlphaMode)
-        enableViewMode = !singlePackageMode;
-    bool enableViewAlphaMode = false;
-    if (!imageViewMode && !imageViewAlphaMode)
-        enableViewAlphaMode = !singlePackageMode;
     bool enableInfoSingle;
     if (imageViewMode || imageViewAlphaMode)
         enableInfoSingle = !singlePackageMode;
