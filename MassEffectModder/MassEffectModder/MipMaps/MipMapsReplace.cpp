@@ -828,9 +828,10 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
 
 static int comparePaths(const MapTexturesToMod &e1, const MapTexturesToMod &e2)
 {
-    if (e1.packagePath.compare(e2.packagePath, Qt::CaseInsensitive) < 0)
+    int compResult = e1.packagePath.compare(e2.packagePath, Qt::CaseInsensitive);
+    if (compResult < 0)
         return -1;
-    if (e1.packagePath.compare(e2.packagePath, Qt::CaseInsensitive) > 0)
+    if (compResult > 0)
         return 1;
     if (e1.texturesIndex < e2.texturesIndex)
         return -1;

@@ -259,9 +259,10 @@ LayoutTexturesManager::LayoutTexturesManager(MainWindow *window, MeType type)
 
 static int compareTextures(const ViewPackage &e1, const ViewPackage &e2)
 {
-    if (e1.packageName.compare(e2.packageName, Qt::CaseInsensitive) < 0)
+    int compResult = e1.packageName.compare(e2.packageName, Qt::CaseInsensitive);
+    if (compResult < 0)
         return -1;
-    if (e1.packageName.compare(e2.packageName, Qt::CaseInsensitive) > 0)
+    if (compResult > 0)
         return 1;
     if (e1.indexInTextures < e2.indexInTextures)
         return -1;
