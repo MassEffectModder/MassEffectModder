@@ -316,6 +316,14 @@ ByteBuffer Image::convertRawToRGB(const quint8 *src, int w, int h, PixelFormat f
     return dataRGB;
 }
 
+ByteBuffer Image::convertRawToBGR(const quint8 *src, int w, int h, PixelFormat format)
+{
+    auto dataARGB = convertRawToARGB(src, w, h, format);
+    auto dataRGB = ARGBtoBGR(dataARGB.ptr(), w, h);
+    dataARGB.Free();
+    return dataRGB;
+}
+
 void Image::clearAlphaFromARGB(quint8 *data, int w, int h)
 {
     for (int i = 0; i < w * h; i++)
@@ -347,6 +355,19 @@ ByteBuffer Image::ARGBtoRGB(const quint8 *src, int w, int h)
         ptr[3 * i + 0] = src[4 * i + 0];
         ptr[3 * i + 1] = src[4 * i + 1];
         ptr[3 * i + 2] = src[4 * i + 2];
+    }
+    return tmpData;
+}
+
+ByteBuffer Image::ARGBtoBGR(const quint8 *src, int w, int h)
+{
+    ByteBuffer tmpData(w * h * 3);
+    quint8 *ptr = tmpData.ptr();
+    for (int i = 0; i < w * h; i++)
+    {
+        ptr[3 * i + 0] = src[4 * i + 2];
+        ptr[3 * i + 1] = src[4 * i + 1];
+        ptr[3 * i + 2] = src[4 * i + 0];
     }
     return tmpData;
 }
