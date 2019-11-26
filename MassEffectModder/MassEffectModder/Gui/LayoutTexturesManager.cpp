@@ -182,6 +182,27 @@ LayoutTexturesManager::LayoutTexturesManager(MainWindow *window, MeType type)
     VerticalLayout->addWidget(splitter);
     VerticalLayout->addWidget(WidgetBottom);
 
+    auto shortcut = new QShortcut(QKeySequence("Ctrl+R"), this);
+    connect(shortcut, SIGNAL(activated()), this, SLOT(ReplaceSelected()));
+
+    shortcut = new QShortcut(QKeySequence("Ctrl+E"), this);
+    connect(shortcut, SIGNAL(activated()), this, SLOT(ExtractDDSSelected()));
+
+    shortcut = new QShortcut(QKeySequence("Ctrl+T"), this);
+    connect(shortcut, SIGNAL(activated()), this, SLOT(ExtractPNGSelected()));
+
+    shortcut = new QShortcut(QKeySequence("Ctrl+1"), this);
+    connect(shortcut, SIGNAL(activated()), this, SLOT(ViewImageSelected()));
+
+    shortcut = new QShortcut(QKeySequence("Ctrl+2"), this);
+    connect(shortcut, SIGNAL(activated()), this, SLOT(ViewImageAlphaSelected()));
+
+    shortcut = new QShortcut(QKeySequence("Ctrl+3"), this);
+    connect(shortcut, SIGNAL(activated()), this, SLOT(InfoSingleSelected()));
+
+    shortcut = new QShortcut(QKeySequence("Ctrl+4"), this);
+    connect(shortcut, SIGNAL(activated()), this, SLOT(InfoAllSelected()));
+
     mainWindow->SetTitle(gameType, "Texture Manager");
 }
 
@@ -940,6 +961,8 @@ void LayoutTexturesManager::ReplaceTexture(const QListWidgetItem *item, bool con
 void LayoutTexturesManager::ReplaceSelected()
 {
     QListWidgetItem *item;
+    if (!textureSelected)
+        return;
     if (singlePackageMode)
         item = listRight->currentItem();
     else
@@ -1081,6 +1104,8 @@ void LayoutTexturesManager::ExtractTexture(const ViewTexture& viewTexture, bool 
 void LayoutTexturesManager::ExtractDDSSelected()
 {
     QListWidgetItem *item;
+    if (!textureSelected)
+        return;
     if (singlePackageMode)
         item = listRight->currentItem();
     else
@@ -1092,6 +1117,8 @@ void LayoutTexturesManager::ExtractDDSSelected()
 void LayoutTexturesManager::ExtractPNGSelected()
 {
     QListWidgetItem *item;
+    if (!textureSelected)
+        return;
     if (singlePackageMode)
         item = listRight->currentItem();
     else
@@ -1102,34 +1129,46 @@ void LayoutTexturesManager::ExtractPNGSelected()
 
 void LayoutTexturesManager::ViewImageSelected()
 {
-    if (!imageViewMode)
-    {
-        singleInfoMode = false;
-        imageViewMode = true;
-        imageViewAlphaMode = false;
-        auto item = listMiddle->currentItem();
-        if (item != nullptr)
-            UpdateRight(item);
-        UpdateGui();
-    }
+    if (!textureSelected)
+        return;
+    if (imageViewMode)
+        return;
+    if (singlePackageMode)
+        return;
+    singleInfoMode = false;
+    imageViewMode = true;
+    imageViewAlphaMode = false;
+    auto item = listMiddle->currentItem();
+    if (item != nullptr)
+        UpdateRight(item);
+    UpdateGui();
 }
 
 void LayoutTexturesManager::ViewImageAlphaSelected()
 {
-    if (!imageViewAlphaMode)
-    {
-        singleInfoMode = false;
-        imageViewMode = false;
-        imageViewAlphaMode = true;
-        auto item = listMiddle->currentItem();
-        if (item != nullptr)
-            UpdateRight(item);
-        UpdateGui();
-    }
+    if (!textureSelected)
+        return;
+    if (imageViewAlphaMode)
+        return;
+    if (singlePackageMode)
+        return;
+    singleInfoMode = false;
+    imageViewMode = false;
+    imageViewAlphaMode = true;
+    auto item = listMiddle->currentItem();
+    if (item != nullptr)
+        UpdateRight(item);
+    UpdateGui();
 }
 
 void LayoutTexturesManager::InfoSingleSelected()
 {
+    if (!textureSelected)
+        return;
+    if (singleInfoMode)
+        return;
+    if (singlePackageMode)
+        return;
     singleInfoMode = true;
     imageViewMode = false;
     imageViewAlphaMode = false;
@@ -1141,6 +1180,12 @@ void LayoutTexturesManager::InfoSingleSelected()
 
 void LayoutTexturesManager::InfoAllSelected()
 {
+    if (!textureSelected)
+        return;
+    if (!singleInfoMode)
+        return;
+    if (singlePackageMode)
+        return;
     singleInfoMode = false;
     imageViewMode = false;
     imageViewAlphaMode = false;

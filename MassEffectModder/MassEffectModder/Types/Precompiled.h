@@ -71,6 +71,7 @@
 #include <QParallelAnimationGroup>
 #include <QPushButton>
 #include <QPropertyAnimation>
+#include <QShortcut>
 #include <QSplitter>
 #include <QStackedLayout>
 #include <QStackedWidget>
