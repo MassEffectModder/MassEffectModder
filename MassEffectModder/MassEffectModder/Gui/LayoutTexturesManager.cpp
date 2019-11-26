@@ -147,6 +147,7 @@ LayoutTexturesManager::LayoutTexturesManager(MainWindow *window, MeType type)
     buttonSearch = new QPushButton("Search Texture");
     buttonSearch->setMinimumWidth(kButtonMinWidth);
     buttonSearch->setMinimumHeight(kButtonMinHeight);
+    buttonSearch->setShortcut(QKeySequence("Ctrl+F"));
     ButtonFont = buttonSearch->font();
     ButtonFont.setPointSize(kFontSize);
     buttonSearch->setFont(ButtonFont);
