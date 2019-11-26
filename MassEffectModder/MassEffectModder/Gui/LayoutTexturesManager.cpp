@@ -1165,7 +1165,7 @@ void LayoutTexturesManager::InfoSingleSelected()
 {
     if (!textureSelected)
         return;
-    if (singleInfoMode)
+    if (singleInfoMode && !imageViewMode && !imageViewAlphaMode)
         return;
     if (singlePackageMode)
         return;
