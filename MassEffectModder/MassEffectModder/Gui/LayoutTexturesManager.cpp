@@ -84,6 +84,8 @@ LayoutTexturesManager::LayoutTexturesManager(MainWindow *window, MeType type)
     leftWidget->addWidget(listLeftSearch);
     leftWidget->setCurrentIndex(kLeftWidgetPackages);
     listMiddle = new QListWidget();
+    listMiddle->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(listMiddle, SIGNAL(customContextMenuRequested(QPoint)), SLOT(ListMiddleContextMenu(QPoint)));
     connect(listMiddle, &QListWidget::currentItemChanged, this, &LayoutTexturesManager::ListMiddleTextureSelected);
 
     labelImage = new PixmapLabel();
@@ -102,6 +104,8 @@ LayoutTexturesManager::LayoutTexturesManager(MainWindow *window, MeType type)
     font.setFixedPitch(true);
     textRight->setFont(font);
     listRight = new QListWidget;
+    listRight->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(listRight, SIGNAL(customContextMenuRequested(QPoint)), SLOT(ListRightContextMenu(QPoint)));
     connect(listRight, &QListWidget::currentItemChanged, this, &LayoutTexturesManager::ListRightSelected);
     rightView = new QStackedWidget();
     rightView->addWidget(labelImage);
@@ -115,84 +119,10 @@ LayoutTexturesManager::LayoutTexturesManager(MainWindow *window, MeType type)
     splitter->addWidget(listMiddle);
     splitter->addWidget(rightView);
 
-    buttonReplace = new QPushButton("Replace");
-    buttonReplace->setMinimumWidth(kButtonMinWidth);
-    buttonReplace->setMinimumHeight(kButtonMinHeight);
-    auto ButtonFont = buttonReplace->font();
-    ButtonFont.setPointSize(kFontSize);
-    buttonReplace->setFont(ButtonFont);
-    connect(buttonReplace, &QPushButton::clicked, this, &LayoutTexturesManager::ReplaceSelected);
-
-    buttonReplaceConvert = new QPushButton("Replace (Uncompressed)");
-    buttonReplaceConvert->setMinimumWidth(kButtonMinWidth);
-    buttonReplaceConvert->setMinimumHeight(kButtonMinHeight);
-    ButtonFont = buttonReplaceConvert->font();
-    ButtonFont.setPointSize(kFontSize);
-    buttonReplaceConvert->setFont(ButtonFont);
-    connect(buttonReplaceConvert, &QPushButton::clicked, this, &LayoutTexturesManager::ReplaceConvertSelected);
-
-    auto VerticalLayoutListReplace = new QVBoxLayout();
-    VerticalLayoutListReplace->addWidget(buttonReplace);
-    VerticalLayoutListReplace->addWidget(buttonReplaceConvert);
-    VerticalLayoutListReplace->setAlignment(Qt::AlignTop);
-    auto GroupBoxReplace = new QGroupBox("Replace Texture");
-    GroupBoxReplace->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    GroupBoxReplace->setAlignment(Qt::AlignBottom);
-    GroupBoxReplace->setLayout(VerticalLayoutListReplace);
-
-    buttonExtractToDDS = new QPushButton("Extract to DDS file");
-    buttonExtractToDDS->setMinimumWidth(kButtonMinWidth);
-    buttonExtractToDDS->setMinimumHeight(kButtonMinHeight);
-    ButtonFont = buttonExtractToDDS->font();
-    ButtonFont.setPointSize(kFontSize);
-    buttonExtractToDDS->setFont(ButtonFont);
-    connect(buttonExtractToDDS, &QPushButton::clicked, this, &LayoutTexturesManager::ExtractDDSSelected);
-
-    buttonExtractToPNG = new QPushButton("Extract to PNG file");
-    buttonExtractToPNG->setMinimumWidth(kButtonMinWidth);
-    buttonExtractToPNG->setMinimumHeight(kButtonMinHeight);
-    ButtonFont = buttonExtractToPNG->font();
-    ButtonFont.setPointSize(kFontSize);
-    buttonExtractToPNG->setFont(ButtonFont);
-    connect(buttonExtractToPNG, &QPushButton::clicked, this, &LayoutTexturesManager::ExtractPNGSelected);
-
-    auto VerticalLayoutListExtract = new QVBoxLayout();
-    VerticalLayoutListExtract->addWidget(buttonExtractToDDS);
-    VerticalLayoutListExtract->addWidget(buttonExtractToPNG);
-    VerticalLayoutListExtract->setAlignment(Qt::AlignTop);
-    auto GroupBoxExtract = new QGroupBox("Extract Texture");
-    GroupBoxExtract->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    GroupBoxExtract->setAlignment(Qt::AlignBottom);
-    GroupBoxExtract->setLayout(VerticalLayoutListExtract);
-
-    buttonViewImage = new QPushButton("View - Image");
-    buttonViewImage->setMinimumWidth(kButtonMinWidth);
-    buttonViewImage->setMinimumHeight(kButtonMinHeight);
-    ButtonFont = buttonViewImage->font();
-    ButtonFont.setPointSize(kFontSize);
-    buttonViewImage->setFont(ButtonFont);
-    connect(buttonViewImage, &QPushButton::clicked, this, &LayoutTexturesManager::ViewImageSelected);
-
-    buttonInfoSingle = new QPushButton("Info - Single");
-    buttonInfoSingle->setMinimumWidth(kButtonMinWidth);
-    buttonInfoSingle->setMinimumHeight(kButtonMinHeight);
-    ButtonFont = buttonInfoSingle->font();
-    ButtonFont.setPointSize(kFontSize);
-    buttonInfoSingle->setFont(ButtonFont);
-    connect(buttonInfoSingle, &QPushButton::clicked, this, &LayoutTexturesManager::InfoSingleSelected);
-
-    buttonInfoAll = new QPushButton("Info - All");
-    buttonInfoAll->setMinimumWidth(kButtonMinWidth);
-    buttonInfoAll->setMinimumHeight(kButtonMinHeight);
-    ButtonFont = buttonInfoAll->font();
-    ButtonFont.setPointSize(kFontSize);
-    buttonInfoAll->setFont(ButtonFont);
-    connect(buttonInfoAll, &QPushButton::clicked, this, &LayoutTexturesManager::InfoAllSelected);
-
     buttonPackageSingle = new QPushButton("Single Package");
     buttonPackageSingle->setMinimumWidth(kButtonMinWidth);
     buttonPackageSingle->setMinimumHeight(kButtonMinHeight);
-    ButtonFont = buttonPackageSingle->font();
+    auto ButtonFont = buttonPackageSingle->font();
     ButtonFont.setPointSize(kFontSize);
     buttonPackageSingle->setFont(ButtonFont);
     connect(buttonPackageSingle, &QPushButton::clicked, this, &LayoutTexturesManager::PackageSingleSelected);
@@ -206,14 +136,11 @@ LayoutTexturesManager::LayoutTexturesManager(MainWindow *window, MeType type)
     connect(buttonPackageMulti, &QPushButton::clicked, this, &LayoutTexturesManager::PackageMutiSelected);
 
     auto VerticalLayoutListView = new QVBoxLayout();
-    VerticalLayoutListView->addWidget(buttonViewImage);
-    VerticalLayoutListView->addWidget(buttonInfoSingle);
-    VerticalLayoutListView->addWidget(buttonInfoAll);
     VerticalLayoutListView->addWidget(buttonPackageSingle);
     VerticalLayoutListView->addWidget(buttonPackageMulti);
     VerticalLayoutListView->setAlignment(Qt::AlignTop);
-    auto GroupBoxView = new QGroupBox("Right Panel View");
-    GroupBoxView->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    auto GroupBoxView = new QGroupBox("Package Mode");
+    GroupBoxView->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
     GroupBoxView->setAlignment(Qt::AlignBottom);
     GroupBoxView->setLayout(VerticalLayoutListView);
 
@@ -237,14 +164,14 @@ LayoutTexturesManager::LayoutTexturesManager(MainWindow *window, MeType type)
     VerticalLayoutListMisc->addWidget(buttonSearch);
     VerticalLayoutListMisc->addWidget(buttonExit);
     VerticalLayoutListMisc->setAlignment(Qt::AlignTop);
+
     auto GroupBoxMisc = new QGroupBox("Miscellaneous");
-    GroupBoxMisc->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    GroupBoxMisc->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
     GroupBoxMisc->setAlignment(Qt::AlignBottom);
     GroupBoxMisc->setLayout(VerticalLayoutListMisc);
 
     auto HorizontalLayoutList = new QHBoxLayout();
-    HorizontalLayoutList->addWidget(GroupBoxReplace, 1);
-    HorizontalLayoutList->addWidget(GroupBoxExtract, 1);
+    HorizontalLayoutList->setAlignment(Qt::AlignLeft);
     HorizontalLayoutList->addWidget(GroupBoxView, 1);
     HorizontalLayoutList->addWidget(GroupBoxMisc, 1);
     auto WidgetBottom = new QWidget();
@@ -616,12 +543,99 @@ void LayoutTexturesManager::Startup()
     singlePackageMode = false;
     singleInfoMode = true;
     imageViewMode = true;
+    imageViewAlphaMode = false;
     textureSelected = false;
     packageSelected = false;
     textureInstanceSelected = false;
 
     LockGui(false);
     UpdateGui();
+}
+
+void LayoutTexturesManager::ListMiddleContextMenu(const QPoint &pos)
+{
+    bool enableViewMode = false;
+    if (!imageViewMode && !imageViewAlphaMode)
+        enableViewMode = !singlePackageMode;
+    bool enableViewAlphaMode = false;
+    if (!imageViewMode && !imageViewAlphaMode)
+        enableViewAlphaMode = !singlePackageMode;
+    bool enableInfoSingle;
+    if (imageViewMode || imageViewAlphaMode)
+        enableInfoSingle = !singlePackageMode;
+    else
+        enableInfoSingle = !singleInfoMode && !singlePackageMode;
+    bool enableInfoAll;
+    if (imageViewMode || imageViewAlphaMode)
+        enableInfoAll = !singlePackageMode;
+    else
+        enableInfoAll = singleInfoMode && !singlePackageMode;
+
+    auto item = listMiddle->itemAt(pos);
+    if (item && !singlePackageMode)
+    {
+        auto menu = new QMenu(this);
+        auto subMenu = new QAction("Replace Texture", this);
+        connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ReplaceSelected);
+        menu->addAction(subMenu);
+        subMenu = new QAction("Replace Texture (uncompressed)", this);
+        connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ReplaceConvertSelected);
+        menu->addAction(subMenu);
+        subMenu = new QAction("Extract to DDS", this);
+        connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ExtractDDSSelected);
+        menu->addAction(subMenu);
+        subMenu = new QAction("Extract to PNG", this);
+        connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ExtractPNGSelected);
+        menu->addAction(subMenu);
+        QMenu *menuViewMode = menu->addMenu("View");
+        subMenu = new QAction("Preview", this);
+        subMenu->setCheckable(true);
+        subMenu->setChecked(imageViewMode);
+        subMenu->setEnabled(!imageViewMode);
+        connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ViewImageSelected);
+        menuViewMode->addAction(subMenu);
+        subMenu = new QAction("Preview (with alpha)", this);
+        subMenu->setCheckable(true);
+        subMenu->setChecked(imageViewAlphaMode);
+        subMenu->setEnabled(!imageViewAlphaMode);
+        connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ViewImageAlphaSelected);
+        menuViewMode->addAction(subMenu);
+        subMenu = new QAction("Info (single)", this);
+        subMenu->setCheckable(true);
+        subMenu->setChecked(!imageViewMode && !imageViewAlphaMode && singleInfoMode);
+        subMenu->setEnabled(enableInfoSingle);
+        connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::InfoSingleSelected);
+        menuViewMode->addAction(subMenu);
+        subMenu = new QAction("Info (all)", this);
+        subMenu->setCheckable(true);
+        subMenu->setChecked(!imageViewMode && !imageViewAlphaMode && !singleInfoMode);
+        subMenu->setEnabled(enableInfoAll);
+        connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::InfoAllSelected);
+        menuViewMode->addAction(subMenu);
+        menu->popup(listMiddle->viewport()->mapToGlobal(pos));
+    }
+}
+
+void LayoutTexturesManager::ListRightContextMenu(const QPoint &pos)
+{
+    auto item = listRight->itemAt(pos);
+    if (item && singlePackageMode)
+    {
+        auto menu = new QMenu(this);
+        auto subMenu = new QAction("Replace Texture", this);
+        connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ReplaceSelected);
+        menu->addAction(subMenu);
+        subMenu = new QAction("Replace Texture (uncompressed)", this);
+        connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ReplaceConvertSelected);
+        menu->addAction(subMenu);
+        subMenu = new QAction("Extract to DDS", this);
+        connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ExtractDDSSelected);
+        menu->addAction(subMenu);
+        subMenu = new QAction("Extract to PNG", this);
+        connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ExtractPNGSelected);
+        menu->addAction(subMenu);
+        menu->popup(listRight->viewport()->mapToGlobal(pos));
+    }
 }
 
 void LayoutTexturesManager::PrepareTexturesCallback(void *handle, int progress, const QString &stage)
@@ -649,13 +663,6 @@ void LayoutTexturesManager::LockGui(bool lock)
     textRight->setEnabled(!lock);
     rightView->setEnabled(!lock);
     splitter->setEnabled(!lock);
-    buttonReplace->setEnabled(!lock);
-    buttonReplaceConvert->setEnabled(!lock);
-    buttonExtractToDDS->setEnabled(!lock);
-    buttonExtractToPNG->setEnabled(!lock);
-    buttonViewImage->setEnabled(!lock);
-    buttonInfoSingle->setEnabled(!lock);
-    buttonInfoAll->setEnabled(!lock);
     buttonPackageSingle->setEnabled(!lock);
     buttonPackageMulti->setEnabled(!lock);
     buttonSearch->setEnabled(!lock);
@@ -667,21 +674,12 @@ void LayoutTexturesManager::LockGui(bool lock)
 
 void LayoutTexturesManager::UpdateGui()
 {
-    bool enableTextureButtons = ((singlePackageMode && textureInstanceSelected) ||
-                                 !singlePackageMode) && textureSelected;
-    buttonReplace->setEnabled(enableTextureButtons);
-    buttonReplaceConvert->setEnabled(enableTextureButtons);
-    buttonExtractToDDS->setEnabled(enableTextureButtons);
-    buttonExtractToPNG->setEnabled(enableTextureButtons);
-    if (imageViewMode)
+    if (imageViewMode || imageViewAlphaMode)
     {
         if (singlePackageMode)
             rightView->setCurrentIndex(kRightWidgetList);
         else
             rightView->setCurrentIndex(kRightWidgetImage);
-        buttonViewImage->setEnabled(false);
-        buttonInfoSingle->setEnabled(textureSelected && !singlePackageMode);
-        buttonInfoAll->setEnabled(textureSelected && !singlePackageMode);
         if (gameType != MeType::ME1_TYPE)
             buttonPackageSingle->setEnabled(textureSelected && !singlePackageMode);
         buttonPackageMulti->setEnabled(textureSelected && singlePackageMode);
@@ -692,9 +690,6 @@ void LayoutTexturesManager::UpdateGui()
             rightView->setCurrentIndex(kRightWidgetList);
         else
             rightView->setCurrentIndex(kRightWidgetText);
-        buttonViewImage->setEnabled(textureSelected && !singlePackageMode);
-        buttonInfoSingle->setEnabled(textureSelected && !singleInfoMode && !singlePackageMode);
-        buttonInfoAll->setEnabled(textureSelected && singleInfoMode && !singlePackageMode);
         buttonPackageSingle->setEnabled(textureSelected && !singlePackageMode);
         buttonPackageMulti->setEnabled(textureSelected & singlePackageMode);
     }
@@ -730,7 +725,7 @@ void LayoutTexturesManager::ListLeftPackagesSelected(QListWidgetItem *current,
 void LayoutTexturesManager::UpdateRight(const QListWidgetItem *item)
 {
     auto viewTexture = item->data(Qt::UserRole).value<ViewTexture>();
-    if (imageViewMode)
+    if (imageViewMode || imageViewAlphaMode)
     {
         TextureMapPackageEntry nodeTexture;
         for (int index = 0; index < textures[viewTexture.indexInTextures].list.count(); index++)
@@ -766,9 +761,19 @@ void LayoutTexturesManager::UpdateRight(const QListWidgetItem *item)
         int width = texture.getTopMipmap().width;
         int height = texture.getTopMipmap().height;
         PixelFormat pixelFormat = Image::getPixelFormatType(texture.getProperties().getProperty("Format").valueName);
-        auto bitmap = Image::convertRawToARGB(data.ptr(), width, height, pixelFormat);
+        ByteBuffer bitmap;
+        QImage image;
+        if (imageViewMode)
+        {
+            bitmap = Image::convertRawToBGR(data.ptr(), width, height, pixelFormat);
+            image = QImage(bitmap.ptr(), width, height, width * 3, QImage::Format::Format_RGB888);
+        }
+        else
+        {
+            bitmap = Image::convertRawToARGB(data.ptr(), width, height, pixelFormat);
+            image = QImage(bitmap.ptr(), width, height, width * 4, QImage::Format::Format_ARGB32);
+        }
         data.Free();
-        QImage image(bitmap.ptr(), width, height, width * 4, QImage::Format::Format_ARGB32);
         auto pixmap = QPixmap::fromImage(image);
         labelImage->setPixmap(pixmap);
         bitmap.Free();
@@ -1106,6 +1111,24 @@ void LayoutTexturesManager::ViewImageSelected()
     {
         singleInfoMode = false;
         imageViewMode = true;
+        imageViewAlphaMode = false;
+        auto item = listMiddle->currentItem();
+        if (item != nullptr)
+            UpdateRight(item);
+        UpdateGui();
+    }
+}
+
+void LayoutTexturesManager::ViewImageAlphaSelected()
+{
+    if (!imageViewAlphaMode)
+    {
+        singleInfoMode = false;
+        imageViewMode = false;
+        imageViewAlphaMode = true;
+        auto item = listMiddle->currentItem();
+        if (item != nullptr)
+            UpdateRight(item);
         UpdateGui();
     }
 }
@@ -1114,6 +1137,7 @@ void LayoutTexturesManager::InfoSingleSelected()
 {
     singleInfoMode = true;
     imageViewMode = false;
+    imageViewAlphaMode = false;
     auto item = listMiddle->currentItem();
     if (item != nullptr)
         UpdateRight(item);
@@ -1124,6 +1148,7 @@ void LayoutTexturesManager::InfoAllSelected()
 {
     singleInfoMode = false;
     imageViewMode = false;
+    imageViewAlphaMode = false;
     auto item = listMiddle->currentItem();
     if (item != nullptr)
         UpdateRight(item);
@@ -1289,7 +1314,7 @@ void LayoutTexturesManager::SearchSelected()
 {
     bool ok;
     QString text = QInputDialog::getText(this, "Search texture",
-                                         "Please enter texture name or CRC (0xhhhhhhhh).\n\nYou can use * as wilcards.",
+                                         "Please enter texture name or CRC (0xhhhhhhhh).\n\nYou can use * as wilcards for texture name.",
                                          QLineEdit::Normal, "", &ok);
     if (!ok || text.length() == 0)
         return;

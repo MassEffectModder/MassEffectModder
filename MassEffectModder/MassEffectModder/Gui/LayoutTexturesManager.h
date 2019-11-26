@@ -72,12 +72,15 @@ public:
 private slots:
     void ListLeftPackagesSelected(QListWidgetItem *current, QListWidgetItem *previous);
     void ListMiddleTextureSelected(QListWidgetItem *current, QListWidgetItem *previous);
+    void ListMiddleContextMenu(const QPoint &pos);
     void ListRightSelected(QListWidgetItem *current, QListWidgetItem *previous);
+    void ListRightContextMenu(const QPoint &pos);
     void ReplaceSelected();
     void ReplaceConvertSelected();
     void ExtractDDSSelected();
     void ExtractPNGSelected();
     void ViewImageSelected();
+    void ViewImageAlphaSelected();
     void InfoSingleSelected();
     void InfoAllSelected();
     void PackageSingleSelected();
@@ -116,13 +119,6 @@ private:
     QPlainTextEdit *textRight;
     PixmapLabel    *labelImage;
     QSplitter      *splitter;
-    QPushButton    *buttonReplace;
-    QPushButton    *buttonReplaceConvert;
-    QPushButton    *buttonExtractToDDS;
-    QPushButton    *buttonExtractToPNG;
-    QPushButton    *buttonViewImage;
-    QPushButton    *buttonInfoSingle;
-    QPushButton    *buttonInfoAll;
     QPushButton    *buttonPackageSingle;
     QPushButton    *buttonPackageMulti;
     QPushButton    *buttonSearch;
@@ -131,6 +127,7 @@ private:
     bool           singlePackageMode{};
     bool           singleInfoMode{};
     bool           imageViewMode{};
+    bool           imageViewAlphaMode{};
     bool           textureSelected{};
     bool           packageSelected{};
     bool           textureInstanceSelected{};
