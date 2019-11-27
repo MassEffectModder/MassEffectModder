@@ -35,6 +35,12 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
     if (force)
         ClosePackagesList();
 
+    if (_path == "")
+    {
+        ClosePackagesList();
+        return;
+    }
+
     if (packageFiles.count() == 0)
     {
 #ifdef GUI
