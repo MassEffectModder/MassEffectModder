@@ -76,6 +76,7 @@
 #include <QStackedLayout>
 #include <QStackedWidget>
 #include <QStatusBar>
+#include <QStyleFactory>
 #include <QToolBar>
 #include <QVBoxLayout>
 #include <QWidget>

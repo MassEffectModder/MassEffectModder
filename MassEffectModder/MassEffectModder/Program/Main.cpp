@@ -44,6 +44,40 @@ int runQtApplication(int argc, char *argv[])
     QApplication::setApplicationName(APP_NAME);
     QApplication::setWindowIcon(QIcon(":/MEM.png"));
 
+#ifndef __APPLE__
+    QApplication::setStyle(QStyleFactory::create("Fusion"));
+    QPalette darkModePalette;
+
+    darkModePalette.setColor(QPalette::AlternateBase, QColor(50, 50, 50));
+    darkModePalette.setColor(QPalette::Base, QColor(30, 30, 30));
+    darkModePalette.setColor(QPalette::BrightText, Qt::white);
+    darkModePalette.setColor(QPalette::Button, QColor(0x57, 0x57, 0x57));
+    darkModePalette.setColor(QPalette::Disabled, QPalette::Button, QColor(64, 64, 64));
+    darkModePalette.setColor(QPalette::ButtonText, Qt::white);
+    darkModePalette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor(127, 127, 127));
+
+    darkModePalette.setColor(QPalette::PlaceholderText, QColor(50, 50, 50));
+    darkModePalette.setColor(QPalette::Text, Qt::white);
+    darkModePalette.setColor(QPalette::Disabled, QPalette::Text, QColor(127, 127, 127));
+
+    darkModePalette.setColor(QPalette::ToolTipBase, QColor(30, 30, 30));
+    darkModePalette.setColor(QPalette::ToolTipText, Qt::white);
+
+    darkModePalette.setColor(QPalette::Window, QColor(50, 50, 50));
+    darkModePalette.setColor(QPalette::WindowText, Qt::white);
+    darkModePalette.setColor(QPalette::Disabled, QPalette::WindowText, QColor(127, 127, 127));
+
+    darkModePalette.setColor(QPalette::Highlight, QColor(0, 75, 218));
+    darkModePalette.setColor(QPalette::Inactive, QPalette::Highlight, QColor(81, 81, 81));
+    darkModePalette.setColor(QPalette::HighlightedText, Qt::white);
+
+    darkModePalette.setColor(QPalette::Link, QColor(0, 75, 218));
+    darkModePalette.setColor(QPalette::LinkVisited, QColor(0, 75, 218));
+
+    QApplication::setPalette(darkModePalette);
+    application.setStyleSheet("QToolTip { color: #ffffff; background-color: #505050; border: 1px solid white; }");
+#endif
+
     QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
             "/MassEffectModder/Logs";
     QDir().mkpath(path);
