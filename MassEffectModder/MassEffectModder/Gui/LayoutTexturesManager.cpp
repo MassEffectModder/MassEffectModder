@@ -191,16 +191,29 @@ LayoutTexturesManager::LayoutTexturesManager(MainWindow *window, MeType type)
     shortcut = new QShortcut(QKeySequence("Ctrl+T"), this);
     connect(shortcut, SIGNAL(activated()), this, SLOT(ExtractPNGSelected()));
 
-    shortcut = new QShortcut(QKeySequence("Ctrl+1"), this);
+    bool french = QApplication::inputMethod()->locale().language() == QLocale::French;
+    if (french)
+        shortcut = new QShortcut(QKeySequence("1"), this);
+    else
+        shortcut = new QShortcut(QKeySequence("Ctrl+1"), this);
     connect(shortcut, SIGNAL(activated()), this, SLOT(ViewImageSelected()));
 
-    shortcut = new QShortcut(QKeySequence("Ctrl+2"), this);
+    if (french)
+        shortcut = new QShortcut(QKeySequence("2"), this);
+    else
+        shortcut = new QShortcut(QKeySequence("Ctrl+2"), this);
     connect(shortcut, SIGNAL(activated()), this, SLOT(ViewImageAlphaSelected()));
 
-    shortcut = new QShortcut(QKeySequence("Ctrl+3"), this);
+    if (french)
+        shortcut = new QShortcut(QKeySequence("3"), this);
+    else
+        shortcut = new QShortcut(QKeySequence("Ctrl+3"), this);
     connect(shortcut, SIGNAL(activated()), this, SLOT(InfoSingleSelected()));
 
-    shortcut = new QShortcut(QKeySequence("Ctrl+4"), this);
+    if (french)
+        shortcut = new QShortcut(QKeySequence("4"), this);
+    else
+        shortcut = new QShortcut(QKeySequence("Ctrl+4"), this);
     connect(shortcut, SIGNAL(activated()), this, SLOT(InfoAllSelected()));
 
     mainWindow->SetTitle(gameType, "Texture Manager");
