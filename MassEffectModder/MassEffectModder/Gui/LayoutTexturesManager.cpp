@@ -711,6 +711,8 @@ void LayoutTexturesManager::UpdateGui()
             rightView->setCurrentIndex(kRightWidgetImage);
         if (gameType != MeType::ME1_TYPE)
             buttonPackageSingle->setEnabled(textureSelected && !singlePackageMode);
+        else
+            buttonPackageSingle->setEnabled(false);
         buttonPackageMulti->setEnabled(textureSelected && singlePackageMode);
     }
     else
@@ -719,7 +721,10 @@ void LayoutTexturesManager::UpdateGui()
             rightView->setCurrentIndex(kRightWidgetList);
         else
             rightView->setCurrentIndex(kRightWidgetText);
-        buttonPackageSingle->setEnabled(textureSelected && !singlePackageMode);
+        if (gameType != MeType::ME1_TYPE)
+            buttonPackageSingle->setEnabled(textureSelected && !singlePackageMode);
+        else
+            buttonPackageSingle->setEnabled(false);
         buttonPackageMulti->setEnabled(textureSelected & singlePackageMode);
     }
 }
