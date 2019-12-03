@@ -809,6 +809,17 @@ void LayoutTexturesManager::UpdateRight(const QListWidgetItem *item)
     }
     else
     {
+        if (!singleInfoMode && textures[viewTexture.indexInTextures].list.count() > 50)
+        {
+            int answer = QMessageBox::question(this, "Texture Manager",
+                                  QString("Detected more than 50 instances of textures.") +
+                  "\n\nYou can continue or switch to single instance view.", "Continue", "Single mode");
+            if (answer != 0)
+            {
+                singleInfoMode = true;
+            }
+        }
+
         QString text;
         text += "Texture original CRC:  " +
                 QString().sprintf("0x%08X", textures[viewTexture.indexInTextures].crc) + "\n";
