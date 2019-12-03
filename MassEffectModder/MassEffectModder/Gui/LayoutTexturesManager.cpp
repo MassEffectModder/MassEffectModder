@@ -623,7 +623,7 @@ void LayoutTexturesManager::ListMiddleContextMenu(const QPoint &pos)
         subMenu->setEnabled(!imageViewMode);
         connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ViewImageSelected);
         menuViewMode->addAction(subMenu);
-        subMenu = new QAction("Preview (with alpha)", this);
+        subMenu = new QAction("Preview (alpha only)", this);
         subMenu->setCheckable(true);
         subMenu->setChecked(imageViewAlphaMode);
         subMenu->setEnabled(!imageViewAlphaMode);
@@ -791,17 +791,15 @@ void LayoutTexturesManager::UpdateRight(const QListWidgetItem *item)
         int height = texture.getTopMipmap().height;
         PixelFormat pixelFormat = Image::getPixelFormatType(texture.getProperties().getProperty("Format").valueName);
         ByteBuffer bitmap;
-        QImage image;
         if (imageViewMode)
         {
             bitmap = Image::convertRawToBGR(data.ptr(), width, height, pixelFormat);
-            image = QImage(bitmap.ptr(), width, height, width * 3, QImage::Format::Format_RGB888);
         }
         else
         {
-            bitmap = Image::convertRawToARGB(data.ptr(), width, height, pixelFormat);
-            image = QImage(bitmap.ptr(), width, height, width * 4, QImage::Format::Format_ARGB32);
+            bitmap = Image::convertRawToAlphaGreyscale(data.ptr(), width, height, pixelFormat);
         }
+        QImage image = QImage(bitmap.ptr(), width, height, width * 3, QImage::Format::Format_RGB888);
         data.Free();
         auto pixmap = QPixmap::fromImage(image);
         labelImage->setPixmap(pixmap);

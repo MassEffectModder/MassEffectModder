@@ -95,6 +95,7 @@ private:
     static ByteBuffer ARGBtoV8U8(const quint8 *src, int w, int h);
     static ByteBuffer G8ToARGB(const quint8 *src, int w, int h);
     static ByteBuffer ARGBtoG8(const quint8 *src, int w, int h);
+    static ByteBuffer ARGBtoAlphaGreyscale(const quint8 *src, int w, int h);
     static ByteBuffer downscaleARGB(const quint8 *src, int w, int h);
     static ByteBuffer downscaleRGB(const quint8 *src, int w, int h);
     static ByteBuffer convertToFormat(PixelFormat srcFormat, const quint8 *src, int w, int h,
@@ -115,6 +116,7 @@ public:
     static ByteBuffer convertRawToARGB(const quint8 *src, int w, int h, PixelFormat format, bool clearAlpha = false);
     static ByteBuffer convertRawToRGB(const quint8 *src, int w, int h, PixelFormat format);
     static ByteBuffer convertRawToBGR(const quint8 *src, int w, int h, PixelFormat format);
+    static ByteBuffer convertRawToAlphaGreyscale(const quint8 *src, int w, int h, PixelFormat format);
     static void saveToPng(const quint8 *src, int w, int h, PixelFormat format, const QString &filename);
     void correctMips(PixelFormat dstFormat, bool dxt1HasAlpha = false, quint8 dxt1Threshold = 128);
     static PixelFormat getPixelFormatType(const QString &format);
