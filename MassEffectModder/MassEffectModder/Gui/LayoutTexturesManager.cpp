@@ -348,7 +348,7 @@ void LayoutTexturesManager::Startup()
         if (!modded)
             modded = Misc::CheckForMarkers(&LayoutTexturesManager::PrepareTexturesCallback, mainWindow);
         mainWindow->statusBar()->clearMessage();
-        if (!modded)
+        if (modded)
         {
             QMessageBox::critical(this, "Texture Manager",
                                   QString("Detected game as already modded.") +
