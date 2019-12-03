@@ -32,7 +32,7 @@ class GameData
 private:
     QString _path;
 
-    void InternalInit(MeType type, ConfigIni &configIni, bool force);
+    void InternalInit(MeType type, ConfigIni &configIni);
     void ScanGameFiles(bool force, const QString &filterPath);
 
 public:

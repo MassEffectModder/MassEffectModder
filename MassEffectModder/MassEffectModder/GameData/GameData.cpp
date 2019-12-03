@@ -315,29 +315,29 @@ void GameData::Init(MeType type)
 
 void GameData::Init(MeType type, ConfigIni &configIni)
 {
-    InternalInit(type, configIni, false);
+    InternalInit(type, configIni);
     ScanGameFiles(false, "");
 }
 
 void GameData::Init(MeType type, ConfigIni &configIni, const QString &filterPath)
 {
-    InternalInit(type, configIni, false);
+    InternalInit(type, configIni);
     ScanGameFiles(false, filterPath);
 }
 
 void GameData::Init(MeType type, ConfigIni &configIni, bool force = false)
 {
-    InternalInit(type, configIni, force);
+    InternalInit(type, configIni);
     ScanGameFiles(force, "");
 }
 
-void GameData::InternalInit(MeType type, ConfigIni &configIni, bool force)
+void GameData::InternalInit(MeType type, ConfigIni &configIni)
 {
     gameType = type;
 
     QString key = QString("ME%1").arg(static_cast<int>(gameType));
     QString path = configIni.Read(key, "GameDataPath");
-    if (path.length() != 0 && !force)
+    if (path.length() != 0)
     {
         _path = QDir::cleanPath(path);
         if (QFile(GameExePath()).exists())
@@ -361,7 +361,7 @@ void GameData::InternalInit(MeType type, ConfigIni &configIni, bool force)
 
     QSettings settings(registryKey, QSettings::NativeFormat);
     path = settings.value(entry, "").toString();
-    if (path.length() != 0 && !force)
+    if (path.length() != 0)
     {
         _path = QDir::cleanPath(path);
         if (QFile(GameExePath()).exists())
