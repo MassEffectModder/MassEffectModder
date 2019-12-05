@@ -203,6 +203,51 @@ bool Misc::CheckForMarkers(ProgressCallback callback, void *callbackHandle)
     return true;
 }
 
+bool Misc::MarkersPresent(ProgressCallback callback, void *callbackHandle)
+{
+    QString path;
+    if (GameData::gameType == MeType::ME1_TYPE)
+        path = "/BioGame/CookedPC/testVolumeLight_VFX.upk";
+    else if (GameData::gameType == MeType::ME2_TYPE)
+        path = "/BioGame/CookedPC/BIOC_Materials.pcc";
+
+    QStringList packages;
+    for (int i = 0; i < g_GameData->packageFiles.count(); i++)
+    {
+        if (path.length() != 0 && g_GameData->packageFiles[i].compare(path, Qt::CaseInsensitive) == 0)
+            continue;
+        packages.push_back(g_GameData->packageFiles[i]);
+    }
+
+    int lastProgress = -1;
+    for (int i = 0; i < packages.count(); i++)
+    {
+#ifdef GUI
+        QApplication::processEvents();
+#endif
+        int newProgress = (i + 1) * 100 / packages.count();
+        if ((newProgress - lastProgress) >= 5)
+        {
+            lastProgress = newProgress;
+            if (callback)
+            {
+                callback(callbackHandle, newProgress, "Checking markers");
+            }
+        }
+
+        FileStream fs = FileStream(g_GameData->GamePath() + packages[i], FileMode::Open, FileAccess::ReadOnly);
+        fs.Seek(-MEMMarkerLenght, SeekOrigin::End);
+        QString marker;
+        fs.ReadStringASCII(marker, MEMMarkerLenght);
+        if (marker == QString(MEMendFileMarker))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void Misc::detectBrokenMod(QStringList &mods)
 {
     for (int l = 0; l < badMODSize; l++)

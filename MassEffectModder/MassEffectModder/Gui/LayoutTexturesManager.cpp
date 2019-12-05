@@ -346,7 +346,7 @@ void LayoutTexturesManager::Startup()
     {
         bool modded = Misc::detectMod(gameType);
         if (!modded)
-            modded = Misc::CheckForMarkers(&LayoutTexturesManager::PrepareTexturesCallback, mainWindow);
+            modded = Misc::MarkersPresent(&LayoutTexturesManager::PrepareTexturesCallback, mainWindow);
         mainWindow->statusBar()->clearMessage();
         if (modded)
         {

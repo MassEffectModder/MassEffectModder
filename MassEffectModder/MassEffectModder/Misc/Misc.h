@@ -113,6 +113,7 @@ public:
                            QString &outputDir);
     static bool extractTPF(QFileInfoList &list, QString &outputDir);
     static bool CheckForMarkers(ProgressCallback callback, void *callbackHandle);
+    static bool MarkersPresent(ProgressCallback callback, void *callbackHandle);
     static void AddMarkers(QStringList &pkgsToMarker,
                            ProgressCallback callback, void *callbackHandle);
     static bool ReportBadMods();
