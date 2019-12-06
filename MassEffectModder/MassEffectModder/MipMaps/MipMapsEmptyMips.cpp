@@ -258,9 +258,9 @@ void MipMaps::removeMipMapsPerPackage(int phase, QList<TextureMapEntry> &texture
                 for (int t = 0; t < texture.mipMapsList.count(); t++)
                 {
                     Texture::TextureMipMap mipmap = texture.mipMapsList[t];
-                    if (mipmap.storageType == Texture::StorageTypes::extLZO ||
-                        mipmap.storageType == Texture::StorageTypes::extZlib ||
-                        mipmap.storageType == Texture::StorageTypes::extUnc)
+                    if (mipmap.storageType == StorageTypes::extLZO ||
+                        mipmap.storageType == StorageTypes::extZlib ||
+                        mipmap.storageType == StorageTypes::extUnc)
                     {
                         mipmap.dataOffset = foundMasterTex.masterDataOffset[t];
                         texture.mipMapsList[t] = mipmap;

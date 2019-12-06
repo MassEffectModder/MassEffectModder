@@ -369,9 +369,9 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                     if (verify)
                         matched.crcs.push_back(texture.getCrcData(image->getMipMaps()[m]->getRefData()));
                     if (GameData::gameType == MeType::ME1_TYPE)
-                        mod.cacheCprMipmapsStorageType = Texture::StorageTypes::extLZO;
+                        mod.cacheCprMipmapsStorageType = StorageTypes::extLZO;
                     else
-                        mod.cacheCprMipmapsStorageType = Texture::StorageTypes::extZlib;
+                        mod.cacheCprMipmapsStorageType = StorageTypes::extZlib;
                     mod.cacheCprMipmapsDecompressedSize.push_back(image->getMipMaps()[m]->getRefData().size());
                     auto data = Texture::compressTexture(image->getMipMaps()[m]->getRefData(),
                                                         mod.cacheCprMipmapsStorageType, repack);
@@ -396,13 +396,13 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                 Texture::TextureMipMap mipmap;
                 if (texture.mipMapsList.count() != 1 && m < 6) // package mips for streaming
                 {
-                    mipmap.storageType = Texture::StorageTypes::pccUnc;
+                    mipmap.storageType = StorageTypes::pccUnc;
                 }
                 else if (pixelFormat == PixelFormat::G8 &&
                          textures[entryMap.texturesIndex].list.count() == 1 &&
                          !texture.HasExternalMips())
                 {
-                    mipmap.storageType = Texture::StorageTypes::pccUnc;
+                    mipmap.storageType = StorageTypes::pccUnc;
                     if (!texture.getProperties().exists("NeverStream"))
                         texture.getProperties().setBoolValue("NeverStream", true);
                 }
@@ -418,20 +418,20 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                         if (matched.linkToMaster == -1 ||
                             texture.mipMapsList.count() == 1)
                         {
-                            mipmap.storageType = Texture::StorageTypes::pccLZO;
+                            mipmap.storageType = StorageTypes::pccLZO;
                         }
                         else
                         {
-                            mipmap.storageType = Texture::StorageTypes::extLZO;
+                            mipmap.storageType = StorageTypes::extLZO;
                         }
                     }
                     else if (GameData::gameType == MeType::ME2_TYPE ||
                              GameData::gameType == MeType::ME3_TYPE)
                     {
                         if (texture.mipMapsList.count() == 1)
-                            mipmap.storageType = Texture::StorageTypes::pccUnc;
+                            mipmap.storageType = StorageTypes::pccUnc;
                         else
-                            mipmap.storageType = Texture::StorageTypes::extZlib;
+                            mipmap.storageType = StorageTypes::extZlib;
                     }
                 }
 
@@ -445,9 +445,9 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                 if (GameData::gameType == MeType::ME2_TYPE ||
                     GameData::gameType == MeType::ME3_TYPE)
                 {
-                    if ((mipmap.storageType == Texture::StorageTypes::extZlib ||
-                         mipmap.storageType == Texture::StorageTypes::extLZO ||
-                         mipmap.storageType == Texture::StorageTypes::extUnc) &&
+                    if ((mipmap.storageType == StorageTypes::extZlib ||
+                         mipmap.storageType == StorageTypes::extLZO ||
+                         mipmap.storageType == StorageTypes::extUnc) &&
                          mod.arcTexture.count() != 0)
                     {
                         if (mod.arcTexture[m].storageType != mipmap.storageType)
@@ -536,8 +536,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                             break;
                         }
 
-                        if (testMipmap.storageType == Texture::StorageTypes::extZlib ||
-                            testMipmap.storageType == Texture::StorageTypes::extLZO)
+                        if (testMipmap.storageType == StorageTypes::extZlib ||
+                            testMipmap.storageType == StorageTypes::extLZO)
                         {
                             Texture::TextureMipMap oldTestMipmap = texture.getMipmap(testMipmap.width, testMipmap.height);
                             if (mod.cacheCprMipmaps[mip].getRefData().size() > oldTestMipmap.compressedSize)
@@ -605,13 +605,13 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                 mipmap.uncompressedSize = mod.cacheCprMipmapsDecompressedSize[m];
                 if (GameData::gameType == MeType::ME1_TYPE)
                 {
-                    if (mipmap.storageType == Texture::StorageTypes::pccLZO ||
-                        mipmap.storageType == Texture::StorageTypes::pccZlib)
+                    if (mipmap.storageType == StorageTypes::pccLZO ||
+                        mipmap.storageType == StorageTypes::pccZlib)
                     {
                         mipmap.newData = mod.cacheCprMipmaps[m].getRefData();
                         mipmap.compressedSize = mipmap.newData.size();
                     }
-                    else if (mipmap.storageType == Texture::StorageTypes::pccUnc)
+                    else if (mipmap.storageType == StorageTypes::pccUnc)
                     {
                         mipmap.compressedSize = mipmap.uncompressedSize;
                         if (image)
@@ -628,8 +628,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                             mipmap.freeNewData = true;
                         }
                     }
-                    else if ((mipmap.storageType == Texture::StorageTypes::extLZO ||
-                              mipmap.storageType == Texture::StorageTypes::extZlib) && matched.linkToMaster != -1)
+                    else if ((mipmap.storageType == StorageTypes::extLZO ||
+                              mipmap.storageType == StorageTypes::extZlib) && matched.linkToMaster != -1)
                     {
                         auto mip = mod.masterTextures.find(matched.linkToMaster).value()[m];
                         mipmap.compressedSize = mip.compressedSize;
@@ -642,16 +642,16 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                 }
                 else
                 {
-                    if (mipmap.storageType == Texture::StorageTypes::extLZO ||
-                        mipmap.storageType == Texture::StorageTypes::extZlib ||
-                        mipmap.storageType == Texture::StorageTypes::pccLZO ||
-                        mipmap.storageType == Texture::StorageTypes::pccZlib)
+                    if (mipmap.storageType == StorageTypes::extLZO ||
+                        mipmap.storageType == StorageTypes::extZlib ||
+                        mipmap.storageType == StorageTypes::pccLZO ||
+                        mipmap.storageType == StorageTypes::pccZlib)
                     {
                         mipmap.newData = mod.cacheCprMipmaps[m].getRefData();
                         mipmap.compressedSize = mipmap.newData.size();
                     }
-                    else if (mipmap.storageType == Texture::StorageTypes::pccUnc ||
-                             mipmap.storageType == Texture::StorageTypes::extUnc)
+                    else if (mipmap.storageType == StorageTypes::pccUnc ||
+                             mipmap.storageType == StorageTypes::extUnc)
                     {
                         mipmap.compressedSize = mipmap.uncompressedSize;
                         if (image)
@@ -668,9 +668,9 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                             mipmap.freeNewData = true;
                         }
                     }
-                    if (mipmap.storageType == Texture::StorageTypes::extZlib ||
-                        mipmap.storageType == Texture::StorageTypes::extLZO ||
-                        mipmap.storageType == Texture::StorageTypes::extUnc)
+                    if (mipmap.storageType == StorageTypes::extZlib ||
+                        mipmap.storageType == StorageTypes::extLZO ||
+                        mipmap.storageType == StorageTypes::extUnc)
                     {
                         if (mod.arcTexture.count() == 0)
                         {
