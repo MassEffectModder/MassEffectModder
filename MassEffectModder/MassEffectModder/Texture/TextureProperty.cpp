@@ -66,7 +66,8 @@ void TextureProperty::getProperty(quint8 *data, int offset)
         if (texProperty.type == "IntProperty" ||
             texProperty.type == "StrProperty" ||
             texProperty.type == "FloatProperty" ||
-            texProperty.type == "NameProperty")
+            texProperty.type == "NameProperty" ||
+            texProperty.type == "ObjectProperty")
         {
         }
         else if (texProperty.type == "StructProperty")
@@ -132,7 +133,8 @@ void TextureProperty::fetchValue(int index)
     TexturePropertyEntry texProperty = texPropertyList[index];
     if (texProperty.fetched || texProperty.name == "None")
         return;
-    if (texProperty.type == "IntProperty")
+    if (texProperty.type == "IntProperty" ||
+        texProperty.type == "ObjectProperty")
     {
         texProperty.valueInt = *reinterpret_cast<qint32 *>(texProperty.valueRaw.ptr() + 0);
     }
