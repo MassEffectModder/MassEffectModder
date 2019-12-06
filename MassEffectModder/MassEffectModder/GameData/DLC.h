@@ -24,17 +24,19 @@
 
 #include <Helpers/Stream.h>
 
-#define SfarTag          0x53464152 // 'SFAR'
-#define SfarVersion      0x00010000
-#define LZMATag          0x6c7a6d61 // 'lzma'
-#define HeaderSize       0x20
-#define EntryHeaderSize  0x1e
-#define MaxBlockSize     0x00010000
-
 const quint8 FileListHash[] = { 0xb5, 0x50, 0x19, 0xcb, 0xf9, 0xd3, 0xda, 0x65, 0xd5, 0x5b, 0x32, 0x1c, 0x00, 0x19, 0x69, 0x7c };
 
 class ME3DLC
 {
+
+    enum DlcEnums {
+        SfarTag          = 0x53464152, // 'SFAR'
+        SfarVersion      = 0x00010000,
+        LZMATag          = 0x6c7a6d61, // 'lzma'
+        HeaderSize       = 0x20,
+        EntryHeaderSize  = 0x1e,
+        MaxBlockSize     = 0x00010000,
+    };
 
     struct FileEntry
     {

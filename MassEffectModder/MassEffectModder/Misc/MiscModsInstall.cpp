@@ -166,7 +166,7 @@ bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
                 entry.binaryModType = true;
                 entry.packagePath = pkgPath;
                 entry.exportId = exportId;
-                entry.binaryModData = MipMaps::decompressData(fs, size);
+                entry.binaryModData = Misc::decompressData(fs, size);
                 if (entry.binaryModData.size() == 0)
                 {
                     if (g_ipc)
@@ -202,7 +202,7 @@ bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
                                  QString::number(exportId) + ", package: " + pkgPath + "\n");
                     continue;
                 }
-                ByteBuffer dst = MipMaps::decompressData(fs, size);
+                ByteBuffer dst = Misc::decompressData(fs, size);
                 if (dst.size() == 0)
                 {
                     if (g_ipc)

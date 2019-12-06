@@ -117,21 +117,12 @@ struct MapPackagesToMod
 
 class MipMaps
 {
-    enum ChunkBlockEnums
-    {
-        SizeOfChunkBlock = 8,
-        SizeOfChunk = 8,
-        maxBlockSize = 0x20000, // 128KB
-    };
-
     void prepareListToRemove(QList<TextureMapEntry> &textures, QList<RemoveMipsEntry> &list, bool force);
 
 public:
 
     typedef void (*ProgressCallback)(void *handle, int progress, const QString &stage);
 
-    static bool compressData(ByteBuffer inputData, Stream &ouputStream);
-    static ByteBuffer decompressData(Stream &stream, long compressedSize);
     void extractTextureToPng(QString &outputFile, QString &packagePath, int exportID);
 
     void removeMipMaps(int phase, QList<TextureMapEntry> &textures, QStringList &pkgsToMarker,

@@ -51,7 +51,7 @@ public:
 
     enum PackageEnums
     {
-        packageTag = 0x9E2A83C1,
+        DataTag = 0x9E2A83C1,
         packageFileVersionME1 = 491,
         packageFileVersionME2 = 512,
         packageFileVersionME3 = 684,
@@ -97,8 +97,8 @@ public:
     {
         SizeOfChunkBlock = 8,
         SizeOfChunk = 16,
-        maxBlockSize = 0x20000, // 128KB
-        maxChunkSize = 0x100000, // 1MB
+        MaxBlockSize = 0x20000, // 128KB
+        MaxChunkSize = 0x100000, // 1MB
     };
 
     struct ChunkBlock
@@ -418,6 +418,10 @@ public:
     void loadGuids(Stream &input);
     void saveGuids(Stream &output);
     bool SaveToFile(bool forceCompressed = false, bool forceDecompressed = false, bool appendMarker = true);
+    static const ByteBuffer compressData(const ByteBuffer &inputData, StorageTypes type,
+                                         bool maxCompress = true);
+    static const ByteBuffer decompressData(Stream &stream, StorageTypes type,
+                                           int uncompressedSize, int compressedSize);
     void DisposeCache();
     void ReleaseChunks();
 };

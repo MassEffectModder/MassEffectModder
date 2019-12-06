@@ -814,7 +814,7 @@ end:
             std::unique_ptr<Stream> dst (new MemoryStream());
             if (mods[l].data.size() != 0)
             {
-                MipMaps::compressData(mods[l].data, *dst);
+                Misc::compressData(mods[l].data, *dst);
                 dst->SeekBegin();
                 fileMod.offset = outFs.Position();
                 fileMod.size = dst->Length();
@@ -1031,7 +1031,7 @@ bool Misc::extractMEM(MeType gameId, QFileInfoList &inputList, QString &outputDi
                 }
             }
 
-            ByteBuffer dst = MipMaps::decompressData(fs, size);
+            ByteBuffer dst = Misc::decompressData(fs, size);
             if (dst.size() == 0)
             {
                 if (g_ipc)
@@ -1280,4 +1280,136 @@ failed:
 
     PINFO("Extract TPF files completed.\n\n");
     return status;
+}
+
+bool Misc::compressData(ByteBuffer inputData, Stream &ouputStream)
+{
+    uint compressedSize = 0;
+    uint dataBlockLeft = inputData.size();
+    uint newNumBlocks = ((uint)inputData.size() + ModsDataEnums::MaxBlockSize - 1) / ModsDataEnums::MaxBlockSize;
+    QList<Package::ChunkBlock> blocks{};
+    {
+        MemoryStream inputStream = MemoryStream(inputData);
+        // skip blocks header and table - filled later
+        ouputStream.JumpTo(ModsDataEnums::SizeOfChunk + ModsDataEnums::SizeOfChunkBlock * newNumBlocks);
+
+        for (uint b = 0; b < newNumBlocks; b++)
+        {
+            Package::ChunkBlock block{};
+            block.uncomprSize = qMin((uint)ModsDataEnums::MaxBlockSize, dataBlockLeft);
+            dataBlockLeft -= block.uncomprSize;
+            block.uncompressedBuffer = new quint8[block.uncomprSize];
+            if (block.uncompressedBuffer == nullptr)
+                CRASH_MSG((QString("Out of memory! - amount: ") +
+                           QString::number(block.uncomprSize)).toStdString().c_str());
+            inputStream.ReadToBuffer(block.uncompressedBuffer, block.uncomprSize);
+            blocks.push_back(block);
+        }
+    }
+
+    bool failed = false;
+    #pragma omp parallel for
+    for (int b = 0; b < blocks.count(); b++)
+    {
+        Package::ChunkBlock block = blocks[b];
+        if (ZlibCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) == -100)
+            CRASH_MSG("Out of memory!");
+        if (block.comprSize == 0)
+        {
+            failed = true;
+        }
+        blocks[b] = block;
+    }
+
+    foreach (Package::ChunkBlock block, blocks)
+    {
+        if (!failed)
+        {
+            ouputStream.WriteFromBuffer(block.compressedBuffer, (int)block.comprSize);
+            compressedSize += block.comprSize;
+        }
+        delete[] block.uncompressedBuffer;
+        delete[] block.compressedBuffer;
+    }
+
+    if (failed)
+        return false;
+
+    ouputStream.SeekBegin();
+    ouputStream.WriteUInt32(compressedSize);
+    ouputStream.WriteInt32(inputData.size());
+    foreach (Package::ChunkBlock block, blocks)
+    {
+        ouputStream.WriteUInt32(block.comprSize);
+        ouputStream.WriteUInt32(block.uncomprSize);
+    }
+
+    return true;
+}
+
+ByteBuffer Misc::decompressData(Stream &stream, long compressedSize)
+{
+    uint compressedChunkSize = stream.ReadUInt32();
+    uint uncompressedChunkSize = stream.ReadUInt32();
+    auto data = ByteBuffer(uncompressedChunkSize);
+    uint blocksCount = (uncompressedChunkSize + ModsDataEnums::MaxBlockSize - 1) / ModsDataEnums::MaxBlockSize;
+    if ((compressedChunkSize + ModsDataEnums::SizeOfChunk + ModsDataEnums::SizeOfChunkBlock * blocksCount) != (uint)compressedSize)
+    {
+        return ByteBuffer{};
+    }
+
+    QList<Package::ChunkBlock> blocks{};
+    for (uint b = 0; b < blocksCount; b++)
+    {
+        Package::ChunkBlock block{};
+        block.comprSize = stream.ReadUInt32();
+        block.uncomprSize = stream.ReadUInt32();
+        blocks.push_back(block);
+    }
+
+    for (int b = 0; b < blocks.count(); b++)
+    {
+        Package::ChunkBlock block = blocks[b];
+        block.compressedBuffer = new quint8[block.comprSize];
+        if (block.compressedBuffer == nullptr)
+            CRASH_MSG((QString("Out of memory! - amount: ") +
+                       QString::number(block.comprSize)).toStdString().c_str());
+        stream.ReadToBuffer(block.compressedBuffer, block.comprSize);
+        block.uncompressedBuffer = new quint8[ModsDataEnums::MaxBlockSize * 2];
+        if (block.uncompressedBuffer == nullptr)
+            CRASH_MSG((QString("Out of memory! - amount: ") +
+                       QString::number(ModsDataEnums::MaxBlockSize * 2)).toStdString().c_str());
+        blocks[b] = block;
+    }
+
+    bool failed = false;
+    #pragma omp parallel for
+    for (int b = 0; b < blocks.count(); b++)
+    {
+        uint dstLen = ModsDataEnums::MaxBlockSize * 2;
+        Package::ChunkBlock block = blocks[b];
+        if (ZlibDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen) == -100)
+            CRASH_MSG("Out of memory!");
+        if (dstLen != block.uncomprSize)
+        {
+            failed = true;
+        }
+    }
+
+    int dstPos = 0;
+    foreach (Package::ChunkBlock block, blocks)
+    {
+        if (!failed)
+        {
+            memcpy(data.ptr() + dstPos, block.uncompressedBuffer, block.uncomprSize);
+            dstPos += block.uncomprSize;
+        }
+        delete[] block.uncompressedBuffer;
+        delete[] block.compressedBuffer;
+    }
+
+    if (failed)
+        return ByteBuffer{};
+
+    return data;
 }

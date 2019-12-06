@@ -55,6 +55,14 @@ struct BinaryMod
 class Misc
 {
 public:
+
+    enum ModsDataEnums
+    {
+        SizeOfChunkBlock = 8,
+        SizeOfChunk = 8,
+        MaxBlockSize = 0x20000, // 128KB
+    };
+
     typedef void (*ProgressCallback)(void *handle, int progress, const QString &stage);
 
 private:
@@ -154,6 +162,8 @@ public:
                                QStringList &mods, ProgressCallback callback,
                                void *callbackHandle);
     static void Repack(MeType gameId, ProgressCallback callback, void *callbackHandle);
+    static bool compressData(ByteBuffer inputData, Stream &ouputStream);
+    static ByteBuffer decompressData(Stream &stream, long compressedSize);
 };
 
 #endif

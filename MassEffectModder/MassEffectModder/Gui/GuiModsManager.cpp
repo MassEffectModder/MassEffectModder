@@ -453,7 +453,7 @@ void LayoutMain::CreateBinaryModSelected(MeType gameType)
     for (int i = 0; i < modFiles.count(); i++)
     {
         std::unique_ptr<Stream> dst (new MemoryStream());
-        MipMaps::compressData(modFiles[i].data, *dst);
+        Misc::compressData(modFiles[i].data, *dst);
         BinaryMod bmod = modFiles[i];
         bmod.offset = outFs.Position();
         bmod.size = dst->Length();

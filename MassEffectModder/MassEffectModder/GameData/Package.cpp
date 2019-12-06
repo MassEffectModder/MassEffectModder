@@ -114,7 +114,7 @@ int Package::Open(const QString &filename, bool headerOnly, bool fullLoad)
     }
 
     packageStream = new FileStream(filename, FileMode::Open, FileAccess::ReadOnly);
-    if (packageStream->ReadUInt32() != packageTag)
+    if (packageStream->ReadUInt32() != DataTag)
     {
         delete packageStream;
         packageStream = nullptr;
@@ -273,17 +273,17 @@ bool Package::getData(uint offset, uint length, Stream *outputStream, quint8 *ou
                 currentChunk = c;
                 packageStream->JumpTo(chunk.comprOffset);
                 uint blockTag = packageStream->ReadUInt32(); // block tag
-                if (blockTag != packageTag)
+                if (blockTag != DataTag)
                     CRASH();
                 uint blockSize = packageStream->ReadUInt32(); // max block size
-                if (blockSize != maxBlockSize)
+                if (blockSize != MaxBlockSize)
                     CRASH();
                 uint compressedChunkSize = packageStream->ReadUInt32(); // compressed chunk size
                 uint uncompressedChunkSize = packageStream->ReadUInt32();
                 if (uncompressedChunkSize != chunk.uncomprSize)
                     CRASH();
 
-                uint blocksCount = (uncompressedChunkSize + maxBlockSize - 1) / maxBlockSize;
+                uint blocksCount = (uncompressedChunkSize + MaxBlockSize - 1) / MaxBlockSize;
                 if ((compressedChunkSize + SizeOfChunk + SizeOfChunkBlock * blocksCount) != chunk.comprSize)
                     CRASH();
 
@@ -305,10 +305,10 @@ bool Package::getData(uint offset, uint length, Stream *outputStream, quint8 *ou
                         CRASH_MSG((QString("Out of memory! - amount: ") +
                                    QString::number(block.comprSize)).toStdString().c_str());
                     packageStream->ReadToBuffer(block.compressedBuffer, block.comprSize);
-                    block.uncompressedBuffer = new quint8[maxBlockSize * 2];
+                    block.uncompressedBuffer = new quint8[MaxBlockSize * 2];
                     if (block.uncompressedBuffer == nullptr)
                         CRASH_MSG((QString("Out of memory! - amount: ") +
-                                   QString::number(maxBlockSize * 2)).toStdString().c_str());
+                                   QString::number(MaxBlockSize * 2)).toStdString().c_str());
                     blocks.replace(b, block);
                 }
 
@@ -318,7 +318,7 @@ bool Package::getData(uint offset, uint length, Stream *outputStream, quint8 *ou
                     for (int b = 0; b < blocks.count(); b++)
                     {
                         const ChunkBlock& block = blocks[b];
-                        uint dstLen = maxBlockSize * 2;
+                        uint dstLen = MaxBlockSize * 2;
                         LzoDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen);
                         if (dstLen != block.uncomprSize)
                             failed = true;
@@ -330,7 +330,7 @@ bool Package::getData(uint offset, uint length, Stream *outputStream, quint8 *ou
                     for (int b = 0; b < blocks.count(); b++)
                     {
                         const ChunkBlock& block = blocks[b];
-                        uint dstLen = maxBlockSize * 2;
+                        uint dstLen = MaxBlockSize * 2;
                         if (ZlibDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen) == -100)
                             CRASH_MSG("Out of memory!");
                         if (dstLen != block.uncomprSize)
@@ -1082,7 +1082,7 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
                 dataSize = exportsEndOffset - exp.getDataOffset();
             else
                 dataSize = sortedExports[i + 1].ExportEntry::getDataOffset() - exp.getDataOffset();
-            if (chunk.uncomprSize + dataSize > maxChunkSize)
+            if (chunk.uncomprSize + dataSize > MaxChunkSize)
             {
                 uint offset = chunk.uncomprOffset + chunk.uncomprSize;
                 chunks.push_back(chunk);
@@ -1112,7 +1112,7 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
             chunk.comprSize = 0; // filled later
 
             uint dataBlockLeft = chunk.uncomprSize;
-            uint newNumBlocks = (chunk.uncomprSize + maxBlockSize - 1) / maxBlockSize;
+            uint newNumBlocks = (chunk.uncomprSize + MaxBlockSize - 1) / MaxBlockSize;
             // skip blocks header and table - filled later
             fs->Seek(SizeOfChunk + SizeOfChunkBlock * newNumBlocks, SeekOrigin::Current);
 
@@ -1121,7 +1121,7 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
             for (uint b = 0; b < newNumBlocks; b++)
             {
                 ChunkBlock block{};
-                block.uncomprSize = qMin((uint)maxBlockSize, dataBlockLeft);
+                block.uncomprSize = qMin((uint)MaxBlockSize, dataBlockLeft);
                 dataBlockLeft -= block.uncomprSize;
                 block.uncompressedBuffer = new quint8[block.uncomprSize];
                 if (block.uncompressedBuffer == nullptr)
@@ -1171,8 +1171,8 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
             fs->WriteUInt32(chunk.comprOffset);
             fs->WriteUInt32(chunk.comprSize + SizeOfChunk + SizeOfChunkBlock * chunk.blocks.count());
             fs->JumpTo(chunk.comprOffset); // jump to blocks header
-            fs->WriteUInt32(packageTag);
-            fs->WriteUInt32(maxBlockSize);
+            fs->WriteUInt32(DataTag);
+            fs->WriteUInt32(MaxBlockSize);
             fs->WriteUInt32(chunk.comprSize);
             fs->WriteUInt32(chunk.uncomprSize);
             for (int b = 0; b < chunk.blocks.count(); b++)
@@ -1210,6 +1210,179 @@ void Package::ReleaseChunks()
         }
     }
     chunks.clear();
+}
+
+const ByteBuffer Package::compressData(const ByteBuffer &inputData, StorageTypes type, bool maxCompress)
+{
+    MemoryStream ouputStream;
+    qint64 compressedSize = 0;
+    uint dataBlockLeft = inputData.size();
+    uint newNumBlocks = (inputData.size() + MaxBlockSize - 1) / MaxBlockSize;
+    QList<Package::ChunkBlock> blocks{};
+    {
+        auto inputStream = MemoryStream(inputData);
+        // skip blocks header and table - filled later
+        ouputStream.Seek(SizeOfChunk + SizeOfChunkBlock * newNumBlocks, SeekOrigin::Begin);
+
+        for (uint b = 0; b < newNumBlocks; b++)
+        {
+            Package::ChunkBlock block{};
+            block.uncomprSize = qMin((uint)MaxBlockSize, dataBlockLeft);
+            dataBlockLeft -= block.uncomprSize;
+            block.uncompressedBuffer = new quint8[block.uncomprSize];
+            if (block.uncompressedBuffer == nullptr)
+                CRASH_MSG((QString("Out of memory! - amount: ") +
+                           QString::number(block.uncomprSize)).toStdString().c_str());
+            inputStream.ReadToBuffer(block.uncompressedBuffer, block.uncomprSize);
+            blocks.push_back(block);
+        }
+    }
+
+    #pragma omp parallel for
+    for (int b = 0; b < blocks.count(); b++)
+    {
+        Package::ChunkBlock block = blocks[b];
+        if (type == StorageTypes::extLZO || type == StorageTypes::pccLZO)
+        {
+            if (LzoCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) == -100)
+                CRASH_MSG("Out of memory!");
+        }
+        else if (type == StorageTypes::extZlib || type == StorageTypes::pccZlib)
+        {
+            if (ZlibCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize,
+                             maxCompress ? 9 : 1) == -100)
+                CRASH_MSG("Out of memory!");
+        }
+        else
+            CRASH_MSG("Compression type not expected!");
+        if (block.comprSize == 0)
+            CRASH_MSG("Compression failed!");
+        blocks[b] = block;
+    };
+
+    for (int b = 0; b < blocks.count(); b++)
+    {
+        const Package::ChunkBlock& block = blocks[b];
+        ouputStream.WriteFromBuffer(block.compressedBuffer, block.comprSize);
+        compressedSize += block.comprSize;
+    }
+
+    ouputStream.SeekBegin();
+    ouputStream.WriteUInt32(DataTag);
+    ouputStream.WriteUInt32(MaxBlockSize);
+    ouputStream.WriteUInt32(compressedSize);
+    ouputStream.WriteInt32(inputData.size());
+    for (int b = 0; b < blocks.count(); b++)
+    {
+        const Package::ChunkBlock& block = blocks[b];
+        ouputStream.WriteUInt32(block.comprSize);
+        ouputStream.WriteUInt32(block.uncomprSize);
+        delete[] block.compressedBuffer;
+        delete[] block.uncompressedBuffer;
+    }
+
+    return ouputStream.ToArray();
+}
+
+const ByteBuffer Package::decompressData(Stream &stream, StorageTypes type,
+                                         int uncompressedSize, int compressedSize)
+{
+    auto data = ByteBuffer(uncompressedSize);
+    uint blockTag = stream.ReadUInt32();
+    if (blockTag != DataTag)
+    {
+        PERROR(QString("Data tag wrong!\n"));
+        return ByteBuffer();
+    }
+    uint blockSize = stream.ReadUInt32();
+    if (blockSize != MaxBlockSize)
+    {
+        PERROR(QString("Data block size is wrong!\n"));
+        return ByteBuffer();
+    }
+    uint compressedChunkSize = stream.ReadUInt32();
+    uint uncompressedChunkSize = stream.ReadUInt32();
+    if (uncompressedChunkSize != (uint)uncompressedSize)
+    {
+        PERROR(QString("Data uncompressed size diffrent than expected!\n"));
+        return ByteBuffer();
+    }
+
+    uint blocksCount = (uncompressedChunkSize + MaxBlockSize - 1) / MaxBlockSize;
+    if ((compressedChunkSize + SizeOfChunk + SizeOfChunkBlock * blocksCount) != (uint)compressedSize)
+    {
+        PERROR(QString("Data compressed size diffrent than expected!\n"));
+        return ByteBuffer();
+    }
+
+    QList<Package::ChunkBlock> blocks{};
+    for (uint b = 0; b < blocksCount; b++)
+    {
+        Package::ChunkBlock block{};
+        block.comprSize = stream.ReadUInt32();
+        block.uncomprSize = stream.ReadUInt32();
+        blocks.push_back(block);
+    }
+
+    for (int b = 0; b < blocks.count(); b++)
+    {
+        Package::ChunkBlock block = blocks[b];
+        block.compressedBuffer = new quint8[blocks[b].comprSize];
+        if (block.compressedBuffer == nullptr)
+            CRASH_MSG((QString("Out of memory! - amount: ") +
+                       QString::number(blocks[b].comprSize)).toStdString().c_str());
+        stream.ReadToBuffer(block.compressedBuffer, blocks[b].comprSize);
+        block.uncompressedBuffer = new quint8[MaxBlockSize * 2];
+        if (block.uncompressedBuffer == nullptr)
+            CRASH_MSG((QString("Out of memory! - amount: ") +
+                       QString::number(MaxBlockSize * 2)).toStdString().c_str());
+        blocks[b] = block;
+    }
+
+    bool errorFlag = false;
+    if (type == StorageTypes::extLZO || type == StorageTypes::pccLZO)
+    {
+        for (int b = 0; b < blocks.count(); b++)
+        {
+            uint dstLen = MaxBlockSize * 2;
+            Package::ChunkBlock block = blocks[b];
+            LzoDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen);
+            if (dstLen != block.uncomprSize)
+                errorFlag = true;
+        }
+    }
+    else if (type == StorageTypes::extZlib || type == StorageTypes::pccZlib)
+    {
+        #pragma omp parallel for
+        for (int b = 0; b < blocks.count(); b++)
+        {
+            uint dstLen = MaxBlockSize * 2;
+            Package::ChunkBlock block = blocks[b];
+            if (ZlibDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen) == -100)
+                CRASH_MSG("Out of memory!");
+            if (dstLen != block.uncomprSize)
+                errorFlag = true;
+        }
+    }
+    else
+        CRASH_MSG("Compression type not expected!");
+
+    if (errorFlag)
+    {
+        PERROR(QString("ERROR: Decompressed data size not expected!"));
+        return ByteBuffer();
+    }
+
+    int dstPos = 0;
+    for (int b = 0; b < blocks.count(); b++)
+    {
+        memcpy(data.ptr() + dstPos, blocks[b].uncompressedBuffer, blocks[b].uncomprSize);
+        dstPos += blocks[b].uncomprSize;
+        delete[] blocks[b].compressedBuffer;
+        delete[] blocks[b].uncompressedBuffer;
+    }
+
+    return data;
 }
 
 void Package::DisposeCache()

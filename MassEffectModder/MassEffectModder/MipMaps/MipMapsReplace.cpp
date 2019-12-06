@@ -306,7 +306,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                 {
                     FileStream fs = FileStream(mod.memPath, FileMode::Open, FileAccess::ReadOnly);
                     fs.JumpTo(mod.memEntryOffset);
-                    ByteBuffer data = decompressData(fs, mod.memEntrySize);
+                    ByteBuffer data = Misc::decompressData(fs, mod.memEntrySize);
                     if (data.size() == 0)
                     {
                         if (g_ipc)
@@ -373,7 +373,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                     else
                         mod.cacheCprMipmapsStorageType = StorageTypes::extZlib;
                     mod.cacheCprMipmapsDecompressedSize.push_back(image->getMipMaps()[m]->getRefData().size());
-                    auto data = Texture::compressTexture(image->getMipMaps()[m]->getRefData(),
+                    auto data = Package::compressData(image->getMipMaps()[m]->getRefData(),
                                                         mod.cacheCprMipmapsStorageType, repack);
                     mod.cacheCprMipmaps.push_back(MipMap(data, image->getMipMaps()[m]->getOrigWidth(),
                                                   image->getMipMaps()[m]->getOrigHeight(), mod.cachedPixelFormat, true));
@@ -621,7 +621,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                         else
                         {
                             MemoryStream stream(mod.cacheCprMipmaps[m].getRefData());
-                            auto mip = Texture::decompressTexture(stream, mod.cacheCprMipmapsStorageType,
+                            auto mip = Package::decompressData(stream, mod.cacheCprMipmapsStorageType,
                                                                  mipmap.uncompressedSize,
                                                                  mod.cacheCprMipmaps[m].getRefData().size());
                             mipmap.newData = mip;
@@ -661,7 +661,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                         else
                         {
                             MemoryStream stream(mod.cacheCprMipmaps[m].getRefData());
-                            auto mip = Texture::decompressTexture(stream, mod.cacheCprMipmapsStorageType,
+                            auto mip = Package::decompressData(stream, mod.cacheCprMipmapsStorageType,
                                                                  mipmap.uncompressedSize,
                                                                  mod.cacheCprMipmaps[m].getRefData().size());
                             mipmap.newData = mip;

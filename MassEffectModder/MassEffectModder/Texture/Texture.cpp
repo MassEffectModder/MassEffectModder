@@ -152,29 +152,6 @@ Texture::~Texture()
     }
 }
 
-const QString Texture::StorageTypeToString(StorageTypes type)
-{
-    switch (type)
-    {
-    case StorageTypes::pccUnc:
-        return "pccUnc";
-    case StorageTypes::pccLZO:
-        return "pccLZO";
-    case StorageTypes::pccZlib:
-        return "pccZlib";
-    case StorageTypes::extUnc:
-        return "extUnc";
-    case StorageTypes::extLZO:
-        return "extLZO";
-    case StorageTypes::extZlib:
-        return "extZlib";
-    case StorageTypes::empty:
-        return "empty";
-    default:
-        CRASH();
-    }
-}
-
 void Texture::replaceMipMaps(const QList<TextureMipMap> &newMipMaps)
 {
     for (int l = 0; l < mipMapsList.count(); l++)
@@ -209,178 +186,6 @@ void Texture::replaceMipMaps(const QList<TextureMipMap> &newMipMaps)
         }
         mipMapsList[l] = mipmap;
     }
-}
-
-const ByteBuffer Texture::compressTexture(const ByteBuffer &inputData, StorageTypes type, bool repack)
-{
-    MemoryStream ouputStream;
-    qint64 compressedSize = 0;
-    uint dataBlockLeft = inputData.size();
-    uint newNumBlocks = (inputData.size() + maxBlockSize - 1) / maxBlockSize;
-    QList<Package::ChunkBlock> blocks{};
-    {
-        auto inputStream = MemoryStream(inputData);
-        // skip blocks header and table - filled later
-        ouputStream.Seek(SizeOfChunk + SizeOfChunkBlock * newNumBlocks, SeekOrigin::Begin);
-
-        for (uint b = 0; b < newNumBlocks; b++)
-        {
-            Package::ChunkBlock block{};
-            block.uncomprSize = qMin((uint)maxBlockSize, dataBlockLeft);
-            dataBlockLeft -= block.uncomprSize;
-            block.uncompressedBuffer = new quint8[block.uncomprSize];
-            if (block.uncompressedBuffer == nullptr)
-                CRASH_MSG((QString("Out of memory! - amount: ") +
-                           QString::number(block.uncomprSize)).toStdString().c_str());
-            inputStream.ReadToBuffer(block.uncompressedBuffer, block.uncomprSize);
-            blocks.push_back(block);
-        }
-    }
-
-    #pragma omp parallel for
-    for (int b = 0; b < blocks.count(); b++)
-    {
-        Package::ChunkBlock block = blocks[b];
-        if (type == StorageTypes::extLZO || type == StorageTypes::pccLZO)
-        {
-            if (LzoCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) == -100)
-                CRASH_MSG("Out of memory!");
-        }
-        else if (type == StorageTypes::extZlib || type == StorageTypes::pccZlib)
-        {
-            if (ZlibCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize,
-                             repack ? 9 : 1) == -100)
-                CRASH_MSG("Out of memory!");
-        }
-        else
-            CRASH_MSG("Compression type not expected!");
-        if (block.comprSize == 0)
-            CRASH_MSG("Compression failed!");
-        blocks[b] = block;
-    };
-
-    for (int b = 0; b < blocks.count(); b++)
-    {
-        const Package::ChunkBlock& block = blocks[b];
-        ouputStream.WriteFromBuffer(block.compressedBuffer, block.comprSize);
-        compressedSize += block.comprSize;
-    }
-
-    ouputStream.SeekBegin();
-    ouputStream.WriteUInt32(textureTag);
-    ouputStream.WriteUInt32(maxBlockSize);
-    ouputStream.WriteUInt32(compressedSize);
-    ouputStream.WriteInt32(inputData.size());
-    for (int b = 0; b < blocks.count(); b++)
-    {
-        const Package::ChunkBlock& block = blocks[b];
-        ouputStream.WriteUInt32(block.comprSize);
-        ouputStream.WriteUInt32(block.uncomprSize);
-        delete[] block.compressedBuffer;
-        delete[] block.uncompressedBuffer;
-    }
-
-    return ouputStream.ToArray();
-}
-
-const ByteBuffer Texture::decompressTexture(Stream &stream, StorageTypes type, int uncompressedSize, int compressedSize)
-{
-    auto data = ByteBuffer(uncompressedSize);
-    uint blockTag = stream.ReadUInt32();
-    if (blockTag != textureTag)
-    {
-        PERROR(QString("Data texture tag wrong!\n"));
-        return ByteBuffer();
-    }
-    uint blockSize = stream.ReadUInt32();
-    if (blockSize != maxBlockSize)
-    {
-        PERROR(QString("Data texture block size is wrong!\n"));
-        return ByteBuffer();
-    }
-    uint compressedChunkSize = stream.ReadUInt32();
-    uint uncompressedChunkSize = stream.ReadUInt32();
-    if (uncompressedChunkSize != (uint)uncompressedSize)
-    {
-        PERROR(QString("Data texture uncompressed size diffrent than expected!\n"));
-        return ByteBuffer();
-    }
-
-    uint blocksCount = (uncompressedChunkSize + maxBlockSize - 1) / maxBlockSize;
-    if ((compressedChunkSize + SizeOfChunk + SizeOfChunkBlock * blocksCount) != (uint)compressedSize)
-    {
-        PERROR(QString("Data texture compressed size diffrent than expected!\n"));
-        return ByteBuffer();
-    }
-
-    QList<Package::ChunkBlock> blocks{};
-    for (uint b = 0; b < blocksCount; b++)
-    {
-        Package::ChunkBlock block{};
-        block.comprSize = stream.ReadUInt32();
-        block.uncomprSize = stream.ReadUInt32();
-        blocks.push_back(block);
-    }
-
-    for (int b = 0; b < blocks.count(); b++)
-    {
-        Package::ChunkBlock block = blocks[b];
-        block.compressedBuffer = new quint8[blocks[b].comprSize];
-        if (block.compressedBuffer == nullptr)
-            CRASH_MSG((QString("Out of memory! - amount: ") +
-                       QString::number(blocks[b].comprSize)).toStdString().c_str());
-        stream.ReadToBuffer(block.compressedBuffer, blocks[b].comprSize);
-        block.uncompressedBuffer = new quint8[maxBlockSize * 2];
-        if (block.uncompressedBuffer == nullptr)
-            CRASH_MSG((QString("Out of memory! - amount: ") +
-                       QString::number(maxBlockSize * 2)).toStdString().c_str());
-        blocks[b] = block;
-    }
-
-    bool errorFlag = false;
-    if (type == StorageTypes::extLZO || type == StorageTypes::pccLZO)
-    {
-        for (int b = 0; b < blocks.count(); b++)
-        {
-            uint dstLen = maxBlockSize * 2;
-            Package::ChunkBlock block = blocks[b];
-            LzoDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen);
-            if (dstLen != block.uncomprSize)
-                errorFlag = true;
-        }
-    }
-    else if (type == StorageTypes::extZlib || type == StorageTypes::pccZlib)
-    {
-        #pragma omp parallel for
-        for (int b = 0; b < blocks.count(); b++)
-        {
-            uint dstLen = maxBlockSize * 2;
-            Package::ChunkBlock block = blocks[b];
-            if (ZlibDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen) == -100)
-                CRASH_MSG("Out of memory!");
-            if (dstLen != block.uncomprSize)
-                errorFlag = true;
-        }
-    }
-    else
-        CRASH_MSG("Compression type not expected!");
-
-    if (errorFlag)
-    {
-        PERROR(QString("ERROR: Decompressed data size not expected!"));
-        return ByteBuffer();
-    }
-
-    int dstPos = 0;
-    for (int b = 0; b < blocks.count(); b++)
-    {
-        memcpy(data.ptr() + dstPos, blocks[b].uncompressedBuffer, blocks[b].uncomprSize);
-        dstPos += blocks[b].uncomprSize;
-        delete[] blocks[b].compressedBuffer;
-        delete[] blocks[b].uncompressedBuffer;
-    }
-
-    return data;
 }
 
 uint Texture::getCrcData(ByteBuffer data)
@@ -504,7 +309,7 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
     case StorageTypes::pccZlib:
         {
             textureData->JumpTo(mipmap.internalOffset);
-            mipMapData = decompressTexture(dynamic_cast<Stream &>(*textureData), mipmap.storageType, mipmap.uncompressedSize, mipmap.compressedSize);
+            mipMapData = Package::decompressData(dynamic_cast<Stream &>(*textureData), mipmap.storageType, mipmap.uncompressedSize, mipmap.compressedSize);
             if (mipMapData.ptr() == nullptr)
             {
                 PERROR(QString("\nPackage: ") + packagePath +
@@ -591,7 +396,7 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
             fs.JumpTo(mipmap.dataOffset);
             if (mipmap.storageType == StorageTypes::extLZO || mipmap.storageType == StorageTypes::extZlib)
             {
-                mipMapData = decompressTexture(dynamic_cast<Stream &>(fs), mipmap.storageType, mipmap.uncompressedSize, mipmap.compressedSize);
+                mipMapData = Package::decompressData(dynamic_cast<Stream &>(fs), mipmap.storageType, mipmap.uncompressedSize, mipmap.compressedSize);
                 if (mipMapData.ptr() == nullptr)
                 {
                     PERROR(QString("\nFile: ") + filename +

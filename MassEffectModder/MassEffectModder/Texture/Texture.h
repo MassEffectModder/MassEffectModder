@@ -31,14 +31,6 @@ class Texture
 {
 private:
 
-    enum TextureEnums
-    {
-        textureTag = 0x9E2A83C1,
-        maxBlockSize = 0x20000, // 128KB
-        SizeOfChunkBlock = 8,
-        SizeOfChunk = 16,
-    };
-
     MemoryStream *textureData = nullptr;
     ByteBuffer restOfData;
     QString packagePath;
@@ -68,10 +60,7 @@ public:
 
     Texture(Package &package, int exportId, const ByteBuffer &data, bool fixDim = true);
     ~Texture();
-    static const QString StorageTypeToString(StorageTypes type);
     void replaceMipMaps(const QList<TextureMipMap> &newMipMaps);
-    static const ByteBuffer compressTexture(const ByteBuffer &inputData, StorageTypes type, bool repack = true);
-    static const ByteBuffer decompressTexture(Stream &stream, StorageTypes type, int uncompressedSize, int compressedSize);
     TextureProperty& getProperties() { return *properties; }
     uint getCrcData(ByteBuffer data);
     uint getCrcMipmap(TextureMipMap &mipmap);
