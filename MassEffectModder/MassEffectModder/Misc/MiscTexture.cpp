@@ -92,8 +92,11 @@ uint Misc::GetCRCFromTextureMap(QList<TextureMapEntry> &textures, int exportId,
         {
             if (textures[k].list[t].path.length() == 0)
                 continue;
-            if (exportId == textures[k].list[t].exportID && path == textures[k].list[t].path)
+            if (exportId == textures[k].list[t].exportID &&
+                AsciiStringMatch(path, textures[k].list[t].path))
+            {
                 return textures[k].crc;
+            }
         }
     }
     return 0;

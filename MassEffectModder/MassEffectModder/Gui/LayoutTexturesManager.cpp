@@ -308,7 +308,16 @@ void LayoutTexturesManager::Startup()
         }
         for (int i = 0; i < packages.count(); i++)
         {
-            if (!g_GameData->packageFiles.contains(packages[i], Qt::CaseInsensitive))
+            bool found = false;
+            for (int f = 0; f < g_GameData->packageFiles.count(); f++)
+            {
+                if (AsciiStringMatchCaseIgnore(g_GameData->packageFiles[f], packages[i]))
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
             {
                 QMessageBox::critical(this, "Texture Manager",
                                       QString("Detected removal of game files since last game data scan.") +
@@ -322,7 +331,16 @@ void LayoutTexturesManager::Startup()
         }
         for (int i = 0; i < g_GameData->packageFiles.count(); i++)
         {
-            if (!packages.contains(g_GameData->packageFiles[i], Qt::CaseInsensitive))
+            bool found = false;
+            for (int f = 0; f < packages.count(); f++)
+            {
+                if (AsciiStringMatchCaseIgnore(packages[f], g_GameData->packageFiles[i]))
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
             {
                 QMessageBox::critical(this, "Texture Manager",
                                       QString("Detected additional game files not present in latest game data scan.") +
@@ -334,7 +352,7 @@ void LayoutTexturesManager::Startup()
                 return;
             }
         }
-        if (!TreeScan::loadTexturesMapFile(filename, textures))
+        if (!TreeScan::loadTexturesMapFile(filename, textures, true))
         {
             QMessageBox::critical(this, "Texture Manager", "Failed to load texture map.");
             buttonExit->setEnabled(true);
@@ -550,7 +568,7 @@ void LayoutTexturesManager::Startup()
         texture.name = textures[ViewPackageList[l].indexInTextures].name;
         texture.indexInTextures = ViewPackageList[l].indexInTextures;
         texture.indexInPackages = ViewPackageList[l].indexInPackages;
-        if (ViewPackageList[l].packageName != lastPackageName)
+        if (!AsciiStringMatch(ViewPackageList[l].packageName, lastPackageName))
         {
             QVector<ViewTexture> list;
             list.append(texture);

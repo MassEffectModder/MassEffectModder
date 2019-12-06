@@ -24,6 +24,11 @@
 #include <GameData/TOCFile.h>
 #include <GameData/GameData.h>
 
+static bool compareFullPath(const QString &e1, const QString &e2)
+{
+    return e1.compare(e2, Qt::CaseInsensitive) < 0;
+}
+
 void TOCBinFile::UpdateAllTOCBinFiles()
 {
     GenerateMainTocBinFile();
@@ -62,7 +67,7 @@ void TOCBinFile::GenerateMainTocBinFile()
             files.push_back(MoviesIterator.filePath().mid(pathLen + 1));
     }
 
-    std::sort(files.begin(), files.end(), comparePath);
+    std::sort(files.begin(), files.end(), compareFullPath);
 
     QList<FileEntry> filesList;
     for (int f = 0; f < files.count(); f++)
@@ -113,7 +118,7 @@ void TOCBinFile::GenerateDLCsTocBinFiles()
                 continue;
             }
 
-            std::sort(files.begin(), files.end(), comparePath);
+            std::sort(files.begin(), files.end(), compareFullPath);
 
             QList<FileEntry> filesList;
             for (int f = 0; f < files.count(); f++)
@@ -121,7 +126,7 @@ void TOCBinFile::GenerateDLCsTocBinFiles()
                 FileEntry file{};
                 if (!files[f].endsWith("pcconsoletoc.bin", Qt::CaseInsensitive))
                     file.size = QFileInfo(g_GameData->DLCData() + "/" + DLCDir + "/" + files[f]).size();
-                file.path = files[f].replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive);
+                file.path = files[f].replace(QChar('/'), QChar('\\'));
                 filesList.push_back(file);
             }
             QString tocFile = g_GameData->DLCData() + "/" + DLCDir + "/PCConsoleTOC.bin";

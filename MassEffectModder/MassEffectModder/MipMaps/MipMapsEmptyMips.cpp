@@ -49,7 +49,7 @@ void MipMaps::prepareListToRemove(QList<TextureMapEntry> &textures, QList<Remove
                 bool found = false;
                 for (int e = 0; e < list.count(); e++)
                 {
-                    if (list[e].pkgPath == textures[k].list[t].path)
+                    if (AsciiStringMatch(list[e].pkgPath, textures[k].list[t].path))
                     {
                         list[e].exportIDs.push_back(textures[k].list[t].exportID);
                         found = true;
@@ -94,7 +94,7 @@ void MipMaps::removeMipMaps(int phase, QList<TextureMapEntry> &textures, QString
             timer.restart();
         }
 #endif
-        if (path.length() != 0 && path.compare(list[i].pkgPath, Qt::CaseInsensitive) == 0)
+        if (path.length() != 0 && AsciiStringMatchCaseIgnore(path, list[i].pkgPath))
             continue;
 
         if (g_ipc)
@@ -208,7 +208,7 @@ void MipMaps::removeMipMapsPerPackage(int phase, QList<TextureMapEntry> &texture
                 for (int t = 0; t < textures[k].list.count(); t++)
                 {
                     if (textures[k].list[t].exportID == exportID &&
-                        textures[k].list[t].path.toLower() == pkgName)
+                        AsciiStringMatchCaseIgnore(textures[k].list[t].path, pkgName))
                     {
                         foundTextureEntry = k;
                         foundListEntry = t;

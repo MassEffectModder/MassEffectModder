@@ -156,7 +156,7 @@ bool Misc::CheckForMarkers(ProgressCallback callback, void *callbackHandle)
     QStringList packages;
     for (int i = 0; i < g_GameData->packageFiles.count(); i++)
     {
-        if (path.length() != 0 && g_GameData->packageFiles[i].compare(path, Qt::CaseInsensitive) == 0)
+        if (path.length() != 0 && AsciiStringMatchCaseIgnore(g_GameData->packageFiles[i], path))
             continue;
         packages.push_back(g_GameData->packageFiles[i]);
     }
@@ -164,9 +164,6 @@ bool Misc::CheckForMarkers(ProgressCallback callback, void *callbackHandle)
     int lastProgress = -1;
     for (int i = 0; i < packages.count(); i++)
     {
-#ifdef GUI
-        QApplication::processEvents();
-#endif
         int newProgress = (i + 1) * 100 / packages.count();
         if ((newProgress - lastProgress) >= 5)
         {
@@ -214,7 +211,7 @@ bool Misc::MarkersPresent(ProgressCallback callback, void *callbackHandle)
     QStringList packages;
     for (int i = 0; i < g_GameData->packageFiles.count(); i++)
     {
-        if (path.length() != 0 && g_GameData->packageFiles[i].compare(path, Qt::CaseInsensitive) == 0)
+        if (path.length() != 0 && AsciiStringMatchCaseIgnore(g_GameData->packageFiles[i], path))
             continue;
         packages.push_back(g_GameData->packageFiles[i]);
     }
@@ -222,9 +219,6 @@ bool Misc::MarkersPresent(ProgressCallback callback, void *callbackHandle)
     int lastProgress = -1;
     for (int i = 0; i < packages.count(); i++)
     {
-#ifdef GUI
-        QApplication::processEvents();
-#endif
         int newProgress = (i + 1) * 100 / packages.count();
         if ((newProgress - lastProgress) >= 5)
         {
@@ -261,7 +255,7 @@ void Misc::detectBrokenMod(QStringList &mods)
             bool found = false;
             for (int s = 0; s < mods.count(); s++)
             {
-                if (mods[s].compare(badMOD[l].modName) == 0)
+                if (AsciiStringMatch(mods[s], badMOD[l].modName))
                 {
                     found = true;
                     break;
@@ -351,9 +345,6 @@ void Misc::AddMarkers(QStringList &pkgsToMarker,
     int lastProgress = -1;
     for (int i = 0; i < pkgsToMarker.count(); i++)
     {
-#ifdef GUI
-        QApplication::processEvents();
-#endif
         int newProgress = (i + 1) * 100 / pkgsToMarker.count();
         if ((newProgress - lastProgress) >= 5)
         {
@@ -396,7 +387,7 @@ void Misc::detectMods(QStringList &mods)
             bool found = false;
             for (int s = 0; s < mods.count(); s++)
             {
-                if (mods[s].compare(modsEntries[l].modName) == 0)
+                if (AsciiStringMatch(mods[s], modsEntries[l].modName))
                 {
                     found = true;
                     break;

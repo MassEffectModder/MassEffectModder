@@ -112,7 +112,7 @@ bool Misc::checkGameFilesSub(FileStream *fs, QStringList &files, QList<MD5FileEn
                 bool found2 = false;
                 for (int s = 0; s < mods.count(); s++)
                 {
-                    if (mods[s].compare(modsEntries[p].modName) == 0)
+                    if (AsciiStringMatch(mods[s], modsEntries[p].modName))
                     {
                         found2 = true;
                         break;
@@ -145,7 +145,7 @@ bool Misc::checkGameFilesSub(FileStream *fs, QStringList &files, QList<MD5FileEn
                                       file, Resources::ComparePath());
         for (auto it = range.first; it != range.second; it++)
         {
-            if (it->path.compare(file, Qt::CaseSensitive) != 0)
+            if (!AsciiStringMatch(it->path, file))
                 break;
             if (generateMd5Entries)
             {

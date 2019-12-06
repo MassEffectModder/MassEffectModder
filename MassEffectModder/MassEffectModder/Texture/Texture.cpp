@@ -103,10 +103,10 @@ Texture::Texture(Package &package, int exportId, const ByteBuffer &data, bool fi
     textureData->ReadToBuffer(restOfData.ptr(), textureData->Length() - textureData->Position());
 
     packagePath = package.packagePath;
-    packageName = BaseNameWithoutExt(packagePath).toUpper();
+    packageName = BaseNameWithoutExt(packagePath).toLower();
     if (GameData::gameType == MeType::ME1_TYPE)
     {
-        QString baseName = package.resolvePackagePath(package.exportsTable[exportId].getLinkId()).split('.')[0].toUpper();
+        QString baseName = package.resolvePackagePath(package.exportsTable[exportId].getLinkId()).split('.')[0].toLower();
         bool found = false;
         for (int i = 0; i < mipMapsList.count(); i++)
         {

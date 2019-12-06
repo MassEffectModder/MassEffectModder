@@ -23,6 +23,7 @@
 #define RESOURCES_H
 
 #include <Helpers/ByteBuffer.h>
+#include <Helpers/MiscHelpers.h>
 
 struct MD5FileEntry
 {
@@ -30,9 +31,9 @@ struct MD5FileEntry
     quint8 md5[16];
     int size;
 
-    bool operator< ( const MD5FileEntry& e ) const
+    bool operator< (const MD5FileEntry &e) const
     {
-        return path.compare(e.path, Qt::CaseSensitive) < 0;
+        return AsciiStringCompare(path, e.path) < 0;
     }
 };
 
@@ -47,19 +48,19 @@ public:
 
     static bool SortComparePath(MD5FileEntry &e1, MD5FileEntry &e2)
     {
-        return e1.path.compare(e2.path, Qt::CaseSensitive) < 0;
+        return AsciiStringCompare(e1.path, e2.path) < 0;
     }
 
     struct ComparePath
     {
         bool operator() (const MD5FileEntry& e, const QString& key)
         {
-            return e.path.compare(key, Qt::CaseSensitive) < 0;
+            return AsciiStringCompare(e.path, key) < 0;
         }
 
         bool operator() (const QString& key, const MD5FileEntry& e)
         {
-            return e.path.compare(key, Qt::CaseSensitive) < 0;
+            return AsciiStringCompare(e.path, key) < 0;
         }
     };
 

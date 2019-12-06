@@ -27,7 +27,7 @@ MeType GameData::gameType = UNKNOWN_TYPE;
 
 bool comparePath(const QString &e1, const QString &e2)
 {
-    return e1.compare(e2, Qt::CaseInsensitive) < 0;
+    return AsciiStringCompareCaseIgnore(e1, e2) < 0;
 }
 
 void GameData::ScanGameFiles(bool force, const QString &filterPath)
@@ -62,6 +62,7 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
             iterator.next();
             files.append(iterator.filePath().mid(pathLen));
         }
+
         for (int f = 0; f < files.count(); f++)
         {
 #ifdef GUI
@@ -74,32 +75,43 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
             const QString& path = files[f];
             if (gameType == MeType::ME1_TYPE)
             {
-                if (path.endsWith("localshadercache-pc-d3d-sm3.upk", Qt::CaseInsensitive))
-                    continue;
-                if (path.endsWith("refshadercache-pc-d3d-sm3.upk", Qt::CaseInsensitive))
-                    continue;
-                if (path.compare("niebieska_pl.bik") == 0)
-                    FullScanGame = true;
-                if (path.endsWith(".bik", Qt::CaseInsensitive))
+                if (AsciiStringEndsWith(files[f], EXTENSION_BIK, EXTENSION_BIK_LEN))
+                {
                     bikFiles.push_back(path);
+                    continue;
+                }
+                if (AsciiStringEndsWith(files[f], SHADER1_PCC, SHADER1_PCC_LEN))
+                    continue;
+                if (AsciiStringEndsWith(files[f], SHADER2_PCC, SHADER2_PCC_LEN))
+                    continue;
             }
             else if (gameType == MeType::ME2_TYPE)
             {
-                if (path.endsWith(".afc", Qt::CaseInsensitive))
+                if (AsciiStringEndsWith(files[f], EXTENSION_AFC, EXTENSION_AFC_LEN))
+                {
                     afcFiles.push_back(path);
-                else if (path.endsWith(".tfc", Qt::CaseInsensitive))
+                    continue;
+                }
+                if (AsciiStringEndsWith(files[f], EXTENSION_TFC, EXTENSION_TFC_LEN))
+                {
                     tfcFiles.push_back(path);
+                    continue;
+                }
             }
             else if (gameType == MeType::ME3_TYPE)
             {
-                if (path.contains("guidcache", Qt::CaseInsensitive))
-                    continue;
-                if (path.endsWith("Coalesced.bin", Qt::CaseInsensitive))
-                    coalescedFiles.push_back(path);
-                else if (path.endsWith(".afc", Qt::CaseInsensitive))
+                if (AsciiStringEndsWith(files[f], EXTENSION_AFC, EXTENSION_AFC_LEN))
+                {
                     afcFiles.push_back(path);
-                else if (path.endsWith(".tfc", Qt::CaseInsensitive))
+                    continue;
+                }
+                if (AsciiStringEndsWith(files[f], EXTENSION_TFC, EXTENSION_TFC_LEN))
+                {
                     tfcFiles.push_back(path);
+                    continue;
+                }
+                if (AsciiStringEndsWith(files[f], GUIDCACHE_PCC, GUIDCACHE_PCC_LEN))
+                    continue;
             }
             mainFiles.push_back(path);
         };
@@ -115,8 +127,15 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
         }
         if (gameType == MeType::ME3_TYPE)
         {
+            QString binPath = MainData() + "/Coalesced.bin";
+            QString path = binPath.mid(pathLen);
+            if (QFile::exists(binPath))
+            {
+                coalescedFiles.push_back(path);
+            }
+
             QString patchPath = bioGamePath() + "/Patches/PCConsole/Patch_001.sfar";
-            QString path = patchPath.mid(pathLen);
+            path = patchPath.mid(pathLen);
             if (QFile::exists(patchPath))
             {
                 sfarFiles.push_back(path);
@@ -130,7 +149,7 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
             {
                 iterator.next();
                 QString path = iterator.filePath().mid(pathLen);
-                if (path.endsWith(".bik", Qt::CaseInsensitive))
+                if (AsciiStringEndsWith(path, EXTENSION_BIK, EXTENSION_BIK_LEN))
                 {
                     bikFiles.push_back(path);
                 }
@@ -158,14 +177,14 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
 #endif
                     iterator.next();
                     QString path = iterator.filePath().mid(pathLen);
-                    if (filterPath != "" && !path.contains(filterPath, Qt::CaseInsensitive))
+                    if (filterPath.length() != 0 && !path.contains(filterPath, Qt::CaseInsensitive))
                         continue;
                     if (gameType == MeType::ME3_TYPE)
                     {
-                        if (path.contains("guidcache", Qt::CaseInsensitive))
-                            continue;
-                        if (path.endsWith(".sfar", Qt::CaseInsensitive))
+                        if (!isValid && AsciiStringEndsWith(path, EXTENSION_SFAR, EXTENSION_SFAR_LEN))
                             isValid = true;
+                        if (AsciiBaseNameStringStartsWith(path, GUIDCACHE, GUIDCACHE_LEN))
+                            continue;
                     }
                     files.push_back(path);
                 }
@@ -175,16 +194,9 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
                     QDirIterator iterator2(DLCData() + "/" + DLCDir + "/Movies", QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
                     while (iterator2.hasNext())
                     {
-#ifdef GUI
-                        if (timer.elapsed() > 200)
-                        {
-                            QApplication::processEvents();
-                            timer.restart();
-                        }
-#endif
                         iterator2.next();
                         QString path = iterator2.filePath().mid(pathLen);
-                        if (path.endsWith(".bik", Qt::CaseInsensitive))
+                        if (AsciiStringEndsWith(path, EXTENSION_BIK, EXTENSION_BIK_LEN))
                         {
                             bikFiles.push_back(path);
                         }
@@ -192,52 +204,53 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
                     DLCFiles += files;
                 }
             }
+
+            if (gameType == MeType::ME2_TYPE)
+            {
+                for (int i = 0; i < DLCFiles.count(); i++)
+                {
+                    if (AsciiStringEndsWith(DLCFiles[i], EXTENSION_TFC, EXTENSION_TFC_LEN))
+                        tfcFiles.push_back(DLCFiles[i]);
+                    else if (AsciiStringEndsWith(DLCFiles[i], EXTENSION_AFC, EXTENSION_AFC_LEN))
+                        afcFiles.push_back(DLCFiles[i]);
+                }
+            }
+            else if (gameType == MeType::ME3_TYPE)
+            {
+                for (int i = 0; i < DLCFiles.count(); i++)
+                {
+                    if (AsciiStringEndsWith(DLCFiles[i], EXTENSION_TFC, EXTENSION_TFC_LEN))
+                        tfcFiles.push_back(DLCFiles[i]);
+                    else if (AsciiStringEndsWith(DLCFiles[i], EXTENSION_AFC, EXTENSION_AFC_LEN))
+                        afcFiles.push_back(DLCFiles[i]);
+                    else if (AsciiStringEndsWith(DLCFiles[i], EXTENSION_SFAR, EXTENSION_SFAR_LEN))
+                        sfarFiles.push_back(DLCFiles[i]);
+                }
+            }
         }
 
-        if (gameType == MeType::ME2_TYPE)
-        {
-            for (int i = 0; i < DLCFiles.count(); i++)
-            {
-                if (DLCFiles[i].endsWith(".tfc", Qt::CaseInsensitive))
-                    tfcFiles.push_back(DLCFiles[i]);
-                else if (DLCFiles[i].endsWith(".afc", Qt::CaseInsensitive))
-                    afcFiles.push_back(DLCFiles[i]);
-            }
-        }
-        else if (gameType == MeType::ME3_TYPE)
-        {
-            for (int i = 0; i < DLCFiles.count(); i++)
-            {
-                if (DLCFiles[i].endsWith(".tfc", Qt::CaseInsensitive))
-                    tfcFiles.push_back(DLCFiles[i]);
-                else if (DLCFiles[i].endsWith(".afc", Qt::CaseInsensitive))
-                    afcFiles.push_back(DLCFiles[i]);
-                else if (DLCFiles[i].endsWith(".sfar", Qt::CaseInsensitive))
-                    sfarFiles.push_back(DLCFiles[i]);
-            }
-        }
         std::sort(tfcFiles.begin(), tfcFiles.end(), comparePath);
 
         if (gameType == MeType::ME1_TYPE)
         {
             for (int i = 0; i < mainFiles.count(); i++)
             {
-                if (filterPath != "" && !mainFiles[i].contains(filterPath, Qt::CaseInsensitive))
+                if (filterPath.length() != 0 && !mainFiles[i].contains(filterPath, Qt::CaseInsensitive))
                     continue;
-                if (mainFiles[i].endsWith(".u", Qt::CaseInsensitive) ||
-                    mainFiles[i].endsWith(".upk", Qt::CaseInsensitive) ||
-                    mainFiles[i].endsWith(".sfm", Qt::CaseInsensitive))
+                if (AsciiStringEndsWith(mainFiles[i], EXTENSION_U, EXTENSION_U_LEN) ||
+                    AsciiStringEndsWith(mainFiles[i], EXTENSION_UPK, EXTENSION_UPK_LEN) ||
+                    AsciiStringEndsWith(mainFiles[i], EXTENSION_SFM, EXTENSION_SFM_LEN))
                 {
                     packageFiles += mainFiles[i];
                 }
             }
             for (int i = 0; i < DLCFiles.count(); i++)
             {
-                if (filterPath != "" && !DLCFiles[i].contains(filterPath, Qt::CaseInsensitive))
+                if (filterPath.length() != 0 && !DLCFiles[i].contains(filterPath, Qt::CaseInsensitive))
                     continue;
-                if (DLCFiles[i].endsWith(".u", Qt::CaseInsensitive) ||
-                    DLCFiles[i].endsWith(".upk", Qt::CaseInsensitive) ||
-                    DLCFiles[i].endsWith(".sfm", Qt::CaseInsensitive))
+                if (AsciiStringEndsWith(DLCFiles[i], EXTENSION_U, EXTENSION_U_LEN) ||
+                    AsciiStringEndsWith(DLCFiles[i], EXTENSION_UPK, EXTENSION_UPK_LEN) ||
+                    AsciiStringEndsWith(DLCFiles[i], EXTENSION_SFM, EXTENSION_SFM_LEN))
                 {
                     packageFiles += DLCFiles[i];
                 }
@@ -247,18 +260,18 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
         {
             for (int i = 0; i < mainFiles.count(); i++)
             {
-                if (filterPath != "" && !mainFiles[i].contains(filterPath, Qt::CaseInsensitive))
+                if (filterPath.length() != 0 && !mainFiles[i].contains(filterPath, Qt::CaseInsensitive))
                     continue;
-                if (mainFiles[i].endsWith(".pcc", Qt::CaseInsensitive))
+                if (AsciiStringEndsWith(mainFiles[i], EXTENSION_PCC, EXTENSION_PCC_LEN))
                 {
                     packageFiles += mainFiles[i];
                 }
             }
             for (int i = 0; i < DLCFiles.count(); i++)
             {
-                if (filterPath != "" && !DLCFiles[i].contains(filterPath, Qt::CaseInsensitive))
+                if (filterPath.length() != 0 && !DLCFiles[i].contains(filterPath, Qt::CaseInsensitive))
                     continue;
-                if (DLCFiles[i].endsWith(".pcc", Qt::CaseInsensitive))
+                if (AsciiStringEndsWith(DLCFiles[i], EXTENSION_PCC, EXTENSION_PCC_LEN))
                 {
                     packageFiles += DLCFiles[i];
                 }
@@ -271,37 +284,47 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
         {
             for (int i = 0; i < packageFiles.count(); i++)
             {
-                mapME1PackageUpperNames.insert(BaseNameWithoutExt(packageFiles[i]).toUpper(), i);
-                packageME1UpperNames += BaseNameWithoutExt(packageFiles[i]).toUpper();
+                mapME1PackageUpperNames.insert(BaseNameWithoutExt(packageFiles[i]).toLower(), i);
+                packageME1UpperNames += BaseNameWithoutExt(packageFiles[i]).toLower();
             }
             std::sort(packageME1UpperNames.begin(), packageME1UpperNames.end(), comparePath);
         }
 
-        if (gameType == MeType::ME1_TYPE && !FullScanGame)
+        if (gameType == MeType::ME1_TYPE)
         {
-            for (int i = 0; i < packageFiles.count(); i++)
+            if (QFile::exists(MainData() + "/Movies/niebieska_pl.bik"))
             {
-                QString path = packageFiles[i];
-                if (path.contains("_PLPC.", Qt::CaseInsensitive) ||
-                    path.contains("_CS.", Qt::CaseInsensitive) ||
-                    path.contains("_HU.", Qt::CaseInsensitive) ||
-                    path.contains("_RU.", Qt::CaseInsensitive) ||
-                    path.contains("_RA.", Qt::CaseInsensitive))
-                {
-                    FullScanGame = true;
-                    break;
-                }
+                FullScanGame = true;
             }
-            for (int i = 0; i < mainFiles.count(); i++)
+            else
             {
-                QString path = mainFiles[i];
-                if (path.contains("_DE.", Qt::CaseInsensitive) ||
-                    path.contains("_FR.", Qt::CaseInsensitive) ||
-                    path.contains("_IT.", Qt::CaseInsensitive) ||
-                    path.contains("_ES.", Qt::CaseInsensitive))
+                for (int i = 0; i < packageFiles.count(); i++)
                 {
-                    FullScanGame = true;
-                    break;
+                    QString path = packageFiles[i];
+                    if (AsciiBaseNameStringContains(path, LANG_PL, LANG_PL_LEN) ||
+                        AsciiBaseNameStringContains(path, LANG_CS, LANG_CS_LEN) ||
+                        AsciiBaseNameStringContains(path, LANG_HU, LANG_HU_LEN) ||
+                        AsciiBaseNameStringContains(path, LANG_RU, LANG_RU_LEN) ||
+                        AsciiBaseNameStringContains(path, LANG_RA, LANG_RA_LEN))
+                    {
+                        FullScanGame = true;
+                        break;
+                    }
+                }
+                if (!FullScanGame)
+                {
+                    for (int i = 0; i < mainFiles.count(); i++)
+                    {
+                        QString path = mainFiles[i];
+                        if (AsciiBaseNameStringContains(path, LANG_DE, LANG_DE_LEN) ||
+                            AsciiBaseNameStringContains(path, LANG_FR, LANG_FR_LEN) ||
+                            AsciiBaseNameStringContains(path, LANG_IT, LANG_IT_LEN) ||
+                            AsciiBaseNameStringContains(path, LANG_ES, LANG_ES_LEN))
+                        {
+                            FullScanGame = true;
+                            break;
+                        }
+                    }
                 }
             }
         }

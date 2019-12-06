@@ -828,7 +828,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
 
 static int comparePaths(const MapTexturesToMod &e1, const MapTexturesToMod &e2)
 {
-    int compResult = e1.packagePath.compare(e2.packagePath, Qt::CaseInsensitive);
+    int compResult = AsciiStringCompareCaseIgnore(e1.packagePath, e2.packagePath);
     if (compResult < 0)
         return -1;
     if (compResult > 0)
@@ -863,7 +863,7 @@ QString MipMaps::replaceModsFromList(QList<TextureMapEntry> &textures, QStringLi
             if ((mod.textureCrc != 0 && mod.textureCrc == modsToReplace[l].textureCrc) ||
                 (mod.binaryModType && modsToReplace[l].binaryModType &&
                 mod.exportId == modsToReplace[l].exportId &&
-                mod.packagePath.compare(modsToReplace[l].packagePath) == 0))
+                AsciiStringMatch(mod.packagePath, modsToReplace[l].packagePath)))
             {
                 modsToReplace.removeAt(l);
                 i--;
@@ -921,7 +921,7 @@ QString MipMaps::replaceModsFromList(QList<TextureMapEntry> &textures, QStringLi
         entry.texturesIndex = map[i].texturesIndex;
         entry.listIndex = map[i].listIndex;
         QString path = map[i].packagePath.toLower();
-        if (previousPath == path)
+        if (AsciiStringMatch(previousPath, path))
         {
             MapPackagesToMod mapEntry = mapPackages[packagesIndex];
             mapEntry.usage += modsToReplace[map[i].modIndex].memEntrySize;
@@ -953,7 +953,7 @@ QString MipMaps::replaceModsFromList(QList<TextureMapEntry> &textures, QStringLi
         entry.texturesIndex = mapSlaves[i].texturesIndex;
         entry.listIndex = mapSlaves[i].listIndex;
         QString path = mapSlaves[i].packagePath.toLower();
-        if (previousPath == path)
+        if (AsciiStringMatch(previousPath, path))
         {
             MapPackagesToMod mapEntry = mapPackages[packagesIndex];
             mapEntry.usage += modsToReplace[mapSlaves[i].modIndex].memEntrySize;
@@ -988,7 +988,8 @@ QString MipMaps::replaceModsFromList(QList<TextureMapEntry> &textures, QStringLi
                 {
                     for (int e = 0; e < mapPackages.count(); e++)
                     {
-                        if (!mapPackages[e].slave && mapPackages[e].packagePath == textures[k].list[t].path)
+                        if (!mapPackages[e].slave &&
+                            AsciiStringMatch(mapPackages[e].packagePath, textures[k].list[t].path))
                         {
                             mapPackages[e].removeMips.exportIDs.push_back(textures[k].list[t].exportID);
                             TextureMapPackageEntry f = textures[k].list[t];

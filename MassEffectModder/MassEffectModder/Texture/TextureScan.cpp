@@ -90,14 +90,14 @@ void TreeScan::loadTexturesMap(MeType gameId, Resources &resources, QList<Textur
             matched.numMips = fs.ReadByte();
             matched.path = pkgs[fs.ReadInt16()];
             matched.path.replace(QChar('\\'), QChar('/'));
-            matched.packageName = BaseNameWithoutExt(matched.path).toUpper();
+            matched.packageName = BaseNameWithoutExt(matched.path).toLower();
             texture.list.push_back(matched);
         }
         textures.push_back(texture);
     }
 }
 
-bool TreeScan::loadTexturesMapFile(QString &path, QList<TextureMapEntry> &textures)
+bool TreeScan::loadTexturesMapFile(QString &path, QList<TextureMapEntry> &textures, bool ignoreCheck)
 {
     if (!QFile(path).exists())
     {
@@ -166,61 +166,64 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<TextureMapEntry> &textur
         packages.push_back(pkgPath);
     }
 
-    for (int i = 0; i < packages.count(); i++)
+    if (!ignoreCheck)
     {
-        bool found = false;
-        for (int s = 0; s < g_GameData->packageFiles.count(); s++)
+        for (int i = 0; i < packages.count(); i++)
         {
-            if (g_GameData->packageFiles[s].compare(packages[i], Qt::CaseInsensitive) == 0)
+            bool found = false;
+            for (int s = 0; s < g_GameData->packageFiles.count(); s++)
             {
-                found = true;
-                break;
+                if (AsciiStringMatchCaseIgnore(g_GameData->packageFiles[s], packages[i]))
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                if (g_ipc)
+                {
+                    ConsoleWrite(QString("[IPC]ERROR_REMOVED_FILE ") + packages[i]);
+                    ConsoleSync();
+                }
+                else
+                {
+                    PERROR(QString("Removed file since last game data scan: ") + packages[i] + "\n");
+                }
+                foundRemoved = true;
             }
         }
-        if (!found)
-        {
-            if (g_ipc)
-            {
-                ConsoleWrite(QString("[IPC]ERROR_REMOVED_FILE ") + packages[i]);
-                ConsoleSync();
-            }
-            else
-            {
-                PERROR(QString("Removed file since last game data scan: ") + packages[i] + "\n");
-            }
-            foundRemoved = true;
-        }
-    }
-    if (!g_ipc && foundRemoved)
-        PERROR("Above files removed since last game data scan.\n");
+        if (!g_ipc && foundRemoved)
+            PERROR("Above files removed since last game data scan.\n");
 
-    for (int i = 0; i < g_GameData->packageFiles.count(); i++)
-    {
-        bool found = false;
-        for (int s = 0; s < packages.count(); s++)
+        for (int i = 0; i < g_GameData->packageFiles.count(); i++)
         {
-            if (packages[s].compare(g_GameData->packageFiles[i], Qt::CaseInsensitive) == 0)
+            bool found = false;
+            for (int s = 0; s < packages.count(); s++)
             {
-                found = true;
-                break;
+                if (AsciiStringMatchCaseIgnore(packages[s], g_GameData->packageFiles[i]))
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                if (g_ipc)
+                {
+                    ConsoleWrite(QString("[IPC]ERROR_ADDED_FILE ") + g_GameData->packageFiles[i]);
+                    ConsoleSync();
+                }
+                else
+                {
+                    PERROR(QString("File: ") + g_GameData->packageFiles[i] + "\n");
+                }
+                foundAdded = true;
             }
         }
-        if (!found)
-        {
-            if (g_ipc)
-            {
-                ConsoleWrite(QString("[IPC]ERROR_ADDED_FILE ") + g_GameData->packageFiles[i]);
-                ConsoleSync();
-            }
-            else
-            {
-                PERROR(QString("File: ") + g_GameData->packageFiles[i] + "\n");
-            }
-            foundAdded = true;
-        }
+        if (!g_ipc && foundAdded)
+            PERROR("Above files added since last game data scan.\n");
     }
-    if (!g_ipc && foundAdded)
-        PERROR("Above files added since last game data scan.\n");
 
     return !foundRemoved && !foundAdded;
 }
@@ -336,7 +339,7 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
             g_GameData->mapME1PackageUpperNames.clear();
             for (int i = 0; i < g_GameData->packageFiles.count(); i++)
             {
-                g_GameData->mapME1PackageUpperNames.insert(BaseNameWithoutExt(g_GameData->packageFiles[i]).toUpper(), i);
+                g_GameData->mapME1PackageUpperNames.insert(BaseNameWithoutExt(g_GameData->packageFiles[i]).toLower(), i);
             }
         }
     }
@@ -525,7 +528,7 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
                 {
                     TextureMapPackageEntry slaveTexture = textures[k].list[t];
                     QString basePkgName = slaveTexture.basePackageName;
-                    if (basePkgName == BaseNameWithoutExt(slaveTexture.path).toUpper())
+                    if (basePkgName == BaseNameWithoutExt(slaveTexture.path).toLower())
                         CRASH();
                     for (int j = 0; j < textures[k].list.count(); j++)
                     {
@@ -584,7 +587,7 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
                     {
                         TextureMapPackageEntry slaveTexture = textures[k].list[t];
                         QString basePkgName = slaveTexture.basePackageName;
-                        if (basePkgName == BaseNameWithoutExt(slaveTexture.path).toUpper())
+                        if (basePkgName == BaseNameWithoutExt(slaveTexture.path).toLower())
                             CRASH();
                         for (int j = 0; j < textures[k].list.count(); j++)
                         {
@@ -611,7 +614,7 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
             g_GameData->mapME1PackageUpperNames.clear();
             for (int i = 0; i < g_GameData->packageFiles.count(); i++)
             {
-                g_GameData->mapME1PackageUpperNames.insert(BaseNameWithoutExt(g_GameData->packageFiles[i]).toUpper(), i);
+                g_GameData->mapME1PackageUpperNames.insert(BaseNameWithoutExt(g_GameData->packageFiles[i]).toLower(), i);
             }
         }
     }

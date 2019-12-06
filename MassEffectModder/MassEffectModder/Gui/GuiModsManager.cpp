@@ -320,10 +320,12 @@ void LayoutMain::CreateBinaryModSelected(MeType gameType)
         Package modPkg;
         bool vanilla = false;
         bool found = false;
+        QString basename = BaseName(packagesList[i]);
         for (int v = 0; v < g_GameData->packageFiles.count(); v++)
         {
             QApplication::processEvents();
-            if (BaseName(packagesList[i]).compare(BaseName(g_GameData->packageFiles[v]), Qt::CaseInsensitive) == 0)
+            QString basename2 = BaseName(g_GameData->packageFiles[v]);
+            if (AsciiStringMatchCaseIgnore(basename, basename2))
             {
                 vanilla = true;
                 modPkg.Open(packagesList[i]);

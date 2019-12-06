@@ -96,7 +96,7 @@ int Misc::ParseLegacyMe3xScriptMod(QList<TextureMapEntry> &textures, QString &sc
                 textureName = textureName.toLower();
                 for (int i = 0; i < textures.count(); i++)
                 {
-                    if (textures[i].name.toLower() == textureName)
+                    if (AsciiStringMatchCaseIgnore(textures[i].name, textureName))
                     {
                         for (int l = 0; l < textures[i].list.count(); l++)
                         {
@@ -105,7 +105,7 @@ int Misc::ParseLegacyMe3xScriptMod(QList<TextureMapEntry> &textures, QString &sc
                             if (textures[i].list[l].exportID == exportId)
                             {
                                 QString pkg = textures[i].list[l].path.split(QChar('/')).last().split(QChar('.')).first().toLower();
-                                if (pkg == packageName)
+                                if (AsciiStringMatch(pkg, packageName))
                                 {
                                     return i;
                                 }
@@ -123,7 +123,7 @@ int Misc::ParseLegacyMe3xScriptMod(QList<TextureMapEntry> &textures, QString &sc
                         if (textures[i].list[l].exportID == exportId)
                         {
                             QString pkg = textures[i].list[l].path.split(QChar('/')).last().split(QChar('.')).first().toLower();
-                            if (pkg == packageName)
+                            if (AsciiStringMatch(pkg, packageName))
                             {
                                 return i;
                             }
