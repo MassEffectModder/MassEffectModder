@@ -888,7 +888,7 @@ void LayoutTexturesManager::UpdateRight(const QListWidgetItem *item)
             {
                 text += "  MipMap: " + QString::number(l) + ", " + QString::number(texture.mipMapsList[l].width) +
                         "x" + QString::number(texture.mipMapsList[l].height) + "\n";
-                text += "    StorageType: " + Texture::StorageTypeToString(texture.mipMapsList[l].storageType) + "\n";
+                text += "    StorageType: " + Package::StorageTypeToString(texture.mipMapsList[l].storageType) + "\n";
                 text += "    DataOffset:  " + QString::number((int)texture.mipMapsList[l].dataOffset) + "\n";
                 text += "    CompSize:    " + QString::number(texture.mipMapsList[l].compressedSize) + "\n";
                 text += "    UnCompSize:  " + QString::number(texture.mipMapsList[l].uncompressedSize) + "\n";

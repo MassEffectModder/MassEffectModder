@@ -479,6 +479,29 @@ bool Package::ReserveSpaceBeforeExportData(int space)
     return false;
 }
 
+const QString Package::StorageTypeToString(StorageTypes type)
+{
+    switch (type)
+    {
+    case StorageTypes::pccUnc:
+        return "pccUnc";
+    case StorageTypes::pccLZO:
+        return "pccLZO";
+    case StorageTypes::pccZlib:
+        return "pccZlib";
+    case StorageTypes::extUnc:
+        return "extUnc";
+    case StorageTypes::extLZO:
+        return "extLZO";
+    case StorageTypes::extZlib:
+        return "extZlib";
+    case StorageTypes::empty:
+        return "empty";
+    default:
+        CRASH();
+    }
+}
+
 int Package::getNameId(const QString &name)
 {
     for (int i = 0; i < namesTable.count(); i++)
