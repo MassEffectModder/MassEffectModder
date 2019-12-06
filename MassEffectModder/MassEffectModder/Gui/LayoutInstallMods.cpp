@@ -134,7 +134,11 @@ LayoutInstallModsManager::LayoutInstallModsManager(MainWindow *window, MeType ty
 
     auto verticalLayoutLogo = new QVBoxLayout();
     verticalLayoutLogo->setAlignment(Qt::AlignTop | Qt::AlignCenter);
+#if defined(__APPLE__)
     verticalLayoutLogo->addSpacing(12);
+#else
+    verticalLayoutLogo->addSpacing(9);
+#endif
     verticalLayoutLogo->addWidget(iconLogo);
 
     auto verticalLayoutMain = new QVBoxLayout(this);
