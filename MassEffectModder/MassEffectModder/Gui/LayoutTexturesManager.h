@@ -79,6 +79,7 @@ private slots:
     void ReplaceConvertSelected();
     void ExtractDDSSelected();
     void ExtractPNGSelected();
+    void ExtractBIKSelected();
     void ViewImageSelected();
     void ViewImageAlphaSelected();
     void InfoSingleSelected();

@@ -52,6 +52,7 @@ public:
         OneBitAlpha,
         GreyScale,
         Displacementmap,
+        Movie,
     };
 
     QList<TexturePropertyEntry> texPropertyList;

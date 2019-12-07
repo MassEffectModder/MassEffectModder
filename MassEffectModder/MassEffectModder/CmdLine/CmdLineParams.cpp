@@ -118,6 +118,8 @@ int ProcessArguments()
             cmd = CmdType::EXTRACT_ALL_DDS;
         else if (arg == "--extract-all-png")
             cmd = CmdType::EXTRACT_ALL_PNG;
+        else if (arg == "--extract-all-bik")
+            cmd = CmdType::EXTRACT_ALL_BIK;
         else if (arg == "--compact-dlc")
             cmd = CmdType::COMPACT_DLC;
         else if (arg == "--unpack-archive")
@@ -710,6 +712,28 @@ int ProcessArguments()
             break;
         }
         if (!tools.extractAllTextures(gameId, output, input, true, pccOnly, tfcOnly, mapCRC, tfcName))
+            errorCode = 1;
+        break;
+    case CmdType::EXTRACT_ALL_BIK:
+        if (gameId == MeType::UNKNOWN_TYPE)
+        {
+            PERROR("Wrong game id!\n");
+            errorCode = 1;
+            break;
+        }
+        if (output.length() == 0)
+        {
+            PERROR("Output param empty!\n");
+            errorCode = 1;
+            break;
+        }
+        if (input.length() != 0 && !QFile(input).exists())
+        {
+            PERROR("Input package doesn't exists! " + input + "\n");
+            errorCode = 1;
+            break;
+        }
+        if (!tools.extractAllTextures(gameId, output, input, false, pccOnly, tfcOnly, mapCRC, tfcName))
             errorCode = 1;
         break;
     case CmdType::COMPACT_DLC:

@@ -437,14 +437,17 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
                 qint64 prevPos = fs.Position();
                 fs.JumpTo(fileMod.offset);
                 fileMod.offset = outFs.Position();
-                if (fileMod.tag == FileTextureTag || fileMod.tag == FileTextureTag2)
+                if (fileMod.tag == FileTextureTag ||
+                    fileMod.tag == FileTextureTag2 ||
+                    fileMod.tag == FileMovieTextureTag)
                 {
                     QString str;
                     fs.ReadStringASCIINull(str);
                     outFs.WriteStringASCIINull(str);
                     outFs.WriteUInt32(fs.ReadUInt32());
                 }
-                else if (fileMod.tag == FileBinaryTag || fileMod.tag == FileXdeltaTag)
+                else if (fileMod.tag == FileBinaryTag ||
+                         fileMod.tag == FileXdeltaTag)
                 {
                     outFs.WriteInt32(fs.ReadInt32());
                     QString str;
@@ -804,6 +807,58 @@ end:
             mod.markConvert = entryMarkToConvert;
             mods.push_back(mod);
         }
+        else if (file.endsWith(".bik", Qt::CaseInsensitive))
+        {
+            BinaryMod mod{};
+            TextureMapEntry f;
+
+            uint crc = scanFilenameForCRC(file);
+            if (crc == 0)
+                continue;
+
+            f = FoundTextureInTheMap(textures, crc);
+            if (f.crc == 0)
+            {
+                PINFO(QString("Texture skipped. Texture ") + BaseName(file) +
+                             " is not present in your game setup.\n");
+                continue;
+            }
+
+            FileStream fs = FileStream(file, FileMode::Open);
+            quint32 tag = fs.ReadUInt32();
+            if (tag != 'BIKi')
+            {
+                PINFO(QString("File mod is not supported Bik movie: ") + BaseName(file) +
+                             ", skipping...\n");
+                continue;
+            }
+            fs.Skip(16);
+            int w = fs.ReadInt32();
+            int h = fs.ReadInt32();
+            if (w / h != f.width / f.height)
+            {
+                if (g_ipc)
+                {
+                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
+                    ConsoleSync();
+                }
+                else
+                {
+                    PINFO(QString("Skipping movie: ") + f.name + QString().sprintf("_0x%08X", f.crc) +
+                         " This texture has wrong aspect ratio, skipping...");
+                }
+                continue;
+            }
+            fs.SeekBegin();
+
+            mod.data = fs.ReadAllToBuffer();
+            mod.textureName = f.name;
+            mod.binaryModType = 0;
+            mod.movieTexture = true;
+            mod.textureCrc = crc;
+            mod.markConvert = false;
+            mods.push_back(mod);
+        }
 
         for (int l = 0; l < mods.count(); l++)
         {
@@ -867,6 +922,8 @@ end:
             {
                 if (mods[l].markConvert)
                     fileMod.tag = FileTextureTag2;
+                else if (mods[l].movieTexture)
+                    fileMod.tag = FileMovieTextureTag;
                 else
                     fileMod.tag = FileTextureTag;
                 fileMod.name = mods[l].textureName + QString().sprintf("_0x%08X", mods[l].textureCrc) + ".dds";
@@ -1000,12 +1057,15 @@ bool Misc::extractMEM(MeType gameId, QFileInfoList &inputList, QString &outputDi
             QString pkgPath;
             fs.JumpTo(modFiles[i].offset);
             size = modFiles[i].size;
-            if (modFiles[i].tag == FileTextureTag || modFiles[i].tag == FileTextureTag2)
+            if (modFiles[i].tag == FileTextureTag ||
+                modFiles[i].tag == FileTextureTag2 ||
+                modFiles[i].tag == FileMovieTextureTag)
             {
                 fs.ReadStringASCIINull(name);
                 crc = fs.ReadUInt32();
             }
-            else if (modFiles[i].tag == FileBinaryTag || modFiles[i].tag == FileXdeltaTag)
+            else if (modFiles[i].tag == FileBinaryTag ||
+                     modFiles[i].tag == FileXdeltaTag)
             {
                 name = modFiles[i].name;
                 exportId = fs.ReadInt32();
@@ -1044,7 +1104,9 @@ bool Misc::extractMEM(MeType gameId, QFileInfoList &inputList, QString &outputDi
                 return false;
             }
 
-            if (modFiles[i].tag == FileTextureTag || modFiles[i].tag == FileTextureTag2)
+            if (modFiles[i].tag == FileTextureTag ||
+                modFiles[i].tag == FileTextureTag2 ||
+                modFiles[i].tag == FileMovieTextureTag)
             {
                 int idx = name.indexOf("-hash");
                 if (idx != -1)
@@ -1055,12 +1117,15 @@ bool Misc::extractMEM(MeType gameId, QFileInfoList &inputList, QString &outputDi
                     filename += "-hash";
                 if (modFiles[i].tag == FileTextureTag)
                     filename += ".dds";
+                else if (modFiles[i].tag == FileMovieTextureTag)
+                    filename += ".bik";
                 else
                     filename += "-memconvert.dds";
                 FileStream output = FileStream(filename, FileMode::Create, FileAccess::ReadWrite);
                 output.WriteFromBuffer(dst);
             }
-            else if (modFiles[i].tag == FileBinaryTag || modFiles[i].tag == FileXdeltaTag)
+            else if (modFiles[i].tag == FileBinaryTag ||
+                     modFiles[i].tag == FileXdeltaTag)
             {
                 const QString& path = pkgPath;
                 QString newFilename;

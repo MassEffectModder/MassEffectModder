@@ -44,6 +44,7 @@ struct BinaryMod
     int exportId;
     ByteBuffer data;
     int binaryModType;
+    bool movieTexture;
     QString textureName;
     uint textureCrc;
     bool markConvert;

@@ -59,6 +59,7 @@ struct ModEntry
     bool markConvert;
     QList<MipMap> cacheCprMipmaps;
     Image *injectedTexture;
+    ByteBuffer injectedMovieTexture;
     StorageTypes cacheCprMipmapsStorageType;
     quint64 cacheSize;
     QList<int> cacheCprMipmapsDecompressedSize;
@@ -122,8 +123,6 @@ class MipMaps
 public:
 
     typedef void (*ProgressCallback)(void *handle, int progress, const QString &stage);
-
-    void extractTextureToPng(QString &outputFile, QString &packagePath, int exportID);
 
     void removeMipMaps(int phase, QList<TextureMapEntry> &textures, QStringList &pkgsToMarker,
                        QStringList &pkgsToRepack, bool repack, bool appendMarker, bool force,

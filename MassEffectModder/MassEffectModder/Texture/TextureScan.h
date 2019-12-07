@@ -40,6 +40,7 @@ struct TextureMapPackageEntry
     QList<uint> masterDataOffset;
     bool removeEmptyMips;
     int numMips;
+    bool movieTexture;
 };
 
 struct TextureMapEntry

@@ -24,6 +24,7 @@
 #include <Wrappers.h>
 #include <Texture/TextureScan.h>
 #include <Texture/Texture.h>
+#include <Texture/TextureMovie.h>
 #include <GameData/Package.h>
 #include <GameData/GameData.h>
 #include <GameData/TOCFile.h>
@@ -147,6 +148,11 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<TextureMapEntry> &textur
             TextureMapPackageEntry matched{};
             matched.exportID = fs.ReadInt32();
             matched.linkToMaster = fs.ReadInt32();
+            if (matched.linkToMaster == -2)
+            {
+                matched.linkToMaster = -1;
+                matched.movieTexture = true;
+            }
             len = fs.ReadInt32();
             fs.ReadStringASCII(matched.path, len);
             matched.path.replace(QChar('\\'), QChar('/'));
@@ -558,7 +564,7 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
             {
                 for (int w = 0; w < textures[k].list.count(); w++)
                 {
-                    if (textures[k].list[w].weakSlave)
+                    if (textures[k].list[w].weakSlave && !textures[k].list[w].movieTexture)
                     {
                         foundWeakSlave = true;
                         break;
@@ -671,7 +677,7 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
                 }
                 else
                 {
-                    mem.WriteInt32(m.linkToMaster);
+                    mem.WriteInt32(m.movieTexture ? -2 : m.linkToMaster);
                     mem.WriteInt32(m.path.length());
                     QString path = m.path;
                     mem.WriteStringASCII(path.replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive));
@@ -753,7 +759,8 @@ void TreeScan::FindTextures(MeType gameId, QList<TextureMapEntry> &textures, con
         if (id == package.nameIdTexture2D ||
             id == package.nameIdLightMapTexture2D ||
             id == package.nameIdShadowMapTexture2D ||
-            id == package.nameIdTextureFlipBook)
+            id == package.nameIdTextureFlipBook ||
+            id == package.nameIdTextureMovie)
         {
             ByteBuffer exportData = package.getExportData(i);
             if (exportData.ptr() == nullptr)
@@ -773,36 +780,57 @@ void TreeScan::FindTextures(MeType gameId, QList<TextureMapEntry> &textures, con
                 }
                 continue;
             }
-            Texture texture(package, i, exportData);
-            exportData.Free();
-            if (!texture.hasImageData())
-            {
-                continue;
-            }
 
-            const Texture::TextureMipMap& mipmap = texture.getTopMipmap();
-            QString name = exp.objectName;
-            TextureMapPackageEntry matchTexture;
+            TextureMovie *textureMovie = nullptr;
+            Texture *texture = nullptr;
+            uint crc;
+
+            TextureMapPackageEntry matchTexture{};
             matchTexture.exportID = i;
             matchTexture.path = packagePath;
-            matchTexture.packageName = texture.packageName;
-            matchTexture.removeEmptyMips = texture.hasEmptyMips();
-            matchTexture.numMips = texture.numNotEmptyMips();
-            matchTexture.linkToMaster = 0;
-            matchTexture.slave = false;
-            if (gameId == MeType::ME1_TYPE)
+
+            if (id == package.nameIdTextureMovie)
             {
-                matchTexture.basePackageName = texture.basePackageName;
-                matchTexture.slave = texture.slave;
-                matchTexture.weakSlave = texture.weakSlave;
-                matchTexture.linkToMaster = -1;
-                if (matchTexture.slave)
-                    matchTexture.mipmapOffset = mipmap.dataOffset;
-                else
-                    matchTexture.mipmapOffset = exp.getDataOffset() + texture.getProperties().propertyEndOffset + mipmap.internalOffset;
+                textureMovie = new TextureMovie(package, i, exportData);
+                exportData.Free();
+                if (!textureMovie->hasTextureData())
+                {
+                    delete textureMovie;
+                    continue;
+                }
+                if (gameId == MeType::ME1_TYPE)
+                    matchTexture.linkToMaster = -1;
+                matchTexture.movieTexture = true;
+                crc = textureMovie->getCrcData();
+            }
+            else
+            {
+                texture = new Texture(package, i, exportData);
+                exportData.Free();
+                if (!texture->hasImageData())
+                {
+                    delete texture;
+                    continue;
+                }
+
+                const Texture::TextureMipMap& mipmap = texture->getTopMipmap();
+                matchTexture.packageName = texture->packageName;
+                matchTexture.removeEmptyMips = texture->hasEmptyMips();
+                matchTexture.numMips = texture->numNotEmptyMips();
+                if (gameId == MeType::ME1_TYPE)
+                {
+                    matchTexture.basePackageName = texture->basePackageName;
+                    matchTexture.slave = texture->slave;
+                    matchTexture.weakSlave = texture->weakSlave;
+                    matchTexture.linkToMaster = -1;
+                    if (matchTexture.slave)
+                        matchTexture.mipmapOffset = mipmap.dataOffset;
+                    else
+                        matchTexture.mipmapOffset = exp.getDataOffset() + texture->getProperties().propertyEndOffset + mipmap.internalOffset;
+                }
+                crc = texture->getCrcTopMipmap();
             }
 
-            uint crc = texture.getCrcTopMipmap();
             if (crc == 0)
             {
                 if (g_ipc)
@@ -816,6 +844,8 @@ void TreeScan::FindTextures(MeType gameId, QList<TextureMapEntry> &textures, con
                     PERROR(QString("Error: Texture ") + exp.objectName + " is broken in package: " +
                                  packagePath +"\nExport Id: " + QString::number(i + 1) + "\nSkipping...\n");
                 }
+                delete textureMovie;
+                delete texture;
                 continue;
             }
 
@@ -838,7 +868,7 @@ void TreeScan::FindTextures(MeType gameId, QList<TextureMapEntry> &textures, con
                     for (int s = 0; s < foundTexName.list.count(); s++)
                     {
                         if (foundTexName.list[s].exportID == i &&
-                            foundTexName.list[s].path.compare(packagePathLower, Qt::CaseInsensitive) == 0)
+                            AsciiStringMatchCaseIgnore(foundTexName.list[s].path, packagePathLower))
                         {
                             found = true;
                             break;
@@ -846,6 +876,8 @@ void TreeScan::FindTextures(MeType gameId, QList<TextureMapEntry> &textures, con
                     }
                     if (found)
                     {
+                        delete textureMovie;
+                        delete texture;
                         continue;
                     }
                 }
@@ -864,7 +896,7 @@ void TreeScan::FindTextures(MeType gameId, QList<TextureMapEntry> &textures, con
                         for (int t = 0; t < textures[k].list.count(); t++)
                         {
                             if (textures[k].list[t].exportID == i &&
-                                textures[k].list[t].path.compare(packagePathLower, Qt::CaseInsensitive) == 0)
+                                AsciiStringMatchCaseIgnore(textures[k].list[t].path, packagePathLower))
                             {
                                 TextureMapPackageEntry f = textures[k].list[t];
                                 f.path = "";
@@ -879,38 +911,54 @@ void TreeScan::FindTextures(MeType gameId, QList<TextureMapEntry> &textures, con
                 }
                 TextureMapEntry foundTex;
                 foundTex.list.push_back(matchTexture);
-                foundTex.name = name;
+                foundTex.name = exp.objectName;
                 foundTex.crc = crc;
-                if (generateBuiltinMapFiles)
+
+                if (id == package.nameIdTextureMovie)
                 {
-                    foundTex.width = texture.getTopMipmap().width;
-                    foundTex.height = texture.getTopMipmap().height;
-                    foundTex.pixfmt = Image::getPixelFormatType(texture.getProperties().getProperty("Format").valueName);
-                    if (texture.getProperties().exists("CompressionSettings"))
+                    if (generateBuiltinMapFiles)
                     {
-                        QString cmp = texture.getProperties().getProperty("CompressionSettings").valueName;
-                        if (cmp == "TC_OneBitAlpha")
-                            foundTex.flags = TextureProperty::TextureTypes::OneBitAlpha;
-                        else if (cmp == "TC_Displacementmap")
-                            foundTex.flags = TextureProperty::TextureTypes::Displacementmap;
-                        else if (cmp == "TC_Grayscale")
-                            foundTex.flags = TextureProperty::TextureTypes::GreyScale;
-                        else if (cmp == "TC_Normalmap" ||
-                            cmp == "TC_NormalmapHQ" ||
-                            cmp == "TC_NormalmapAlpha" ||
-                            cmp == "TC_NormalmapUncompressed")
+                        foundTex.width = textureMovie->getProperties().getProperty("SizeX").valueInt;
+                        foundTex.height = textureMovie->getProperties().getProperty("SizeY").valueInt;
+                        foundTex.pixfmt = Image::getPixelFormatType(textureMovie->getProperties().getProperty("Format").valueName);
+                        foundTex.flags = TextureProperty::TextureTypes::Movie;
+                    }
+                    delete textureMovie;
+                }
+                else
+                {
+                    if (generateBuiltinMapFiles)
+                    {
+                        foundTex.width = texture->getTopMipmap().width;
+                        foundTex.height = texture->getTopMipmap().height;
+                        foundTex.pixfmt = Image::getPixelFormatType(texture->getProperties().getProperty("Format").valueName);
+                        if (texture->getProperties().exists("CompressionSettings"))
                         {
-                            foundTex.flags = TextureProperty::TextureTypes::Normalmap;
+                            QString cmp = texture->getProperties().getProperty("CompressionSettings").valueName;
+                            if (cmp == "TC_OneBitAlpha")
+                                foundTex.flags = TextureProperty::TextureTypes::OneBitAlpha;
+                            else if (cmp == "TC_Displacementmap")
+                                foundTex.flags = TextureProperty::TextureTypes::Displacementmap;
+                            else if (cmp == "TC_Grayscale")
+                                foundTex.flags = TextureProperty::TextureTypes::GreyScale;
+                            else if (cmp == "TC_Normalmap" ||
+                                cmp == "TC_NormalmapHQ" ||
+                                cmp == "TC_NormalmapAlpha" ||
+                                cmp == "TC_NormalmapUncompressed")
+                            {
+                                foundTex.flags = TextureProperty::TextureTypes::Normalmap;
+                            }
+                            else
+                            {
+                                CRASH();
+                            }
                         }
                         else
                         {
-                            CRASH();
+                            foundTex.flags = TextureProperty::TextureTypes::Normal;
                         }
                     }
-                    else
-                    {
-                        foundTex.flags = TextureProperty::TextureTypes::Normal;
-                    }
+                    delete texture;
                 }
                 textures.push_back(foundTex);
             }

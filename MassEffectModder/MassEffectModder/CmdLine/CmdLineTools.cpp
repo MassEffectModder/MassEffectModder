@@ -32,6 +32,7 @@
 #include <Resources/Resources.h>
 #include <Wrappers.h>
 #include <Texture/Texture.h>
+#include <Texture/TextureMovie.h>
 #include <Texture/TextureScan.h>
 #include <Types/MemTypes.h>
 
@@ -145,6 +146,7 @@ bool CmdLineTools::ConvertToMEM(MeType gameId, QString &inputDir, QString &memFi
     list2 += QDir(inputDir, "*.png", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
     list2 += QDir(inputDir, "*.bmp", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
     list2 += QDir(inputDir, "*.tga", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
+    list2 += QDir(inputDir, "*.bik", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
     std::sort(list2.begin(), list2.end(), Misc::compareFileInfoPath);
     list.append(list2);
 
@@ -627,7 +629,8 @@ bool CmdLineTools::RepackTFCInDLC(MeType gameId, QString &dlcName, bool pullText
             if (id != package.nameIdTexture2D &&
                 id != package.nameIdLightMapTexture2D &&
                 id != package.nameIdShadowMapTexture2D &&
-                id != package.nameIdTextureFlipBook)
+                id != package.nameIdTextureFlipBook &&
+                id != package.nameIdTextureMovie)
             {
                 continue;
             }
@@ -649,80 +652,25 @@ bool CmdLineTools::RepackTFCInDLC(MeType gameId, QString &dlcName, bool pullText
                 }
                 continue;
             }
-            Texture texture(package, e, exportData);
-            exportData.Free();
-            if (!texture.hasImageData())
+            if (id == package.nameIdTextureMovie)
             {
-                continue;
-            }
-
-            texture.removeEmptyMips();
-
-            if (!texture.getProperties().exists("LODGroup"))
-                texture.getProperties().setByteValue("LODGroup", "TEXTUREGROUP_Character", "TextureGroup", 1025);
-
-            if (texture.numNotEmptyMips() > 6 &&
-                !texture.HasExternalMips() &&
-                !texture.getProperties().exists("NeverStream"))
-            {
-                PINFO(QString("Adding missing property \"NeverStream\" for ") +
-                              package.exportsTable[e].objectName + ", export id: " +
-                              QString::number(e + 1) + "\n");
-                texture.getProperties().setBoolValue("NeverStream", true);
-            }
-
-            bool compactTFC = false;
-            if (texture.getProperties().exists("TextureFileCacheName"))
-            {
-                compactTFC = true;
-                QString archive = texture.getProperties().getProperty("TextureFileCacheName").valueName;
-                if (archive != "Textures_" + dlcName && !pullTextures)
-                    compactTFC = false;
-            }
-
-            auto mipmaps = QList<Texture::TextureMipMap>();
-            for (int m = 0; m < texture.mipMapsList.count(); m++)
-            {
-                auto mipmap = texture.mipMapsList[m];
-                auto data = texture.getMipMapDataByIndex(m);
-
-                if (compactTFC && !compressed &&
-                   (mipmap.storageType == Texture::StorageTypes::extZlib ||
-                    mipmap.storageType == Texture::StorageTypes::extLZO))
+                TextureMovie textureMovie(package, e, exportData);
+                exportData.Free();
+                if (!textureMovie.hasTextureData())
                 {
-                    mipmap.storageType = Texture::StorageTypes::extUnc;
-                }
-                if (compactTFC && compressed &&
-                    mipmap.storageType == Texture::StorageTypes::extUnc)
-                {
-                    mipmap.storageType = Texture::StorageTypes::extZlib;
-                }
-                if (mipmap.storageType == Texture::StorageTypes::pccZlib ||
-                    mipmap.storageType == Texture::StorageTypes::pccLZO)
-                {
-                    mipmap.storageType = Texture::StorageTypes::pccUnc;
+                    continue;
                 }
 
-                if ((compactTFC && (mipmap.storageType == Texture::StorageTypes::extZlib ||
-                                    mipmap.storageType == Texture::StorageTypes::extLZO)) ||
-                   (mipmap.storageType == Texture::StorageTypes::pccZlib ||
-                    mipmap.storageType == Texture::StorageTypes::pccLZO))
+                bool compactTFC = false;
+                if (textureMovie.getProperties().exists("TextureFileCacheName"))
                 {
-                    mipmap.newData = Texture::compressTexture(data, mipmap.storageType, true);
-                    mipmap.compressedSize = mipmap.newData.size();
-                    mipmap.freeNewData = true;
+                    compactTFC = true;
+                    QString archive = textureMovie.getProperties().getProperty("TextureFileCacheName").valueName;
+                    if (archive != "Textures_" + dlcName && !pullTextures)
+                        compactTFC = false;
                 }
-                if ((compactTFC && mipmap.storageType == Texture::StorageTypes::extUnc) ||
-                    mipmap.storageType == Texture::StorageTypes::pccUnc)
-                {
-                    mipmap.compressedSize = mipmap.uncompressedSize;
-                    mipmap.newData = ByteBuffer(data.ptr(), data.size());
-                    mipmap.freeNewData = true;
-                }
-                if (compactTFC &&
-                   (mipmap.storageType == Texture::StorageTypes::extZlib ||
-                    mipmap.storageType == Texture::StorageTypes::extLZO ||
-                    mipmap.storageType == Texture::StorageTypes::extUnc))
+
+                if (compactTFC && textureMovie.getStorageType() == StorageTypes::extUnc)
                 {
                     if (!QFile(DLCArchiveFileNew).exists())
                     {
@@ -731,46 +679,154 @@ bool CmdLineTools::RepackTFCInDLC(MeType gameId, QString &dlcName, bool pullText
                     }
                     FileStream fs = FileStream(DLCArchiveFileNew, FileMode::Open, FileAccess::ReadWrite);
                     fs.SeekEnd();
-                    mipmap.dataOffset = (uint)fs.Position();
-                    fs.WriteFromBuffer(mipmap.newData);
+                    auto data = textureMovie.getData();
+                    textureMovie.replaceMovieData(data, fs.Position());
+                    fs.WriteFromBuffer(data);
+                    data.Free();
+
+                    ByteBuffer bufferProperties = textureMovie.getProperties().toArray();
+                    {
+                        MemoryStream newData;
+                        newData.WriteFromBuffer(bufferProperties);
+                        ByteBuffer bufferTextureData = textureMovie.toArray();
+                        newData.WriteFromBuffer(bufferTextureData);
+                        bufferTextureData.Free();
+                        ByteBuffer bufferTexture = newData.ToArray();
+                        package.setExportData(e, bufferTexture);
+                        bufferTexture.Free();
+                    }
+                    bufferProperties.Free();
+
+                    textureMovie.getProperties().setNameValue("TextureFileCacheName", "Textures_" + dlcName);
+                    textureMovie.getProperties().setStructValue("TFCFileGuid", "Guid", guid);
                 }
-                data.Free();
-                mipmaps.push_back(mipmap);
-                if (texture.mipMapsList.count() == 1)
-                    break;
             }
-            texture.replaceMipMaps(mipmaps);
+            else
+            {
+                Texture texture(package, e, exportData);
+                exportData.Free();
+                if (!texture.hasImageData())
+                {
+                    continue;
+                }
 
-            if (compactTFC)
-            {
-                texture.getProperties().setNameValue("TextureFileCacheName", "Textures_" + dlcName);
-                texture.getProperties().setStructValue("TFCFileGuid", "Guid", guid);
-            }
+                texture.removeEmptyMips();
 
-            ByteBuffer bufferProperties = texture.getProperties().toArray();
-            {
-                MemoryStream newData;
-                newData.WriteFromBuffer(bufferProperties);
-                ByteBuffer bufferTextureData = texture.toArray(0, false); // filled later
-                newData.WriteFromBuffer(bufferTextureData);
-                bufferTextureData.Free();
-                ByteBuffer bufferTexture = newData.ToArray();
-                package.setExportData(e, bufferTexture);
-                bufferTexture.Free();
+                if (!texture.getProperties().exists("LODGroup"))
+                    texture.getProperties().setByteValue("LODGroup", "TEXTUREGROUP_Character", "TextureGroup", 1025);
+
+                if (texture.numNotEmptyMips() > 6 &&
+                    !texture.HasExternalMips() &&
+                    !texture.getProperties().exists("NeverStream"))
+                {
+                    PINFO(QString("Adding missing property \"NeverStream\" for ") +
+                                  package.exportsTable[e].objectName + ", export id: " +
+                                  QString::number(e + 1) + "\n");
+                    texture.getProperties().setBoolValue("NeverStream", true);
+                }
+
+                bool compactTFC = false;
+                if (texture.getProperties().exists("TextureFileCacheName"))
+                {
+                    compactTFC = true;
+                    QString archive = texture.getProperties().getProperty("TextureFileCacheName").valueName;
+                    if (archive != "Textures_" + dlcName && !pullTextures)
+                        compactTFC = false;
+                }
+
+                auto mipmaps = QList<Texture::TextureMipMap>();
+                for (int m = 0; m < texture.mipMapsList.count(); m++)
+                {
+                    auto mipmap = texture.mipMapsList[m];
+                    auto data = texture.getMipMapDataByIndex(m);
+
+                    if (compactTFC && !compressed &&
+                       (mipmap.storageType == StorageTypes::extZlib ||
+                        mipmap.storageType == StorageTypes::extLZO))
+                    {
+                        mipmap.storageType = StorageTypes::extUnc;
+                    }
+                    if (compactTFC && compressed &&
+                        mipmap.storageType == StorageTypes::extUnc)
+                    {
+                        mipmap.storageType = StorageTypes::extZlib;
+                    }
+                    if (mipmap.storageType == StorageTypes::pccZlib ||
+                        mipmap.storageType == StorageTypes::pccLZO)
+                    {
+                        mipmap.storageType = StorageTypes::pccUnc;
+                    }
+
+                    if ((compactTFC && (mipmap.storageType == StorageTypes::extZlib ||
+                                        mipmap.storageType == StorageTypes::extLZO)) ||
+                       (mipmap.storageType == StorageTypes::pccZlib ||
+                        mipmap.storageType == StorageTypes::pccLZO))
+                    {
+                        mipmap.newData = Package::compressData(data, mipmap.storageType, true);
+                        mipmap.compressedSize = mipmap.newData.size();
+                        mipmap.freeNewData = true;
+                    }
+                    if ((compactTFC && mipmap.storageType == StorageTypes::extUnc) ||
+                        mipmap.storageType == StorageTypes::pccUnc)
+                    {
+                        mipmap.compressedSize = mipmap.uncompressedSize;
+                        mipmap.newData = ByteBuffer(data.ptr(), data.size());
+                        mipmap.freeNewData = true;
+                    }
+                    if (compactTFC &&
+                       (mipmap.storageType == StorageTypes::extZlib ||
+                        mipmap.storageType == StorageTypes::extLZO ||
+                        mipmap.storageType == StorageTypes::extUnc))
+                    {
+                        if (!QFile(DLCArchiveFileNew).exists())
+                        {
+                            FileStream fs = FileStream(DLCArchiveFileNew, FileMode::Create, FileAccess::WriteOnly);
+                            fs.WriteFromBuffer(guid);
+                        }
+                        FileStream fs = FileStream(DLCArchiveFileNew, FileMode::Open, FileAccess::ReadWrite);
+                        fs.SeekEnd();
+                        mipmap.dataOffset = (uint)fs.Position();
+                        fs.WriteFromBuffer(mipmap.newData);
+                    }
+                    data.Free();
+                    mipmaps.push_back(mipmap);
+                    if (texture.mipMapsList.count() == 1)
+                        break;
+                }
+                texture.replaceMipMaps(mipmaps);
+
+                if (compactTFC)
+                {
+                    texture.getProperties().setNameValue("TextureFileCacheName", "Textures_" + dlcName);
+                    texture.getProperties().setStructValue("TFCFileGuid", "Guid", guid);
+                }
+
+                ByteBuffer bufferProperties = texture.getProperties().toArray();
+                {
+                    MemoryStream newData;
+                    newData.WriteFromBuffer(bufferProperties);
+                    ByteBuffer bufferTextureData = texture.toArray(0, false); // filled later
+                    newData.WriteFromBuffer(bufferTextureData);
+                    bufferTextureData.Free();
+                    ByteBuffer bufferTexture = newData.ToArray();
+                    package.setExportData(e, bufferTexture);
+                    bufferTexture.Free();
+                }
+                {
+                    MemoryStream newData;
+                    newData.WriteFromBuffer(bufferProperties);
+                    uint packageDataOffset = package.exportsTable[e].getDataOffset() + (uint)newData.Position();
+                    ByteBuffer bufferTextureData = texture.toArray(packageDataOffset);
+                    newData.WriteFromBuffer(bufferTextureData);
+                    bufferTextureData.Free();
+                    ByteBuffer bufferTexture = newData.ToArray();
+                    package.setExportData(e, bufferTexture);
+                    bufferTexture.Free();
+                }
+                bufferProperties.Free();
             }
-            {
-                MemoryStream newData;
-                newData.WriteFromBuffer(bufferProperties);
-                uint packageDataOffset = package.exportsTable[e].getDataOffset() + (uint)newData.Position();
-                ByteBuffer bufferTextureData = texture.toArray(packageDataOffset);
-                newData.WriteFromBuffer(bufferTextureData);
-                bufferTextureData.Free();
-                ByteBuffer bufferTexture = newData.ToArray();
-                package.setExportData(e, bufferTexture);
-                bufferTexture.Free();
-            }
-            bufferProperties.Free();
         }
+
         if (!package.SaveToFile(compressed, !compressed, false))
         {
             if (g_ipc)
@@ -870,7 +926,8 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, QString
             if (id == package.nameIdTexture2D ||
                 id == package.nameIdLightMapTexture2D ||
                 id == package.nameIdShadowMapTexture2D ||
-                id == package.nameIdTextureFlipBook)
+                id == package.nameIdTextureFlipBook ||
+                id == package.nameIdTextureMovie)
             {
                 ByteBuffer exportData = package.getExportData(e);
                 if (exportData.ptr() == nullptr)
@@ -880,94 +937,145 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, QString
                                  packages[p] +"\nExport Id: " + QString::number(e + 1) + "\nSkipping...\n");
                     continue;
                 }
-                Texture texture(package, e, exportData);
-                exportData.Free();
-                if (!texture.hasImageData())
+                if (id == package.nameIdTextureMovie)
                 {
-                    continue;
-                }
+                    TextureMovie textureMovie(package, e, exportData);
+                    exportData.Free();
+                    if (!textureMovie.hasTextureData())
+                    {
+                        continue;
+                    }
 
-                bool tfcPropExists = texture.getProperties().exists("TextureFileCacheName");
-                if ((pccOnly && tfcPropExists) ||
-                    (tfcOnly && !tfcPropExists) ||
-                    (tfcOnly && !texture.HasExternalMips()))
-                {
-                    continue;
-                }
-                if (!pccOnly && !tfcOnly && textureTfcFilter.length() != 0)
-                {
-                    if (!tfcPropExists)
-                        continue;
-                    QString archive = texture.getProperties().getProperty("TextureFileCacheName").valueName;
-                    if (archive != textureTfcFilter ||
-                        !texture.HasExternalMips())
+                    bool tfcPropExists = textureMovie.getProperties().exists("TextureFileCacheName");
+                    if ((pccOnly && tfcPropExists) ||
+                        (tfcOnly && !tfcPropExists) ||
+                        (tfcOnly && textureMovie.getStorageType() != StorageTypes::extUnc))
                     {
                         continue;
                     }
-                }
-                QString name = exp.objectName;
-                uint crc = 0;
-                if (mapCrc)
-                    crc = Misc::GetCRCFromTextureMap(textures, e, packages[p]);
-                if (crc == 0)
-                    crc = texture.getCrcTopMipmap();
-                if (crc == 0)
-                {
-                    PERROR(QString("Error: Texture ") + name + " is broken in package: " +
-                                 packages[p] +"\nExport Id: " + QString::number(e + 1) + "\nSkipping...\n");
-                    continue;
-                }
-                QString outputFile = outputDir + "/" +  name +
-                        QString().sprintf("_0x%08X", crc);
-                if (png)
-                {
-                    outputFile += ".png";
-                }
-                else
-                {
-                    outputFile += ".dds";
-                }
-                if (QFile(outputFile).exists())
-                    continue;
-                PixelFormat pixelFormat = Image::getPixelFormatType(texture.getProperties().getProperty("Format").valueName);
-                if (png)
-                {
-                    Texture::TextureMipMap mipmap = texture.getTopMipmap();
-                    ByteBuffer data = texture.getTopImageData();
-                    if (data.ptr() != nullptr)
+                    if (!pccOnly && !tfcOnly && textureTfcFilter.length() != 0)
                     {
-                        if (QFile(outputFile).exists())
-                            QFile(outputFile).remove();
-                        Image::saveToPng(data.ptr(), mipmap.width, mipmap.height, pixelFormat, outputFile);
-                        data.Free();
-                    }
-                }
-                else
-                {
-                    texture.removeEmptyMips();
-                    QList<MipMap *> mipmaps = QList<MipMap *>();
-                    for (int k = 0; k < texture.mipMapsList.count(); k++)
-                    {
-                        ByteBuffer data = texture.getMipMapDataByIndex(k);
-                        if (data.ptr() == nullptr)
+                        if (!tfcPropExists)
+                            continue;
+                        QString archive = textureMovie.getProperties().getProperty("TextureFileCacheName").valueName;
+                        if (archive != textureTfcFilter ||
+                            textureMovie.getStorageType() != StorageTypes::extUnc)
                         {
                             continue;
                         }
-                        mipmaps.push_back(new MipMap(data, texture.mipMapsList[k].width, texture.mipMapsList[k].height, pixelFormat));
-                        data.Free();
                     }
-                    Image image = Image(mipmaps, pixelFormat);
-                    if (image.getMipMaps().count() != 0)
+                    QString name = exp.objectName;
+                    uint crc = 0;
+                    if (mapCrc)
+                        crc = Misc::GetCRCFromTextureMap(textures, e, packages[p]);
+                    if (crc == 0)
+                        crc = textureMovie.getCrcData();
+                    if (crc == 0)
                     {
-                        if (QFile(outputFile).exists())
-                            QFile(outputFile).remove();
-                        FileStream fs = FileStream(outputFile, FileMode::Create, FileAccess::WriteOnly);
-                        image.StoreImageToDDS(fs);
+                        PERROR(QString("Error: Texture ") + name + " is broken in package: " +
+                                     packages[p] +"\nExport Id: " + QString::number(e + 1) + "\nSkipping...\n");
+                        continue;
+                    }
+                    QString outputFile = outputDir + "/" +  name +
+                            QString().sprintf("_0x%08X.bik", crc);
+                    if (QFile(outputFile).exists())
+                        continue;
+                    auto data = textureMovie.getData();
+                    FileStream output = FileStream(outputFile, FileMode::Create, FileAccess::ReadWrite);
+                    output.WriteFromBuffer(data);
+                    data.Free();
+                }
+                else
+                {
+                    Texture texture(package, e, exportData);
+                    exportData.Free();
+                    if (!texture.hasImageData())
+                    {
+                        continue;
+                    }
+
+                    bool tfcPropExists = texture.getProperties().exists("TextureFileCacheName");
+                    if ((pccOnly && tfcPropExists) ||
+                        (tfcOnly && !tfcPropExists) ||
+                        (tfcOnly && !texture.HasExternalMips()))
+                    {
+                        continue;
+                    }
+                    if (!pccOnly && !tfcOnly && textureTfcFilter.length() != 0)
+                    {
+                        if (!tfcPropExists)
+                            continue;
+                        QString archive = texture.getProperties().getProperty("TextureFileCacheName").valueName;
+                        if (archive != textureTfcFilter ||
+                            !texture.HasExternalMips())
+                        {
+                            continue;
+                        }
+                    }
+                    QString name = exp.objectName;
+                    uint crc = 0;
+                    if (mapCrc)
+                        crc = Misc::GetCRCFromTextureMap(textures, e, packages[p]);
+                    if (crc == 0)
+                        crc = texture.getCrcTopMipmap();
+                    if (crc == 0)
+                    {
+                        PERROR(QString("Error: Texture ") + name + " is broken in package: " +
+                                     packages[p] +"\nExport Id: " + QString::number(e + 1) + "\nSkipping...\n");
+                        continue;
+                    }
+                    QString outputFile = outputDir + "/" +  name +
+                            QString().sprintf("_0x%08X", crc);
+                    if (png)
+                    {
+                        outputFile += ".png";
                     }
                     else
                     {
-                        PERROR(QString("Texture skipped. Texture ") + name +
-                                     QString().sprintf("_0x%08X", crc) + " is broken in game data!\n");
+                        outputFile += ".dds";
+                    }
+                    if (QFile(outputFile).exists())
+                        continue;
+                    PixelFormat pixelFormat = Image::getPixelFormatType(texture.getProperties().getProperty("Format").valueName);
+                    if (png)
+                    {
+                        Texture::TextureMipMap mipmap = texture.getTopMipmap();
+                        ByteBuffer data = texture.getTopImageData();
+                        if (data.ptr() != nullptr)
+                        {
+                            if (QFile(outputFile).exists())
+                                QFile(outputFile).remove();
+                            Image::saveToPng(data.ptr(), mipmap.width, mipmap.height, pixelFormat, outputFile);
+                            data.Free();
+                        }
+                    }
+                    else
+                    {
+                        texture.removeEmptyMips();
+                        QList<MipMap *> mipmaps = QList<MipMap *>();
+                        for (int k = 0; k < texture.mipMapsList.count(); k++)
+                        {
+                            ByteBuffer data = texture.getMipMapDataByIndex(k);
+                            if (data.ptr() == nullptr)
+                            {
+                                continue;
+                            }
+                            mipmaps.push_back(new MipMap(data, texture.mipMapsList[k].width, texture.mipMapsList[k].height, pixelFormat));
+                            data.Free();
+                        }
+                        Image image = Image(mipmaps, pixelFormat);
+                        if (image.getMipMaps().count() != 0)
+                        {
+                            if (QFile(outputFile).exists())
+                                QFile(outputFile).remove();
+                            FileStream fs = FileStream(outputFile, FileMode::Create, FileAccess::WriteOnly);
+                            image.StoreImageToDDS(fs);
+                        }
+                        else
+                        {
+                            PERROR(QString("Texture skipped. Texture ") + name +
+                                         QString().sprintf("_0x%08X", crc) + " is broken in game data!\n");
+                        }
                     }
                 }
             }

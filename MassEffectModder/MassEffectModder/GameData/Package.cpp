@@ -590,6 +590,8 @@ void Package::loadNames(Stream &input)
             nameIdShadowMapTexture2D = i;
         else if (nameIdTextureFlipBook == -1 && entry.name == "TextureFlipBook")
             nameIdTextureFlipBook = i;
+        else if (nameIdTextureFlipBook == -1 && entry.name == "TextureMovie")
+            nameIdTextureMovie = i;
 
         if (packageFileVersion == packageFileVersionME1)
             entry.flags = input.ReadUInt64();

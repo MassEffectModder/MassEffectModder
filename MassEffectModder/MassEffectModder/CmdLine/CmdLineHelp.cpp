@@ -102,6 +102,8 @@ void DisplayHelp()
         "           input format supported for BMP images:\n" \
         "              uncompressed ARGB/RGB/RGBX\n" \
         "           Image filename must include texture CRC (0xhhhhhhhh)\n" \
+        "        BIK\n" \
+        "           Movie filename must include texture CRC (0xhhhhhhhh)\n" \
         "     ipc: turn on IPC traces\n" \
         "\n" \
         "  --convert-game-image --gameid <game id> --input <input image> --output <output image> [--mark-to-convert]\n" \
@@ -191,6 +193,15 @@ void DisplayHelp()
         "     Package path: single package mode.\n" \
         "     Map Crc: it will try to find vanilla texture crc from texture map.\n" \
         "     Textures are extracted with only top mipmap.\n" \
+        "  --extract-all-bik --gameid <game id> --output <output dir> [--tfc-name <filter name>|--pcc-only|--tfc-only] [--package-path <path>] [--map-crc]\n" \
+        "     game id: 1 for ME1, 2 for ME2, 3 for ME3\n" \
+        "     output dir: directory where movie textures are placed\n" \
+        "     TFC filter name: it will filter only textures stored in specific TFC file.\n" \
+        "     Or option: --pcc-only to extract only textures stored in packages.\n" \
+        "     Or option: --tfc-only to extract only textures stored in TFC files.\n" \
+        "     Package path: single package mode.\n" \
+        "     Map Crc: it will try to find vanilla texture crc from texture map.\n" \
+        "     Textures are extracted as they are in game data.\n" \
         "\n" \
         "  --compact-dlc --gameid <game id> --dlc-name <DLC name> [--pull-textures] [--no-compression] [--ipc]\n" \
         "     Compact textures in TFC, repack textures according compression flag.\n" \

@@ -51,6 +51,7 @@ typedef enum : int
     CHECK_FOR_MARKERS,
     EXTRACT_ALL_DDS,
     EXTRACT_ALL_PNG,
+    EXTRACT_ALL_BIK,
     COMPACT_DLC,
     UNPACK_ARCHIVE,
 #if !defined(_WIN32)

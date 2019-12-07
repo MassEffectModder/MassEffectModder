@@ -42,7 +42,6 @@ SOURCES += \
     Md5/MD5BadEntries.cpp \
     Md5/MD5ModEntries.cpp \
     MipMaps/MipMap.cpp \
-    MipMaps/MipMaps.cpp \
     MipMaps/MipMapsEmptyMips.cpp \
     MipMaps/MipMapsReplace.cpp \
     Misc/Misc.cpp \
@@ -56,6 +55,7 @@ SOURCES += \
     Program/SignalHandler.cpp \
     Resources/Resources.cpp \
     Texture/Texture.cpp \
+    Texture/TextureMovie.cpp \
     Texture/TextureProperty.cpp \
     Texture/TextureScan.cpp
 
@@ -104,6 +104,7 @@ HEADERS += \
     Program/SignalHandler.h \
     Resources/Resources.h \
     Texture/Texture.h \
+    Texture/TextureMovie.h \
     Texture/TextureProperty.h \
     Texture/TextureScan.h \
     Types/MemTypes.h

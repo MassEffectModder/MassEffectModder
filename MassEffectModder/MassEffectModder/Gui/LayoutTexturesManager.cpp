@@ -33,6 +33,7 @@
 #include <MipMaps/MipMaps.h>
 #include <Misc/Misc.h>
 #include <Texture/Texture.h>
+#include <Texture/TextureMovie.h>
 
 PixmapLabel::PixmapLabel(QWidget *parent) :
     QLabel(parent)
@@ -619,21 +620,41 @@ void LayoutTexturesManager::ListMiddleContextMenu(const QPoint &pos)
         enableInfoAll = singleInfoMode && !singlePackageMode;
 
     auto item = listMiddle->itemAt(pos);
+    auto viewTexture = item->data(Qt::UserRole).value<ViewTexture>();
+    TextureMapPackageEntry nodeTexture;
+    for (int index = 0; index < textures[viewTexture.indexInTextures].list.count(); index++)
+    {
+        if (textures[viewTexture.indexInTextures].list[index].path.length() != 0)
+        {
+            nodeTexture = textures[viewTexture.indexInTextures].list[index];
+            break;
+        }
+    }
+
     if (item && !singlePackageMode)
     {
         auto menu = new QMenu(this);
         auto subMenu = new QAction("Replace Texture", this);
         connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ReplaceSelected);
         menu->addAction(subMenu);
-        subMenu = new QAction("Replace Texture (uncompressed)", this);
-        connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ReplaceConvertSelected);
-        menu->addAction(subMenu);
-        subMenu = new QAction("Extract to DDS", this);
-        connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ExtractDDSSelected);
-        menu->addAction(subMenu);
-        subMenu = new QAction("Extract to PNG", this);
-        connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ExtractPNGSelected);
-        menu->addAction(subMenu);
+        if (!nodeTexture.movieTexture)
+        {
+            subMenu = new QAction("Replace Texture (uncompressed)", this);
+            connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ReplaceConvertSelected);
+            menu->addAction(subMenu);
+            subMenu = new QAction("Extract to DDS", this);
+            connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ExtractDDSSelected);
+            menu->addAction(subMenu);
+            subMenu = new QAction("Extract to PNG", this);
+            connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ExtractPNGSelected);
+            menu->addAction(subMenu);
+        }
+        else
+        {
+            subMenu = new QAction("Extract to BIK", this);
+            connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ExtractBIKSelected);
+            menu->addAction(subMenu);
+        }
         QMenu *menuViewMode = menu->addMenu("View");
         subMenu = new QAction("Preview", this);
         subMenu->setCheckable(true);
@@ -641,12 +662,15 @@ void LayoutTexturesManager::ListMiddleContextMenu(const QPoint &pos)
         subMenu->setEnabled(!imageViewMode);
         connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ViewImageSelected);
         menuViewMode->addAction(subMenu);
-        subMenu = new QAction("Preview (alpha only)", this);
-        subMenu->setCheckable(true);
-        subMenu->setChecked(imageViewAlphaMode);
-        subMenu->setEnabled(!imageViewAlphaMode);
-        connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ViewImageAlphaSelected);
-        menuViewMode->addAction(subMenu);
+        if (!nodeTexture.movieTexture)
+        {
+            subMenu = new QAction("Preview (alpha only)", this);
+            subMenu->setCheckable(true);
+            subMenu->setChecked(imageViewAlphaMode);
+            subMenu->setEnabled(!imageViewAlphaMode);
+            connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ViewImageAlphaSelected);
+            menuViewMode->addAction(subMenu);
+        }
         subMenu = new QAction("Info (single)", this);
         subMenu->setCheckable(true);
         subMenu->setChecked(!imageViewMode && !imageViewAlphaMode && singleInfoMode);
@@ -666,21 +690,41 @@ void LayoutTexturesManager::ListMiddleContextMenu(const QPoint &pos)
 void LayoutTexturesManager::ListRightContextMenu(const QPoint &pos)
 {
     auto item = listRight->itemAt(pos);
+    auto viewTexture = item->data(Qt::UserRole).value<ViewTexture>();
+    TextureMapPackageEntry nodeTexture;
+    for (int index = 0; index < textures[viewTexture.indexInTextures].list.count(); index++)
+    {
+        if (textures[viewTexture.indexInTextures].list[index].path.length() != 0)
+        {
+            nodeTexture = textures[viewTexture.indexInTextures].list[index];
+            break;
+        }
+    }
+
     if (item && singlePackageMode)
     {
         auto menu = new QMenu(this);
         auto subMenu = new QAction("Replace Texture", this);
         connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ReplaceSelected);
         menu->addAction(subMenu);
-        subMenu = new QAction("Replace Texture (uncompressed)", this);
-        connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ReplaceConvertSelected);
-        menu->addAction(subMenu);
-        subMenu = new QAction("Extract to DDS", this);
-        connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ExtractDDSSelected);
-        menu->addAction(subMenu);
-        subMenu = new QAction("Extract to PNG", this);
-        connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ExtractPNGSelected);
-        menu->addAction(subMenu);
+        if (!nodeTexture.movieTexture)
+        {
+            subMenu = new QAction("Replace Texture (uncompressed)", this);
+            connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ReplaceConvertSelected);
+            menu->addAction(subMenu);
+            subMenu = new QAction("Extract to DDS", this);
+            connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ExtractDDSSelected);
+            menu->addAction(subMenu);
+            subMenu = new QAction("Extract to PNG", this);
+            connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ExtractPNGSelected);
+            menu->addAction(subMenu);
+        }
+        else
+        {
+            subMenu = new QAction("Extract to BIK", this);
+            connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ExtractBIKSelected);
+            menu->addAction(subMenu);
+        }
         menu->popup(listRight->viewport()->mapToGlobal(pos));
     }
 }
@@ -788,6 +832,10 @@ void LayoutTexturesManager::UpdateRight(const QListWidgetItem *item)
                 break;
             }
         }
+
+        if (nodeTexture.movieTexture)
+            return;
+
         Package package;
         package.Open(g_GameData->GamePath() + nodeTexture.path);
         ByteBuffer exportData = package.getExportData(nodeTexture.exportID);
@@ -861,37 +909,54 @@ void LayoutTexturesManager::UpdateRight(const QListWidgetItem *item)
                         "\nSkipping...\n";
                 continue;
             }
-            Texture texture(package, nodeTexture.exportID, exportData);
-            exportData.Free();
-            text += "\nTexture instance: " + QString::number(index2 + 1) + "\n";
-            text += "  Texture name:       " + package.exportsTable[nodeTexture.exportID].objectName + "\n";
-            text += "  Export Id:          " + QString::number(nodeTexture.exportID + 1) + "\n";
-            if (g_GameData->GamePath() == MeType::ME1_TYPE)
+            if (nodeTexture.movieTexture)
             {
-                if (nodeTexture.linkToMaster == -1)
-                    text += "  Master Texture\n";
-                else
+                TextureMovie textureMovie(package, nodeTexture.exportID, exportData);
+                exportData.Free();
+                text += "\nTexture instance: " + QString::number(index2 + 1) + "\n";
+                text += "  Texture name:       " + package.exportsTable[nodeTexture.exportID].objectName + "\n";
+                text += "  Export Id:          " + QString::number(nodeTexture.exportID + 1) + "\n";
+                text += "  Package path:       " + nodeTexture.path + "\n";
+                text += "  Texture properties:\n";
+                for (int l = 0; l < textureMovie.getProperties().texPropertyList.count(); l++)
                 {
-                    text += "  Slave Texture\n";
-                    text += "    Refer to package: " + texture.basePackageName + "\n";
-                    text += "    Refer to texture: " + QString::number(nodeTexture.linkToMaster + 1) + "\n";
+                    text += "  " + textureMovie.getProperties().getDisplayString(l);
                 }
             }
-            text += "  Package path:       " + nodeTexture.path + "\n";
-            text += "  Texture properties:\n";
-            for (int l = 0; l < texture.getProperties().texPropertyList.count(); l++)
+            else
             {
-                text += "  " + texture.getProperties().getDisplayString(l);
-            }
-            text += "\n";
-            for (int l = 0; l < texture.mipMapsList.count(); l++)
-            {
-                text += "  MipMap: " + QString::number(l) + ", " + QString::number(texture.mipMapsList[l].width) +
-                        "x" + QString::number(texture.mipMapsList[l].height) + "\n";
-                text += "    StorageType: " + Package::StorageTypeToString(texture.mipMapsList[l].storageType) + "\n";
-                text += "    DataOffset:  " + QString::number((int)texture.mipMapsList[l].dataOffset) + "\n";
-                text += "    CompSize:    " + QString::number(texture.mipMapsList[l].compressedSize) + "\n";
-                text += "    UnCompSize:  " + QString::number(texture.mipMapsList[l].uncompressedSize) + "\n";
+                Texture texture(package, nodeTexture.exportID, exportData);
+                exportData.Free();
+                text += "\nTexture instance: " + QString::number(index2 + 1) + "\n";
+                text += "  Texture name:       " + package.exportsTable[nodeTexture.exportID].objectName + "\n";
+                text += "  Export Id:          " + QString::number(nodeTexture.exportID + 1) + "\n";
+                if (g_GameData->GamePath() == MeType::ME1_TYPE)
+                {
+                    if (nodeTexture.linkToMaster == -1)
+                        text += "  Master Texture\n";
+                    else
+                    {
+                        text += "  Slave Texture\n";
+                        text += "    Refer to package: " + texture.basePackageName + "\n";
+                        text += "    Refer to texture: " + QString::number(nodeTexture.linkToMaster + 1) + "\n";
+                    }
+                }
+                text += "  Package path:       " + nodeTexture.path + "\n";
+                text += "  Texture properties:\n";
+                for (int l = 0; l < texture.getProperties().texPropertyList.count(); l++)
+                {
+                    text += "  " + texture.getProperties().getDisplayString(l);
+                }
+                text += "\n";
+                for (int l = 0; l < texture.mipMapsList.count(); l++)
+                {
+                    text += "  MipMap: " + QString::number(l) + ", " + QString::number(texture.mipMapsList[l].width) +
+                            "x" + QString::number(texture.mipMapsList[l].height) + "\n";
+                    text += "    StorageType: " + Package::StorageTypeToString(texture.mipMapsList[l].storageType) + "\n";
+                    text += "    DataOffset:  " + QString::number((int)texture.mipMapsList[l].dataOffset) + "\n";
+                    text += "    CompSize:    " + QString::number(texture.mipMapsList[l].compressedSize) + "\n";
+                    text += "    UnCompSize:  " + QString::number(texture.mipMapsList[l].uncompressedSize) + "\n";
+                }
             }
         }
         textRight->setPlainText(text);
@@ -924,8 +989,22 @@ void LayoutTexturesManager::ReplaceTexture(const QListWidgetItem *item, bool con
     LockGui(true);
 
     auto viewTexture = item->data(Qt::UserRole).value<ViewTexture>();
+    TextureMapPackageEntry nodeTexture;
+    for (int index = 0; index < textures[viewTexture.indexInTextures].list.count(); index++)
+    {
+        if (textures[viewTexture.indexInTextures].list[index].path.length() != 0)
+        {
+            nodeTexture = textures[viewTexture.indexInTextures].list[index];
+            break;
+        }
+    }
+    QString filter;
+    if (nodeTexture.movieTexture)
+        filter = "Movie Texture (*.bik)";
+    else
+        filter = "Texture (*.dds *.png *.bmp *.tga)";
     QString file = QFileDialog::getOpenFileName(this,
-            "Please select texture file", "", "Texture (*.dds *.png *.bmp *.tga)");
+            "Please select texture file", "", filter);
     if (file.length() == 0)
     {
         LockGui(false);
@@ -934,7 +1013,9 @@ void LayoutTexturesManager::ReplaceTexture(const QListWidgetItem *item, bool con
 
     g_logs->BufferClearErrors();
     g_logs->BufferEnableErrors(true);
-    auto image = new Image(file);
+    Image *image = nullptr;
+    if (!nodeTexture.movieTexture)
+        image = new Image(file);
     mainWindow->statusBar()->clearMessage();
     g_logs->BufferEnableErrors(false);
     if (g_logs->BufferGetErrors() != "")
@@ -945,21 +1026,18 @@ void LayoutTexturesManager::ReplaceTexture(const QListWidgetItem *item, bool con
         return;
     }
 
-    TextureMapPackageEntry nodeTexture;
-    for (int index = 0; index < textures[viewTexture.indexInTextures].list.count(); index++)
-    {
-        if (textures[viewTexture.indexInTextures].list[index].path.length() != 0)
-        {
-            nodeTexture = textures[viewTexture.indexInTextures].list[index];
-            break;
-        }
-    }
     MipMaps mipMaps;
     QList<ModEntry> modsToReplace;
     QStringList pkgsToMarker;
     QStringList pkgsToRepack;
     ModEntry modEntry;
     modEntry.injectedTexture = image;
+    if (nodeTexture.movieTexture)
+    {
+        FileStream fs(file, FileMode::Open);
+        ByteBuffer data = fs.ReadAllToBuffer();
+        modEntry.injectedMovieTexture = data;
+    }
     modEntry.textureCrc = textures[viewTexture.indexInTextures].crc;
     modEntry.textureName = textures[viewTexture.indexInTextures].name;
     modEntry.markConvert = convertMode;
@@ -988,6 +1066,10 @@ void LayoutTexturesManager::ReplaceTexture(const QListWidgetItem *item, bool con
                                     &LayoutTexturesManager::ReplaceTextureCallback, mainWindow);
     }
     delete image;
+    if (nodeTexture.movieTexture)
+    {
+        modEntry.injectedMovieTexture.Free();
+    }
     mainWindow->statusBar()->clearMessage();
     UpdateRight(item);
     if (g_logs->BufferGetErrors() != "")
@@ -1070,41 +1152,43 @@ void LayoutTexturesManager::ExtractTexture(const ViewTexture& viewTexture, bool 
         LockGui(false);
         return;
     }
-    Texture texture(package, nodeTexture.exportID, exportData);
-    exportData.Free();
-
-    uint crc = Misc::GetCRCFromTextureMap(textures, nodeTexture.exportID, nodeTexture.path);
-    if (crc == 0)
-        crc = texture.getCrcTopMipmap();
-    if (crc == 0)
+    if (nodeTexture.movieTexture)
     {
-        QMessageBox::critical(this, "Extracting texture", QString("Error: Texture ") +
-                              package.exportsTable[nodeTexture.exportID].objectName +
-                              " has broken export data in package: " +
-                              nodeTexture.path +"\nExport Id: " + QString::number(nodeTexture.exportID + 1));
-        LockGui(false);
-        return;
-    }
+        TextureMovie textureMovie(package, nodeTexture.exportID, exportData);
+        exportData.Free();
 
-    QString outputFile = outputDir + "/" +
-            package.exportsTable[nodeTexture.exportID].objectName +
-            QString().sprintf("_0x%08X", crc);
-    if (png)
-    {
-        outputFile += ".png";
+        uint crc = Misc::GetCRCFromTextureMap(textures, nodeTexture.exportID, nodeTexture.path);
+        if (crc == 0)
+            crc = textureMovie.getCrcData();
+        if (crc == 0)
+        {
+            QMessageBox::critical(this, "Extracting texture", QString("Error: Movie texture ") +
+                                  package.exportsTable[nodeTexture.exportID].objectName +
+                                  " has broken export data in package: " +
+                                  nodeTexture.path +"\nExport Id: " + QString::number(nodeTexture.exportID + 1));
+            LockGui(false);
+            return;
+        }
+
+        QString outputFile = outputDir + "/" +
+                package.exportsTable[nodeTexture.exportID].objectName +
+                QString().sprintf("_0x%08X.bik", crc);
+        if (QFile(outputFile).exists())
+            QFile(outputFile).remove();
+        auto data = textureMovie.getData();
+        FileStream fs = FileStream(outputFile, FileMode::Create);
+        fs.WriteFromBuffer(data);
+        data.Free();
     }
     else
     {
-        outputFile += ".dds";
-    }
-    if (QFile(outputFile).exists())
-        QFile(outputFile).remove();
+        Texture texture(package, nodeTexture.exportID, exportData);
+        exportData.Free();
 
-    PixelFormat pixelFormat = Image::getPixelFormatType(texture.getProperties().getProperty("Format").valueName);
-    if (png)
-    {
-        ByteBuffer data = texture.getTopImageData();
-        if (data.ptr() == nullptr)
+        uint crc = Misc::GetCRCFromTextureMap(textures, nodeTexture.exportID, nodeTexture.path);
+        if (crc == 0)
+            crc = texture.getCrcTopMipmap();
+        if (crc == 0)
         {
             QMessageBox::critical(this, "Extracting texture", QString("Error: Texture ") +
                                   package.exportsTable[nodeTexture.exportID].objectName +
@@ -1113,17 +1197,25 @@ void LayoutTexturesManager::ExtractTexture(const ViewTexture& viewTexture, bool 
             LockGui(false);
             return;
         }
-        Texture::TextureMipMap mipmap = texture.getTopMipmap();
-        Image::saveToPng(data.ptr(), mipmap.width, mipmap.height, pixelFormat, outputFile);
-        data.Free();
-    }
-    else
-    {
-        texture.removeEmptyMips();
-        QList<MipMap *> mipmaps = QList<MipMap *>();
-        for (int k = 0; k < texture.mipMapsList.count(); k++)
+
+        QString outputFile = outputDir + "/" +
+                package.exportsTable[nodeTexture.exportID].objectName +
+                QString().sprintf("_0x%08X", crc);
+        if (png)
         {
-            ByteBuffer data = texture.getMipMapDataByIndex(k);
+            outputFile += ".png";
+        }
+        else
+        {
+            outputFile += ".dds";
+        }
+        if (QFile(outputFile).exists())
+            QFile(outputFile).remove();
+
+        PixelFormat pixelFormat = Image::getPixelFormatType(texture.getProperties().getProperty("Format").valueName);
+        if (png)
+        {
+            ByteBuffer data = texture.getTopImageData();
             if (data.ptr() == nullptr)
             {
                 QMessageBox::critical(this, "Extracting texture", QString("Error: Texture ") +
@@ -1133,12 +1225,33 @@ void LayoutTexturesManager::ExtractTexture(const ViewTexture& viewTexture, bool 
                 LockGui(false);
                 return;
             }
-            mipmaps.push_back(new MipMap(data, texture.mipMapsList[k].width, texture.mipMapsList[k].height, pixelFormat));
+            Texture::TextureMipMap mipmap = texture.getTopMipmap();
+            Image::saveToPng(data.ptr(), mipmap.width, mipmap.height, pixelFormat, outputFile);
             data.Free();
         }
-        Image image = Image(mipmaps, pixelFormat);
-        FileStream fs = FileStream(outputFile, FileMode::Create, FileAccess::WriteOnly);
-        image.StoreImageToDDS(fs);
+        else
+        {
+            texture.removeEmptyMips();
+            QList<MipMap *> mipmaps = QList<MipMap *>();
+            for (int k = 0; k < texture.mipMapsList.count(); k++)
+            {
+                ByteBuffer data = texture.getMipMapDataByIndex(k);
+                if (data.ptr() == nullptr)
+                {
+                    QMessageBox::critical(this, "Extracting texture", QString("Error: Texture ") +
+                                          package.exportsTable[nodeTexture.exportID].objectName +
+                                          " has broken export data in package: " +
+                                          nodeTexture.path +"\nExport Id: " + QString::number(nodeTexture.exportID + 1));
+                    LockGui(false);
+                    return;
+                }
+                mipmaps.push_back(new MipMap(data, texture.mipMapsList[k].width, texture.mipMapsList[k].height, pixelFormat));
+                data.Free();
+            }
+            Image image = Image(mipmaps, pixelFormat);
+            FileStream fs = FileStream(outputFile, FileMode::Create, FileAccess::WriteOnly);
+            image.StoreImageToDDS(fs);
+        }
     }
 
     QMessageBox::information(this, "Extracting texture", "Completed extracting texture.");
@@ -1160,6 +1273,19 @@ void LayoutTexturesManager::ExtractDDSSelected()
 }
 
 void LayoutTexturesManager::ExtractPNGSelected()
+{
+    QListWidgetItem *item;
+    if (!textureSelected)
+        return;
+    if (singlePackageMode)
+        item = listRight->currentItem();
+    else
+        item = listMiddle->currentItem();
+    if (item != nullptr)
+        ExtractTexture(item->data(Qt::UserRole).value<ViewTexture>(), true);
+}
+
+void LayoutTexturesManager::ExtractBIKSelected()
 {
     QListWidgetItem *item;
     if (!textureSelected)
