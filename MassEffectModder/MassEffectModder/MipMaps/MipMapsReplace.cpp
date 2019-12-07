@@ -352,7 +352,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                         }
                     }
 
-                    bool oldSpace = mod.memEntrySize <= textureMovie.getUncompressedSize();
+                    bool oldSpace = mod.memEntrySize <= (long)textureMovie.getUncompressedSize();
                     if (!oldSpace)
                     {
                         quint32 fileLength = QFile(archiveFile).size();

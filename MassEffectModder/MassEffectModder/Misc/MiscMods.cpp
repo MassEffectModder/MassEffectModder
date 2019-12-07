@@ -826,7 +826,7 @@ end:
 
             FileStream fs = FileStream(file, FileMode::Open);
             quint32 tag = fs.ReadUInt32();
-            if (tag != 'BIKi')
+            if (tag != BikTag)
             {
                 PINFO(QString("File mod is not supported Bik movie: ") + BaseName(file) +
                              ", skipping...\n");
