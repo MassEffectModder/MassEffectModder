@@ -68,6 +68,7 @@ public:
     void EnableOutputConsole(bool enable);
     void EnableOutputFile(const QString &path, bool enable);
     void EnableTimeStamp(bool enable);
+    QString GetLogPath() { return logPath; }
 };
 
 extern Logs *g_logs;
