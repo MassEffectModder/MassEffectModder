@@ -95,7 +95,7 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
                   strcmp(sourceFunc, "mainCRTStartup") == 0 ||
                   strcmp(sourceFunc, "WinMainCRTStartup") == 0)
                 continue;
-            sprintf(tmpBuffer, "%02d  ", count);
+            sprintf(tmpBuffer, "%02d.  ", count + 1);
             output += tmpBuffer;
             int status;
             char *name = abi::__cxa_demangle(sourceFunc, nullptr, nullptr, &status);
@@ -122,7 +122,7 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
             if (strcmp(sourceFile, "BaseThreadInitThunk") == 0 ||
                 strcmp(sourceFile, "RtlUserThreadStart") == 0)
                 continue;
-            sprintf(tmpBuffer, "#%02d  %s\n", count, sourceFile);
+            sprintf(tmpBuffer, "#%02d.  %s\n", count + 1, sourceFile);
             output += tmpBuffer;
         }
         count++;

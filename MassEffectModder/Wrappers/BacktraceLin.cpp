@@ -118,7 +118,7 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
         {
             continue;
         }
-        output += std::to_string(count) + "  ";
+        output += std::to_string(count + 1) + ".  ";
         char *funcNewName = abi::__cxa_demangle(sourceFunc, nullptr, nullptr, &status);
         if (status == 0)
         {

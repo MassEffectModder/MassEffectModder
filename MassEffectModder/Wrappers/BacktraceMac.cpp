@@ -110,7 +110,7 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
         {
             BacktraceGetFilename(sourceFile, sourceFile, PATH_MAX - 1);
         }
-        output += std::to_string(count) + "  ";
+        output += std::to_string(count + 1) + ".  ";
         char *funcNewName = abi::__cxa_demangle(sourceFunction, nullptr, nullptr, &status);
         if (status == 0)
         {
