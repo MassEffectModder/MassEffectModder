@@ -816,23 +816,51 @@ end:
             if (crc == 0)
                 continue;
 
-            f = FoundTextureInTheMap(textures, crc);
-            if (f.crc == 0)
+            bool forceHash = DetectHashFromFile(file);
+            if (!forceHash)
             {
-                PINFO(QString("Texture skipped. Texture ") + BaseName(file) +
-                             " is not present in your game setup.\n");
-                continue;
+                f = FoundTextureInTheMap(textures, crc);
+                if (f.crc == 0)
+                {
+                    PINFO(QString("Texture skipped. Texture ") + BaseName(file) +
+                                 " is not present in your game setup.\n");
+                    continue;
+                }
+            }
+
+            if (forceHash)
+            {
+                QString filename = BaseName(file);
+                int idx = filename.indexOf("0x");
+                if (idx > 1)
+                    f.name = filename.left(idx - 1);
+                f.name += "-hash";
             }
 
             FileStream fs = FileStream(file, FileMode::Open);
             quint32 tag = fs.ReadUInt32();
-            if (tag != BikTag)
+            if (tag != BIK_TAG)
             {
                 PINFO(QString("File mod is not supported Bik movie: ") + BaseName(file) +
                              ", skipping...\n");
                 continue;
             }
-            fs.Skip(16);
+            int dataSize = fs.ReadInt32() + 8;
+            if (dataSize != QFile(file).size())
+            {
+                if (g_ipc)
+                {
+                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
+                    ConsoleSync();
+                }
+                else
+                {
+                    PINFO(QString("Skipping movie: ") + f.name + QString().sprintf("_0x%08X", f.crc) +
+                         " This texture has wrong size, skipping...");
+                }
+                continue;
+            }
+            fs.Skip(12);
             int w = fs.ReadInt32();
             int h = fs.ReadInt32();
             if (w / h != f.width / f.height)
@@ -851,7 +879,7 @@ end:
             }
             fs.SeekBegin();
 
-            mod.data = fs.ReadAllToBuffer();
+            mod.data = fs.ReadToBuffer(dataSize);
             mod.textureName = f.name;
             mod.binaryModType = 0;
             mod.movieTexture = true;

@@ -62,7 +62,6 @@ public:
         SizeOfChunkBlock = 8,
         SizeOfChunk = 8,
         MaxBlockSize = 0x20000, // 128KB
-        BikTag = 0x694B4942,// 'BIKi'
     };
 
     typedef void (*ProgressCallback)(void *handle, int progress, const QString &stage);

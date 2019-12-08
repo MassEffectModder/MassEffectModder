@@ -38,6 +38,11 @@ TextureMovie::TextureMovie(Package &package, int exportId, const ByteBuffer &dat
 
     textureData = new MemoryStream(data, properties->propertyEndOffset, data.size() - properties->propertyEndOffset);
 
+    if (GameData::gameType != MeType::ME3_TYPE)
+    {
+        textureData->Skip(12); // 12 zeros
+        textureData->SkipInt32(); // position in the package
+    }
     storageType = (StorageTypes)textureData->ReadInt32();
     uncompressedSize = textureData->ReadInt32();
     compressedSize = textureData->ReadInt32();
@@ -47,6 +52,9 @@ TextureMovie::TextureMovie(Package &package, int exportId, const ByteBuffer &dat
         storageType == StorageTypes::pccZlib)
     {
         dataOffset = textureData->Position();
+        quint32 tag = textureData->ReadUInt32();
+        if (tag != BIK_TAG)
+            CRASH_MSG("Not supported movie texture");
     }
     if (storageType == StorageTypes::pccLZO ||
         storageType == StorageTypes::pccZlib ||
@@ -64,6 +72,10 @@ void TextureMovie::replaceMovieData(ByteBuffer newData, uint offset)
 
     delete textureData;
     textureData = new MemoryStream();
+    if (GameData::gameType != MeType::ME3_TYPE)
+    {
+        textureData->WriteZeros(16);
+    }
     textureData->WriteUInt32(storageType);
     textureData->WriteInt32(uncompressedSize);
     textureData->WriteInt32(compressedSize);
@@ -169,6 +181,24 @@ const ByteBuffer TextureMovie::getData()
             }
             auto fs = FileStream(filename, FileMode::Open, FileAccess::ReadOnly);
             fs.JumpTo(dataOffset);
+            quint32 tag = fs.ReadUInt32();
+            if (tag != BIK_TAG)
+            {
+                if (g_ipc)
+                {
+                    ConsoleWrite("[IPC]ERROR Not supported movie texture");
+                    ConsoleSync();
+                }
+                else
+                {
+                    PERROR(QString("Not supported movie texture\n"));
+                }
+                PERROR(QString("\nPackage: ") + packagePath +
+                       "\nStorageType: " + QString::number(storageType) +
+                       "\nExport Id: " + QString::number(dataExportId + 1) + "\n");
+                return ByteBuffer();
+            }
+            fs.JumpTo(dataOffset);
             data = fs.ReadToBuffer(uncompressedSize);
             break;
         }
@@ -190,6 +220,10 @@ uint TextureMovie::getCrcData()
 const ByteBuffer TextureMovie::toArray()
 {
     MemoryStream newData;
+    if (GameData::gameType != MeType::ME3_TYPE)
+    {
+        newData.WriteZeros(16);
+    }
     newData.WriteInt32(storageType);
     newData.WriteInt32(uncompressedSize);
     newData.WriteInt32(compressedSize);

@@ -1032,14 +1032,42 @@ void LayoutTexturesManager::ReplaceTexture(const QListWidgetItem *item, bool con
     QStringList pkgsToRepack;
     ModEntry modEntry;
     modEntry.injectedTexture = image;
+    auto texture = textures[viewTexture.indexInTextures];
     if (nodeTexture.movieTexture)
     {
         FileStream fs(file, FileMode::Open);
-        ByteBuffer data = fs.ReadAllToBuffer();
+        quint32 tag = fs.ReadUInt32();
+        if (tag != BIK_TAG)
+        {
+            QMessageBox::critical(this, "Replacing texture",
+                                  QString("File mod is not supported Bik movie."));
+            LockGui(false);
+            return;
+        }
+        int dataSize = fs.ReadInt32() + 8;
+        if (dataSize != QFile(file).size())
+        {
+            QMessageBox::critical(this, "Replacing texture",
+                                  QString("This texture has wrong size."));
+            LockGui(false);
+            return;
+        }
+        fs.Skip(12);
+        int w = fs.ReadInt32();
+        int h = fs.ReadInt32();
+        if (w / h != texture.width / texture.height)
+        {
+            QMessageBox::critical(this, "Replacing texture",
+                                  QString("This texture has wrong aspect ratio."));
+            LockGui(false);
+            return;
+        }
+        fs.SeekBegin();
+        ByteBuffer data = fs.ReadToBuffer(dataSize);
         modEntry.injectedMovieTexture = data;
     }
-    modEntry.textureCrc = textures[viewTexture.indexInTextures].crc;
-    modEntry.textureName = textures[viewTexture.indexInTextures].name;
+    modEntry.textureCrc = texture.crc;
+    modEntry.textureName = texture.name;
     modEntry.markConvert = convertMode;
     modEntry.instance = 1;
     modsToReplace.append(modEntry);
@@ -1052,7 +1080,7 @@ void LayoutTexturesManager::ReplaceTexture(const QListWidgetItem *item, bool con
         entry.listIndex = viewTexture.indexInPackages;
         MapPackagesToMod mapEntry;
         mapEntry.textures.append(entry);
-        mapEntry.packagePath = textures[viewTexture.indexInTextures].list[viewTexture.indexInPackages].path;
+        mapEntry.packagePath = texture.list[viewTexture.indexInPackages].path;
         QList<MapPackagesToMod> mapPackages;
         mapPackages.append(mapEntry);
         mipMaps.replaceTextures(mapPackages, textures, pkgsToMarker, pkgsToRepack, modsToReplace,
