@@ -857,7 +857,12 @@ void LayoutMain::ButtonTexturesMenagaerSelected(MeType gameType)
     auto TextureManager = new LayoutTexturesManager(mainWindow, gameType);
     mainWindow->GetLayout()->addWidget(TextureManager);
     mainWindow->SwitchLayoutById(MainWindow::kLayoutTexturesManager);
-    TextureManager->Startup();
+    if (!TextureManager->Startup())
+    {
+        mainWindow->SwitchLayoutById(MainWindow::kLayoutMain);
+        mainWindow->GetLayout()->removeWidget(TextureManager);
+        mainWindow->SetTitle(MeType::UNKNOWN_TYPE, "");
+    }
 }
 
 void LayoutMain::ButtonModsInstallerSelected(MeType gameType)

@@ -67,7 +67,7 @@ class LayoutTexturesManager: public LayoutHandle
 
 public:
     explicit LayoutTexturesManager(MainWindow *window, MeType type);
-    void Startup();
+    bool Startup();
 
 private slots:
     void ListLeftPackagesSelected(QListWidgetItem *current, QListWidgetItem *previous);

@@ -198,6 +198,10 @@ QString TextureProperty::getDisplayString(int index)
     {
         result += QString::number(texProperty.valueInt) + "\n";
     }
+    else if (texProperty.type == "ObjectProperty")
+    {
+        result += package->getName(package->getClassNameId(texProperty.valueInt)) + "\n";
+    }
     else if (texProperty.type == "ByteProperty")
     {
         if (GameData::gameType == MeType::ME3_TYPE)

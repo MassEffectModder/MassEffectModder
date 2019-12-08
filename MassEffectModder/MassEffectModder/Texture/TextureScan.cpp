@@ -89,6 +89,7 @@ void TreeScan::loadTexturesMap(MeType gameId, Resources &resources, QList<Textur
             }
             matched.removeEmptyMips = fs.ReadByte() != 0;
             matched.numMips = fs.ReadByte();
+            matched.movieTexture = (texture.flags == TextureProperty::TextureTypes::Movie);
             matched.path = pkgs[fs.ReadInt16()];
             matched.path.replace(QChar('\\'), QChar('/'));
             matched.packageName = BaseNameWithoutExt(matched.path).toLower();

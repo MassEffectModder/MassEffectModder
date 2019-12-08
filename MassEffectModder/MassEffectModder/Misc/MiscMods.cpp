@@ -860,22 +860,25 @@ end:
                 }
                 continue;
             }
-            fs.Skip(12);
-            int w = fs.ReadInt32();
-            int h = fs.ReadInt32();
-            if (w / h != f.width / f.height)
+            if (!forceHash)
             {
-                if (g_ipc)
+                fs.Skip(12);
+                int w = fs.ReadInt32();
+                int h = fs.ReadInt32();
+                if (w / h != f.width / f.height)
                 {
-                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
-                    ConsoleSync();
+                    if (g_ipc)
+                    {
+                        ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + BaseName(file));
+                        ConsoleSync();
+                    }
+                    else
+                    {
+                        PINFO(QString("Skipping movie: ") + f.name + QString().sprintf("_0x%08X", f.crc) +
+                             " This texture has wrong aspect ratio, skipping...");
+                    }
+                    continue;
                 }
-                else
-                {
-                    PINFO(QString("Skipping movie: ") + f.name + QString().sprintf("_0x%08X", f.crc) +
-                         " This texture has wrong aspect ratio, skipping...");
-                }
-                continue;
             }
             fs.SeekBegin();
 
@@ -954,7 +957,11 @@ end:
                     fileMod.tag = FileMovieTextureTag;
                 else
                     fileMod.tag = FileTextureTag;
-                fileMod.name = mods[l].textureName + QString().sprintf("_0x%08X", mods[l].textureCrc) + ".dds";
+                fileMod.name = mods[l].textureName + QString().sprintf("_0x%08X", mods[l].textureCrc);
+                if (mods[l].movieTexture)
+                    fileMod.name += ".bik";
+                else
+                    fileMod.name += ".dds";
                 outFs.WriteStringASCIINull(mods[l].textureName);
                 outFs.WriteUInt32(mods[l].textureCrc);
             }

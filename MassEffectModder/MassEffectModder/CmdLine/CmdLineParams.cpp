@@ -733,7 +733,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.extractAllTextures(gameId, output, input, false, pccOnly, tfcOnly, mapCRC, tfcName))
+        if (!tools.extractAllMovieTextures(gameId, output, input, pccOnly, tfcOnly, mapCRC, tfcName))
             errorCode = 1;
         break;
     case CmdType::COMPACT_DLC:

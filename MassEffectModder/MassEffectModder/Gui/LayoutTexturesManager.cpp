@@ -238,7 +238,7 @@ static int compareTextures(const ViewPackage &e1, const ViewPackage &e2)
     return 0;
 }
 
-void LayoutTexturesManager::Startup()
+bool LayoutTexturesManager::Startup()
 {
     LockGui(true);
 
@@ -251,7 +251,7 @@ void LayoutTexturesManager::Startup()
         mainWindow->statusBar()->clearMessage();
         buttonExit->setEnabled(true);
         mainWindow->LockClose(false);
-        return;
+        return false;
     }
 
     if (gameType == MeType::ME3_TYPE && Misc::unpackSFARisNeeded())
@@ -262,7 +262,7 @@ void LayoutTexturesManager::Startup()
         mainWindow->statusBar()->clearMessage();
         buttonExit->setEnabled(true);
         mainWindow->LockClose(false);
-        return;
+        return false;
     }
 
     QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
@@ -282,7 +282,7 @@ void LayoutTexturesManager::Startup()
             mainWindow->statusBar()->clearMessage();
             buttonExit->setEnabled(true);
             mainWindow->LockClose(false);
-            return;
+            return false;
         }
 
         uint countTexture = fs.ReadUInt32();
@@ -327,7 +327,7 @@ void LayoutTexturesManager::Startup()
                 mainWindow->statusBar()->clearMessage();
                 buttonExit->setEnabled(true);
                 mainWindow->LockClose(false);
-                return;
+                return false;
             }
         }
         for (int i = 0; i < g_GameData->packageFiles.count(); i++)
@@ -350,7 +350,7 @@ void LayoutTexturesManager::Startup()
                 mainWindow->statusBar()->clearMessage();
                 buttonExit->setEnabled(true);
                 mainWindow->LockClose(false);
-                return;
+                return false;
             }
         }
         if (!TreeScan::loadTexturesMapFile(filename, textures, true))
@@ -358,7 +358,7 @@ void LayoutTexturesManager::Startup()
             QMessageBox::critical(this, "Texture Manager", "Failed to load texture map.");
             buttonExit->setEnabled(true);
             mainWindow->LockClose(false);
-            return;
+            return false;
         }
     }
     else
@@ -376,7 +376,7 @@ void LayoutTexturesManager::Startup()
             mainWindow->statusBar()->clearMessage();
             buttonExit->setEnabled(true);
             mainWindow->LockClose(false);
-            return;
+            return false;
         }
     }
 
@@ -396,7 +396,7 @@ void LayoutTexturesManager::Startup()
         mainWindow->statusBar()->clearMessage();
         buttonExit->setEnabled(true);
         mainWindow->LockClose(false);
-        return;
+        return false;
     }
 
     mainWindow->statusBar()->showMessage("Checking for empty mips...");
@@ -430,7 +430,7 @@ void LayoutTexturesManager::Startup()
                                   QString("Failed game data detection."));
             buttonExit->setEnabled(true);
             mainWindow->LockClose(false);
-            return;
+            return false;
         }
         ByteBuffer exportData = package.getExportData(exportIdVerify);
         if (exportData.ptr() == nullptr)
@@ -439,7 +439,7 @@ void LayoutTexturesManager::Startup()
                                   QString("Failed game data detection."));
             buttonExit->setEnabled(true);
             mainWindow->LockClose(false);
-            return;
+            return false;
         }
         Texture texture(package, exportIdVerify, exportData);
         exportData.Free();
@@ -460,7 +460,7 @@ void LayoutTexturesManager::Startup()
         {
             buttonExit->setEnabled(true);
             mainWindow->LockClose(false);
-            return;
+            return false;
         }
     }
 
@@ -481,7 +481,7 @@ void LayoutTexturesManager::Startup()
               "\n\nThen start Texture Manager again.");
         buttonExit->setEnabled(true);
         mainWindow->LockClose(false);
-        return;
+        return false;
     }
 
     if (!QFile::exists(filename))
@@ -503,6 +503,7 @@ void LayoutTexturesManager::Startup()
             MessageWindow msg;
             msg.Show(mainWindow, "Errors while scanning package files", g_logs->BufferGetErrors());
         }
+        Misc::ApplyPostInstall(GameData::gameType, false);
     }
     else if (removeEmptyMips)
     {
@@ -523,8 +524,9 @@ void LayoutTexturesManager::Startup()
             msg.Show(mainWindow, "Errors while removing empty mips", g_logs->BufferGetErrors());
             buttonExit->setEnabled(true);
             mainWindow->LockClose(false);
-            return;
+            return false;
         }
+        Misc::ApplyPostInstall(GameData::gameType, false);
         if (GameData::gameType == MeType::ME3_TYPE)
             TOCBinFile::UpdateAllTOCBinFiles();
     }
@@ -604,6 +606,8 @@ void LayoutTexturesManager::Startup()
 
     LockGui(false);
     UpdateGui();
+
+    return true;
 }
 
 void LayoutTexturesManager::ListMiddleContextMenu(const QPoint &pos)
@@ -834,7 +838,10 @@ void LayoutTexturesManager::UpdateRight(const QListWidgetItem *item)
         }
 
         if (nodeTexture.movieTexture)
+        {
+            labelImage->clear();
             return;
+        }
 
         Package package;
         package.Open(g_GameData->GamePath() + nodeTexture.path);
@@ -892,7 +899,7 @@ void LayoutTexturesManager::UpdateRight(const QListWidgetItem *item)
         QString text;
         text += "Texture original CRC:  " +
                 QString().sprintf("0x%08X", textures[viewTexture.indexInTextures].crc) + "\n";
-        text += "Node name:     " + textures[viewTexture.indexInTextures].name + "\n";
+        text += "Node name:             " + textures[viewTexture.indexInTextures].name + "\n";
         for (int index2 = 0; index2 < (!singleInfoMode ? textures[viewTexture.indexInTextures].list.count() : 1); index2++)
         {
             if (textures[viewTexture.indexInTextures].list[index2].path.count() == 0)
@@ -916,6 +923,7 @@ void LayoutTexturesManager::UpdateRight(const QListWidgetItem *item)
                 text += "\nTexture instance: " + QString::number(index2 + 1) + "\n";
                 text += "  Texture name:       " + package.exportsTable[nodeTexture.exportID].objectName + "\n";
                 text += "  Export Id:          " + QString::number(nodeTexture.exportID + 1) + "\n";
+                text += "  Bik data size:      " + QString::number(textureMovie.getUncompressedSize()) + "\n";
                 text += "  Package path:       " + nodeTexture.path + "\n";
                 text += "  Texture properties:\n";
                 for (int l = 0; l < textureMovie.getProperties().texPropertyList.count(); l++)
@@ -1048,19 +1056,23 @@ void LayoutTexturesManager::ReplaceTexture(const QListWidgetItem *item, bool con
         if (dataSize != QFile(file).size())
         {
             QMessageBox::critical(this, "Replacing texture",
-                                  QString("This texture has wrong size."));
+                                  QString("This movie texture has wrong size."));
             LockGui(false);
             return;
         }
-        fs.Skip(12);
-        int w = fs.ReadInt32();
-        int h = fs.ReadInt32();
-        if (w / h != texture.width / texture.height)
+        auto f = Misc::FoundTextureInTheInternalMap(gameType, texture.crc);
+        if (f.crc != 0)
         {
-            QMessageBox::critical(this, "Replacing texture",
-                                  QString("This texture has wrong aspect ratio."));
-            LockGui(false);
-            return;
+            fs.Skip(12);
+            int w = fs.ReadInt32();
+            int h = fs.ReadInt32();
+            if (w / h != f.width / f.height)
+            {
+                QMessageBox::critical(this, "Replacing texture",
+                                      QString("This movie texture has wrong aspect ratio."));
+                LockGui(false);
+                return;
+            }
         }
         fs.SeekBegin();
         ByteBuffer data = fs.ReadToBuffer(dataSize);

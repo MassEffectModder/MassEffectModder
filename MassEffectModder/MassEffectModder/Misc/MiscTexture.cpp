@@ -22,6 +22,7 @@
 #include <Misc/Misc.h>
 #include <Helpers/MiscHelpers.h>
 #include <Helpers/Logs.h>
+#include <Resources/Resources.h>
 
 PixelFormat Misc::changeTextureType(MeType gameId, PixelFormat gamePixelFormat, PixelFormat texturePixelFormat,
                                     TextureProperty::TextureTypes flags)
@@ -71,6 +72,25 @@ PixelFormat Misc::changeTextureType(MeType gameId, PixelFormat gamePixelFormat, 
 
 TextureMapEntry Misc::FoundTextureInTheMap(QList<TextureMapEntry> &textures, uint crc)
 {
+    TextureMapEntry f{};
+    for (int s = 0; s < textures.count(); s++)
+    {
+        if (textures[s].crc == crc)
+        {
+            f = textures[s];
+            break;
+        }
+    }
+    return f;
+}
+
+TextureMapEntry Misc::FoundTextureInTheInternalMap(MeType gameId, uint crc)
+{
+    QList<TextureMapEntry> textures;
+    Resources resources;
+    resources.loadMD5Tables();
+    TreeScan::loadTexturesMap(gameId, resources, textures);
+
     TextureMapEntry f{};
     for (int s = 0; s < textures.count(); s++)
     {

@@ -102,6 +102,7 @@ public:
     static uint GetCRCFromTextureMap(QList<TextureMapEntry> &textures, int exportId,
                                      const QString &path);
     static TextureMapEntry FoundTextureInTheMap(QList<TextureMapEntry> &textures, uint crc);
+    static TextureMapEntry FoundTextureInTheInternalMap(MeType gameId, uint crc);
     static bool compareFileInfoPath(const QFileInfo &e1, const QFileInfo &e2);
     static bool convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
                                     MeType gameId, QList<TextureMapEntry> &textures, bool markToConvert,
@@ -158,6 +159,7 @@ public:
     static bool detectMod(MeType gameId);
     static void detectBrokenMod(QStringList &mods);
     static bool CheckGameDataAndMods(MeType gameId, Resources &resources);
+    static void ApplyPostInstall(MeType gameId, bool limit2k);
     static bool unpackSFARisNeeded();
     static bool checkGameFiles(MeType gameType, Resources &resources, QString &errors,
                                QStringList &mods, ProgressCallback callback,

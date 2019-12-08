@@ -293,13 +293,17 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                 TextureMovie textureMovie = TextureMovie(package, matched.exportID, exportData);
                 exportData.Free();
 
-                FileStream fs = FileStream(mod.memPath, FileMode::Open, FileAccess::ReadOnly);
-                fs.JumpTo(mod.memEntryOffset);
                 ByteBuffer data;
                 if (mod.injectedMovieTexture.size() != 0)
+                {
                     data = mod.injectedMovieTexture;
+                }
                 else
+                {
+                    FileStream fs = FileStream(mod.memPath, FileMode::Open, FileAccess::ReadOnly);
+                    fs.JumpTo(mod.memEntryOffset);
                     data = Misc::decompressData(fs, mod.memEntrySize);
+                }
                 if (data.size() == 0)
                 {
                     if (g_ipc)

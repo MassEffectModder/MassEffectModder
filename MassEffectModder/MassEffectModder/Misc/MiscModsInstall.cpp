@@ -416,30 +416,8 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
     if (!modded)
         Misc::AddMarkers(pkgsToMarker, callback, callbackHandle);
 
-
     if (!alotMode)
-    {
-        if (!applyModTag(gameId, 0, 0))
-            PERROR("Failed applying stamp for installation!\n");
-        PINFO("Updating LODs and other settings started...\n");
-        QString path = GameData::EngineConfigIniPath(gameId);
-        QDir().mkpath(DirName(path));
-#if !defined(_WIN32)
-        if (QFile(path).exists())
-        {
-            if (!Misc::ConvertEndLines(path, true))
-                return false;
-        }
-#endif
-        ConfigIni engineConf = ConfigIni(path);
-        LODSettings::updateLOD(gameId, engineConf, limit2k);
-        LODSettings::updateGFXSettings(gameId, engineConf, false, false);
-#if !defined(_WIN32)
-        if (!Misc::ConvertEndLines(path, false))
-            return false;
-#endif
-        PINFO("Updating LODs and other settings finished.\n\n");
-    }
+        ApplyPostInstall(gameId, limit2k);
 
     if (gameId == MeType::ME3_TYPE)
         TOCBinFile::UpdateAllTOCBinFiles();
@@ -456,4 +434,28 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
     PINFO("\nInstallation finished.\n\n");
 
     return true;
+}
+
+void Misc::ApplyPostInstall(MeType gameId, bool limit2k)
+{
+    if (!applyModTag(gameId, 0, 0))
+        PERROR("Failed applying stamp for installation!\n");
+    PINFO("Updating LODs and other settings started...\n");
+    QString path = GameData::EngineConfigIniPath(gameId);
+    QDir().mkpath(DirName(path));
+#if !defined(_WIN32)
+    if (QFile(path).exists())
+    {
+        if (!Misc::ConvertEndLines(path, true))
+            return false;
+    }
+#endif
+    ConfigIni engineConf = ConfigIni(path);
+    LODSettings::updateLOD(gameId, engineConf, limit2k);
+    LODSettings::updateGFXSettings(gameId, engineConf, false, false);
+#if !defined(_WIN32)
+    if (!Misc::ConvertEndLines(path, false))
+        return false;
+#endif
+    PINFO("Updating LODs and other settings finished.\n\n");
 }

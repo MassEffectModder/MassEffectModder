@@ -64,6 +64,9 @@ public:
     bool extractAllTextures(MeType gameId, QString &outputDir, QString &inputFile,
                             bool png, bool pccOnly, bool tfcOnly, bool mapCrc,
                             QString &textureTfcFilter);
+    bool extractAllMovieTextures(MeType gameId, QString &outputDir, QString &inputFile,
+                                    bool pccOnly, bool tfcOnly, bool mapCrc,
+                                    QString &textureTfcFilter);
     bool CheckTextures(MeType gameId);
     bool FixMissingPropertyInTextures(MeType gameId, const QString& filter);
     bool checkGameFilesAfter(MeType gameType);
