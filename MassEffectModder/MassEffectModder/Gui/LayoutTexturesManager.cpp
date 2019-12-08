@@ -503,7 +503,12 @@ bool LayoutTexturesManager::Startup()
             MessageWindow msg;
             msg.Show(mainWindow, "Errors while scanning package files", g_logs->BufferGetErrors());
         }
-        Misc::ApplyPostInstall(GameData::gameType, false);
+        if (!Misc::ApplyPostInstall(GameData::gameType, false))
+        {
+            buttonExit->setEnabled(true);
+            mainWindow->LockClose(false);
+            return false;
+        }
     }
     else if (removeEmptyMips)
     {
@@ -526,7 +531,12 @@ bool LayoutTexturesManager::Startup()
             mainWindow->LockClose(false);
             return false;
         }
-        Misc::ApplyPostInstall(GameData::gameType, false);
+        if (!Misc::ApplyPostInstall(GameData::gameType, false))
+        {
+            buttonExit->setEnabled(true);
+            mainWindow->LockClose(false);
+            return false;
+        }
         if (GameData::gameType == MeType::ME3_TYPE)
             TOCBinFile::UpdateAllTOCBinFiles();
     }

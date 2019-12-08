@@ -417,7 +417,10 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
         Misc::AddMarkers(pkgsToMarker, callback, callbackHandle);
 
     if (!alotMode)
-        ApplyPostInstall(gameId, limit2k);
+    {
+        if (!ApplyPostInstall(gameId, limit2k))
+            return false;
+    }
 
     if (gameId == MeType::ME3_TYPE)
         TOCBinFile::UpdateAllTOCBinFiles();
@@ -436,7 +439,7 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
     return true;
 }
 
-void Misc::ApplyPostInstall(MeType gameId, bool limit2k)
+bool Misc::ApplyPostInstall(MeType gameId, bool limit2k)
 {
     if (!applyModTag(gameId, 0, 0))
         PERROR("Failed applying stamp for installation!\n");
@@ -458,4 +461,6 @@ void Misc::ApplyPostInstall(MeType gameId, bool limit2k)
         return false;
 #endif
     PINFO("Updating LODs and other settings finished.\n\n");
+
+    return true;
 }

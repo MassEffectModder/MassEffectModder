@@ -159,7 +159,7 @@ public:
     static bool detectMod(MeType gameId);
     static void detectBrokenMod(QStringList &mods);
     static bool CheckGameDataAndMods(MeType gameId, Resources &resources);
-    static void ApplyPostInstall(MeType gameId, bool limit2k);
+    static bool ApplyPostInstall(MeType gameId, bool limit2k);
     static bool unpackSFARisNeeded();
     static bool checkGameFiles(MeType gameType, Resources &resources, QString &errors,
                                QStringList &mods, ProgressCallback callback,
