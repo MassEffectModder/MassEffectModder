@@ -27,7 +27,9 @@
 #include <Helpers/Logs.h>
 #include <Helpers/MiscHelpers.h>
 #include <Program/SignalHandler.h>
+#ifdef GUI
 #include <Program/Updater.h>
+#endif
 
 bool g_ipc = false;
 
