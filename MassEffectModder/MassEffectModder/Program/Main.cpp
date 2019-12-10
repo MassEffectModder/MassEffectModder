@@ -27,6 +27,7 @@
 #include <Helpers/Logs.h>
 #include <Helpers/MiscHelpers.h>
 #include <Program/SignalHandler.h>
+#include <Program/Updater.h>
 
 bool g_ipc = false;
 
@@ -102,6 +103,9 @@ int runQtApplication(int argc, char *argv[])
 
     MainWindow window;
     window.show();
+
+    Updater updater(&window);
+    QTimer::singleShot(1000, &updater, SLOT(processUpdate()));
 
     int status = QApplication::exec();
 #else

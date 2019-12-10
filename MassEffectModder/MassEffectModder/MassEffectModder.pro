@@ -1,7 +1,7 @@
 QT += core
 
 equals(GUI_MODE, true) {
-    QT += gui widgets
+    QT += gui widgets network
 } else {
     QT -= gui
     CONFIG += console
@@ -68,7 +68,8 @@ SOURCES += \
     Gui/GuiTextureUtilities.cpp \
     Gui/LayoutInstallMods.cpp \
     Gui/LayoutMain.cpp \
-    Gui/LayoutTexturesManager.cpp
+    Gui/LayoutTexturesManager.cpp \
+    Program/Updater.cpp
 } else {
 SOURCES += \
     CmdLine/CmdLineHelp.cpp \
@@ -114,7 +115,8 @@ HEADERS += \
     Gui/MessageWindow.h \
     Gui/LayoutInstallMods.h \
     Gui/LayoutMain.h \
-    Gui/LayoutTexturesManager.h
+    Gui/LayoutTexturesManager.h \
+    Program/Updater.h
 } else {
 HEADERS += \
     CmdLine/CmdLineParams.h \
