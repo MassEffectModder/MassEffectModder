@@ -494,13 +494,10 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path)
                 break;
             }
 
-            if (full_path)
-            {
-                if (output_path[0] != 0)
-                    sprintf(full_file_path, "%s/%s", output_path, FileName);
-                else
-                    strcpy(full_file_path, FileName);
-            }
+            if (output_path[0] != 0)
+                sprintf(full_file_path, "%s/%s", output_path, FileName);
+            else
+                strcpy(full_file_path, FileName);
 
             if (OutFile_Open(&outFile, full_file_path))
             {

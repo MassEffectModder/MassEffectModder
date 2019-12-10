@@ -451,20 +451,17 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
                 }
             }
         }
-
-        if (full_path)
-        {
-            if (outputDir[0] != 0)
-                sprintf(static_cast<char *>(outputPath), "%s/%s", const_cast<char *>(outputDir), fileName);
-            else
-                strcpy(static_cast<char *>(outputPath), fileName);
-        }
         if (result != 0)
         {
             delete[] data;
             result = 1;
             break;
         }
+
+        if (outputDir[0] != 0)
+            sprintf(static_cast<char *>(outputPath), "%s/%s", const_cast<char *>(outputDir), fileName);
+        else
+            strcpy(static_cast<char *>(outputPath), fileName);
 
         FILE *file = fopen(outputPath, "wb+");
         if (!file)
