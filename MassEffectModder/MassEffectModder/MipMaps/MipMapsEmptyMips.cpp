@@ -42,8 +42,11 @@ void MipMaps::prepareListToRemove(QList<TextureMapEntry> &textures, QList<Remove
 #endif
         for (int t = 0; t < textures[k].list.count(); t++)
         {
-            if (textures[k].list[t].path.length() == 0)
+            if ((textures[k].list[t].path.length() == 0) ||
+                 textures[k].list[t].movieTexture)
+            {
                 continue;
+            }
             if (textures[k].list[t].removeEmptyMips || force)
             {
                 bool found = false;
@@ -168,6 +171,10 @@ void MipMaps::removeMipMapsPerPackage(int phase, QList<TextureMapEntry> &texture
     for (int l = 0; l < removeEntry.exportIDs.count(); l++)
     {
         int exportID = removeEntry.exportIDs[l];
+        Package::ExportEntry &exp = package.exportsTable[exportID];
+        int id = package.getClassNameId(exp.getClassId());
+        if (id == package.nameIdTextureMovie)
+            continue;
         ByteBuffer exportData = package.getExportData(exportID);
         if (exportData.ptr() == nullptr)
         {
