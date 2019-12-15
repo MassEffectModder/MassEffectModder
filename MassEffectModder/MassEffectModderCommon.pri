@@ -2,6 +2,9 @@ TEMPLATE = subdirs
 
 CONFIG += ordered
 
+#SUBDIRS += \
+#    Common
+
 SUBDIRS += \
     Libs/7z \
     Libs/bfd \
