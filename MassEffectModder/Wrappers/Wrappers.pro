@@ -11,8 +11,12 @@ SOURCES += \
     WrapperUnzip.cpp \
     WrapperUnrar.cpp \
     WrapperXdelta.cpp \
-    WrapperZlib.cpp \
-#    WrapperZstd.cpp
+    WrapperZlib.cpp
+
+equals(ZSTD_ENABLE, true) {
+SOURCES += \
+    WrapperZstd.cpp
+}
 
 macx {
     SOURCES += BacktraceMac.cpp
@@ -43,7 +47,7 @@ INCLUDEPATH += \
     $$PWD/../Libs/png \
     $$PWD/../Libs/xdelta3 \
     $$PWD/../Libs/zlib \
-#    $$PWD/../Libs/zstd \
+    $$PWD/../Libs/zstd \
     $$PWD/../Libs/unrar
 
 DEPENDPATH += \
@@ -54,5 +58,5 @@ DEPENDPATH += \
     $$PWD/../Libs/png \
     $$PWD/../Libs/xdelta3 \
     $$PWD/../Libs/zlib \
-#    $$PWD/../Libs/zstd \
+    $$PWD/../Libs/zstd \
     $$PWD/../Libs/unrar
