@@ -25,9 +25,9 @@
 
 void FileStream::CheckFileIOErrorStatus()
 {
-    if (file->error() != QFileDevice::NoError)
+    if (!file->good() && !file->eof())
     {
-        auto error = (QString("Error: ") + file->errorString() + ", File: " + file->fileName()).toStdString();
+        std::wstring error("Error: Failed while read/writing operation, File: " + filePath + "\n");
         CRASH_MSG(error.c_str());
     }
 }
@@ -36,6 +36,7 @@ FileStream::FileStream(const std::wstring &path, FileMode mode, FileAccess acces
     : file(nullptr)
 {
     std::fstream::openmode openFlags{};
+    filePath = path;
     file = new std::wfstream;
 
     switch (access)
@@ -61,7 +62,7 @@ FileStream::FileStream(const std::wstring &path, FileMode mode, FileAccess acces
 
     if (!file->is_open())
     {
-        auto error = std::string("Error: Failed to open file: " + path + "\n";
+        auto error = std::wstring("Error: Failed to open file: " + path + "\n";
         CRASH_MSG(error.c_str());
     }
 }
@@ -74,12 +75,16 @@ FileStream::~FileStream()
 
 int64_t FileStream::Length()
 {
-    return file->size();
+    size_t pos = file.tellp();
+    file.seekp(0, ios_base::end);
+    size_t size = file.tellp();
+    file.seekp(pos, ios_base::beg);
+    return size;
 }
 
 int64_t FileStream::Position()
 {
-    return file->pos();
+    return file->tellp();
 }
 
 void FileStream::Flush()
@@ -103,7 +108,7 @@ void FileStream::CopyFrom(Stream &stream, int64_t count, int64_t bufferSize)
     std::unique_ptr<uint8_t[]> buffer (new uint8_t[static_cast<unsigned long>(bufferSize)]);
     do
     {
-        int64_t size = qMin(bufferSize, count);
+        int64_t size = MIN(bufferSize, count);
         stream.ReadToBuffer(buffer.get(), size);
         WriteFromBuffer(buffer.get(), size);
         count -= size;
@@ -140,23 +145,23 @@ void FileStream::WriteFromBuffer(const ByteBuffer &buffer)
     WriteFromBuffer(buffer.ptr(), buffer.size());
 }
 
-void FileStream::ReadStringASCII(QString &str, int64_t count)
+void FileStream::ReadStringASCII(std::string &str, int64_t count)
 {
     std::unique_ptr<char[]> buffer (new char[static_cast<size_t>(count) + 1]);
 
     buffer.get()[count] = 0;
     file->read(buffer.get(), count);
     CheckFileIOErrorStatus();
-    str = QString(buffer.get());
+    str = std::string(buffer.get());
 }
 
-void FileStream::ReadStringASCIINull(QString &str)
+void FileStream::ReadStringASCIINull(std::string &str)
 {
     str = "";
     do
     {
         char c = 0;
-        file->getChar(&c);
+        file->get(&c);
         CheckFileIOErrorStatus();
         if (c == 0)
             return;
@@ -164,31 +169,31 @@ void FileStream::ReadStringASCIINull(QString &str)
     } while (true);
 }
 
-void FileStream::ReadStringUnicode16(QString &str, qint64_t count)
+void FileStream::ReadStringUnicode16(std::wstring &str, qint64_t count)
 {
     str = "";
-    for (qint64_t n = 0; n < count; n++)
+    for (int64_t n = 0; n < count; n++)
     {
-        uint16_t c = ReadUInt16();
+        wchar_t c = ReadUInt16();
         CheckFileIOErrorStatus();
-        str += QChar(static_cast<ushort>(c));
+        str += c;
     }
 }
 
-void FileStream::ReadStringUnicode16Null(QString &str)
+void FileStream::ReadStringUnicode16Null(std::wstring &str)
 {
     str = "";
     do
     {
-        uint16_t c = ReadUInt16();
+        wchar_t c = ReadUInt16();
         CheckFileIOErrorStatus();
         if (c == 0)
             return;
-        str += QChar(static_cast<ushort>(c));
+        str += c;
     } while (true);
 }
 
-void FileStream::WriteStringASCII(const QString &str)
+void FileStream::WriteStringASCII(const std::string &str)
 {
     std::string string = str.toStdString();
     const char *s = string.c_str();
@@ -196,20 +201,20 @@ void FileStream::WriteStringASCII(const QString &str)
     CheckFileIOErrorStatus();
 }
 
-void FileStream::WriteStringASCIINull(const QString &str)
+void FileStream::WriteStringASCIINull(const std::wstring &str)
 {
     WriteStringASCII(str);
     WriteByte(0);
 }
 
-void FileStream::WriteStringUnicode16(const QString &str)
+void FileStream::WriteStringUnicode16(const std::wstring &str)
 {
-    auto *s = const_cast<ushort *>(str.utf16());
+    auto *s = const_cast<wchar_t *>str->data();
     file->write(reinterpret_cast<char *>(s), str.length() * 2);
     CheckFileIOErrorStatus();
 }
 
-void FileStream::WriteStringUnicode16Null(const QString &str)
+void FileStream::WriteStringUnicode16Null(const std::wstring &str)
 {
     WriteStringUnicode16(str);
     WriteUInt16(0);

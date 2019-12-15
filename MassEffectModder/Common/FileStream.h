@@ -46,6 +46,7 @@ class FileStream : public Stream
 private:
 
     std::wfstream *file;
+    std::wstring  filePath;
 
     void CheckFileIOErrorStatus();
 
@@ -69,14 +70,14 @@ public:
     ByteBuffer ReadAllToBuffer();
     void WriteFromBuffer(uint8_t *buffer, int64_t count) override;
     void WriteFromBuffer(const ByteBuffer &buffer) override;
-    void ReadStringASCII(QString &str, int64_t count) override;
-    void ReadStringASCIINull(QString &str) override;
-    void ReadStringUnicode16(QString &str, int64_t count) override;
-    void ReadStringUnicode16Null(QString &str) override;
-    void WriteStringASCII(const QString &str) override;
-    void WriteStringASCIINull(const QString &str) override;
-    void WriteStringUnicode16(const QString &str) override;
-    void WriteStringUnicode16Null(const QString &str) override;
+    void ReadStringASCII(std::string &str, int64_t count) override;
+    void ReadStringASCIINull(std::string &str) override;
+    void ReadStringUnicode16(std::wstring &str, int64_t count) override;
+    void ReadStringUnicode16Null(std::wstring &str) override;
+    void WriteStringASCII(const std::string &str) override;
+    void WriteStringASCIINull(const std::string &str) override;
+    void WriteStringUnicode16(const std::wstring &str) override;
+    void WriteStringUnicode16Null(const std::wstring &str) override;
     int64_t ReadInt64() override;
     uint64_t ReadUInt64() override;
     int32_t ReadInt32() override;

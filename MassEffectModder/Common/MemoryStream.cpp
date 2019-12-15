@@ -76,12 +76,13 @@ MemoryStream::MemoryStream(const ByteBuffer &buffer, int64 offset, int64 count)
     position = 0;
 }
 
-MemoryStream::MemoryStream(QString &filename, int64_t offset, int64_t count)
+MemoryStream::MemoryStream(std::wstring &filename, int64_t offset, int64_t count)
 {
-    QFile file(filename);
-    if (!file.open(QIODevice::ReadOnly))
+    std::wfstream file;
+    file.open(filename, std::wfstream::in);
+    if (!file->is_open())
     {
-        auto error = (QString("Error: ") + file.errorString() + "\nFailed to open file: " + filename + "\n").toStdString();
+        auto error = std::wstring("Error: Failed to open file: " + path + "\n";
         CRASH_MSG(error.c_str());
     }
 
@@ -95,19 +96,32 @@ MemoryStream::MemoryStream(QString &filename, int64_t offset, int64_t count)
         CRASH_MSG("MemoryStream: out of range.");
     }
 
-    file.seek(offset);
+    file.seekp(offset, ios_base::beg);
+    if (!file.good() && !file.eof())
+    {
+        std::wstring error("Error: Failed while seek operation, File: " + filename + "\n");
+        CRASH_MSG(error.c_str());
+    }
+
     file.read(reinterpret_cast<char *>(internalBuffer), count);
+    if (!file.good() && !file.eof())
+    {
+        std::wstring error("Error: Failed while read/writing operation, File: " + filename + "\n");
+        CRASH_MSG(error.c_str());
+    }
+    file.close();
 
     internalBufferSize = length = count;
     position = 0;
 }
 
-MemoryStream::MemoryStream(QString &filename, int64_t count)
+MemoryStream::MemoryStream(std::wstring &filename, int64_t count)
 {
-    QFile file(filename);
-    if (!file.open(QIODevice::ReadOnly))
+    std::wfstream file;
+    file.open(filename, std::wfstream::in);
+    if (!file->is_open())
     {
-        auto error = (QString("Error: ") + file.errorString() + "\nFailed to open file: " + filename + "\n").toStdString();
+        auto error = std::wstring("Error: Failed to open file: " + path + "\n";
         CRASH_MSG(error.c_str());
     }
 
@@ -118,21 +132,30 @@ MemoryStream::MemoryStream(QString &filename, int64_t count)
     }
 
     file.read(reinterpret_cast<char *>(internalBuffer), count);
+    if (!file.good() && !file.eof())
+    {
+        std::wstring error("Error: Failed while read/writing operation, File: " + filename + "\n");
+        CRASH_MSG(error.c_str());
+    }
+    file.close();
 
     internalBufferSize = length = count;
     position = 0;
 }
 
-MemoryStream::MemoryStream(QString &filename)
+MemoryStream::MemoryStream(std::wstring &filename)
 {
-    QFile file(filename);
-    if (!file.open(QIODevice::ReadOnly))
+    std::wfstream file;
+    file.open(filename, std::wfstream::in);
+    if (!file->is_open())
     {
-        auto error = (QString("Error: ") + file.errorString() + "\nFailed to open file: " + filename + "\n").toStdString();
+        auto error = std::wstring("Error: Failed to open file: " + path + "\n";
         CRASH_MSG(error.c_str());
     }
 
-    int64 count = file.size();
+    file.seekp(0, ios_base::end);
+    size_t count = file.tellp();
+    file.seekp(0, ios_base::beg);
     internalBuffer = static_cast<uint8_t *>(std::malloc(static_cast<size_t>(count)));
     if (internalBuffer == nullptr )
     {
@@ -140,6 +163,12 @@ MemoryStream::MemoryStream(QString &filename)
     }
 
     file.read(reinterpret_cast<char *>(internalBuffer), count);
+    if (!file.good() && !file.eof())
+    {
+        std::wstring error("Error: Failed while read/writing operation, File: " + filename + "\n");
+        CRASH_MSG(error.c_str());
+    }
+    file.close();
 
     internalBufferSize = length = count;
     position = 0;
@@ -217,16 +246,16 @@ void MemoryStream::WriteFromBuffer(const ByteBuffer &buffer)
     WriteFromBuffer(buffer.ptr(), buffer.size());
 }
 
-void MemoryStream::ReadStringASCII(QString &str, qint64_t count)
+void MemoryStream::ReadStringASCII(std::string &str, qint64_t count)
 {
     std::unique_ptr<char[]> buffer (new char[static_cast<size_t>(count) + 1]);
 
     buffer.get()[count] = 0;
     ReadToBuffer(reinterpret_cast<uint8_t *>(buffer.get()), count);
-    str = QString(buffer.get());
+    str = std::string(buffer.get());
 }
 
-void MemoryStream::ReadStringASCIINull(QString &str)
+void MemoryStream::ReadStringASCIINull(std::string &str)
 {
     str = "";
     do
@@ -238,48 +267,48 @@ void MemoryStream::ReadStringASCIINull(QString &str)
     } while (position < length);
 }
 
-void MemoryStream::ReadStringUnicode16(QString &str, int64_t count)
+void MemoryStream::ReadStringUnicode16(std::wstring &str, int64_t count)
 {
     str = "";
     for (int64_t n = 0; n < count; n++)
     {
-        uint16_t c = ReadUInt16();
-        str += QChar(static_cast<ushort>(c));
+        wchar_t c = ReadUInt16();
+        str += c;
     }
 }
 
-void MemoryStream::ReadStringUnicode16Null(QString &str)
+void MemoryStream::ReadStringUnicode16Null(std::wstring &str)
 {
     str = "";
     do
     {
-        uint16_t c = ReadUInt16();
+        wchar_t c = ReadUInt16();
         if (c == 0)
             return;
-        str += QChar(static_cast<ushort>(c));
+        str += c;
     } while (position < length);
 }
 
-void MemoryStream::WriteStringASCII(const QString &str)
+void MemoryStream::WriteStringASCII(const std::string &str)
 {
     std::string string = str.toStdString();
     auto s = const_cast<char *>(string.c_str());
     WriteFromBuffer(reinterpret_cast<uint8_t *>(s), string.length());
 }
 
-void MemoryStream::WriteStringASCIINull(const QString &str)
+void MemoryStream::WriteStringASCIINull(const std::string &str)
 {
     WriteStringASCII(str);
     WriteByte(0);
 }
 
-void MemoryStream::WriteStringUnicode16(const QString &str)
+void MemoryStream::WriteStringUnicode16(const std::wstring &str)
 {
-    auto *s = const_cast<ushort *>(str.utf16());
+    auto *s = const_cast<wchar_t *>str->data();
     WriteFromBuffer(reinterpret_cast<uint8_t *>(s), str.length() * 2);
 }
 
-void MemoryStream::WriteStringUnicode16Null(const QString &str)
+void MemoryStream::WriteStringUnicode16Null(const std::wstring &str)
 {
     WriteStringUnicode16(str);
     WriteUInt16(0);
