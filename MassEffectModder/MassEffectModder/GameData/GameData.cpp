@@ -526,6 +526,7 @@ const QString GameData::ConfigIniPath(MeType type)
         case MeType::ME1_TYPE:
             return path + "/Config";
         case MeType::ME2_TYPE:
+            return path + "/BIOGame/Config";
         case MeType::ME3_TYPE:
             return path + "/BioGame/Config";
         case MeType::UNKNOWN_TYPE:
