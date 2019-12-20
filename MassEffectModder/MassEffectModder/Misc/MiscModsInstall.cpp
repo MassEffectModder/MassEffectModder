@@ -106,12 +106,15 @@ bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
             QString pkgPath;
             fs.JumpTo(modFiles[l].offset);
             long size = modFiles[l].size;
-            if (modFiles[l].tag == FileTextureTag || modFiles[l].tag == FileTextureTag2)
+            if (modFiles[l].tag == FileTextureTag ||
+                modFiles[l].tag == FileTextureTag2 ||
+                modFiles[l].tag == FileMovieTextureTag)
             {
                 fs.ReadStringASCIINull(name);
                 crc = fs.ReadUInt32();
             }
-            else if (modFiles[l].tag == FileBinaryTag || modFiles[l].tag == FileXdeltaTag)
+            else if (modFiles[l].tag == FileBinaryTag ||
+                     modFiles[l].tag == FileXdeltaTag)
             {
                 name = modFiles[l].name;
                 exportId = fs.ReadInt32();
@@ -132,7 +135,9 @@ bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
                 continue;
             }
 
-            if (modFiles[l].tag == FileTextureTag || modFiles[l].tag == FileTextureTag2)
+            if (modFiles[l].tag == FileTextureTag ||
+                modFiles[l].tag == FileTextureTag2 ||
+                modFiles[l].tag == FileMovieTextureTag)
             {
                 TextureMapEntry f = Misc::FoundTextureInTheMap(textures, crc);
                 if (f.crc != 0)
