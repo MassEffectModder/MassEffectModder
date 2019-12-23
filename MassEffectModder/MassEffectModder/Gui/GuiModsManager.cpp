@@ -290,9 +290,9 @@ void LayoutMain::CreateBinaryModSelected(MeType gameType)
         QApplication::processEvents();
         FileStream fs = FileStream(packagesList[i], FileMode::Open, FileAccess::ReadOnly);
         fs.SeekEnd();
-        fs.Seek(-MEMMarkerLenght, SeekOrigin::Current);
+        fs.Seek(-MEMMarkerLength, SeekOrigin::Current);
         QString marker;
-        fs.ReadStringASCII(marker, MEMMarkerLenght);
+        fs.ReadStringASCII(marker, MEMMarkerLength);
         if (marker == QString(MEMendFileMarker))
         {
             mainWindow->statusBar()->clearMessage();

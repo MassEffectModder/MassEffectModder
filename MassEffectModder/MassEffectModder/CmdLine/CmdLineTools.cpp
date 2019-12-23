@@ -1419,9 +1419,9 @@ bool CmdLineTools::checkGameFilesAfter(MeType gameType)
             lastProgress = newProgress;
         }
         FileStream fs = FileStream(g_GameData->GamePath() + filesToUpdate[i], FileMode::Open, FileAccess::ReadOnly);
-        fs.Seek(-MEMMarkerLenght, SeekOrigin::End);
+        fs.Seek(-MEMMarkerLength, SeekOrigin::End);
         QString marker;
-        fs.ReadStringASCII(marker, MEMMarkerLenght);
+        fs.ReadStringASCII(marker, MEMMarkerLength);
         if (marker != QString(MEMendFileMarker))
         {
             if (g_ipc)

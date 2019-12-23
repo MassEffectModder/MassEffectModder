@@ -887,8 +887,8 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
     if (!appendMarker)
     {
         QString marker;
-        packageStream->Seek(-MEMMarkerLenght, SeekOrigin::End);
-        packageStream->ReadStringASCII(marker, MEMMarkerLenght);
+        packageStream->Seek(-MEMMarkerLength, SeekOrigin::End);
+        packageStream->ReadStringASCII(marker, MEMMarkerLength);
         if (marker == QString(MEMendFileMarker))
             appendMarker = true;
     }

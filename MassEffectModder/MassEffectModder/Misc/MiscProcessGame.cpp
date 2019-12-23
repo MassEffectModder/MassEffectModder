@@ -180,9 +180,9 @@ bool Misc::CheckForMarkers(ProgressCallback callback, void *callbackHandle)
         }
 
         FileStream fs = FileStream(g_GameData->GamePath() + packages[i], FileMode::Open, FileAccess::ReadOnly);
-        fs.Seek(-MEMMarkerLenght, SeekOrigin::End);
+        fs.Seek(-MEMMarkerLength, SeekOrigin::End);
         QString marker;
-        fs.ReadStringASCII(marker, MEMMarkerLenght);
+        fs.ReadStringASCII(marker, MEMMarkerLength);
         if (marker == QString(MEMendFileMarker))
         {
             if (g_ipc)
@@ -230,9 +230,9 @@ bool Misc::MarkersPresent(ProgressCallback callback, void *callbackHandle)
         }
 
         FileStream fs = FileStream(g_GameData->GamePath() + packages[i], FileMode::Open, FileAccess::ReadOnly);
-        fs.Seek(-MEMMarkerLenght, SeekOrigin::End);
+        fs.Seek(-MEMMarkerLength, SeekOrigin::End);
         QString marker;
-        fs.ReadStringASCII(marker, MEMMarkerLenght);
+        fs.ReadStringASCII(marker, MEMMarkerLength);
         if (marker == QString(MEMendFileMarker))
         {
             return true;
@@ -360,9 +360,9 @@ void Misc::AddMarkers(QStringList &pkgsToMarker,
             }
         }
         FileStream fs = FileStream(g_GameData->GamePath() + pkgsToMarker[i], FileMode::Open, FileAccess::ReadWrite);
-        fs.Seek(-MEMMarkerLenght, SeekOrigin::End);
+        fs.Seek(-MEMMarkerLength, SeekOrigin::End);
         QString marker;
-        fs.ReadStringASCII(marker, MEMMarkerLenght);
+        fs.ReadStringASCII(marker, MEMMarkerLength);
         QString str(MEMendFileMarker);
         if (marker != str)
         {
