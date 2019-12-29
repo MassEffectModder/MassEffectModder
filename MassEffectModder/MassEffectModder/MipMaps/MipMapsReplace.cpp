@@ -528,8 +528,19 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                         changeTextureType(pixelFormat, mod.cachedPixelFormat, texture);
                 }
 
+                int forceInternalMip = false;
                 if (texture.getProperties().exists("NeverStream"))
                     texture.getProperties().removeProperty("NeverStream");
+                if (GameData::gameType == MeType::ME3_TYPE)
+                {
+                    if ((pixelFormat == PixelFormat::G8 &&
+                        textures[entryMap.texturesIndex].list.count() == 1 &&
+                        !texture.HasExternalMips()) ||
+                        mod.textureName.startsWith("CubemapFace"))
+                    {
+                        forceInternalMip = true;
+                    }
+                }
                 auto mipmapsPre = QList<Texture::TextureMipMap>();
                 for (int m = 0; m < mod.cacheCprMipmaps.count(); m++)
                 {
@@ -538,9 +549,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                     {
                         mipmap.storageType = StorageTypes::pccUnc;
                     }
-                    else if (pixelFormat == PixelFormat::G8 &&
-                             textures[entryMap.texturesIndex].list.count() == 1 &&
-                             !texture.HasExternalMips())
+                    else if (forceInternalMip)
                     {
                         mipmap.storageType = StorageTypes::pccUnc;
                         if (!texture.getProperties().exists("NeverStream"))
