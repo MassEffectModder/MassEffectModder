@@ -509,6 +509,8 @@ bool LayoutTexturesManager::Startup()
             mainWindow->LockClose(false);
             return false;
         }
+        if (GameData::gameType == MeType::ME3_TYPE)
+            TOCBinFile::UpdateAllTOCBinFiles();
     }
     else if (removeEmptyMips)
     {
@@ -1120,6 +1122,8 @@ void LayoutTexturesManager::ReplaceTexture(const QListWidgetItem *item, bool con
     {
         modEntry.injectedMovieTexture.Free();
     }
+    if (GameData::gameType == MeType::ME3_TYPE)
+        TOCBinFile::UpdateAllTOCBinFiles();
     mainWindow->statusBar()->clearMessage();
     UpdateRight(item);
     if (g_logs->BufferGetErrors() != "")
