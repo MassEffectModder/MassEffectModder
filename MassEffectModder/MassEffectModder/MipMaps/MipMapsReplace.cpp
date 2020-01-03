@@ -531,16 +531,24 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                 int forceInternalMip = false;
                 if (texture.getProperties().exists("NeverStream"))
                     texture.getProperties().removeProperty("NeverStream");
-                if (GameData::gameType == MeType::ME3_TYPE)
+                if (GameData::gameType == MeType::ME2_TYPE ||
+                    GameData::gameType == MeType::ME3_TYPE)
                 {
-                    if ((pixelFormat == PixelFormat::G8 &&
-                        textures[entryMap.texturesIndex].list.count() == 1 &&
-                        !texture.HasExternalMips()) ||
-                        mod.textureName.startsWith("CubemapFace"))
+                    if (mod.textureName.startsWith("CubemapFace"))
                     {
                         forceInternalMip = true;
                     }
                 }
+                if (GameData::gameType == MeType::ME3_TYPE)
+                {
+                    if ((pixelFormat == PixelFormat::G8 &&
+                        textures[entryMap.texturesIndex].list.count() == 1 &&
+                        !texture.HasExternalMips()))
+                    {
+                            forceInternalMip = true;
+                    }
+                }
+
                 auto mipmapsPre = QList<Texture::TextureMipMap>();
                 for (int m = 0; m < mod.cacheCprMipmaps.count(); m++)
                 {
