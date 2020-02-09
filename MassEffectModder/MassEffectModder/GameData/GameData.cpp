@@ -213,6 +213,8 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
                         tfcFiles.push_back(DLCFiles[i]);
                     else if (AsciiStringEndsWith(DLCFiles[i], EXTENSION_AFC, EXTENSION_AFC_LEN))
                         afcFiles.push_back(DLCFiles[i]);
+                    else if (AsciiStringEndsWith(DLCFiles[i], EXTENSION_INI, EXTENSION_INI_LEN))
+                        coalescedFiles.push_back(DLCFiles[i]);
                 }
             }
             else if (gameType == MeType::ME3_TYPE)
