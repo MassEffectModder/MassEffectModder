@@ -104,7 +104,7 @@ void Updater::finishedDownloadRelase(QNetworkReply *reply)
     textWidget.setText("Unpacking archive...");
     QApplication::processEvents();
     const QString unpackPath = QDir::cleanPath(userDownloadPath + "/" + BaseNameWithoutExt(filePath));
-    if (!QDir(unpackPath).exists(unpackPath))
+    if (!dstPath.endsWith(".dmg", Qt::CaseInsensitive) && !QDir(unpackPath).exists(unpackPath))
         QDir(unpackPath).mkpath(unpackPath);
     int status = 0;
     if (dstPath.endsWith(".7z", Qt::CaseInsensitive))
@@ -125,7 +125,7 @@ void Updater::finishedDownloadRelase(QNetworkReply *reply)
     }
     else if (dstPath.endsWith(".dmg", Qt::CaseInsensitive))
     {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(unpackPath + "/" + BaseName(filePath)));
+        QDesktopServices::openUrl(QUrl::fromLocalFile(dstPath));
     }
     else
         CRASH_MSG("Updater: Not supported archive!");
