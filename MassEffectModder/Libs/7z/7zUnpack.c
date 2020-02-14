@@ -456,13 +456,13 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path)
             char FileName[buf.size + 1];
             strcpy(FileName, (const char*)buf.data);
             Buf_Free(&buf, &g_Alloc);
-            char *outputDir = output_path;
-            char outputPath[strlen(outputDir) + strlen(fileName) + 1];
-            char outputFile[strlen(outputDir) + strlen(fileName) + 1];
+            char *outputDir = (char *)output_path;
+            char outputPath[strlen(outputDir) + strlen(FileName) + 1];
+            char outputFile[strlen(outputDir) + strlen(FileName) + 1];
             char tmpfile[strlen(FileName) + 1];
 
-            strcpy(outputPath, fileName);
-            strcpy(outputFile, fileName);
+            strcpy(outputPath, FileName);
+            strcpy(outputFile, FileName);
 
             for (j = 0; tmpfile[j] != 0; j++)
             {
