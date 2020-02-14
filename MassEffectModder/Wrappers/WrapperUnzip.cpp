@@ -342,6 +342,11 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
         mbstowcs(tmpfile, fileName, size);
         size = wcslen(outputDir) + strlen(fileName) + 2;
         wchar_t outputPath[size];
+        wchar_t outputFile[size];
+
+        wcscpy(outputPath, tmpfile);
+        wcscpy(outputFile, tmpfile);
+
         for (int j = 0; tmpfile[j] != 0; j++)
         {
             if (tmpfile[j] == '/')
@@ -349,16 +354,12 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
                 if (full_path)
                 {
                     tmpfile[j] = 0;
-                    if (outputDir[0] != 0)
-                    {
-                        wcscpy(outputPath, outputDir);
-                        wcscat(outputPath, L"/");
-                        wcscat(outputPath, tmpfile);
-                    }
+                    if (outputDir && outputDir[0] != 0)
+                        swprintf(outputFile, size, L"%s/%s", outputDir, tmpfile);
                     else
-                        wcscpy(outputPath, tmpfile);
+                        wcscpy(outputFile, tmpfile);
 
-                    if (MyCreateDir(outputPath) != 0)
+                    if (MyCreateDir(outputFile) != 0)
                     {
                         result = 1;
                         break;
@@ -367,31 +368,16 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
                 }
                 else
                 {
-                    if (outputDir[0] != 0)
-                    {
-                        wcscpy(outputPath, outputDir);
-                        wcscat(outputPath, L"/");
-                        wcscat(outputPath, tmpfile + j + 1);
-                    }
+                    if (outputDir && outputDir[0] != 0)
+                        swprintf(outputFile, size, L"%s/%s", outputDir, tmpfile + j + 1);
                     else
-                        wcscpy(outputPath, tmpfile + j + 1);
+                        wcscpy(outputFile, tmpfile + j + 1);
                 }
             }
         }
 
-        if (full_path)
-        {
-            int size = strlen(fileName) + 1;
-            mbstowcs(tmpfile, fileName, size);
-            if (outputDir[0] != 0)
-            {
-                wcscpy(outputPath, outputDir);
-                wcscat(outputPath, L"/");
-                wcscat(outputPath, tmpfile);
-            }
-            else
-                wcscpy(outputPath, tmpfile);
-        }
+        if (outputDir && outputDir[0] != 0)
+            swprintf(outputPath, size, L"%s/%s", outputDir, outputFile);
 
         if (result != 0)
         {
@@ -422,8 +408,12 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
         CloseHandle(file);
 #else
         char outputPath[strlen(outputDir) + strlen(fileName) + 2];
+        char outputFile[strlen(outputDir) + strlen(fileName) + 2];
         char tmpfile[strlen(fileName) + 1];
-        strcpy(tmpfile, fileName);
+
+        strcpy(outputPath, fileName);
+        strcpy(outputFile, fileName);
+
         for (int j = 0; tmpfile[j] != 0; j++)
         {
             if (tmpfile[j] == '/')
@@ -431,11 +421,11 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
                 if (full_path)
                 {
                     tmpfile[j] = 0;
-                    if (outputDir[0] != 0)
-                        sprintf(outputPath, "%s/%s", const_cast<char *>(outputDir), tmpfile);
+                    if (outputDir && outputDir[0] != 0)
+                        sprintf(outputFile, "%s/%s", const_cast<char *>(outputDir), tmpfile);
                     else
-                        strcpy(outputPath, tmpfile);
-                    if (MyCreateDir(outputPath) != 0)
+                        strcpy(outputFile, tmpfile);
+                    if (MyCreateDir(outputFile) != 0)
                     {
                         result = 1;
                         break;
@@ -444,10 +434,10 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
                 }
                 else
                 {
-                    if (outputDir[0] != 0)
-                        sprintf(outputPath, "%s/%s", const_cast<char *>(outputDir), tmpfile + j + 1);
+                    if (outputDir && outputDir[0] != 0)
+                        sprintf(outputFile, "%s/%s", const_cast<char *>(outputDir), tmpfile + j + 1);
                     else
-                        strcpy(outputPath, tmpfile + j + 1);
+                        strcpy(outputFile, tmpfile + j + 1);
                 }
             }
         }
@@ -458,10 +448,8 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
             break;
         }
 
-        if (outputDir[0] != 0)
-            sprintf(static_cast<char *>(outputPath), "%s/%s", const_cast<char *>(outputDir), fileName);
-        else
-            strcpy(static_cast<char *>(outputPath), fileName);
+        if (outputDir && outputDir[0] != 0)
+            sprintf(outputPath, "%s/%s", outputDir, outputFile);
 
         FILE *file = fopen(outputPath, "wb+");
         if (!file)
