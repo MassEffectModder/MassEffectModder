@@ -328,7 +328,8 @@ bool Misc::TpfGetCurrentFileInfo(void *handle, QString &fileName, quint64 &lengh
 {
     char *filetmp;
     int filetmplen = 0;
-    int result = ZipGetCurrentFileInfo(handle, &filetmp, &filetmplen, &lenght);
+    unsigned long fileFlags = 0;
+    int result = ZipGetCurrentFileInfo(handle, &filetmp, &filetmplen, &lenght, &fileFlags);
     if (result != 0)
         return false;
     fileName = QString(filetmp);

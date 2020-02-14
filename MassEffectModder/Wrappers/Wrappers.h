@@ -34,7 +34,9 @@ int LzoCompress(BYTE *src, UINT32 src_len, BYTE **dst, UINT32 *dst_len);
 
 void *ZipOpenFromFile(const void *path, int *numEntries, int tpf);
 void *ZipOpenFromMem(BYTE *src, UINT64 srcLen, int *numEntries, int tpf);
-int ZipGetCurrentFileInfo(void *handle, char **fileName, int *sizeOfFileName, UINT64 *dstLen);
+int ZipGetCurrentFileInfo(void *handle, char **fileName,
+                          int *sizeOfFileName, unsigned long long *dstLen,
+                          unsigned long *fileFlags);
 int ZipGoToFirstFile(void *handle);
 int ZipGoToNextFile(void *handle);
 int ZipLocateFile(void *handle, const char *filename);

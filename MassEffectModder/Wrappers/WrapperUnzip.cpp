@@ -139,7 +139,9 @@ void *ZipOpenFromMem(unsigned char *src, unsigned long long srcLen, int *numEntr
     return static_cast<void *>(unzipHandle);
 }
 
-int ZipGetCurrentFileInfo(void *handle, char **fileName, int *sizeOfFileName, unsigned long long *dstLen)
+int ZipGetCurrentFileInfo(void *handle, char **fileName,
+                          int *sizeOfFileName, unsigned long long *dstLen,
+                          unsigned long *fileFlags)
 {
     auto unzipHandle = static_cast<UnzipHandle *>(handle);
     int result;
@@ -159,6 +161,7 @@ int ZipGetCurrentFileInfo(void *handle, char **fileName, int *sizeOfFileName, un
     strcpy(*fileName, f);
     *sizeOfFileName = strlen(*fileName);
     *dstLen = unzipHandle->curFileInfo.uncompressed_size;
+    *fileFlags = unzipHandle->curFileInfo.external_fa;
 
     return 0;
 }
@@ -313,7 +316,8 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
     {
         char *filetmp;
         int filetmplen = 0;
-        result = ZipGetCurrentFileInfo(handle, &filetmp, &filetmplen, &dstLen);
+        unsigned long fileFlags = 0;
+        result = ZipGetCurrentFileInfo(handle, &filetmp, &filetmplen, &dstLen, &fileFlags);
         if (result != 0)
             goto failed;
         char fileName[strlen(filetmp) + 1];
@@ -413,6 +417,7 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
 
         strcpy(outputPath, fileName);
         strcpy(outputFile, fileName);
+        strcpy(tmpfile, fileName);
 
         for (int j = 0; tmpfile[j] != 0; j++)
         {
@@ -469,6 +474,7 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
             break;
         }
         fclose(file);
+        chmod(outputPath, (fileFlags >> 16) & 0xFFFF);
 #endif
 
         delete[] data;
