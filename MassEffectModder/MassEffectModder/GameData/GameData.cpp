@@ -116,11 +116,54 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
             mainFiles.push_back(path);
         };
 
+        if (gameType == MeType::ME1_TYPE)
+        {
+            QString splashPath = bioGamePath() + "/Splash/Splash.bmp";
+            QString path = splashPath.mid(pathLen);
+            if (QFile::exists(splashPath))
+            {
+                coalescedFiles.push_back(path);
+            }
+            QDirIterator iterator(bioGamePath() + "/Config", QDir::Files | QDir::NoSymLinks);
+            while (iterator.hasNext())
+            {
+                iterator.next();
+                QString path = iterator.filePath().mid(pathLen);
+                if (AsciiStringEndsWith(path, EXTENSION_INI, EXTENSION_INI_LEN))
+                {
+                    coalescedFiles.push_back(path);
+                }
+            }
+            QDirIterator iterator2(_path + "/Engine/Config", QDir::Files | QDir::NoSymLinks);
+            while (iterator2.hasNext())
+            {
+                iterator2.next();
+                QString path = iterator2.filePath().mid(pathLen);
+                if (AsciiStringEndsWith(path, EXTENSION_INI, EXTENSION_INI_LEN))
+                {
+                    coalescedFiles.push_back(path);
+                }
+            }
+        }
         if (gameType == MeType::ME2_TYPE)
         {
             QString iniPath = bioGamePath() + "/Config/PC/Cooked/Coalesced.ini";
             QString path = iniPath.mid(pathLen);
             if (QFile::exists(iniPath))
+            {
+                coalescedFiles.push_back(path);
+            }
+
+            iniPath = bioGamePath() + "/Config/DefaultEngine.ini";
+            path = iniPath.mid(pathLen);
+            if (QFile::exists(iniPath))
+            {
+                coalescedFiles.push_back(path);
+            }
+
+            QString splashPath = bioGamePath() + "/Splash/PC/Splash.bmp";
+            path = splashPath.mid(pathLen);
+            if (QFile::exists(splashPath))
             {
                 coalescedFiles.push_back(path);
             }
@@ -134,11 +177,32 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
                 coalescedFiles.push_back(path);
             }
 
+            QString splashPath = bioGamePath() + "/Splash/PC/Splash.bmp";
+            path = splashPath.mid(pathLen);
+            if (QFile::exists(splashPath))
+            {
+                coalescedFiles.push_back(path);
+            }
+
             QString patchPath = bioGamePath() + "/Patches/PCConsole/Patch_001.sfar";
             path = patchPath.mid(pathLen);
             if (QFile::exists(patchPath))
             {
                 sfarFiles.push_back(path);
+            }
+        }
+        if (gameType == MeType::ME1_TYPE ||
+            gameType == MeType::ME2_TYPE)
+        {
+            QDirIterator iterator(_path+ "/Engine/Shaders", QDir::Files | QDir::NoSymLinks);
+            while (iterator.hasNext())
+            {
+                iterator.next();
+                QString path = iterator.filePath().mid(pathLen);
+                if (AsciiStringEndsWith(path, EXTENSION_USF, EXTENSION_USF_LEN))
+                {
+                    coalescedFiles.push_back(path);
+                }
             }
         }
         if (gameType == MeType::ME2_TYPE ||

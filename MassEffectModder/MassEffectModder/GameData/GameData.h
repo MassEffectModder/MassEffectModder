@@ -54,6 +54,9 @@ bool comparePath(const QString &e1, const QString &e2);
 #define EXTENSION_INI      ".ini"
 #define EXTENSION_INI_LEN  (sizeof(EXTENSION_INI) - 1)
 
+#define EXTENSION_USF      ".usf"
+#define EXTENSION_USF_LEN  (sizeof(EXTENSION_USF) - 1)
+
 #define GUIDCACHE_PCC      "guidcache.pcc"
 #define GUIDCACHE_PCC_LEN  (sizeof(GUIDCACHE_PCC) - 1)
 
