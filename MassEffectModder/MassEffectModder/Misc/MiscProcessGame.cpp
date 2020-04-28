@@ -359,6 +359,7 @@ void Misc::AddMarkers(QStringList &pkgsToMarker,
                 callback(callbackHandle, newProgress, "Adding markers");
             }
         }
+        PDEBUG(QString("Misc::AddMarkers File: ") + pkgsToMarker[i] + "\n");
         FileStream fs = FileStream(g_GameData->GamePath() + pkgsToMarker[i], FileMode::Open, FileAccess::ReadWrite);
         fs.Seek(-MEMMarkerLength, SeekOrigin::End);
         QString marker;
