@@ -60,6 +60,7 @@ ConfigIni::ConfigIni(const QString &iniPath, bool mode, bool unix)
 #if defined(_WIN32)
             settings = nullptr;
             _iniPath = iniPath;
+            valid = true;
 #else
             settings = new QSettings(iniPath, QSettings::IniFormat);
             if (settings->status() == QSettings::NoError)
@@ -77,6 +78,7 @@ ConfigIni::ConfigIni(const QString &iniPath, bool mode, bool unix)
 #if defined(_WIN32)
         settings = nullptr;
         _iniPath = path + "/MassEffectModder.ini";
+        valid = true;
 #else
         settings = new QSettings(path + "/MassEffectModder.ini", QSettings::IniFormat);
         if (settings->status() == QSettings::NoError)
