@@ -448,23 +448,18 @@ bool Misc::ApplyPostInstall(MeType gameId, bool limit2k)
 {
     if (!applyModTag(gameId, 0, 0))
         PERROR("Failed applying stamp for installation!\n");
+
     PINFO("Updating LODs and other settings started...\n");
     QString path = GameData::EngineConfigIniPath(gameId);
     QDir().mkpath(DirName(path));
-#if !defined(_WIN32)
-    if (QFile(path).exists())
-    {
-        if (!Misc::ConvertEndLines(path, true))
-            return false;
-    }
-#endif
+#if defined(_WIN32)
     ConfigIni engineConf = ConfigIni(path);
+#else
+    ConfigIni engineConf = ConfigIni(path, true);
+#endif
     LODSettings::updateLOD(gameId, engineConf, limit2k);
     LODSettings::updateGFXSettings(gameId, engineConf, false, false);
-#if !defined(_WIN32)
-    if (!Misc::ConvertEndLines(path, false))
-        return false;
-#endif
+
     PINFO("Updating LODs and other settings finished.\n\n");
 
     return true;

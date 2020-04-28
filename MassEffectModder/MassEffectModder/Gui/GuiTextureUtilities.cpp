@@ -69,18 +69,12 @@ void LayoutMain::ApplyLODs(MeType gameType, bool lods2k)
     }
     QString path = GameData::EngineConfigIniPath(gameType);
     QDir().mkpath(DirName(path));
-#if !defined(_WIN32)
-    if (QFile(path).exists())
-    {
-        if (!Misc::ConvertEndLines(path, true))
-            return;
-    }
-#endif
+#if defined(_WIN32)
     ConfigIni engineConf = ConfigIni(path);
-    LODSettings::updateLOD(gameType, engineConf, lods2k);
-#if !defined(_WIN32)
-    Misc::ConvertEndLines(path, false);
+#else
+    ConfigIni engineConf = ConfigIni(path, true);
 #endif
+    LODSettings::updateLOD(gameType, engineConf, lods2k);
 
     QMessageBox::information(this, "Appling HQ LODs settings.",
             QString("Game configuration file at ") + path + " updated.");
@@ -106,18 +100,12 @@ void LayoutMain::ApplyVanillaLODsSelected(MeType gameType)
     }
     QString path = GameData::EngineConfigIniPath(gameType);
     QDir().mkpath(DirName(path));
-#if !defined(_WIN32)
-    if (QFile(path).exists())
-    {
-        if (!Misc::ConvertEndLines(path, true))
-            return;
-    }
-#endif
+#if defined(_WIN32)
     ConfigIni engineConf = ConfigIni(path);
-    LODSettings::removeLOD(gameType, engineConf);
-#if !defined(_WIN32)
-    Misc::ConvertEndLines(path, false);
+#else
+    ConfigIni engineConf = ConfigIni(path, true);
 #endif
+    LODSettings::removeLOD(gameType, engineConf);
 
     QMessageBox::information(this, "Appling vanilla LODs settings.",
             QString("Game configuration file at ") + path + " updated.");
@@ -133,18 +121,12 @@ void LayoutMain::ApplyHQGfx(MeType gameType, bool softShadows)
     }
     QString path = GameData::EngineConfigIniPath(gameType);
     QDir().mkpath(DirName(path));
-#if !defined(_WIN32)
-    if (QFile(path).exists())
-    {
-        if (!Misc::ConvertEndLines(path, true))
-            return;
-    }
-#endif
+#if defined(_WIN32)
     ConfigIni engineConf = ConfigIni(path);
-    LODSettings::updateGFXSettings(gameType, engineConf, softShadows, false);
-#if !defined(_WIN32)
-    Misc::ConvertEndLines(path, false);
+#else
+    ConfigIni engineConf = ConfigIni(path, true);
 #endif
+    LODSettings::updateGFXSettings(gameType, engineConf, softShadows, false);
 
     QMessageBox::information(this, "Appling HQ gfx settings.",
             QString("Game configuration file at ") + path + " updated.");

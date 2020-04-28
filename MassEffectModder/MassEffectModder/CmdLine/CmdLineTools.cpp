@@ -373,19 +373,13 @@ bool CmdLineTools::ApplyLODAndGfxSettings(MeType gameId, bool softShadowsME1, bo
     }
     QString path = GameData::EngineConfigIniPath(gameId);
     QDir().mkpath(DirName(path));
-#if !defined(_WIN32)
-    if (QFile(path).exists())
-    {
-        if (!Misc::ConvertEndLines(path, true))
-            return false;
-    }
-#endif
+#if defined(_WIN32)
     ConfigIni engineConf = ConfigIni(path);
+#else
+    ConfigIni engineConf = ConfigIni(path, true);
+#endif
     LODSettings::updateLOD(gameId, engineConf, limit2k);
     LODSettings::updateGFXSettings(gameId, engineConf, softShadowsME1, meuitmMode);
-#if !defined(_WIN32)
-    Misc::ConvertEndLines(path, false);
-#endif
 
     return true;
 }
@@ -400,15 +394,12 @@ bool CmdLineTools::RemoveLODSettings(MeType gameId)
     QString path = GameData::EngineConfigIniPath(gameId);
     if (!QFile(path).exists())
         return true;
-#if !defined(_WIN32)
-    if (!Misc::ConvertEndLines(path, true))
-        return false;
-#endif
+#if defined(_WIN32)
     ConfigIni engineConf = ConfigIni(path);
-    LODSettings::removeLOD(gameId, engineConf);
-#if !defined(_WIN32)
-    Misc::ConvertEndLines(path, false);
+#else
+    ConfigIni engineConf = ConfigIni(path, true);
 #endif
+    LODSettings::removeLOD(gameId, engineConf);
 
     return true;
 }
@@ -424,10 +415,11 @@ bool CmdLineTools::PrintLODSettings(MeType gameId)
     bool exist = QFile(path).exists();
     if (!exist)
         return true;
-#if !defined(_WIN32)
-    Misc::ConvertEndLines(path, true);
-#endif
+#if defined(_WIN32)
     ConfigIni engineConf = ConfigIni(path);
+#else
+    ConfigIni engineConf = ConfigIni(path, true);
+#endif
     if (g_ipc)
     {
         LODSettings::readLODIpc(gameId, engineConf);
@@ -438,9 +430,6 @@ bool CmdLineTools::PrintLODSettings(MeType gameId)
         LODSettings::readLOD(gameId, engineConf, log);
         PINFO(log);
     }
-#if !defined(_WIN32)
-    Misc::ConvertEndLines(path, false);
-#endif
 
     return true;
 }

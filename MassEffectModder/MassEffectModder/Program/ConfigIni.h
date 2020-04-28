@@ -29,11 +29,14 @@ class ConfigIni
     QSettings *settings;
     QString _iniPath;
     bool valid = false;
+    bool simpleMode;
+    bool unixEndlines;
+    QStringList list;
 
 public:
     ConfigIni();
     ~ConfigIni() { delete settings; }
-    ConfigIni(const QString &iniPath);
+    ConfigIni(const QString &iniPath, bool mode = false, bool unix = false);
 
     bool IsConfigFileValid() { return valid; }
     QString Read(const QString &key, const QString &section);
