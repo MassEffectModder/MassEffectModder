@@ -24,6 +24,7 @@
 #include <csignal>
 
 #include <Helpers/Logs.h>
+#include <Helpers/MiscHelpers.h>
 #include <Wrappers.h>
 
 using namespace std;
@@ -79,18 +80,25 @@ void Exception(const char *file, const char *func, int line, const char *msg)
     char str[MAX_FILE_PATH];
     getFilename(str, file);
 
-    string message = "Exception occured!\n";
-    if (msg)
+    if (g_ipc)
     {
-        message += "\"" + std::string(msg) + "\"";
+        string messageIpc = "[IPC]EXCEPTION_OCCURRED ";
+        if (msg)
+            messageIpc += "\"" + std::string(msg) + "\" ";
+        messageIpc += std::string(func) + " at " + std::string(str) + ": line " + std::to_string(line);
+        ConsoleWrite(messageIpc.c_str());
+        ConsoleSync();
     }
-    message += "\n" + std::string(func) + " at " + std::string(str) +
-            ": line " + std::to_string(line) + "\n";
+
+    string messageStd = "Exception occurred!\n";
+    if (msg)
+        messageStd += "\n\"" + std::string(msg) + "\"\n";
+    messageStd += "\n" + std::string(func) + " at " + std::string(str) + ": line " + std::to_string(line) + "\n";
 
     string output = "Callstack:\n";
     GetBackTrace(output, true, false);
 
-    LogCrash(output, message);
+    LogCrash(output, messageStd);
 
 #ifdef NDEBUG
     exit(1);
