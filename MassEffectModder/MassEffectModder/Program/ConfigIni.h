@@ -36,7 +36,7 @@ class ConfigIni
 public:
     ConfigIni();
     ~ConfigIni() { delete settings; }
-    ConfigIni(const QString &iniPath, bool mode = false, bool unix = false);
+    ConfigIni(const QString &iniPath, bool mode = false, bool unixMode = false);
 
     bool IsConfigFileValid() { return valid; }
     QString Read(const QString &key, const QString &section);

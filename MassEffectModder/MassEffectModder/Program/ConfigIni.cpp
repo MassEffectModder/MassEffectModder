@@ -32,10 +32,10 @@ ConfigIni::ConfigIni()
 {
 }
 
-ConfigIni::ConfigIni(const QString &iniPath, bool mode, bool unix)
+ConfigIni::ConfigIni(const QString &iniPath, bool mode, bool unixMode)
 {
     simpleMode = mode;
-    unixEndlines = unix;
+    unixEndlines = unixMode;
 
     if (iniPath.length() != 0)
     {
