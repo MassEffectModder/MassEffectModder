@@ -92,6 +92,11 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
                     afcFiles.push_back(path);
                     continue;
                 }
+                if (AsciiStringEndsWith(files[f], EXTENSION_TLK, EXTENSION_TLK_LEN))
+                {
+                    tlkFiles.push_back(path);
+                    continue;
+                }
                 if (AsciiStringEndsWith(files[f], EXTENSION_TFC, EXTENSION_TFC_LEN))
                 {
                     tfcFiles.push_back(path);
@@ -103,6 +108,11 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
                 if (AsciiStringEndsWith(files[f], EXTENSION_AFC, EXTENSION_AFC_LEN))
                 {
                     afcFiles.push_back(path);
+                    continue;
+                }
+                if (AsciiStringEndsWith(files[f], EXTENSION_TLK, EXTENSION_TLK_LEN))
+                {
+                    tlkFiles.push_back(path);
                     continue;
                 }
                 if (AsciiStringEndsWith(files[f], EXTENSION_TFC, EXTENSION_TFC_LEN))
@@ -277,6 +287,8 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
                         tfcFiles.push_back(DLCFiles[i]);
                     else if (AsciiStringEndsWith(DLCFiles[i], EXTENSION_AFC, EXTENSION_AFC_LEN))
                         afcFiles.push_back(DLCFiles[i]);
+                    else if (AsciiStringEndsWith(DLCFiles[i], EXTENSION_TLK, EXTENSION_TLK_LEN))
+                        tlkFiles.push_back(DLCFiles[i]);
                     else if (AsciiStringEndsWith(DLCFiles[i], EXTENSION_INI, EXTENSION_INI_LEN))
                         coalescedFiles.push_back(DLCFiles[i]);
                 }
@@ -289,6 +301,8 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
                         tfcFiles.push_back(DLCFiles[i]);
                     else if (AsciiStringEndsWith(DLCFiles[i], EXTENSION_AFC, EXTENSION_AFC_LEN))
                         afcFiles.push_back(DLCFiles[i]);
+                    else if (AsciiStringEndsWith(DLCFiles[i], EXTENSION_TLK, EXTENSION_TLK_LEN))
+                        tlkFiles.push_back(DLCFiles[i]);
                     else if (AsciiStringEndsWith(DLCFiles[i], EXTENSION_SFAR, EXTENSION_SFAR_LEN))
                         sfarFiles.push_back(DLCFiles[i]);
                 }
@@ -639,6 +653,7 @@ void GameData::ClosePackagesList()
     tfcFiles.clear();
     coalescedFiles.clear();
     afcFiles.clear();
+    tlkFiles.clear();
     bikFiles.clear();
     mapME1PackageUpperNames.clear();
     packageME1UpperNames.clear();

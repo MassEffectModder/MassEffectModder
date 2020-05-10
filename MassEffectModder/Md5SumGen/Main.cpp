@@ -24,6 +24,8 @@
 #include <Helpers/MemoryStream.h>
 #include <Wrappers.h>
 
+bool g_ipc;
+
 bool GetBackTrace(std::string & /*output*/, bool  /*exceptionMode*/, bool  /*crashMode*/)
 {
     return true;

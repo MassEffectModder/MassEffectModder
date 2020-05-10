@@ -237,6 +237,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
     allFilesCount += g_GameData->tfcFiles.count();
     allFilesCount += g_GameData->coalescedFiles.count();
     allFilesCount += g_GameData->afcFiles.count();
+    allFilesCount += g_GameData->tlkFiles.count();
     allFilesCount += g_GameData->bikFiles.count();
 
     mods.clear();
@@ -266,6 +267,10 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
     if (!state)
         vanilla = false;
     state = checkGameFilesSub(fs, g_GameData->afcFiles, entries, lastProgress, progress, allFilesCount,
+                                errors, mods, callback, callbackHandle);
+    if (!state)
+        vanilla = false;
+    state = checkGameFilesSub(fs, g_GameData->tlkFiles, entries, lastProgress, progress, allFilesCount,
                                 errors, mods, callback, callbackHandle);
     if (!state)
         vanilla = false;
