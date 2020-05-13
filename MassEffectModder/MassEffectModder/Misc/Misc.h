@@ -133,14 +133,10 @@ public:
                           MipMaps &mipMaps, bool repack, bool alotMode,
                           bool modded, bool verify, int cacheAmount,
                           ProgressCallback callback, void *callbackHandle);
-    static bool CorrectTexture(Image &image, TextureMapEntry &f, int numMips, bool markToConvert,
-                              PixelFormat pixelFormat, PixelFormat newPixelFormat,
-                              const QString &file);
-    static QString CorrectTexture(Image *image, Texture &texture, PixelFormat pixelFormat,
-                                  PixelFormat newPixelFormat, bool markConvert,
+    static QString CorrectTexture(Image *image, Texture &texture, PixelFormat newPixelFormat,
                                   const QString &textureName);
-    static bool CorrectTexture(Image &image, Texture &texture, PixelFormat pixelFormat,
-                               const QString &textureName);
+    static bool CorrectTexture(Image &image, TextureMapEntry &f, int numMips,
+                              PixelFormat newPixelFormat, const QString &file);
     static bool CheckMEMHeader(FileStream &fs, const QString &file);
     static bool CheckMEMGameVersion(FileStream &fs, const QString &file, int gameId);
     static int ReadModHeader(FileStream &fs);

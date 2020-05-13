@@ -122,14 +122,12 @@ uint Misc::GetCRCFromTextureMap(QList<TextureMapEntry> &textures, int exportId,
     return 0;
 }
 
-bool Misc::CorrectTexture(Image &image, TextureMapEntry &f, int numMips, bool markToConvert,
-                          PixelFormat pixelFormat, PixelFormat newPixelFormat,
-                          const QString &file)
+bool Misc::CorrectTexture(Image &image, TextureMapEntry &f, int numMips,
+                          PixelFormat newPixelFormat, const QString &file)
 {
     if (!image.checkDDSHaveAllMipmaps() ||
        (numMips > 1 && image.getMipMaps().count() <= 1) ||
-       (markToConvert && image.getPixelFormat() != newPixelFormat) ||
-       (!markToConvert && image.getPixelFormat() != pixelFormat))
+       (image.getPixelFormat() != newPixelFormat))
     {
         if (g_ipc)
         {
@@ -159,18 +157,17 @@ bool Misc::CorrectTexture(Image &image, TextureMapEntry &f, int numMips, bool ma
     return false;
 }
 
-QString Misc::CorrectTexture(Image *image, Texture &texture, PixelFormat pixelFormat,
-                             PixelFormat newPixelFormat, bool markConvert, const QString &textureName)
+QString Misc::CorrectTexture(Image *image, Texture &texture,
+                             PixelFormat newPixelFormat, const QString &textureName)
 {
     QString errors;
     if (!image->checkDDSHaveAllMipmaps() ||
         (texture.mipMapsList.count() > 1 && image->getMipMaps().count() <= 1) ||
-        (markConvert && image->getPixelFormat() != newPixelFormat) ||
-        (!markConvert && image->getPixelFormat() != pixelFormat))
+        (image->getPixelFormat() != newPixelFormat))
     {
         bool dxt1HasAlpha = false;
         quint8 dxt1Threshold = 128;
-        if (pixelFormat == PixelFormat::DXT1 && texture.getProperties().exists("CompressionSettings"))
+        if (newPixelFormat == PixelFormat::DXT1 && texture.getProperties().exists("CompressionSettings"))
         {
             if (texture.getProperties().exists("CompressionSettings") &&
                 texture.getProperties().getProperty("CompressionSettings").valueName == "TC_OneBitAlpha")
@@ -185,7 +182,7 @@ QString Misc::CorrectTexture(Image *image, Texture &texture, PixelFormat pixelFo
                 }
             }
         }
-        image->correctMips(pixelFormat, dxt1HasAlpha, dxt1Threshold);
+        image->correctMips(newPixelFormat, dxt1HasAlpha, dxt1Threshold);
     }
     return errors;
 }

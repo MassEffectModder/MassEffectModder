@@ -540,8 +540,7 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
                     }
 
                     int numMips = GetNumberOfMipsFromMap(f);
-                    if (CorrectTexture(image, f, numMips, markToConvert,
-                                       f.pixfmt, newPixelFormat, file))
+                    if (CorrectTexture(image, f, numMips, newPixelFormat, file))
                     {
                         mod.data.Free();
                         mod.data = image.StoreImageToDDS();
@@ -717,8 +716,7 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
                 }
 
                 int numMips = GetNumberOfMipsFromMap(f);
-                if (CorrectTexture(image, f, numMips, markToConvert,
-                                   f.pixfmt, newPixelFormat, file))
+                if (CorrectTexture(image, f, numMips, newPixelFormat, file))
                 {
                     mod.data.Free();
                     mod.data = image.StoreImageToDDS();
@@ -797,8 +795,7 @@ end:
                 }
 
                 int numMips = Misc::GetNumberOfMipsFromMap(f);
-                CorrectTexture(image, f, numMips, entryMarkToConvert,
-                               f.pixfmt, newPixelFormat, file);
+                CorrectTexture(image, f, numMips, newPixelFormat, file);
             }
 
             mod.data = image.StoreImageToDDS();
