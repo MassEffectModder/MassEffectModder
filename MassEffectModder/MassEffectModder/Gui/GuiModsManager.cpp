@@ -43,57 +43,77 @@ void LayoutMain::ExtractModsSelected(MeType gameType)
     LockGui(true);
 
     QStringList files = QFileDialog::getOpenFileNames(this,
-            "Please select MEM Mod file", "", "MEM mod file (*.mem)");
+            "Please select MEM/TPF/MOD file(s)", "", "MEM/TPF/MOD  file (*.mem *.tpf *.mod)");
     if (files.count() == 0)
     {
         LockGui(false);
         return;
     }
     QString outDir = QFileDialog::getExistingDirectory(this,
-            "Please select destination directory for MEM file extraction");
+            "Please select destination directory for MEM/TPF/MOD file(s) extraction");
     if (outDir == "")
     {
         LockGui(false);
         return;
     }
     outDir = QDir::cleanPath(outDir);
-    QFileInfoList list;
+    QFileInfoList listMEM, listTPF, listMOD;
     quint64 diskFreeSpace = Misc::getDiskFreeSpace(outDir);
     quint64 diskUsage = 0;
     foreach (QString file, files)
     {
         auto info = QFileInfo(file);
         diskUsage += info.size();
-        list.push_back(info);
+        if (file.endsWith(".mem", Qt::CaseSensitivity::CaseInsensitive))
+            listMEM.push_back(info);
+        else if (file.endsWith(".tpf", Qt::CaseSensitivity::CaseInsensitive))
+            listTPF.push_back(info);
+        else if (file.endsWith(".mod", Qt::CaseSensitivity::CaseInsensitive))
+            listMOD.push_back(info);
     }
     diskUsage = (quint64)(diskUsage * 2.5);
     if (diskUsage >= diskFreeSpace)
     {
-        QMessageBox::critical(this, "Extracting MEM file(s)",
+        QMessageBox::critical(this, "Extracting MEM/TPF/MEM file(s)",
                               "You have not enough disk space remaining. You need about " +
                               Misc::getBytesFormat(diskUsage) + " free disk space.");
         LockGui(false);
         return;
     }
 
+    QList<TextureMapEntry> textures;
+    Resources resources;
+    resources.loadMD5Tables();
+    TreeScan::loadTexturesMap(gameType, resources, textures);
+
     g_logs->BufferClearErrors();
     g_logs->BufferEnableErrors(true);
     mainWindow->statusBar()->clearMessage();
-    if (!Misc::extractMEM(gameType, list, outDir,
+    if (!Misc::extractMEM(gameType, listMEM, outDir,
                      &LayoutMain::ExtractModCallback, mainWindow))
     {
         QMessageBox::critical(this, "Extracting MEM file(s)", "Extraction failed!");
+    }
+    mainWindow->statusBar()->showMessage(QString("Extracting TPF file(s)..."));
+    if (!Misc::extractTPF(listTPF, outDir))
+    {
+        QMessageBox::critical(this, "Extracting TPF file(s)", "Extraction failed!");
+    }
+    mainWindow->statusBar()->showMessage(QString("Extracting MOD file(s)..."));
+    if (!Misc::extractMOD(listMOD, textures, outDir))
+    {
+        QMessageBox::critical(this, "Extracting MOD file(s)", "Extraction failed!");
     }
     mainWindow->statusBar()->clearMessage();
     g_logs->BufferEnableErrors(false);
     if (g_logs->BufferGetErrors() != "")
     {
         MessageWindow msg;
-        msg.Show(mainWindow, "Extracting MEM file(s)", g_logs->BufferGetErrors());
+        msg.Show(mainWindow, "Extracting MEM/TPF/MOD file(s)", g_logs->BufferGetErrors());
     }
     else
     {
-        QMessageBox::information(this, "Extracting MEM file(s)", "All files extracted.");
+        QMessageBox::information(this, "Extracting MEM/TPF/MOD file(s)", "All files extracted.");
     }
 
     LockGui(false);
@@ -112,7 +132,7 @@ void LayoutMain::ConvertModSelected(MeType gameType)
 
     QString path;
     QFileDialog dialog = QFileDialog(this, "Please select mod file to convert",
-                                     "", "Mod file (*.mod, *.tpf)");
+                                     "", "Mod file (*.mod *.tpf)");
     dialog.setFileMode(QFileDialog::ExistingFile);
     if (dialog.exec())
     {
