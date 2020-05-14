@@ -1187,7 +1187,6 @@ QString MipMaps::replaceModsFromList(QList<TextureMapEntry> &textures, QStringLi
                     continue;
                 }
                 pkg.setExportData(mod.exportId, mod.binaryModData);
-                mod.binaryModData.Free();
                 if (pkg.SaveToFile(repack, false, appendMarker))
                 {
                     if (repack)
@@ -1195,6 +1194,37 @@ QString MipMaps::replaceModsFromList(QList<TextureMapEntry> &textures, QStringLi
                     if (appendMarker)
                         pkgsToMarker.removeOne(pkg.packagePath);
                 }
+
+                if (!mod.packagePath.contains("/DLC/") &&
+                    QDir(g_GameData->DLCData()).exists())
+                {
+                    QString file = BaseName(mod.packagePath);
+                    QStringList DLCs = QDir(g_GameData->DLCData(), "DLC_*", QDir::NoSort, QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
+                    foreach (QString DLCDir, DLCs)
+                    {
+                        QString path = g_GameData->DLCData() + "/" + DLCDir + g_GameData->DLCDataSuffix() + "/" + file;
+                        if (!QFile(path).exists())
+                        {
+                            continue;
+                        }
+
+                        Package pkg{};
+                        if (pkg.Open(path) != 0)
+                        {
+                            errors += "Warning: Failed open package: " + path + "\n";
+                            continue;
+                        }
+                        pkg.setExportData(mod.exportId, mod.binaryModData);
+                        if (pkg.SaveToFile(repack, false, appendMarker))
+                        {
+                            if (repack)
+                                pkgsToRepack.removeOne(pkg.packagePath);
+                            if (appendMarker)
+                                pkgsToMarker.removeOne(pkg.packagePath);
+                        }
+                    }
+                }
+                mod.binaryModData.Free();
             }
         }
     }
