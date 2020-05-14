@@ -1012,11 +1012,11 @@ QString MipMaps::replaceModsFromList(QList<TextureMapEntry> &textures, QStringLi
     // Remove duplicates
     for (int i = 0; i < modsToReplace.count(); i++)
     {
+        if (modsToReplace[i].binaryModType)
+            binaryMods = true;
         ModEntry mod = modsToReplace[i];
         for (int l = 0; l < i; l++)
         {
-            if (mod.binaryModType)
-                binaryMods = true;
             if ((mod.textureCrc != 0 && mod.textureCrc == modsToReplace[l].textureCrc) ||
                 (mod.binaryModType && modsToReplace[l].binaryModType &&
                 mod.exportId == modsToReplace[l].exportId &&
