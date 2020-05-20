@@ -1022,6 +1022,32 @@ QString MipMaps::replaceModsFromList(QList<TextureMapEntry> &textures, QStringLi
                 mod.exportId == modsToReplace[l].exportId &&
                 AsciiStringMatch(mod.packagePath, modsToReplace[l].packagePath)))
             {
+                if (mod.binaryModType)
+                {
+                    if (g_ipc)
+                    {
+                        ConsoleWrite(QString("[IPC]MOD_OVERRIDE ") + mod.textureName +
+                                     QString().sprintf("_0x%08X", mod.textureCrc) + ", " + mod.memPath);
+                        ConsoleSync();
+                    }
+                    else
+                    {
+                        PINFO(QString("Override texture: ") + mod.textureName +
+                              QString().sprintf("_0x%08X", mod.textureCrc) + ", " + mod.memPath + "\n");
+                    }
+                }
+                else
+                {
+                    if (g_ipc)
+                    {
+                        ConsoleWrite(QString("[IPC]MOD_OVERRIDE ") + mod.memPath);
+                        ConsoleSync();
+                    }
+                    else
+                    {
+                        PINFO(QString("Override binary mod: ") + mod.memPath + "\n");
+                    }
+                }
                 modsToReplace.removeAt(l);
                 i--;
                 break;
