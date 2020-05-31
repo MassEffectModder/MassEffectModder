@@ -670,7 +670,7 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
                 TextureMapEntry f = FoundTextureInTheMap(textures, crc);
                 if (f.crc == 0)
                 {
-                    PINFO(QString("Texture skipped. File ") + fileName + QString().sprintf("_0x%08X", crc) +
+                    PINFO(QString("Texture skipped. File ") + fileName + QString().asprintf("_0x%08X", crc) +
                         " is not present in your game setup - mod: " + BaseName(file) + "\n");
                     ZipGoToNextFile(handle);
                     continue;
@@ -692,7 +692,7 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
                     }
                     else
                     {
-                        PERROR(QString("Error in texture: ") + textureName + QString().sprintf("_0x%08X", crc) +
+                        PERROR(QString("Error in texture: ") + textureName + QString().asprintf("_0x%08X", crc) +
                             ", skipping texture, entry: " + QString::number(i + 1) + " - mod: " + BaseName(file) + "\n");
                     }
                     mod.data.Free();
@@ -853,7 +853,7 @@ end:
                 }
                 else
                 {
-                    PINFO(QString("Skipping movie: ") + f.name + QString().sprintf("_0x%08X", f.crc) +
+                    PINFO(QString("Skipping movie: ") + f.name + QString().asprintf("_0x%08X", f.crc) +
                          " This texture has wrong size, skipping...");
                 }
                 continue;
@@ -872,7 +872,7 @@ end:
                     }
                     else
                     {
-                        PINFO(QString("Skipping movie: ") + f.name + QString().sprintf("_0x%08X", f.crc) +
+                        PINFO(QString("Skipping movie: ") + f.name + QString().asprintf("_0x%08X", f.crc) +
                              " This texture has wrong aspect ratio, skipping...");
                     }
                     continue;
@@ -955,7 +955,7 @@ end:
                     fileMod.tag = FileMovieTextureTag;
                 else
                     fileMod.tag = FileTextureTag;
-                fileMod.name = mods[l].textureName + QString().sprintf("_0x%08X", mods[l].textureCrc);
+                fileMod.name = mods[l].textureName + QString().asprintf("_0x%08X", mods[l].textureCrc);
                 if (mods[l].movieTexture)
                     fileMod.name += ".bik";
                 else
@@ -1145,7 +1145,7 @@ bool Misc::extractMEM(MeType gameId, QFileInfoList &inputList, QString &outputDi
                 if (idx != -1)
                     name = name.left(idx);
                 QString filename = outputMODdir + "/" +
-                        BaseName(name + QString().sprintf("_0x%08X", crc));
+                        BaseName(name + QString().asprintf("_0x%08X", crc));
                 if (idx != -1)
                     filename += "-hash";
                 if (modFiles[i].tag == FileTextureTag)
@@ -1280,7 +1280,7 @@ bool Misc::extractMOD(QFileInfoList &list, QList<TextureMapEntry> &textures, QSt
                     continue;
                 }
                 QString newFile = outputMODdir + "/" + textures[index].name +
-                        QString().sprintf("_0x%08X", textures[index].crc) + ".dds";
+                        QString().asprintf("_0x%08X", textures[index].crc) + ".dds";
                 if (QFile(newFile).exists())
                     QFile(newFile).remove();
                 FileStream fs2 = FileStream(newFile, FileMode::Create);

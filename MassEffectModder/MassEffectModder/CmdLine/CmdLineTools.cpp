@@ -963,7 +963,7 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, QString
                     continue;
                 }
                 QString outputFile = outputDir + "/" +  name +
-                        QString().sprintf("_0x%08X", crc);
+                        QString().asprintf("_0x%08X", crc);
                 if (png)
                 {
                     outputFile += ".png";
@@ -1012,7 +1012,7 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, QString
                     else
                     {
                         PERROR(QString("Texture skipped. Texture ") + name +
-                                     QString().sprintf("_0x%08X", crc) + " is broken in game data!\n");
+                                     QString().asprintf("_0x%08X", crc) + " is broken in game data!\n");
                     }
                 }
             }
@@ -1122,7 +1122,7 @@ bool CmdLineTools::extractAllMovieTextures(MeType gameId, QString &outputDir, QS
                     continue;
                 }
                 QString outputFile = outputDir + "/" +  name +
-                        QString().sprintf("_0x%08X.bik", crc);
+                        QString().asprintf("_0x%08X.bik", crc);
                 if (QFile(outputFile).exists())
                     continue;
                 auto data = textureMovie.getData();

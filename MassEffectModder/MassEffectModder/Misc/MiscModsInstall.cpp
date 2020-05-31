@@ -156,7 +156,7 @@ bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
                 else
                 {
                     PINFO(QString("Texture skipped. Texture ") + name +
-                                 QString().sprintf("_0x%08X", crc) + " is not present in your game setup.\n");
+                                 QString().asprintf("_0x%08X", crc) + " is not present in your game setup.\n");
                 }
             }
             else if (modFiles[l].tag == FileBinaryTag)

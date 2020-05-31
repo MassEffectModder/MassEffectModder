@@ -367,7 +367,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                             for (int indexTfc = 0; indexTfc < 100; indexTfc++)
                             {
                                 guid.ptr()[0] = indexTfc;
-                                QString tfcNewName = QString().sprintf("TexturesMEM%02d", indexTfc);
+                                QString tfcNewName = QString().asprintf("TexturesMEM%02d", indexTfc);
                                 archiveFile = g_GameData->MainData() + "/" + tfcNewName + ".tfc";
                                 if (!QFile(archiveFile).exists())
                                 {
@@ -528,8 +528,11 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                 }
 
                 int forceInternalMip = false;
-                if (texture.getProperties().exists("NeverStream"))
+                bool hadNeverStream = false;
+                if (texture.getProperties().exists("NeverStream")) {
+                    hadNeverStream = true;
                     texture.getProperties().removeProperty("NeverStream");
+                }
                 if (GameData::gameType == MeType::ME2_TYPE ||
                     GameData::gameType == MeType::ME3_TYPE)
                 {
@@ -541,10 +544,11 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                 if (GameData::gameType == MeType::ME3_TYPE)
                 {
                     if ((pixelFormat == PixelFormat::G8 &&
-                        textures[entryMap.texturesIndex].list.count() == 1 &&
+                        hadNeverStream &&
+//                        textures[entryMap.texturesIndex].list.count() == 1 &&
                         !texture.HasExternalMips()))
                     {
-                            forceInternalMip = true;
+                        forceInternalMip = true;
                     }
                 }
 
@@ -719,7 +723,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                             for (int indexTfc = 0; indexTfc < 100; indexTfc++)
                             {
                                 guid.ptr()[0] = indexTfc;
-                                QString tfcNewName = QString().sprintf("TexturesMEM%02d", indexTfc);
+                                QString tfcNewName = QString().asprintf("TexturesMEM%02d", indexTfc);
                                 archiveFile = g_GameData->MainData() + "/" + tfcNewName + ".tfc";
                                 if (!QFile(archiveFile).exists())
                                 {
@@ -1027,13 +1031,13 @@ QString MipMaps::replaceModsFromList(QList<TextureMapEntry> &textures, QStringLi
                     if (g_ipc)
                     {
                         ConsoleWrite(QString("[IPC]MOD_OVERRIDE ") + mod.textureName +
-                                     QString().sprintf("_0x%08X", mod.textureCrc) + ", " + mod.memPath);
+                                     QString().asprintf("_0x%08X", mod.textureCrc) + ", " + mod.memPath);
                         ConsoleSync();
                     }
                     else
                     {
                         PINFO(QString("Override texture: ") + mod.textureName +
-                              QString().sprintf("_0x%08X", mod.textureCrc) + ", " + mod.memPath + "\n");
+                              QString().asprintf("_0x%08X", mod.textureCrc) + ", " + mod.memPath + "\n");
                     }
                 }
                 else

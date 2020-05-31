@@ -910,7 +910,7 @@ void LayoutTexturesManager::UpdateRight(const QListWidgetItem *item)
 
         QString text;
         text += "Texture original CRC:  " +
-                QString().sprintf("0x%08X", textures[viewTexture.indexInTextures].crc) + "\n";
+                QString().asprintf("0x%08X", textures[viewTexture.indexInTextures].crc) + "\n";
         text += "Node name:             " + textures[viewTexture.indexInTextures].name + "\n";
         for (int index2 = 0; index2 < (!singleInfoMode ? textures[viewTexture.indexInTextures].list.count() : 1); index2++)
         {
@@ -1226,7 +1226,7 @@ void LayoutTexturesManager::ExtractTexture(const ViewTexture& viewTexture, bool 
 
         QString outputFile = outputDir + "/" +
                 package.exportsTable[nodeTexture.exportID].objectName +
-                QString().sprintf("_0x%08X.bik", crc);
+                QString().asprintf("_0x%08X.bik", crc);
         if (QFile(outputFile).exists())
             QFile(outputFile).remove();
         auto data = textureMovie.getData();
@@ -1254,7 +1254,7 @@ void LayoutTexturesManager::ExtractTexture(const ViewTexture& viewTexture, bool 
 
         QString outputFile = outputDir + "/" +
                 package.exportsTable[nodeTexture.exportID].objectName +
-                QString().sprintf("_0x%08X", crc);
+                QString().asprintf("_0x%08X", crc);
         if (png)
         {
             outputFile += ".png";

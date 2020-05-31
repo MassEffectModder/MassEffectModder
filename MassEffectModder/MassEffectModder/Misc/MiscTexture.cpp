@@ -200,7 +200,7 @@ bool Misc::CheckImage(Image &image, TextureMapEntry &f, const QString &file, int
         {
             if (index == -1)
             {
-                PINFO(QString("Skipping texture: ") + f.name + QString().sprintf("_0x%08X", f.crc) + "\n");
+                PINFO(QString("Skipping texture: ") + f.name + QString().asprintf("_0x%08X", f.crc) + "\n");
             }
             else
             {
@@ -223,11 +223,11 @@ bool Misc::CheckImage(Image &image, TextureMapEntry &f, const QString &file, int
         {
             if (index == -1)
             {
-                PINFO(QString("Skipping texture: ") + f.name + QString().sprintf("_0x%08X", f.crc) + "\n");
+                PINFO(QString("Skipping texture: ") + f.name + QString().asprintf("_0x%08X", f.crc) + "\n");
             }
             else
             {
-                PERROR(QString("Error in texture: ") + f.name + QString().sprintf("_0x%08X", f.crc) +
+                PERROR(QString("Error in texture: ") + f.name + QString().asprintf("_0x%08X", f.crc) +
                     " This texture has wrong aspect ratio, skipping texture, entry: " + QString::number(index + 1) +
                     " - mod: " + BaseName(file) + "\n");
             }
