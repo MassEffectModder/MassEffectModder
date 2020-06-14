@@ -81,3 +81,7 @@ HEADERS += \
     sysdep.h
 
 DEFINES += HAVE_CONFIG_H
+
+win32-g++: {
+    QMAKE_CFLAGS += -Wno-format-extra-args -Wno-format
+}
