@@ -1,6 +1,6 @@
 /* WrapperZlib.cpp
 
-        Copyright (C) 2017-2019 Pawel Kolodziejski
+        Copyright (C) 2017-2020 Pawel Kolodziejski
 
         ---------------------------------------------------------------------------------
 
@@ -27,6 +27,7 @@
 
 #include <zlib.h>
 #include <cstring>
+#include <cstdio>
 #include <memory>
 
 int ZlibDecompress(unsigned char *src, unsigned int src_len, unsigned char *dst, unsigned int *dst_len)

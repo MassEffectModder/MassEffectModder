@@ -1,7 +1,7 @@
 /*
  * Wrapper LZO2
  *
- * Copyright (C) 2014-2019 Pawel Kolodziejski
+ * Copyright (C) 2014-2020 Pawel Kolodziejski
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,6 +21,7 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <cstdio>
 #include <memory>
 
 #include <lzo/lzo1x.h>
