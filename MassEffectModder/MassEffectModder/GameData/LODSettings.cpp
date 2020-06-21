@@ -240,7 +240,7 @@ void LODSettings::updateLOD(MeType gameId, ConfigIni &engineConf, bool limit2k)
         }
         else
         {
-            engineConf.Write("TEXTUREGROUP_World", "(MinLODSize=4096,MaxLODSize=4096,LODBias=0)", "TextureLODSettings");
+            engineConf.Write("TEXTUREGROUP_World", "(MinLODSize=2048,MaxLODSize=4096,LODBias=0)", "TextureLODSettings");
             engineConf.Write("TEXTUREGROUP_WorldNormalMap", "(MinLODSize=4096,MaxLODSize=4096,LODBias=0)", "TextureLODSettings");
             engineConf.Write("TEXTUREGROUP_AmbientLightMap", "(MinLODSize=4096,MaxLODSize=4096,LODBias=0)", "TextureLODSettings");
             engineConf.Write("TEXTUREGROUP_LightAndShadowMap", "(MinLODSize=4096,MaxLODSize=4096,LODBias=0)", "TextureLODSettings");
@@ -268,7 +268,7 @@ void LODSettings::updateLOD(MeType gameId, ConfigIni &engineConf, bool limit2k)
     }
     else if (gameId == MeType::ME2_TYPE)
     {
-        engineConf.Write("TEXTUREGROUP_World", "(MinLODSize=256,MaxLODSize=4096,LODBias=0)", "SystemSettings");
+        engineConf.Write("TEXTUREGROUP_World", "(MinLODSize=256,MaxLODSize=2048,LODBias=0)", "SystemSettings");
         engineConf.Write("TEXTUREGROUP_WorldNormalMap", "(MinLODSize=256,MaxLODSize=4096,LODBias=0)", "SystemSettings");
         engineConf.Write("TEXTUREGROUP_AmbientLightMap", "(MinLODSize=32,MaxLODSize=4096,LODBias=0)", "SystemSettings");
         engineConf.Write("TEXTUREGROUP_LightAndShadowMap", "(MinLODSize=1024,MaxLODSize=4096,LODBias=0)", "SystemSettings");
@@ -296,7 +296,7 @@ void LODSettings::updateLOD(MeType gameId, ConfigIni &engineConf, bool limit2k)
     }
     else if (gameId == MeType::ME3_TYPE)
     {
-        engineConf.Write("TEXTUREGROUP_World", "(MinLODSize=256,MaxLODSize=4096,LODBias=0)", "SystemSettings");
+        engineConf.Write("TEXTUREGROUP_World", "(MinLODSize=256,MaxLODSize=2048,LODBias=0)", "SystemSettings");
         engineConf.Write("TEXTUREGROUP_WorldSpecular", "(MinLODSize=256,MaxLODSize=4096,LODBias=0)", "SystemSettings");
         engineConf.Write("TEXTUREGROUP_WorldNormalMap", "(MinLODSize=256,MaxLODSize=4096,LODBias=0)", "SystemSettings");
         engineConf.Write("TEXTUREGROUP_AmbientLightMap", "(MinLODSize=32,MaxLODSize=4096,LODBias=0)", "SystemSettings");
