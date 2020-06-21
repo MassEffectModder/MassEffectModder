@@ -115,6 +115,7 @@ Texture::Texture(Package &package, int exportId, const ByteBuffer &data, bool fi
                 mipMapsList[i].storageType == StorageTypes::extUnc)
             {
                 found = true;
+                break;
             }
         }
         if (found)
