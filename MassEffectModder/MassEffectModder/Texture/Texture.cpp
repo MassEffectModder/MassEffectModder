@@ -114,18 +114,15 @@ Texture::Texture(Package &package, int exportId, const ByteBuffer &data, bool fi
                 mipMapsList[i].storageType == StorageTypes::extZlib ||
                 mipMapsList[i].storageType == StorageTypes::extUnc)
             {
+                basePackageName = baseName;
+                if (basePackageName.length() == 0)
+                    CRASH();
+                slave = true;
                 found = true;
                 break;
             }
         }
-        if (found)
-        {
-            basePackageName = baseName;
-            if (basePackageName.length() == 0)
-                CRASH();
-            slave = true;
-        }
-        else
+        if (!found)
         {
             if (baseName.length() != 0 && !properties->exists("NeverStream"))
             {
