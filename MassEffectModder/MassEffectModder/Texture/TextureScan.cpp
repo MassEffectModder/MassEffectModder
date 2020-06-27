@@ -540,67 +540,39 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
             }
             if (foundWeakSlave)
             {
-                // try make weak slave as slave by mipmap offsets
+                // try make weak slave as master by matching slave with mipmap offsets
                 for (int t = 0; t < textures[k].list.count(); t++)
                 {
                     if (textures[k].list[t].weakSlave)
                     {
-                        TextureMapPackageEntry slaveTexture = textures[k].list[t];
-                        uint mipmapOffset = slaveTexture.mipmapOffset;
-                        QString basePkgName = slaveTexture.basePackageName;
-                        if (basePkgName == BaseNameWithoutExt(slaveTexture.path).toLower())
-                            CRASH();
-
-                        for (int j = 0; j < textures[k].list.count(); j++)
-                        {
-                            if (!textures[k].list[j].slave &&
-                                !textures[k].list[j].weakSlave &&
-                                 textures[k].list[j].mipmapOffset == mipmapOffset &&
-                                 textures[k].list[j].packageName == basePkgName)
-                            {
-                                slaveTexture.slave = true;
-                                slaveTexture.weakSlave = false;
-                                textures[k].list[t] = slaveTexture;
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                // try make weak slave as master by mipmap offsets
-                for (int t = 0; t < textures[k].list.count(); t++)
-                {
-                    if (textures[k].list[t].weakSlave)
-                    {
-                        TextureMapPackageEntry slaveTexture = textures[k].list[t];
-                        uint mipmapOffset = slaveTexture.mipmapOffset;
-                        QString basePkgName = slaveTexture.basePackageName;
-                        if (basePkgName == BaseNameWithoutExt(slaveTexture.path).toLower())
+                        TextureMapPackageEntry weakSlaveTexture = textures[k].list[t];
+                        uint mipmapOffset = weakSlaveTexture.mipmapOffset;
+                        QString pkgName = weakSlaveTexture.packageName;
+                        if (pkgName == weakSlaveTexture.basePackageName)
                             CRASH();
 
                         for (int j = 0; j < textures[k].list.count(); j++)
                         {
                             if (textures[k].list[j].slave &&
                                 textures[k].list[j].mipmapOffset == mipmapOffset &&
-                                textures[k].list[j].packageName == basePkgName)
+                                textures[k].list[j].basePackageName == pkgName)
                             {
-                                slaveTexture.slave = false;
-                                slaveTexture.weakSlave = false;
-                                textures[k].list[t] = slaveTexture;
+                                weakSlaveTexture.weakSlave = false;
+                                textures[k].list[t] = weakSlaveTexture;
                                 break;
                             }
                         }
                     }
                 }
 
-                // try make weak slave as slave by base package name from weak slave
+                // for the rest try make weak slaves as slave
                 for (int t = 0; t < textures[k].list.count(); t++)
                 {
                     if (textures[k].list[t].weakSlave)
                     {
-                        TextureMapPackageEntry slaveTexture = textures[k].list[t];
-                        QString basePkgName = slaveTexture.basePackageName;
-                        if (basePkgName == BaseNameWithoutExt(slaveTexture.path).toLower())
+                        TextureMapPackageEntry weakSlaveTexture = textures[k].list[t];
+                        QString basePkgName = weakSlaveTexture.basePackageName;
+                        if (basePkgName == weakSlaveTexture.packageName)
                             CRASH();
 
                         for (int j = 0; j < textures[k].list.count(); j++)
@@ -609,33 +581,9 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
                                 !textures[k].list[j].weakSlave &&
                                  textures[k].list[j].packageName == basePkgName)
                             {
-                                slaveTexture.slave = true;
-                                slaveTexture.weakSlave = false;
-                                textures[k].list[t] = slaveTexture;
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                // try make weak slave as master by base package name from weak slave
-                for (int t = 0; t < textures[k].list.count(); t++)
-                {
-                    if (textures[k].list[t].weakSlave)
-                    {
-                        TextureMapPackageEntry slaveTexture = textures[k].list[t];
-                        QString basePkgName = slaveTexture.basePackageName;
-                        if (basePkgName == BaseNameWithoutExt(slaveTexture.path).toLower())
-                            CRASH();
-
-                        for (int j = 0; j < textures[k].list.count(); j++)
-                        {
-                            if (textures[k].list[j].slave &&
-                                textures[k].list[j].packageName == basePkgName)
-                            {
-                                slaveTexture.slave = false;
-                                slaveTexture.weakSlave = false;
-                                textures[k].list[t] = slaveTexture;
+                                weakSlaveTexture.weakSlave = false;
+                                weakSlaveTexture.slave = true;
+                                textures[k].list[t] = weakSlaveTexture;
                                 break;
                             }
                         }
@@ -656,7 +604,7 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
             f.list = texList;
             textures[k] = f;
 
-            // try link slaves with master by mipmap offsets
+            // match slave with master by external offsets first
             for (int t = 0; t < textures[k].list.count(); t++)
             {
                 if (textures[k].list[t].slave && textures[k].list[t].linkToMaster == -1)
@@ -682,7 +630,7 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
                 }
             }
 
-            // try link slave with master by base package name from slave
+            // match rest slaves with master
             for (int t = 0; t < textures[k].list.count(); t++)
             {
                 if (textures[k].list[t].slave && textures[k].list[t].linkToMaster == -1)
@@ -713,17 +661,17 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
     {
         for (int t = 0; t < textures[k].list.count(); t++)
         {
-            if (textures[k].list[t].linkToMaster == -1 &&
-                textures[k].list[t].slave &&
-                textures[k].list[t].basePackageName.length() != 0) {
-                QString info = QString("Not connected slave texture: ") + textures[k].name +
+            if (textures[k].list[t].weakSlave) {
+                QString info = QString("Orphaned weak slave texture: ") + textures[k].name +
                         ", Export Id: " + QString::number(textures[k].list[t].exportID + 1) +
                         ", Base package: " + textures[k].list[t].basePackageName +
                         ", Package path: " + textures[k].list[t].path + "\n";
                 PINFO(info);
-            } else if (textures[k].list[t].linkToMaster == -1 &&
-                       textures[k].list[t].basePackageName.length() != 0) {
-                QString info = QString("Orphaned slave texture: ") + textures[k].name +
+            }
+            if (textures[k].list[t].linkToMaster == -1 &&
+                textures[k].list[t].slave &&
+                textures[k].list[t].basePackageName.length() != 0) {
+                QString info = QString("Not connected slave texture: ") + textures[k].name +
                         ", Export Id: " + QString::number(textures[k].list[t].exportID + 1) +
                         ", Base package: " + textures[k].list[t].basePackageName +
                         ", Package path: " + textures[k].list[t].path + "\n";
@@ -943,10 +891,7 @@ void TreeScan::FindTextures(MeType gameId, QList<TextureMapEntry> &textures, con
                     matchTexture.slave = texture->slave;
                     matchTexture.weakSlave = texture->weakSlave;
                     matchTexture.linkToMaster = -1;
-                    if (matchTexture.slave)
-                        matchTexture.mipmapOffset = mipmap.dataOffset;
-                    else
-                        matchTexture.mipmapOffset = exp.getDataOffset() + texture->getProperties().propertyEndOffset + mipmap.internalOffset;
+                    matchTexture.mipmapOffset = mipmap.dataOffset;
                 }
                 crc = texture->getCrcTopMipmap();
             }
