@@ -545,7 +545,6 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                 {
                     if ((pixelFormat == PixelFormat::G8 &&
                         hadNeverStream &&
-//                        textures[entryMap.texturesIndex].list.count() == 1 &&
                         !texture.HasExternalMips()))
                     {
                         forceInternalMip = true;
