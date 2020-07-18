@@ -106,8 +106,10 @@ int runQtApplication(int argc, char *argv[])
     MainWindow window;
     window.show();
 
+#ifdef NDEBUG
     Updater updater(&window);
     QTimer::singleShot(1000, &updater, SLOT(processUpdate()));
+#endif
 
     int status = QApplication::exec();
 #else
