@@ -497,7 +497,7 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool repack,
     }
 
     return Misc::InstallMods(gameId, resources, modFiles, repack,
-                             alotMode, limit2k, verify, cacheAmount,
+                             false, alotMode, limit2k, verify, cacheAmount,
                              nullptr, nullptr);
 }
 

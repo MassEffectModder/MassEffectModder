@@ -264,7 +264,8 @@ bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
 }
 
 bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFiles,
-                       bool repack, bool alotMode, bool limit2k, bool verify, int cacheAmount,
+                       bool repack, bool guiInstallerMode, bool alotInstallerMode,
+                       bool limit2k, bool verify, int cacheAmount,
                        ProgressCallback callback, void *callbackHandle)
 {
     MipMaps mipMaps;
@@ -277,7 +278,7 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
         return false;
     }
 
-    if (!alotMode)
+    if (!alotInstallerMode && !guiInstallerMode)
     {
         if (gameId == MeType::ME1_TYPE && !QFile(GameData::EngineConfigIniPath(gameId)).exists())
         {
@@ -421,7 +422,7 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
     if (!modded)
         Misc::AddMarkers(pkgsToMarker, callback, callbackHandle);
 
-    if (!alotMode)
+    if (!alotInstallerMode)
     {
         if (!ApplyPostInstall(gameId, limit2k))
             return false;
