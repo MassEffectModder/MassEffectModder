@@ -210,13 +210,12 @@ void DisplayHelp()
         "\n" \
         "  --unpack-archive --input <zip/7z/rar file> [--output <output path>] [--ipc]\n" \
         "     Unpack ZIP/7ZIP/RAR file.\n" \
-        "\n";
-#if !defined(_WIN32)
-    help +=
         "  --set-game-data-path --gameid <game id> --path <path>\n" \
         "     game id: 1 for ME1, 2 for ME2, 3 for ME3\n" \
         "     Set game data path to <path>.\n" \
-        "\n" \
+        "\n";
+#if !defined(_WIN32)
+    help +=
         "  --set-game-user-path --gameid <game id> --path <path>\n" \
         "     game id: 1 for ME1, 2 for ME2, 3 for ME3\n" \
         "     Set game user config path to <path>.\n" \

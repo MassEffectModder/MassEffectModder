@@ -764,7 +764,6 @@ int ProcessArguments()
         if (!tools.unpackArchive(input, output))
             errorCode = 1;
         break;
-#if !defined(_WIN32)
     case CmdType::SET_GAME_DATA_PATH:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
@@ -782,6 +781,7 @@ int ProcessArguments()
         if (!Misc::SetGameDataPath(gameId, path))
             errorCode = 1;
         break;
+#if !defined(_WIN32)
     case CmdType::SET_GAME_USER_PATH:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
