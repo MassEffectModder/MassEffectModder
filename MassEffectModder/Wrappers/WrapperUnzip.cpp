@@ -1,6 +1,6 @@
 /* WraperUnzip.cpp
 
-        Copyright (C) 2017-2019 Pawel Kolodziejski
+        Copyright (C) 2017-2020 Pawel Kolodziejski
 
         ---------------------------------------------------------------------------------
 
