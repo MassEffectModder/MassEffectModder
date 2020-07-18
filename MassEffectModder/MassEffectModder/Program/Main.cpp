@@ -23,6 +23,7 @@
 #include <GameData/GameData.h>
 #ifdef GUI
 #include <Gui/MainWindow.h>
+#include <Gui/InstallerWindow.h>
 #endif
 #include <Helpers/Logs.h>
 #include <Helpers/MiscHelpers.h>
@@ -104,6 +105,8 @@ int runQtApplication(int argc, char *argv[])
                    QString::number(DetectAmountMemoryGB())));
 
     MainWindow window;
+    InstallerWindow installer;
+
     window.show();
 
 #ifdef NDEBUG

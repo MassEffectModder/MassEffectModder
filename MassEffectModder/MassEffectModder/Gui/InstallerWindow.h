@@ -1,7 +1,7 @@
 /*
  * MassEffectModder
  *
- * Copyright (C) 2019-2020 Pawel Kolodziejski
+ * Copyright (C) 2020 Pawel Kolodziejski
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,13 +19,13 @@
  *
  */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef INSTALLER_WINDOW_H
+#define INSTALLER_WINDOW_H
 
 #include <Types/MemTypes.h>
 #include <Gui/LayoutHandle.h>
 
-class MainWindow : public QMainWindow
+class InstallerWindow : public QMainWindow
 {
     Q_OBJECT
 
@@ -39,23 +39,21 @@ private slots:
 private:
     static const int kMinWindowWidth = 1024;
     static const int kMinWindowHeight = 600;
-    static const int kLayoutMain = 1;
-    static const int kLayoutTexturesManager = 2;
-    static const int kLayoutInstallModsManager = 3;
+    static const int kLayoutInstallerMain = 1;
+    static const int kLayoutInstallerProcess = 2;
 
-    friend class LayoutMain;
-    friend class LayoutTexturesManager;
-    friend class LayoutInstallModsManager;
+    friend class LayoutInstallerMain;
+    friend class LayoutInstallerProgress;
 
     QStackedLayout  *stackedLayout;
     bool             busy;
 
 public:
-    MainWindow();
+    InstallerWindow();
 
     QStackedLayout  *GetLayout() { return stackedLayout; }
     void            LockClose(bool state) { busy = state; }
     void            SetTitle(MeType gameType, const QString &appendText);
 };
 
-#endif // MAINWINDOW_H
+#endif // INSTALLER_WINDOW_H

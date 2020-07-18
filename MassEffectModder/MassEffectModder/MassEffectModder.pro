@@ -66,6 +66,8 @@ SOURCES += \
     Gui/GuiGameUtilities.cpp \
     Gui/GuiModsManager.cpp \
     Gui/GuiTextureUtilities.cpp \
+    Gui/InstallerWindow.cpp \
+    Gui/LayoutInstallerMain.cpp \
     Gui/LayoutInstallMods.cpp \
     Gui/LayoutMain.cpp \
     Gui/LayoutTexturesManager.cpp \
@@ -113,7 +115,10 @@ equals(GUI_MODE, true) {
 HEADERS += \
     Gui/MainWindow.h \
     Gui/MessageWindow.h \
+    Gui/InstallerWindow.h \
     Gui/LayoutInstallMods.h \
+    Gui/LayoutInstallerMain.h \
+    Gui/LayoutHandle.h \
     Gui/LayoutMain.h \
     Gui/LayoutTexturesManager.h \
     Program/Updater.h
