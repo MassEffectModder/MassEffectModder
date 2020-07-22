@@ -72,9 +72,8 @@ int LzmaCompress(unsigned char *src, unsigned int src_len,
 }
 
 #ifdef _WIN32
-#define _WIN32_WINNT 0x0501
 #include <windows.h>
-BOOL WINAPI DllMain(HINSTANCE hin, DWORD reason, LPVOID lpvReserved) { return TRUE; }
+BOOL WINAPI DllMain(HINSTANCE /*hin*/, DWORD /*reason*/, LPVOID /*lpvReserved*/) { return TRUE; }
 #define SEVENZIP_EXPORT __declspec(dllexport)
 #else
 #define SEVENZIP_EXPORT
