@@ -71,6 +71,8 @@ int LzmaCompress(unsigned char *src, unsigned int src_len,
     return status;
 }
 
+extern "C" {
+
 #ifdef _WIN32
 #include <windows.h>
 BOOL WINAPI DllMain(HINSTANCE /*hin*/, DWORD /*reason*/, LPVOID /*lpvReserved*/) { return TRUE; }
@@ -79,7 +81,6 @@ BOOL WINAPI DllMain(HINSTANCE /*hin*/, DWORD /*reason*/, LPVOID /*lpvReserved*/)
 #define SEVENZIP_EXPORT
 #endif
 
-extern "C" {
 SEVENZIP_EXPORT int SevenZipDecompress(unsigned char *src, unsigned int src_len, unsigned char *dst, unsigned int *dst_len)
 {
     size_t len = *dst_len, sLen = src_len - LZMA_PROPS_SIZE;
