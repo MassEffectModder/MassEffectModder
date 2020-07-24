@@ -26,6 +26,8 @@
 
 #include <lzo/lzo1x.h>
 
+#ifndef EXPORT_LIBS
+
 int LzoDecompress(unsigned char *src, unsigned int src_len, unsigned char *dst, unsigned int *dst_len)
 {
     lzo_uint len = *dst_len;
@@ -89,3 +91,60 @@ int LzoCompress(unsigned char *src, unsigned int src_len, unsigned char **dst, u
 
     return status;
 }
+
+#else
+
+#ifdef _WIN32
+#define LIB_EXPORT extern "C" __declspec(dllexport)
+#else
+#define LIB_EXPORT
+#endif
+
+LIB_EXPORT int LZODecompress(unsigned char *src, unsigned int src_len, unsigned char *dst, unsigned int *dst_len)
+{
+    lzo_uint len = *dst_len;
+
+    int status = lzo_init();
+    if (status != LZO_E_OK)
+        return status;
+
+    status = lzo1x_decompress_safe(src, src_len, dst, &len, NULL);
+    *dst_len = (unsigned int)len;
+
+    return status;
+}
+
+LIB_EXPORT int LZOCompress(unsigned char *src, unsigned int src_len, unsigned char *dst, unsigned int *dst_len)
+{
+    lzo_uint len = 0;
+
+    int status = lzo_init();
+    if (status != LZO_E_OK)
+        return status;
+
+    unsigned char *wrkmem = (unsigned char *)malloc(LZO1X_1_15_MEM_COMPRESS);
+    if (wrkmem == NULL)
+        return LZO_E_OUT_OF_MEMORY;
+    memset(wrkmem, 0, LZO1X_1_15_MEM_COMPRESS);
+
+    unsigned char *tmpBuffer = (unsigned char *)malloc(src_len + LZO1X_1_15_MEM_COMPRESS);
+    if (tmpBuffer == NULL)
+    {
+        free(wrkmem);
+        return LZO_E_OUT_OF_MEMORY;
+    }
+    memset(tmpBuffer, 0, src_len + LZO1X_1_15_MEM_COMPRESS);
+
+    status = lzo1x_1_15_compress(src, src_len, tmpBuffer, &len, wrkmem);
+    if (status == LZO_E_OK) {
+        *dst_len = (unsigned int)len;
+        memcpy(dst, tmpBuffer, len);
+    }
+
+    free(tmpBuffer);
+    free(wrkmem);
+
+    return status;
+}
+
+#endif

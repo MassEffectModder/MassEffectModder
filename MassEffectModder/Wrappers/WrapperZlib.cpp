@@ -30,6 +30,8 @@
 #include <cstdio>
 #include <memory>
 
+#ifndef EXPORT_LIBS
+
 int ZlibDecompress(unsigned char *src, unsigned int src_len, unsigned char *dst, unsigned int *dst_len)
 {
     uLongf len = *dst_len;
@@ -77,3 +79,39 @@ int ZlibCompress(unsigned char *src, unsigned int src_len,
 
     return status;
 }
+
+#else
+
+#ifdef _WIN32
+#define LIB_EXPORT extern "C" __declspec(dllexport)
+#else
+#define LIB_EXPORT extern "C"
+#endif
+
+LIB_EXPORT int ZlibDecompress(unsigned char *src, unsigned int src_len, unsigned char *dst, unsigned int *dst_len)
+{
+    uLongf len = *dst_len;
+
+    int status = uncompress((Bytef *)dst, &len, (Bytef *)src, (uLong)src_len);
+    if (status == Z_OK)
+        *dst_len = len;
+    else
+        *dst_len = 0;
+
+    return status;
+}
+
+LIB_EXPORT int ZlibCompress(int compression_level, unsigned char *src, unsigned int src_len, unsigned char *dst, unsigned int *dst_len)
+{
+    uLongf len = *dst_len;
+
+    int status = compress2((Bytef *)dst, &len, (Bytef *)src, (uLong)src_len, compression_level);
+    if (status == Z_OK)
+        *dst_len = len;
+    else
+        *dst_len = 0;
+
+    return status;
+}
+
+#endif
