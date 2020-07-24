@@ -30,11 +30,21 @@
 #define DXTC_OFFSET_ALPHA 0
 #define DXTC_OFFSET_RGB 2
 
-void CompressExplicitAlphaBlock(CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4], CODEC_DWORD compressedBlock[2]);
-void DecompressExplicitAlphaBlock(CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4], CODEC_DWORD compressedBlock[2]);
+#ifdef EXPORT_LIBS
+#ifdef _WIN32
+#define LIB_EXPORT extern "C" __declspec(dllexport)
+#else
+#define LIB_EXPORT extern "C"
+#endif
+#else
+#define LIB_EXPORT
+#endif
 
-void CompressAlphaBlock(CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4], CODEC_DWORD compressedBlock[2]);
-void DecompressAlphaBlock(CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4], CODEC_DWORD compressedBlock[2]);
+LIB_EXPORT void CompressExplicitAlphaBlock(CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4], CODEC_DWORD compressedBlock[2]);
+LIB_EXPORT void DecompressExplicitAlphaBlock(CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4], CODEC_DWORD compressedBlock[2]);
+
+LIB_EXPORT void CompressAlphaBlock(CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4], CODEC_DWORD compressedBlock[2]);
+LIB_EXPORT void DecompressAlphaBlock(CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4], CODEC_DWORD compressedBlock[2]);
 
 #define ConstructColour(r, g, b)  (((r) << 11) | ((g) << 5) | (b))
 
@@ -45,7 +55,7 @@ Channel Bits
 #define GG 6
 #define BG 5
 
-void CompressRGBBlock(CODEC_BYTE rgbBlock[BLOCK_SIZE_4X4X4], CODEC_DWORD compressedBlock[2], bool bDXT1 = false, bool bDXT1UseAlpha = false, CODEC_BYTE nDXT1AlphaThreshold = 0)
+LIB_EXPORT void CompressRGBBlock(CODEC_BYTE rgbBlock[BLOCK_SIZE_4X4X4], CODEC_DWORD compressedBlock[2], bool bDXT1 = false, bool bDXT1UseAlpha = false, CODEC_BYTE nDXT1AlphaThreshold = 0)
 {
     /*
     ARGB Channel indexes
@@ -95,7 +105,7 @@ void CompressRGBBlock(CODEC_BYTE rgbBlock[BLOCK_SIZE_4X4X4], CODEC_DWORD compres
 
 // This function decompresses a DXT colour block
 // The block is decompressed to 8 bits per channel
-void DecompressRGBBlock(CODEC_BYTE rgbBlock[BLOCK_SIZE_4X4X4], CODEC_DWORD compressedBlock[2], bool bDXT1)
+LIB_EXPORT void DecompressRGBBlock(CODEC_BYTE rgbBlock[BLOCK_SIZE_4X4X4], CODEC_DWORD compressedBlock[2], bool bDXT1)
 {
     CODEC_DWORD n0 = compressedBlock[0] & 0xffff;
     CODEC_DWORD n1 = compressedBlock[0] >> 16;
@@ -172,7 +182,7 @@ void DecompressRGBBlock(CODEC_BYTE rgbBlock[BLOCK_SIZE_4X4X4], CODEC_DWORD compr
     }
 }
 
-void CompressRGBABlock(CODEC_BYTE rgbaBlock[BLOCK_SIZE_4X4X4], CODEC_DWORD compressedBlock[4])
+LIB_EXPORT void CompressRGBABlock(CODEC_BYTE rgbaBlock[BLOCK_SIZE_4X4X4], CODEC_DWORD compressedBlock[4])
 {
     CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4];
     for(CODEC_DWORD i = 0; i < 16; i++)
@@ -183,7 +193,7 @@ void CompressRGBABlock(CODEC_BYTE rgbaBlock[BLOCK_SIZE_4X4X4], CODEC_DWORD compr
     CompressRGBBlock(rgbaBlock, &compressedBlock[DXTC_OFFSET_RGB], false, false);
 }
 
-void DecompressRGBABlock(CODEC_BYTE rgbaBlock[BLOCK_SIZE_4X4X4], CODEC_DWORD compressedBlock[4])
+LIB_EXPORT void DecompressRGBABlock(CODEC_BYTE rgbaBlock[BLOCK_SIZE_4X4X4], CODEC_DWORD compressedBlock[4])
 {
     CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4];
 
@@ -194,7 +204,7 @@ void DecompressRGBABlock(CODEC_BYTE rgbaBlock[BLOCK_SIZE_4X4X4], CODEC_DWORD com
         ((CODEC_DWORD*)rgbaBlock)[i] = (alphaBlock[i] << RGBA8888_OFFSET_A) | (((CODEC_DWORD*)rgbaBlock)[i] & ~(BYTE_MASK << RGBA8888_OFFSET_A));
 }
 
-void CompressRGBABlock_ExplicitAlpha(CODEC_BYTE rgbaBlock[BLOCK_SIZE_4X4X4], CODEC_DWORD compressedBlock[4])
+LIB_EXPORT void CompressRGBABlock_ExplicitAlpha(CODEC_BYTE rgbaBlock[BLOCK_SIZE_4X4X4], CODEC_DWORD compressedBlock[4])
 {
     CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4];
     for(CODEC_DWORD i = 0; i < 16; i++)
@@ -205,7 +215,7 @@ void CompressRGBABlock_ExplicitAlpha(CODEC_BYTE rgbaBlock[BLOCK_SIZE_4X4X4], COD
     CompressRGBBlock(rgbaBlock, &compressedBlock[DXTC_OFFSET_RGB], false, false);
 }
 
-void DecompressRGBABlock_ExplicitAlpha(CODEC_BYTE rgbaBlock[BLOCK_SIZE_4X4X4], CODEC_DWORD compressedBlock[4])
+LIB_EXPORT void DecompressRGBABlock_ExplicitAlpha(CODEC_BYTE rgbaBlock[BLOCK_SIZE_4X4X4], CODEC_DWORD compressedBlock[4])
 {
     CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4];
 

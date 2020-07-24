@@ -27,6 +27,16 @@
 #include "Common.h"
 #include "CompressonatorXCodec.h"
 
+#ifdef EXPORT_LIBS
+#ifdef _WIN32
+#define LIB_EXPORT extern "C" __declspec(dllexport)
+#else
+#define LIB_EXPORT extern "C"
+#endif
+#else
+#define LIB_EXPORT
+#endif
+
 static void EncodeAlphaBlock(CODEC_DWORD compressedBlock[2], CODEC_BYTE nEndpoints[2], CODEC_BYTE nIndices[BLOCK_SIZE_4X4])
 {
     compressedBlock[0] = ((int)nEndpoints[0]) | (((int)nEndpoints[1])<<8);
@@ -46,7 +56,7 @@ static void EncodeAlphaBlock(CODEC_DWORD compressedBlock[2], CODEC_BYTE nEndpoin
     }
 }
 
-void CompressAlphaBlock(CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4], CODEC_DWORD compressedBlock[2])
+LIB_EXPORT void CompressAlphaBlock(CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4], CODEC_DWORD compressedBlock[2])
 {
     CODEC_BYTE nEndpoints[2][2];
     CODEC_BYTE nIndices[2][BLOCK_SIZE_4X4];
@@ -90,7 +100,7 @@ static void GetCompressedAlphaRamp(CODEC_BYTE alpha[8], CODEC_DWORD compressedBl
 //
 // This function decompresses a block
 //
-void DecompressAlphaBlock(CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4], CODEC_DWORD compressedBlock[2])
+LIB_EXPORT void DecompressAlphaBlock(CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4], CODEC_DWORD compressedBlock[2])
 {
     CODEC_BYTE alpha[8];
     GetCompressedAlphaRamp(alpha, compressedBlock);
@@ -114,7 +124,7 @@ void DecompressAlphaBlock(CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4], CODEC_DWORD com
 
 #define EXPLICIT_ALPHA_PIXEL_MASK 0xf
 #define EXPLICIT_ALPHA_PIXEL_BPP 4
-void CompressExplicitAlphaBlock(CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4], CODEC_DWORD compressedBlock[2])
+LIB_EXPORT void CompressExplicitAlphaBlock(CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4], CODEC_DWORD compressedBlock[2])
 {
     int i;
     compressedBlock[0] = compressedBlock[1] = 0;
@@ -137,7 +147,7 @@ void CompressExplicitAlphaBlock(CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4], CODEC_DWO
 //
 // This function decompresses an explicit alpha block (DXT3)
 //
-void DecompressExplicitAlphaBlock(CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4], CODEC_DWORD compressedBlock[2])
+LIB_EXPORT void DecompressExplicitAlphaBlock(CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4], CODEC_DWORD compressedBlock[2])
 {
     for(int i=0;i<16;i++)
     {

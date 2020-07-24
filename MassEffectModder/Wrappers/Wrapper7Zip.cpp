@@ -76,8 +76,6 @@ int LzmaCompress(unsigned char *src, unsigned int src_len,
 #else
 
 #ifdef _WIN32
-#include <windows.h>
-BOOL WINAPI DllMain(HINSTANCE /*hin*/, DWORD /*reason*/, LPVOID /*lpvReserved*/) { return TRUE; }
 #define LIB_EXPORT extern "C" __declspec(dllexport)
 #else
 #define LIB_EXPORT extern "C"
