@@ -527,7 +527,7 @@ ByteBuffer Image::compressMipmap(PixelFormat dstFormat, const quint8 *src, int w
                     uint block[2];
                     quint8 srcBlock[BLOCK_SIZE_4X4X4];
                     readBlock4X4ARGB(srcBlock, src, w, x, y);
-                    CompressRGBBlock(srcBlock, block, true, useDXT1Alpha, DXT1Threshold);
+                    DxtcCompressRGBBlock(srcBlock, block, true, useDXT1Alpha, DXT1Threshold);
                     writeBlock4X4BPP4(block, dst.ptr(), w, x, y);
                 }
                 else if (dstFormat == PixelFormat::DXT3)
@@ -535,7 +535,7 @@ ByteBuffer Image::compressMipmap(PixelFormat dstFormat, const quint8 *src, int w
                     uint block[4];
                     quint8 srcBlock[BLOCK_SIZE_4X4X4];
                     readBlock4X4ARGB(srcBlock, src, w, x, y);
-                    CompressRGBABlock_ExplicitAlpha(srcBlock, block);
+                    DxtcCompressRGBABlock_ExplicitAlpha(srcBlock, block);
                     writeBlock4X4BPP8(block, dst.ptr(), w, x, y);
                 }
                 else if (dstFormat == PixelFormat::DXT5)
@@ -543,7 +543,7 @@ ByteBuffer Image::compressMipmap(PixelFormat dstFormat, const quint8 *src, int w
                     uint block[4];
                     quint8 srcBlock[BLOCK_SIZE_4X4X4];
                     readBlock4X4ARGB(srcBlock, src, w, x, y);
-                    CompressRGBABlock(srcBlock, block);
+                    DxtcCompressRGBABlock(srcBlock, block);
                     writeBlock4X4BPP8(block, dst.ptr(), w, x, y);
                 }
                 else if (dstFormat == PixelFormat::ATI2)
@@ -553,8 +553,8 @@ ByteBuffer Image::compressMipmap(PixelFormat dstFormat, const quint8 *src, int w
                     quint8 srcBlockX[BLOCK_SIZE_4X4BPP8];
                     quint8 srcBlockY[BLOCK_SIZE_4X4BPP8];
                     readBlock4X4ATI2(srcBlockX, srcBlockY, src, w, x, y);
-                    CompressAlphaBlock(srcBlockX, blockX);
-                    CompressAlphaBlock(srcBlockY, blockY);
+                    DxtcCompressAlphaBlock(srcBlockX, blockX);
+                    DxtcCompressAlphaBlock(srcBlockY, blockY);
                     writeBlock4X4ATI2(blockX, blockY, dst.ptr(), w, x, y);
                 }
                 else
@@ -601,7 +601,7 @@ ByteBuffer Image::decompressMipmap(PixelFormat srcFormat, const quint8 *src, int
                     uint block[2];
                     quint8 dstBlock[BLOCK_SIZE_4X4X4];
                     readBlock4X4BPP4(block, src, w, x, y);
-                    DecompressRGBBlock(dstBlock, block, true);
+                    DxtcDecompressRGBBlock(dstBlock, block, true);
                     writeBlock4X4ARGB(dstBlock, dst.ptr(), w, x, y);
                 }
                 else if (srcFormat == PixelFormat::DXT3)
@@ -609,7 +609,7 @@ ByteBuffer Image::decompressMipmap(PixelFormat srcFormat, const quint8 *src, int
                     uint block[4];
                     quint8 dstBlock[BLOCK_SIZE_4X4X4];
                     readBlock4X4BPP8(block, src, w, x, y);
-                    DecompressRGBABlock_ExplicitAlpha(dstBlock, block);
+                    DxtcDecompressRGBABlock_ExplicitAlpha(dstBlock, block);
                     writeBlock4X4ARGB(dstBlock, dst.ptr(), w, x, y);
                 }
                 else if (srcFormat == PixelFormat::DXT5)
@@ -617,7 +617,7 @@ ByteBuffer Image::decompressMipmap(PixelFormat srcFormat, const quint8 *src, int
                     uint block[4];
                     quint8 dstBlock[BLOCK_SIZE_4X4X4];
                     readBlock4X4BPP8(block, src, w, x, y);
-                    DecompressRGBABlock(dstBlock, block);
+                    DxtcDecompressRGBABlock(dstBlock, block);
                     writeBlock4X4ARGB(dstBlock, dst.ptr(), w, x, y);
                 }
                 else if (srcFormat == PixelFormat::ATI2)
@@ -632,8 +632,8 @@ ByteBuffer Image::decompressMipmap(PixelFormat srcFormat, const quint8 *src, int
                     blockY[1] = block[1];
                     blockX[0] = block[2];
                     blockX[1] = block[3];
-                    DecompressAlphaBlock(blockDstR, blockX);
-                    DecompressAlphaBlock(blockDstG, blockY);
+                    DxtcDecompressAlphaBlock(blockDstR, blockX);
+                    DxtcDecompressAlphaBlock(blockDstG, blockY);
                     writeBlock4X4ARGBATI2(blockDstR, blockDstG, dst.ptr(), w, x, y);
                 }
                 else

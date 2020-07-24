@@ -1,6 +1,6 @@
 TEMPLATE = lib
 
-equals(WRAPPERS_SHARED, false) {
+!equals(WRAPPERS_SHARED, true) {
 CONFIG += staticlib
 } else {
 CONFIG -= staticlib
@@ -9,19 +9,22 @@ CONFIG += dll
 
 QT -= gui core
 
-equals(WRAPPERS_SHARED, false) {
+!equals(WRAPPERS_SHARED, true) {
 SOURCES += \
     BacktraceCommon.cpp \
 }
 
 SOURCES += \
     Wrapper7Zip.cpp \
+    WrapperDxtc.cpp \
     WrapperLzo.cpp \
     WrapperZlib.cpp
 
-equals(WRAPPERS_SHARED, false) {
+!equals(WRAPPERS_SHARED, true) {
 SOURCES += \
     WrapperPng.cpp \
+    WrapperUnzip.cpp \
+    WrapperUnrar.cpp \
     WrapperXdelta.cpp \
 }
 
@@ -30,7 +33,7 @@ SOURCES += \
     WrapperZstd.cpp
 }
 
-equals(WRAPPERS_SHARED, false) {
+!equals(WRAPPERS_SHARED, true) {
     macx {
         SOURCES += BacktraceMac.cpp
     }
@@ -55,6 +58,7 @@ DEFINES +=
 
 INCLUDEPATH += \
     $$PWD/../Libs/7z \
+    $$PWD/../Libs/bfd \
     $$PWD/../Libs/dxtc \
     $$PWD/../Libs/lzo2 \
     $$PWD/../Libs/png \
@@ -65,6 +69,7 @@ INCLUDEPATH += \
 
 DEPENDPATH += \
     $$PWD/../Libs/7z \
+    $$PWD/../Libs/bfd \
     $$PWD/../Libs/dxtc \
     $$PWD/../Libs/lzo2 \
     $$PWD/../Libs/png \
