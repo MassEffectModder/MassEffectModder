@@ -30,6 +30,8 @@
 #else
 #error not supported system!
 #endif
+#include <cwchar>
+#include <cstdio>
 
 #define GIGABYTES (1024ULL * 1024 * 1024)
 #define ALIGN_GIGABYTES (1024ULL * 1024 * 1023)
@@ -60,11 +62,7 @@ int DetectAmountMemoryGB()
 
 void ConsoleWrite(const QString &message)
 {
-#if defined(_WIN32)
-    ::_putws(message.toStdWString().c_str());
-#else
-    ::puts(message.toStdString().c_str());
-#endif
+    std::fputws(message.toStdWString().c_str(), stdout);
 }
 
 void ConsoleSync()

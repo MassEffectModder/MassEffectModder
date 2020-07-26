@@ -56,14 +56,20 @@ void Logs::EnableOutputConsole(bool enable)
 void Logs::EnableOutputFile(const QString &path, bool enable)
 {
     logPath = path;
+    if (!enable)
+    {
+        fileEnabled = enable;
+        return;
+    }
 #if defined(_WIN32)
     FILE *file = _wfopen(logPath.toStdWString().c_str(), L"w");
 #else
-    FILE *file = fopen(logPath.toStdString().c_str(), "w");
+    FILE *file = fopen(logPath.toUtf8().data(), "w");
 #endif
-    if (file)
+    if (file) {
         fclose(file);
-    fileEnabled = enable;
+        fileEnabled = enable;
+    }
 }
 
 void Logs::EnableTimeStamp(bool enable)
@@ -94,11 +100,7 @@ void Logs::Print(int level, const QString &message, int flags)
 
     if (consoleEnabled && (flags & LOG_CONSOLE))
     {
-#if defined(_WIN32)
         std::fputws((timestampStr + message).toStdWString().c_str(), stdout);
-#else
-        std::fputs((timestampStr + message).toStdString().c_str(), stdout);
-#endif
     }
 
     if (fileEnabled && (flags & LOG_FILE))
@@ -106,15 +108,11 @@ void Logs::Print(int level, const QString &message, int flags)
 #if defined(_WIN32)
         FILE *file = _wfopen(logPath.toStdWString().c_str(), L"a");
 #else
-        FILE *file = fopen(logPath.toStdString().c_str(), "a");
+        FILE *file = fopen(logPath.toUtf8().data(), "a");
 #endif
         if (file)
         {
-#if defined(_WIN32)
             std::fputws((timestampStr + message).toStdWString().c_str(), file);
-#else
-            std::fputs((timestampStr + message).toStdString().c_str(), file);
-#endif
             fclose(file);
         }
     }

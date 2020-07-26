@@ -107,20 +107,11 @@ LIB_EXPORT int SevenZipCompress(int compression_level, unsigned char *src, unsig
 #endif
 
 extern "C" {
-#if defined(_WIN32)
 int sevenzip_unpack(const wchar_t *path, const wchar_t *output_path, int full_path);
-#else
-int sevenzip_unpack(const char *path, const char *output_path, int full_path);
-#endif
 }
 
 int SevenZipUnpack(const void *path, const void *output_path, bool full_path)
 {
-#if defined(_WIN32)
     return sevenzip_unpack(static_cast<const wchar_t *>(path),
                         static_cast<const wchar_t *>(output_path), (int)full_path);
-#else
-    return sevenzip_unpack(static_cast<const char *>(path),
-                        static_cast<const char *>(output_path), (int)full_path);
-#endif
 }

@@ -30,6 +30,7 @@
 
 
 #include "ioapi.h"
+#include <wchar.h>
 
 extern unsigned char tpfXorKey[2];
 extern int gXor;
@@ -112,7 +113,16 @@ static voidpf ZCALLBACK fopen_file_func (voidpf opaque __attribute__ ((unused)),
         mode_fopen = "wb";
 
     if ((filename!=NULL) && (mode_fopen != NULL))
-        file = fopen(filename, mode_fopen);
+    {
+        mbstate_t state;
+        char path[PATH_MAX];
+        const wchar_t *wpath = filename;
+
+        size_t ret_len = wcsrtombs(path, &wpath, sizeof(path), &state);
+        if (ret_len == (size_t)-1)
+            return file;
+        file = fopen(path, mode_fopen);
+    }
     return file;
 }
 
@@ -130,10 +140,18 @@ static voidpf ZCALLBACK fopen64_file_func (voidpf opaque __attribute__ ((unused)
         mode_fopen = "wb";
 
     if ((filename!=NULL) && (mode_fopen != NULL))
-        file = FOPEN_FUNC((const char*)filename, mode_fopen);
+    {
+        mbstate_t state;
+        char path[PATH_MAX];
+        const wchar_t *wpath = filename;
+
+        size_t ret_len = wcsrtombs(path, &wpath, sizeof(path), &state);
+        if (ret_len == (size_t)-1)
+            return file;
+        file = FOPEN_FUNC((const char*)path, mode_fopen);
+    }
     return file;
 }
-
 
 static uLong ZCALLBACK fread_file_func (voidpf opaque, voidpf stream, void* buf, uLong size)
 {

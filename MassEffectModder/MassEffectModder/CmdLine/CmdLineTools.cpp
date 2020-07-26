@@ -112,8 +112,8 @@ bool CmdLineTools::unpackArchive(const QString &inputFile, QString &outputDir)
     auto strFile = inputFile.toStdWString();
     auto strOut = outputDir.toStdWString();
 #else
-    auto strFile = inputFile.toStdString();
-    auto strOut = outputDir.toStdString();
+    auto strFile = inputFile.toStdU32String();
+    auto strOut = outputDir.toStdU32String();
 #endif
     auto fileName = strFile.c_str();
     auto outPath = strOut.c_str();

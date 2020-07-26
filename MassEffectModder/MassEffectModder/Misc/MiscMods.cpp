@@ -607,7 +607,7 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
 #if defined(_WIN32)
             auto str = file.toStdWString();
 #else
-            auto str = file.toStdString();
+            auto str = file.toStdU32String();
 #endif
             auto name = str.c_str();
             void *handle = ZipOpenFromFile(name, &numEntries, 1);
@@ -1351,7 +1351,7 @@ bool Misc::extractTPF(QFileInfoList &list, QString &outputDir)
 #if defined(_WIN32)
         auto str = file.absoluteFilePath().toStdWString();
 #else
-        auto str = file.absoluteFilePath().toStdString();
+        auto str = file.absoluteFilePath().toStdU32String();
 #endif
         auto name = str.c_str();
         void *handle = ZipOpenFromFile(name, &numEntries, 1);
