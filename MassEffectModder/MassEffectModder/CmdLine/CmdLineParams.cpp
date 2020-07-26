@@ -124,9 +124,9 @@ int ProcessArguments()
             cmd = CmdType::COMPACT_DLC;
         else if (arg == "--unpack-archive")
             cmd = CmdType::UNPACK_ARCHIVE;
-#if !defined(_WIN32)
         else if (arg == "--set-game-data-path")
             cmd = CmdType::SET_GAME_DATA_PATH;
+#if !defined(_WIN32)
         else if (arg == "--set-game-user-path")
             cmd = CmdType::SET_GAME_USER_PATH;
 #endif
