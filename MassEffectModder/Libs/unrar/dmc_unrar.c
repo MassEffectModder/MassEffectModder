@@ -249,8 +249,6 @@
 /* If you don't have stdint.h and/or stddef.h, you need to typedef the following types and macros. */
 #include <stdint.h>
 #include <stddef.h>
-#include <wchar.h>
-#include <limits.h>
 
 #if 0
 typedef signed char int8_t
@@ -533,7 +531,7 @@ bool dmc_unrar_is_rar_mem(const void *mem, size_t size);
 bool dmc_unrar_is_rar_file(FILE *file);
 
 /* Detect whether the file at this path contains a RAR archive. */
-bool dmc_unrar_is_rar_path(const wchar_t *path);
+bool dmc_unrar_is_rar_path(const char *path);
 #endif /* DMC_UNRAR_DISABLE_STDIO */
 
 #if DMC_UNRAR_DISABLE_WINFILE_IO != 1
@@ -601,7 +599,7 @@ dmc_unrar_return dmc_unrar_archive_open_file(dmc_unrar_archive *archive, FILE *f
  *  @return DMC_UNRAR_OK if the archive was successfully opened. Any other value
  *          describes an error condition.
  */
-dmc_unrar_return dmc_unrar_archive_open_path(dmc_unrar_archive *archive, const wchar_t *path);
+dmc_unrar_return dmc_unrar_archive_open_path(dmc_unrar_archive *archive, const char *path);
 #endif /* DMC_UNRAR_DISABLE_STDIO */
 
 #if DMC_UNRAR_DISABLE_WINFILE_IO != 1
@@ -815,7 +813,7 @@ dmc_unrar_return dmc_unrar_extract_file_to_file(dmc_unrar_archive *archive, size
  *  @return An error condition, or DMC_UNRAR_OK if extraction succeeded.
  */
 dmc_unrar_return dmc_unrar_extract_file_to_path(dmc_unrar_archive *archive, size_t index,
-    const wchar_t *path, size_t *uncompressed_size, bool validate_crc);
+	const char *path, size_t *uncompressed_size, bool validate_crc);
 #endif /* DMC_UNRAR_DISABLE_STDIO */
 
 #if DMC_UNRAR_DISABLE_WINFILE_IO != 1
@@ -1398,15 +1396,8 @@ typedef struct dmc_unrar_file_reader_tag {
 	bool need_close;
 } dmc_unrar_file_reader;
 
-static FILE *dmc_unrar_file_fopen(const wchar_t *wpath) {
-    mbstate_t state;
-    char path[PATH_MAX];
-
-    size_t ret_len = wcsrtombs(path, &wpath, sizeof(path), &state);
-    if (ret_len == (size_t)-1)
-        return 0;
-
-    return fopen(path, "rb");
+static FILE *dmc_unrar_file_fopen(const char *path) {
+	return fopen(path, "rb");
 }
 
 static uint64_t dmc_unrar_file_get_size(FILE *file) {
@@ -1438,7 +1429,7 @@ static dmc_unrar_return dmc_unrar_file_set(dmc_unrar_file_reader *reader, FILE *
 	return DMC_UNRAR_OK;
 }
 
-static dmc_unrar_return dmc_unrar_file_open(dmc_unrar_file_reader *reader, const wchar_t *path) {
+static dmc_unrar_return dmc_unrar_file_open(dmc_unrar_file_reader *reader, const char *path) {
 	DMC_UNRAR_ASSERT(reader && path);
 
 	if (!(reader->file = dmc_unrar_file_fopen(path)))
@@ -1754,7 +1745,7 @@ bool dmc_unrar_is_rar_file(FILE *file) {
 	return result;
 }
 
-bool dmc_unrar_is_rar_path(const wchar_t *path) {
+bool dmc_unrar_is_rar_path(const char *path) {
 	dmc_unrar_file_reader file_reader;
 	dmc_unrar_io io;
 	bool result;
@@ -1981,7 +1972,7 @@ dmc_unrar_return dmc_unrar_archive_open_file(dmc_unrar_archive *archive, FILE *f
 	return dmc_unrar_archive_open_file_reader(archive, &file_reader);
 }
 
-dmc_unrar_return dmc_unrar_archive_open_path(dmc_unrar_archive *archive, const wchar_t *path) {
+dmc_unrar_return dmc_unrar_archive_open_path(dmc_unrar_archive *archive, const char *path) {
 	dmc_unrar_file_reader file_reader;
 
 	/* Sanity checks. */
@@ -2266,7 +2257,7 @@ static dmc_unrar_generation dmc_unrar_find_generation(uint8_t *buffer, size_t bu
 /** Identify a RAR file generation by its magic number. */
 static int dmc_unrar_identify_generation(dmc_unrar_io *io) {
 	size_t buffer_size, read_count;
-    uint8_t buffer[4096];
+	uint8_t buffer[4096];
 
 	DMC_UNRAR_ASSERT(io);
 
@@ -4157,18 +4148,12 @@ dmc_unrar_return dmc_unrar_extract_file_to_file(dmc_unrar_archive *archive, size
 }
 
 dmc_unrar_return dmc_unrar_extract_file_to_path(dmc_unrar_archive *archive, size_t index,
-    const wchar_t *wpath, size_t *uncompressed_size, bool validate_crc) {
+	const char *path, size_t *uncompressed_size, bool validate_crc) {
 
 	dmc_unrar_return return_code;
 	FILE *file = NULL;
-    mbstate_t state;
-    char path[PATH_MAX];
 
-    size_t ret_len = wcsrtombs(path, &wpath, sizeof(path), &state);
-    if (ret_len == (size_t)-1)
-        return DMC_UNRAR_OPEN_FAIL;
-
-    if (!(file = fopen(path, "wb")))
+	if (!(file = fopen(path, "wb")))
 		return DMC_UNRAR_OPEN_FAIL;
 
 	return_code = dmc_unrar_extract_file_to_file(archive, index, file, uncompressed_size, validate_crc);

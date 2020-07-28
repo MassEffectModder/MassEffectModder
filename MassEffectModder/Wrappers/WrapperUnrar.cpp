@@ -20,11 +20,20 @@
  */
 
 extern "C" {
+#if defined(_WIN32)
 int unrar_unpack(const wchar_t *path, const wchar_t *output_path, int full_path);
+#else
+int unrar_unpack(const char *path, const char *output_path, int full_path);
+#endif
 }
 
 int RarUnpack(const void *path, const void *output_path, bool full_path)
 {
+#if defined(_WIN32)
     return unrar_unpack(static_cast<const wchar_t *>(path),
                         static_cast<const wchar_t *>(output_path), (int)full_path);
+#else
+    return unrar_unpack(static_cast<const char *>(path),
+                        static_cast<const char *>(output_path), (int)full_path);
+#endif
 }

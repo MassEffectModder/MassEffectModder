@@ -112,7 +112,7 @@ void Updater::finishedDownloadRelase(QNetworkReply *reply)
 #if defined(_WIN32)
         status = SevenZipUnpack(dstPath.toStdWString().c_str(), unpackPath.toStdWString().c_str(), true);
 #else
-        status = SevenZipUnpack(dstPath.toStdU32String().c_str(), unpackPath.toStdString().c_str(), false);
+        status = SevenZipUnpack(dstPath.toStdString().c_str(), unpackPath.toStdString().c_str(), false);
 #endif
     }
     else if (dstPath.endsWith(".zip", Qt::CaseInsensitive))
@@ -120,7 +120,7 @@ void Updater::finishedDownloadRelase(QNetworkReply *reply)
 #if defined(_WIN32)
         status = ZipUnpack(dstPath.toStdWString().c_str(), unpackPath.toStdWString().c_str(), false);
 #else
-        status = ZipUnpack(dstPath.toStdU32String().c_str(), unpackPath.toStdString().c_str(), false);
+        status = ZipUnpack(dstPath.toStdString().c_str(), unpackPath.toStdString().c_str(), false);
 #endif
     }
     else if (dstPath.endsWith(".dmg", Qt::CaseInsensitive))

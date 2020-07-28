@@ -19,7 +19,7 @@
 #endif
 #include <sys/stat.h>
 #include <errno.h>
-
+#include <limits.h>
 
 #define kInputBufSize ((size_t)1 << 18)
 
@@ -413,7 +413,7 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path)
 
             for (j = 0; name[j] != 0; j++)
             {
-                if (name[j] == '/')
+                if (name[j] == '/' && name[1] != ':')
                 {
                     if (full_path)
                     {
@@ -440,9 +440,15 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path)
             }
 
             if (outputDir && outputDir[0] != 0)
-                swprintf(outputPath, size, L"%s/%s", outputDir, outputFile);
+            {
+                swprintf(outputFile, size, L"%s/%s", outputDir, name);
+            }
+            else
+            {
+                wcscpy(outputFile, name);
+            }
 
-            if (OutFile_OpenW(&outFile, outputPath))
+            if (OutFile_OpenW(&outFile, outputFile))
             {
                 PrintError("can not open output file");
                 res = SZ_ERROR_FAIL;
@@ -457,12 +463,13 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path)
             strcpy(FileName, (const char*)buf.data);
             Buf_Free(&buf, &g_Alloc);
             char *outputDir = (char *)output_path;
-            char outputPath[strlen(outputDir) + strlen(FileName) + 1];
-            char outputFile[strlen(outputDir) + strlen(FileName) + 1];
-            char tmpfile[strlen(FileName) + 1];
+            char outputPath[PATH_MAX];
+            char outputFile[PATH_MAX];
+            char tmpfile[PATH_MAX];
 
             strcpy(outputPath, FileName);
             strcpy(outputFile, FileName);
+            strcpy(tmpfile, FileName);
 
             for (j = 0; tmpfile[j] != 0; j++)
             {
@@ -472,10 +479,10 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path)
                     {
                         tmpfile[j] = 0;
                         if (outputDir && outputDir[0] != 0)
-                            sprintf(outputFile, "%s/%s", outputDir, tmpfile);
+                            sprintf(outputPath, "%s/%s", outputDir, tmpfile);
                         else
-                            strcpy(outputFile, tmpfile);
-                        if (MyCreateDir(outputFile) != 0)
+                            strcpy(outputPath, tmpfile);
+                        if (MyCreateDir(outputPath) != 0)
                         {
                             res = SZ_ERROR_FAIL;
                             break;
@@ -485,9 +492,9 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path)
                     else
                     {
                         if (outputDir && outputDir[0] != 0)
-                            sprintf(outputFile, "%s/%s", outputDir, tmpfile + j + 1);
+                            sprintf(outputPath, "%s/%s", outputDir, tmpfile + j + 1);
                         else
-                            strcpy(outputFile, tmpfile + j + 1);
+                            strcpy(outputPath, tmpfile + j + 1);
                     }
                 }
             }
@@ -498,9 +505,15 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path)
             }
 
             if (outputDir && outputDir[0] != 0)
-                sprintf(outputPath, "%s/%s", outputDir, outputFile);
+            {
+                sprintf(outputFile, "%s/%s", outputDir, tmpfile);
+            }
+            else
+            {
+                strcpy(outputFile, tmpfile);
+            }
 
-            if (OutFile_Open(&outFile, outputPath))
+            if (OutFile_Open(&outFile, outputFile))
             {
                 PrintError("can not open output file");
                 res = SZ_ERROR_FAIL;
