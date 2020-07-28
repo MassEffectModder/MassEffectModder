@@ -417,13 +417,13 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
         }
         CloseHandle(file);
 #else
-        char outputPath[strlen(outputDir) + strlen(fileName) + 2];
-        char outputFile[strlen(outputDir) + strlen(fileName) + 2];
-        char tmpfile[strlen(fileName) + 1];
+        char outputPath[PATH_MAX];
+        char outputFile[PATH_MAX - 2];
+        char tmpfile[PATH_MAX - 2];
 
-        strcpy(outputPath, fileName);
-        strcpy(outputFile, fileName);
-        strcpy(tmpfile, fileName);
+        strncpy(outputPath, fileName, sizeof (outputPath) - 1);
+        strncpy(outputFile, fileName, sizeof (outputFile) - 1);
+        strncpy(tmpfile, fileName, sizeof (tmpfile) - 1);
 
         for (int j = 0; tmpfile[j] != 0; j++)
         {
@@ -433,9 +433,9 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
                 {
                     tmpfile[j] = 0;
                     if (outputDir && outputDir[0] != 0)
-                        sprintf(outputPath, "%s/%s", outputDir, tmpfile);
+                        snprintf(outputPath, PATH_MAX, "%s/%s", outputDir, tmpfile);
                     else
-                        strcpy(outputPath, tmpfile);
+                        strncpy(outputPath, tmpfile, sizeof (outputPath) - 1);
                     if (MyCreateDir(outputPath) != 0)
                     {
                         result = 1;
@@ -446,9 +446,9 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
                 else
                 {
                     if (outputDir && outputDir[0] != 0)
-                        sprintf(outputPath, "%s/%s", outputDir, tmpfile + j + 1);
+                        snprintf(outputPath, PATH_MAX, "%s/%s", (char *)outputDir, tmpfile + j + 1);
                     else
-                        strcpy(outputPath, tmpfile + j + 1);
+                        strncpy(outputPath, tmpfile + j + 1,  sizeof (outputPath) - 1);
                 }
             }
         }
@@ -461,11 +461,11 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
 
         if (outputDir && outputDir[0] != 0)
         {
-            sprintf(outputFile, "%s/%s", outputDir, tmpfile);
+            snprintf(outputFile, PATH_MAX, "%s/%s", outputDir, tmpfile);
         }
         else
         {
-            strcpy(outputFile, tmpfile);
+            strncpy(outputFile, tmpfile, sizeof (outputFile));
         }
 
         FILE *file = fopen(outputFile, "wb+");

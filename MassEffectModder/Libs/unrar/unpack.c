@@ -182,16 +182,16 @@ int unrar_unpack(const char *path, const char *output_path, int full_path) {
                 if (status == 0)
                     filename = name;
 #else
-                char tmpfile[PATH_MAX];
-                strcpy(tmpfile, name);
+                char tmpfile[PATH_MAX - 2];
+                strncpy(tmpfile, name, sizeof (tmpfile) - 1);
                 for (int j = 0; tmpfile[j] != 0; j++) {
                     if (tmpfile[j] == '/') {
                         tmpfile[j] = 0;
                         char full_file_path[PATH_MAX];
                         if (output_path[0] != 0)
-                            sprintf(full_file_path, "%s/%s", output_path, tmpfile);
+                            snprintf(full_file_path, PATH_MAX, "%s/%s", output_path, tmpfile);
                         else
-                            strcpy(full_file_path, tmpfile);
+                            strncpy(full_file_path, tmpfile, sizeof (full_file_path));
                         if (MyCreateDir(full_file_path) != 0)
                         {
                             status = 1;
@@ -224,9 +224,9 @@ int unrar_unpack(const char *path, const char *output_path, int full_path) {
 #else
                 char filename_path[PATH_MAX];
                 if (output_path[0] != 0)
-                    sprintf(filename_path, "%s/%s", output_path, filename);
+                    snprintf(filename_path, sizeof (filename_path) - 2, "%s/%s", output_path, filename);
                 else
-                    strcpy(filename_path, filename);
+                    strncpy(filename_path, filename, sizeof (filename_path) - 1);
 #endif
                 dmc_unrar_return extracted = dmc_unrar_extract_file_to_path(&archive, i, filename_path, NULL, true);
                 if (extracted != DMC_UNRAR_OK) {

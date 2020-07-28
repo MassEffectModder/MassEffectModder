@@ -464,12 +464,12 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path)
             Buf_Free(&buf, &g_Alloc);
             char *outputDir = (char *)output_path;
             char outputPath[PATH_MAX];
-            char outputFile[PATH_MAX];
-            char tmpfile[PATH_MAX];
+            char outputFile[PATH_MAX - 2];
+            char tmpfile[PATH_MAX - 2];
 
-            strcpy(outputPath, FileName);
-            strcpy(outputFile, FileName);
-            strcpy(tmpfile, FileName);
+            strncpy(outputPath, FileName, sizeof (outputPath) - 1);
+            strncpy(outputFile, FileName, sizeof (outputFile) - 1);
+            strncpy(tmpfile, FileName, sizeof (tmpfile) - 1);
 
             for (j = 0; tmpfile[j] != 0; j++)
             {
@@ -479,9 +479,9 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path)
                     {
                         tmpfile[j] = 0;
                         if (outputDir && outputDir[0] != 0)
-                            sprintf(outputPath, "%s/%s", outputDir, tmpfile);
+                            snprintf(outputPath, PATH_MAX, "%s/%s", outputDir, tmpfile);
                         else
-                            strcpy(outputPath, tmpfile);
+                            strncpy(outputPath, tmpfile, sizeof (outputPath) - 1);
                         if (MyCreateDir(outputPath) != 0)
                         {
                             res = SZ_ERROR_FAIL;
@@ -492,9 +492,9 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path)
                     else
                     {
                         if (outputDir && outputDir[0] != 0)
-                            sprintf(outputPath, "%s/%s", outputDir, tmpfile + j + 1);
+                            snprintf(outputPath, PATH_MAX, "%s/%s", (char *)outputDir, tmpfile + j + 1);
                         else
-                            strcpy(outputPath, tmpfile + j + 1);
+                            strncpy(outputPath, tmpfile + j + 1,  sizeof (outputPath) - 1);
                     }
                 }
             }
@@ -506,11 +506,11 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path)
 
             if (outputDir && outputDir[0] != 0)
             {
-                sprintf(outputFile, "%s/%s", outputDir, tmpfile);
+                snprintf(outputFile, PATH_MAX, "%s/%s", outputDir, tmpfile);
             }
             else
             {
-                strcpy(outputFile, tmpfile);
+                strncpy(outputFile, tmpfile, sizeof (outputFile));
             }
 
             if (OutFile_Open(&outFile, outputFile))
