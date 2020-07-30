@@ -200,18 +200,18 @@ static int MyCreateDir(const wchar_t *name)
 {
     errno_t error = _waccess_s(name, 0);
     if (error != 0 && errno != ENOENT) {
-        fwprintf(stderr, L"Error: failed to check directory: %s\n", name);
+        fwprintf(stderr, L"Error: failed to check directory: %ls\n", name);
         return 1;
     }
     struct _stat s;
     memset(&s, 0, sizeof(struct _stat));
     _wstat(name, &s);
     if (error == 0 && !S_ISDIR(s.st_mode)) {
-        fwprintf(stderr, L"Error: output path is not directory: %s\n", name);
+        fwprintf(stderr, L"Error: output path is not directory: %ls\n", name);
         return 1;
     }
     if (error != 0 && !CreateDirectoryW(name, NULL)) {
-        fwprintf(stderr, L"Error: failed to create directory: %s\n", name);
+        fwprintf(stderr, L"Error: failed to create directory: %ls\n", name);
         return 1;
     }
     return 0;
@@ -404,24 +404,36 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path)
 #ifdef USE_WINDOWS_FILE
             wchar_t *outputDir = (UInt16 *)output_path;
             wchar_t *name = (UInt16 *)temp;
-            int size = wcslen(outputDir) + wcslen(name) + 2;
-            wchar_t outputPath[size];
-            wchar_t outputFile[size];
+            int size = wcslen(name) + 1;
+            if (size > MAX_PATH)
+            {
+                continue;
+            }
+            wchar_t outputPath[PATH_MAX];
+            wchar_t outputFile[PATH_MAX];
 
-            wcscpy(outputPath, name);
-            wcscpy(outputFile, name);
+            int dest_size = wcslen(outputDir) + size + 1;
+            if (dest_size > MAX_PATH)
+            {
+                res = SZ_ERROR_FAIL;
+                continue;
+            }
+
+            wcsncpy(outputPath, name, MAX_PATH - 1);
+            wcsncpy(outputFile, name, MAX_PATH - 1);
 
             for (j = 0; name[j] != 0; j++)
             {
-                if (name[j] == '/' && name[1] != ':')
+                if ((name[j] == '/' && name[1] != ':') ||
+                    (name[j] == '/' && name[1] == ':' && j > 1))
                 {
                     if (full_path)
                     {
                         name[j] = 0;
                         if (outputDir && outputDir[0] != 0)
-                            swprintf(outputFile, size, L"%s/%s", outputDir, name);
+                            swprintf(outputPath, PATH_MAX - 1, L"%ls/%ls", outputDir, name);
                         else
-                            wcscpy(outputFile, name);
+                            wcsncpy(outputPath, name, PATH_MAX - 1);
                         if (MyCreateDir(outputPath) != 0)
                         {
                             res = SZ_ERROR_FAIL;
@@ -431,21 +443,21 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path)
                     }
                     else
                     {
-                        if (output_path && outputDir[0] != 0)
-                            swprintf(outputFile, size, L"%s/%s", outputDir, name + j + 1);
+                        if (outputDir && outputDir[0] != 0)
+                            swprintf(outputPath, PATH_MAX - 1, L"%ls/%ls", outputDir, name + j + 1);
                         else
-                            wcscpy(outputFile, name + j + 1);
+                            wcsncpy(outputPath, name + j + 1, PATH_MAX - 1);
                     }
                 }
             }
 
             if (outputDir && outputDir[0] != 0)
             {
-                swprintf(outputFile, size, L"%s/%s", outputDir, name);
+                swprintf(outputFile, PATH_MAX - 1, L"%ls/%ls", outputDir, name);
             }
             else
             {
-                wcscpy(outputFile, name);
+                wcsncpy(outputFile, name, PATH_MAX - 1);
             }
 
             if (OutFile_OpenW(&outFile, outputFile))
