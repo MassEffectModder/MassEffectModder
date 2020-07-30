@@ -70,7 +70,7 @@ int gXor = 0;
 void *ZipOpenFromFile(const void *path, int *numEntries, int tpf)
 {
     UnzipHandle *unzipHandle;
-    int result;
+    int result = 0;
 
     unzipHandle = static_cast<UnzipHandle *>(malloc(sizeof(UnzipHandle)));
     if (unzipHandle == nullptr || numEntries == nullptr)
