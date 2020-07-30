@@ -70,7 +70,7 @@ int gXor = 0;
 void *ZipOpenFromFile(const void *path, int *numEntries, int tpf)
 {
     UnzipHandle *unzipHandle;
-    int result = 0;
+    int result;
 
     unzipHandle = static_cast<UnzipHandle *>(malloc(sizeof(UnzipHandle)));
     if (unzipHandle == nullptr || numEntries == nullptr)
@@ -299,7 +299,7 @@ static int MyCreateDir(const char *name)
 
 int ZipUnpack(const void *path, const void *output_path, bool full_path)
 {
-    int result;
+    int result = 0;
     unsigned long long dstLen = 0;
     int numEntries = 0;
 #if defined(_WIN32)
