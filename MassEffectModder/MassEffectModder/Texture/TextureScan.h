@@ -57,7 +57,6 @@ class TreeScan
 {
 private:
 
-    static bool IsBlankTexture(uint crc);
     static void FindTextures(MeType gameId, QList<TextureMapEntry> &textures,
                              const QString &packagePath, bool modified);
 
@@ -72,6 +71,7 @@ public:
                                      QList<TextureMapEntry> &textures, bool removeEmptyMips,
                                      bool saveMapFile,
                                      ProgressCallback callback, void *callbackHandle);
+    static bool IsBlankTexture(uint crc);
 };
 
 

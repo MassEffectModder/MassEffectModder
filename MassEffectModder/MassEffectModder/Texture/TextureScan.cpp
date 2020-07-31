@@ -151,9 +151,6 @@ void TreeScan::loadTexturesMap(MeType gameId, Resources &resources, QList<Textur
             matched.packageName = BaseNameWithoutExt(matched.path).toLower();
             texture.list.push_back(matched);
         }
-        // removing blank textures from the textures map
-        if (IsBlankTexture(texture.crc))
-            continue;
         textures.push_back(texture);
     }
 }
@@ -740,15 +737,6 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
                         ", Package path: " + textures[k].list[t].path + "\n";
                 PINFO(info);
             }
-        }
-    }
-
-    // removing blank textures from the textures map
-    for (int k = 0; k < textures.count(); k++)
-    {
-        if (IsBlankTexture(textures[k].crc))
-        {
-            textures.removeAt(k--);
         }
     }
 

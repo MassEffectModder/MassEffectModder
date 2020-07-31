@@ -1018,6 +1018,14 @@ QString MipMaps::replaceModsFromList(QList<TextureMapEntry> &textures, QStringLi
         if (modsToReplace[i].binaryModType)
             binaryMods = true;
         ModEntry mod = modsToReplace[i];
+        // Filter replacing blank textures
+        if (TreeScan::IsBlankTexture(mod.textureCrc))
+        {
+            modsToReplace.removeAt(i);
+            i--;
+            continue;
+        }
+
         for (int l = 0; l < i; l++)
         {
             if ((mod.textureCrc != 0 && mod.textureCrc == modsToReplace[l].textureCrc) ||
