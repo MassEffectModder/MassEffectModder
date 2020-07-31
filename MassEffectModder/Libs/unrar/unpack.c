@@ -1,6 +1,6 @@
 /* dmc_unrar - A dependency-free, single-file FLOSS unrar library
  *
- * Copyright (c) 2019 by Pawel Kolodziejski
+ * Copyright (c) 2019-2020 by Pawel Kolodziejski
  * Copyright (c) 2017 by Sven Hesse (DrMcCoy) <drmccoy@drmccoy.de>
  *
  * dmc_unrar is free software: you can redistribute it and/or modify
@@ -41,7 +41,7 @@
 
 const char *get_filename(dmc_unrar_archive *archive, size_t i) {
     char *filename = 0;
-    size_t size = dmc_unrar_get_filename(archive, i, 0, 0);
+    size_t size = dmc_unrar_get_filename(archive, i, NULL, 0);
     if (!size)
         return NULL;
 
@@ -65,16 +65,16 @@ const char *get_filename(dmc_unrar_archive *archive, size_t i) {
 }
 
 const char *get_filename_no_directory(const char *filename) {
-    char *p = 0;
+    char *p = NULL;
     if (!filename)
-        return 0;
+        return NULL;
 
-    p = strrchr(filename, '/');
+    p = (char *) strrchr(filename, '/');
     if (!p)
         return filename;
 
     if (p[1] == '\0')
-        return 0;
+        return NULL;
 
     return p + 1;
 }
