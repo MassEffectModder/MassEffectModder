@@ -148,99 +148,98 @@ int unrar_unpack(const char *path, const char *output_path, int full_path) {
     }
 
     for (size_t i = 0; i < dmc_unrar_get_file_count(&archive); i++) {
-        const char *name = get_filename(&archive, i);
+        const char *fileName = get_filename(&archive, i);
         const dmc_unrar_file *file = dmc_unrar_get_file_stat(&archive, i);
 
-        if (name && !dmc_unrar_file_is_directory(&archive, i)) {
-            printf("\"%s\" - %u bytes\n", name, (unsigned int)file->uncompressed_size);
+        if (!fileName || dmc_unrar_file_is_directory(&archive, i)) {
+            continue;
         }
 
-        const char *filename = NULL;
-        if (name) {
-            if (full_path) {
+        printf("\"%s\" - %u bytes\n", fileName, (unsigned int)file->uncompressed_size);
+
 #if defined(_WIN32)
-                int size = strlen(name) + 1;
-                if (size > MAX_PATH)
-                {
-                    continue;
-                }
-                wchar_t tmpfile[PATH_MAX];
-                wchar_t outputPath[PATH_MAX];
-                mbstowcs(tmpfile, name, size);
+        const wchar_t *outputDir = output_path;
 
-                int dest_size = wcslen(output_path) + size + 1;
-                if (dest_size > MAX_PATH)
-                {
-                    continue;
-                }
-
-                for (int j = 0; tmpfile[j] != 0; j++) {
-                    if ((tmpfile[j] == '/' && tmpfile[1] != ':') ||
-                        (tmpfile[j] == '/' && tmpfile[1] == ':' && j > 1))
-                    {
-                        tmpfile[j] = 0;
-                        if (output_path && output_path[0] != 0)
-                            swprintf(outputPath, PATH_MAX - 1, L"%ls/%ls", output_path, tmpfile);
-                        else
-                            wcsncpy(outputPath, tmpfile, PATH_MAX - 1);
-
-                        if (MyCreateDir(outputPath) != 0)
-                        {
-                            status = 1;
-                            break;
-                        }
-                        tmpfile[j] = '/';
-                    }
-                }
-                if (status == 0)
-                    filename = name;
-#else
-                char outputPath[PATH_MAX];
-                char tmpfile[PATH_MAX];
-                strncpy(tmpfile, name, PATH_MAX - 1);
-                for (int j = 0; tmpfile[j] != 0; j++) {
-                    if (tmpfile[j] == '/') {
-                        tmpfile[j] = 0;
-                        if (output_path && output_path[0] != 0)
-                            snprintf(outputPath, PATH_MAX - 1, "%s/%s", output_path, tmpfile);
-                        else
-                            strncpy(outputPath, tmpfile, PATH_MAX - 1);
-                        if (MyCreateDir(outputPath) != 0)
-                        {
-                            status = 1;
-                            break;
-                        }
-                        tmpfile[j] = '/';
-                    }
-                }
-                if (status == 0)
-                    filename = name;
-#endif
-            }
-            else
-                filename = get_filename_no_directory(name);
+        int size = strlen(name) + 1;
+        if (size > MAX_PATH) {
+            continue;
         }
 
-        if (filename && !dmc_unrar_file_is_directory(&archive, i)) {
-            dmc_unrar_return supported = dmc_unrar_file_is_supported(&archive, i);
-            if (supported == DMC_UNRAR_OK) {
-#if defined(_WIN32)
-                size_t size = strlen(filename) + 1;
-                wchar_t outputPath[PATH_MAX];
-                wchar_t tmpfile[PATH_MAX];
-                mbstowcs(tmpfile, filename, size);
+        size_t size = strlen(fileName) + 1;
+        wchar_t outputPath[PATH_MAX];
+        wchar_t tmpfile[PATH_MAX];
+        mbstowcs(tmpfile, filename, size);
+        if (output_path && output_path[0] != 0)
+            swprintf(outputPath, PATH_MAX - 1, L"%ls/%ls", output_path, tmpfile);
+        else
+            wcsncpy(outputPath, tmpfile, PATH_MAX - 1);
+
+        wchar_t tmpfile[PATH_MAX];
+        wchar_t outputPath[PATH_MAX];
+        mbstowcs(tmpfile, name, size);
+
+        int dest_size = wcslen(output_path) + size + 1;
+        if (dest_size > MAX_PATH) {
+            continue;
+        }
+
+        for (int j = 0; tmpfile[j] != 0; j++) {
+            if ((tmpfile[j] == '/' && tmpfile[1] != ':') ||
+                (tmpfile[j] == '/' && tmpfile[1] == ':' && j > 1))
+            {
+                tmpfile[j] = 0;
                 if (output_path && output_path[0] != 0)
                     swprintf(outputPath, PATH_MAX - 1, L"%ls/%ls", output_path, tmpfile);
                 else
                     wcsncpy(outputPath, tmpfile, PATH_MAX - 1);
+
+                if (MyCreateDir(outputPath) != 0)
+                {
+                    status = 1;
+                    break;
+                }
+                tmpfile[j] = '/';
+            }
+        }
 #else
-                char outputPath[PATH_MAX];
-                if (output_path && output_path[0] != 0)
-                    snprintf(outputPath, PATH_MAX - 1, "%s/%s", output_path, filename);
-                else
-                    strncpy(outputPath, filename, PATH_MAX - 1);
+        const char *outputDir = output_path;
+        char outputFile[PATH_MAX];
+        if (outputDir && outputDir[0] != 0)
+            snprintf(outputFile, PATH_MAX - 1, "%s/%s", outputDir, fileName);
+        else
+            strncpy(outputFile, fileName, PATH_MAX - 1);
+
+        char tmpPath[PATH_MAX];
+        strncpy(tmpPath, fileName, PATH_MAX - 1);
+        for (int j = 0; tmpPath[j] != 0; j++) {
+            if (tmpPath[j] == '/') {
+                if (full_path)
+                {
+                    tmpPath[j] = 0;
+                    char outputPath[PATH_MAX];
+                    if (outputDir && outputDir[0] != 0)
+                        snprintf(outputPath, PATH_MAX - 1, "%s/%s", outputDir, tmpPath);
+                    else
+                        strncpy(outputPath, tmpPath, PATH_MAX - 1);
+                    if (MyCreateDir(outputPath) != 0)
+                    {
+                        status = 1;
+                        break;
+                    }
+                    tmpPath[j] = '/';
+                } else {
+                    if (outputDir && outputDir[0] != 0)
+                        snprintf(outputFile, PATH_MAX - 1, "%s/%s", outputDir, tmpPath);
+                    else
+                        strncpy(outputFile, tmpPath + j + 1, PATH_MAX - 1);
+                }
+            }
+        }
 #endif
-                dmc_unrar_return extracted = dmc_unrar_extract_file_to_path(&archive, i, outputPath, NULL, true);
+        if (status == 0) {
+            dmc_unrar_return supported = dmc_unrar_file_is_supported(&archive, i);
+            if (supported == DMC_UNRAR_OK) {
+                dmc_unrar_return extracted = dmc_unrar_extract_file_to_path(&archive, i, outputFile, NULL, true);
                 if (extracted != DMC_UNRAR_OK) {
                     fprintf(stderr, "Error: %s\n", dmc_unrar_strerror(extracted));
                     status = 1;
@@ -251,8 +250,7 @@ int unrar_unpack(const char *path, const char *output_path, int full_path) {
             }
         }
 
-        if (name)
-            free((char *)name);
+        free((char *)fileName);
     }
 
     dmc_unrar_archive_close(&archive);
