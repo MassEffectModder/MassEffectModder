@@ -43,6 +43,20 @@ int runQtApplication(int argc, char *argv[])
     qputenv("QT_AUTO_SCREEN_SCALE_FACTOR", QByteArray("1"));
 
     QApplication application(argc, argv);
+    QStringList args = QApplication::arguments();
+    if (args.count() != 0)
+        args.removeFirst();
+
+    for (int l = 0; l < args.count(); l++)
+    {
+        const QString arg = args[l].toLower();
+        if (arg == "--version")
+        {
+            ConsoleWrite(QString("[IPC]VERSION %1\n").arg(MEM_VERSION));
+            ConsoleSync();
+            return 0;
+        }
+    }
 
     QApplication::setOrganizationName(APP_NAME);
     QApplication::setApplicationName(APP_NAME);

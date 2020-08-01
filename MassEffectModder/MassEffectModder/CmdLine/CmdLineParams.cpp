@@ -68,6 +68,8 @@ int ProcessArguments()
         const QString arg = args[l].toLower();
         if (arg == "--help")
             cmd = CmdType::HELP;
+        else if (arg == "--version")
+            cmd = CmdType::VERSION;
         else if (arg == "--scan")
             cmd = CmdType::SCAN;
         else if (arg == "--update-toc")
@@ -352,6 +354,17 @@ int ProcessArguments()
 
     switch (cmd)
     {
+    case CmdType::VERSION:
+        if (g_ipc)
+        {
+            ConsoleWrite(QString("[IPC]VERSION %1\n").arg(MEM_VERSION));
+        }
+        else
+        {
+            ConsoleWrite(QString("Version: %1\n").arg(MEM_VERSION));
+        }
+        ConsoleSync();
+        break;
     case CmdType::SCAN:
         if (gameId == MeType::UNKNOWN_TYPE)
         {

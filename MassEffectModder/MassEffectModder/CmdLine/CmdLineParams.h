@@ -26,6 +26,7 @@ typedef enum : int
 {
     UNKNOWN = 0,
     HELP,
+    VERSION,
     SCAN,
     UPDATE_TOC,
     UNPACK_DLCS,
