@@ -158,7 +158,8 @@ int unrar_unpack(const char *path, const char *output_path, int full_path) {
         printf("\"%s\" - %u bytes\n", fileName, (unsigned int)file->uncompressed_size);
 
 #if defined(_WIN32)
-        const wchar_t *outputDir = output_path;
+        continue;
+/*        const wchar_t *outputDir = output_path;
 
         int size = strlen(name) + 1;
         if (size > MAX_PATH) {
@@ -200,7 +201,7 @@ int unrar_unpack(const char *path, const char *output_path, int full_path) {
                 }
                 tmpfile[j] = '/';
             }
-        }
+        }*/
 #else
         const char *outputDir = output_path;
         char outputFile[PATH_MAX];
