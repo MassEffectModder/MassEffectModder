@@ -23,6 +23,14 @@
 #include <cstring>
 #include <memory>
 
+extern "C" {
+#if defined(_WIN32)
+int sevenzip_unpack(const wchar_t *path, const wchar_t *output_path, int full_path);
+#else
+int sevenzip_unpack(const char *path, const char *output_path, int full_path);
+#endif
+}
+
 #ifndef EXPORT_LIBS
 
 int LzmaDecompress(unsigned char *src, unsigned int src_len, unsigned char *dst, unsigned int *dst_len)
@@ -104,15 +112,19 @@ LIB_EXPORT int SevenZipCompress(int compression_level, unsigned char *src, unsig
     return status;
 }
 
-#endif
-
-extern "C" {
+LIB_EXPORT int SevenZipUnpackFile(const void *path, const void *output_path, bool full_path)
+{
 #if defined(_WIN32)
-int sevenzip_unpack(const wchar_t *path, const wchar_t *output_path, int full_path);
+    return sevenzip_unpack(static_cast<const wchar_t *>(path),
+                        static_cast<const wchar_t *>(output_path), (int)full_path);
 #else
-int sevenzip_unpack(const char *path, const char *output_path, int full_path);
+    return sevenzip_unpack(static_cast<const char *>(path),
+                        static_cast<const char *>(output_path), (int)full_path);
 #endif
 }
+
+
+#endif
 
 int SevenZipUnpack(const void *path, const void *output_path, bool full_path)
 {
