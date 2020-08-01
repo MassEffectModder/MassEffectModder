@@ -435,6 +435,10 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
 
         for (int j = 0; tmpPath[j] != 0; j++)
         {
+            if ((tmpPath[j] & 0xc0) == 0x80)
+            {
+                continue;
+            }
             if (tmpPath[j] == '/')
             {
                 if (full_path)
@@ -455,7 +459,7 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
                 else
                 {
                     if (outputDir && outputDir[0] != 0)
-                        snprintf(outputFile, PATH_MAX - 1, "%s/%s", (char *)outputDir, tmpPath + j + 1);
+                        snprintf(outputFile, PATH_MAX - 1, "%s/%s", outputDir, tmpPath + j + 1);
                     else
                         strncpy(outputFile, tmpPath + j + 1, PATH_MAX - 1);
                 }
