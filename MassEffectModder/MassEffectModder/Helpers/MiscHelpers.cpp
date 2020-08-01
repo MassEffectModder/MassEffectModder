@@ -62,7 +62,7 @@ int DetectAmountMemoryGB()
 
 void ConsoleWrite(const QString &message)
 {
-    std::fputws(message.toStdWString().c_str(), stdout);
+    std::fputws((message + "\n").toStdWString().c_str(), stdout);
 }
 
 void ConsoleSync()
