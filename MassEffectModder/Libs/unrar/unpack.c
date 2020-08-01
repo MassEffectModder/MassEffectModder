@@ -159,6 +159,7 @@ int unrar_unpack(const char *path, const char *output_path, int full_path) {
 
 #if defined(_WIN32)
         continue;
+        char outputFile[PATH_MAX];
 /*        const wchar_t *outputDir = output_path;
 
         int size = strlen(name) + 1;
