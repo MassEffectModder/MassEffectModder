@@ -18,12 +18,12 @@ SOURCES += \
     Wrapper7Zip.cpp \
     WrapperDxtc.cpp \
     WrapperLzo.cpp \
+    WrapperUnzip.cpp \
     WrapperZlib.cpp
 
 !equals(WRAPPERS_SHARED, true) {
 SOURCES += \
     WrapperPng.cpp \
-    WrapperUnzip.cpp \
     WrapperUnrar.cpp \
     WrapperXdelta.cpp \
 }

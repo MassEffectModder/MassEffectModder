@@ -326,14 +326,12 @@ static uint GetCrcFromTpfList(QStringList &ddsList, const QString &filename)
 
 bool Misc::TpfGetCurrentFileInfo(void *handle, QString &fileName, quint64 &lenght)
 {
-    char *filetmp;
-    int filetmplen = 0;
+    char filetmp[260];
     unsigned long fileFlags = 0;
-    int result = ZipGetCurrentFileInfo(handle, &filetmp, &filetmplen, &lenght, &fileFlags);
+    int result = ZipGetCurrentFileInfo(handle, filetmp, sizeof (filetmp), &lenght, &fileFlags);
     if (result != 0)
         return false;
     fileName = QString(filetmp);
-    delete[] filetmp;
     return true;
 }
 

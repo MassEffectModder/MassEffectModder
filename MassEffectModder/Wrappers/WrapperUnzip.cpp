@@ -139,27 +139,20 @@ void *ZipOpenFromMem(unsigned char *src, unsigned long long srcLen, int *numEntr
     return static_cast<void *>(unzipHandle);
 }
 
-int ZipGetCurrentFileInfo(void *handle, char **fileName,
-                          int *sizeOfFileName, unsigned long long *dstLen,
+int ZipGetCurrentFileInfo(void *handle, char *fileName,
+                          int sizeOfFileName, unsigned long long *dstLen,
                           unsigned long *fileFlags)
 {
     auto unzipHandle = static_cast<UnzipHandle *>(handle);
     int result;
-    char f[256];
 
-    if (unzipHandle == nullptr || sizeOfFileName == nullptr || dstLen == nullptr)
+    if (unzipHandle == nullptr || fileName == nullptr || dstLen == nullptr)
         return -1;
 
-    *sizeOfFileName = sizeof(f);
-    result = unzGetCurrentFileInfo(unzipHandle->file, &unzipHandle->curFileInfo, f, *sizeOfFileName, nullptr, 0, nullptr, 0);
+    result = unzGetCurrentFileInfo(unzipHandle->file, &unzipHandle->curFileInfo, fileName, sizeOfFileName, nullptr, 0, nullptr, 0);
     if (result != UNZ_OK)
         return result;
 
-    *fileName = new char[*sizeOfFileName];
-    if (*fileName == nullptr)
-        return -100;
-    strcpy(*fileName, f);
-    *sizeOfFileName = strlen(*fileName);
     *dstLen = unzipHandle->curFileInfo.uncompressed_size;
     *fileFlags = unzipHandle->curFileInfo.external_fa;
 
@@ -305,8 +298,9 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
 #if defined(_WIN32)
     auto outputDir = static_cast<const wchar_t *>(output_path);
 #else
-    const char *outputDir = static_cast<const char *>(output_path);
+    auto outputDir = static_cast<const char *>(output_path);
 #endif
+    char fileName[260];
 
     void *handle = ZipOpenFromFile(path, &numEntries, 0);
     if (handle == nullptr)
@@ -314,15 +308,10 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
 
     for (int i = 0; i < numEntries; i++)
     {
-        char *filetmp;
-        int filetmplen = 0;
         unsigned long fileFlags = 0;
-        result = ZipGetCurrentFileInfo(handle, &filetmp, &filetmplen, &dstLen, &fileFlags);
+        result = ZipGetCurrentFileInfo(handle, fileName, sizeof (fileName), &dstLen, &fileFlags);
         if (result != 0)
             goto failed;
-        char fileName[strlen(filetmp) + 1];
-        strcpy(fileName, filetmp);
-        delete[] filetmp;
 
         if (dstLen == 0)
         {
@@ -332,11 +321,11 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
 
         printf("%s\n", fileName);
 
-        auto data = new unsigned char[dstLen];
+        unsigned char *data = (unsigned char *)malloc(dstLen);
         result = ZipReadCurrentFile(handle, data, dstLen, nullptr);
         if (result != 0)
         {
-            delete[] data;
+            free(data);
             goto failed;
         }
 
@@ -345,7 +334,7 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
         if (size > MAX_PATH)
         {
             result = 1;
-            delete[] data;
+            free(data);
             continue;
         }
         wchar_t tmpfile[MAX_PATH];
@@ -357,7 +346,7 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
         if (dest_size > MAX_PATH)
         {
             result = 1;
-            delete[] data;
+            free(data);
             continue;
         }
 
@@ -405,7 +394,7 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
 
         if (result != 0)
         {
-            delete[] data;
+            free(data);
             result = 1;
             break;
         }
@@ -416,7 +405,7 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
                                     FILE_ATTRIBUTE_NORMAL, nullptr);
         if (file == INVALID_HANDLE_VALUE)
         {
-            delete[] data;
+            free(data);
             fwprintf(stderr, L"Failed to write to file: %ls\n", outputPath);
             result = 1;
             break;
@@ -424,7 +413,7 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
         DWORD nWritten = 0;
         if (!WriteFile(file, data, dstLen, &nWritten, nullptr))
         {
-            delete[] data;
+            free(data);
             CloseHandle(file);
             result = 1;
             break;
@@ -474,7 +463,7 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
         }
         if (result != 0)
         {
-            delete[] data;
+            free(data);
             result = 1;
             break;
         }
@@ -482,7 +471,7 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
         FILE *file = fopen(outputFile, "wb+");
         if (!file)
         {
-            delete[] data;
+            free(data);
             printf("Failed to write to file: %s", outputFile);
             result = 1;
             break;
@@ -490,7 +479,7 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
         unsigned long long size = fwrite(data, 1, dstLen, file);
         if (size != dstLen)
         {
-            delete[] data;
+            free(data);
             ferror(file);
             fclose(file);
             result = 1;
@@ -501,7 +490,7 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
             chmod(outputFile, (fileFlags >> 16) & 0xFFFF);
 #endif
 
-        delete[] data;
+        free(data);
         ZipGoToNextFile(handle);
     }
     ZipClose(handle);
@@ -524,3 +513,18 @@ failed:
 
     return 1;
 }
+
+#ifdef EXPORT_LIBS
+
+#ifdef _WIN32
+#define LIB_EXPORT extern "C" __declspec(dllexport)
+#else
+#define LIB_EXPORT extern "C"
+#endif
+
+int ZipUnpackFile(const void *path, const void *output_path, bool full_path)
+{
+    return ZipUnpack(path, output_path, full_path);
+}
+
+#endif
