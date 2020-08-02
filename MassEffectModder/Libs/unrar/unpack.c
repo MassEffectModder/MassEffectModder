@@ -39,31 +39,7 @@
 
 #include "dmc_unrar.c"
 
-const char *get_filename_utf8(dmc_unrar_archive *archive, size_t i) {
-    char *filename = 0;
-    size_t size = dmc_unrar_get_filename(archive, i, NULL, 0);
-    if (!size)
-        return NULL;
-
-    filename = (char *)malloc(size);
-    if (!filename)
-        return NULL;
-
-    size = dmc_unrar_get_filename(archive, i, filename, size);
-    if (!size) {
-        free(filename);
-        return NULL;
-    }
-
-    dmc_unrar_unicode_make_valid_utf8(filename);
-    if (filename[0] == '\0') {
-        free(filename);
-        return NULL;
-    }
-
-    return filename;
-}
-
+#if defined(_WIN32)
 const wchar_t *get_filename_unicode(dmc_unrar_archive *archive, size_t i) {
     int buf_size;
     char *bufName = 0;
@@ -116,7 +92,6 @@ const wchar_t *get_filename_unicode(dmc_unrar_archive *archive, size_t i) {
     return filename;
 }
 
-#if defined(_WIN32)
 static int MyCreateDir(const wchar_t *name)
 {
     errno_t error = _waccess_s(name, 0);
@@ -137,7 +112,34 @@ static int MyCreateDir(const wchar_t *name)
     }
     return 0;
 }
+
 #else
+
+const char *get_filename_utf8(dmc_unrar_archive *archive, size_t i) {
+    char *filename = 0;
+    size_t size = dmc_unrar_get_filename(archive, i, NULL, 0);
+    if (!size)
+        return NULL;
+
+    filename = (char *)malloc(size);
+    if (!filename)
+        return NULL;
+
+    size = dmc_unrar_get_filename(archive, i, filename, size);
+    if (!size) {
+        free(filename);
+        return NULL;
+    }
+
+    dmc_unrar_unicode_make_valid_utf8(filename);
+    if (filename[0] == '\0') {
+        free(filename);
+        return NULL;
+    }
+
+    return filename;
+}
+
 static int MyCreateDir(const char *name)
 {
     struct stat s;

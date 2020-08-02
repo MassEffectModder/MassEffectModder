@@ -1665,6 +1665,7 @@ end:
 
 #else
 
+#if DMC_UNRAR_DISABLE_WIN32 != 1
 static void *dmc_unrar_io_win32_open_func(const char *path) {
     HANDLE file;
     wchar_t *buf = (wchar_t *)path;
@@ -1682,6 +1683,8 @@ static void *dmc_unrar_io_win32_open_func(const char *path) {
     /* Ensure the buffer is freed if we allocated it */
     return (file == INVALID_HANDLE_VALUE) ? NULL : file;
 }
+#endif
+
 #endif
 
 #if DMC_UNRAR_DISABLE_WIN32 != 1
