@@ -121,11 +121,11 @@ bool CmdLineTools::unpackArchive(const QString &inputFile, QString &outputDir)
 #endif
 
     if (inputFile.endsWith(".zip", Qt::CaseInsensitive))
-        return ZipUnpack(fileName, outPath, true) == 0;
+        return ZipUnpack(fileName, outPath, true, g_ipc) == 0;
     if (inputFile.endsWith(".7z", Qt::CaseInsensitive))
-        return SevenZipUnpack(fileName, outPath, true) == 0;
+        return SevenZipUnpack(fileName, outPath, true, g_ipc) == 0;
     if (inputFile.endsWith(".rar", Qt::CaseInsensitive))
-        return RarUnpack(fileName, outPath, true) == 0;
+        return RarUnpack(fileName, outPath, true, g_ipc) == 0;
 
     return false;
 }

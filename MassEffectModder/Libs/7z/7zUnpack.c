@@ -291,9 +291,9 @@ static void PrintError(char *s)
 }
 
 #ifdef USE_WINDOWS_FILE
-int sevenzip_unpack(const wchar_t *path, const wchar_t *output_path, int full_path)
+int sevenzip_unpack(const wchar_t *path, const wchar_t *output_path, int full_path, int ipc)
 #else
-int sevenzip_unpack(const char *path, const char *output_path, int full_path)
+int sevenzip_unpack(const char *path, const char *output_path, int full_path, int ipc)
 #endif
 {
     ISzAlloc allocImp;

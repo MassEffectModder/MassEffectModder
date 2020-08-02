@@ -290,7 +290,7 @@ static int MyCreateDir(const char *name)
 }
 #endif
 
-int ZipUnpack(const void *path, const void *output_path, bool full_path)
+int ZipUnpack(const void *path, const void *output_path, bool full_path, bool ipc)
 {
     int result = 0;
     unsigned long long dstLen = 0;
@@ -525,7 +525,7 @@ failed:
 
 int ZipUnpackFile(const void *path, const void *output_path, bool full_path)
 {
-    return ZipUnpack(path, output_path, full_path);
+    return ZipUnpack(path, output_path, full_path, false);
 }
 
 #endif

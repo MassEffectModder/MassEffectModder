@@ -162,9 +162,9 @@ static int MyCreateDir(const char *name)
 #endif
 
 #if defined(_WIN32)
-int unrar_unpack(const wchar_t *path, const wchar_t *output_path, int full_path) {
+int unrar_unpack(const wchar_t *path, const wchar_t *output_path, int full_path, int ipc) {
 #else
-int unrar_unpack(const char *path, const char *output_path, int full_path) {
+int unrar_unpack(const char *path, const char *output_path, int full_path, int ipc) {
 #endif
     int status = 0;
 
