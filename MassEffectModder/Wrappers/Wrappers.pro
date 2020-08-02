@@ -49,7 +49,7 @@ SOURCES += \
 
 HEADERS += Wrappers.h
 
-QMAKE_CXXFLAGS +=
+QMAKE_CXXFLAGS += -Wno-format-truncation -Wno-stringop-truncation
 QMAKE_CXXFLAGS_RELEASE -= -O2
 QMAKE_CXXFLAGS_RELEASE += -g1 -O3
 QMAKE_CXXFLAGS_DEBUG += -g

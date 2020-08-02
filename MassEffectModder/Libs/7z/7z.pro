@@ -53,7 +53,7 @@ HEADERS += \
     Ppmd7.h \
     Precomp.h
 
-QMAKE_CFLAGS += -D_7ZIP_ST -O3
+QMAKE_CFLAGS += -D_7ZIP_ST -O3 -Wno-format-truncation -Wno-stringop-truncation
 QMAKE_CFLAGS_RELEASE -= -O2
 QMAKE_CFLAGS_RELEASE += -g1
 QMAKE_CFLAGS_DEBUG += -g
