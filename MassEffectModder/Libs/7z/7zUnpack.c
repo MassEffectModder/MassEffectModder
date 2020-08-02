@@ -490,6 +490,10 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path)
             strncpy(tmpPath, fileName, PATH_MAX - 1);
             for (j = 0; tmpPath[j] != 0; j++)
             {
+                if ((tmpPath[j] & 0xc0) == 0x80)
+                {
+                    continue;
+                }
                 if (tmpPath[j] == '/')
                 {
                     if (full_path)

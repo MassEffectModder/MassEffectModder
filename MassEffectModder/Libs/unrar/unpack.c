@@ -214,6 +214,10 @@ int unrar_unpack(const char *path, const char *output_path, int full_path) {
         char tmpPath[PATH_MAX];
         strncpy(tmpPath, fileName, PATH_MAX - 1);
         for (int j = 0; tmpPath[j] != 0; j++) {
+            if ((tmpPath[j] & 0xc0) == 0x80)
+            {
+                continue;
+            }
             if (tmpPath[j] == '/') {
                 if (full_path)
                 {
@@ -231,7 +235,7 @@ int unrar_unpack(const char *path, const char *output_path, int full_path) {
                     tmpPath[j] = '/';
                 } else {
                     if (outputDir && outputDir[0] != 0)
-                        snprintf(outputFile, PATH_MAX - 1, "%s/%s", outputDir, tmpPath);
+                        snprintf(outputFile, PATH_MAX - 1, "%s/%s", outputDir, tmpPath + j + 1);
                     else
                         strncpy(outputFile, tmpPath + j + 1, PATH_MAX - 1);
                 }

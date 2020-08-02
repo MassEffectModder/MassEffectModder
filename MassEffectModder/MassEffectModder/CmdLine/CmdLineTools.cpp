@@ -109,11 +109,15 @@ bool CmdLineTools::unpackArchive(const QString &inputFile, QString &outputDir)
     if (outputDir != "")
         QDir().mkpath(outputDir);
 #if defined(_WIN32)
-    auto fileName = inputFile.toStdWString().c_str();
-    auto outPath = outputDir.toStdWString().c_str();
+    auto strFile = inputFile.toStdWString();
+    auto strOut = outputDir.toStdWString();
+    auto fileName = strFile.c_str();
+    auto outPath = strOut.c_str();
 #else
-    auto fileName = inputFile.toUtf8().data();
-    auto outPath = outputDir.toUtf8().data();
+    auto strFile = inputFile.toUtf8();
+    auto strOut = outputDir.toUtf8();
+    auto fileName = strFile.constData();
+    auto outPath = strOut.constData();
 #endif
 
     if (inputFile.endsWith(".zip", Qt::CaseInsensitive))
