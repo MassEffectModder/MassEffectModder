@@ -403,14 +403,13 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path)
             size_t j;
 #ifdef USE_WINDOWS_FILE
             wchar_t *outputDir = (UInt16 *)output_path;
-            wchar_t *name = (UInt16 *)temp;
-            int size = wcslen(name) + 1;
+            wchar_t *fileName = (UInt16 *)temp;
+
+            int size = wcslen(fileName) + 1;
             if (size > MAX_PATH)
             {
                 continue;
             }
-            wchar_t outputPath[PATH_MAX];
-            wchar_t outputFile[PATH_MAX];
 
             int dest_size = wcslen(outputDir) + size + 1;
             if (dest_size > MAX_PATH)
@@ -419,45 +418,50 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path)
                 continue;
             }
 
-            wcsncpy(outputPath, name, MAX_PATH - 1);
-            wcsncpy(outputFile, name, MAX_PATH - 1);
-
-            for (j = 0; name[j] != 0; j++)
+            wchar_t outputFile[PATH_MAX];
+            if (outputDir && outputDir[0] != 0)
             {
-                if ((name[j] == '/' && name[1] != ':') ||
-                    (name[j] == '/' && name[1] == ':' && j > 1))
+                swprintf(outputFile, PATH_MAX - 1, L"%ls/%ls", outputDir, fileName);
+            }
+            else
+            {
+                wcsncpy(outputFile, fileName, PATH_MAX - 1);
+            }
+
+            wchar_t tmpPath[PATH_MAX];
+            wcsncpy(tmpPath, fileName, MAX_PATH - 1);
+            for (j = 0; tmpPath[j] != 0; j++)
+            {
+                if (tmpPath[j] == '/')
                 {
                     if (full_path)
                     {
-                        name[j] = 0;
+                        tmpPath[j] = 0;
+                        wchar_t outputPath[PATH_MAX];
                         if (outputDir && outputDir[0] != 0)
-                            swprintf(outputPath, PATH_MAX - 1, L"%ls/%ls", outputDir, name);
+                            swprintf(outputPath, PATH_MAX - 1, L"%ls/%ls", outputDir, tmpPath);
                         else
-                            wcsncpy(outputPath, name, PATH_MAX - 1);
+                            wcsncpy(outputPath, tmpPath, PATH_MAX - 1);
                         if (MyCreateDir(outputPath) != 0)
                         {
                             res = SZ_ERROR_FAIL;
                             break;
                         }
-                        name[j] = '/';
+                        tmpPath[j] = '/';
                     }
                     else
                     {
                         if (outputDir && outputDir[0] != 0)
-                            swprintf(outputPath, PATH_MAX - 1, L"%ls/%ls", outputDir, name + j + 1);
+                            swprintf(outputFile, PATH_MAX - 1, L"%ls/%ls", outputDir, tmpPath + j + 1);
                         else
-                            wcsncpy(outputPath, name + j + 1, PATH_MAX - 1);
+                            wcsncpy(outputFile, tmpPath + j + 1, PATH_MAX - 1);
                     }
                 }
             }
-
-            if (outputDir && outputDir[0] != 0)
+            if (res != SZ_OK)
             {
-                swprintf(outputFile, PATH_MAX - 1, L"%ls/%ls", outputDir, name);
-            }
-            else
-            {
-                wcsncpy(outputFile, name, PATH_MAX - 1);
+                res = SZ_ERROR_FAIL;
+                break;
             }
 
             if (OutFile_OpenW(&outFile, outputFile))

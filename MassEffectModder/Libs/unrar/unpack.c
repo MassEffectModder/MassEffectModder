@@ -39,7 +39,7 @@
 
 #include "dmc_unrar.c"
 
-const char *get_filename(dmc_unrar_archive *archive, size_t i) {
+const char *get_filename_utf8(dmc_unrar_archive *archive, size_t i) {
     char *filename = 0;
     size_t size = dmc_unrar_get_filename(archive, i, NULL, 0);
     if (!size)
@@ -64,19 +64,56 @@ const char *get_filename(dmc_unrar_archive *archive, size_t i) {
     return filename;
 }
 
-const char *get_filename_no_directory(const char *filename) {
-    char *p = NULL;
-    if (!filename)
+const wchar_t *get_filename_unicode(dmc_unrar_archive *archive, size_t i) {
+    int buf_size;
+    char *bufName = 0;
+    int result;
+    size_t size = dmc_unrar_get_filename(archive, i, NULL, 0);
+    if (!size)
         return NULL;
 
-    p = (char *) strrchr(filename, '/');
-    if (!p)
-        return filename;
-
-    if (p[1] == '\0')
+    bufName = (char *)malloc(size);
+    if (!bufName)
         return NULL;
 
-    return p + 1;
+    size = dmc_unrar_get_filename(archive, i, bufName, size);
+    if (!size) {
+        free(bufName);
+        return NULL;
+    }
+
+    dmc_unrar_unicode_make_valid_utf8(bufName);
+    if (bufName[0] == '\0') {
+        free(bufName);
+        return NULL;
+    }
+
+    wchar_t *filename;
+    /* Calculate the buffer size needed */
+    buf_size = MultiByteToWideChar(CP_UTF8, 0, bufName, -1, NULL, 0);
+    if (buf_size == 0) {
+        free(bufName);
+        return NULL;
+    }
+
+    /* Allocate that size in the buffer */
+    filename = DMC_UNRAR_MALLOC(buf_size * sizeof(wchar_t));
+    if (filename == NULL) {
+        free(bufName);
+        return NULL;
+    }
+
+    /* Actually convert the data now */
+    result = MultiByteToWideChar(CP_UTF8, 0, bufName, -1, filename, buf_size);
+    if (result == 0) {
+        free(bufName);
+        free(filename);
+        return NULL;
+    }
+
+    free(bufName);
+
+    return filename;
 }
 
 #if defined(_WIN32)
@@ -129,7 +166,7 @@ int unrar_unpack(const char *path, const char *output_path, int full_path) {
 #endif
     int status = 0;
 
-    if (!dmc_unrar_is_rar_path(path))
+    if (!dmc_unrar_is_rar_path((char *)path))
         return 1;
 
     dmc_unrar_archive archive;
@@ -141,68 +178,82 @@ int unrar_unpack(const char *path, const char *output_path, int full_path) {
         return 1;
     }
 
-    return_code = dmc_unrar_archive_open_path(&archive, path);
+    return_code = dmc_unrar_archive_open_path(&archive, (char *)path);
     if (return_code != DMC_UNRAR_OK) {
         fprintf(stderr, "Unrar open failed: %s\n", dmc_unrar_strerror(return_code));
         return 1;
     }
 
     for (size_t i = 0; i < dmc_unrar_get_file_count(&archive); i++) {
-        const char *fileName = get_filename(&archive, i);
+#if defined(_WIN32)
+        const wchar_t *fileName = get_filename_unicode(&archive, i);
+#else
+        const char *fileName = get_filename_utf8(&archive, i);
+#endif
         const dmc_unrar_file *file = dmc_unrar_get_file_stat(&archive, i);
 
         if (!fileName || dmc_unrar_file_is_directory(&archive, i)) {
             continue;
         }
 
+#if defined(_WIN32)
+        wprintf(L"\"%ls\" - %u bytes\n", fileName, (unsigned int)file->uncompressed_size);
+#else
         printf("\"%s\" - %u bytes\n", fileName, (unsigned int)file->uncompressed_size);
+#endif
 
 #if defined(_WIN32)
-        continue;
-        char outputFile[PATH_MAX];
-/*        const wchar_t *outputDir = output_path;
+        const wchar_t *outputDir = output_path;
 
-        int size = strlen(name) + 1;
+        int size = wcslen(fileName) + 1;
         if (size > MAX_PATH) {
+            free((void *)fileName);
             continue;
         }
 
-        size_t size = strlen(fileName) + 1;
-        wchar_t outputPath[PATH_MAX];
-        wchar_t tmpfile[PATH_MAX];
-        mbstowcs(tmpfile, filename, size);
-        if (output_path && output_path[0] != 0)
-            swprintf(outputPath, PATH_MAX - 1, L"%ls/%ls", output_path, tmpfile);
-        else
-            wcsncpy(outputPath, tmpfile, PATH_MAX - 1);
-
-        wchar_t tmpfile[PATH_MAX];
-        wchar_t outputPath[PATH_MAX];
-        mbstowcs(tmpfile, name, size);
-
-        int dest_size = wcslen(output_path) + size + 1;
+        int dest_size = wcslen(outputDir) + size + 1;
         if (dest_size > MAX_PATH) {
+            free((void *)fileName);
             continue;
         }
 
-        for (int j = 0; tmpfile[j] != 0; j++) {
-            if ((tmpfile[j] == '/' && tmpfile[1] != ':') ||
-                (tmpfile[j] == '/' && tmpfile[1] == ':' && j > 1))
-            {
-                tmpfile[j] = 0;
-                if (output_path && output_path[0] != 0)
-                    swprintf(outputPath, PATH_MAX - 1, L"%ls/%ls", output_path, tmpfile);
-                else
-                    wcsncpy(outputPath, tmpfile, PATH_MAX - 1);
+        wchar_t outputFile[MAX_PATH];
+        if (outputDir && outputDir[0] != 0)
+            swprintf(outputFile, PATH_MAX - 1, L"%ls/%ls", outputDir, fileName);
+        else
+            wcsncpy(outputFile, fileName, PATH_MAX - 1);
 
-                if (MyCreateDir(outputPath) != 0)
+        wchar_t tmpPath[PATH_MAX];
+        wcsncpy(tmpPath, fileName, PATH_MAX - 1);
+        for (int j = 0; tmpPath[j] != 0; j++)
+        {
+            if (tmpPath[j] == '/')
+            {
+                if (full_path)
                 {
-                    status = 1;
-                    break;
+                    tmpPath[j] = 0;
+                    wchar_t outputPath[PATH_MAX];
+                    if (outputDir && outputDir[0] != 0)
+                        swprintf(outputPath, PATH_MAX - 1, L"%ls/%ls", outputDir, tmpPath);
+                    else
+                        wcsncpy(outputPath, tmpPath, PATH_MAX - 1);
+
+                    if (MyCreateDir(outputPath) != 0)
+                    {
+                        status = 1;
+                        break;
+                    }
+                    tmpPath[j] = '/';
                 }
-                tmpfile[j] = '/';
+                else
+                {
+                    if (outputDir && outputDir[0] != 0)
+                        swprintf(outputFile, MAX_PATH - 1, L"%ls/%ls", outputDir, tmpPath + j + 1);
+                    else
+                        wcsncpy(outputFile, tmpPath + j + 1, MAX_PATH - 1);
+                }
             }
-        }*/
+        }
 #else
         const char *outputDir = output_path;
         char outputFile[PATH_MAX];
@@ -245,7 +296,7 @@ int unrar_unpack(const char *path, const char *output_path, int full_path) {
         if (status == 0) {
             dmc_unrar_return supported = dmc_unrar_file_is_supported(&archive, i);
             if (supported == DMC_UNRAR_OK) {
-                dmc_unrar_return extracted = dmc_unrar_extract_file_to_path(&archive, i, outputFile, NULL, true);
+                dmc_unrar_return extracted = dmc_unrar_extract_file_to_path(&archive, i, (char *)outputFile, NULL, true);
                 if (extracted != DMC_UNRAR_OK) {
                     fprintf(stderr, "Error: %s\n", dmc_unrar_strerror(extracted));
                     status = 1;
@@ -256,7 +307,7 @@ int unrar_unpack(const char *path, const char *output_path, int full_path) {
             }
         }
 
-        free((char *)fileName);
+        free((void *)fileName);
     }
 
     dmc_unrar_archive_close(&archive);

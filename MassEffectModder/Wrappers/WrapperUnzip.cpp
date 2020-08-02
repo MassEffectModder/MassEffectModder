@@ -337,10 +337,6 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
             free(data);
             continue;
         }
-        wchar_t tmpfile[MAX_PATH];
-        mbstowcs(tmpfile, fileName, size);
-        wchar_t outputPath[MAX_PATH];
-        wchar_t outputFile[MAX_PATH];
 
         int dest_size = wcslen(outputDir) + size + 1;
         if (dest_size > MAX_PATH)
@@ -350,46 +346,47 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
             continue;
         }
 
-        wcsncpy(outputPath, tmpfile, MAX_PATH - 1);
-        wcsncpy(outputFile, tmpfile, MAX_PATH - 1);
+        wchar_t tmpPath[MAX_PATH];
+        mbstowcs(tmpPath, fileName, size);
 
-        for (int j = 0; tmpfile[j] != 0; j++)
+        wchar_t outputFile[MAX_PATH];
+        if (outputDir && outputDir[0] != 0)
         {
-            if ((tmpfile[j] == '/' && tmpfile[1] != ':') ||
-                (tmpfile[j] == '/' && tmpfile[1] == ':' && j > 1))
+            swprintf(outputFile, MAX_PATH - 1, L"%ls/%ls", outputDir, tmpPath);
+        }
+        else
+        {
+            wcsncpy(outputFile, tmpPath, MAX_PATH - 1);
+        }
+
+        for (int j = 0; tmpPath[j] != 0; j++)
+        {
+            if (tmpPath[j] == '/')
             {
                 if (full_path)
                 {
-                    tmpfile[j] = 0;
+                    tmpPath[j] = 0;
+                    wchar_t outputPath[MAX_PATH];
                     if (outputDir && outputDir[0] != 0)
-                        swprintf(outputPath, MAX_PATH - 1, L"%ls/%ls", outputDir, tmpfile);
+                        swprintf(outputPath, MAX_PATH - 1, L"%ls/%ls", outputDir, tmpPath);
                     else
-                        wcsncpy(outputPath, tmpfile, MAX_PATH - 1);
+                        wcsncpy(outputPath, tmpPath, MAX_PATH - 1);
 
                     if (MyCreateDir(outputPath) != 0)
                     {
                         result = 1;
                         break;
                     }
-                    tmpfile[j] = '/';
+                    tmpPath[j] = '/';
                 }
                 else
                 {
                     if (outputDir && outputDir[0] != 0)
-                        swprintf(outputPath, MAX_PATH - 1, L"%ls/%ls", outputDir, tmpfile + j + 1);
+                        swprintf(outputFile, MAX_PATH - 1, L"%ls/%ls", outputDir, tmpPath + j + 1);
                     else
-                        wcsncpy(outputPath, tmpfile + j + 1, MAX_PATH - 1);
+                        wcsncpy(outputFile, tmpPath + j + 1, MAX_PATH - 1);
                 }
             }
-        }
-
-        if (outputDir && outputDir[0] != 0)
-        {
-            swprintf(outputFile, MAX_PATH - 1, L"%ls/%ls", outputDir, tmpfile);
-        }
-        else
-        {
-            wcsncpy(outputFile, tmpfile, MAX_PATH - 1);
         }
 
         if (result != 0)
@@ -406,7 +403,7 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path)
         if (file == INVALID_HANDLE_VALUE)
         {
             free(data);
-            fwprintf(stderr, L"Failed to write to file: %ls\n", outputPath);
+            fwprintf(stderr, L"Failed to write to file: %ls\n", outputFile);
             result = 1;
             break;
         }

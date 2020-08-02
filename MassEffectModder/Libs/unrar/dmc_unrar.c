@@ -1610,6 +1610,8 @@ dmc_unrar_io_handler dmc_unrar_io_stdio_handler = {
 };
 #endif /* DMC_UNRAR_DISABLE_STDIO */
 
+#if 0
+
 #if DMC_UNRAR_DISABLE_WIN32 != 1
 static void *dmc_unrar_io_win32_open_func(const char *path) {
 	/* Assuming we have a UTF-8 path, we need to first convert this to UTF-16 */
@@ -1659,7 +1661,30 @@ end:
 
 	return (file == INVALID_HANDLE_VALUE) ? NULL : file;
 }
+#endif
 
+#else
+
+static void *dmc_unrar_io_win32_open_func(const char *path) {
+    HANDLE file;
+    wchar_t *buf = (wchar_t *)path;
+
+    /* Actually open the file */
+    file = CreateFileW(
+        buf,
+        GENERIC_READ,
+        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+        NULL, /* TODO */
+        OPEN_EXISTING,
+        FILE_ATTRIBUTE_NORMAL,
+        NULL);
+
+    /* Ensure the buffer is freed if we allocated it */
+    return (file == INVALID_HANDLE_VALUE) ? NULL : file;
+}
+#endif
+
+#if DMC_UNRAR_DISABLE_WIN32 != 1
 static void dmc_unrar_io_win32_close_func(void *opaque) {
 	if (opaque != NULL)
 		CloseHandle((HANDLE)opaque);
@@ -4126,6 +4151,7 @@ dmc_unrar_return dmc_unrar_extract_file_to_file(dmc_unrar_archive *archive, size
 
 #if DMC_UNRAR_DISABLE_WIN32 != 1
 
+#if 0
 static FILE *dmc_unrar_win32_fopen_write(const char *path) {
 	FILE *file = NULL;
 
@@ -4166,6 +4192,14 @@ end:
 
 	return file;
 }
+
+#else
+
+static FILE *dmc_unrar_win32_fopen_write(const char *path) {
+    return _wfopen((wchar_t *)path, L"wb");
+}
+
+#endif
 
 #endif /* DMC_UNRAR_DISABLE_WIN32 */
 
