@@ -31,6 +31,9 @@
 #ifdef GUI
 #include <Program/Updater.h>
 #endif
+#if defined(_WIN32)
+#include <fcntl.h>
+#endif
 
 bool g_ipc = false;
 
@@ -151,6 +154,12 @@ int runQtApplication(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
+#if defined(_WIN32)
+#define _O_U16TEXT  0x20000
+    _setmode(_fileno(stdout), _O_U16TEXT);
+    _setmode(_fileno(stderr), _O_U16TEXT);
+#endif
+
     InstallSignalsHandler();
     CreateLogs();
 

@@ -21,6 +21,10 @@
 
 #include "Logs.h"
 
+#if defined(_WIN32)
+#include <fcntl.h>
+#endif
+
 Logs::Logs() :
         startedTimestamp(0),
         logLevel(LOG_NONE),
@@ -67,6 +71,10 @@ void Logs::EnableOutputFile(const QString &path, bool enable)
     FILE *file = fopen(logPath.toUtf8().data(), "w");
 #endif
     if (file) {
+#if defined(_WIN32)
+        unsigned char bom[] = { 0xFF,0xFE };
+        fwrite((bom, 1, sizeof(bom), file);
+#endif
         fclose(file);
         fileEnabled = enable;
     }
@@ -100,7 +108,11 @@ void Logs::Print(int level, const QString &message, int flags)
 
     if (consoleEnabled && (flags & LOG_CONSOLE))
     {
+#if defined(_WIN32)
         std::fputws((timestampStr + message).toStdWString().c_str(), stdout);
+#else
+        std::fputs((timestampStr + message).toStdString().c_str(), stdout);
+#endif
     }
 
     if (fileEnabled && (flags & LOG_FILE))
@@ -112,7 +124,13 @@ void Logs::Print(int level, const QString &message, int flags)
 #endif
         if (file)
         {
+#if defined(_WIN32)
+#define _O_U16TEXT  0x20000
+            _setmode(_fileno(file), _O_U16TEXT);
             std::fputws((timestampStr + message).toStdWString().c_str(), file);
+#else
+            std::fputs((timestampStr + message).toStdString().c_str(), file);
+#endif
             fclose(file);
         }
     }
