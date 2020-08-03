@@ -219,7 +219,7 @@ int unrar_unpack(const char *path, const char *output_path, int full_path, int i
         if (ipc)
         {
             wprintf(L"[IPC]FILENAME %ls\n", fileName);
-            int newProgress = i * 100 / db.NumFiles;
+            int newProgress = i * 100 / dmc_unrar_get_file_count(&archive);
             if (lastProgress != newProgress)
             {
                 lastProgress = newProgress;

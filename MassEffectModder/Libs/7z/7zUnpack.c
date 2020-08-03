@@ -143,6 +143,7 @@ static SRes Utf16_To_Utf8Buf(CBuf *dest, const UInt16 *src, size_t srcLen)
 
 #endif
 
+#ifndef _WIN32
 static SRes Utf16_To_Char(CBuf *buf, const UInt16 *s
 #ifndef _USE_UTF8
     , UINT codePage
@@ -178,6 +179,7 @@ static SRes Utf16_To_Char(CBuf *buf, const UInt16 *s
   return Utf16_To_Utf8Buf(buf, s, len);
 #endif
 }
+#endif
 
 #ifdef _WIN32
 #ifndef USE_WINDOWS_FILE
@@ -450,7 +452,7 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
 
             if (OutFile_OpenW(&outFile, outputFile))
             {
-                wfprintf(stderr, L"Error: Failed to open file for writting: %ls, aborting\n", outputFile);
+                fwprintf(stderr, L"Error: Failed to open file for writting: %ls, aborting\n", outputFile);
                 res = SZ_ERROR_FAIL;
                 break;
             }
@@ -534,7 +536,7 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
             if (File_Write(&outFile, outBuffer + offset, &processedSize) != 0 || processedSize != outSizeProcessed)
             {
 #ifdef USE_WINDOWS_FILE
-                wfprintf(stderr, L"Error: Failed to write to file: %ls, aborting\n", outputFile);
+                fwprintf(stderr, L"Error: Failed to write to file: %ls, aborting\n", outputFile);
 #else
                 fprintf(stderr, "Error: Failed to write to file: %s, aborting\n", outputFile);
 #endif
@@ -545,7 +547,7 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
             if (File_Close(&outFile))
             {
 #ifdef USE_WINDOWS_FILE
-                wfprintf(stderr, L"Error: Failed to close file: %ls, aborting\n", outputFile);
+                fwprintf(stderr, L"Error: Failed to close file: %ls, aborting\n", outputFile);
 #else
                 fprintf(stderr, "Error: Failed to close file: %s, aborting\n", outputFile);
 #endif
