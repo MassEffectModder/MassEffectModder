@@ -25,13 +25,6 @@
 
 static const ISzAlloc g_Alloc = { SzAlloc, SzFree };
 
-
-static void Print(const char *s)
-{
-  fputs(s, stdout);
-}
-
-
 static int Buf_EnsureSize(CBuf *dest, size_t size)
 {
   if (dest->size >= size)
@@ -238,57 +231,9 @@ static int MyCreateDir(const char *name)
 }
 #endif
 
-static SRes PrintString(const UInt16 *s)
-{
-  CBuf buf;
-  SRes res;
-  Buf_Init(&buf);
-  res = Utf16_To_Char(&buf, s
-#ifndef _USE_UTF8
-      , CP_OEMCP
-#endif
-      );
-  if (res == SZ_OK)
-    Print((const char *)buf.data);
-  Buf_Free(&buf, &g_Alloc);
-  return res;
-}
-
-static void UInt64ToStr(UInt64 value, char *s, int numDigits)
-{
-  char temp[32];
-  int pos = 0;
-  do
-  {
-    temp[pos++] = (char)('0' + (unsigned)(value % 10));
-    value /= 10;
-  }
-  while (value != 0);
-
-  for (numDigits -= pos; numDigits > 0; numDigits--)
-    *s++ = ' ';
-
-  do
-    *s++ = temp[--pos];
-  while (pos);
-  *s = '\0';
-}
-
 #define PERIOD_4 (4 * 365 + 1)
 #define PERIOD_100 (PERIOD_4 * 25 - 1)
 #define PERIOD_400 (PERIOD_100 * 4 + 1)
-
-static void PrintLF()
-{
-  Print("\n");
-}
-
-static void PrintError(char *s)
-{
-  Print("\nERROR: ");
-  Print(s);
-  PrintLF();
-}
 
 #ifdef USE_WINDOWS_FILE
 int sevenzip_unpack(const wchar_t *path, const wchar_t *output_path, int full_path, int ipc)
@@ -318,7 +263,7 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
     if (InFile_Open(&archiveStream.file, path))
 #endif
     {
-        PrintError("can not open input file");
+        fprintf(stderr, "Error: Failed to open file!\n");
         return 1;
     }
 
@@ -345,6 +290,17 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
     {
         res = SzArEx_Open(&db, &lookStream.vt, &allocImp, &allocTempImp);
     }
+    else
+    {
+        if (res == SZ_ERROR_UNSUPPORTED)
+            fprintf(stderr, "Error: Decoder doesn't support this archive!");
+        else if (res == SZ_ERROR_MEM)
+            fprintf(stderr, "Error: Can not allocate memory!");
+        else if (res == SZ_ERROR_CRC)
+            fprintf(stderr, "Error: CRC error!");
+        else
+        fprintf(stderr, "Error: Failed to open archive!\n");
+    }
 
     if (res == SZ_OK)
     {
@@ -358,14 +314,13 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
         Byte *outBuffer = 0; /* it must be 0 before first call for each new archive. */
         size_t outBufferSize = 0;  /* it can have any value before first call (if outBuffer = 0) */
 
+        int lastProgress = -1;
         for (i = 0; i < db.NumFiles; i++)
         {
             size_t offset = 0;
             size_t outSizeProcessed = 0;
             size_t len;
             unsigned isDir = SzArEx_IsDir(&db, i);
-            if (isDir && !full_path)
-                continue;
             len = SzArEx_GetFileNameUtf16(&db, i, NULL);
 
             if (len > tempSize)
@@ -382,12 +337,25 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
 
             SzArEx_GetFileNameUtf16(&db, i, temp);
 
-            res = PrintString(temp);
-            if (res != SZ_OK)
-                break;
+#ifdef USE_WINDOWS_FILE
+            wchar_t *fileName = (UInt16 *)temp;
+#else
+            CBuf buf;
+            SRes res;
+            Buf_Init(&buf);
+            res = Utf16_To_Char(&buf, temp);
+            char fileName[buf.size + 1];
+            strcpy(fileName, (const char*)buf.data);
+            Buf_Free(&buf, &g_Alloc);
+#endif
 
             if (isDir)
             {
+#ifdef USE_WINDOWS_FILE
+                wprintf(L"%d of %d - %ls - Ok\n", (i + 1), db.NumFiles, (wchar_t *)temp);
+#else
+                printf("%d of %d - %s - Ok\n", (i + 1), db.NumFiles, fileName);
+#endif
                 continue;
             }
 
@@ -403,19 +371,35 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
             size_t j;
 #ifdef USE_WINDOWS_FILE
             wchar_t *outputDir = (UInt16 *)output_path;
-            wchar_t *fileName = (UInt16 *)temp;
+
+            if (ipc)
+            {
+                wprintf(L"[IPC]FILENAME %ls\n", fileName);
+                int newProgress = i * 100 / db.NumFiles;
+                if (lastProgress != newProgress)
+                {
+                    lastProgress = newProgress;
+                    printf("[IPC]TASK_PROGRESS %d\n", newProgress);
+                }
+                fflush(stdout);
+            }
+
+            wprintf(L"%d of %d - %ls - size %ld - ", (i + 1), db.NumFiles, fileName, outSizeProcessed);
 
             int size = wcslen(fileName) + 1;
             if (size > MAX_PATH)
             {
-                continue;
+                fprintf(stderr, "Error: File name too long, aborting!\n");
+                res = SZ_ERROR_FAIL;
+                break;
             }
 
             int dest_size = wcslen(outputDir) + size + 1;
             if (dest_size > MAX_PATH)
             {
+                fprintf(stderr, "Error: Destination path for file too long, aborting!\n");
                 res = SZ_ERROR_FAIL;
-                continue;
+                break;
             }
 
             wchar_t outputFile[PATH_MAX];
@@ -466,19 +450,26 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
 
             if (OutFile_OpenW(&outFile, outputFile))
             {
-                PrintError("can not open output file");
+                wfprintf(stderr, L"Error: Failed to open file for writting: %ls, aborting\n", outputFile);
                 res = SZ_ERROR_FAIL;
                 break;
             }
 #else
-            CBuf buf;
-            SRes res;
-            Buf_Init(&buf);
-            res = Utf16_To_Char(&buf, temp);
-            char fileName[buf.size + 1];
-            strcpy(fileName, (const char*)buf.data);
-            Buf_Free(&buf, &g_Alloc);
             char *outputDir = (char *)output_path;
+
+            if (ipc)
+            {
+                printf("[IPC]FILENAME %s\n", fileName);
+                int newProgress = i * 100 / db.NumFiles;
+                if (lastProgress != newProgress)
+                {
+                    lastProgress = newProgress;
+                    printf("[IPC]TASK_PROGRESS %d\n", newProgress);
+                }
+                fflush(stdout);
+            }
+
+            printf("%d of %d - %s - size %ld - ", (i + 1), db.NumFiles, fileName, outSizeProcessed);
 
             char outputFile[PATH_MAX];
             if (outputDir && outputDir[0] != 0)
@@ -532,7 +523,7 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
 
             if (OutFile_Open(&outFile, outputFile))
             {
-                PrintError("can not open output file");
+                fprintf(stderr, "Error: Failed to open file for writting: %s, aborting\n", outputFile);
                 res = SZ_ERROR_FAIL;
                 break;
             }
@@ -542,18 +533,26 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
 
             if (File_Write(&outFile, outBuffer + offset, &processedSize) != 0 || processedSize != outSizeProcessed)
             {
-                PrintError("can not write output file");
+#ifdef USE_WINDOWS_FILE
+                wfprintf(stderr, L"Error: Failed to write to file: %ls, aborting\n", outputFile);
+#else
+                fprintf(stderr, "Error: Failed to write to file: %s, aborting\n", outputFile);
+#endif
                 res = SZ_ERROR_FAIL;
                 break;
             }
 
             if (File_Close(&outFile))
             {
-                PrintError("can not close output file");
+#ifdef USE_WINDOWS_FILE
+                wfprintf(stderr, L"Error: Failed to close file: %ls, aborting\n", outputFile);
+#else
+                fprintf(stderr, "Error: Failed to close file: %s, aborting\n", outputFile);
+#endif
                 res = SZ_ERROR_FAIL;
                 break;
             }
-            PrintLF();
+            printf("Ok\n");
         }
 
         ISzAlloc_Free(&allocImp, outBuffer);
@@ -567,21 +566,7 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
 
     if (res == SZ_OK)
     {
-        Print("\nEverything is Ok\n");
         return 0;
-    }
-
-    if (res == SZ_ERROR_UNSUPPORTED)
-        PrintError("decoder doesn't support this archive");
-    else if (res == SZ_ERROR_MEM)
-        PrintError("can not allocate memory");
-    else if (res == SZ_ERROR_CRC)
-        PrintError("CRC error");
-    else
-    {
-        char s[32];
-        UInt64ToStr(res, s, 0);
-        PrintError(s);
     }
 
     return 1;

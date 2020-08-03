@@ -301,49 +301,86 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path, bool ip
     auto outputDir = static_cast<const char *>(output_path);
 #endif
     char fileName[260];
+    int lastProgress = -1;
 
     void *handle = ZipOpenFromFile(path, &numEntries, 0);
     if (handle == nullptr)
+    {
+        fprintf(stderr, "Error: Failed to open archive!\n");
         goto failed;
+    }
 
     for (int i = 0; i < numEntries; i++)
     {
         unsigned long fileFlags = 0;
         result = ZipGetCurrentFileInfo(handle, fileName, sizeof (fileName), &dstLen, &fileFlags);
         if (result != 0)
+        {
+            fprintf(stderr, "Error: Failed to get file infomation in archive, aborting!\n");
             goto failed;
-
+        }
         if (dstLen == 0)
         {
+            printf("%d of %d - %s - Ok\n", (i + 1), numEntries, fileName);
             ZipGoToNextFile(handle);
             continue;
         }
 
-        printf("%s\n", fileName);
+        if (ipc)
+        {
+            printf("[IPC]FILENAME %s\n", fileName);
+            int newProgress = i * 100 / numEntries;
+            if (lastProgress != newProgress)
+            {
+                lastProgress = newProgress;
+                printf("[IPC]TASK_PROGRESS %d\n", newProgress);
+            }
+            fflush(stdout);
+        }
+
+        printf("%d of %d - %s - size %lld - ", (i + 1), numEntries, fileName, dstLen);
 
         unsigned char *data = (unsigned char *)malloc(dstLen);
         result = ZipReadCurrentFile(handle, data, dstLen, nullptr);
         if (result != 0)
         {
+            fprintf(stderr, "Error: Failed to read file in archive, aborting!\n");
+            result = 1;
             free(data);
             goto failed;
         }
 
 #if defined(_WIN32)
+        if (ipc)
+        {
+            printf("[IPC]FILENAME %s\n", fileName);
+            int newProgress = i * 100 / numEntries;
+            if (lastProgress != newProgress)
+            {
+                lastProgress = newProgress;
+                printf("[IPC]TASK_PROGRESS %d\n", newProgress);
+            }
+            fflush(stdout);
+        }
+
+        wprintf(L"%d of %d - %ls - size %lld - ", (i + 1), numEntries, fileName, dstLen);
+
         int size = strlen(fileName) + 1;
         if (size > MAX_PATH)
         {
+            fprintf(stderr, "Error: File name too long, skipping!\n");
             result = 1;
             free(data);
-            continue;
+            goto failed;
         }
 
         int dest_size = wcslen(outputDir) + size + 1;
         if (dest_size > MAX_PATH)
         {
+            fprintf(stderr, "Error: Destination path for file too long, skipping!\n");
             result = 1;
             free(data);
-            continue;
+            goto failed;
         }
 
         wchar_t tmpPath[MAX_PATH];
@@ -403,13 +440,14 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path, bool ip
         if (file == INVALID_HANDLE_VALUE)
         {
             free(data);
-            fwprintf(stderr, L"Failed to write to file: %ls\n", outputFile);
+            fwprintf(stderr, L"Error: Failed to open file for writting: %ls, aborting\n", outputFile);
             result = 1;
             break;
         }
         DWORD nWritten = 0;
         if (!WriteFile(file, data, dstLen, &nWritten, nullptr))
         {
+            fwprintf(stderr, L"Error: Failed to write to file: %ls, aborting\n", outputFile);
             free(data);
             CloseHandle(file);
             result = 1;
@@ -472,16 +510,16 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path, bool ip
         FILE *file = fopen(outputFile, "wb+");
         if (!file)
         {
+            fprintf(stderr, "Error: Failed to open file for writting: %s, aborting!\n", outputFile);
             free(data);
-            printf("Failed to write to file: %s", outputFile);
             result = 1;
             break;
         }
         unsigned long long size = fwrite(data, 1, dstLen, file);
         if (size != dstLen)
         {
+            fprintf(stderr, "Error: Failed to write to file: %s, aborting\n", outputFile);
             free(data);
-            ferror(file);
             fclose(file);
             result = 1;
             break;
@@ -490,24 +528,20 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path, bool ip
         if (((fileFlags >> 16) & 0xFFFF))
             chmod(outputFile, (fileFlags >> 16) & 0xFFFF);
 #endif
-
+        printf("Ok\n");
         free(data);
         ZipGoToNextFile(handle);
     }
+
     ZipClose(handle);
     handle = nullptr;
-    if (result == 0)
-        printf("\nEverything is Ok\n");
     fflush(stdout);
+    fflush(stderr);
+
     return result;
 
 failed:
 
-#if defined(_WIN32)
-    fwprintf(stderr, L"Zip file damaged: %s\n", (wchar_t *)path);
-#else
-    printf("Zip file damaged: %s\n", (char *)path);
-#endif
     if (handle != nullptr)
         ZipClose(handle);
     handle = nullptr;

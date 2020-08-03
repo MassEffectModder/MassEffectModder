@@ -176,16 +176,17 @@ int unrar_unpack(const char *path, const char *output_path, int full_path, int i
 
     return_code = dmc_unrar_archive_init(&archive);
     if (return_code != DMC_UNRAR_OK) {
-        fprintf(stderr, "Unrar init failed: %s\n", dmc_unrar_strerror(return_code));
+        fprintf(stderr, "Error: Unrar init failed: %s\n", dmc_unrar_strerror(return_code));
         return 1;
     }
 
     return_code = dmc_unrar_archive_open_path(&archive, (char *)path);
     if (return_code != DMC_UNRAR_OK) {
-        fprintf(stderr, "Unrar open failed: %s\n", dmc_unrar_strerror(return_code));
+        fprintf(stderr, "Error: Failed open archive: %s\n", dmc_unrar_strerror(return_code));
         return 1;
     }
 
+    int lastProgress = -1;
     for (size_t i = 0; i < dmc_unrar_get_file_count(&archive); i++) {
 #if defined(_WIN32)
         const wchar_t *fileName = get_filename_unicode(&archive, i);
@@ -194,29 +195,55 @@ int unrar_unpack(const char *path, const char *output_path, int full_path, int i
 #endif
         const dmc_unrar_file *file = dmc_unrar_get_file_stat(&archive, i);
 
-        if (!fileName || dmc_unrar_file_is_directory(&archive, i)) {
+        if (!fileName) {
+#if defined(_WIN32)
+            wprintf(L"%lu of %zu - Failed to get name from archive, aborting\n", (i + 1), dmc_unrar_get_file_count(&archive));
+#else
+            printf("%lu of %zu - Failed to get name from archive, aborting\n", (i + 1), dmc_unrar_get_file_count(&archive));
+#endif
             continue;
         }
 
+        if (dmc_unrar_file_is_directory(&archive, i)) {
 #if defined(_WIN32)
-        wprintf(L"\"%ls\" - %u bytes\n", fileName, (unsigned int)file->uncompressed_size);
+            wprintf(L"%lu of %zu - %ls - Ok\n", (i + 1), dmc_unrar_get_file_count(&archive), fileName);
 #else
-        printf("\"%s\" - %u bytes\n", fileName, (unsigned int)file->uncompressed_size);
+            printf("%lu of %zu - %s - Ok\n", (i + 1), dmc_unrar_get_file_count(&archive), fileName);
 #endif
+            continue;
+        }
 
 #if defined(_WIN32)
         const wchar_t *outputDir = output_path;
 
+        if (ipc)
+        {
+            wprintf(L"[IPC]FILENAME %ls\n", fileName);
+            int newProgress = i * 100 / db.NumFiles;
+            if (lastProgress != newProgress)
+            {
+                lastProgress = newProgress;
+                printf("[IPC]TASK_PROGRESS %d\n", newProgress);
+            }
+            fflush(stdout);
+        }
+
+        wprintf(L"%lu of %zu - %ls - size %lld - ", (i + 1), dmc_unrar_get_file_count(&archive), fileName, file->uncompressed_size);
+
         int size = wcslen(fileName) + 1;
         if (size > MAX_PATH) {
+            fprintf(stderr, "Error: File name too long, aborting!\n");
+            status = 1;
             free((void *)fileName);
-            continue;
+            break;
         }
 
         int dest_size = wcslen(outputDir) + size + 1;
         if (dest_size > MAX_PATH) {
+            fprintf(stderr, "Error: Destination path for file too long, aborting!\n");
             free((void *)fileName);
-            continue;
+            status = 1;
+            break;
         }
 
         wchar_t outputFile[MAX_PATH];
@@ -258,6 +285,21 @@ int unrar_unpack(const char *path, const char *output_path, int full_path, int i
         }
 #else
         const char *outputDir = output_path;
+
+        if (ipc)
+        {
+            printf("[IPC]FILENAME %s\n", fileName);
+            int newProgress = i * 100 / dmc_unrar_get_file_count(&archive);
+            if (lastProgress != newProgress)
+            {
+                lastProgress = newProgress;
+                printf("[IPC]TASK_PROGRESS %d\n", newProgress);
+            }
+            fflush(stdout);
+        }
+
+        printf("%lu of %zu - %s - size %lld - ", (i + 1), dmc_unrar_get_file_count(&archive), fileName, file->uncompressed_size);
+
         char outputFile[PATH_MAX];
         if (outputDir && outputDir[0] != 0)
             snprintf(outputFile, PATH_MAX - 1, "%s/%s", outputDir, fileName);
@@ -303,6 +345,7 @@ int unrar_unpack(const char *path, const char *output_path, int full_path, int i
                     fprintf(stderr, "Error: %s\n", dmc_unrar_strerror(extracted));
                     status = 1;
                 }
+                printf("Ok\n");
             } else {
                 fprintf(stderr, "Not supported: %s\n", dmc_unrar_strerror(supported));
                 status = 1;
@@ -313,9 +356,6 @@ int unrar_unpack(const char *path, const char *output_path, int full_path, int i
     }
 
     dmc_unrar_archive_close(&archive);
-
-    if (status == 0)
-        printf("\nEverything is Ok\n");
 
     return status;
 }
