@@ -53,6 +53,7 @@ int ProcessArguments()
     bool removeEmptyMips = false;
     bool pullTextures = false;
     bool compressed = true;
+    bool flattenPath = false;
     int thresholdValue = 128;
     int cacheAmountValue = -1;
     QString input, output, threshold, format, tfcName;
@@ -338,6 +339,11 @@ int ProcessArguments()
         else if (arg == "--no-compression")
         {
             compressed = false;
+            args.removeAt(l--);
+        }
+        else if (arg == "--flatten-archive-path")
+        {
+            flattenPath = true;
             args.removeAt(l--);
         }
     }
@@ -774,7 +780,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.unpackArchive(input, output))
+        if (!tools.unpackArchive(input, output, flattenPath))
             errorCode = 1;
         break;
     case CmdType::SET_GAME_DATA_PATH:

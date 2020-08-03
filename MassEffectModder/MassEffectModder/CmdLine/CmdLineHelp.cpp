@@ -211,7 +211,7 @@ void DisplayHelp()
         "     DLC name is DLC folder name.\n" \
         "     Pull textures option make DLC as standalone, not depend on external TFC files.\n" \
         "\n" \
-        "  --unpack-archive --input <zip/7z/rar file> [--output <output path>] [--ipc]\n" \
+        "  --unpack-archive --input <zip/7z/rar file> [--output <output path>] [--flatten-archive-path] [--ipc]\n" \
         "     Unpack ZIP/7ZIP/RAR file.\n" \
         "  --set-game-data-path --gameid <game id> --path <path>\n" \
         "     game id: 1 for ME1, 2 for ME2, 3 for ME3\n" \
