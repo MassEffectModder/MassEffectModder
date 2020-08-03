@@ -25,6 +25,7 @@
 
 static const ISzAlloc g_Alloc = { SzAlloc, SzFree };
 
+#ifndef _WIN32
 static int Buf_EnsureSize(CBuf *dest, size_t size)
 {
   if (dest->size >= size)
@@ -32,6 +33,7 @@ static int Buf_EnsureSize(CBuf *dest, size_t size)
   Buf_Free(dest, &g_Alloc);
   return Buf_Create(dest, size, &g_Alloc);
 }
+#endif
 
 #ifndef _WIN32
 #define _USE_UTF8
