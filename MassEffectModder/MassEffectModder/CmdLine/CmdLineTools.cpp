@@ -120,14 +120,30 @@ bool CmdLineTools::unpackArchive(const QString &inputFile, QString &outputDir, b
     auto outPath = strOut.constData();
 #endif
 
-    if (inputFile.endsWith(".zip", Qt::CaseInsensitive))
-        return ZipUnpack(fileName, outPath, flattenPath, g_ipc) == 0;
-    if (inputFile.endsWith(".7z", Qt::CaseInsensitive))
-        return SevenZipUnpack(fileName, outPath, flattenPath, g_ipc) == 0;
-    if (inputFile.endsWith(".rar", Qt::CaseInsensitive))
-        return RarUnpack(fileName, outPath, flattenPath, g_ipc) == 0;
+    if (outputDir.isEmpty())
+        PINFO(QString("Unpacking archive: " + inputFile + "\n\n"));
+    else
+        PINFO(QString("Unpacking archive: " + inputFile + " to folder: " + outputDir + "\n\n"));
 
-    return false;
+    int result = 1;
+    if (inputFile.endsWith(".zip", Qt::CaseInsensitive))
+        result = ZipUnpack(fileName, outPath, flattenPath, g_ipc);
+    else if (inputFile.endsWith(".7z", Qt::CaseInsensitive))
+        result = SevenZipUnpack(fileName, outPath, flattenPath, g_ipc);
+    else if (inputFile.endsWith(".rar", Qt::CaseInsensitive))
+        result = RarUnpack(fileName, outPath, flattenPath, g_ipc);
+    else
+    {
+        PINFO("Archive type is not supported.\n\n");
+        return false;
+    }
+
+    if (result == 0)
+        PINFO("\nUnpacking completed successfully.\n\n");
+    else
+        PINFO("\nUnpacking failed.\n\n");
+
+    return result == 0;
 }
 
 bool CmdLineTools::ConvertToMEM(MeType gameId, QString &inputDir, QString &memFile, bool markToConvert)
