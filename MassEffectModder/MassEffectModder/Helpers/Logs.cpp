@@ -75,6 +75,8 @@ void Logs::EnableOutputFile(const QString &path, bool enable)
         unsigned char bom[] = { 0xFF,0xFE };
         fwrite(bom, 1, sizeof(bom), file);
 #endif
+        unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
+        fwrite(bom, 1, sizeof(bom), file);
         fclose(file);
         fileEnabled = enable;
     }
@@ -111,7 +113,7 @@ void Logs::Print(int level, const QString &message, int flags)
 #if defined(_WIN32)
         std::fputws((timestampStr + message).toStdWString().c_str(), stdout);
 #else
-        std::fputs((timestampStr + message).toStdString().c_str(), stdout);
+        std::fputs((timestampStr + message).toUtf8().data(), stdout);
 #endif
     }
 
@@ -129,7 +131,7 @@ void Logs::Print(int level, const QString &message, int flags)
             _setmode(_fileno(file), _O_U16TEXT);
             std::fputws((timestampStr + message).toStdWString().c_str(), file);
 #else
-            std::fputs((timestampStr + message).toStdString().c_str(), file);
+            std::fputs((timestampStr + message).toUtf8().data(), file);
 #endif
             fclose(file);
         }
