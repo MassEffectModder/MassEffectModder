@@ -127,11 +127,11 @@ bool CmdLineTools::unpackArchive(const QString &inputFile, QString &outputDir, b
 
     int result = 1;
     if (inputFile.endsWith(".zip", Qt::CaseInsensitive))
-        result = ZipUnpack(fileName, outPath, flattenPath, g_ipc);
+        result = ZipUnpack(fileName, outPath, !flattenPath, g_ipc);
     else if (inputFile.endsWith(".7z", Qt::CaseInsensitive))
-        result = SevenZipUnpack(fileName, outPath, flattenPath, g_ipc);
+        result = SevenZipUnpack(fileName, outPath, !flattenPath, g_ipc);
     else if (inputFile.endsWith(".rar", Qt::CaseInsensitive))
-        result = RarUnpack(fileName, outPath, flattenPath, g_ipc);
+        result = RarUnpack(fileName, outPath, !flattenPath, g_ipc);
     else
     {
         PINFO("Archive type is not supported.\n\n");
