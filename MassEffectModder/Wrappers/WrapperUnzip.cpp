@@ -306,7 +306,11 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path, bool ip
     void *handle = ZipOpenFromFile(path, &numEntries, 0);
     if (handle == nullptr)
     {
+#if defined(_WIN32)
+        fwprintf(stderr, L"Error: Failed to open archive!\n");
+#else
         fprintf(stderr, "Error: Failed to open archive!\n");
+#endif
         goto failed;
     }
 
@@ -316,35 +320,59 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path, bool ip
         result = ZipGetCurrentFileInfo(handle, fileName, sizeof (fileName), &dstLen, &fileFlags);
         if (result != 0)
         {
+#if defined(_WIN32)
+            fwprintf(stderr, L"Error: Failed to get file infomation in archive, aborting!\n");
+#else
             fprintf(stderr, "Error: Failed to get file infomation in archive, aborting!\n");
+#endif
             goto failed;
         }
         if (dstLen == 0)
         {
+#if defined(_WIN32)
+            wprintf(L"%d of %d - %s - Ok\n", (i + 1), numEntries, fileName);
+#else
             printf("%d of %d - %s - Ok\n", (i + 1), numEntries, fileName);
+#endif
             ZipGoToNextFile(handle);
             continue;
         }
 
         if (ipc)
         {
+#if defined(_WIN32)
+            wprintf(L"[IPC]FILENAME %s\n", fileName);
+#else
             printf("[IPC]FILENAME %s\n", fileName);
+#endif
             int newProgress = i * 100 / numEntries;
             if (lastProgress != newProgress)
             {
                 lastProgress = newProgress;
+#if defined(_WIN32)
+                wprintf(L"[IPC]TASK_PROGRESS %d\n", newProgress);
+#else
                 printf("[IPC]TASK_PROGRESS %d\n", newProgress);
+#endif
             }
             fflush(stdout);
         }
 
+#if defined(_WIN32)
+        wprintf(L"%d of %d - %s - size %lld - ", (i + 1), numEntries, fileName, dstLen);
+#else
         printf("%d of %d - %s - size %lld - ", (i + 1), numEntries, fileName, dstLen);
+#endif
 
         unsigned char *data = (unsigned char *)malloc(dstLen);
         result = ZipReadCurrentFile(handle, data, dstLen, nullptr);
         if (result != 0)
         {
+#if defined(_WIN32)
+            fwprintf(stderr, L"Error: Failed to read file in archive, aborting!\n");
+#else
             fprintf(stderr, "Error: Failed to read file in archive, aborting!\n");
+#endif
             result = 1;
             free(data);
             goto failed;
@@ -353,7 +381,7 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path, bool ip
 #if defined(_WIN32)
         if (ipc)
         {
-            printf("[IPC]FILENAME %s\n", fileName);
+            wprintf(L"[IPC]FILENAME %s\n", fileName);
             int newProgress = i * 100 / numEntries;
             if (lastProgress != newProgress)
             {
@@ -368,7 +396,7 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path, bool ip
         int size = strlen(fileName) + 1;
         if (size > MAX_PATH)
         {
-            fprintf(stderr, "Error: File name too long, skipping!\n");
+            fwprintf(stderr, L"Error: File name too long, skipping!\n");
             result = 1;
             free(data);
             goto failed;
@@ -377,7 +405,7 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path, bool ip
         int dest_size = wcslen(outputDir) + size + 1;
         if (dest_size > MAX_PATH)
         {
-            fprintf(stderr, "Error: Destination path for file too long, skipping!\n");
+            fwprintf(stderr, L"Error: Destination path for file too long, skipping!\n");
             result = 1;
             free(data);
             goto failed;
@@ -528,7 +556,11 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path, bool ip
         if (((fileFlags >> 16) & 0xFFFF))
             chmod(outputFile, (fileFlags >> 16) & 0xFFFF);
 #endif
+#if defined(_WIN32)
+        wprintf(L"Ok\n");
+#else
         printf("Ok\n");
+#endif
         free(data);
         ZipGoToNextFile(handle);
     }

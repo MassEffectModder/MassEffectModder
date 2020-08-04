@@ -267,7 +267,11 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
     if (InFile_Open(&archiveStream.file, path))
 #endif
     {
+#ifdef USE_WINDOWS_FILE
+        fwprintf(stderr, L"Error: Failed to open file!\n");
+#else
         fprintf(stderr, "Error: Failed to open file!\n");
+#endif
         return 1;
     }
 
@@ -297,13 +301,29 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
     else
     {
         if (res == SZ_ERROR_UNSUPPORTED)
+#ifdef USE_WINDOWS_FILE
+            fwprintf(stderr, L"Error: Decoder doesn't support this archive!");
+#else
             fprintf(stderr, "Error: Decoder doesn't support this archive!");
+#endif
         else if (res == SZ_ERROR_MEM)
+#ifdef USE_WINDOWS_FILE
+            fwprintf(stderr, L"Error: Can not allocate memory!");
+#else
             fprintf(stderr, "Error: Can not allocate memory!");
+#endif
         else if (res == SZ_ERROR_CRC)
+#ifdef USE_WINDOWS_FILE
+            fwprintf(stderr, L"Error: CRC error!");
+#else
             fprintf(stderr, "Error: CRC error!");
+#endif
         else
-        fprintf(stderr, "Error: Failed to open archive!\n");
+#ifdef USE_WINDOWS_FILE
+            fwprintf(stderr, L"Error: Failed to open archive!\n");
+#else
+            fprintf(stderr, "Error: Failed to open archive!\n");
+#endif
     }
 
     if (res == SZ_OK)
@@ -383,7 +403,7 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
                 if (lastProgress != newProgress)
                 {
                     lastProgress = newProgress;
-                    printf("[IPC]TASK_PROGRESS %d\n", newProgress);
+                    wprintf(L"[IPC]TASK_PROGRESS %d\n", newProgress);
                 }
                 fflush(stdout);
             }
@@ -393,7 +413,7 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
             int size = wcslen(fileName) + 1;
             if (size > MAX_PATH)
             {
-                fprintf(stderr, "Error: File name too long, aborting!\n");
+                fwprintf(stderr, L"Error: File name too long, aborting!\n");
                 res = SZ_ERROR_FAIL;
                 break;
             }
@@ -401,7 +421,7 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
             int dest_size = wcslen(outputDir) + size + 1;
             if (dest_size > MAX_PATH)
             {
-                fprintf(stderr, "Error: Destination path for file too long, aborting!\n");
+                fwprintf(stderr, L"Error: Destination path for file too long, aborting!\n");
                 res = SZ_ERROR_FAIL;
                 break;
             }
@@ -556,7 +576,11 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
                 res = SZ_ERROR_FAIL;
                 break;
             }
+#if defined(_WIN32)
+            wprintf(L"Ok\n");
+#else
             printf("Ok\n");
+#endif
         }
 
         ISzAlloc_Free(&allocImp, outBuffer);

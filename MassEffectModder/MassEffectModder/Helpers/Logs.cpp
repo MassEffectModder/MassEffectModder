@@ -165,7 +165,11 @@ bool CreateLogs()
     g_logs = new Logs();
     if (g_logs == nullptr)
     {
+#if defined(_WIN32)
+        std::fputws(L"CreateLogs: Failed create instance\n", stderr);
+#else
         std::fputs("CreateLogs: Failed create instance\n", stderr);
+#endif
         return false;
     }
     return true;
