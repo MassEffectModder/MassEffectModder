@@ -379,20 +379,6 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path, bool ip
         }
 
 #if defined(_WIN32)
-        if (ipc)
-        {
-            wprintf(L"[IPC]FILENAME %s\n", fileName);
-            int newProgress = i * 100 / numEntries;
-            if (lastProgress != newProgress)
-            {
-                lastProgress = newProgress;
-                printf("[IPC]TASK_PROGRESS %d\n", newProgress);
-            }
-            fflush(stdout);
-        }
-
-        wprintf(L"%d of %d - %ls - size %lld - ", (i + 1), numEntries, fileName, dstLen);
-
         int size = strlen(fileName) + 1;
         if (size > MAX_PATH)
         {
