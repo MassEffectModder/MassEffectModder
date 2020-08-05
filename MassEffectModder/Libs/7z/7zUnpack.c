@@ -329,6 +329,7 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
     if (res == SZ_OK)
     {
         UInt32 i;
+        size_t j;
 
         /*
          if you need cache, use these 3 variables.
@@ -383,16 +384,6 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
                 continue;
             }
 
-            res = SzArEx_Extract(&db, &lookStream.vt, i,
-                                &blockIndex, &outBuffer, &outBufferSize,
-                                &offset, &outSizeProcessed,
-                                &allocImp, &allocTempImp);
-            if (res != SZ_OK)
-                break;
-
-            CSzFile outFile;
-            size_t processedSize;
-            size_t j;
 #ifdef USE_WINDOWS_FILE
             wchar_t *outputDir = (UInt16 *)output_path;
 
@@ -408,7 +399,7 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
                 fflush(stdout);
             }
 
-            wprintf(L"%d of %d - %ls - size %ld - ", (i + 1), db.NumFiles, fileName, outSizeProcessed);
+            wprintf(L"%d of %d - %ls - size %lld - ", (i + 1), db.NumFiles, fileName, , SzArEx_GetFileSize(&db, i));
 
             int size = wcslen(fileName) + 1;
             if (size > MAX_PATH)
@@ -471,13 +462,6 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
                 res = SZ_ERROR_FAIL;
                 break;
             }
-
-            if (OutFile_OpenW(&outFile, outputFile))
-            {
-                fwprintf(stderr, L"Error: Failed to open file for writting: %ls, aborting\n", outputFile);
-                res = SZ_ERROR_FAIL;
-                break;
-            }
 #else
             char *outputDir = (char *)output_path;
 
@@ -493,7 +477,7 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
                 fflush(stdout);
             }
 
-            printf("%d of %d - %s - size %ld - ", (i + 1), db.NumFiles, fileName, outSizeProcessed);
+            printf("%d of %d - %s - size %lld - ", (i + 1), db.NumFiles, fileName, SzArEx_GetFileSize(&db, i));
 
             char outputFile[PATH_MAX];
             if (outputDir && outputDir[0] != 0)
@@ -544,7 +528,24 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
                 res = SZ_ERROR_FAIL;
                 break;
             }
+#endif
 
+            res = SzArEx_Extract(&db, &lookStream.vt, i,
+                                &blockIndex, &outBuffer, &outBufferSize,
+                                &offset, &outSizeProcessed,
+                                &allocImp, &allocTempImp);
+            if (res != SZ_OK)
+                break;
+
+            CSzFile outFile;
+#ifdef USE_WINDOWS_FILE
+            if (OutFile_OpenW(&outFile, outputFile))
+            {
+                fwprintf(stderr, L"Error: Failed to open file for writting: %ls, aborting\n", outputFile);
+                res = SZ_ERROR_FAIL;
+                break;
+            }
+#else
             if (OutFile_Open(&outFile, outputFile))
             {
                 fprintf(stderr, "Error: Failed to open file for writting: %s, aborting\n", outputFile);
@@ -553,7 +554,7 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
             }
 #endif
 
-            processedSize = outSizeProcessed;
+            size_t processedSize = outSizeProcessed;
 
             if (File_Write(&outFile, outBuffer + offset, &processedSize) != 0 || processedSize != outSizeProcessed)
             {
