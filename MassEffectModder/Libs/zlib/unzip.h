@@ -395,6 +395,11 @@ extern int ZEXPORT unzReadCurrentFile OF((unzFile file,
     (UNZ_ERRNO for IO error, or zLib error for uncompress error)
 */
 
+extern int ZEXPORT unzReadCurrentFileToOutputFile(unzFile file,
+                                                  const void *outputFile,
+                                                  ZPOS64_T dataSize,
+                                                  zlib_filefunc64_def* pzlib_filefunc_def);
+
 extern z_off_t ZEXPORT unztell OF((unzFile file));
 
 extern ZPOS64_T ZEXPORT unztell64 OF((unzFile file));
