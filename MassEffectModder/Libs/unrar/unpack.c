@@ -316,7 +316,8 @@ int unrar_unpack(const char *path, const char *output_path, int full_path, int i
 
         char tmpPath[PATH_MAX];
         strncpy(tmpPath, fileName, PATH_MAX - 1);
-        for (int j = 0; tmpPath[j] != 0; j++) {
+        for (int j = 0; tmpPath[j] != 0; j++)
+        {
             if ((tmpPath[j] & 0xc0) == 0x80)
             {
                 continue;
