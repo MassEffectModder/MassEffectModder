@@ -160,7 +160,7 @@ void DisplayHelp()
         "        B<pkg filename length>-<pkg filename>-E<pkg export id>.bin\n" \
         "        example: B23-BioH_EDI_00_Explore.pcc-E5090.bin\n" \
         "\n" \
-        "  --extract-tpf --gameid <input dir/file> [--output <output dir>] [--ipc]\n" \
+        "  --extract-tpf --gameid <game id> --input <input dir/file> [--output <output dir>] [--ipc]\n" \
         "     input dir: directory containing the TPF file(s) to be extracted\n" \
         "     input file: TPF file to be extracted\n" \
         "     Textures are extracted as they are in the TPF, no additional modifications are made.\n" \
