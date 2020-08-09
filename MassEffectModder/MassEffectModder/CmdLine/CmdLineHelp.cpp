@@ -196,6 +196,7 @@ void DisplayHelp()
         "     Package path: single package mode.\n" \
         "     Map Crc: it will try to find vanilla texture crc from texture map.\n" \
         "     Textures are extracted with only top mipmap.\n" \
+        "\n" \
         "  --extract-all-bik --gameid <game id> --output <output dir> [--tfc-name <filter name>|--pcc-only|--tfc-only] [--package-path <path>] [--map-crc]\n" \
         "     game id: 1 for ME1, 2 for ME2, 3 for ME3\n" \
         "     output dir: directory where movie textures are placed\n" \
@@ -211,11 +212,12 @@ void DisplayHelp()
         "     DLC name is DLC folder name.\n" \
         "     Pull textures option make DLC as standalone, not depend on external TFC files.\n" \
         "\n" \
-        "  --unpack-archive --input <zip/7z/rar file> [--output <output path>] [--flatten-archive-path] [--ipc]\n" \
-        "     Unpack ZIP/7ZIP/RAR file.\n" \
         "  --set-game-data-path --gameid <game id> --path <path>\n" \
         "     game id: 1 for ME1, 2 for ME2, 3 for ME3\n" \
         "     Set game data path to <path>.\n" \
+        "\n" \
+        "  --unpack-archive --input <zip/7z/rar file> [--output <output path>] [--flatten-archive-path] [--ipc]\n" \
+        "     Unpack ZIP/7ZIP/RAR file.\n" \
         "\n";
 #if !defined(_WIN32)
     help +=
