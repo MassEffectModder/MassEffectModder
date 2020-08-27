@@ -5,6 +5,12 @@
 #define __7Z_H
 
 #include "7zTypes.h"
+#include "7zFile.h"
+
+#include "LzmaDec.h"
+#include "Lzma2Dec.h"
+
+#include <limits.h>
 
 EXTERN_C_BEGIN
 
@@ -93,11 +99,34 @@ typedef struct
   Byte *CodersData;
 } CSzAr;
 
+typedef struct
+{
+    CFileOutStream outStream;
+    UInt32 folderIndex;
+    unsigned isDir;
+#ifdef _WIN32
+    wchar_t path[MAX_PATH];
+#else
+    char path[PATH_MAX];
+    UInt64 UnpackPosition;
+    UInt64 UnpackSize;
+#endif
+} SzArEx_StreamOutEntry;
+
 UInt64 SzAr_GetFolderUnpackSize(const CSzAr *p, UInt32 folderIndex);
 
 SRes SzAr_DecodeFolder(const CSzAr *p, UInt32 folderIndex,
     ILookInStream *stream, UInt64 startPos,
     Byte *outBuffer, size_t outSize,
+    ISzAllocPtr allocMain);
+
+SRes SzFolder_Decode3(const CSzFolder *folder,
+    const Byte *propsData,
+    const UInt64 *packPositions,
+    ILookInStream *inStream, UInt64 startPos,
+    SizeT outSize,
+    SzArEx_StreamOutEntry *streamOutInfo,
+    UInt32 folderIndex,
     ISzAllocPtr allocMain);
 
 typedef struct
@@ -182,6 +211,11 @@ SRes SzArEx_Extract(
     ISzAllocPtr allocMain,
     ISzAllocPtr allocTemp);
 
+SRes SzArEx_ExtractFolderToStream(const CSzArEx *p,
+                            ILookInStream *inStream,
+                            UInt32 folderIndex,
+                            SzArEx_StreamOutEntry *streamOutInfo,
+                            ISzAllocPtr allocTemp);
 
 /*
 SzArEx_Open Errors:

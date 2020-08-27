@@ -9,6 +9,7 @@
 #include "7zBuf.h"
 #include "7zCrc.h"
 #include "CpuArch.h"
+#include "7zFile.h"
 
 #define MY_ALLOC(T, p, size, alloc) { \
   if ((p = (T *)ISzAlloc_Alloc(alloc, (size) * sizeof(T))) == NULL) return SZ_ERROR_MEM; }
@@ -1708,6 +1709,80 @@ SRes SzArEx_Extract(
   return res;
 }
 
+#define k_Copy 0
+#define k_Delta 3
+#define k_LZMA2 0x21
+#define k_LZMA  0x30101
+
+static BoolInt IS_MAIN_METHOD(UInt32 m)
+{
+  switch (m)
+  {
+    case k_Copy:
+    case k_LZMA:
+    #ifndef _7Z_NO_METHOD_LZMA2
+    case k_LZMA2:
+    #endif
+      return True;
+  }
+  return False;
+}
+
+static SRes CheckSupportedFolder(CSzFolder *f)
+{
+  if (f->NumCoders != 1)
+    return SZ_ERROR_UNSUPPORTED;
+  if (f->Coders[0].NumStreams != 1)
+    return SZ_ERROR_UNSUPPORTED;
+  if (!IS_MAIN_METHOD((UInt32)f->Coders[0].MethodID))
+      return SZ_ERROR_UNSUPPORTED;
+  if (f->NumCoders == 1)
+  {
+    if (f->NumPackStreams != 1 || f->PackStreams[0] != 0 || f->NumBonds != 0)
+      return SZ_ERROR_UNSUPPORTED;
+    return SZ_OK;
+  }
+
+  return SZ_ERROR_UNSUPPORTED;
+}
+
+SRes SzArEx_ExtractFolderToStream(const CSzArEx *p,
+    ILookInStream *inStream,
+    UInt32 folderIndex,
+    SzArEx_StreamOutEntry *streamOutInfo,
+    ISzAllocPtr allocTemp)
+{
+    SRes res = SZ_OK;
+    CSzFolder folder;
+    CSzData sd;
+
+    const Byte *data = p->db.CodersData + p->db.FoCodersOffsets[folderIndex];
+    sd.Data = data;
+    sd.Size = p->db.FoCodersOffsets[(size_t)folderIndex + 1] - p->db.FoCodersOffsets[folderIndex];
+
+    res = SzGetNextFolderItem(&folder, &sd);
+    if (res != SZ_OK)
+    {
+        return res;
+    }
+    if (sd.Size != 0 || folder.UnpackStream != p->db.FoToMainUnpackSizeIndex[folderIndex])
+    {
+        return SZ_ERROR_FAIL;
+    }
+    RINOK(CheckSupportedFolder(&folder));
+
+    res = SzFolder_Decode3(&folder,
+                           data,
+                           p->db.PackPositions + p->db.FoStartPackStreamIndex[folderIndex],
+                           inStream,
+                           p->dataPos,
+                           SzAr_GetFolderUnpackSize(&p->db, folderIndex),
+                           streamOutInfo,
+                           folderIndex,
+                           allocTemp
+                           );
+    return res;
+}
 
 size_t SzArEx_GetFileNameUtf16(const CSzArEx *p, size_t fileIndex, UInt16 *dest)
 {

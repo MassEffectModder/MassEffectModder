@@ -14,6 +14,9 @@
 #include "7zCrc.h"
 #include "7zFile.h"
 
+#include "LzmaDec.h"
+#include "Lzma2Dec.h"
+
 #ifdef _WIN32
 #include <direct.h>
 #endif
@@ -239,6 +242,8 @@ static int MyCreateDir(const char *name)
 #define PERIOD_100 (PERIOD_4 * 25 - 1)
 #define PERIOD_400 (PERIOD_100 * 4 + 1)
 
+#define OUT_BUF_SIZE (1 << 20)
+
 #ifdef USE_WINDOWS_FILE
 int sevenzip_unpack(const wchar_t *path, const wchar_t *output_path, int full_path, int ipc)
 #else
@@ -253,6 +258,7 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
     SRes res;
     UInt16 *temp = NULL;
     size_t tempSize = 0;
+    SzArEx_StreamOutEntry *streamOutInfo = NULL;
 
 #if defined(_WIN32) && !defined(USE_WINDOWS_FILE)
     g_FileCodePage = AreFileApisANSI() ? CP_ACP : CP_OEMCP;
@@ -282,23 +288,20 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
     res = SZ_OK;
     lookStream.buf = ISzAlloc_Alloc(&allocImp, kInputBufSize);
     if (!lookStream.buf)
-        res = SZ_ERROR_MEM;
-    else
     {
-        lookStream.bufSize = kInputBufSize;
-        lookStream.realStream = &archiveStream.vt;
-        LookToRead2_Init(&lookStream);
+        return 1;
     }
+
+    lookStream.bufSize = kInputBufSize;
+    lookStream.realStream = &archiveStream.vt;
+    LookToRead2_Init(&lookStream);
 
     CrcGenerateTable();
 
     SzArEx_Init(&db);
 
-    if (res == SZ_OK)
-    {
-        res = SzArEx_Open(&db, &lookStream.vt, &allocImp, &allocTempImp);
-    }
-    else
+    res = SzArEx_Open(&db, &lookStream.vt, &allocImp, &allocTempImp);
+    if (res != SZ_OK)
     {
         if (res == SZ_ERROR_UNSUPPORTED)
 #ifdef USE_WINDOWS_FILE
@@ -324,274 +327,221 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
 #else
             fprintf(stderr, "Error: Failed to open archive!\n");
 #endif
+        return 1;
     }
 
-    if (res == SZ_OK)
+    UInt32 i, f;
+    size_t j;
+
+    streamOutInfo = (SzArEx_StreamOutEntry *)SzAlloc(NULL, (db.NumFiles + 1) * sizeof(SzArEx_StreamOutEntry));
+    memset(streamOutInfo, 0, db.NumFiles * sizeof(SzArEx_StreamOutEntry));
+    streamOutInfo[db.NumFiles].folderIndex = 0xFFFFFFFF;
+
+    UInt64 totalUnpackedSize = 0;
+    for (i = 0; i < db.NumFiles; i++)
     {
-        UInt32 i;
-        size_t j;
-
-        /*
-         if you need cache, use these 3 variables.
-         if you use external function, you can make these variable as static.
-        */
-        UInt32 blockIndex = 0xFFFFFFFF; /* it can have any value before first call (if outBuffer = 0) */
-        Byte *outBuffer = 0; /* it must be 0 before first call for each new archive. */
-        size_t outBufferSize = 0;  /* it can have any value before first call (if outBuffer = 0) */
-
-        int lastProgress = -1;
-        for (i = 0; i < db.NumFiles; i++)
+        size_t len;
+        streamOutInfo[i].isDir = SzArEx_IsDir(&db, i);
+        if (streamOutInfo[i].isDir)
         {
-            size_t offset = 0;
-            size_t outSizeProcessed = 0;
-            size_t len;
-            unsigned isDir = SzArEx_IsDir(&db, i);
-            len = SzArEx_GetFileNameUtf16(&db, i, NULL);
+            continue;
+        }
+        len = SzArEx_GetFileNameUtf16(&db, i, NULL);
 
-            if (len > tempSize)
+        if (len > tempSize)
+        {
+            SzFree(NULL, temp);
+            tempSize = len;
+            temp = (UInt16 *)SzAlloc(NULL, tempSize * sizeof(temp[0]));
+            if (!temp)
             {
-                SzFree(NULL, temp);
-                tempSize = len;
-                temp = (UInt16 *)SzAlloc(NULL, tempSize * sizeof(temp[0]));
-                if (!temp)
-                {
-                    res = SZ_ERROR_MEM;
-                    break;
-                }
-            }
-
-            SzArEx_GetFileNameUtf16(&db, i, temp);
-
-#ifdef USE_WINDOWS_FILE
-            wchar_t *fileName = (UInt16 *)temp;
-#else
-            CBuf buf;
-            SRes res;
-            Buf_Init(&buf);
-            res = Utf16_To_Char(&buf, temp);
-            char fileName[buf.size + 1];
-            strcpy(fileName, (const char*)buf.data);
-            Buf_Free(&buf, &g_Alloc);
-#endif
-
-            if (isDir)
-            {
-#ifdef USE_WINDOWS_FILE
-                wprintf(L"%d of %d - %ls - Ok\n", (i + 1), db.NumFiles, (wchar_t *)temp);
-#else
-                printf("%d of %d - %s - Ok\n", (i + 1), db.NumFiles, fileName);
-#endif
-                continue;
-            }
-
-#ifdef USE_WINDOWS_FILE
-            wchar_t *outputDir = (UInt16 *)output_path;
-
-            if (ipc)
-            {
-                wprintf(L"[IPC]FILENAME %ls\n", fileName);
-                int newProgress = i * 100 / db.NumFiles;
-                if (lastProgress != newProgress)
-                {
-                    lastProgress = newProgress;
-                    wprintf(L"[IPC]TASK_PROGRESS %d\n", newProgress);
-                }
-                fflush(stdout);
-            }
-
-            wprintf(L"%d of %d - %ls - size %lld - ", (i + 1), db.NumFiles, fileName, , SzArEx_GetFileSize(&db, i));
-
-            int size = wcslen(fileName) + 1;
-            if (size > MAX_PATH)
-            {
-                fwprintf(stderr, L"Error: File name too long, aborting!\n");
-                res = SZ_ERROR_FAIL;
+                res = SZ_ERROR_MEM;
                 break;
             }
-
-            int dest_size = wcslen(outputDir) + size + 1;
-            if (dest_size > MAX_PATH)
-            {
-                fwprintf(stderr, L"Error: Destination path for file too long, aborting!\n");
-                res = SZ_ERROR_FAIL;
-                break;
-            }
-
-            wchar_t outputFile[PATH_MAX];
-            if (outputDir && outputDir[0] != 0)
-            {
-                swprintf(outputFile, PATH_MAX - 1, L"%ls/%ls", outputDir, fileName);
-            }
-            else
-            {
-                wcsncpy(outputFile, fileName, PATH_MAX - 1);
-            }
-
-            wchar_t tmpPath[PATH_MAX];
-            wcsncpy(tmpPath, fileName, MAX_PATH - 1);
-            for (j = 0; tmpPath[j] != 0; j++)
-            {
-                if (tmpPath[j] == '/')
-                {
-                    if (full_path)
-                    {
-                        tmpPath[j] = 0;
-                        wchar_t outputPath[PATH_MAX];
-                        if (outputDir && outputDir[0] != 0)
-                            swprintf(outputPath, PATH_MAX - 1, L"%ls/%ls", outputDir, tmpPath);
-                        else
-                            wcsncpy(outputPath, tmpPath, PATH_MAX - 1);
-                        if (MyCreateDir(outputPath) != 0)
-                        {
-                            res = SZ_ERROR_FAIL;
-                            break;
-                        }
-                        tmpPath[j] = '/';
-                    }
-                    else
-                    {
-                        if (outputDir && outputDir[0] != 0)
-                            swprintf(outputFile, PATH_MAX - 1, L"%ls/%ls", outputDir, tmpPath + j + 1);
-                        else
-                            wcsncpy(outputFile, tmpPath + j + 1, PATH_MAX - 1);
-                    }
-                }
-            }
-            if (res != SZ_OK)
-            {
-                res = SZ_ERROR_FAIL;
-                break;
-            }
-#else
-            char *outputDir = (char *)output_path;
-
-            if (ipc)
-            {
-                printf("[IPC]FILENAME %s\n", fileName);
-                int newProgress = i * 100 / db.NumFiles;
-                if (lastProgress != newProgress)
-                {
-                    lastProgress = newProgress;
-                    printf("[IPC]TASK_PROGRESS %d\n", newProgress);
-                }
-                fflush(stdout);
-            }
-
-            printf("%d of %d - %s - size %lld - ", (i + 1), db.NumFiles, fileName, SzArEx_GetFileSize(&db, i));
-
-            char outputFile[PATH_MAX];
-            if (outputDir && outputDir[0] != 0)
-            {
-                snprintf(outputFile, PATH_MAX - 1, "%s/%s", outputDir, fileName);
-            }
-            else
-            {
-                strncpy(outputFile, fileName, PATH_MAX - 1);
-            }
-
-            char tmpPath[PATH_MAX];
-            strncpy(tmpPath, fileName, PATH_MAX - 1);
-            for (j = 0; tmpPath[j] != 0; j++)
-            {
-                if ((tmpPath[j] & 0xc0) == 0x80)
-                {
-                    continue;
-                }
-                if (tmpPath[j] == '/')
-                {
-                    if (full_path)
-                    {
-                        tmpPath[j] = 0;
-                        char outputPath[PATH_MAX];
-                        if (outputDir && outputDir[0] != 0)
-                            snprintf(outputPath, PATH_MAX - 1, "%s/%s", outputDir, tmpPath);
-                        else
-                            strncpy(outputPath, tmpPath, PATH_MAX - 1);
-                        if (MyCreateDir(outputPath) != 0)
-                        {
-                            res = SZ_ERROR_FAIL;
-                            break;
-                        }
-                        tmpPath[j] = '/';
-                    }
-                    else
-                    {
-                        if (outputDir && outputDir[0] != 0)
-                            snprintf(outputFile, PATH_MAX - 1, "%s/%s", (char *)outputDir, tmpPath + j + 1);
-                        else
-                            strncpy(outputFile, tmpPath + j + 1, PATH_MAX - 1);
-                    }
-                }
-            }
-            if (res != SZ_OK)
-            {
-                res = SZ_ERROR_FAIL;
-                break;
-            }
-#endif
-
-            res = SzArEx_Extract(&db, &lookStream.vt, i,
-                                &blockIndex, &outBuffer, &outBufferSize,
-                                &offset, &outSizeProcessed,
-                                &allocImp, &allocTempImp);
-            if (res != SZ_OK)
-                break;
-
-            CSzFile outFile;
-#ifdef USE_WINDOWS_FILE
-            if (OutFile_OpenW(&outFile, outputFile))
-            {
-                fwprintf(stderr, L"Error: Failed to open file for writting: %ls, aborting\n", outputFile);
-                res = SZ_ERROR_FAIL;
-                break;
-            }
-#else
-            if (OutFile_Open(&outFile, outputFile))
-            {
-                fprintf(stderr, "Error: Failed to open file for writting: %s, aborting\n", outputFile);
-                res = SZ_ERROR_FAIL;
-                break;
-            }
-#endif
-
-            size_t processedSize = outSizeProcessed;
-
-            if (File_Write(&outFile, outBuffer + offset, &processedSize) != 0 || processedSize != outSizeProcessed)
-            {
-#ifdef USE_WINDOWS_FILE
-                fwprintf(stderr, L"Error: Failed to write to file: %ls, aborting\n", outputFile);
-#else
-                fprintf(stderr, "Error: Failed to write to file: %s, aborting\n", outputFile);
-#endif
-                res = SZ_ERROR_FAIL;
-                break;
-            }
-
-            if (File_Close(&outFile))
-            {
-#ifdef USE_WINDOWS_FILE
-                fwprintf(stderr, L"Error: Failed to close file: %ls, aborting\n", outputFile);
-#else
-                fprintf(stderr, "Error: Failed to close file: %s, aborting\n", outputFile);
-#endif
-                res = SZ_ERROR_FAIL;
-                break;
-            }
-#if defined(_WIN32)
-            wprintf(L"Ok\n");
-#else
-            printf("Ok\n");
-#endif
         }
 
-        ISzAlloc_Free(&allocImp, outBuffer);
+        SzArEx_GetFileNameUtf16(&db, i, temp);
 
-        SzFree(NULL, temp);
-        SzArEx_Free(&db, &allocImp);
-        ISzAlloc_Free(&allocImp, lookStream.buf);
+#ifdef USE_WINDOWS_FILE
+        wchar_t *fileName = (UInt16 *)temp;
+#else
+        CBuf buf;
+        SRes res;
+        Buf_Init(&buf);
+        res = Utf16_To_Char(&buf, temp);
+        char fileName[buf.size + 1];
+        strcpy(fileName, (const char*)buf.data);
+        Buf_Free(&buf, &g_Alloc);
+#endif
 
-        File_Close(&archiveStream.file);
+#ifdef USE_WINDOWS_FILE
+        wchar_t *outputDir = (UInt16 *)output_path;
+
+        int size = wcslen(fileName) + 1;
+        if (size > MAX_PATH)
+        {
+            fwprintf(stderr, L"Error: File name too long, aborting!\n");
+            res = SZ_ERROR_FAIL;
+            break;
+        }
+
+        int dest_size = wcslen(outputDir) + size + 1;
+        if (dest_size > MAX_PATH)
+        {
+            fwprintf(stderr, L"Error: Destination path for file too long, aborting!\n");
+            res = SZ_ERROR_FAIL;
+            break;
+        }
+
+        wchar_t outputFile[PATH_MAX];
+        if (outputDir && outputDir[0] != 0)
+        {
+            swprintf(outputFile, PATH_MAX - 1, L"%ls/%ls", outputDir, fileName);
+        }
+        else
+        {
+            wcsncpy(outputFile, fileName, PATH_MAX - 1);
+        }
+
+        wchar_t tmpPath[PATH_MAX];
+        wcsncpy(tmpPath, fileName, MAX_PATH - 1);
+        for (j = 0; tmpPath[j] != 0; j++)
+        {
+            if (tmpPath[j] == '/')
+            {
+                if (full_path)
+                {
+                    tmpPath[j] = 0;
+                    wchar_t outputPath[PATH_MAX];
+                    if (outputDir && outputDir[0] != 0)
+                        swprintf(outputPath, PATH_MAX - 1, L"%ls/%ls", outputDir, tmpPath);
+                    else
+                        wcsncpy(outputPath, tmpPath, PATH_MAX - 1);
+                    if (MyCreateDir(outputPath) != 0)
+                    {
+                        res = SZ_ERROR_FAIL;
+                        break;
+                    }
+                    tmpPath[j] = '/';
+                }
+                else
+                {
+                    if (outputDir && outputDir[0] != 0)
+                        swprintf(outputFile, PATH_MAX - 1, L"%ls/%ls", outputDir, tmpPath + j + 1);
+                    else
+                        wcsncpy(outputFile, tmpPath + j + 1, PATH_MAX - 1);
+                }
+            }
+        }
+        if (res != SZ_OK)
+        {
+            res = SZ_ERROR_FAIL;
+            break;
+        }
+
+        wcsncpy(streamOutInfo[i].path, outputFile, PATH_MAX - 1);
+#else
+        char *outputDir = (char *)output_path;
+
+        char outputFile[PATH_MAX];
+        if (outputDir && outputDir[0] != 0)
+        {
+            snprintf(outputFile, PATH_MAX - 1, "%s/%s", outputDir, fileName);
+        }
+        else
+        {
+            strncpy(outputFile, fileName, PATH_MAX - 1);
+        }
+
+        char tmpPath[PATH_MAX];
+        strncpy(tmpPath, fileName, PATH_MAX - 1);
+        for (j = 0; tmpPath[j] != 0; j++)
+        {
+            if ((tmpPath[j] & 0xc0) == 0x80)
+            {
+                continue;
+            }
+            if (tmpPath[j] == '/')
+            {
+                if (full_path)
+                {
+                    tmpPath[j] = 0;
+                    char outputPath[PATH_MAX];
+                    if (outputDir && outputDir[0] != 0)
+                        snprintf(outputPath, PATH_MAX - 1, "%s/%s", outputDir, tmpPath);
+                    else
+                        strncpy(outputPath, tmpPath, PATH_MAX - 1);
+                    if (MyCreateDir(outputPath) != 0)
+                    {
+                        res = SZ_ERROR_FAIL;
+                        break;
+                    }
+                    tmpPath[j] = '/';
+                }
+                else
+                {
+                    if (outputDir && outputDir[0] != 0)
+                        snprintf(outputFile, PATH_MAX - 1, "%s/%s", (char *)outputDir, tmpPath + j + 1);
+                    else
+                        strncpy(outputFile, tmpPath + j + 1, PATH_MAX - 1);
+                }
+            }
+        }
+        if (res != SZ_OK)
+        {
+            res = SZ_ERROR_FAIL;
+            break;
+        }
+
+        strncpy(streamOutInfo[i].path, outputFile, PATH_MAX - 1);
+#endif
+
+        FileOutStream_CreateVTable(&streamOutInfo[i].outStream);
+        File_Construct(&streamOutInfo[i].outStream.file);
+
+#ifdef USE_WINDOWS_FILE
+        if (OutFile_OpenW(&streamOutInfo[i].outStream.file, outputFile))
+#else
+        if (OutFile_Open(&streamOutInfo[i].outStream.file, outputFile))
+#endif
+        {
+            res = SZ_ERROR_WRITE;
+            break;
+        }
+
+        streamOutInfo[i].folderIndex = db.FileToFolder[i];
+        streamOutInfo[i].UnpackPosition = db.UnpackPositions[i];
+        streamOutInfo[i].UnpackSize = SzArEx_GetFileSize(&db, i);
+        totalUnpackedSize += streamOutInfo[i].UnpackSize;
     }
+
+    for (f = 0; ; f++)
+    {
+        int foundFolder = 0;
+        for (i = 0; i < db.NumFiles; i++)
+        {
+            if (streamOutInfo[i].folderIndex == f && !streamOutInfo[i].isDir)
+            {
+                res = SzArEx_ExtractFolderToStream(&db, &lookStream.vt, f, &streamOutInfo[i], &allocTempImp);
+                if (res == SZ_OK)
+                {
+                    foundFolder = 1;
+                }
+                break;
+            }
+        }
+        if (!foundFolder)
+            break;
+    }
+
+    for (i = 0; i < db.NumFiles; i++)
+    {
+        File_Close(&streamOutInfo[i].outStream.file);
+    }
+
+    SzFree(NULL, temp);
+    SzArEx_Free(&db, &allocImp);
+    ISzAlloc_Free(&allocImp, lookStream.buf);
 
     if (res == SZ_OK)
     {
