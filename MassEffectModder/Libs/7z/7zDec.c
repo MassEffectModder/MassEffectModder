@@ -5,15 +5,12 @@
 
 #include <string.h>
 
-#define _7ZIP_PPMD_SUPPPORT
+//#define _7ZIP_PPMD_SUPPPORT
 
 #include "7z.h"
 #include "7zCrc.h"
 
-#include "Bcj2.h"
-#include "Bra.h"
 #include "CpuArch.h"
-#include "Delta.h"
 #include "LzmaDec.h"
 #include "Lzma2Dec.h"
 #ifdef _7ZIP_PPMD_SUPPPORT
@@ -449,6 +446,7 @@ static SRes SzFolder_Decode2(const CSzFolder *folder,
       else
         return SZ_ERROR_UNSUPPORTED;
     }
+#if 0
     else if (coder->MethodID == k_BCJ2)
     {
       UInt64 offset = packPositions[1];
@@ -501,6 +499,7 @@ static SRes SzFolder_Decode2(const CSzFolder *folder,
         }
       }
     }
+#endif
     #ifndef _7Z_NO_METHODS_FILTERS
     else if (ci == 1)
     {

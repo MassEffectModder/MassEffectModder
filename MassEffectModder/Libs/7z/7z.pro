@@ -15,20 +15,13 @@ SOURCES += \
     7zStream.c \
     7zUnpack.c \
     Alloc.c \
-    Bcj2.c \
-    Bra.c \
-    Bra86.c \
-    BraIA64.c \
     CpuArch.c \
-    Delta.c \
     LzFind.c \
     Lzma2Dec.c \
     Lzma2Enc.c \
     LzmaDec.c \
     LzmaEnc.c \
     LzmaLib.c \
-    Ppmd7.c \
-    Ppmd7Dec.c
 
 HEADERS += \
     7z.h \
@@ -38,11 +31,8 @@ HEADERS += \
     7zFile.h \
     7zTypes.h \
     Alloc.h \
-    Bcj2.h \
-    Bra.h \
     Compiler.h \
     CpuArch.h \
-    Delta.h \
     LzFind.h \
     LzHash.h \
     Lzma2Dec.h \
@@ -50,13 +40,12 @@ HEADERS += \
     LzmaDec.h \
     LzmaEnc.h \
     LzmaLib.h \
-    Ppmd7.h \
     Precomp.h
 
 !macx {
 QMAKE_CFLAGS += -Wno-format-truncation -Wno-stringop-truncation
 }
-QMAKE_CFLAGS += -D_7ZIP_ST -O3
+QMAKE_CFLAGS += -D_7ZIP_ST -D_7Z_NO_METHODS_FILTERS -O3
 QMAKE_CFLAGS_RELEASE -= -O2
 QMAKE_CFLAGS_RELEASE += -g1
 QMAKE_CFLAGS_DEBUG += -g
