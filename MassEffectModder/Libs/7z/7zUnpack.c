@@ -512,6 +512,14 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
         streamOutInfo[i].folderIndex = db.FileToFolder[i];
         streamOutInfo[i].UnpackPosition = db.UnpackPositions[i];
         streamOutInfo[i].UnpackSize = SzArEx_GetFileSize(&db, i);
+        if (SzBitWithVals_Check(&db.CRCs, i))
+        {
+            streamOutInfo[i].CRC = db.CRCs.Vals[i];
+        }
+        else
+        {
+            streamOutInfo[i].CRC = CRC_INIT_VAL;
+        }
         totalUnpackedSize += streamOutInfo[i].UnpackSize;
     }
 

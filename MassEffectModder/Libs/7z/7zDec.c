@@ -192,6 +192,7 @@ static SRes SzDecodeLzmaStream(const Byte *props, unsigned propsSize, UInt64 pac
 {
     CLzmaDec state;
     UInt32 fileIndex = 0;
+    UInt32 CRC = CRC_INIT_VAL;
 
     LzmaDec_Construct(&state);
     RINOK(LzmaDec_Allocate(&state, props, propsSize, allocMain));
@@ -261,9 +262,17 @@ static SRes SzDecodeLzmaStream(const Byte *props, unsigned propsSize, UInt64 pac
             break;
         }
 
+        CRC = CrcUpdate(CRC, outBuf, outProcessed);
         // check for end of output stream
         if (offsetStreamOut == streamOutInfo[fileIndex].UnpackSize)
         {
+            CRC = CRC_GET_DIGEST(CRC);
+            if (CRC != streamOutInfo[fileIndex].CRC)
+            {
+                res = SZ_ERROR_CRC;
+                break;
+            }
+            CRC = CRC_INIT_VAL;
             File_Close(&streamOutInfo[fileIndex].outStream.file);
             fileIndex++;
             // check for end of input stream

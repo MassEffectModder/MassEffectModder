@@ -110,6 +110,7 @@ typedef struct
     char path[PATH_MAX];
     UInt64 UnpackPosition;
     UInt64 UnpackSize;
+    UInt32 CRC;
 #endif
 } SzArEx_StreamOutEntry;
 
