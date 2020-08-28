@@ -334,6 +334,10 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
     size_t j;
 
     streamOutInfo = (SzArEx_StreamOutEntry *)SzAlloc(NULL, (db.NumFiles + 1) * sizeof(SzArEx_StreamOutEntry));
+    if (streamOutInfo == NULL)
+    {
+        return 1;
+    }
     memset(streamOutInfo, 0, db.NumFiles * sizeof(SzArEx_StreamOutEntry));
     streamOutInfo[db.NumFiles].folderIndex = 0xFFFFFFFF;
 
@@ -547,6 +551,7 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
         File_Close(&streamOutInfo[i].outStream.file);
     }
 
+    SzFree(NULL, streamOutInfo);
     SzFree(NULL, temp);
     SzArEx_Free(&db, &allocImp);
     ISzAlloc_Free(&allocImp, lookStream.buf);
