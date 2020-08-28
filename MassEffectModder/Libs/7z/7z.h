@@ -108,10 +108,10 @@ typedef struct
     wchar_t path[MAX_PATH];
 #else
     char path[PATH_MAX];
+#endif
     UInt64 UnpackPosition;
     UInt64 UnpackSize;
     UInt32 CRC;
-#endif
 } SzArEx_StreamOutEntry;
 
 UInt64 SzAr_GetFolderUnpackSize(const CSzAr *p, UInt32 folderIndex);
