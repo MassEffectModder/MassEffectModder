@@ -422,9 +422,9 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path, bool ip
         else
         {
 #if defined(_WIN32)
-            wprintf(L"%d of %d - %s - size %lld - ", (i + 1), numEntries, fileName, dstLen);
+            wprintf(L"%d of %d - %s - size %llu - ", (i + 1), numEntries, fileName, dstLen);
 #else
-            printf("%d of %d - %s - size %lld - ", (i + 1), numEntries, fileName, dstLen);
+            printf("%d of %d - %s - size %llu - ", (i + 1), numEntries, fileName, dstLen);
 #endif
         }
 
