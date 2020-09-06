@@ -249,7 +249,11 @@ static SRes SzDecodeLzmaStream(const Byte *props, unsigned propsSize, UInt64 pac
             break;
         }
 
+#ifdef USE_WINDOWS_FILE
+        if (streamOutInfo[fileIndex].outStream.file.handle)
+#else
         if (streamOutInfo[fileIndex].outStream.file.file)
+#endif
         {
             if (streamOutInfo[fileIndex].outStream.vt.Write(&streamOutInfo[fileIndex].outStream.vt, outBuf, outProcessed) != outProcessed)
             {
@@ -427,7 +431,11 @@ static SRes SzDecodeLzma2Stream(const Byte *props, unsigned propsSize, UInt64 pa
             break;
         }
 
+#ifdef USE_WINDOWS_FILE
+        if (streamOutInfo[fileIndex].outStream.file.handle)
+#else
         if (streamOutInfo[fileIndex].outStream.file.file)
+#endif
         {
             if (streamOutInfo[fileIndex].outStream.vt.Write(&streamOutInfo[fileIndex].outStream.vt, outBuf, outProcessed) != outProcessed)
             {
@@ -528,7 +536,11 @@ static SRes SzDecodeCopyStream(UInt64 inSize, ILookInStream *inStream, SzArEx_St
         {
             curSize = streamOutInfo[fileIndex].UnpackSize - offsetStreamOut;
         }
+#ifdef USE_WINDOWS_FILE
+        if (streamOutInfo[fileIndex].outStream.file.handle)
+#else
         if (streamOutInfo[fileIndex].outStream.file.file)
+#endif
         {
             if (streamOutInfo[fileIndex].outStream.vt.Write(&streamOutInfo[fileIndex].outStream.vt, inBuf, curSize) != curSize)
             {
