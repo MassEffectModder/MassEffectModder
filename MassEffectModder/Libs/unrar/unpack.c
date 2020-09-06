@@ -265,7 +265,7 @@ int unrar_unpack(const char *path, const char *output_path, int full_path, int i
         }
         else
         {
-            wprintf(L"%lu of %zu - %ls - size %lld - ", (i + 1), dmc_unrar_get_file_count(&archive), fileName, file->uncompressed_size);
+            wprintf(L"%lu of %zu - %ls - size %llu - ", (i + 1), dmc_unrar_get_file_count(&archive), fileName, (unsigned long long)file->uncompressed_size);
         }
 
         int size = wcslen(fileName) + 1;
@@ -331,7 +331,7 @@ int unrar_unpack(const char *path, const char *output_path, int full_path, int i
         }
         else
         {
-            printf("%lu of %zu - %s - size %llu - ", (i + 1), dmc_unrar_get_file_count(&archive), fileName, file->uncompressed_size);
+            printf("%lu of %zu - %s - size %llu - ", (i + 1), dmc_unrar_get_file_count(&archive), fileName, (unsigned long long)file->uncompressed_size);
         }
 
         char outputFile[PATH_MAX];
