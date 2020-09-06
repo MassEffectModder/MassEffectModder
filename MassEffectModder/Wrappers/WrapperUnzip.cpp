@@ -322,6 +322,27 @@ static int MyCreateDir(const char *name)
 }
 #endif
 
+#if defined(_WIN32)
+static bool compareExt(char *filename, const wchar_t *ext)
+{
+    wchar_t file[MAX_PATH];
+    int size = strlen(fileName) + 1;
+    mbstowcs(file, filename, size);
+    wchar_t *pExt = wcsrchr(file, L'.');
+    if (pExt == nullptr)
+        return false;
+    return wcscasecmp(&pExt[1], ext) == 0;
+}
+#else
+static bool compareExt(char *filename, const char *ext)
+{
+    char *pExt = strrchr(filename, '.');
+    if (pExt == nullptr)
+        return false;
+    return strcasecmp(&pExt[1], ext) == 0;
+}
+#endif
+
 static bool g_ipc;
 static int lastProgress;
 static ZPOS64_T progressUnpackedSize;
@@ -346,15 +367,18 @@ static void PrintProgressIpc(ZPOS64_T processedBytes)
     }
 }
 
-int ZipUnpack(const void *path, const void *output_path, bool full_path, bool ipc)
+int ZipUnpack(const void *path, const void *output_path,
+              const void *filter, bool full_path, bool ipc)
 {
     int result = 0;
     unsigned long long dstLen = 0;
     int numEntries = 0;
 #if defined(_WIN32)
     auto outputDir = static_cast<const wchar_t *>(output_path);
+    auto filterExt = static_cast<const wchar_t *>(filter);
 #else
     auto outputDir = static_cast<const char *>(output_path);
+    auto filterExt = static_cast<const char *>(filter);
 #endif
     char fileName[260];
 
@@ -386,6 +410,11 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path, bool ip
 #endif
             goto failed;
         }
+        if (filterExt[0] != 0 && (dstLen == 0 || !compareExt(fileName, filterExt)))
+        {
+            ZipGoToNextFile(handle);
+            continue;
+        }
         totalUnpackedSize += dstLen;
         ZipGoToNextFile(handle);
         continue;
@@ -408,6 +437,12 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path, bool ip
             }
             ZipGoToNextFile(handle);
             continue;
+        }
+
+        if (filterExt[0] != 0 && !compareExt(fileName, filterExt))
+        {
+           ZipGoToNextFile(handle);
+           continue;
         }
 
         if (ipc)
@@ -664,7 +699,7 @@ failed:
 
 int ZipUnpackFile(const void *path, const void *output_path, bool full_path)
 {
-    return ZipUnpack(path, output_path, full_path, false);
+    return ZipUnpack(path, output_path, "", full_path, false);
 }
 
 #endif

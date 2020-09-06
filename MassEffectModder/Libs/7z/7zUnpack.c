@@ -244,10 +244,34 @@ static int MyCreateDir(const char *name)
 
 #define OUT_BUF_SIZE (1 << 20)
 
+#if defined(_WIN32)
+static int compareExt(wchar_t *filename, const wchar_t *ext)
+{
+    wchar_t *pExt = wcsrchr(filename, L'.');
+    if (pExt == NULL)
+        return 0;
+    return wcscasecmp(&pExt[1], ext) == 0;
+}
+#else
+static int compareExt(char *filename, const char *ext)
+{
+    char *pExt = strrchr(filename, '.');
+    if (pExt == NULL)
+        return 0;
+    return strcasecmp(&pExt[1], ext) == 0;
+}
+#endif
+
 static int g_ipc;
 static int lastProgress;
 static UInt64 progressUnpackedSize;
 static UInt64 totalUnpackedSize;
+static int totalFiles;
+#ifdef USE_WINDOWS_FILE
+static const wchar_t *filterExtension;
+#else
+static const char *filterExtension;
+#endif
 
 static void PrintProgressIpc(UInt64 processedBytes)
 {
@@ -268,10 +292,38 @@ static void PrintProgressIpc(UInt64 processedBytes)
     }
 }
 
-#ifdef USE_WINDOWS_FILE
-int sevenzip_unpack(const wchar_t *path, const wchar_t *output_path, int full_path, int ipc)
+static void PrintfCurrentFile(SzArEx_StreamOutEntry *streamOutInfo)
+{
+    if (filterExtension[0] == 0 || compareExt(streamOutInfo->path, filterExtension))
+    {
+        if (g_ipc)
+        {
+#if defined(_WIN32)
+            wprintf(L"[IPC]FILENAME %ls\n", streamOutInfo[i].path);
 #else
-int sevenzip_unpack(const char *path, const char *output_path, int full_path, int ipc)
+            printf("[IPC]FILENAME %s\n", streamOutInfo->path);
+#endif
+            fflush(stdout);
+        }
+        else
+        {
+#if defined(_WIN32)
+            wprintf(L"%d of %d - %ls - size %llu - ", (streamOutInfo->entryIndex + 1),
+                   totalFiles, streamOutInfo->path, streamOutInfo->UnpackSize);
+#else
+            printf("%d of %d - %s - size %llu - ", (streamOutInfo->entryIndex + 1),
+                   totalFiles, streamOutInfo->path, streamOutInfo->UnpackSize);
+#endif
+        }
+    }
+}
+
+#ifdef USE_WINDOWS_FILE
+int sevenzip_unpack(const wchar_t *path, const wchar_t *output_path,
+                    const wchar_t *filter, int full_path, int ipc)
+#else
+int sevenzip_unpack(const char *path, const char *output_path,
+                    const char *filter, int full_path, int ipc)
 #endif
 {
     ISzAlloc allocImp;
@@ -361,6 +413,8 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
     UInt32 i, f;
     size_t j;
 
+    totalFiles = db.NumFiles;
+    filterExtension = filter;
     streamOutInfo = (SzArEx_StreamOutEntry *)SzAlloc(NULL, (db.NumFiles + 1) * sizeof(SzArEx_StreamOutEntry));
     if (streamOutInfo == NULL)
     {
@@ -372,6 +426,7 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
     for (i = 0; i < db.NumFiles; i++)
     {
         size_t len;
+        streamOutInfo[i].entryIndex = i;
         streamOutInfo[i].isDir = SzArEx_IsDir(&db, i);
         if (streamOutInfo[i].isDir)
         {
@@ -434,33 +489,36 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
             wcsncpy(outputFile, fileName, PATH_MAX - 1);
         }
 
-        wchar_t tmpPath[PATH_MAX];
-        wcsncpy(tmpPath, fileName, MAX_PATH - 1);
-        for (j = 0; tmpPath[j] != 0; j++)
+        if (filter[0] == 0 || compareExt(streamOutInfo[i].path, filter))
         {
-            if (tmpPath[j] == '/')
+            wchar_t tmpPath[PATH_MAX];
+            wcsncpy(tmpPath, fileName, MAX_PATH - 1);
+            for (j = 0; tmpPath[j] != 0; j++)
             {
-                if (full_path)
+                if (tmpPath[j] == '/')
                 {
-                    tmpPath[j] = 0;
-                    wchar_t outputPath[PATH_MAX];
-                    if (outputDir && outputDir[0] != 0)
-                        swprintf(outputPath, PATH_MAX - 1, L"%ls/%ls", outputDir, tmpPath);
-                    else
-                        wcsncpy(outputPath, tmpPath, PATH_MAX - 1);
-                    if (MyCreateDir(outputPath) != 0)
+                    if (full_path)
                     {
-                        res = SZ_ERROR_FAIL;
-                        break;
+                        tmpPath[j] = 0;
+                        wchar_t outputPath[PATH_MAX];
+                        if (outputDir && outputDir[0] != 0)
+                            swprintf(outputPath, PATH_MAX - 1, L"%ls/%ls", outputDir, tmpPath);
+                        else
+                            wcsncpy(outputPath, tmpPath, PATH_MAX - 1);
+                        if (MyCreateDir(outputPath) != 0)
+                        {
+                            res = SZ_ERROR_FAIL;
+                            break;
+                        }
+                        tmpPath[j] = '/';
                     }
-                    tmpPath[j] = '/';
-                }
-                else
-                {
-                    if (outputDir && outputDir[0] != 0)
-                        swprintf(outputFile, PATH_MAX - 1, L"%ls/%ls", outputDir, tmpPath + j + 1);
                     else
-                        wcsncpy(outputFile, tmpPath + j + 1, PATH_MAX - 1);
+                    {
+                        if (outputDir && outputDir[0] != 0)
+                            swprintf(outputFile, PATH_MAX - 1, L"%ls/%ls", outputDir, tmpPath + j + 1);
+                        else
+                            wcsncpy(outputFile, tmpPath + j + 1, PATH_MAX - 1);
+                    }
                 }
             }
         }
@@ -484,37 +542,40 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
             strncpy(outputFile, fileName, PATH_MAX - 1);
         }
 
-        char tmpPath[PATH_MAX];
-        strncpy(tmpPath, fileName, PATH_MAX - 1);
-        for (j = 0; tmpPath[j] != 0; j++)
+        if (filter[0] == 0 || compareExt(outputFile, filter))
         {
-            if ((tmpPath[j] & 0xc0) == 0x80)
+            char tmpPath[PATH_MAX];
+            strncpy(tmpPath, fileName, PATH_MAX - 1);
+            for (j = 0; tmpPath[j] != 0; j++)
             {
-                continue;
-            }
-            if (tmpPath[j] == '/')
-            {
-                if (full_path)
+                if ((tmpPath[j] & 0xc0) == 0x80)
                 {
-                    tmpPath[j] = 0;
-                    char outputPath[PATH_MAX];
-                    if (outputDir && outputDir[0] != 0)
-                        snprintf(outputPath, PATH_MAX - 1, "%s/%s", outputDir, tmpPath);
-                    else
-                        strncpy(outputPath, tmpPath, PATH_MAX - 1);
-                    if (MyCreateDir(outputPath) != 0)
-                    {
-                        res = SZ_ERROR_FAIL;
-                        break;
-                    }
-                    tmpPath[j] = '/';
+                    continue;
                 }
-                else
+                if (tmpPath[j] == '/')
                 {
-                    if (outputDir && outputDir[0] != 0)
-                        snprintf(outputFile, PATH_MAX - 1, "%s/%s", (char *)outputDir, tmpPath + j + 1);
+                    if (full_path)
+                    {
+                        tmpPath[j] = 0;
+                        char outputPath[PATH_MAX];
+                        if (outputDir && outputDir[0] != 0)
+                            snprintf(outputPath, PATH_MAX - 1, "%s/%s", outputDir, tmpPath);
+                        else
+                            strncpy(outputPath, tmpPath, PATH_MAX - 1);
+                        if (MyCreateDir(outputPath) != 0)
+                        {
+                            res = SZ_ERROR_FAIL;
+                            break;
+                        }
+                        tmpPath[j] = '/';
+                    }
                     else
-                        strncpy(outputFile, tmpPath + j + 1, PATH_MAX - 1);
+                    {
+                        if (outputDir && outputDir[0] != 0)
+                            snprintf(outputFile, PATH_MAX - 1, "%s/%s", (char *)outputDir, tmpPath + j + 1);
+                        else
+                            strncpy(outputFile, tmpPath + j + 1, PATH_MAX - 1);
+                    }
                 }
             }
         }
@@ -530,14 +591,17 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
         FileOutStream_CreateVTable(&streamOutInfo[i].outStream);
         File_Construct(&streamOutInfo[i].outStream.file);
 
-#ifdef USE_WINDOWS_FILE
-        if (OutFile_OpenW(&streamOutInfo[i].outStream.file, outputFile))
-#else
-        if (OutFile_Open(&streamOutInfo[i].outStream.file, outputFile))
-#endif
+        if (filter[0] == 0 || compareExt(streamOutInfo[i].path, filter))
         {
-            res = SZ_ERROR_WRITE;
-            break;
+#ifdef USE_WINDOWS_FILE
+            if (OutFile_OpenW(&streamOutInfo[i].outStream.file, streamOutInfo[i].path))
+#else
+            if (OutFile_Open(&streamOutInfo[i].outStream.file, streamOutInfo[i].path))
+#endif
+            {
+                res = SZ_ERROR_WRITE;
+                break;
+            }
         }
 
         streamOutInfo[i].folderIndex = db.FileToFolder[i];
@@ -565,37 +629,21 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
             {
                 if (!ipc)
                 {
+                    if (filter[0] == 0 || compareExt(streamOutInfo[i].path, filter))
+                    {
 #if defined(_WIN32)
-                    wprintf(L"%d of %d - %ls - Ok\n", (i + 1), db.NumFiles, streamOutInfo[i].path);
+                        wprintf(L"%d of %d - %ls - Ok\n", (i + 1), db.NumFiles, streamOutInfo[i].path);
 #else
-                    printf("%d of %d - %s - Ok\n", (i + 1), db.NumFiles, streamOutInfo[i].path);
+                        printf("%d of %d - %s - Ok\n", (i + 1), db.NumFiles, streamOutInfo[i].path);
 #endif
+                    }
                 }
             }
             else
             {
-                if (ipc)
-                {
-#if defined(_WIN32)
-                    wprintf(L"[IPC]FILENAME %ls\n", streamOutInfo[i].path);
-#else
-                    printf("[IPC]FILENAME %s\n", streamOutInfo[i].path);
-#endif
-                    fflush(stdout);
-                }
-                else
-                {
-#if defined(_WIN32)
-                    wprintf(L"%d of %d - %ls - size %llu - ", (i + 1),
-                            db.NumFiles, streamOutInfo[i].path, streamOutInfo[i].UnpackSize);
-#else
-                    printf("%d of %d - %s - size %llu - ", (i + 1),
-                           db.NumFiles, streamOutInfo[i].path, streamOutInfo[i].UnpackSize);
-#endif
-                }
-
                 res = SzArEx_ExtractFolderToStream(&db, &lookStream.vt, f,
-                                                   &streamOutInfo[i], &allocTempImp, PrintProgressIpc);
+                                                   &streamOutInfo[i], &allocTempImp,
+                                                   PrintProgressIpc, PrintfCurrentFile);
                 if (res == SZ_OK)
                 {
                     foundFolder = 1;

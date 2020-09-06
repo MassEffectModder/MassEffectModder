@@ -103,7 +103,8 @@ bool CmdLineTools::repackGame(MeType gameId)
     return true;
 }
 
-bool CmdLineTools::unpackArchive(const QString &inputFile, QString &outputDir, bool flattenPath)
+bool CmdLineTools::unpackArchive(const QString &inputFile, QString &outputDir,
+                                 QString &filterWithExt, bool flattenPath)
 {
     outputDir = QDir::cleanPath(outputDir);
     if (outputDir != "")
@@ -111,13 +112,17 @@ bool CmdLineTools::unpackArchive(const QString &inputFile, QString &outputDir, b
 #if defined(_WIN32)
     auto strFile = inputFile.toStdWString();
     auto strOut = outputDir.toStdWString();
+    auto strFilter = filterWithExt.toStdWString();
     auto fileName = strFile.c_str();
     auto outPath = strOut.c_str();
+    auto filter = strFilter.c_str();
 #else
     auto strFile = inputFile.toUtf8();
     auto strOut = outputDir.toUtf8();
+    auto strFilter = filterWithExt.toUtf8();
     auto fileName = strFile.constData();
     auto outPath = strOut.constData();
+    auto filter = strFilter.constData();
 #endif
 
     if (outputDir.isEmpty())
@@ -127,11 +132,11 @@ bool CmdLineTools::unpackArchive(const QString &inputFile, QString &outputDir, b
 
     int result = 1;
     if (inputFile.endsWith(".zip", Qt::CaseInsensitive))
-        result = ZipUnpack(fileName, outPath, !flattenPath, g_ipc);
+        result = ZipUnpack(fileName, outPath, filter, !flattenPath, g_ipc);
     else if (inputFile.endsWith(".7z", Qt::CaseInsensitive))
-        result = SevenZipUnpack(fileName, outPath, !flattenPath, g_ipc);
+        result = SevenZipUnpack(fileName, outPath, filter, !flattenPath, g_ipc);
     else if (inputFile.endsWith(".rar", Qt::CaseInsensitive))
-        result = RarUnpack(fileName, outPath, !flattenPath, g_ipc);
+        result = RarUnpack(fileName, outPath, filter, !flattenPath, g_ipc);
     else
     {
         PINFO("Archive type is not supported.\n\n");

@@ -326,6 +326,12 @@ int ProcessArguments()
             args.removeAt(l);
             args.removeAt(l--);
         }
+        else if (arg == "--filter-with-ext" && hasValue(args, l))
+        {
+            filter = args[l + 1];
+            args.removeAt(l);
+            args.removeAt(l--);
+        }
         else if (arg == "--remove-empty-mips")
         {
             removeEmptyMips = true;
@@ -782,7 +788,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.unpackArchive(input, output, flattenPath))
+        if (!tools.unpackArchive(input, output, filter, flattenPath))
             errorCode = 1;
         break;
     case CmdType::LIST_ARCHIVE:

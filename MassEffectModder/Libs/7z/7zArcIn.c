@@ -1751,7 +1751,8 @@ SRes SzArEx_ExtractFolderToStream(const CSzArEx *p,
     UInt32 folderIndex,
     SzArEx_StreamOutEntry *streamOutInfo,
     ISzAllocPtr allocTemp,
-    UnpackProgressCallback callbackProgress)
+    UnpackProgressCallback callbackProgress,
+    UnpackCurFileCallback curFile)
 {
     SRes res = SZ_OK;
     CSzFolder folder;
@@ -1781,7 +1782,8 @@ SRes SzArEx_ExtractFolderToStream(const CSzArEx *p,
                            streamOutInfo,
                            folderIndex,
                            allocTemp,
-                           callbackProgress
+                           callbackProgress,
+                           curFile
                            );
     return res;
 }

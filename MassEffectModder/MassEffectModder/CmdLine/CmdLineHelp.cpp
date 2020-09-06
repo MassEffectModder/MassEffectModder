@@ -216,7 +216,7 @@ void DisplayHelp()
         "     game id: 1 for ME1, 2 for ME2, 3 for ME3\n" \
         "     Set game data path to <path>.\n" \
         "\n" \
-        "  --unpack-archive --input <zip/7z/rar file> [--output <output path>] [--flatten-archive-path] [--ipc]\n" \
+        "  --unpack-archive --input <zip/7z/rar file> [--output <output path>] [--flatten-archive-path] [--filter-with-ext <ext>] [--ipc]\n" \
         "     Unpack ZIP/7ZIP/RAR archive file.\n" \
         "\n" \
         "  --list-archive --input <zip/7z/rar file> [--ipc]\n" \

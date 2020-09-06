@@ -161,6 +161,24 @@ static int MyCreateDir(const char *name)
 }
 #endif
 
+#if defined(_WIN32)
+static int compareExt(wchar_t *filename, const wchar_t *ext)
+{
+    wchar_t *pExt = wcsrchr(filename, L'.');
+    if (pExt == NULL)
+        return 0;
+    return wcscasecmp(&pExt[1], ext) == 0;
+}
+#else
+static int compareExt(char *filename, const char *ext)
+{
+    char *pExt = strrchr(filename, '.');
+    if (pExt == NULL)
+        return 0;
+    return strcasecmp(&pExt[1], ext) == 0;
+}
+#endif
+
 static int g_ipc;
 static int lastProgress;
 static uint64_t progressUnpackedSize;
@@ -186,9 +204,11 @@ static void PrintProgressIpc(uint64_t processedBytes)
 }
 
 #if defined(_WIN32)
-int unrar_unpack(const wchar_t *path, const wchar_t *output_path, int full_path, int ipc) {
+int unrar_unpack(const wchar_t *path, const wchar_t *output_path,
+                 const wchar_t *filter, int full_path, int ipc) {
 #else
-int unrar_unpack(const char *path, const char *output_path, int full_path, int ipc) {
+int unrar_unpack(const char *path, const char *output_path,
+                 const char *filter, int full_path, int ipc) {
 #endif
     int status = 0;
 
@@ -252,6 +272,11 @@ int unrar_unpack(const char *path, const char *output_path, int full_path, int i
                 printf("%lu of %zu - %s - Ok\n", (i + 1), dmc_unrar_get_file_count(&archive), fileName);
 #endif
             }
+            continue;
+        }
+
+        if (filter[0] != 0 && !compareExt((char *)fileName, filter)) {
+            totalUnpackedSize -= file->uncompressed_size;
             continue;
         }
 

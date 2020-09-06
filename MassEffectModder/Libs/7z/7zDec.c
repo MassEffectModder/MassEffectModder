@@ -189,7 +189,7 @@ static SRes SzDecodeLzma(const Byte *props, unsigned propsSize, UInt64 inSize, I
 
 static SRes SzDecodeLzmaStream(const Byte *props, unsigned propsSize, UInt64 packedSize, ILookInStream *inStream,
                                SizeT unpackSize, SzArEx_StreamOutEntry *streamOutInfo, UInt32 folderIndex,
-                               ISzAllocPtr allocMain, UnpackProgressCallback callbackProgress)
+                               ISzAllocPtr allocMain, UnpackProgressCallback callbackProgress, UnpackCurFileCallback curFile)
 {
     CLzmaDec state;
     UInt32 fileIndex = 0;
@@ -200,6 +200,9 @@ static SRes SzDecodeLzmaStream(const Byte *props, unsigned propsSize, UInt64 pac
     LzmaDec_Init(&state);
 
     Byte *outBuf = (Byte *)ISzAlloc_Alloc(allocMain, OUT_BUF_SIZE);
+
+    if (curFile)
+        curFile(streamOutInfo);
 
     const void *inBuf = NULL;
     SRes res = SZ_OK;
@@ -246,10 +249,13 @@ static SRes SzDecodeLzmaStream(const Byte *props, unsigned propsSize, UInt64 pac
             break;
         }
 
-        if (streamOutInfo[fileIndex].outStream.vt.Write(&streamOutInfo[fileIndex].outStream.vt, outBuf, outProcessed) != outProcessed)
+        if (streamOutInfo[fileIndex].outStream.file.file)
         {
-            res = SZ_ERROR_WRITE;
-            break;
+            if (streamOutInfo[fileIndex].outStream.vt.Write(&streamOutInfo[fileIndex].outStream.vt, outBuf, outProcessed) != outProcessed)
+            {
+                res = SZ_ERROR_WRITE;
+                break;
+            }
         }
 
         inPos += inProcessed;
@@ -287,6 +293,8 @@ static SRes SzDecodeLzmaStream(const Byte *props, unsigned propsSize, UInt64 pac
                 break;
             }
             offsetStreamOut = 0;
+            if (curFile)
+                curFile(&streamOutInfo[fileIndex]);
         }
 
         res = ILookInStream_Skip(inStream, inProcessed);
@@ -357,10 +365,11 @@ static SRes SzDecodeLzma2(const Byte *props, unsigned propsSize, UInt64 inSize, 
 
 static SRes SzDecodeLzma2Stream(const Byte *props, unsigned propsSize, UInt64 packedSize, ILookInStream *inStream,
                                 SizeT unpackSize, SzArEx_StreamOutEntry *streamOutInfo, UInt32 folderIndex,
-                                ISzAllocPtr allocMain, UnpackProgressCallback callbackProgress)
+                                ISzAllocPtr allocMain, UnpackProgressCallback callbackProgress, UnpackCurFileCallback curFile)
 {
     CLzma2Dec state;
     UInt32 fileIndex = 0;
+    UInt32 CRC = CRC_INIT_VAL;
 
     Lzma2Dec_Construct(&state);
     if (propsSize != 1)
@@ -369,6 +378,9 @@ static SRes SzDecodeLzma2Stream(const Byte *props, unsigned propsSize, UInt64 pa
     Lzma2Dec_Init(&state);
 
     Byte *outBuf = (Byte *)ISzAlloc_Alloc(allocMain, OUT_BUF_SIZE);
+
+    if (curFile)
+        curFile(streamOutInfo);
 
     const void *inBuf = NULL;
     SRes res = SZ_OK;
@@ -415,10 +427,13 @@ static SRes SzDecodeLzma2Stream(const Byte *props, unsigned propsSize, UInt64 pa
             break;
         }
 
-        if (streamOutInfo[fileIndex].outStream.vt.Write(&streamOutInfo[fileIndex].outStream.vt, outBuf, outProcessed) != outProcessed)
+        if (streamOutInfo[fileIndex].outStream.file.file)
         {
-            res = SZ_ERROR_WRITE;
-            break;
+            if (streamOutInfo[fileIndex].outStream.vt.Write(&streamOutInfo[fileIndex].outStream.vt, outBuf, outProcessed) != outProcessed)
+            {
+                res = SZ_ERROR_WRITE;
+                break;
+            }
         }
 
         inPos += inProcessed;
@@ -435,9 +450,17 @@ static SRes SzDecodeLzma2Stream(const Byte *props, unsigned propsSize, UInt64 pa
         if (callbackProgress)
             callbackProgress(outProcessed);
 
+        CRC = CrcUpdate(CRC, outBuf, outProcessed);
         // check for end of output stream
         if (offsetStreamOut == streamOutInfo[fileIndex].UnpackSize)
         {
+            CRC = CRC_GET_DIGEST(CRC);
+            if (CRC != streamOutInfo[fileIndex].CRC)
+            {
+                res = SZ_ERROR_CRC;
+                break;
+            }
+            CRC = CRC_INIT_VAL;
             File_Close(&streamOutInfo[fileIndex].outStream.file);
             fileIndex++;
             // check for end of input stream
@@ -448,6 +471,8 @@ static SRes SzDecodeLzma2Stream(const Byte *props, unsigned propsSize, UInt64 pa
                 break;
             }
             offsetStreamOut = 0;
+            if (curFile)
+                curFile(&streamOutInfo[fileIndex]);
         }
 
         res = ILookInStream_Skip(inStream, inProcessed);
@@ -481,10 +506,14 @@ static SRes SzDecodeCopy(UInt64 inSize, ILookInStream *inStream, Byte *outBuffer
 }
 
 static SRes SzDecodeCopyStream(UInt64 inSize, ILookInStream *inStream, SzArEx_StreamOutEntry *streamOutInfo,
-                               UInt32 folderIndex, UnpackProgressCallback callbackProgress)
+                               UInt32 folderIndex, UnpackProgressCallback callbackProgress, UnpackCurFileCallback curFile)
 {
     size_t offsetStreamOut = 0;
     UInt32 fileIndex = 0;
+    UInt32 CRC = CRC_INIT_VAL;
+
+    if (curFile)
+        curFile(streamOutInfo);
 
     while (inSize > 0)
     {
@@ -499,9 +528,12 @@ static SRes SzDecodeCopyStream(UInt64 inSize, ILookInStream *inStream, SzArEx_St
         {
             curSize = streamOutInfo[fileIndex].UnpackSize - offsetStreamOut;
         }
-        if (streamOutInfo[fileIndex].outStream.vt.Write(&streamOutInfo[fileIndex].outStream.vt, inBuf, curSize) != curSize)
+        if (streamOutInfo[fileIndex].outStream.file.file)
         {
-            return SZ_ERROR_WRITE;
+            if (streamOutInfo[fileIndex].outStream.vt.Write(&streamOutInfo[fileIndex].outStream.vt, inBuf, curSize) != curSize)
+            {
+                return SZ_ERROR_WRITE;
+            }
         }
         inSize -= curSize;
         offsetStreamOut += curSize;
@@ -514,9 +546,16 @@ static SRes SzDecodeCopyStream(UInt64 inSize, ILookInStream *inStream, SzArEx_St
         if (callbackProgress)
             callbackProgress(curSize);
 
+        CRC = CrcUpdate(CRC, inBuf, curSize);
         // check for end of output stream
         if (offsetStreamOut == streamOutInfo[fileIndex].UnpackSize)
         {
+            CRC = CRC_GET_DIGEST(CRC);
+            if (CRC != streamOutInfo[fileIndex].CRC)
+            {
+                return SZ_ERROR_CRC;
+            }
+            CRC = CRC_INIT_VAL;
             File_Close(&streamOutInfo[fileIndex].outStream.file);
             fileIndex++;
             // check for end of input stream
@@ -527,6 +566,8 @@ static SRes SzDecodeCopyStream(UInt64 inSize, ILookInStream *inStream, SzArEx_St
                 break;
             }
             offsetStreamOut = 0;
+            if (curFile)
+                curFile(&streamOutInfo[fileIndex]);
         }
 
         RINOK(ILookInStream_Skip(inStream, curSize));
@@ -825,7 +866,8 @@ SRes SzFolder_Decode3(const CSzFolder *folder,
     SzArEx_StreamOutEntry *streamOutInfo,
     UInt32 folderIndex,
     ISzAllocPtr allocMain,
-    UnpackProgressCallback callbackProgress)
+    UnpackProgressCallback callbackProgress,
+    UnpackCurFileCallback curFile)
 {
     UInt32 ci;
 
@@ -846,18 +888,18 @@ SRes SzFolder_Decode3(const CSzFolder *folder,
             {
                 if (inSize != outSize) /* check it */
                   return SZ_ERROR_DATA;
-                RINOK(SzDecodeCopyStream(inSize, inStream, streamOutInfo, folderIndex, callbackProgress));
+                RINOK(SzDecodeCopyStream(inSize, inStream, streamOutInfo, folderIndex, callbackProgress, curFile));
             }
             else if (coder->MethodID == k_LZMA)
             {
                 RINOK(SzDecodeLzmaStream(propsData + coder->PropsOffset, coder->PropsSize, inSize, inStream,
-                                         outSize, streamOutInfo, folderIndex, allocMain, callbackProgress));
+                                         outSize, streamOutInfo, folderIndex, allocMain, callbackProgress, curFile));
             }
             #ifndef _7Z_NO_METHOD_LZMA2
             else if (coder->MethodID == k_LZMA2)
             {
                 RINOK(SzDecodeLzma2Stream(propsData + coder->PropsOffset, coder->PropsSize, inSize, inStream,
-                                          outSize, streamOutInfo, folderIndex, allocMain, callbackProgress));
+                                          outSize, streamOutInfo, folderIndex, allocMain, callbackProgress, curFile));
             }
             #endif
             else

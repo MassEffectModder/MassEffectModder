@@ -103,6 +103,7 @@ typedef struct
 {
     CFileOutStream outStream;
     UInt32 folderIndex;
+    UInt32 entryIndex;
     unsigned isDir;
 #ifdef _WIN32
     wchar_t path[MAX_PATH];
@@ -115,6 +116,7 @@ typedef struct
 } SzArEx_StreamOutEntry;
 
 typedef void (*UnpackProgressCallback)(UInt64);
+typedef void (*UnpackCurFileCallback)(SzArEx_StreamOutEntry *);
 
 UInt64 SzAr_GetFolderUnpackSize(const CSzAr *p, UInt32 folderIndex);
 
@@ -131,7 +133,8 @@ SRes SzFolder_Decode3(const CSzFolder *folder,
     SzArEx_StreamOutEntry *streamOutInfo,
     UInt32 folderIndex,
     ISzAllocPtr allocMain,
-    UnpackProgressCallback callbackProgress);
+    UnpackProgressCallback callbackProgress,
+    UnpackCurFileCallback curFile);
 
 typedef struct
 {
@@ -220,7 +223,8 @@ SRes SzArEx_ExtractFolderToStream(const CSzArEx *p,
                             UInt32 folderIndex,
                             SzArEx_StreamOutEntry *streamOutInfo,
                             ISzAllocPtr allocTemp,
-                            UnpackProgressCallback callbackProgress);
+                            UnpackProgressCallback callbackProgress,
+                            UnpackCurFileCallback curFile);
 
 /*
 SzArEx_Open Errors:
