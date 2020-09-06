@@ -49,7 +49,7 @@ SOURCES += \
 
 HEADERS += Wrappers.h
 
-!macx {
+equals(QMAKE_CXX, g++) {
 QMAKE_CXXFLAGS += -Wno-format-truncation -Wno-stringop-truncation
 }
 QMAKE_CXXFLAGS +=

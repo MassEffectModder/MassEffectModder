@@ -42,7 +42,7 @@ HEADERS += \
     LzmaLib.h \
     Precomp.h
 
-!macx {
+equals(QMAKE_CXX, g++) {
 QMAKE_CFLAGS += -Wno-format-truncation -Wno-stringop-truncation
 }
 QMAKE_CFLAGS += -D_7ZIP_ST -D_7Z_NO_METHODS_FILTERS -O3

@@ -11,7 +11,7 @@ HEADERS += \
 
 DEFINES +=
 
-!macx {
+equals(QMAKE_CXX, g++) {
 QMAKE_CFLAGS += -Wno-format-truncation -Wno-stringop-truncation
 }
 QMAKE_CFLAGS += -O3
