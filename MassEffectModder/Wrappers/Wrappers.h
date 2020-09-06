@@ -43,10 +43,13 @@ int ZipLocateFile(void *handle, const char *filename);
 int ZipReadCurrentFile(void *handle, BYTE *dst, UINT64 dst_len, const BYTE *pass);
 void ZipClose(void *handle);
 int ZipUnpack(const void *path, const void *output_path, bool full_path, bool ipc = false);
+int ZipList(const void *path, bool ipc = false);
 
 int SevenZipUnpack(const void *path, const void *output_path, bool full_path, bool ipc = false);
+int SevenZipList(const void *path, bool ipc = false);
 
 int RarUnpack(const void *path, const void *output_path, bool full_path, bool ipc = false);
+int RarList(const void *path, bool ipc = false);
 
 int XDelta3Compress(BYTE *src1, BYTE *src2, UINT32 src_len, BYTE *delta, UINT32 *delta_len);
 int XDelta3Decompress(BYTE *src, UINT32 src_len, BYTE *delta, UINT32 delta_len, BYTE *dst, UINT32 *dst_len);

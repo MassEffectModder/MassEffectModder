@@ -38,6 +38,7 @@ public:
     bool unpackAllDLCs();
     bool repackGame(MeType gameId);
     bool unpackArchive(const QString &inputFile, QString &outputDir, bool flattenPath);
+    bool listArchive(const QString &inputFile);
     bool applyModTag(MeType gameId, int MeuitmV, int AlotV);
     bool ConvertToMEM(MeType gameId, QString &inputDir, QString &memFile, bool markToConvert);
     bool convertGameTexture(MeType gameId, const QString &inputFile, QString &outputFile,

@@ -127,6 +127,8 @@ int ProcessArguments()
             cmd = CmdType::COMPACT_DLC;
         else if (arg == "--unpack-archive")
             cmd = CmdType::UNPACK_ARCHIVE;
+        else if (arg == "--list-archive")
+            cmd = CmdType::LIST_ARCHIVE;
         else if (arg == "--set-game-data-path")
             cmd = CmdType::SET_GAME_DATA_PATH;
 #if !defined(_WIN32)
@@ -781,6 +783,16 @@ int ProcessArguments()
             break;
         }
         if (!tools.unpackArchive(input, output, flattenPath))
+            errorCode = 1;
+        break;
+    case CmdType::LIST_ARCHIVE:
+        if (!QFile(input).exists())
+        {
+            PERROR("Input file doesn't exists!\n");
+            errorCode = 1;
+            break;
+        }
+        if (!tools.listArchive(input))
             errorCode = 1;
         break;
     case CmdType::SET_GAME_DATA_PATH:

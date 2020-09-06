@@ -217,7 +217,10 @@ void DisplayHelp()
         "     Set game data path to <path>.\n" \
         "\n" \
         "  --unpack-archive --input <zip/7z/rar file> [--output <output path>] [--flatten-archive-path] [--ipc]\n" \
-        "     Unpack ZIP/7ZIP/RAR file.\n" \
+        "     Unpack ZIP/7ZIP/RAR archive file.\n" \
+        "\n" \
+        "  --list-archive --input <zip/7z/rar file> [--ipc]\n" \
+        "     List content of ZIP/7ZIP/RAR archive file.\n" \
         "\n";
 #if !defined(_WIN32)
     help +=

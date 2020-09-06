@@ -26,8 +26,10 @@
 extern "C" {
 #if defined(_WIN32)
 int sevenzip_unpack(const wchar_t *path, const wchar_t *output_path, int full_path, int ipc);
+int sevenzip_list(const wchar_t *path, int ipc);
 #else
 int sevenzip_unpack(const char *path, const char *output_path, int full_path, int ipc);
+int sevenzip_list(const char *path, int ipc);
 #endif
 }
 
@@ -134,5 +136,14 @@ int SevenZipUnpack(const void *path, const void *output_path, bool full_path, bo
 #else
     return sevenzip_unpack(static_cast<const char *>(path),
                         static_cast<const char *>(output_path), (int)full_path, (int)ipc);
+#endif
+}
+
+int SevenZipList(const void *path, bool ipc)
+{
+#if defined(_WIN32)
+    return sevenzip_list(static_cast<const wchar_t *>(path), (int)ipc);
+#else
+    return sevenzip_list(static_cast<const char *>(path), (int)ipc);
 #endif
 }

@@ -146,6 +146,39 @@ bool CmdLineTools::unpackArchive(const QString &inputFile, QString &outputDir, b
     return result == 0;
 }
 
+bool CmdLineTools::listArchive(const QString &inputFile)
+{
+#if defined(_WIN32)
+    auto strFile = inputFile.toStdWString();
+    auto fileName = strFile.c_str();
+#else
+    auto strFile = inputFile.toUtf8();
+    auto fileName = strFile.constData();
+#endif
+
+    PINFO(QString("Listing archive: " + inputFile + "\n\n"));
+
+    int result = 1;
+    if (inputFile.endsWith(".zip", Qt::CaseInsensitive))
+        result = ZipList(fileName, g_ipc);
+    else if (inputFile.endsWith(".7z", Qt::CaseInsensitive))
+        result = SevenZipList(fileName, g_ipc);
+    else if (inputFile.endsWith(".rar", Qt::CaseInsensitive))
+        result = RarList(fileName, g_ipc);
+    else
+    {
+        PINFO("Archive type is not supported.\n\n");
+        return false;
+    }
+
+    if (result == 0)
+        PINFO("\nListing completed successfully.\n\n");
+    else
+        PINFO("\nListing failed.\n\n");
+
+    return result == 0;
+}
+
 bool CmdLineTools::ConvertToMEM(MeType gameId, QString &inputDir, QString &memFile, bool markToConvert)
 {
     QList<TextureMapEntry> textures;

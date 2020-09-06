@@ -55,6 +55,7 @@ typedef enum : int
     EXTRACT_ALL_BIK,
     COMPACT_DLC,
     UNPACK_ARCHIVE,
+    LIST_ARCHIVE,
     SET_GAME_DATA_PATH,
 #if !defined(_WIN32)
     SET_GAME_USER_PATH,

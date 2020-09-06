@@ -566,7 +566,7 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
                 if (!ipc)
                 {
 #if defined(_WIN32)
-                    wprintf(L"%d of %d - %s - Ok\n", (i + 1), db.NumFiles, streamOutInfo[i].path);
+                    wprintf(L"%d of %d - %ls - Ok\n", (i + 1), db.NumFiles, streamOutInfo[i].path);
 #else
                     printf("%d of %d - %s - Ok\n", (i + 1), db.NumFiles, streamOutInfo[i].path);
 #endif
@@ -577,7 +577,7 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
                 if (ipc)
                 {
 #if defined(_WIN32)
-                    wprintf(L"[IPC]FILENAME %s\n", streamOutInfo[i].path);
+                    wprintf(L"[IPC]FILENAME %ls\n", streamOutInfo[i].path);
 #else
                     printf("[IPC]FILENAME %s\n", streamOutInfo[i].path);
 #endif
@@ -586,10 +586,10 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
                 else
                 {
 #if defined(_WIN32)
-                    wprintf(L"%d of %d - %s - size %lld - ", (i + 1),
+                    wprintf(L"%d of %d - %ls - size %llu - ", (i + 1),
                             db.NumFiles, streamOutInfo[i].path, streamOutInfo[i].UnpackSize);
 #else
-                    printf("%d of %d - %s - size %lld - ", (i + 1),
+                    printf("%d of %d - %s - size %llu - ", (i + 1),
                            db.NumFiles, streamOutInfo[i].path, streamOutInfo[i].UnpackSize);
 #endif
                 }
@@ -621,6 +621,165 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
     }
 
     SzFree(NULL, streamOutInfo);
+    SzFree(NULL, temp);
+    SzArEx_Free(&db, &allocImp);
+    ISzAlloc_Free(&allocImp, lookStream.buf);
+
+    if (res == SZ_OK)
+    {
+        return 0;
+    }
+
+    return 1;
+}
+
+#ifdef USE_WINDOWS_FILE
+int sevenzip_list(const wchar_t *path, int ipc)
+#else
+int sevenzip_list(const char *path, int ipc)
+#endif
+{
+    ISzAlloc allocImp;
+    ISzAlloc allocTempImp;
+    CFileInStream archiveStream;
+    CLookToRead2 lookStream;
+    CSzArEx db;
+    SRes res;
+    UInt16 *temp = NULL;
+    size_t tempSize = 0;
+    SzArEx_StreamOutEntry *streamOutInfo = NULL;
+
+    g_ipc = ipc;
+    lastProgress = -1;
+    totalUnpackedSize = 0;
+
+#if defined(_WIN32) && !defined(USE_WINDOWS_FILE)
+    g_FileCodePage = AreFileApisANSI() ? CP_ACP : CP_OEMCP;
+#endif
+
+    allocImp = g_Alloc;
+    allocTempImp = g_Alloc;
+
+#ifdef USE_WINDOWS_FILE
+    if (InFile_OpenW(&archiveStream.file, path))
+#else
+    if (InFile_Open(&archiveStream.file, path))
+#endif
+    {
+#ifdef USE_WINDOWS_FILE
+        fwprintf(stderr, L"Error: Failed to open file!\n");
+#else
+        fprintf(stderr, "Error: Failed to open file!\n");
+#endif
+        return 1;
+    }
+
+    FileInStream_CreateVTable(&archiveStream);
+    LookToRead2_CreateVTable(&lookStream, False);
+    lookStream.buf = NULL;
+
+    res = SZ_OK;
+    lookStream.buf = ISzAlloc_Alloc(&allocImp, kInputBufSize);
+    if (!lookStream.buf)
+    {
+        return 1;
+    }
+
+    lookStream.bufSize = kInputBufSize;
+    lookStream.realStream = &archiveStream.vt;
+    LookToRead2_Init(&lookStream);
+
+    CrcGenerateTable();
+
+    SzArEx_Init(&db);
+
+    res = SzArEx_Open(&db, &lookStream.vt, &allocImp, &allocTempImp);
+    if (res != SZ_OK)
+    {
+        if (res == SZ_ERROR_UNSUPPORTED)
+#ifdef USE_WINDOWS_FILE
+            fwprintf(stderr, L"Error: Decoder doesn't support this archive!");
+#else
+            fprintf(stderr, "Error: Decoder doesn't support this archive!");
+#endif
+        else if (res == SZ_ERROR_MEM)
+#ifdef USE_WINDOWS_FILE
+            fwprintf(stderr, L"Error: Can not allocate memory!");
+#else
+            fprintf(stderr, "Error: Can not allocate memory!");
+#endif
+        else if (res == SZ_ERROR_CRC)
+#ifdef USE_WINDOWS_FILE
+            fwprintf(stderr, L"Error: CRC error!");
+#else
+            fprintf(stderr, "Error: CRC error!");
+#endif
+        else
+#ifdef USE_WINDOWS_FILE
+            fwprintf(stderr, L"Error: Failed to open archive!\n");
+#else
+            fprintf(stderr, "Error: Failed to open archive!\n");
+#endif
+        return 1;
+    }
+
+    UInt32 i;
+
+    for (i = 0; i < db.NumFiles; i++)
+    {
+        size_t len;
+        streamOutInfo[i].isDir = SzArEx_IsDir(&db, i);
+        if (streamOutInfo[i].isDir)
+        {
+            continue;
+        }
+        len = SzArEx_GetFileNameUtf16(&db, i, NULL);
+
+        if (len > tempSize)
+        {
+            SzFree(NULL, temp);
+            tempSize = len;
+            temp = (UInt16 *)SzAlloc(NULL, tempSize * sizeof(temp[0]));
+            if (!temp)
+            {
+                res = SZ_ERROR_MEM;
+                break;
+            }
+        }
+
+        SzArEx_GetFileNameUtf16(&db, i, temp);
+
+#ifdef USE_WINDOWS_FILE
+        wchar_t *fileName = (UInt16 *)temp;
+#else
+        CBuf buf;
+        SRes res;
+        Buf_Init(&buf);
+        res = Utf16_To_Char(&buf, temp);
+        char fileName[buf.size + 1];
+        strcpy(fileName, (const char*)buf.data);
+        Buf_Free(&buf, &g_Alloc);
+#endif
+
+        if (ipc)
+        {
+#if defined(_WIN32)
+            wprintf(L"[IPC]FILENAME %ls\n", fileName);
+#else
+            printf("[IPC]FILENAME %s\n", fileName);
+#endif
+            fflush(stdout);
+        }
+        else
+        {
+#if defined(_WIN32)
+            wprintf(L"%ls\n", fileName);
+#else
+            printf("%s\n", fileName);
+#endif
+        }
+    }
+
     SzFree(NULL, temp);
     SzArEx_Free(&db, &allocImp);
     ISzAlloc_Free(&allocImp, lookStream.buf);

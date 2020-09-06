@@ -401,7 +401,7 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path, bool ip
             if (!ipc)
             {
 #if defined(_WIN32)
-                wprintf(L"%d of %d - %s - Ok\n", (i + 1), numEntries, fileName);
+                wprintf(L"%d of %d - %ls - Ok\n", (i + 1), numEntries, fileName);
 #else
                 printf("%d of %d - %s - Ok\n", (i + 1), numEntries, fileName);
 #endif
@@ -413,7 +413,7 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path, bool ip
         if (ipc)
         {
 #if defined(_WIN32)
-            wprintf(L"[IPC]FILENAME %s\n", fileName);
+            wprintf(L"[IPC]FILENAME %ls\n", fileName);
 #else
             printf("[IPC]FILENAME %s\n", fileName);
 #endif
@@ -422,7 +422,7 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path, bool ip
         else
         {
 #if defined(_WIN32)
-            wprintf(L"%d of %d - %s - size %llu - ", (i + 1), numEntries, fileName, dstLen);
+            wprintf(L"%d of %d - %ls - size %llu - ", (i + 1), numEntries, fileName, dstLen);
 #else
             printf("%d of %d - %s - size %llu - ", (i + 1), numEntries, fileName, dstLen);
 #endif
@@ -569,6 +569,70 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path, bool ip
             wprintf(L"Ok\n");
 #else
             printf("Ok\n");
+#endif
+        }
+        ZipGoToNextFile(handle);
+    }
+
+    ZipClose(handle);
+    handle = nullptr;
+    fflush(stdout);
+    fflush(stderr);
+
+    return result;
+
+failed:
+
+    if (handle != nullptr)
+        ZipClose(handle);
+    handle = nullptr;
+
+    return 1;
+}
+
+int ZipList(const void *path, bool ipc)
+{
+    int result = 0;
+    unsigned long long dstLen = 0;
+    int numEntries = 0;
+    char fileName[260];
+
+    void *handle = ZipOpenFromFile(path, &numEntries, 0);
+    if (handle == nullptr)
+    {
+#if defined(_WIN32)
+        fwprintf(stderr, L"Error: Failed to open archive!\n");
+#else
+        fprintf(stderr, "Error: Failed to open archive!\n");
+#endif
+        goto failed;
+    }
+
+    for (int i = 0; i < numEntries; i++)
+    {
+        unsigned long fileFlags = 0;
+        result = ZipGetCurrentFileInfo(handle, fileName, sizeof (fileName), &dstLen, &fileFlags);
+        if (dstLen == 0)
+        {
+            ZipGoToNextFile(handle);
+            continue;
+        }
+
+        if (ipc)
+        {
+#if defined(_WIN32)
+            wprintf(L"[IPC]FILENAME %ls\n", fileName);
+#else
+            printf("[IPC]FILENAME %s\n", fileName);
+#endif
+            fflush(stdout);
+        }
+        else
+        {
+#if defined(_WIN32)
+            wprintf(L"%ls\n", fileName);
+#else
+            printf("%s\n", fileName);
 #endif
         }
         ZipGoToNextFile(handle);

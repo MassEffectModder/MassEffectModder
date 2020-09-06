@@ -411,3 +411,90 @@ int unrar_unpack(const char *path, const char *output_path, int full_path, int i
 
     return status;
 }
+
+#if defined(_WIN32)
+int unrar_list(const wchar_t *path, int ipc) {
+#else
+int unrar_list(const char *path, int ipc) {
+#endif
+    int status = 0;
+
+    g_ipc = ipc;
+    lastProgress = -1;
+    totalUnpackedSize = 0;
+
+    if (!dmc_unrar_is_rar_path((char *)path))
+        return 1;
+
+    dmc_unrar_archive archive;
+    dmc_unrar_return return_code;
+
+    return_code = dmc_unrar_archive_init(&archive);
+    if (return_code != DMC_UNRAR_OK) {
+#if defined(_WIN32)
+        fwprintf(stderr, L"Error: Unrar init failed: %s\n", dmc_unrar_strerror(return_code));
+#else
+        fprintf(stderr, "Error: Unrar init failed: %s\n", dmc_unrar_strerror(return_code));
+#endif
+        return 1;
+    }
+
+    return_code = dmc_unrar_archive_open_path(&archive, (char *)path);
+    if (return_code != DMC_UNRAR_OK) {
+#if defined(_WIN32)
+        fwprintf(stderr, L"Error: Failed open archive: %s\n", dmc_unrar_strerror(return_code));
+#else
+        fprintf(stderr, "Error: Failed open archive: %s\n", dmc_unrar_strerror(return_code));
+#endif
+        return 1;
+    }
+
+    for (size_t i = 0; i < dmc_unrar_get_file_count(&archive); i++) {
+#if defined(_WIN32)
+        const wchar_t *fileName = get_filename_unicode(&archive, i);
+#else
+        const char *fileName = get_filename_utf8(&archive, i);
+#endif
+        if (!fileName) {
+#if defined(_WIN32)
+            fwprintf(stderr, L"Failed to get name from archive, aborting\n");
+#else
+            fprintf(stderr, "Failed to get name from archive, aborting\n");
+#endif
+            continue;
+        }
+
+        if (dmc_unrar_file_is_directory(&archive, i)) {
+            continue;
+        }
+
+#if defined(_WIN32)
+        if (ipc)
+        {
+            wprintf(L"[IPC]FILENAME %ls\n", fileName);
+            fflush(stdout);
+        }
+        else
+        {
+            wprintf(L"%ls\n", fileName);
+        }
+
+#else
+        if (ipc)
+        {
+            printf("[IPC]FILENAME %s\n", fileName);
+            fflush(stdout);
+        }
+        else
+        {
+            printf("%s\n", fileName);
+        }
+#endif
+
+        free((void *)fileName);
+    }
+
+    dmc_unrar_archive_close(&archive);
+
+    return status;
+}
