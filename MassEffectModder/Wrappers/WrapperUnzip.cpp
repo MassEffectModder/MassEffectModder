@@ -236,7 +236,8 @@ int ZipReadCurrentFile(void *handle, unsigned char *dst, unsigned long long dst_
     return 0;
 }
 
-int ZipReadCurrentFileToOutputFile(void *handle, const void *outputFile)
+int ZipReadCurrentFileToOutputFile(void *handle, const void *outputFile,
+                                   unzipProgressCallback_def callbackProgress)
 {
     auto unzipHandle = static_cast<UnzipHandle *>(handle);
     char fileName[260];
@@ -256,7 +257,7 @@ int ZipReadCurrentFileToOutputFile(void *handle, const void *outputFile)
 
     result = unzReadCurrentFileToOutputFile(unzipHandle->file, outputFile,
                                             unzipHandle->curFileInfo.uncompressed_size,
-                                            &unzipHandle->api);
+                                            &unzipHandle->api, callbackProgress);
     if (result < 0)
         return result;
 
@@ -321,6 +322,30 @@ static int MyCreateDir(const char *name)
 }
 #endif
 
+static bool g_ipc;
+static int lastProgress;
+static ZPOS64_T progressUnpackedSize;
+static ZPOS64_T totalUnpackedSize;
+
+static void PrintProgressIpc(ZPOS64_T processedBytes)
+{
+    if (g_ipc)
+    {
+        progressUnpackedSize += processedBytes;
+        int newProgress = progressUnpackedSize * 100 / totalUnpackedSize;
+        if (lastProgress != newProgress)
+        {
+            lastProgress = newProgress;
+#if defined(_WIN32)
+            wprintf(L"[IPC]TASK_PROGRESS %d\n", newProgress);
+#else
+            printf("[IPC]TASK_PROGRESS %d\n", newProgress);
+#endif
+            fflush(stdout);
+        }
+    }
+}
+
 int ZipUnpack(const void *path, const void *output_path, bool full_path, bool ipc)
 {
     int result = 0;
@@ -332,7 +357,10 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path, bool ip
     auto outputDir = static_cast<const char *>(output_path);
 #endif
     char fileName[260];
-    int lastProgress = -1;
+
+    g_ipc = ipc;
+    lastProgress = -1;
+    totalUnpackedSize = 0;
 
     void *handle = ZipOpenFromFile(path, &numEntries, 0);
     if (handle == nullptr)
@@ -358,13 +386,26 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path, bool ip
 #endif
             goto failed;
         }
+        totalUnpackedSize += dstLen;
+        ZipGoToNextFile(handle);
+        continue;
+    }
+
+    ZipGoToFirstFile(handle);
+    for (int i = 0; i < numEntries; i++)
+    {
+        unsigned long fileFlags = 0;
+        result = ZipGetCurrentFileInfo(handle, fileName, sizeof (fileName), &dstLen, &fileFlags);
         if (dstLen == 0)
         {
+            if (!ipc)
+            {
 #if defined(_WIN32)
-            wprintf(L"%d of %d - %s - Ok\n", (i + 1), numEntries, fileName);
+                wprintf(L"%d of %d - %s - Ok\n", (i + 1), numEntries, fileName);
 #else
-            printf("%d of %d - %s - Ok\n", (i + 1), numEntries, fileName);
+                printf("%d of %d - %s - Ok\n", (i + 1), numEntries, fileName);
 #endif
+            }
             ZipGoToNextFile(handle);
             continue;
         }
@@ -376,24 +417,16 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path, bool ip
 #else
             printf("[IPC]FILENAME %s\n", fileName);
 #endif
-            int newProgress = i * 100 / numEntries;
-            if (lastProgress != newProgress)
-            {
-                lastProgress = newProgress;
-#if defined(_WIN32)
-                wprintf(L"[IPC]TASK_PROGRESS %d\n", newProgress);
-#else
-                printf("[IPC]TASK_PROGRESS %d\n", newProgress);
-#endif
-            }
             fflush(stdout);
         }
-
+        else
+        {
 #if defined(_WIN32)
-        wprintf(L"%d of %d - %s - size %lld - ", (i + 1), numEntries, fileName, dstLen);
+            wprintf(L"%d of %d - %s - size %lld - ", (i + 1), numEntries, fileName, dstLen);
 #else
-        printf("%d of %d - %s - size %lld - ", (i + 1), numEntries, fileName, dstLen);
+            printf("%d of %d - %s - size %lld - ", (i + 1), numEntries, fileName, dstLen);
 #endif
+        }
 
 #if defined(_WIN32)
         int size = strlen(fileName) + 1;
@@ -513,7 +546,7 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path, bool ip
         }
 #endif
 
-        result = ZipReadCurrentFileToOutputFile(handle, outputFile);
+        result = ZipReadCurrentFileToOutputFile(handle, outputFile, PrintProgressIpc);
         if (result != 0)
         {
 #if defined(_WIN32)
@@ -530,11 +563,14 @@ int ZipUnpack(const void *path, const void *output_path, bool full_path, bool ip
             chmod(outputFile, (fileFlags >> 16) & 0xFFFF);
 #endif
 
+        if (!ipc)
+        {
 #if defined(_WIN32)
-        wprintf(L"Ok\n");
+            wprintf(L"Ok\n");
 #else
-        printf("Ok\n");
+            printf("Ok\n");
 #endif
+        }
         ZipGoToNextFile(handle);
     }
 

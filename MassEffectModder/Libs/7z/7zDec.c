@@ -188,7 +188,8 @@ static SRes SzDecodeLzma(const Byte *props, unsigned propsSize, UInt64 inSize, I
 }
 
 static SRes SzDecodeLzmaStream(const Byte *props, unsigned propsSize, UInt64 packedSize, ILookInStream *inStream,
-                                SizeT unpackSize, SzArEx_StreamOutEntry *streamOutInfo, UInt32 folderIndex, ISzAllocPtr allocMain)
+                               SizeT unpackSize, SzArEx_StreamOutEntry *streamOutInfo, UInt32 folderIndex,
+                               ISzAllocPtr allocMain, UnpackProgressCallback callbackProgress)
 {
     CLzmaDec state;
     UInt32 fileIndex = 0;
@@ -261,6 +262,9 @@ static SRes SzDecodeLzmaStream(const Byte *props, unsigned propsSize, UInt64 pac
             res = SZ_ERROR_DATA;
             break;
         }
+
+        if (callbackProgress)
+            callbackProgress(outProcessed);
 
         CRC = CrcUpdate(CRC, outBuf, outProcessed);
         // check for end of output stream
@@ -352,7 +356,8 @@ static SRes SzDecodeLzma2(const Byte *props, unsigned propsSize, UInt64 inSize, 
 }
 
 static SRes SzDecodeLzma2Stream(const Byte *props, unsigned propsSize, UInt64 packedSize, ILookInStream *inStream,
-                                SizeT unpackSize, SzArEx_StreamOutEntry *streamOutInfo, UInt32 folderIndex, ISzAllocPtr allocMain)
+                                SizeT unpackSize, SzArEx_StreamOutEntry *streamOutInfo, UInt32 folderIndex,
+                                ISzAllocPtr allocMain, UnpackProgressCallback callbackProgress)
 {
     CLzma2Dec state;
     UInt32 fileIndex = 0;
@@ -427,6 +432,9 @@ static SRes SzDecodeLzma2Stream(const Byte *props, unsigned propsSize, UInt64 pa
             break;
         }
 
+        if (callbackProgress)
+            callbackProgress(outProcessed);
+
         // check for end of output stream
         if (offsetStreamOut == streamOutInfo[fileIndex].UnpackSize)
         {
@@ -472,7 +480,8 @@ static SRes SzDecodeCopy(UInt64 inSize, ILookInStream *inStream, Byte *outBuffer
   return SZ_OK;
 }
 
-static SRes SzDecodeCopyStream(UInt64 inSize, ILookInStream *inStream, SzArEx_StreamOutEntry *streamOutInfo, UInt32 folderIndex)
+static SRes SzDecodeCopyStream(UInt64 inSize, ILookInStream *inStream, SzArEx_StreamOutEntry *streamOutInfo,
+                               UInt32 folderIndex, UnpackProgressCallback callbackProgress)
 {
     size_t offsetStreamOut = 0;
     UInt32 fileIndex = 0;
@@ -501,6 +510,9 @@ static SRes SzDecodeCopyStream(UInt64 inSize, ILookInStream *inStream, SzArEx_St
         {
             return SZ_ERROR_DATA;
         }
+
+        if (callbackProgress)
+            callbackProgress(curSize);
 
         // check for end of output stream
         if (offsetStreamOut == streamOutInfo[fileIndex].UnpackSize)
@@ -812,7 +824,8 @@ SRes SzFolder_Decode3(const CSzFolder *folder,
     SizeT outSize,
     SzArEx_StreamOutEntry *streamOutInfo,
     UInt32 folderIndex,
-    ISzAllocPtr allocMain)
+    ISzAllocPtr allocMain,
+    UnpackProgressCallback callbackProgress)
 {
     UInt32 ci;
 
@@ -833,18 +846,18 @@ SRes SzFolder_Decode3(const CSzFolder *folder,
             {
                 if (inSize != outSize) /* check it */
                   return SZ_ERROR_DATA;
-                RINOK(SzDecodeCopyStream(inSize, inStream, streamOutInfo, folderIndex));
+                RINOK(SzDecodeCopyStream(inSize, inStream, streamOutInfo, folderIndex, callbackProgress));
             }
             else if (coder->MethodID == k_LZMA)
             {
                 RINOK(SzDecodeLzmaStream(propsData + coder->PropsOffset, coder->PropsSize, inSize, inStream,
-                                         outSize, streamOutInfo, folderIndex, allocMain));
+                                         outSize, streamOutInfo, folderIndex, allocMain, callbackProgress));
             }
             #ifndef _7Z_NO_METHOD_LZMA2
             else if (coder->MethodID == k_LZMA2)
             {
                 RINOK(SzDecodeLzma2Stream(propsData + coder->PropsOffset, coder->PropsSize, inSize, inStream,
-                                          outSize, streamOutInfo, folderIndex, allocMain));
+                                          outSize, streamOutInfo, folderIndex, allocMain, callbackProgress));
             }
             #endif
             else

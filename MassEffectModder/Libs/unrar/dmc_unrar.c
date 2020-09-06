@@ -534,6 +534,8 @@ typedef struct dmc_unrar_file_tag {
 
 } dmc_unrar_file;
 
+typedef void (*unpack_progress_callback)(uint64_t);
+
 typedef struct dmc_unrar_alloc_tag {
 	dmc_unrar_alloc_func func_alloc;     /**< Memory allocation function, or NULL to use malloc(). */
 	dmc_unrar_realloc_func func_realloc; /**< Memory allocation function, or NULL to use realloc(). */
@@ -714,7 +716,8 @@ void dmc_unrar_archive_close(dmc_unrar_archive *archive);
  *  Returns the number of bytes written to comment. If comment is NULL, this function
  *  returns the number of bytes needed to fully store the comment.
  */
-size_t dmc_unrar_get_archive_comment(dmc_unrar_archive *archive, void *comment, size_t comment_size);
+size_t dmc_unrar_get_archive_comment(dmc_unrar_archive *archive, void *comment, size_t comment_size,
+                                     unpack_progress_callback progress_callback);
 
 /** Return the number of file entries in this RAR archive. */
 size_t dmc_unrar_get_file_count(dmc_unrar_archive *archive);
@@ -764,7 +767,7 @@ dmc_unrar_return dmc_unrar_file_is_supported(dmc_unrar_archive *archive, size_t 
  *  returns the number of bytes needed to fully store the comment.
  */
 size_t dmc_unrar_get_file_comment(dmc_unrar_archive *archive, size_t index,
-	void *comment, size_t comment_size);
+    void *comment, size_t comment_size, unpack_progress_callback progress_callback);
 
 /** Extract a file entry into a pre-allocated memory buffer.
  *
@@ -780,7 +783,8 @@ size_t dmc_unrar_get_file_comment(dmc_unrar_archive *archive, size_t index,
  *  @return An error condition, or DMC_UNRAR_OK if extraction succeeded.
  */
 dmc_unrar_return dmc_unrar_extract_file_to_mem(dmc_unrar_archive *archive, size_t index,
-	void *buffer, size_t buffer_size, size_t *uncompressed_size, bool validate_crc);
+    void *buffer, size_t buffer_size, size_t *uncompressed_size, bool validate_crc,
+                                               unpack_progress_callback progress_callback);
 
 /** Extract a file entry into a dynamically allocated heap buffer.
  *
@@ -795,7 +799,7 @@ dmc_unrar_return dmc_unrar_extract_file_to_mem(dmc_unrar_archive *archive, size_
  *  @return An error condition, or DMC_UNRAR_OK if extraction succeeded.
  */
 dmc_unrar_return dmc_unrar_extract_file_to_heap(dmc_unrar_archive *archive, size_t index,
-	void **buffer, size_t *uncompressed_size, bool validate_crc);
+    void **buffer, size_t *uncompressed_size, bool validate_crc, unpack_progress_callback progress_callback);
 
 /** The callback function for dmc_unrar_extract_file_with_callback().
  *
@@ -843,7 +847,7 @@ typedef bool (*dmc_unrar_extract_callback_func)(void *opaque, void **buffer,
  */
 dmc_unrar_return dmc_unrar_extract_file_with_callback(dmc_unrar_archive *archive, size_t index,
 	void *buffer, size_t buffer_size, size_t *uncompressed_size, bool validate_crc,
-	void *opaque, dmc_unrar_extract_callback_func callback);
+    void *opaque, dmc_unrar_extract_callback_func callback, unpack_progress_callback progress_callback);
 
 #if DMC_UNRAR_DISABLE_STDIO != 1
 /** Extract a file entry into a file.
@@ -859,7 +863,7 @@ dmc_unrar_return dmc_unrar_extract_file_with_callback(dmc_unrar_archive *archive
  *  @return An error condition, or DMC_UNRAR_OK if extraction succeeded.
  */
 dmc_unrar_return dmc_unrar_extract_file_to_file(dmc_unrar_archive *archive, size_t index,
-	FILE *file, size_t *uncompressed_size, bool validate_crc);
+    FILE *file, size_t *uncompressed_size, bool validate_crc, unpack_progress_callback progress_callback);
 
 /** Open a file and extract a RAR file entry into it.
  *
@@ -878,7 +882,7 @@ dmc_unrar_return dmc_unrar_extract_file_to_file(dmc_unrar_archive *archive, size
  *  @return An error condition, or DMC_UNRAR_OK if extraction succeeded.
  */
 dmc_unrar_return dmc_unrar_extract_file_to_path(dmc_unrar_archive *archive, size_t index,
-	const char *path, size_t *uncompressed_size, bool validate_crc);
+    const char *path, size_t *uncompressed_size, bool validate_crc, unpack_progress_callback progress_callback);
 #endif /* DMC_UNRAR_DISABLE_STDIO */
 
 /** Return true if the given \0-terminated string contains valid UTF-8 data. */
@@ -1798,9 +1802,9 @@ static bool dmc_unrar_rar_context_file_match(dmc_unrar_rar_context *ctx,
 	dmc_unrar_file_block *f1, dmc_unrar_file_block *f2);
 
 static dmc_unrar_return dmc_unrar_rar_context_unpack(dmc_unrar_rar_context *ctx,
-	dmc_unrar_archive *archive, dmc_unrar_file_block *file,
-	void *buffer, size_t buffer_size, size_t *uncompressed_size, uint32_t *crc,
-	void *opaque, dmc_unrar_extract_callback_func callback);
+    dmc_unrar_archive *archive, dmc_unrar_file_block *file,
+    void *buffer, size_t buffer_size, size_t *uncompressed_size, uint32_t *crc,
+    void *opaque, dmc_unrar_extract_callback_func callback, unpack_progress_callback progress_callback);
 /* '--- */
 
 /* .--- Opening/closing a RAR archive */
@@ -3685,7 +3689,8 @@ size_t dmc_unrar_get_filename(dmc_unrar_archive *archive, size_t index,
 }
 
 static dmc_unrar_return dmc_unrar_file_extract_mem_simple(dmc_unrar_archive *archive,
-	dmc_unrar_file_block *file, void *buffer, size_t buffer_size, size_t *uncompressed_size);
+    dmc_unrar_file_block *file, void *buffer, size_t buffer_size, size_t *uncompressed_size,
+    unpack_progress_callback progress_callback);
 
 bool dmc_unrar_extract_callback_mem(void *opaque, void **buffer,
 	size_t *buffer_size, size_t uncompressed_size, dmc_unrar_return *err);
@@ -3769,7 +3774,8 @@ static bool dmc_unrar_50_read_comment_file(dmc_unrar_archive *archive, dmc_unrar
 	return true;
 }
 
-size_t dmc_unrar_get_archive_comment(dmc_unrar_archive *archive, void *comment, size_t comment_size) {
+size_t dmc_unrar_get_archive_comment(dmc_unrar_archive *archive, void *comment, size_t comment_size,
+                                     unpack_progress_callback progress_callback) {
 	dmc_unrar_block_header *block;
 	dmc_unrar_file_block comment_file;
 
@@ -3826,7 +3832,8 @@ size_t dmc_unrar_get_archive_comment(dmc_unrar_archive *archive, void *comment, 
 	{
 		dmc_unrar_return extract;
 
-		extract = dmc_unrar_file_extract_mem_simple(archive, &comment_file, comment, comment_size, &comment_size);
+        extract = dmc_unrar_file_extract_mem_simple(archive, &comment_file, comment, comment_size, &comment_size,
+                                                    progress_callback);
 		if (extract != DMC_UNRAR_OK)
 			return 0;
 	}
@@ -3835,7 +3842,7 @@ size_t dmc_unrar_get_archive_comment(dmc_unrar_archive *archive, void *comment, 
 }
 
 size_t dmc_unrar_get_file_comment(dmc_unrar_archive *archive, size_t index,
-	void *comment, size_t comment_size) {
+    void *comment, size_t comment_size, unpack_progress_callback progress_callback) {
 
 	dmc_unrar_file_block *file = dmc_unrar_get_file(archive, index);
 	dmc_unrar_file_block comment_file;
@@ -3866,7 +3873,8 @@ size_t dmc_unrar_get_file_comment(dmc_unrar_archive *archive, size_t index,
 	{
 		dmc_unrar_return extract;
 
-		extract = dmc_unrar_file_extract_mem_simple(archive, &comment_file, comment, comment_size, &comment_size);
+        extract = dmc_unrar_file_extract_mem_simple(archive, &comment_file, comment, comment_size, &comment_size,
+                                                    progress_callback);
 		if (extract != DMC_UNRAR_OK)
 			return 0;
 	}
@@ -3985,12 +3993,12 @@ bool dmc_unrar_extract_callback_mem(void *opaque, void **buffer,
 }
 
 static dmc_unrar_return dmc_unrar_file_extract(dmc_unrar_archive *archive, dmc_unrar_file_block *file,
-	void *buffer, size_t buffer_size, size_t *uncompressed_size, uint32_t *crc,
-	void *opaque, dmc_unrar_extract_callback_func callback);
+    void *buffer, size_t buffer_size, size_t *uncompressed_size, uint32_t *crc,
+    void *opaque, dmc_unrar_extract_callback_func callback, unpack_progress_callback progress_callback);
 
 dmc_unrar_return dmc_unrar_extract_file_with_callback(dmc_unrar_archive *archive, size_t index,
 	void *buffer, size_t buffer_size, size_t *uncompressed_size, bool validate_crc,
-	void *opaque, dmc_unrar_extract_callback_func callback) {
+    void *opaque, dmc_unrar_extract_callback_func callback, unpack_progress_callback progress_callback) {
 
 	size_t output_size = 0;
 
@@ -4013,7 +4021,7 @@ dmc_unrar_return dmc_unrar_extract_file_with_callback(dmc_unrar_archive *archive
 		{
 			dmc_unrar_return uncompressed =
 				dmc_unrar_file_extract(archive, file, buffer, buffer_size, &output_size,
-				                       &crc, opaque, callback);
+                                       &crc, opaque, callback, progress_callback);
 
 			if (uncompressed != DMC_UNRAR_OK)
 				return uncompressed;
@@ -4031,16 +4039,19 @@ dmc_unrar_return dmc_unrar_extract_file_with_callback(dmc_unrar_archive *archive
 }
 
 dmc_unrar_return dmc_unrar_extract_file_to_mem(dmc_unrar_archive *archive, size_t index,
-		void *buffer, size_t buffer_size, size_t *uncompressed_size, bool validate_crc) {
+        void *buffer, size_t buffer_size, size_t *uncompressed_size, bool validate_crc,
+                                               unpack_progress_callback progress_callback) {
 	return
 		dmc_unrar_extract_file_with_callback(archive, index, buffer,
 		                                     buffer_size, uncompressed_size, validate_crc,
-		                                     NULL, &dmc_unrar_extract_callback_mem);
+                                             NULL, &dmc_unrar_extract_callback_mem,
+                                             progress_callback);
 }
 
 /** Extract a file entry into a dynamically allocated heap buffer. */
 dmc_unrar_return dmc_unrar_extract_file_to_heap(dmc_unrar_archive *archive, size_t index,
-		void **buffer, size_t *uncompressed_size, bool validate_crc) {
+        void **buffer, size_t *uncompressed_size, bool validate_crc,
+        unpack_progress_callback progress_callback) {
 
 	if (!buffer || !uncompressed_size)
 		return DMC_UNRAR_ARCHIVE_EMPTY;
@@ -4062,7 +4073,7 @@ dmc_unrar_return dmc_unrar_extract_file_to_heap(dmc_unrar_archive *archive, size
 			dmc_unrar_return extracted =
 				dmc_unrar_extract_file_to_mem(archive, index, heap_buffer,
 				                              file->file.uncompressed_size, uncompressed_size,
-				                              validate_crc);
+                                              validate_crc, progress_callback);
 
 			if (extracted != DMC_UNRAR_OK) {
 				dmc_unrar_free(&archive->alloc, buffer);
@@ -4108,7 +4119,7 @@ static dmc_unrar_return dmc_unrar_get_file_checked(dmc_unrar_archive *archive, s
 }
 
 dmc_unrar_return dmc_unrar_extract_file_to_file(dmc_unrar_archive *archive, size_t index,
-	FILE *file, size_t *uncompressed_size, bool validate_crc) {
+    FILE *file, size_t *uncompressed_size, bool validate_crc, unpack_progress_callback progress_callback) {
 
 	uint8_t buffer[4096];
 	dmc_unrar_file_block *file_entry = NULL;
@@ -4133,7 +4144,7 @@ dmc_unrar_return dmc_unrar_extract_file_to_file(dmc_unrar_archive *archive, size
 		dmc_unrar_return extracted;
 
 		extracted = dmc_unrar_file_extract(archive, file_entry, buffer, DMC_UNRAR_ARRAYSIZE(buffer),
-		            &output_size, &crc, file, &dmc_unrar_extract_callback_file);
+                    &output_size, &crc, file, &dmc_unrar_extract_callback_file, progress_callback);
 
 		if (extracted != DMC_UNRAR_OK)
 			return extracted;
@@ -4207,7 +4218,7 @@ static FILE *dmc_unrar_win32_fopen_write(const char *path) {
 #endif /* DMC_UNRAR_DISABLE_WIN32 */
 
 dmc_unrar_return dmc_unrar_extract_file_to_path(dmc_unrar_archive *archive, size_t index,
-	const char *path, size_t *uncompressed_size, bool validate_crc) {
+    const char *path, size_t *uncompressed_size, bool validate_crc, unpack_progress_callback progress_callback) {
 
 	dmc_unrar_return return_code;
 	FILE *file;
@@ -4221,7 +4232,7 @@ dmc_unrar_return dmc_unrar_extract_file_to_path(dmc_unrar_archive *archive, size
 	if (!file)
 		return DMC_UNRAR_OPEN_FAIL;
 
-	return_code = dmc_unrar_extract_file_to_file(archive, index, file, uncompressed_size, validate_crc);
+    return_code = dmc_unrar_extract_file_to_file(archive, index, file, uncompressed_size, validate_crc, progress_callback);
 
 	fclose(file);
 	return return_code;
@@ -4234,26 +4245,26 @@ typedef size_t (*dmc_unrar_extractor_func)(void *opaque, void *buffer, size_t bu
 static dmc_unrar_return dmc_unrar_file_extract_with_callback_and_extractor(dmc_unrar_archive *archive,
 	dmc_unrar_file_block *file, void *buffer, size_t buffer_size, size_t *uncompressed_size,
 	uint32_t *crc, void *opaque_callback, dmc_unrar_extract_callback_func callback,
-	void *opaque_extractor, dmc_unrar_extractor_func extractor);
+    void *opaque_extractor, dmc_unrar_extractor_func extractor, unpack_progress_callback progress_callback);
 
 static dmc_unrar_return dmc_unrar_file_unstore(dmc_unrar_archive *archive, dmc_unrar_file_block *file,
 	void *buffer, size_t buffer_size, size_t *uncompressed_size, uint32_t *crc,
-	void *opaque, dmc_unrar_extract_callback_func callback);
+    void *opaque, dmc_unrar_extract_callback_func callback, unpack_progress_callback progress_callback);
 static dmc_unrar_return dmc_unrar_file_unpack(dmc_unrar_archive *archive, dmc_unrar_file_block *file,
 	void *buffer, size_t buffer_size, size_t *uncompressed_size, uint32_t *crc,
-	void *opaque, dmc_unrar_extract_callback_func callback);
+    void *opaque, dmc_unrar_extract_callback_func callback, unpack_progress_callback progress_callback);
 
 /** Internal function that calls the method-specific file extractors. */
 static dmc_unrar_return dmc_unrar_file_extract(dmc_unrar_archive *archive, dmc_unrar_file_block *file,
 		void *buffer, size_t buffer_size, size_t *uncompressed_size, uint32_t *crc,
-		void *opaque, dmc_unrar_extract_callback_func callback) {
+        void *opaque, dmc_unrar_extract_callback_func callback, unpack_progress_callback progress_callback) {
 
 	DMC_UNRAR_ASSERT(archive && file);
 
 	switch (file->method) {
 		case DMC_UNRAR_METHOD_STORE:
 			return dmc_unrar_file_unstore(archive, file, buffer, buffer_size,
-			                              uncompressed_size, crc, opaque, callback);
+                                          uncompressed_size, crc, opaque, callback, progress_callback);
 
 		case DMC_UNRAR_METHOD_FASTEST:
 		case DMC_UNRAR_METHOD_FAST:
@@ -4261,7 +4272,7 @@ static dmc_unrar_return dmc_unrar_file_extract(dmc_unrar_archive *archive, dmc_u
 		case DMC_UNRAR_METHOD_GOOD:
 		case DMC_UNRAR_METHOD_BEST:
 			return dmc_unrar_file_unpack(archive, file, buffer, buffer_size,
-			                             uncompressed_size, crc, opaque, callback);
+                                         uncompressed_size, crc, opaque, callback, progress_callback);
 
 		default:
 			break;
@@ -4273,7 +4284,7 @@ static dmc_unrar_return dmc_unrar_file_extract(dmc_unrar_archive *archive, dmc_u
 static dmc_unrar_return dmc_unrar_file_extract_with_callback_and_extractor(dmc_unrar_archive *archive,
 		dmc_unrar_file_block *file, void *buffer, size_t buffer_size, size_t *uncompressed_size,
 		uint32_t *crc, void *opaque_callback, dmc_unrar_extract_callback_func callback,
-		void *opaque_extractor, dmc_unrar_extractor_func extractor) {
+        void *opaque_extractor, dmc_unrar_extractor_func extractor, unpack_progress_callback progress_callback) {
 
 	size_t total_size;
 	bool buffer_allocated = false, finished = false;
@@ -4313,7 +4324,10 @@ static dmc_unrar_return dmc_unrar_file_extract_with_callback_and_extractor(dmc_u
 
 		finished = !callback(opaque_callback, (void **) &buffer, &buffer_size, read_size, &return_code);
 
-		if ((old_buffer != buffer) || (old_buffer_size != buffer_size)) {
+        if (progress_callback)
+            progress_callback(read_size);
+
+        if ((old_buffer != buffer) || (old_buffer_size != buffer_size)) {
 			if (buffer_allocated)
 				dmc_unrar_free(&archive->alloc, old_buffer);
 
@@ -4336,8 +4350,8 @@ static size_t dmc_unrar_extractor_unstore(void *opaque, void *buffer, size_t buf
 
 /** Extract an uncompressed (stored) file. */
 static dmc_unrar_return dmc_unrar_file_unstore(dmc_unrar_archive *archive, dmc_unrar_file_block *file,
-		void *buffer, size_t buffer_size, size_t *uncompressed_size, uint32_t *crc,
-		void *opaque, dmc_unrar_extract_callback_func callback) {
+        void *buffer, size_t buffer_size, size_t *uncompressed_size, uint32_t *crc,
+        void *opaque, dmc_unrar_extract_callback_func callback, unpack_progress_callback progress_callback) {
 
 	DMC_UNRAR_ASSERT(archive && archive->internal_state && file && crc);
 	DMC_UNRAR_ASSERT(file->file.compressed_size == file->file.uncompressed_size);
@@ -4347,7 +4361,7 @@ static dmc_unrar_return dmc_unrar_file_unstore(dmc_unrar_archive *archive, dmc_u
 
 	return dmc_unrar_file_extract_with_callback_and_extractor(archive, file,
 		buffer, buffer_size, uncompressed_size, crc, opaque, callback,
-		&archive->io, &dmc_unrar_extractor_unstore);
+        &archive->io, &dmc_unrar_extractor_unstore, progress_callback);
 }
 
 static dmc_unrar_return dmc_unrar_rar15_create(dmc_unrar_rar_context *ctx,
@@ -4361,8 +4375,8 @@ static dmc_unrar_return dmc_unrar_rar50_create(dmc_unrar_rar_context *ctx,
 
 /** Extract a compressed file. */
 static dmc_unrar_return dmc_unrar_file_unpack(dmc_unrar_archive *archive, dmc_unrar_file_block *file,
-		void *buffer, size_t buffer_size, size_t *uncompressed_size, uint32_t *crc,
-		void *opaque, dmc_unrar_extract_callback_func callback) {
+        void *buffer, size_t buffer_size, size_t *uncompressed_size, uint32_t *crc,
+        void *opaque, dmc_unrar_extract_callback_func callback, unpack_progress_callback progress_callback) {
 
 	dmc_unrar_return return_code;
 	switch (file->version) {
@@ -4395,15 +4409,16 @@ static dmc_unrar_return dmc_unrar_file_unpack(dmc_unrar_archive *archive, dmc_un
 	}
 
 	return dmc_unrar_rar_context_unpack(archive->internal_state->unpack_context,
-		archive, file, buffer, buffer_size, uncompressed_size, crc, opaque, callback);
+        archive, file, buffer, buffer_size, uncompressed_size, crc, opaque, callback, progress_callback);
 }
 
 static dmc_unrar_return dmc_unrar_file_extract_mem_simple(dmc_unrar_archive *archive,
-		dmc_unrar_file_block *file, void *buffer, size_t buffer_size, size_t *uncompressed_size) {
+       dmc_unrar_file_block *file, void *buffer, size_t buffer_size, size_t *uncompressed_size,
+       unpack_progress_callback progress_callback) {
 
 	uint32_t crc;
 	return dmc_unrar_file_extract(archive, file, buffer, buffer_size, uncompressed_size, &crc,
-		NULL, &dmc_unrar_extract_callback_mem);
+        NULL, &dmc_unrar_extract_callback_mem, progress_callback);
 }
 /* '--- */
 
@@ -4807,7 +4822,7 @@ static size_t dmc_unrar_extractor_unpack(void *opaque, void *buffer, size_t buff
 static dmc_unrar_return dmc_unrar_rar_context_unpack(dmc_unrar_rar_context *ctx,
 		dmc_unrar_archive *archive, dmc_unrar_file_block *file,
 		void *buffer, size_t buffer_size, size_t *uncompressed_size, uint32_t *crc,
-		void *opaque, dmc_unrar_extract_callback_func callback) {
+        void *opaque, dmc_unrar_extract_callback_func callback, unpack_progress_callback progress_callback) {
 
 	dmc_unrar_return return_code;
 
@@ -4877,7 +4892,7 @@ static dmc_unrar_return dmc_unrar_rar_context_unpack(dmc_unrar_rar_context *ctx,
 
 	return_code = dmc_unrar_file_extract_with_callback_and_extractor(ctx->archive, ctx->file,
 		buffer, buffer_size, uncompressed_size, crc, opaque, callback,
-		ctx, &dmc_unrar_extractor_unpack);
+        ctx, &dmc_unrar_extractor_unpack, progress_callback);
 
 	if (return_code != DMC_UNRAR_OK)
 		goto fail;

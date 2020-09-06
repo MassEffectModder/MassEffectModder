@@ -1880,7 +1880,8 @@ extern int ZEXPORT unzReadCurrentFile  (unzFile file, voidp buf, unsigned len)
 extern int ZEXPORT unzReadCurrentFileToOutputFile(unzFile file,
                                                   const void *outputFile,
                                                   ZPOS64_T dataSize,
-                                                  zlib_filefunc64_def* pzlib_filefunc_def)
+                                                  zlib_filefunc64_def* pzlib_filefunc_def,
+                                                  unzipProgressCallback_def callbackProgress)
 {
     int err=UNZ_OK;
     uInt iRead = 0;
@@ -2049,6 +2050,8 @@ extern int ZEXPORT unzReadCurrentFileToOutputFile(unzFile file,
                 pfile_in_zip_read_info->stream.next_in += uDoCopy;
                 pfile_in_zip_read_info->stream.total_out += uDoCopy;
                 iRead += uDoCopy;
+                if (callbackProgress)
+                    callbackProgress(uDoCopy);
             }
             else if (pfile_in_zip_read_info->compression_method==Z_BZIP2ED)
             {
@@ -2101,6 +2104,8 @@ extern int ZEXPORT unzReadCurrentFileToOutputFile(unzFile file,
                 }
                 if (err!=Z_OK)
                     break;
+                if (callbackProgress)
+                    callbackProgress(uOutThis);
             }
         }
     }

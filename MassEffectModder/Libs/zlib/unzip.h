@@ -384,6 +384,9 @@ extern int ZEXPORT unzCloseCurrentFile OF((unzFile file));
 extern int ZEXPORT unzReadCurrentFile OF((unzFile file,
                       voidp buf,
                       unsigned len));
+
+typedef void (*unzipProgressCallback_def)(ZPOS64_T);
+
 /*
   Read bytes from the current file (opened by unzOpenCurrentFile)
   buf contain buffer where data must be copied
@@ -398,7 +401,8 @@ extern int ZEXPORT unzReadCurrentFile OF((unzFile file,
 extern int ZEXPORT unzReadCurrentFileToOutputFile(unzFile file,
                                                   const void *outputFile,
                                                   ZPOS64_T dataSize,
-                                                  zlib_filefunc64_def* pzlib_filefunc_def);
+                                                  zlib_filefunc64_def* pzlib_filefunc_def,
+                                                  unzipProgressCallback_def callbackProgress);
 
 extern z_off_t ZEXPORT unztell OF((unzFile file));
 

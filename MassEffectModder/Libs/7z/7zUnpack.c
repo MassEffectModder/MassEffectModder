@@ -244,6 +244,30 @@ static int MyCreateDir(const char *name)
 
 #define OUT_BUF_SIZE (1 << 20)
 
+static int g_ipc;
+static int lastProgress;
+static UInt64 progressUnpackedSize;
+static UInt64 totalUnpackedSize;
+
+static void PrintProgressIpc(UInt64 processedBytes)
+{
+    if (g_ipc)
+    {
+        progressUnpackedSize += processedBytes;
+        int newProgress = progressUnpackedSize * 100 / totalUnpackedSize;
+        if (lastProgress != newProgress)
+        {
+            lastProgress = newProgress;
+#if defined(_WIN32)
+            wprintf(L"[IPC]TASK_PROGRESS %d\n", newProgress);
+#else
+            printf("[IPC]TASK_PROGRESS %d\n", newProgress);
+#endif
+            fflush(stdout);
+        }
+    }
+}
+
 #ifdef USE_WINDOWS_FILE
 int sevenzip_unpack(const wchar_t *path, const wchar_t *output_path, int full_path, int ipc)
 #else
@@ -259,6 +283,10 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
     UInt16 *temp = NULL;
     size_t tempSize = 0;
     SzArEx_StreamOutEntry *streamOutInfo = NULL;
+
+    g_ipc = ipc;
+    lastProgress = -1;
+    totalUnpackedSize = 0;
 
 #if defined(_WIN32) && !defined(USE_WINDOWS_FILE)
     g_FileCodePage = AreFileApisANSI() ? CP_ACP : CP_OEMCP;
@@ -341,7 +369,6 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
     memset(streamOutInfo, 0, db.NumFiles * sizeof(SzArEx_StreamOutEntry));
     streamOutInfo[db.NumFiles].folderIndex = 0xFFFFFFFF;
 
-    UInt64 totalUnpackedSize = 0;
     for (i = 0; i < db.NumFiles; i++)
     {
         size_t len;
@@ -532,12 +559,54 @@ int sevenzip_unpack(const char *path, const char *output_path, int full_path, in
         int foundFolder = 0;
         for (i = 0; i < db.NumFiles; i++)
         {
-            if (streamOutInfo[i].folderIndex == f && !streamOutInfo[i].isDir)
+            if (streamOutInfo[i].folderIndex != f)
+                continue;
+            if (streamOutInfo[i].isDir)
             {
-                res = SzArEx_ExtractFolderToStream(&db, &lookStream.vt, f, &streamOutInfo[i], &allocTempImp);
+                if (!ipc)
+                {
+#if defined(_WIN32)
+                    wprintf(L"%d of %d - %s - Ok\n", (i + 1), db.NumFiles, streamOutInfo[i].path);
+#else
+                    printf("%d of %d - %s - Ok\n", (i + 1), db.NumFiles, streamOutInfo[i].path);
+#endif
+                }
+            }
+            else
+            {
+                if (ipc)
+                {
+#if defined(_WIN32)
+                    wprintf(L"[IPC]FILENAME %s\n", streamOutInfo[i].path);
+#else
+                    printf("[IPC]FILENAME %s\n", streamOutInfo[i].path);
+#endif
+                    fflush(stdout);
+                }
+                else
+                {
+#if defined(_WIN32)
+                    wprintf(L"%d of %d - %s - size %lld - ", (i + 1),
+                            db.NumFiles, streamOutInfo[i].path, streamOutInfo[i].UnpackSize);
+#else
+                    printf("%d of %d - %s - size %lld - ", (i + 1),
+                           db.NumFiles, streamOutInfo[i].path, streamOutInfo[i].UnpackSize);
+#endif
+                }
+
+                res = SzArEx_ExtractFolderToStream(&db, &lookStream.vt, f,
+                                                   &streamOutInfo[i], &allocTempImp, PrintProgressIpc);
                 if (res == SZ_OK)
                 {
                     foundFolder = 1;
+                }
+                if (!ipc)
+                {
+#if defined(_WIN32)
+                    wprintf(L"Ok\n");
+#else
+                    printf("Ok\n");
+#endif
                 }
                 break;
             }

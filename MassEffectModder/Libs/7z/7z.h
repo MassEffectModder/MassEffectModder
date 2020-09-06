@@ -114,6 +114,8 @@ typedef struct
     UInt32 CRC;
 } SzArEx_StreamOutEntry;
 
+typedef void (*UnpackProgressCallback)(UInt64);
+
 UInt64 SzAr_GetFolderUnpackSize(const CSzAr *p, UInt32 folderIndex);
 
 SRes SzAr_DecodeFolder(const CSzAr *p, UInt32 folderIndex,
@@ -128,7 +130,8 @@ SRes SzFolder_Decode3(const CSzFolder *folder,
     SizeT outSize,
     SzArEx_StreamOutEntry *streamOutInfo,
     UInt32 folderIndex,
-    ISzAllocPtr allocMain);
+    ISzAllocPtr allocMain,
+    UnpackProgressCallback callbackProgress);
 
 typedef struct
 {
@@ -216,7 +219,8 @@ SRes SzArEx_ExtractFolderToStream(const CSzArEx *p,
                             ILookInStream *inStream,
                             UInt32 folderIndex,
                             SzArEx_StreamOutEntry *streamOutInfo,
-                            ISzAllocPtr allocTemp);
+                            ISzAllocPtr allocTemp,
+                            UnpackProgressCallback callbackProgress);
 
 /*
 SzArEx_Open Errors:
