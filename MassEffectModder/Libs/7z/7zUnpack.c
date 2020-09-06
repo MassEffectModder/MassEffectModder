@@ -250,7 +250,7 @@ static int compareExt(wchar_t *filename, const wchar_t *ext)
     wchar_t *pExt = wcsrchr(filename, L'.');
     if (pExt == NULL)
         return 0;
-    return wcscasecmp(&pExt[1], ext) == 0;
+    return _wcsicmp(&pExt[1], ext) == 0;
 }
 #else
 static int compareExt(char *filename, const char *ext)
@@ -299,7 +299,7 @@ static void PrintfCurrentFile(SzArEx_StreamOutEntry *streamOutInfo)
         if (g_ipc)
         {
 #if defined(_WIN32)
-            wprintf(L"[IPC]FILENAME %ls\n", streamOutInfo[i].path);
+            wprintf(L"[IPC]FILENAME %ls\n", streamOutInfo->path);
 #else
             printf("[IPC]FILENAME %s\n", streamOutInfo->path);
 #endif

@@ -167,7 +167,7 @@ static int compareExt(wchar_t *filename, const wchar_t *ext)
     wchar_t *pExt = wcsrchr(filename, L'.');
     if (pExt == NULL)
         return 0;
-    return wcscasecmp(&pExt[1], ext) == 0;
+    return _wcsicmp(&pExt[1], ext) == 0;
 }
 #else
 static int compareExt(char *filename, const char *ext)
