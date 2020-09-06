@@ -249,9 +249,9 @@ int unrar_unpack(const char *path, const char *output_path,
 
     for (size_t i = 0; i < dmc_unrar_get_file_count(&archive); i++) {
 #if defined(_WIN32)
-        const wchar_t *fileName = get_filename_unicode(&archive, i);
+        wchar_t *fileName = (wchar_t *)get_filename_unicode(&archive, i);
 #else
-        const char *fileName = get_filename_utf8(&archive, i);
+        char *fileName = (char *)get_filename_utf8(&archive, i);
 #endif
         const dmc_unrar_file *file = dmc_unrar_get_file_stat(&archive, i);
 
@@ -275,7 +275,7 @@ int unrar_unpack(const char *path, const char *output_path,
             continue;
         }
 
-        if (filter[0] != 0 && !compareExt((char *)fileName, filter)) {
+        if (filter[0] != 0 && !compareExt(fileName, filter)) {
             totalUnpackedSize -= file->uncompressed_size;
             continue;
         }

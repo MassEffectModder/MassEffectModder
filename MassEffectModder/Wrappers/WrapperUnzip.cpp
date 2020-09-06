@@ -326,7 +326,7 @@ static int MyCreateDir(const char *name)
 static bool compareExt(char *filename, const wchar_t *ext)
 {
     wchar_t file[MAX_PATH];
-    int size = strlen(fileName) + 1;
+    int size = strlen(filename) + 1;
     mbstowcs(file, filename, size);
     wchar_t *pExt = wcsrchr(file, L'.');
     if (pExt == nullptr)
