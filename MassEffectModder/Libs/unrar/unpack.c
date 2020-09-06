@@ -331,7 +331,7 @@ int unrar_unpack(const char *path, const char *output_path, int full_path, int i
         }
         else
         {
-            printf("%lu of %zu - %s - size %lld - ", (i + 1), dmc_unrar_get_file_count(&archive), fileName, file->uncompressed_size);
+            printf("%lu of %zu - %s - size %llu - ", (i + 1), dmc_unrar_get_file_count(&archive), fileName, file->uncompressed_size);
         }
 
         char outputFile[PATH_MAX];
