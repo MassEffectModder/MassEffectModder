@@ -656,7 +656,7 @@ int ZipList(const void *path, bool ipc)
         if (ipc)
         {
 #if defined(_WIN32)
-            wprintf(L"[IPC]FILENAME %ls\n", fileName);
+            wprintf(L"[IPC]FILENAME %s\n", fileName);
 #else
             printf("[IPC]FILENAME %s\n", fileName);
 #endif
@@ -665,7 +665,7 @@ int ZipList(const void *path, bool ipc)
         else
         {
 #if defined(_WIN32)
-            wprintf(L"%ls\n", fileName);
+            wprintf(L"%s\n", fileName);
 #else
             printf("%s\n", fileName);
 #endif
