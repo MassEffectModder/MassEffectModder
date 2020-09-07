@@ -339,6 +339,7 @@ int sevenzip_unpack(const char *path, const char *output_path,
     g_ipc = ipc;
     lastProgress = -1;
     totalUnpackedSize = 0;
+    progressUnpackedSize = 0;
 
 #if defined(_WIN32) && !defined(USE_WINDOWS_FILE)
     g_FileCodePage = AreFileApisANSI() ? CP_ACP : CP_OEMCP;

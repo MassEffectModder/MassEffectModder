@@ -215,6 +215,7 @@ int unrar_unpack(const char *path, const char *output_path,
     g_ipc = ipc;
     lastProgress = -1;
     totalUnpackedSize = 0;
+    progressUnpackedSize = 0;
 
     if (!dmc_unrar_is_rar_path((char *)path))
         return 1;

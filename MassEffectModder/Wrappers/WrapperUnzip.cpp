@@ -385,6 +385,7 @@ int ZipUnpack(const void *path, const void *output_path,
     g_ipc = ipc;
     lastProgress = -1;
     totalUnpackedSize = 0;
+    progressUnpackedSize = 0;
 
     void *handle = ZipOpenFromFile(path, &numEntries, 0);
     if (handle == nullptr)
