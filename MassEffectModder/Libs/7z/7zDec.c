@@ -250,9 +250,9 @@ static SRes SzDecodeLzmaStream(const Byte *props, unsigned propsSize, UInt64 pac
         }
 
 #ifdef USE_WINDOWS_FILE
-        if (streamOutInfo[fileIndex].outStream.file.handle)
+        if (streamOutInfo[fileIndex].outStream.file.handle != INVALID_HANDLE_VALUE)
 #else
-        if (streamOutInfo[fileIndex].outStream.file.file)
+        if (streamOutInfo[fileIndex].outStream.file.file != NULL)
 #endif
         {
             if (streamOutInfo[fileIndex].outStream.vt.Write(&streamOutInfo[fileIndex].outStream.vt, outBuf, outProcessed) != outProcessed)
@@ -435,9 +435,9 @@ static SRes SzDecodeLzma2Stream(const Byte *props, unsigned propsSize, UInt64 pa
         }
 
 #ifdef USE_WINDOWS_FILE
-        if (streamOutInfo[fileIndex].outStream.file.handle)
+        if (streamOutInfo[fileIndex].outStream.file.handle != INVALID_HANDLE_VALUE)
 #else
-        if (streamOutInfo[fileIndex].outStream.file.file)
+        if (streamOutInfo[fileIndex].outStream.file.file != NULL)
 #endif
         {
             if (streamOutInfo[fileIndex].outStream.vt.Write(&streamOutInfo[fileIndex].outStream.vt, outBuf, outProcessed) != outProcessed)
@@ -543,9 +543,9 @@ static SRes SzDecodeCopyStream(UInt64 inSize, ILookInStream *inStream, SzArEx_St
             curSize = streamOutInfo[fileIndex].UnpackSize - offsetStreamOut;
         }
 #ifdef USE_WINDOWS_FILE
-        if (streamOutInfo[fileIndex].outStream.file.handle)
+        if (streamOutInfo[fileIndex].outStream.file.handle != INVALID_HANDLE_VALUE)
 #else
-        if (streamOutInfo[fileIndex].outStream.file.file)
+        if (streamOutInfo[fileIndex].outStream.file.file != NULL)
 #endif
         {
             if (streamOutInfo[fileIndex].outStream.vt.Write(&streamOutInfo[fileIndex].outStream.vt, inBuf, curSize) != curSize)
