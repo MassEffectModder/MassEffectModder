@@ -103,6 +103,50 @@ bool CmdLineTools::repackGame(MeType gameId)
     return true;
 }
 
+bool CmdLineTools::GetGameDataPath(MeType gameId)
+{
+    ConfigIni configIni = ConfigIni();
+    g_GameData->Init(gameId, configIni);
+    if (!Misc::CheckGamePath())
+        return false;
+
+    QString path = g_GameData->GamePath();
+
+    if (g_ipc)
+    {
+        ConsoleWrite(QString("[IPC]FILENAME ") + path);
+        ConsoleSync();
+    }
+    else
+    {
+        ConsoleWrite(QString("Game path: ") + path);
+    }
+
+    return true;
+}
+
+bool CmdLineTools::GetGameUserPath(MeType gameId)
+{
+    ConfigIni configIni = ConfigIni();
+    g_GameData->Init(gameId, configIni);
+    if (!Misc::CheckGamePath())
+        return false;
+
+    QString path = g_GameData->GameUserPath(gameId);
+
+    if (g_ipc)
+    {
+        ConsoleWrite(QString("[IPC]FILENAME ") + path);
+        ConsoleSync();
+    }
+    else
+    {
+        ConsoleWrite(QString("Game user path: ") + path);
+    }
+
+    return true;
+}
+
 bool CmdLineTools::unpackArchive(const QString &inputFile, QString &outputDir,
                                  QString &filterWithExt, bool flattenPath)
 {

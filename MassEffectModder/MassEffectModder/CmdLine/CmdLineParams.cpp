@@ -131,9 +131,13 @@ int ProcessArguments()
             cmd = CmdType::LIST_ARCHIVE;
         else if (arg == "--set-game-data-path")
             cmd = CmdType::SET_GAME_DATA_PATH;
+        else if (arg == "--get-game-data-path")
+            cmd = CmdType::GET_GAME_DATA_PATH;
 #if !defined(_WIN32)
         else if (arg == "--set-game-user-path")
             cmd = CmdType::SET_GAME_USER_PATH;
+        else if (arg == "--get-game-user-path")
+            cmd = CmdType::GET_GAME_USER_PATH;
 #endif
         else if (arg == "--fix-textures-property")
             cmd = CmdType::FIX_TEXTURES_PROPERTY;
@@ -818,6 +822,16 @@ int ProcessArguments()
         if (!Misc::SetGameDataPath(gameId, path))
             errorCode = 1;
         break;
+    case CmdType::GET_GAME_DATA_PATH:
+        if (gameId == MeType::UNKNOWN_TYPE)
+        {
+            PERROR("Wrong game id!\n");
+            errorCode = 1;
+            break;
+        }
+        if (!tools.GetGameDataPath(gameId))
+            errorCode = 1;
+        break;
 #if !defined(_WIN32)
     case CmdType::SET_GAME_USER_PATH:
         if (gameId == MeType::UNKNOWN_TYPE)
@@ -834,6 +848,16 @@ int ProcessArguments()
             break;
         }
         if (!Misc::SetGameUserPath(gameId, path))
+            errorCode = 1;
+        break;
+    case CmdType::GET_GAME_USER_PATH:
+        if (gameId == MeType::UNKNOWN_TYPE)
+        {
+            PERROR("Wrong game id!\n");
+            errorCode = 1;
+            break;
+        }
+        if (!tools.GetGameUserPath(gameId))
             errorCode = 1;
         break;
 #endif
