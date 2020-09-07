@@ -489,7 +489,7 @@ int sevenzip_unpack(const char *path, const char *output_path,
             wcsncpy(outputFile, fileName, PATH_MAX - 1);
         }
 
-        if (filter[0] == 0 || compareExt(streamOutInfo[i].path, filter))
+        if (filter[0] == 0 || compareExt(outputFile, filter))
         {
             wchar_t tmpPath[PATH_MAX];
             wcsncpy(tmpPath, fileName, MAX_PATH - 1);
