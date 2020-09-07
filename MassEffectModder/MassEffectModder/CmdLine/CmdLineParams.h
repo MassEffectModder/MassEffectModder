@@ -57,10 +57,9 @@ typedef enum : int
     UNPACK_ARCHIVE,
     LIST_ARCHIVE,
     SET_GAME_DATA_PATH,
-    GET_GAME_DATA_PATH,
+    GET_GAME_PATHS,
 #if !defined(_WIN32)
     SET_GAME_USER_PATH,
-    GET_GAME_USER_PATH,
 #endif
     FIX_TEXTURES_PROPERTY,
 } CmdType;

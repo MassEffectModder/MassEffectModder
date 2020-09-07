@@ -216,9 +216,8 @@ void DisplayHelp()
         "     game id: 1 for ME1, 2 for ME2, 3 for ME3\n" \
         "     Set game data path to <path>.\n" \
         "\n" \
-        "  --get-game-data-path --gameid <game id> [--ipc]\n" \
-        "     game id: 1 for ME1, 2 for ME2, 3 for ME3\n" \
-        "     Print game data path.\n" \
+        "  --get-game-paths [--ipc]\n" \
+        "     Print game paths.\n" \
         "\n" \
         "  --unpack-archive --input <zip/7z/rar file> [--output <output path>] [--flatten-archive-path] [--filter-with-ext <ext>] [--ipc]\n" \
         "     Unpack ZIP/7ZIP/RAR archive file.\n" \
@@ -231,10 +230,6 @@ void DisplayHelp()
         "  --set-game-user-path --gameid <game id> --path <path>\n" \
         "     game id: 1 for ME1, 2 for ME2, 3 for ME3\n" \
         "     Set game user config path to <path>.\n" \
-        "\n" \
-        "  --get-game-user-path --gameid <game id> [--ipc]\n" \
-        "     game id: 1 for ME1, 2 for ME2, 3 for ME3\n" \
-        "     Print game user config path.\n" \
         "\n";
 #endif
     help +=

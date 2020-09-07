@@ -103,45 +103,27 @@ bool CmdLineTools::repackGame(MeType gameId)
     return true;
 }
 
-bool CmdLineTools::GetGameDataPath(MeType gameId)
+bool CmdLineTools::GetGamePaths()
 {
-    ConfigIni configIni = ConfigIni();
-    g_GameData->Init(gameId, configIni);
-    if (!Misc::CheckGamePath())
-        return false;
-
-    QString path = g_GameData->GamePath();
-
-    if (g_ipc)
+    for (int gameId = 1; gameId <= 3; gameId++)
     {
-        ConsoleWrite(QString("[IPC]FILENAME ") + path);
-        ConsoleSync();
-    }
-    else
-    {
-        ConsoleWrite(QString("Game path: ") + path);
-    }
+        ConfigIni configIni = ConfigIni();
+        g_GameData->Init((MeType)gameId, configIni);
 
-    return true;
-}
+        QString pathData = g_GameData->GamePath();
+        QString pathConfig = g_GameData->GameUserPath((MeType)gameId);
 
-bool CmdLineTools::GetGameUserPath(MeType gameId)
-{
-    ConfigIni configIni = ConfigIni();
-    g_GameData->Init(gameId, configIni);
-    if (!Misc::CheckGamePath())
-        return false;
-
-    QString path = g_GameData->GameUserPath(gameId);
-
-    if (g_ipc)
-    {
-        ConsoleWrite(QString("[IPC]FILENAME ") + path);
-        ConsoleSync();
-    }
-    else
-    {
-        ConsoleWrite(QString("Game user path: ") + path);
+        if (g_ipc)
+        {
+            ConsoleWrite(QString("[IPC]GAMEPATH ") + QString::number(gameId) + " " + pathData);
+            ConsoleWrite(QString("[IPC]GAMECONFIGPATH ") + QString::number(gameId) + " " + pathConfig);
+            ConsoleSync();
+        }
+        else
+        {
+            ConsoleWrite(QString("Game data path - ME") + QString::number(gameId) + " : " + pathData);
+            ConsoleWrite(QString("Game user config path - ME") + QString::number(gameId) + " : " + pathConfig);
+        }
     }
 
     return true;

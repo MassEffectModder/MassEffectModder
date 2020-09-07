@@ -36,8 +36,7 @@ public:
     void Repack(MeType gameId, ProgressCallback callback, void *callbackHandle);
     bool updateTOCs();
     bool unpackAllDLCs();
-    bool GetGameUserPath(MeType gameId);
-    bool GetGameDataPath(MeType gameId);
+    bool GetGamePaths();
     bool repackGame(MeType gameId);
     bool unpackArchive(const QString &inputFile, QString &outputDir, QString &filterWithExt, bool flattenPath);
     bool listArchive(const QString &inputFile);
