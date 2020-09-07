@@ -430,7 +430,7 @@ int ZipUnpack(const void *path, const void *output_path,
             if (!ipc)
             {
 #if defined(_WIN32)
-                wprintf(L"%d of %d - %ls - Ok\n", (i + 1), numEntries, fileName);
+                wprintf(L"%d of %d - %s - Ok\n", (i + 1), numEntries, fileName);
 #else
                 printf("%d of %d - %s - Ok\n", (i + 1), numEntries, fileName);
 #endif
@@ -448,7 +448,7 @@ int ZipUnpack(const void *path, const void *output_path,
         if (ipc)
         {
 #if defined(_WIN32)
-            wprintf(L"[IPC]FILENAME %ls\n", fileName);
+            wprintf(L"[IPC]FILENAME %s\n", fileName);
 #else
             printf("[IPC]FILENAME %s\n", fileName);
 #endif
@@ -457,7 +457,7 @@ int ZipUnpack(const void *path, const void *output_path,
         else
         {
 #if defined(_WIN32)
-            wprintf(L"%d of %d - %ls - size %llu - ", (i + 1), numEntries, fileName, dstLen);
+            wprintf(L"%d of %d - %s - size %llu - ", (i + 1), numEntries, fileName, dstLen);
 #else
             printf("%d of %d - %s - size %llu - ", (i + 1), numEntries, fileName, dstLen);
 #endif
