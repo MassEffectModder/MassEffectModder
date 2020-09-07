@@ -306,6 +306,7 @@ static SRes SzDecodeLzmaStream(const Byte *props, unsigned propsSize, UInt64 pac
             break;
     }
 
+    ISzAlloc_Free(allocMain, outBuf);
     LzmaDec_Free(&state, allocMain);
 
     return res;
@@ -490,6 +491,7 @@ static SRes SzDecodeLzma2Stream(const Byte *props, unsigned propsSize, UInt64 pa
             break;
     }
 
+    ISzAlloc_Free(allocMain, outBuf);
     Lzma2Dec_Free(&state, allocMain);
 
     return res;
