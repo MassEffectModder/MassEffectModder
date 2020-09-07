@@ -308,10 +308,10 @@ static void PrintfCurrentFile(SzArEx_StreamOutEntry *streamOutInfo)
         else
         {
 #if defined(_WIN32)
-            wprintf(L"%d of %d - %ls - size %llu - ", (streamOutInfo->entryIndex + 1),
+            wprintf(L"%d of %d - %ls - size %llu\n", (streamOutInfo->entryIndex + 1),
                    totalFiles, streamOutInfo->path, streamOutInfo->UnpackSize);
 #else
-            printf("%d of %d - %s - size %llu - ", (streamOutInfo->entryIndex + 1),
+            printf("%d of %d - %s - size %llu\n", (streamOutInfo->entryIndex + 1),
                    totalFiles, streamOutInfo->path, streamOutInfo->UnpackSize);
 #endif
         }
@@ -631,9 +631,9 @@ int sevenzip_unpack(const char *path, const char *output_path,
                     if (filter[0] == 0 || compareExt(streamOutInfo[i].path, filter))
                     {
 #if defined(_WIN32)
-                        wprintf(L"%d of %d - %ls - Ok\n", (i + 1), db.NumFiles, streamOutInfo[i].path);
+                        wprintf(L"%d of %d - %ls\n", (i + 1), db.NumFiles, streamOutInfo[i].path);
 #else
-                        printf("%d of %d - %s - Ok\n", (i + 1), db.NumFiles, streamOutInfo[i].path);
+                        printf("%d of %d - %s\n", (i + 1), db.NumFiles, streamOutInfo[i].path);
 #endif
                     }
                 }
@@ -646,14 +646,6 @@ int sevenzip_unpack(const char *path, const char *output_path,
                 if (res == SZ_OK)
                 {
                     foundFolder = 1;
-                }
-                if (!ipc)
-                {
-#if defined(_WIN32)
-                    wprintf(L"Ok\n");
-#else
-                    printf("Ok\n");
-#endif
                 }
                 break;
             }
@@ -694,7 +686,6 @@ int sevenzip_list(const char *path, int ipc)
     SRes res;
     UInt16 *temp = NULL;
     size_t tempSize = 0;
-    SzArEx_StreamOutEntry *streamOutInfo = NULL;
 
     g_ipc = ipc;
     lastProgress = -1;
@@ -775,8 +766,7 @@ int sevenzip_list(const char *path, int ipc)
     for (i = 0; i < db.NumFiles; i++)
     {
         size_t len;
-        streamOutInfo[i].isDir = SzArEx_IsDir(&db, i);
-        if (streamOutInfo[i].isDir)
+        if (SzArEx_IsDir(&db, i))
         {
             continue;
         }
