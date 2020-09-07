@@ -452,7 +452,6 @@ int sevenzip_unpack(const char *path, const char *output_path,
         wchar_t *fileName = (UInt16 *)temp;
 #else
         CBuf buf;
-        SRes res;
         Buf_Init(&buf);
         res = Utf16_To_Char(&buf, temp);
         char fileName[buf.size + 1];
