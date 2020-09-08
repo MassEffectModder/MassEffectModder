@@ -121,7 +121,7 @@ LIB_EXPORT int SevenZipUnpackFile(const void *path, const void *output_path, boo
 #if defined(_WIN32)
     return sevenzip_unpack(static_cast<const wchar_t *>(path),
                            static_cast<const wchar_t *>(output_path),
-                           "", (int)full_path, 0);
+                           L"", (int)full_path, 0);
 #else
     return sevenzip_unpack(static_cast<const char *>(path),
                            static_cast<const char *>(output_path),
