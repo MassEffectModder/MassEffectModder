@@ -105,6 +105,7 @@ typedef struct
     UInt32 folderIndex;
     UInt32 entryIndex;
     unsigned isDir;
+    int filterOut;
 #ifdef _WIN32
     wchar_t path[MAX_PATH];
 #else

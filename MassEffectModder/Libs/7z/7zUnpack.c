@@ -522,6 +522,10 @@ int sevenzip_unpack(const char *path, const char *output_path,
                 }
             }
         }
+        else
+        {
+            streamOutInfo[i].filterOut = 1;
+        }
         if (res != SZ_OK)
         {
             res = SZ_ERROR_FAIL;
@@ -579,6 +583,10 @@ int sevenzip_unpack(const char *path, const char *output_path,
                 }
             }
         }
+        else
+        {
+            streamOutInfo[i].filterOut = 1;
+        }
         if (res != SZ_OK)
         {
             res = SZ_ERROR_FAIL;
@@ -591,7 +599,7 @@ int sevenzip_unpack(const char *path, const char *output_path,
         FileOutStream_CreateVTable(&streamOutInfo[i].outStream);
         File_Construct(&streamOutInfo[i].outStream.file);
 
-        if (filter[0] == 0 || compareExt(streamOutInfo[i].path, filter))
+        if (!streamOutInfo[i].filterOut)
         {
 #ifdef USE_WINDOWS_FILE
             if (OutFile_OpenW(&streamOutInfo[i].outStream.file, streamOutInfo[i].path))
@@ -618,25 +626,63 @@ int sevenzip_unpack(const char *path, const char *output_path,
         totalUnpackedSize += streamOutInfo[i].UnpackSize;
     }
 
+    if (filter[0] != 0)
+    {
+        for (i = 0; i < db.NumFiles; i++)
+        {
+            if (streamOutInfo[i].folderIndex != 0xffffffff &&
+                streamOutInfo[i].filterOut)
+            {
+                UInt32 l, f = streamOutInfo[i].folderIndex;
+                int extractFolder = 0;
+                for (l = 0; l < db.NumFiles; l++)
+                {
+                    if (streamOutInfo[l].folderIndex == f &&
+                       !streamOutInfo[l].filterOut)
+                    {
+                        extractFolder = 1;
+                        break;
+                    }
+                }
+                if (!extractFolder)
+                {
+                    for (l = 0; l < db.NumFiles; l++)
+                    {
+                        if (streamOutInfo[l].folderIndex == f)
+                        {
+                            streamOutInfo[l].folderIndex = 0xffffffff;
+                            totalUnpackedSize -= streamOutInfo[l].UnpackSize;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     for (f = 0; ; f++)
     {
         int foundFolder = 0;
         for (i = 0; i < db.NumFiles; i++)
         {
-            if (streamOutInfo[i].folderIndex != f)
+            if (streamOutInfo[i].folderIndex > f &&
+                streamOutInfo[i].folderIndex != 0xffffffff)
+            {
+                foundFolder = 1;
+            }
+            if ((streamOutInfo[i].folderIndex != f && streamOutInfo[i].folderIndex != 0xffffffff) ||
+                 streamOutInfo[i].folderIndex == 0xffffffff)
+            {
                 continue;
+            }
             if (streamOutInfo[i].isDir)
             {
                 if (!ipc)
                 {
-                    if (filter[0] == 0 || compareExt(streamOutInfo[i].path, filter))
-                    {
 #if defined(_WIN32)
-                        wprintf(L"%d of %d - %ls\n", (i + 1), db.NumFiles, streamOutInfo[i].path);
+                    wprintf(L"%d of %d - %ls\n", (i + 1), db.NumFiles, streamOutInfo[i].path);
 #else
-                        printf("%d of %d - %s\n", (i + 1), db.NumFiles, streamOutInfo[i].path);
+                    printf("%d of %d - %s\n", (i + 1), db.NumFiles, streamOutInfo[i].path);
 #endif
-                    }
                 }
             }
             else
