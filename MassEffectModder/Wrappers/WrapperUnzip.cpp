@@ -49,7 +49,7 @@ typedef struct
     voidpf handle;
     unzFile file;
     unz_global_info globalInfo;
-    unz_file_info curFileInfo;
+    unz_file_info64 curFileInfo;
     int tpfMode;
 } UnzipHandle;
 #pragma pack()
@@ -149,7 +149,7 @@ int ZipGetCurrentFileInfo(void *handle, char *fileName,
     if (unzipHandle == nullptr || fileName == nullptr || dstLen == nullptr)
         return -1;
 
-    result = unzGetCurrentFileInfo(unzipHandle->file, &unzipHandle->curFileInfo, fileName, sizeOfFileName, nullptr, 0, nullptr, 0);
+    result = unzGetCurrentFileInfo64(unzipHandle->file, &unzipHandle->curFileInfo, fileName, sizeOfFileName, nullptr, 0, nullptr, 0);
     if (result != UNZ_OK)
         return result;
 
@@ -250,8 +250,8 @@ int ZipReadCurrentFileToOutputFile(void *handle, const void *outputFile,
     if (result != UNZ_OK)
         return result;
 
-    result = unzGetCurrentFileInfo(unzipHandle->file, &unzipHandle->curFileInfo,
-                                   fileName, sizeof (fileName), nullptr, 0, nullptr, 0);
+    result = unzGetCurrentFileInfo64(unzipHandle->file, &unzipHandle->curFileInfo,
+                                     fileName, sizeof (fileName), nullptr, 0, nullptr, 0);
     if (result != UNZ_OK)
         return result;
 
