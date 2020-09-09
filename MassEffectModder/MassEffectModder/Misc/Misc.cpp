@@ -167,6 +167,8 @@ QString Misc::getBytesFormat(quint64 size)
 }
 
 static QElapsedTimer timer;
+static QElapsedTimer timerStage;
+
 void Misc::startTimer()
 {
     timer.start();
@@ -175,6 +177,21 @@ void Misc::startTimer()
 long Misc::elapsedTime()
 {
     return timer.elapsed();
+}
+
+void Misc::startStageTimer()
+{
+    timerStage.start();
+}
+
+void Misc::restartStageTimer()
+{
+    timerStage.start();
+}
+
+long Misc::elapsedStageTime()
+{
+    return timerStage.elapsed();
 }
 
 QString Misc::getTimerFormat(long time)

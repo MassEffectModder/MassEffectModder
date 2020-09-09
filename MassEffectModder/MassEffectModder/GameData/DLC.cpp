@@ -26,6 +26,7 @@
 #include <GameData/DLC.h>
 #include <GameData/GameData.h>
 #include <Wrappers.h>
+#include <Misc/Misc.h>
 
 int ME3DLC::getNumberOfFiles(QString &path)
 {
@@ -325,6 +326,8 @@ void ME3DLC::unpackAllDLC(ProgressCallback callback, void *callbackHandle)
     {
         return;
     }
+
+    Misc::restartStageTimer();
     if (g_ipc)
     {
         ConsoleWrite(QString("[IPC]STAGE_WEIGHT STAGE_UNPACKDLC %1").arg(
@@ -365,5 +368,12 @@ void ME3DLC::unpackAllDLC(ProgressCallback callback, void *callbackHandle)
                 PERROR("Error: Failed to unpack: " + g_GameData->RelativeGameData(sfarFiles[i]) + "\n");
             }
         }
+    }
+
+    long elapsed = Misc::elapsedStageTime();
+    if (g_ipc)
+    {
+        ConsoleWrite(QString("[IPC]STAGE_TIMING %1").arg(elapsed));
+        ConsoleSync();
     }
 }

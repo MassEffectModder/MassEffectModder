@@ -337,6 +337,7 @@ void Misc::AddMarkers(QStringList &pkgsToMarker,
                       ProgressCallback callback, void *callbackHandle)
 {
     PINFO("Adding markers started...\n");
+    Misc::restartStageTimer();
     if (g_ipc)
     {
         ConsoleWrite("[IPC]STAGE_CONTEXT STAGE_MARKERS");
@@ -371,6 +372,12 @@ void Misc::AddMarkers(QStringList &pkgsToMarker,
             fs.WriteStringASCII(str);
         }
     }
+    long elapsed = Misc::elapsedStageTime();
+    if (g_ipc)
+    {
+        ConsoleWrite(QString("[IPC]STAGE_TIMING %1").arg(elapsed));
+        ConsoleSync();
+    }
     PINFO("Adding markers finished.\n\n");
 }
 
@@ -404,6 +411,7 @@ void Misc::RepackME23(MeType gameId, bool appendMarker, QStringList &pkgsToRepac
                       ProgressCallback callback, void *callbackHandle)
 {
     PINFO("Repack started...\n");
+    Misc::restartStageTimer();
     if (g_ipc)
     {
         ConsoleWrite("[IPC]STAGE_CONTEXT STAGE_REPACK");
@@ -455,6 +463,12 @@ void Misc::RepackME23(MeType gameId, bool appendMarker, QStringList &pkgsToRepac
         }
         delete package;
     }
+    long elapsed = Misc::elapsedStageTime();
+    if (g_ipc)
+    {
+        ConsoleWrite(QString("[IPC]STAGE_TIMING %1").arg(elapsed));
+        ConsoleSync();
+    }
     PINFO("Repack finished.\n\n");
 }
 
@@ -484,6 +498,7 @@ bool Misc::RemoveMipmaps(MipMaps &mipMaps, QList<TextureMapEntry> &textures,
                          ProgressCallback callback, void *callbackHandle)
 {
     PINFO("Remove empty mipmaps started...\n");
+    Misc::restartStageTimer();
     if (g_ipc)
     {
         ConsoleWrite("[IPC]STAGE_CONTEXT STAGE_REMOVEMIPMAPS");
@@ -496,6 +511,12 @@ bool Misc::RemoveMipmaps(MipMaps &mipMaps, QList<TextureMapEntry> &textures,
         mipMaps.removeMipMaps(2, textures, pkgsToMarker, pkgsToRepack, repack, appendMarker, force,
                               callback, callbackHandle);
 
+    long elapsed = Misc::elapsedStageTime();
+    if (g_ipc)
+    {
+        ConsoleWrite(QString("[IPC]STAGE_TIMING %1").arg(elapsed));
+        ConsoleSync();
+    }
     PINFO("Remove empty mipmaps finished.\n\n");
 
     return true;

@@ -43,6 +43,8 @@ bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
 
     QList<ModEntry> modsToReplace;
 
+    Misc::restartStageTimer();
+
     for (int i = 0; i < files.count(); i++)
     {
         if (QFile(files[i]).size() == 0)
@@ -244,8 +246,16 @@ bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
 
     PINFO("Process textures finished.\n\n");
 
+    long elapsed = Misc::elapsedStageTime();
+    if (g_ipc)
+    {
+        ConsoleWrite(QString("[IPC]STAGE_TIMING %1").arg(elapsed));
+        ConsoleSync();
+    }
+
     if (verify)
     {
+        Misc::restartStageTimer();
         if (g_ipc)
         {
             ConsoleWrite("[IPC]STAGE_CONTEXT STAGE_VERIFYTEXTURES");
@@ -258,6 +268,12 @@ bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
         status = mipMaps.VerifyTextures(textures, callback, callbackHandle);
         if (!g_ipc)
             PINFO("\nVerifying installed textures finished.\n");
+        long elapsed = Misc::elapsedStageTime();
+        if (g_ipc)
+        {
+            ConsoleWrite(QString("[IPC]STAGE_TIMING %1").arg(elapsed));
+            ConsoleSync();
+        }
     }
 
     return status;
@@ -336,6 +352,7 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
         ConsoleSync();
     }
 
+    Misc::startStageTimer();
     if (gameId == MeType::ME3_TYPE && !modded && unpackNeeded)
     {
         PINFO("Unpacking DLCs started...\n");

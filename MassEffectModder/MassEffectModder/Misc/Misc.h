@@ -88,6 +88,9 @@ public:
     static QString getBytesFormat(quint64 size);
     static void startTimer();
     static long elapsedTime();
+    static void startStageTimer();
+    static void restartStageTimer();
+    static long elapsedStageTime();
     static QString getTimerFormat(long time);
     static bool CheckGamePath();
     static bool applyModTag(MeType gameId, int MeuitmV, int AlotV);

@@ -33,6 +33,7 @@
 #include <Resources/Resources.h>
 #include <Types/MemTypes.h>
 #include <MipMaps/MipMaps.h>
+#include <Misc/Misc.h>
 
 static bool generateBuiltinMapFiles = false; // change to true to enable map files generation
 
@@ -329,6 +330,7 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
     QElapsedTimer timer;
     timer.start();
 #endif
+    Misc::restartStageTimer();
     if (!generateBuiltinMapFiles && !g_GameData->FullScanGame)
     {
         if (g_ipc)
@@ -411,7 +413,14 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
             }
         }
     }
+    long elapsed = Misc::elapsedStageTime();
+    if (g_ipc)
+    {
+        ConsoleWrite(QString("[IPC]STAGE_TIMING %1").arg(elapsed));
+        ConsoleSync();
+    }
 
+    Misc::restartStageTimer();
     if (g_ipc)
     {
         ConsoleWrite("[IPC]STAGE_CONTEXT STAGE_SCAN");
@@ -840,6 +849,13 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
         {
             fs.CopyFrom(mem, mem.Length());
         }
+    }
+
+    elapsed = Misc::elapsedStageTime();
+    if (g_ipc)
+    {
+        ConsoleWrite(QString("[IPC]STAGE_TIMING %1").arg(elapsed));
+        ConsoleSync();
     }
 
     if (removeEmptyMips)
