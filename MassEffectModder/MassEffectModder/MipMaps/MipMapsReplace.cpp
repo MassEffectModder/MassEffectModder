@@ -1046,7 +1046,7 @@ QString MipMaps::replaceModsFromList(QList<TextureMapEntry> &textures, QStringLi
                 mod.exportId == modsToReplace[l].exportId &&
                 AsciiStringMatch(mod.packagePath, modsToReplace[l].packagePath)))
             {
-                if (mod.binaryModType)
+                if (!mod.binaryModType)
                 {
                     if (g_ipc)
                     {
