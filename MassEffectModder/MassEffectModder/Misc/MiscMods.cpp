@@ -1346,6 +1346,7 @@ bool Misc::extractTPF(QFileInfoList &list, QString &outputDir)
         QString outputTPFdir = outputDir + BaseNameWithoutExt(file.fileName());
         QDir().mkpath(outputTPFdir);
 
+        int lastProgress = -1;
 #if defined(_WIN32)
         auto str = file.absoluteFilePath().toStdWString();
 #else
@@ -1358,6 +1359,16 @@ bool Misc::extractTPF(QFileInfoList &list, QString &outputDir)
 
         for (int i = 0; i < numEntries; i++)
         {
+            int newProgress = i * 100 / numEntries;
+            if (lastProgress != newProgress)
+            {
+                lastProgress = newProgress;
+                if (g_ipc)
+                {
+                    ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + QString::number(newProgress));
+                    ConsoleSync();
+                }
+            }
             if (!Misc::TpfGetCurrentFileInfo(handle, fileName, dstLen))
                 goto failed;
             if (fileName.endsWith(".def", Qt::CaseInsensitive) ||
