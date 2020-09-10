@@ -214,6 +214,13 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
     if (cacheAmount >= 0 && cacheAmount <= 100)
         cacheLimit = (quint64)((memoryAmount * 1024ULL * 1024 * 1024) * (cacheAmount / 100.0));
 
+    if (g_ipc)
+    {
+        ConsoleWrite(QString("[IPC]AMOUNT_MEMORY_GB %1") + QString::number(memoryAmount));
+        ConsoleWrite(QString("[IPC]CACHE_LIMIT %1") + QString::number(cacheLimit));
+        ConsoleSync();
+    }
+
     for (int e = 0; e < map.count(); e++)
     {
 #ifdef GUI
@@ -930,6 +937,12 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                             break;
                         }
                     }
+                }
+
+                if (g_ipc)
+                {
+                    ConsoleWrite(QString("[IPC]CACHE_USAGE %1") + QString::number(cacheUsage));
+                    ConsoleSync();
                 }
 
                 mod.instance--;
