@@ -960,11 +960,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                     mod.arcTexture.clear();
                     mod.masterTextures.clear();
                 }
-
-                if (mod.injectedTexture == nullptr)
-                    delete image;
-
-                if (cacheUsage > cacheLimit)
+                else if (cacheUsage > cacheLimit)
                 {
                     foreach(MipMap mip, mod.cacheCprMipmaps)
                     {
@@ -973,6 +969,9 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                     mod.cacheCprMipmaps.clear();
                     cacheUsage -= mod.cacheSize;
                 }
+
+                if (mod.injectedTexture == nullptr)
+                    delete image;
 
                 modsToReplace.replace(entryMap.modIndex, mod);
                 textures[entryMap.texturesIndex].list[entryMap.listIndex] = matched;
