@@ -995,6 +995,19 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
         }
     }
 
+    for (int e = 0; e < map.count(); e++)
+    {
+        for (int p = 0; p < map[e].textures.count(); p++)
+        {
+            MapPackagesToModEntry entryMap = map[e].textures[p];
+            ModEntry mod = modsToReplace[entryMap.modIndex];
+            if (mod.instance > 0)
+            {
+                PINFO(QString("Mod index: ") + QString::number(entryMap.modIndex) + ", instances: " + QString::number(mod.instance));
+            }
+        }
+    }
+
     return errors;
 }
 
