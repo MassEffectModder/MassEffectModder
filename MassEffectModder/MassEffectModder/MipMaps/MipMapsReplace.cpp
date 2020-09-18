@@ -223,9 +223,6 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
 
     for (int e = 0; e < map.count(); e++)
     {
-#ifdef GUI
-        QApplication::processEvents();
-#endif
         if (g_ipc)
         {
             ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + map[e].packagePath);
@@ -273,6 +270,9 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
 
         for (int p = 0; p < map[e].textures.count(); p++)
         {
+#ifdef GUI
+            QApplication::processEvents();
+#endif
             MapPackagesToModEntry entryMap = map[e].textures[p];
             TextureMapPackageEntry matched = textures[entryMap.texturesIndex].list[entryMap.listIndex];
             ModEntry mod = modsToReplace[entryMap.modIndex];

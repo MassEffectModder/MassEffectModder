@@ -96,9 +96,20 @@ void FileStream::CopyFrom(Stream &stream, qint64 count, qint64 bufferSize)
     if (count < 0)
         CRASH();
 
+#ifdef GUI
+    QElapsedTimer timer;
+    timer.start();
+#endif
     std::unique_ptr<quint8[]> buffer (new quint8[static_cast<unsigned long>(bufferSize)]);
     do
     {
+#ifdef GUI
+        if (timer.elapsed() > 100)
+        {
+            QApplication::processEvents();
+            timer.restart();
+        }
+#endif
         qint64 size = qMin(bufferSize, count);
         stream.ReadToBuffer(buffer.get(), size);
         WriteFromBuffer(buffer.get(), size);

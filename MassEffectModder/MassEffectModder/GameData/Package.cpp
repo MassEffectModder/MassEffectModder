@@ -1110,8 +1110,19 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
             fs->WriteUInt32(0); // const 0
         saveExtraNames(*fs);
 
+#ifdef GUI
+        QElapsedTimer timer;
+        timer.start();
+#endif
         for (int c = 0; c < chunks.count(); c++)
         {
+#ifdef GUI
+            if (timer.elapsed() > 100)
+            {
+                QApplication::processEvents();
+                timer.restart();
+            }
+#endif
             chunk = chunks[c];
             chunk.comprOffset = fs->Position();
             chunk.comprSize = 0; // filled later
