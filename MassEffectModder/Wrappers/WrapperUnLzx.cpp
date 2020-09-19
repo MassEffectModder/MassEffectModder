@@ -45,7 +45,7 @@ int LzxDecompress(unsigned char *src, unsigned int src_len, unsigned char *dst, 
 #ifdef _WIN32
 #define LIB_EXPORT extern "C" __declspec(dllexport)
 #else
-#define LIB_EXPORT
+#define LIB_EXPORT extern "C"
 #endif
 
 LIB_EXPORT int LZXDecompress(unsigned char *src, unsigned int src_len, unsigned char *dst, unsigned int *dst_len)
