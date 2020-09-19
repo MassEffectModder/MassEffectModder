@@ -11,10 +11,9 @@ cache(ZSTD_ENABLE, set)
 SUBDIRS += \
     Libs/7z \
     Libs/dxtc \
-    Libs/lzo2
-
-SUBDIRS += \
+    Libs/lzo2 \
     Libs/png \
+    Libs/unlzx \
     Libs/xdelta3 \
     Libs/zlib
 

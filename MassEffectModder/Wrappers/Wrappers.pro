@@ -18,6 +18,7 @@ SOURCES += \
     Wrapper7Zip.cpp \
     WrapperDxtc.cpp \
     WrapperLzo.cpp \
+    WrapperUnLzx.cpp \
     WrapperUnzip.cpp \
     WrapperZlib.cpp
 
@@ -91,6 +92,7 @@ Release:LIBS += \
     -L$$OUT_PWD/../Libs/7z/release -l7z \
     -L$$OUT_PWD/../Libs/dxtc/release -ldxtc \
     -L$$OUT_PWD/../Libs/lzo2/release -llzo2 \
+    -L$$OUT_PWD/../Libs/unlzx/release -lunlzx \
     -L$$OUT_PWD/../Libs/zlib/release -lzlib
 
 equals(ZSTD_ENABLE, true) {
@@ -100,6 +102,7 @@ Debug:LIBS += \
     -L$$OUT_PWD/../Libs/7z/debug -l7z \
     -L$$OUT_PWD/../Libs/dxtc/debug -ldxtc \
     -L$$OUT_PWD/../Libs/lzo2/debug -llzo2 \
+    -L$$OUT_PWD/../Libs/unlzx/debug -lunlzx \
     -L$$OUT_PWD/../Libs/zlib/debug -lzlib
 
 equals(ZSTD_ENABLE, true) {
@@ -110,6 +113,7 @@ LIBS += \
     -L$$OUT_PWD/../Libs/7z -l7z \
     -L$$OUT_PWD/../Libs/dxtc -ldxtc \
     -L$$OUT_PWD/../Libs/lzo2 -llzo2 \
+    -L$$OUT_PWD/../Libs/unlzx -lunlzx \
     -L$$OUT_PWD/../Libs/zlib -lzlib
 
 equals(ZSTD_ENABLE, true) {
