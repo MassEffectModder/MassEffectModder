@@ -15,6 +15,7 @@ SOURCES += \
     7zStream.c \
     7zUnpack.c \
     Alloc.c \
+    Bcj2.c \
     CpuArch.c \
     LzFind.c \
     Lzma2Dec.c \
@@ -31,6 +32,7 @@ HEADERS += \
     7zFile.h \
     7zTypes.h \
     Alloc.h \
+    Bcj2.h \
     Compiler.h \
     CpuArch.h \
     LzFind.h \

@@ -690,6 +690,35 @@ int sevenzip_unpack(const char *path, const char *output_path,
                 res = SzArEx_ExtractFolderToStream(&db, &lookStream.vt, f,
                                                    &streamOutInfo[i], &allocTempImp,
                                                    PrintProgressIpc, PrintfCurrentFile);
+                if (res == SZ_ERROR_UNSUPPORTED)
+                {
+                    UInt32 blockIndex = 0xFFFFFFFF;
+                    Byte *outBuffer = 0;
+                    size_t outBufferSize = 0;
+                    size_t offset = 0;
+                    size_t outSizeProcessed = 0;
+                    res = SzArEx_Extract(&db, &lookStream.vt, i,
+                                         &blockIndex, &outBuffer, &outBufferSize,
+                                         &offset, &outSizeProcessed,
+                                         &allocImp, &allocTempImp);
+                    if (res == SZ_OK)
+                    {
+#ifdef USE_WINDOWS_FILE
+                        if (streamOutInfo[i].outStream.file.handle != INVALID_HANDLE_VALUE)
+#else
+                        if (streamOutInfo[i].outStream.file.file != NULL)
+#endif
+                        {
+                            SizeT outProcessed = outSizeProcessed;
+                            if (streamOutInfo[i].outStream.vt.Write(&streamOutInfo[i].outStream.vt, outBuffer, outProcessed) != outProcessed)
+                            {
+                                res = SZ_ERROR_WRITE;
+                            }
+                        }
+                        ISzAlloc_Free(&allocImp, outBuffer);
+                    }
+                }
+
                 if (res == SZ_OK)
                 {
                     foundFolder = 1;

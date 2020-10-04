@@ -5,10 +5,12 @@
 
 #include <string.h>
 
-//#define _7ZIP_PPMD_SUPPPORT
+/* #define _7ZIP_PPMD_SUPPPORT */
 
 #include "7z.h"
 #include "7zCrc.h"
+
+#include "Bcj2.h"
 #include "7zFile.h"
 
 #include "CpuArch.h"
@@ -700,11 +702,10 @@ static SRes SzFolder_Decode2(const CSzFolder *folder,
     Byte *tempBuf[])
 {
   UInt32 ci;
-#if 0
   SizeT tempSizes[3] = { 0, 0, 0};
   SizeT tempSize3 = 0;
   Byte *tempBuf3 = 0;
-#endif
+
   RINOK(CheckSupportedFolder(folder));
 
   for (ci = 0; ci < folder->NumCoders; ci++)
@@ -733,18 +734,14 @@ static SRes SzFolder_Decode2(const CSzFolder *folder,
           if (!temp && outSizeCur != 0)
             return SZ_ERROR_MEM;
           outBufCur = tempBuf[1 - ci] = temp;
-#if 0
           tempSizes[1 - ci] = outSizeCur;
-#endif
         }
         else if (ci == 2)
         {
           if (unpackSize > outSize) /* check it */
             return SZ_ERROR_PARAM;
-#if 0
           tempBuf3 = outBufCur = outBuffer + (outSize - (size_t)unpackSize);
           tempSize3 = outSizeCur = (SizeT)unpackSize;
-#endif
         }
         else
           return SZ_ERROR_UNSUPPORTED;
@@ -778,7 +775,6 @@ static SRes SzFolder_Decode2(const CSzFolder *folder,
       else
         return SZ_ERROR_UNSUPPORTED;
     }
-#if 0
     else if (coder->MethodID == k_BCJ2)
     {
       UInt64 offset = packPositions[1];
@@ -831,7 +827,6 @@ static SRes SzFolder_Decode2(const CSzFolder *folder,
         }
       }
     }
-#endif
     #ifndef _7Z_NO_METHODS_FILTERS
     else if (ci == 1)
     {
