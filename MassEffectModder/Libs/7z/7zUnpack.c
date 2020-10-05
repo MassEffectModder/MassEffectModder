@@ -697,12 +697,17 @@ int sevenzip_unpack(const char *path, const char *output_path,
                     size_t outBufferSize = 0;
                     size_t offset = 0;
                     size_t outSizeProcessed = 0;
+
+                    PrintfCurrentFile(&streamOutInfo[i]);
+
                     res = SzArEx_Extract(&db, &lookStream.vt, i,
                                          &blockIndex, &outBuffer, &outBufferSize,
                                          &offset, &outSizeProcessed,
                                          &allocImp, &allocTempImp);
                     if (res == SZ_OK)
                     {
+                        PrintProgressIpc(outSizeProcessed);
+
 #ifdef USE_WINDOWS_FILE
                         if (streamOutInfo[i].outStream.file.handle != INVALID_HANDLE_VALUE)
 #else
