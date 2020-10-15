@@ -393,6 +393,10 @@ void LayoutMain::CreateBinaryModSelected(MeType gameType)
                 if (memcmp(vanillaExport.ptr(), modExport.ptr(), vanillaExport.size()) == 0)
                     continue;
             }
+            if (vanillaPkg.getClassName(vanillaPkg.exportsTable[i].getClassId()) == "ShaderCache")
+            {
+                continue;
+            }
 
             BinaryMod mod;
             mod.packagePath = vanillaPkg.packagePath;
