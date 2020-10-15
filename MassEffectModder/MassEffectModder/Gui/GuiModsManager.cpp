@@ -396,16 +396,12 @@ void LayoutMain::CreateBinaryModSelected(MeType gameType)
             auto className = vanillaPkg.getClassName(vanillaPkg.exportsTable[e].getClassId());
             if (className == "ShaderCache" ||
                 className == "WwiseStream" ||
-                className == "WwiseBank")
-            {
-                continue;
-            }
-            auto objName = vanillaPkg.getName(vanillaPkg.exportsTable[e].getObjectNameId());
-            if (objName == "Texture2D" ||
-                objName == "LightMapTexture2D" ||
-                objName == "ShadowMapTexture2D" ||
-                objName == "TextureFlipBook" ||
-                objName == "TextureMovie")
+                className == "WwiseBank" ||
+                className == "Texture2D" ||
+                className == "LightMapTexture2D" ||
+                className == "ShadowMapTexture2D" ||
+                className == "TextureFlipBook" ||
+                className == "TextureMovie")
             {
                 continue;
             }
