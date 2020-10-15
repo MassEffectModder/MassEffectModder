@@ -393,7 +393,10 @@ void LayoutMain::CreateBinaryModSelected(MeType gameType)
                 if (memcmp(vanillaExport.ptr(), modExport.ptr(), vanillaExport.size()) == 0)
                     continue;
             }
-            if (vanillaPkg.getClassName(vanillaPkg.exportsTable[i].getClassId()) == "ShaderCache")
+            auto className = vanillaPkg.getClassName(vanillaPkg.exportsTable[e].getClassId());
+            if (className == "ShaderCache" ||
+                className == "WwiseStream" ||
+                className == "WwiseBank")
             {
                 continue;
             }
