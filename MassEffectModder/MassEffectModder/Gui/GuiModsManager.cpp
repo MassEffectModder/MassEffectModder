@@ -400,6 +400,15 @@ void LayoutMain::CreateBinaryModSelected(MeType gameType)
             {
                 continue;
             }
+            auto objName = vanillaPkg.getName(vanillaPkg.exportsTable[e].getObjectNameId());
+            if (objName == "Texture2D" ||
+                objName == "LightMapTexture2D" ||
+                objName == "ShadowMapTexture2D" ||
+                objName == "TextureFlipBook" ||
+                objName == "TextureMovie")
+            {
+                continue;
+            }
 
             BinaryMod mod;
             mod.packagePath = vanillaPkg.packagePath;
