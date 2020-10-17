@@ -366,8 +366,16 @@ void LayoutMain::CreateBinaryModSelected(MeType gameType)
         if (found && !vanilla)
         {
             mainWindow->statusBar()->clearMessage();
+            QString error;
+            if (modPkg.namesTable.count() != vanillaPkg.namesTable.count())
+                error += ", Names table not match";
+            if (modPkg.exportsTable.count() != vanillaPkg.exportsTable.count())
+                error += ", Exports table not match";
+            if (modPkg.importsTable.count() != vanillaPkg.importsTable.count())
+                error += ", Import table not match";
             QMessageBox::critical(this, "Creating Binary mod files",
-                                  "Package file is not compatible: " + packagesList[i] + ", aborting...");
+                                  "Package file is not compatible: " + packagesList[i] +
+                                  error + ", aborting...");
             LockGui(false);
             return;
         }
