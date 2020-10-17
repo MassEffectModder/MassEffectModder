@@ -341,6 +341,7 @@ void LayoutMain::CreateBinaryModSelected(MeType gameType)
         Package modPkg;
         bool vanilla = false;
         bool found = false;
+        int vanillaIndex = -1;
         QString basename = BaseName(packagesList[i]);
         for (int v = 0; v < g_GameData->packageFiles.count(); v++)
         {
@@ -357,6 +358,7 @@ void LayoutMain::CreateBinaryModSelected(MeType gameType)
                 {
                     found = true;
                     vanilla = false;
+                    vanillaIndex = v;
                     continue;
                 }
                 found = true;
@@ -375,6 +377,7 @@ void LayoutMain::CreateBinaryModSelected(MeType gameType)
                 error += ", Import table not match";
             QMessageBox::critical(this, "Creating Binary mod files",
                                   "Package file is not compatible: " + packagesList[i] +
+                                  " with package: " + packagesList[i] + g_GameData->packageFiles[vanillaIndex] +
                                   error + ", aborting...");
             LockGui(false);
             return;
