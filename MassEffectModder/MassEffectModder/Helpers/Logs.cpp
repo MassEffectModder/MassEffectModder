@@ -72,11 +72,9 @@ void Logs::EnableOutputFile(const QString &path, bool enable)
 #endif
     if (file) {
 #if defined(_WIN32)
-        unsigned char bom[] = { 0xFF,0xFE };
+        unsigned char bom[] = { 0xFF, 0xFE };
         fwrite(bom, 1, sizeof(bom), file);
 #endif
-        /*unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
-        fwrite(bom, 1, sizeof(bom), file);*/
         fclose(file);
         fileEnabled = enable;
     }
