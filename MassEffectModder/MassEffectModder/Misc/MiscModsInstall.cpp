@@ -281,7 +281,7 @@ bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
 
 bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFiles,
                        bool repack, bool guiInstallerMode, bool alotInstallerMode,
-                       bool limit2k, bool verify, int cacheAmount,
+                       bool skipMarkers, bool limit2k, bool verify, int cacheAmount,
                        ProgressCallback callback, void *callbackHandle)
 {
     MipMaps mipMaps;
@@ -347,7 +347,7 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
             ConsoleWrite("[IPC]STAGE_ADD STAGE_REMOVEMIPMAPS");
         if (repack)
             ConsoleWrite("[IPC]STAGE_ADD STAGE_REPACK");
-        if (!modded)
+        if (!skipMarkers && !modded)
             ConsoleWrite("[IPC]STAGE_ADD STAGE_MARKERS");
         ConsoleSync();
     }
@@ -436,7 +436,7 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
         Misc::RepackME23(gameId, true, pkgsToRepack, callback, callbackHandle);
 
 
-    if (!modded)
+    if (!skipMarkers && !modded)
         Misc::AddMarkers(pkgsToMarker, callback, callbackHandle);
 
     if (!alotInstallerMode)

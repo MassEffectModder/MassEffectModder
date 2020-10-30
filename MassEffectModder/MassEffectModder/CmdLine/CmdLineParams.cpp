@@ -45,6 +45,7 @@ int ProcessArguments()
     bool repackMode = false;
     bool meuitmMode = false;
     bool softShadowsMods = false;
+    bool skipMarkers = false;
     bool limit2k = false;
     bool pccOnly = false;
     bool tfcOnly = false;
@@ -225,6 +226,11 @@ int ProcessArguments()
         else if (arg == "--limit-2k")
         {
             limit2k = true;
+            args.removeAt(l--);
+        }
+        else if (arg == "--skip-markers")
+        {
+            skipMarkers = true;
             args.removeAt(l--);
         }
         else if (arg == "--verify")
@@ -521,7 +527,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.InstallMods(gameId, input, repackMode, alotMode, limit2k, verify, cacheAmountValue))
+        if (!tools.InstallMods(gameId, input, repackMode, alotMode, skipMarkers, limit2k, verify, cacheAmountValue))
         {
             errorCode = 1;
         }

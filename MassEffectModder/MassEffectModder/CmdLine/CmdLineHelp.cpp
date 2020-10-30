@@ -58,7 +58,7 @@ void DisplayHelp()
         "     Check game data for markers.\n" \
         "\n" \
         "  --install-mods --gameid <game id> --input <input dir> [--cache-amount <percent>]\n" \
-        "  [--repack] [--ipc] [--alot-mode] [--limit-2k] [--verify]\n" \
+        "  [--repack] [--skip-markers] [--ipc] [--alot-mode] [--limit-2k] [--verify]\n" \
         "     Install MEM mods from input directory.\n" \
         "\n" \
         "  --apply-me1-laa\n" \

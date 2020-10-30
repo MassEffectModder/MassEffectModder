@@ -60,7 +60,7 @@ public:
     bool DetectMods(MeType gameId);
     void AddMarkers();
     bool InstallMods(MeType gameId, QString &inputDir, bool repack,
-                     bool alotInstaller, bool limit2k, bool verify, int cacheAmount);
+                     bool alotInstaller, bool skipMarkers, bool limit2k, bool verify, int cacheAmount);
     bool RepackTFCInDLC(MeType gameId, QString &dlcName, bool pullTextures,
                         bool compressed);
     bool extractAllTextures(MeType gameId, QString &outputDir, QString &inputFile,

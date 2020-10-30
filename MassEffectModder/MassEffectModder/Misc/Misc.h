@@ -114,7 +114,7 @@ public:
                            ProgressCallback callback, void *callbackHandle);
     static bool InstallMods(MeType gameId, Resources &resources, QStringList &modFiles,
                            bool repack, bool guiInstallerMode, bool alotInstallerMode,
-                           bool limit2k, bool verify, int cacheAmount,
+                           bool skipMarkers, bool limit2k, bool verify, int cacheAmount,
                            ProgressCallback callback, void *callbackHandle);
     static bool RemoveMipmaps(MipMaps &mipMaps, QList<TextureMapEntry> &textures,
                               QStringList &pkgsToMarker, QStringList &pkgsToRepack,
