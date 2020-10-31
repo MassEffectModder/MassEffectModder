@@ -64,7 +64,7 @@ LIB_EXPORT void DecompressExplicitAlphaBlock(CODEC_BYTE alphaBlock[BLOCK_SIZE_4X
 
 LIB_EXPORT void DecompressAlphaBlock(CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4], CODEC_DWORD compressedBlock[2])
 {
-    DxtcCompressAlphaBlock(alphaBlock, compressedBlock);
+    DxtcDecompressAlphaBlock(alphaBlock, compressedBlock);
 }
 
 LIB_EXPORT void CompressExplicitAlphaBlock(CODEC_BYTE alphaBlock[BLOCK_SIZE_4X4], CODEC_DWORD compressedBlock[2])
