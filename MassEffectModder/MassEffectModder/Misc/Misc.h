@@ -79,6 +79,7 @@ public:
     static bool ConvertEndLines(const QString &path, bool unixMode);
     static bool ApplyLAAForME1Exe();
     static bool ChangeProductNameForME1Exe();
+    static bool ChangeRegKeyForME1Exe();
     static bool checkWriteAccessDir(const QString &path);
     static bool checkWriteAccessFile(QString &path);
     static bool isRunAsAdministrator();

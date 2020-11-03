@@ -442,6 +442,8 @@ bool CmdLineTools::ApplyME1LAAPatch()
         return false;
     if (!Misc::ChangeProductNameForME1Exe())
         return false;
+    if (!Misc::ChangeRegKeyForME1Exe())
+        return false;
 
     return true;
 }

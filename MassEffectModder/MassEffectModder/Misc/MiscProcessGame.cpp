@@ -110,6 +110,59 @@ bool Misc::ChangeProductNameForME1Exe()
     return false;
 }
 
+bool Misc::ChangeRegKeyForME1Exe()
+{
+    if (QFile(g_GameData->GameExePath()).exists())
+    {
+        // search for "enableLocalPhysXCore"
+        quint8 pattern[] = { 0x65, 0, 0x6E, 0, 0x61, 0, 0x62, 0, 0x6C, 0, 0x65, 0,
+                             0x4C, 0, 0x6F, 0, 0x63, 0, 0x61, 0, 0x6C, 0, 0x50, 0,
+                             0x68, 0, 0x79, 0, 0x73, 0, 0x58, 0, 0x43, 0, 0x6F, 0,
+                             0x72, 0, 0x65, 0 };
+        FileStream fs = FileStream(g_GameData->GameExePath(), FileMode::Open, FileAccess::ReadWrite);
+        ByteBuffer buffer = fs.ReadAllToBuffer();
+        quint8 *ptr = buffer.ptr();
+        int pos = -1;
+        for (qint64 i = 0; i < buffer.size(); i++)
+        {
+            if (ptr[i] == pattern[0])
+            {
+                bool found = true;
+                for (unsigned long long l = 1; l < sizeof (pattern); l++)
+                {
+                    if (ptr[i + l] != pattern[l])
+                    {
+                        found = false;
+                        break;
+                    }
+                }
+                if (found)
+                {
+                    pos = i;
+                    break;
+                }
+            }
+        }
+        if (pos != -1)
+        {
+            // replace to "enableLocalPhysXCor_"
+            fs.JumpTo(pos + 38);
+            fs.WriteByte(0x5f);
+            PINFO(QString("Patching ME1 'enableLocalPhysXCore': ") + g_GameData->GameExePath() + "\n");
+        }
+        else
+        {
+            PINFO(QString("Specific 'enableLocalPhysXCore' not found or already changed: ") +
+                         g_GameData->GameExePath() + "\n");
+        }
+        buffer.Free();
+        return true;
+    }
+
+    PERROR(QString("File not found: ") + g_GameData->GameExePath() + "\n");
+    return false;
+}
+
 bool Misc::applyModTag(MeType gameId, int MeuitmV, int AlotV)
 {
     QString path;
