@@ -94,7 +94,7 @@ bool TreeScan::IsBlankTexture(uint crc)
 
 void TreeScan::WarnNorm4k(MeType gameId, Texture *texture, const QString &textureName, int exportId)
 {
-    if (!g_ipc || gameId != MeType::ME3_TYPE)
+    if (!g_ipc || !texture || gameId != MeType::ME3_TYPE)
         return;
     if (texture->getTopMipmap().width < 4096 && texture->getTopMipmap().height < 4096)
         return;
