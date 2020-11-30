@@ -92,6 +92,27 @@ bool TreeScan::IsBlankTexture(uint crc)
     return false;
 }
 
+void TreeScan::WarnNorm4k(MeType gameId, Texture *texture, const QString &textureName, int exportId)
+{
+    if (!g_ipc || gameId != MeType::ME3_TYPE)
+        return;
+    if (texture->getTopMipmap().width < 4096 && texture->getTopMipmap().height < 4096)
+        return;
+    if (!texture->getProperties().exists("CompressionSettings"))
+        return;
+
+    QString cmp = texture->getProperties().getProperty("CompressionSettings").valueName;
+    if (cmp == "TC_Normalmap" ||
+        cmp == "TC_NormalmapHQ" ||
+        cmp == "TC_NormalmapAlpha" ||
+        cmp == "TC_NormalmapUncompressed")
+    {
+        ConsoleWrite(QString("[IPC]WARN_4K_NORM_FOUND Found 4K norm texture '") + textureName + "' in package: " +
+                     texture->packageName + " Export Id: " + QString::number(exportId + 1));
+        ConsoleSync();
+    }
+}
+
 void TreeScan::loadTexturesMap(MeType gameId, Resources &resources, QList<TextureMapEntry> &textures)
 {
     QStringList pkgs;
@@ -989,6 +1010,8 @@ void TreeScan::FindTextures(MeType gameId, QList<TextureMapEntry> &textures, con
                 delete texture;
                 continue;
             }
+
+            WarnNorm4k(gameId, texture, exp.objectName, i);
 
             int foundTextureIndex = -1;
             for (int k = 0; k < textures.count(); k++)

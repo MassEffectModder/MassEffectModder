@@ -23,6 +23,7 @@
 #define TREESCAN_H
 
 #include <Types/MemTypes.h>
+#include <Texture/Texture.h>
 #include <Texture/TextureProperty.h>
 #include <Resources/Resources.h>
 
@@ -72,6 +73,7 @@ public:
                                      bool saveMapFile,
                                      ProgressCallback callback, void *callbackHandle);
     static bool IsBlankTexture(uint crc);
+    static void WarnNorm4k(MeType gameId, Texture *texture, const QString &textureName, int exportId);
 };
 
 
