@@ -107,8 +107,8 @@ void TreeScan::WarnNorm4k(MeType gameId, Texture *texture, const QString &textur
         cmp == "TC_NormalmapAlpha" ||
         cmp == "TC_NormalmapUncompressed")
     {
-        ConsoleWrite(QString("[IPC]WARN_4K_NORM_FOUND Found 4K norm texture '") + textureName + "' in package: " +
-                     texture->packageName + " Export Id: " + QString::number(exportId + 1));
+        ConsoleWrite(QString("[IPC]WARN_4K_NORM_FOUND ") + QString::number(exportId + 1) + " " +
+                     textureName + " " + texture->packageName);
         ConsoleSync();
     }
 }
