@@ -491,9 +491,8 @@ bool LayoutTexturesManager::Startup()
         resources.loadMD5Tables();
         g_logs->BufferClearErrors();
         g_logs->BufferEnableErrors(true);
-        QList<Texture4kNormEntry> texture4kNorms;
         TreeScan::PrepareListOfTextures(gameType, resources,
-                                        textures, texture4kNorms, removeEmptyMips, true,
+                                        textures, removeEmptyMips, true,
                                         &LayoutTexturesManager::PrepareTexturesCallback,
                                         mainWindow);
         g_logs->BufferEnableErrors(false);

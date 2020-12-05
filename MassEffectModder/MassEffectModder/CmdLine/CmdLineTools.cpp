@@ -48,12 +48,11 @@ int CmdLineTools::scanTextures(MeType gameId, bool removeEmptyMips)
     PINFO("Scan textures started...\n");
 
     QList<TextureMapEntry> textures;
-    QList<Texture4kNormEntry> texture4kNorms;
     Resources resources;
 
     resources.loadMD5Tables();
     Misc::startTimer();
-    errorCode = TreeScan::PrepareListOfTextures(gameId, resources, textures, texture4kNorms, removeEmptyMips, true,
+    errorCode = TreeScan::PrepareListOfTextures(gameId, resources, textures, removeEmptyMips, true,
                                                 nullptr, nullptr);
     long elapsed = Misc::elapsedTime();
     PINFO(Misc::getTimerFormat(elapsed) + "\n");
@@ -641,11 +640,10 @@ bool CmdLineTools::RepackTFCInDLC(MeType gameId, QString &dlcName, bool pullText
     PINFO("Scan textures started...\n");
 
     QList<TextureMapEntry> textures;
-    QList<Texture4kNormEntry> texture4kNorms;
     Resources resources;
     resources.loadMD5Tables();
     g_GameData->FullScanGame = true;
-    TreeScan::PrepareListOfTextures(gameId, resources, textures, texture4kNorms, false, false,
+    TreeScan::PrepareListOfTextures(gameId, resources, textures, false, false,
                                     nullptr, nullptr);
 
     PINFO("Scan textures finished.\n\n");

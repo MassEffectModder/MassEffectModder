@@ -92,8 +92,7 @@ bool TreeScan::IsBlankTexture(uint crc)
     return false;
 }
 
-void TreeScan::WarnNorm4k(MeType gameId, Texture *texture, const QString &textureName, const QString &packagePath,
-                          int exportId, QList<Texture4kNormEntry> &texture4kNorms)
+void TreeScan::WarnNorm4k(MeType gameId, Texture *texture, const QString &textureName, int exportId)
 {
     if (!g_ipc || !texture || gameId != MeType::ME3_TYPE)
         return;
@@ -109,13 +108,8 @@ void TreeScan::WarnNorm4k(MeType gameId, Texture *texture, const QString &textur
         cmp == "TC_NormalmapUncompressed")
     {
         ConsoleWrite(QString("[IPC]WARN_4K_NORM_FOUND ") + QString::number(exportId + 1) + " " +
-                     textureName + " " + packagePath);
+                     textureName + " " + texture->packageName);
         ConsoleSync();
-        Texture4kNormEntry entry;
-        entry.path = packagePath;
-        entry.exportId = exportId;
-        entry.textureName = textureName;
-        texture4kNorms.push_back(entry);
     }
 }
 
@@ -325,8 +319,8 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<TextureMapEntry> &textur
 }
 
 bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
-                                    QList<TextureMapEntry> &textures, QList<Texture4kNormEntry> &texture4kNorms,
-                                    bool removeEmptyMips, bool saveMapFile,
+                                    QList<TextureMapEntry> &textures, bool removeEmptyMips,
+                                    bool saveMapFile,
                                     ProgressCallback callback, void *callbackHandle)
 {
     QStringList pkgs;
@@ -535,7 +529,7 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
                     callback(callbackHandle, newProgress, "Scanning textures");
                 }
             }
-            FindTextures(gameId, textures, modifiedFiles[i], texture4kNorms, true);
+            FindTextures(gameId, textures, modifiedFiles[i], true);
         }
 
         for (int i = 0; i < addedFiles.count(); i++, currentPackage++)
@@ -573,7 +567,7 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
                     callback(callbackHandle, newProgress, "Scanning textures");
                 }
             }
-            FindTextures(gameId, textures, addedFiles[i], texture4kNorms, false);
+            FindTextures(gameId, textures, addedFiles[i], false);
         }
     }
     else
@@ -614,7 +608,7 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
                     callback(callbackHandle, newProgress, "Scanning textures");
                 }
             }
-            FindTextures(gameId, textures, g_GameData->packageFiles[i], texture4kNorms, false);
+            FindTextures(gameId, textures, g_GameData->packageFiles[i], false);
         }
     }
 
@@ -905,7 +899,7 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
 }
 
 void TreeScan::FindTextures(MeType gameId, QList<TextureMapEntry> &textures, const QString &packagePath,
-                            QList<Texture4kNormEntry> &texture4kNorms, bool modified)
+                            bool modified)
 {
     Package package;
     int status = package.Open(g_GameData->GamePath() + packagePath);
@@ -1017,7 +1011,7 @@ void TreeScan::FindTextures(MeType gameId, QList<TextureMapEntry> &textures, con
                 continue;
             }
 
-            WarnNorm4k(gameId, texture, exp.objectName, packagePath, i, texture4kNorms);
+            WarnNorm4k(gameId, texture, exp.objectName, i);
 
             int foundTextureIndex = -1;
             for (int k = 0; k < textures.count(); k++)

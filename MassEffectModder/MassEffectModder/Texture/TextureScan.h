@@ -27,13 +27,6 @@
 #include <Texture/TextureProperty.h>
 #include <Resources/Resources.h>
 
-struct Texture4kNormEntry
-{
-    QString path;
-    QString textureName;
-    int exportId;
-};
-
 struct TextureMapPackageEntry
 {
     int exportID;
@@ -66,7 +59,7 @@ class TreeScan
 private:
 
     static void FindTextures(MeType gameId, QList<TextureMapEntry> &textures,
-                             const QString &packagePath, QList<Texture4kNormEntry> &texture4kNorms, bool modified);
+                             const QString &packagePath, bool modified);
 
 public:
 
@@ -76,12 +69,11 @@ public:
     static void loadTexturesMap(MeType gameId, Resources &resources, QList<TextureMapEntry> &textures);
     static bool loadTexturesMapFile(QString &path, QList<TextureMapEntry> &textures, bool ignoreCheck = false);
     static bool PrepareListOfTextures(MeType gameId, Resources &resources,
-                                     QList<TextureMapEntry> &textures, QList<Texture4kNormEntry> &texture4kNorms,
-                                     bool removeEmptyMips, bool saveMapFile,
+                                     QList<TextureMapEntry> &textures, bool removeEmptyMips,
+                                     bool saveMapFile,
                                      ProgressCallback callback, void *callbackHandle);
     static bool IsBlankTexture(uint crc);
-    static void WarnNorm4k(MeType gameId, Texture *texture, const QString &textureName, const QString &packagePath,
-                           int exportId, QList<Texture4kNormEntry> &texture4kNorms);
+    static void WarnNorm4k(MeType gameId, Texture *texture, const QString &textureName, int exportId);
 };
 
 

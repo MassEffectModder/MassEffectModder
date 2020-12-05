@@ -287,7 +287,6 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
     MipMaps mipMaps;
     QStringList pkgsToRepack;
     QStringList pkgsToMarker;
-    QList<Texture4kNormEntry> texture4kNorms;
 
     if (GameData::ConfigIniPath(gameId).length() == 0)
     {
@@ -399,7 +398,7 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
             pkgsToMarker.removeOne("/BioGame/CookedPC/BIOC_Materials.pcc");
 
         PINFO("Scan textures started...\n");
-        if (!TreeScan::PrepareListOfTextures(gameId, resources, textures, texture4kNorms, false, true,
+        if (!TreeScan::PrepareListOfTextures(gameId, resources, textures, false, true,
                                         callback, callbackHandle))
         {
             PERROR("Failed to scan textures!\n");
@@ -426,10 +425,6 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
 
     Misc::applyMods(modFiles, textures, pkgsToRepack, pkgsToMarker, mipMaps,
                     repack, true, modded, verify, cacheAmount, callback, callbackHandle);
-
-
-    if (!modded && GameData::gameType == MeType::ME3_TYPE)
-        MipMaps::Remove4kNorms(texture4kNorms);
 
 
     if (!modded)
