@@ -75,6 +75,7 @@ public:
     const ByteBuffer getMipMapDataByIndex(int index);
     const ByteBuffer getMipMapData(TextureMipMap &mipmap);
     void removeEmptyMips();
+    void removeTopMip();
     bool hasEmptyMips();
     int numNotEmptyMips();
     int getNumMipmaps() { return mipMapsList.count(); }

@@ -259,6 +259,14 @@ void Texture::removeEmptyMips()
     }
 }
 
+void Texture::removeTopMip()
+{
+    if (mipMapsList.count() > 1)
+    {
+        mipMapsList.removeFirst();
+    }
+}
+
 const Texture::TextureMipMap& Texture::getMipmap(int width, int height)
 {
     for (int l = 0; l < mipMapsList.count(); l++)

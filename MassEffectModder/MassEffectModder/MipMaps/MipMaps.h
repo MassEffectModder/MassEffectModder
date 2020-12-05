@@ -143,10 +143,11 @@ public:
                             bool removeMips, int cacheAmount,
                             ProgressCallback callback, void *callbackHandle);
     QString replaceModsFromList(QList<TextureMapEntry> &textures, QStringList &pkgsToMarker,
-                                QStringList &pkgsToRepack,QList<ModEntry> &modsToReplace, bool repack,
+                                QStringList &pkgsToRepack, QList<ModEntry> &modsToReplace, bool repack,
                                 bool appendMarker, bool verify, bool removeMips, int cacheAmount,
                                 ProgressCallback callback, void *callbackHandle);
     static void RemoveLowerMips(Image *image);
+    static void Remove4kNorms(QList<Texture4kNormEntry> &texture4kNorms);
 };
 
 #endif

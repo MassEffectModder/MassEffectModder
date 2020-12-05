@@ -1302,3 +1302,105 @@ QString MipMaps::replaceModsFromList(QList<TextureMapEntry> &textures, QStringLi
 
     return errors;
 }
+
+void MipMaps::Remove4kNorms(QList<Texture4kNormEntry> &texture4kNorms)
+{
+    Package package{};
+    QString lastPath;
+    int lastIndex = texture4kNorms.count() - 1;
+
+    for (int i = 0; i < texture4kNorms.count(); i++)
+    {
+        if (g_ipc)
+        {
+            ConsoleWrite(QString("[IPC]WARN_REMOVING_4K_NORM ") + texture4kNorms[i].path + " " +
+                         QString::number(texture4kNorms[i].exportId + 1) + " " + texture4kNorms[i].textureName);
+            ConsoleSync();
+        }
+
+        if (lastPath != texture4kNorms[i].path)
+        {
+            package = {};
+            if (package.Open(g_GameData->GamePath() + texture4kNorms[i].path) != 0)
+            {
+                if (g_ipc)
+                {
+                    ConsoleWrite(QString("[IPC]ERROR Issue opening package file: ") + texture4kNorms[i].path + "\n");
+                    ConsoleSync();
+                }
+                else
+                {
+                    QString err;
+                    err += "---- Start --------------------------------------------\n";
+                    err += "Issue opening package file: " + texture4kNorms[i].path + "\n";
+                    err += "---- End ----------------------------------------------\n\n";
+                    PERROR(err);
+                }
+                continue;
+            }
+            lastPath = texture4kNorms[i].path;
+        }
+
+        ByteBuffer exportData = package.getExportData(texture4kNorms[i].exportId);
+        if (exportData.ptr() == nullptr)
+        {
+            if (g_ipc)
+            {
+                ConsoleWrite(QString("[IPC]ERROR Texture has broken export data in package: ") +
+                             package.packagePath + " Export Id: " +
+                             QString::number(texture4kNorms[i].exportId + 1));
+                ConsoleSync();
+            }
+            else
+            {
+                PERROR(QString("Error: Texture has broken export data in package: ") +
+                       package.packagePath +"\nExport Id: " +
+                       QString::number(texture4kNorms[i].exportId + 1) + "\nSkipping...\n");
+            }
+            continue;
+        }
+        Texture texture = Texture(package, texture4kNorms[i].exportId, exportData);
+        exportData.Free();
+
+        if (texture.getTopMipmap().width < 4096 && texture.getTopMipmap().height < 4096)
+            continue;
+
+        texture.removeEmptyMips();
+        texture.removeTopMip();
+        texture.getProperties().setIntValue("SizeX", texture.mipMapsList.first().width);
+        texture.getProperties().setIntValue("SizeY", texture.mipMapsList.first().height);
+        texture.getProperties().setIntValue("MipTailBaseIdx", texture.mipMapsList.count() - 1);
+
+        uint packageDataOffset;
+        {
+            MemoryStream newData;
+            ByteBuffer buffer = texture.getProperties().toArray();
+            newData.WriteFromBuffer(buffer);
+            buffer.Free();
+            packageDataOffset = package.exportsTable[texture4kNorms[i].exportId].getDataOffset() + (uint)newData.Position();
+            buffer = texture.toArray(packageDataOffset);
+            newData.WriteFromBuffer(buffer);
+            buffer.Free();
+            buffer = newData.ToArray();
+            package.setExportData(texture4kNorms[i].exportId, buffer);
+            buffer.Free();
+        }
+
+        if (lastIndex == i || (texture4kNorms[i].path != texture4kNorms[i + 1].path))
+        {
+            if (!package.SaveToFile())
+            {
+                if (g_ipc)
+                {
+                    ConsoleWrite(QString("[IPC]ERROR Failed to save package: " + g_GameData->packageFiles[i]));
+                    ConsoleSync();
+                }
+                else
+                {
+                    PERROR(QString("ERROR: Failed to save package: ") + g_GameData->packageFiles[i] + "\n");
+                }
+                return;
+            }
+        }
+    }
+}
