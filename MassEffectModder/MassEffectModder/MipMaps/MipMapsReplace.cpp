@@ -1305,7 +1305,7 @@ QString MipMaps::replaceModsFromList(QList<TextureMapEntry> &textures, QStringLi
 
 void MipMaps::Remove4kNorms(QList<Texture4kNormEntry> &texture4kNorms)
 {
-    Package package{};
+    Package *package = nullptr;
     QString lastPath;
     int lastIndex = texture4kNorms.count() - 1;
 
@@ -1320,8 +1320,9 @@ void MipMaps::Remove4kNorms(QList<Texture4kNormEntry> &texture4kNorms)
 
         if (lastPath != texture4kNorms[i].path)
         {
-            package = {};
-            if (package.Open(g_GameData->GamePath() + texture4kNorms[i].path) != 0)
+            delete package;
+            package = new Package();
+            if (package->Open(g_GameData->GamePath() + texture4kNorms[i].path) != 0)
             {
                 if (g_ipc)
                 {
@@ -1341,25 +1342,25 @@ void MipMaps::Remove4kNorms(QList<Texture4kNormEntry> &texture4kNorms)
             lastPath = texture4kNorms[i].path;
         }
 
-        ByteBuffer exportData = package.getExportData(texture4kNorms[i].exportId);
+        ByteBuffer exportData = package->getExportData(texture4kNorms[i].exportId);
         if (exportData.ptr() == nullptr)
         {
             if (g_ipc)
             {
                 ConsoleWrite(QString("[IPC]ERROR Texture has broken export data in package: ") +
-                             package.packagePath + " Export Id: " +
+                             package->packagePath + " Export Id: " +
                              QString::number(texture4kNorms[i].exportId + 1));
                 ConsoleSync();
             }
             else
             {
                 PERROR(QString("Error: Texture has broken export data in package: ") +
-                       package.packagePath +"\nExport Id: " +
+                       package->packagePath +"\nExport Id: " +
                        QString::number(texture4kNorms[i].exportId + 1) + "\nSkipping...\n");
             }
             continue;
         }
-        Texture texture = Texture(package, texture4kNorms[i].exportId, exportData);
+        Texture texture = Texture(*package, texture4kNorms[i].exportId, exportData);
         exportData.Free();
 
         if (texture.getTopMipmap().width < 4096 && texture.getTopMipmap().height < 4096)
@@ -1377,18 +1378,18 @@ void MipMaps::Remove4kNorms(QList<Texture4kNormEntry> &texture4kNorms)
             ByteBuffer buffer = texture.getProperties().toArray();
             newData.WriteFromBuffer(buffer);
             buffer.Free();
-            packageDataOffset = package.exportsTable[texture4kNorms[i].exportId].getDataOffset() + (uint)newData.Position();
+            packageDataOffset = package->exportsTable[texture4kNorms[i].exportId].getDataOffset() + (uint)newData.Position();
             buffer = texture.toArray(packageDataOffset);
             newData.WriteFromBuffer(buffer);
             buffer.Free();
             buffer = newData.ToArray();
-            package.setExportData(texture4kNorms[i].exportId, buffer);
+            package->setExportData(texture4kNorms[i].exportId, buffer);
             buffer.Free();
         }
 
         if (lastIndex == i || (texture4kNorms[i].path != texture4kNorms[i + 1].path))
         {
-            if (!package.SaveToFile())
+            if (!package->SaveToFile())
             {
                 if (g_ipc)
                 {
@@ -1399,8 +1400,10 @@ void MipMaps::Remove4kNorms(QList<Texture4kNormEntry> &texture4kNorms)
                 {
                     PERROR(QString("ERROR: Failed to save package: ") + g_GameData->packageFiles[i] + "\n");
                 }
+                delete package;
                 return;
             }
         }
     }
+    delete package;
 }
