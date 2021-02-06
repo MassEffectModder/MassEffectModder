@@ -474,6 +474,26 @@ void GameData::InternalInit(MeType type, ConfigIni &configIni)
         }
         _path = "";
     }
+
+    registryKey = R"(HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App)";
+    if (type == MeType::ME1_TYPE)
+        registryKey += " 17460";
+    else if (type == MeType::ME2_TYPE)
+        registryKey += " 24980";
+    entry = "InstallLocation";
+
+    QSettings settings2(registryKey, QSettings::NativeFormat);
+    path = settings2.value(entry, "").toString();
+    if (path.length() != 0)
+    {
+        _path = QDir::cleanPath(path);
+        if (QFile(GameExePath()).exists())
+        {
+            configIni.Write(key, _path.replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameDataPath");
+            return;
+        }
+        _path = "";
+    }
 #endif
 
     _path = QDir::cleanPath(path);
