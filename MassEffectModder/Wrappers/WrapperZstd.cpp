@@ -1,7 +1,7 @@
 /*
  * Wrapper Zstd
  *
- * Copyright (C) 2019-2020 Pawel Kolodziejski
+ * Copyright (C) 2019-2021 Pawel Kolodziejski
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
