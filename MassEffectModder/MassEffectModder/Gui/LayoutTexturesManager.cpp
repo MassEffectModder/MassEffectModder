@@ -25,6 +25,7 @@
 #include <Gui/LayoutTexturesManager.h>
 #include <Gui/MainWindow.h>
 #include <Gui/MessageWindow.h>
+#include <Gui/PixmapLabel.h>
 #include <Image/Image.h>
 #include <Helpers/Exception.h>
 #include <Helpers/QSort.h>
@@ -34,40 +35,6 @@
 #include <Misc/Misc.h>
 #include <Texture/Texture.h>
 #include <Texture/TextureMovie.h>
-
-PixmapLabel::PixmapLabel(QWidget *parent) :
-    QLabel(parent)
-{
-    setMinimumSize(1, 1);
-}
-
-void PixmapLabel::setPixmap(const QPixmap &p)
-{
-    pixmapImage = p;
-    QLabel::setPixmap(resizePixmap());
-}
-
-int PixmapLabel::heightForWidth(int w) const
-{
-    if (pixmapImage.isNull())
-        return height();
-    return ((qreal)pixmapImage.height() * w) / pixmapImage.width();
-}
-
-void PixmapLabel::resizeEvent(QResizeEvent *event)
-{
-    if (!pixmapImage.isNull())
-        QLabel::setPixmap(resizePixmap());
-    QLabel::resizeEvent(event);
-}
-
-QPixmap PixmapLabel::resizePixmap() const
-{
-    auto resizedPixmap = pixmapImage.scaled(size() * devicePixelRatioF(),
-                                            Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    resizedPixmap.setDevicePixelRatio(devicePixelRatioF());
-    return resizedPixmap;
-}
 
 LayoutTexturesManager::LayoutTexturesManager(MainWindow *window, MeType type)
     : mainWindow(window), gameType(type)

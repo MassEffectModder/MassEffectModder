@@ -23,30 +23,11 @@
 #define LAYOUT_TEXTURES_MANAGER_H
 
 #include <Gui/MainWindow.h>
+#include <Gui/PixmapLabel.h>
 #include <Image/Image.h>
 #include <Program/ConfigIni.h>
 #include <Resources/Resources.h>
 #include <Texture/TextureScan.h>
-
-class PixmapLabel : public QLabel
-{
-    Q_OBJECT
-
-private:
-    QPixmap pixmapImage;
-
-public slots:
-    void setPixmap(const QPixmap &p);
-
-protected:
-    void resizeEvent(QResizeEvent *event) override;
-
-public:
-    explicit PixmapLabel(QWidget *parent = nullptr);
-
-    [[nodiscard]] QPixmap resizePixmap() const;
-    [[nodiscard]] int heightForWidth(int w) const override;
-};
 
 struct ViewPackage {
     QString packageName;
