@@ -245,18 +245,15 @@ void LayoutInstallModsManager::InstallMods(QStringList &mods)
     if (!Misc::checkWriteAccessDir(g_GameData->MainData()))
     {
         QMessageBox::critical(this, "Installing MEM mods",
-                              QString("Detected program has not write access to game folder.") +
+                              QString("Program has not write access to game folder.") +
               "\n\nCorrect access to game directory." +
               "\n\nThen start Texture Manager again.");
         LockGui(false);
         return;
     }
 
-    QList<TextureMapEntry> textures;
     Resources resources;
     resources.loadMD5Tables();
-
-    TreeScan::loadTexturesMap(gameType, resources, textures);
 
     g_logs->BufferClearErrors();
     g_logs->BufferEnableErrors(true);
