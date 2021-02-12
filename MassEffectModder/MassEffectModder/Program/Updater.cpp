@@ -260,7 +260,7 @@ void Updater::finishedDownloadRelasesList(QNetworkReply *reply)
     {
         QMap<QString, QVariant> mapReleases = releaseNode.toMap();
         int releaseVersion = mapReleases["tag_name"].toInt();
-        if (releaseVersion <= latestVersion)
+        if (releaseVersion <= latestVersion || releaseVersion >= 500)
             continue;
         for (const QVariant &assetNode : mapReleases["assets"].toList())
         {
