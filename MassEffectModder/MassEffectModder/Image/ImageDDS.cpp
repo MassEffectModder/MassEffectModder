@@ -497,18 +497,12 @@ ByteBuffer Image::compressMipmap(PixelFormat dstFormat, const quint8 *src, int w
     auto dst = ByteBuffer(blockSize * (w / 4) * (h / 4));
     int cores = omp_get_max_threads();
     int partSize;
-    if (w * h < 65536 || w < 256 || h < 16)
-    {
+    cores = returnPowerOfTwo(cores);
+    if ((cores * 4 * 4) > h)
+        cores = h / 4 / 4;
+    if (cores == 0)
         cores = 1;
-        partSize = h / 4;
-    }
-    else
-    {
-        cores = returnPowerOfTwo(cores);
-        if ((cores * 4 * 4) > h)
-            cores = h / 4 / 4;
-        partSize = h / 4 / cores;
-    }
+    partSize = h / 4 / cores;
 
     int range[cores + 1];
     range[0] = 0;
@@ -571,18 +565,12 @@ ByteBuffer Image::decompressMipmap(PixelFormat srcFormat, const quint8 *src, int
     auto dst = ByteBuffer(w * h * 4);
     int cores = omp_get_max_threads();
     int partSize;
-    if (w * h < 65536 || w < 256 || h < 16)
-    {
+    cores = returnPowerOfTwo(cores);
+    if ((cores * 4 * 4) > h)
+        cores = h / 4 / 4;
+    if (cores == 0)
         cores = 1;
-        partSize = h / 4;
-    }
-    else
-    {
-        cores = returnPowerOfTwo(cores);
-        if ((cores * 4 * 4) > h)
-            cores = h / 4 / 4;
-        partSize = h / 4 / cores;
-    }
+    partSize = h / 4 / cores;
 
     int range[cores + 1];
     range[0] = 0;
