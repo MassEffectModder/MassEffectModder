@@ -22,8 +22,6 @@
 #ifndef UPDATER_H
 #define UPDATER_H
 
-class MainWindow;
-
 class Updater : public QWidget
 {
     Q_OBJECT
@@ -41,7 +39,7 @@ class Updater : public QWidget
     QNetworkAccessManager managerListReleases;
     QNetworkAccessManager managerRelease;
     QNetworkReply         *replyRelease;
-    MainWindow            *parentWindow;
+    QMainWindow           *parentWindow;
     QDialog               dialog;
     QLabel                textWidget;
     QPushButton           button;
@@ -53,7 +51,7 @@ class Updater : public QWidget
     void downloadRelease(const QString &downLoadUrl);
 
 public:
-    Updater(MainWindow *window);
+    Updater(QMainWindow *window);
     ~Updater() override;
 
 private slots:

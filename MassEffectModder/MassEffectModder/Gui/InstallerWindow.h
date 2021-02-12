@@ -38,7 +38,7 @@ private slots:
 
 private:
     static const int kMinWindowWidth = 1024;
-    static const int kMinWindowHeight = 600;
+    static const int kMinWindowHeight = 576;
     static const int kLayoutInstallerMain = 1;
     static const int kLayoutInstallerProcess = 2;
 
@@ -49,7 +49,7 @@ private:
     bool             busy;
 
 public:
-    InstallerWindow();
+    InstallerWindow(MeType gameType);
 
     QStackedLayout  *GetLayout() { return stackedLayout; }
     void            LockClose(bool state) { busy = state; }

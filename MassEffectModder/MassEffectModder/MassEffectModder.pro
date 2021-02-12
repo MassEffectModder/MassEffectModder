@@ -71,6 +71,7 @@ SOURCES += \
     Gui/LayoutInstallMods.cpp \
     Gui/LayoutMain.cpp \
     Gui/LayoutTexturesManager.cpp \
+    Gui/PixmapLabel.cpp \
     Program/Updater.cpp
 } else {
 SOURCES += \
@@ -121,6 +122,7 @@ HEADERS += \
     Gui/LayoutHandle.h \
     Gui/LayoutMain.h \
     Gui/LayoutTexturesManager.h \
+    Gui/PixmapLabel.h \
     Program/Updater.h
 } else {
 HEADERS += \

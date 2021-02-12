@@ -26,7 +26,7 @@
 #include <Program/Updater.h>
 #include <Wrappers.h>
 
-Updater::Updater(MainWindow *window) :
+Updater::Updater(QMainWindow *window) :
     replyRelease(nullptr), parentWindow(window)
 {
     connect(&managerListReleases, SIGNAL(finished(QNetworkReply *)), SLOT(finishedDownloadRelasesList(QNetworkReply *)));

@@ -23,20 +23,21 @@
 #define LAYOUT_INSTALLER_MAIN_H
 
 #include <Gui/InstallerWindow.h>
+#include <Gui/PixmapLabel.h>
 
 class LayoutInstallerMain : public LayoutHandle
 {
     Q_OBJECT
 
 public:
-    explicit LayoutInstallerMain(InstallerWindow *window = nullptr);
+    explicit LayoutInstallerMain(MeType gameType, InstallerWindow *window = nullptr);
 
 private slots:
 
+    void StartSelected();
 
 private:
-    const int kButtonMinWidth = 270;
-    const int kButtonMinSmallWidth = 220;
+    const int kButtonMinWidth = 200;
     const int kButtonMinHeight = 22;
 #if defined(__APPLE__)
     const int kFontSize = 12;
@@ -48,9 +49,11 @@ private:
 
     int                 currentMESelection;
     InstallerWindow     *installerWindow;
-    MeType              gameType;
+    MeType              gameId;
+    QPushButton         *buttonStart;
+    QLabel              *currentStatusLabel;
 
-
+    static void InstallCallback(void *handle, int progress, const QString &stage);
     void LockGui(bool lock);
 };
 

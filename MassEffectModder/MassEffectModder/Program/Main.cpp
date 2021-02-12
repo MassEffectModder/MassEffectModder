@@ -121,17 +121,50 @@ int runQtApplication(int argc, char *argv[])
                    QSysInfo::productVersion(),
                    QString::number(DetectAmountMemoryGB())));
 
-    MainWindow window;
-    InstallerWindow installer;
-
-    window.show();
-
-#ifdef NDEBUG
-    Updater updater(&window);
-    QTimer::singleShot(1000, &updater, SLOT(processUpdate()));
+    MeType gameIdInstaller = MeType::UNKNOWN_TYPE;
+    path = QDir::cleanPath(QCoreApplication::applicationDirPath() +
+#if defined(__APPLE__)
+                           "/../../.." +
 #endif
+                           "/installer.ini");
+    if (QFile(path).exists())
+    {
+#if defined(_WIN32)
+        ConfigIni installerIni = ConfigIni(path);
+#else
+        ConfigIni installerIni = ConfigIni(path, true);
+#endif
+        auto gameIdStr = installerIni.Read("GameId", "Main");
+        if (gameIdStr.compare("me1", Qt::CaseInsensitive) == 0)
+            gameIdInstaller = MeType::ME1_TYPE;
+        else if (gameIdStr.compare("me2", Qt::CaseInsensitive) == 0)
+            gameIdInstaller = MeType::ME2_TYPE;
+        else if (gameIdStr.compare("me3", Qt::CaseInsensitive) == 0)
+            gameIdInstaller = MeType::ME3_TYPE;
+    }
 
-    int status = QApplication::exec();
+    int status;
+    if (gameIdInstaller != MeType::UNKNOWN_TYPE)
+    {
+        InstallerWindow installer(gameIdInstaller);
+        installer.show();
+#ifdef NDEBUG
+        Updater updater(&installer);
+        QTimer::singleShot(1000, &updater, SLOT(processUpdate()));
+#endif
+        status = QApplication::exec();
+    }
+    else
+    {
+        MainWindow window;
+        window.show();
+#ifdef NDEBUG
+        Updater updater(&window);
+        QTimer::singleShot(1000, &updater, SLOT(processUpdate()));
+#endif
+        status = QApplication::exec();
+    }
+
 #else
     QCoreApplication application(argc, argv);
 

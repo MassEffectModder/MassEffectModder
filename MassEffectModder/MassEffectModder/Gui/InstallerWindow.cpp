@@ -24,21 +24,23 @@
 #include <Helpers/Exception.h>
 #include <Helpers/MiscHelpers.h>
 
-InstallerWindow::InstallerWindow()
+InstallerWindow::InstallerWindow(MeType gameType)
     : busy(false)
 {
-    statusBar()->clearMessage();
+    statusBar()->hide();
     QString title = QString("Mass Effect Modder v%1").arg(MEM_VERSION);
     if (DetectAdminRights())
         title += " (run as Administrator)";
     setWindowTitle(title);
     setMinimumSize(kMinWindowWidth, kMinWindowHeight);
+    setMaximumSize(kMinWindowWidth, kMinWindowHeight);
 
     auto widget = new QWidget;
     setCentralWidget(widget);
     stackedLayout = new QStackedLayout(widget);
-    stackedLayout->addWidget(new LayoutInstallerMain(this));
+    stackedLayout->addWidget(new LayoutInstallerMain(gameType, this));
     connect(stackedLayout, &QStackedLayout::currentChanged, this, &InstallerWindow::stackChanged);
+    SwitchLayoutById(kLayoutInstallerMain);
 }
 
 void InstallerWindow::SwitchLayoutById(int id)

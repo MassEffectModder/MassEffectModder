@@ -11,5 +11,8 @@
     <file>logo_me1.png</file>
     <file>logo_me2.png</file>
     <file>logo_me3.png</file>
+    <file>me1_bg.jpg</file>
+    <file>me2_bg.jpg</file>
+    <file>me3_bg.jpg</file>
 </qresource>
 </RCC>
