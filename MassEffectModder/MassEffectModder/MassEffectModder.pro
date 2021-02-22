@@ -28,6 +28,7 @@ SOURCES += \
     GameData/GameData.cpp \
     GameData/LODSettings.cpp \
     GameData/Package.cpp \
+    GameData/Property.cpp \
     GameData/TOCFile.cpp \
     Helpers/Crc32.cpp \
     Helpers/FileStream.cpp \
@@ -56,7 +57,6 @@ SOURCES += \
     Resources/Resources.cpp \
     Texture/Texture.cpp \
     Texture/TextureMovie.cpp \
-    Texture/TextureProperty.cpp \
     Texture/TextureScan.cpp
 
 equals(GUI_MODE, true) {
@@ -87,6 +87,7 @@ HEADERS += \
     GameData/GameData.h \
     GameData/LODSettings.h \
     GameData/Package.h \
+    GameData/Property.h \
     GameData/TOCFile.h \
     Helpers/ByteBuffer.h \
     Helpers/BinarySearch.h \
@@ -109,7 +110,6 @@ HEADERS += \
     Resources/Resources.h \
     Texture/Texture.h \
     Texture/TextureMovie.h \
-    Texture/TextureProperty.h \
     Texture/TextureScan.h \
     Types/MemTypes.h
 equals(GUI_MODE, true) {

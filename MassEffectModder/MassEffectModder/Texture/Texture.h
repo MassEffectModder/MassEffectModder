@@ -25,7 +25,7 @@
 #include <Helpers/FileStream.h>
 #include <Helpers/MemoryStream.h>
 #include <GameData/Package.h>
-#include <Texture/TextureProperty.h>
+#include <GameData/Property.h>
 
 class Texture
 {

@@ -22,9 +22,9 @@
 #include <Helpers/MiscHelpers.h>
 #include <Helpers/Logs.h>
 #include <Wrappers.h>
-#include <Texture/TextureProperty.h>
 #include <Program/ConfigIni.h>
 #include <GameData/GameData.h>
+#include <GameData/Property.h>
 #include <Types/MemTypes.h>
 
 TextureProperty::TextureProperty(Package &pkg, const ByteBuffer &data)
