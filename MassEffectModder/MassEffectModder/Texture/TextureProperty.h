@@ -78,7 +78,7 @@ public:
     void setByteValue(const QString &name, const QString &valueName,
                       const QString &valueNameType, qint32 valueInt = 0);
     void setBoolValue(const QString &name, bool value);
-    void setNameValue(const QString &name, const QString &valueName, qint32 valueInt = 0);
+    void setNameValue(const QString &name, const QString &valueName);
     void setStructValue(const QString &name, const QString &valueName, ByteBuffer valueStruct);
     ByteBuffer toArray();
 };

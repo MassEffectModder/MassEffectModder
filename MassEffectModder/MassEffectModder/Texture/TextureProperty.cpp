@@ -166,7 +166,6 @@ void TextureProperty::fetchValue(int index)
     else if (texProperty.type == "NameProperty")
     {
         texProperty.valueName = package->getName(*reinterpret_cast<qint32 *>(texProperty.valueRaw.ptr() + 0));
-        texProperty.valueInt = *reinterpret_cast<qint32 *>(texProperty.valueRaw.ptr() + 4);
     }
     else if (texProperty.type == "StructProperty")
     {
@@ -223,8 +222,7 @@ QString TextureProperty::getDisplayString(int index)
     }
     else if (texProperty.type == "NameProperty")
     {
-        result += texProperty.valueName + ": ";
-        result += QString::number(texProperty.valueInt) + "\n";
+        result += texProperty.valueName;
     }
     else if (texProperty.type == "StructProperty")
     {
@@ -482,7 +480,7 @@ void TextureProperty::setBoolValue(const QString &name, bool value)
         texPropertyList.push_front(texProperty);
 }
 
-void TextureProperty::setNameValue(const QString &name, const QString &valueName, qint32 valueInt)
+void TextureProperty::setNameValue(const QString &name, const QString &valueName)
 {
     TexturePropertyEntry texProperty{};
     if (exists(name))
@@ -516,9 +514,8 @@ void TextureProperty::setNameValue(const QString &name, const QString &valueName
 
     qint32 nameId = package->getNameId(valueName);
     memcpy(texProperty.valueRaw.ptr(), &nameId, sizeof(qint32));
-    memcpy(texProperty.valueRaw.ptr() + 4, &valueInt, sizeof(qint32));
+    memset(texProperty.valueRaw.ptr() + 4, 0, sizeof(qint32));
     texProperty.valueName = valueName;
-    texProperty.valueInt = valueInt;
 
     if (exists(name))
     {
