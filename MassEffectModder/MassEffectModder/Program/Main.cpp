@@ -24,13 +24,11 @@
 #ifdef GUI
 #include <Gui/MainWindow.h>
 #include <Gui/InstallerWindow.h>
+#include <Gui/Updater.h>
 #endif
 #include <Helpers/Logs.h>
 #include <Helpers/MiscHelpers.h>
 #include <Program/SignalHandler.h>
-#ifdef GUI
-#include <Program/Updater.h>
-#endif
 #if defined(_WIN32)
 #include <fcntl.h>
 #endif

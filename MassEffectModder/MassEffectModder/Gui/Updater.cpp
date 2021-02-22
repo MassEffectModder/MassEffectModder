@@ -20,10 +20,10 @@
  */
 
 #include <Gui/MainWindow.h>
+#include <Gui/Updater.h>
 #include <Helpers/Exception.h>
 #include <Helpers/Logs.h>
 #include <Helpers/MiscHelpers.h>
-#include <Program/Updater.h>
 #include <Wrappers.h>
 
 Updater::Updater(QMainWindow *window) :

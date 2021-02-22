@@ -72,7 +72,7 @@ SOURCES += \
     Gui/LayoutMain.cpp \
     Gui/LayoutTexturesManager.cpp \
     Gui/PixmapLabel.cpp \
-    Program/Updater.cpp
+    Gui/Updater.cpp
 } else {
 SOURCES += \
     CmdLine/CmdLineHelp.cpp \
@@ -123,7 +123,7 @@ HEADERS += \
     Gui/LayoutMain.h \
     Gui/LayoutTexturesManager.h \
     Gui/PixmapLabel.h \
-    Program/Updater.h
+    Gui/Updater.h
 } else {
 HEADERS += \
     CmdLine/CmdLineParams.h \
