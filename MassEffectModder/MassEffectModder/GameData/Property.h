@@ -45,16 +45,6 @@ public:
         bool fetched;
     };
 
-    enum TextureTypes
-    {
-        Normal = 0,
-        Normalmap,
-        OneBitAlpha,
-        GreyScale,
-        Displacementmap,
-        Movie,
-    };
-
     QList<TexturePropertyEntry> texPropertyList;
     int propertyEndOffset{};
 

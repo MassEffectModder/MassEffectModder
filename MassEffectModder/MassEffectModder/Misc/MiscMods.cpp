@@ -528,7 +528,7 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
                     if (!CheckImage(image, f, file, i))
                         continue;
 
-                    if (f.flags == TextureProperty::TextureTypes::Normalmap &&
+                    if (f.flags == TextureType::Normalmap &&
                         image.getMipMaps().count() > 1 &&
                        (image.getMipMaps().first()->getWidth() > 2048 ||
                         image.getMipMaps().first()->getHeight() > 2048))
@@ -712,7 +712,7 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
                     continue;
                 }
 
-                if (f.flags == TextureProperty::TextureTypes::Normalmap &&
+                if (f.flags == TextureType::Normalmap &&
                     image.getMipMaps().count() > 1 &&
                    (image.getMipMaps().first()->getWidth() > 2048 ||
                     image.getMipMaps().first()->getHeight() > 2048))
@@ -796,7 +796,7 @@ end:
             if (!Misc::CheckImage(image, f, file, -1))
                 continue;
 
-            if (f.flags == TextureProperty::TextureTypes::Normalmap &&
+            if (f.flags == TextureType::Normalmap &&
                 image.getMipMaps().count() > 1 &&
                (image.getMipMaps().first()->getWidth() > 2048 ||
                 image.getMipMaps().first()->getHeight() > 2048))

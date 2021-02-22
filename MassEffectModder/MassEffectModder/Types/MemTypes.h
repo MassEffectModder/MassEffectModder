@@ -42,6 +42,16 @@ typedef enum
     UnknownImageFormat, DDS, PNG, BMP, TGA
 } ImageFormat;
 
+typedef enum
+{
+    Normal = 0,
+    Normalmap,
+    OneBitAlpha,
+    GreyScale,
+    Displacementmap,
+    Movie,
+} TextureType;
+
 #define textureMapBinTag      0x5054454D
 #define textureMapBinVersion  2
 #define TextureModTag         0x444F4D54

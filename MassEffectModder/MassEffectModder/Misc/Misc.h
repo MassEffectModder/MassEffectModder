@@ -101,7 +101,7 @@ public:
                                          int &expId, QString &path);
     static PixelFormat changeTextureType(MeType gameId, PixelFormat gamePixelFormat,
                                          PixelFormat texturePixelFormat,
-                                         TextureProperty::TextureTypes flags);
+                                         TextureType flags);
     static uint scanFilenameForCRC(const QString &inputFile);
     static uint GetCRCFromTextureMap(QList<TextureMapEntry> &textures, int exportId,
                                      const QString &path);

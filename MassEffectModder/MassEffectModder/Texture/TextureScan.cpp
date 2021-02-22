@@ -153,7 +153,7 @@ void TreeScan::loadTexturesMap(MeType gameId, Resources &resources, QList<Textur
         texture.width = fs.ReadInt16();
         texture.height = fs.ReadInt16();
         texture.pixfmt = (PixelFormat)fs.ReadByte();
-        texture.flags = (TextureProperty::TextureTypes)fs.ReadByte();
+        texture.flags = (TextureType)fs.ReadByte();
         int countPackages = fs.ReadInt16();
         texture.list = QList<TextureMapPackageEntry>();
         for (int k = 0; k < countPackages; k++)
@@ -173,7 +173,7 @@ void TreeScan::loadTexturesMap(MeType gameId, Resources &resources, QList<Textur
             }
             matched.removeEmptyMips = fs.ReadByte() != 0;
             matched.numMips = fs.ReadByte();
-            matched.movieTexture = (texture.flags == TextureProperty::TextureTypes::Movie);
+            matched.movieTexture = (texture.flags == TextureType::Movie);
             matched.path = pkgs[fs.ReadInt16()];
             matched.path.replace(QChar('\\'), QChar('/'));
             matched.packageName = BaseNameWithoutExt(matched.path).toLower();
@@ -1088,7 +1088,7 @@ void TreeScan::FindTextures(MeType gameId, QList<TextureMapEntry> &textures, con
                         foundTex.width = textureMovie->getProperties().getProperty("SizeX").valueInt;
                         foundTex.height = textureMovie->getProperties().getProperty("SizeY").valueInt;
                         foundTex.pixfmt = Image::getPixelFormatType(textureMovie->getProperties().getProperty("Format").valueName);
-                        foundTex.flags = TextureProperty::TextureTypes::Movie;
+                        foundTex.flags = TextureType::Movie;
                     }
                     delete textureMovie;
                 }
@@ -1103,17 +1103,17 @@ void TreeScan::FindTextures(MeType gameId, QList<TextureMapEntry> &textures, con
                         {
                             QString cmp = texture->getProperties().getProperty("CompressionSettings").valueName;
                             if (cmp == "TC_OneBitAlpha")
-                                foundTex.flags = TextureProperty::TextureTypes::OneBitAlpha;
+                                foundTex.flags = TextureType::OneBitAlpha;
                             else if (cmp == "TC_Displacementmap")
-                                foundTex.flags = TextureProperty::TextureTypes::Displacementmap;
+                                foundTex.flags = TextureType::Displacementmap;
                             else if (cmp == "TC_Grayscale")
-                                foundTex.flags = TextureProperty::TextureTypes::GreyScale;
+                                foundTex.flags = TextureType::GreyScale;
                             else if (cmp == "TC_Normalmap" ||
                                 cmp == "TC_NormalmapHQ" ||
                                 cmp == "TC_NormalmapAlpha" ||
                                 cmp == "TC_NormalmapUncompressed")
                             {
-                                foundTex.flags = TextureProperty::TextureTypes::Normalmap;
+                                foundTex.flags = TextureType::Normalmap;
                             }
                             else
                             {
@@ -1122,7 +1122,7 @@ void TreeScan::FindTextures(MeType gameId, QList<TextureMapEntry> &textures, con
                         }
                         else
                         {
-                            foundTex.flags = TextureProperty::TextureTypes::Normal;
+                            foundTex.flags = TextureType::Normal;
                         }
                     }
                     delete texture;

@@ -25,43 +25,43 @@
 #include <Resources/Resources.h>
 
 PixelFormat Misc::changeTextureType(MeType gameId, PixelFormat gamePixelFormat, PixelFormat texturePixelFormat,
-                                    TextureProperty::TextureTypes flags)
+                                    TextureType flags)
 {
     if ((gamePixelFormat == PixelFormat::DXT5 || gamePixelFormat == PixelFormat::DXT1 || gamePixelFormat == PixelFormat::ATI2) &&
         (texturePixelFormat == PixelFormat::RGB || texturePixelFormat == PixelFormat::ARGB ||
          texturePixelFormat == PixelFormat::ATI2 || texturePixelFormat == PixelFormat::V8U8))
     {
-        if (texturePixelFormat == PixelFormat::ARGB && flags == TextureProperty::TextureTypes::OneBitAlpha)
+        if (texturePixelFormat == PixelFormat::ARGB && flags == TextureType::OneBitAlpha)
         {
             gamePixelFormat = PixelFormat::ARGB;
         }
         else if (texturePixelFormat == PixelFormat::ATI2 &&
             gamePixelFormat == PixelFormat::DXT1 &&
-            flags == TextureProperty::TextureTypes::Normalmap)
+            flags == TextureType::Normalmap)
         {
             gamePixelFormat = PixelFormat::ATI2;
         }
         else if (gameId != MeType::ME3_TYPE && texturePixelFormat == PixelFormat::ARGB &&
-            flags == TextureProperty::TextureTypes::Normalmap)
+            flags == TextureType::Normalmap)
         {
             gamePixelFormat = PixelFormat::ARGB;
         }
         else if ((gamePixelFormat == PixelFormat::DXT5 || gamePixelFormat == PixelFormat::DXT1) &&
             (texturePixelFormat == PixelFormat::ARGB || texturePixelFormat == PixelFormat::RGB) &&
-            flags == TextureProperty::TextureTypes::Normal)
+            flags == TextureType::Normal)
         {
             gamePixelFormat = PixelFormat::ARGB;
         }
         else if (gamePixelFormat == PixelFormat::DXT5 && texturePixelFormat == PixelFormat::ARGB &&
             gameId == MeType::ME3_TYPE &&
-            flags == TextureProperty::TextureTypes::Normalmap)
+            flags == TextureType::Normalmap)
         {
             gamePixelFormat = PixelFormat::ARGB;
         }
         else if ((gamePixelFormat == PixelFormat::DXT5 || gamePixelFormat == PixelFormat::DXT1) &&
             (texturePixelFormat == PixelFormat::ARGB || texturePixelFormat == PixelFormat::V8U8) &&
             gameId == MeType::ME3_TYPE &&
-            flags == TextureProperty::TextureTypes::Normalmap)
+            flags == TextureType::Normalmap)
         {
             gamePixelFormat = PixelFormat::V8U8;
         }
@@ -140,7 +140,7 @@ bool Misc::CorrectTexture(Image &image, TextureMapEntry &f, int numMips,
         }
         bool dxt1HasAlpha = false;
         quint8 dxt1Threshold = 128;
-        if (f.flags == TextureProperty::TextureTypes::OneBitAlpha)
+        if (f.flags == TextureType::OneBitAlpha)
         {
             dxt1HasAlpha = true;
             if (image.getPixelFormat() == PixelFormat::ARGB ||
