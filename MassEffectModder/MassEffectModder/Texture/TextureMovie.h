@@ -25,7 +25,7 @@
 #include <Helpers/FileStream.h>
 #include <Helpers/MemoryStream.h>
 #include <GameData/Package.h>
-#include <GameData/Property.h>
+#include <GameData/Properties.h>
 
 class TextureMovie
 {
@@ -33,7 +33,7 @@ private:
 
     MemoryStream *textureData = nullptr;
     QString packagePath;
-    TextureProperty *properties;
+    Properties *properties;
     int dataExportId;
     StorageTypes storageType;
     quint32 uncompressedSize;
@@ -44,7 +44,7 @@ public:
 
     TextureMovie(Package &package, int exportId, const ByteBuffer &data);
     ~TextureMovie();
-    TextureProperty& getProperties() { return *properties; }
+    Properties& getProperties() { return *properties; }
     StorageTypes getStorageType() { return storageType; }
     quint32 getUncompressedSize() { return uncompressedSize; }
     quint32 getDataOffset() { return dataOffset; }

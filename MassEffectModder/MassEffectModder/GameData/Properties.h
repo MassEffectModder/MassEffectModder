@@ -19,18 +19,18 @@
  *
  */
 
-#ifndef TEXTURE_PROPS_H
-#define TEXTURE_PROPS_H
+#ifndef PROPERTIES_H
+#define PROPERTIES_H
 
 #include <Helpers/FileStream.h>
 #include <Helpers/MemoryStream.h>
 #include <GameData/Package.h>
 
-class TextureProperty
+class Properties
 {
 public:
 
-    struct TexturePropertyEntry
+    struct PropertyEntry
     {
         QString type;
         QString name;
@@ -45,7 +45,7 @@ public:
         bool fetched;
     };
 
-    QList<TexturePropertyEntry> texPropertyList;
+    QList<PropertyEntry> propertyList;
     int propertyEndOffset{};
 
 private:
@@ -55,9 +55,9 @@ private:
 
 public:
 
-    TextureProperty(Package &pkg, const ByteBuffer &data);
-    ~TextureProperty();
-    TexturePropertyEntry getProperty(const QString &name);
+    Properties(Package &pkg, const ByteBuffer &data);
+    ~Properties();
+    PropertyEntry getProperty(const QString &name);
     void fetchValue(const QString &name);
     void fetchValue(int index);
     QString getDisplayString(int index);

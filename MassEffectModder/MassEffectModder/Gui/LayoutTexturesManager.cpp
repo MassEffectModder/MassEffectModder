@@ -909,7 +909,7 @@ void LayoutTexturesManager::UpdateRight(const QListWidgetItem *item)
                 text += "  Bik data size:      " + QString::number(textureMovie.getUncompressedSize()) + "\n";
                 text += "  Package path:       " + nodeTexture.path + "\n";
                 text += "  Texture properties:\n";
-                for (int l = 0; l < textureMovie.getProperties().texPropertyList.count(); l++)
+                for (int l = 0; l < textureMovie.getProperties().propertyList.count(); l++)
                 {
                     text += "  " + textureMovie.getProperties().getDisplayString(l);
                 }
@@ -934,7 +934,7 @@ void LayoutTexturesManager::UpdateRight(const QListWidgetItem *item)
                 }
                 text += "  Package path:       " + nodeTexture.path + "\n";
                 text += "  Texture properties:\n";
-                for (int l = 0; l < texture.getProperties().texPropertyList.count(); l++)
+                for (int l = 0; l < texture.getProperties().propertyList.count(); l++)
                 {
                     text += "  " + texture.getProperties().getDisplayString(l);
                 }

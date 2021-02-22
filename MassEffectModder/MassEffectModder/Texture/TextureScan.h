@@ -24,7 +24,7 @@
 
 #include <Types/MemTypes.h>
 #include <Texture/Texture.h>
-#include <GameData/Property.h>
+#include <GameData/Properties.h>
 #include <Resources/Resources.h>
 
 struct Texture4kNormEntry

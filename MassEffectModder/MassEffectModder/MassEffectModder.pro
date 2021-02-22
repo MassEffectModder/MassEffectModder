@@ -28,7 +28,7 @@ SOURCES += \
     GameData/GameData.cpp \
     GameData/LODSettings.cpp \
     GameData/Package.cpp \
-    GameData/Property.cpp \
+    GameData/Properties.cpp \
     GameData/TOCFile.cpp \
     Helpers/Crc32.cpp \
     Helpers/FileStream.cpp \
@@ -87,7 +87,7 @@ HEADERS += \
     GameData/GameData.h \
     GameData/LODSettings.h \
     GameData/Package.h \
-    GameData/Property.h \
+    GameData/Properties.h \
     GameData/TOCFile.h \
     Helpers/ByteBuffer.h \
     Helpers/BinarySearch.h \
