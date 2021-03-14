@@ -36,7 +36,7 @@ LayoutInstallerMain::LayoutInstallerMain(MeType gameType, InstallerWindow *windo
     QPixmap Image(QString(":/me%1_bg.jpg").arg((int)gameId));
     Image = Image.scaled(window->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
     QPalette palette;
-    palette.setBrush(QPalette::Background, Image);
+    palette.setBrush(QPalette::Window, Image);
     window->setPalette(palette);
 
     currentStatusLabel = new QLabel();
