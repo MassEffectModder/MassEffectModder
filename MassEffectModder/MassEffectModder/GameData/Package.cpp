@@ -831,13 +831,9 @@ void Package::saveExports(Stream &output)
 void Package::loadDepends(Stream &input)
 {
     input.JumpTo(getDependsOffset());
-    uint dependsLimit = (input.Length() - getDependsOffset()) / sizeof(uint) * sizeof(uint);
     for (uint i = 0; i < getExportsCount(); i++)
     {
-        if (i * sizeof(uint) < dependsLimit) // WA for empty/partial depends entries - EG
-            dependsTable.push_back(input.ReadInt32());
-        else
-            dependsTable.push_back(0);
+        dependsTable.push_back(input.ReadInt32());
     }
 }
 
