@@ -84,7 +84,6 @@ private slots:
     void ApplyHQGfxME1Selected() { ApplyHQGfxSelected(MeType::ME1_TYPE); }
     void ApplyHQGfxME2Selected() { ApplyHQGfxSelected(MeType::ME2_TYPE); }
     void ApplyHQGfxME3Selected() { ApplyHQGfxSelected(MeType::ME3_TYPE); }
-    void ApplyHQGfxSoftShadowsSelected();
 
     void CheckGameFilesME1Selected() { CheckGameFilesSelected(MeType::ME1_TYPE); }
     void CheckGameFilesME2Selected() { CheckGameFilesSelected(MeType::ME2_TYPE); }
@@ -143,7 +142,6 @@ private:
     QPushButton   *buttonApply2kLODsME1;
     QPushButton   *buttonApplyVanillaLODsME1;
     QPushButton   *buttonApplyHQGfxME1;
-    QPushButton   *buttonApplyHQGfxSoftShadows;
     QSpacerItem   *spacerBottomTextureUtilitiesME1;
     QPushButton   *buttonGameUtilitiesME1;
     QPushButton   *buttonCheckGameFilesME1;
@@ -229,7 +227,7 @@ private:
     void ApplyVanillaLODsSelected(MeType gameType);
     void ApplyHQGfxSelected(MeType gameType);
     void ApplyLODs(MeType gameType, bool lods2k);
-    void ApplyHQGfx(MeType gameType, bool softShadows);
+    void ApplyHQGfx(MeType gameType);
 
     void CheckGameFilesSelected(MeType gameType);
     void ChangeGamePathSelected(MeType gameType);

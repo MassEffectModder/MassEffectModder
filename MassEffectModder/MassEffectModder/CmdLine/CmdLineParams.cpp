@@ -43,8 +43,6 @@ int ProcessArguments()
     bool markToConvert = false;
     bool alotMode = false;
     bool repackMode = false;
-    bool meuitmMode = false;
-    bool softShadowsMods = false;
     bool skipMarkers = false;
     bool limit2k = false;
     bool pccOnly = false;
@@ -215,12 +213,10 @@ int ProcessArguments()
         }
         else if (arg == "--soft-shadows-mode")
         {
-            softShadowsMods = true;
             args.removeAt(l--);
         }
         else if (arg == "--meuitm-mode")
         {
-            meuitmMode = true;
             args.removeAt(l--);
         }
         else if (arg == "--limit-2k")
@@ -628,7 +624,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.ApplyLODAndGfxSettings(gameId, softShadowsMods, meuitmMode, limit2k))
+        if (!tools.ApplyLODAndGfxSettings(gameId, limit2k))
             errorCode = 1;
         break;
     case CmdType::PRINT_LODS:

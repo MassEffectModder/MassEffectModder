@@ -449,7 +449,7 @@ bool CmdLineTools::ApplyME1LAAPatch()
     return true;
 }
 
-bool CmdLineTools::ApplyLODAndGfxSettings(MeType gameId, bool softShadowsME1, bool meuitmMode, bool limit2k)
+bool CmdLineTools::ApplyLODAndGfxSettings(MeType gameId, bool limit2k)
 {
     if (GameData::ConfigIniPath(gameId).length() == 0)
     {
@@ -464,7 +464,7 @@ bool CmdLineTools::ApplyLODAndGfxSettings(MeType gameId, bool softShadowsME1, bo
     ConfigIni engineConf = ConfigIni(path, true);
 #endif
     LODSettings::updateLOD(gameId, engineConf, limit2k);
-    LODSettings::updateGFXSettings(gameId, engineConf, softShadowsME1, meuitmMode);
+    LODSettings::updateGFXSettings(gameId, engineConf);
 
     return true;
 }

@@ -264,13 +264,6 @@ LayoutMain::LayoutMain(MainWindow *window)
     buttonApplyHQGfxME3->setFont(ButtonFont);
     connect(buttonApplyHQGfxME3, &QPushButton::clicked, this, &LayoutMain::ApplyHQGfxME3Selected);
 
-    buttonApplyHQGfxSoftShadows = new QPushButton("Apply HQ GFX Settings (Soft)");
-    buttonApplyHQGfxSoftShadows->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    buttonApplyHQGfxSoftShadows->setMinimumWidth(kButtonMinSmallWidth);
-    buttonApplyHQGfxSoftShadows->setMinimumHeight(kButtonMinHeight);
-    buttonApplyHQGfxSoftShadows->setFont(ButtonFont);
-    connect(buttonApplyHQGfxSoftShadows, &QPushButton::clicked, this, &LayoutMain::ApplyHQGfxSoftShadowsSelected);
-
     buttonCheckGameFilesME1 = new QPushButton("Check Game Files");
     buttonCheckGameFilesME1->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonCheckGameFilesME1->setMinimumWidth(kButtonMinSmallWidth);
@@ -503,7 +496,6 @@ LayoutMain::LayoutMain(MainWindow *window)
     groupVertTextureUtilitiesME1->addWidget(buttonApply2kLODsME1, 1);
     groupVertTextureUtilitiesME1->addWidget(buttonApplyVanillaLODsME1, 1);
     groupVertTextureUtilitiesME1->addWidget(buttonApplyHQGfxME1, 1);
-    groupVertTextureUtilitiesME1->addWidget(buttonApplyHQGfxSoftShadows, 1);
     spacerBottomTextureUtilitiesME1 = new QSpacerItem(0, 20);
     groupVertTextureUtilitiesME1->addItem(spacerBottomTextureUtilitiesME1);
     verticalLayoutMenuME1->addLayout(groupVertTextureUtilitiesME1);
@@ -781,7 +773,6 @@ void LayoutMain::HideAllSubMenusME1()
     buttonApply2kLODsME1->hide();
     buttonApplyVanillaLODsME1->hide();
     buttonApplyHQGfxME1->hide();
-    buttonApplyHQGfxSoftShadows->hide();
     spacerBottomTextureUtilitiesME1->changeSize(0, 0);
     buttonGameUtilitiesME1->setChecked(false);
     buttonCheckGameFilesME1->hide();
@@ -890,7 +881,6 @@ void LayoutMain::ButtonTextureUtilitiesME1Selected()
     buttonApply2kLODsME1->setHidden(!checked);
     buttonApplyVanillaLODsME1->setHidden(!checked);
     buttonApplyHQGfxME1->setHidden(!checked);
-    buttonApplyHQGfxSoftShadows->setHidden(!checked);
     spacerBottomTextureUtilitiesME1->changeSize(0, checked ? 20 : 0);
     buttonTextureUtilitiesME1->show();
 }

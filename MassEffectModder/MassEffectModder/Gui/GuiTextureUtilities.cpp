@@ -111,7 +111,7 @@ void LayoutMain::ApplyVanillaLODsSelected(MeType gameType)
             QString("Game configuration file at ") + path + " updated.");
 }
 
-void LayoutMain::ApplyHQGfx(MeType gameType, bool softShadows)
+void LayoutMain::ApplyHQGfx(MeType gameType)
 {
     if (GameData::ConfigIniPath(gameType).length() == 0)
     {
@@ -126,7 +126,7 @@ void LayoutMain::ApplyHQGfx(MeType gameType, bool softShadows)
 #else
     ConfigIni engineConf = ConfigIni(path, true);
 #endif
-    LODSettings::updateGFXSettings(gameType, engineConf, softShadows, false);
+    LODSettings::updateGFXSettings(gameType, engineConf);
 
     QMessageBox::information(this, "Appling HQ gfx settings.",
             QString("Game configuration file at ") + path + " updated.");
@@ -134,10 +134,5 @@ void LayoutMain::ApplyHQGfx(MeType gameType, bool softShadows)
 
 void LayoutMain::ApplyHQGfxSelected(MeType gameType)
 {
-    ApplyHQGfx(gameType, false);
-}
-
-void LayoutMain::ApplyHQGfxSoftShadowsSelected()
-{
-    ApplyHQGfx(MeType::ME1_TYPE, true);
+    ApplyHQGfx(gameType);
 }
