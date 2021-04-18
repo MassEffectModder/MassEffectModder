@@ -51,7 +51,7 @@ public:
     bool extractMOD(MeType gameId, QString &inputDir, QString &outputDir);
     bool extractMEM(MeType gameId, QString &inputDir, QString &outputDir);
     bool ApplyME1LAAPatch();
-    bool ApplyLODAndGfxSettings(MeType gameId, bool softShadowsME1, bool meuitmMode, bool limit2k);
+    bool ApplyLODAndGfxSettings(MeType gameId, bool limit2k);
     bool RemoveLODSettings(MeType gameId);
     bool PrintLODSettings(MeType gameId);
     bool CheckGameDataAndMods(MeType gameId);

@@ -484,45 +484,21 @@ void LODSettings::removeLOD(MeType gameId, ConfigIni &engineConf)
     }
 }
 
-void LODSettings::updateGFXSettings(MeType gameId, ConfigIni &engineConf, bool softShadowsME1, bool meuitmMode)
+void LODSettings::updateGFXSettings(MeType gameId, ConfigIni &engineConf)
 {
     if (gameId == MeType::ME1_TYPE)
     {
         engineConf.Write("MaxShadowResolution", "2048", "Engine.Engine");
         engineConf.Write("MaxShadowResolution", "2048", "Engine.GameEngine");
-        if (softShadowsME1)
-        {
-            engineConf.Write("MinShadowResolution", "16", "Engine.Engine");
-            engineConf.Write("MinShadowResolution", "16", "Engine.GameEngine");
-        }
-        else
-        {
-            engineConf.Write("MinShadowResolution", "64", "Engine.Engine");
-            engineConf.Write("MinShadowResolution", "64", "Engine.GameEngine");
-        }
+        engineConf.Write("MinShadowResolution", "64", "Engine.Engine");
+        engineConf.Write("MinShadowResolution", "64", "Engine.GameEngine");
         engineConf.Write("DynamicShadows", "True", "SystemSettings");
         engineConf.Write("EnableDynamicShadows", "True", "WinDrv.WindowsClient");
-        if (softShadowsME1 && meuitmMode)
-        {
-            engineConf.Write("DepthBias", "0.006000", "Engine.Engine");
-            engineConf.Write("DepthBias", "0.006000", "Engine.GameEngine");
-        }
-        else
-        {
-            engineConf.Write("DepthBias", "0.030000", "Engine.Engine");
-            engineConf.Write("DepthBias", "0.030000", "Engine.GameEngine");
-        }
+        engineConf.Write("DepthBias", "0.030000", "Engine.Engine");
+        engineConf.Write("DepthBias", "0.030000", "Engine.GameEngine");
         engineConf.Write("ShadowFilterQualityBias", "2", "SystemSettings");
-        if (softShadowsME1)
-        {
-            engineConf.Write("ShadowFilterRadius", "2", "Engine.Engine");
-            engineConf.Write("ShadowFilterRadius", "2", "Engine.GameEngine");
-        }
-        else
-        {
-            engineConf.Write("ShadowFilterRadius", "4", "Engine.Engine");
-            engineConf.Write("ShadowFilterRadius", "4", "Engine.GameEngine");
-        }
+        engineConf.Write("ShadowFilterRadius", "4", "Engine.Engine");
+        engineConf.Write("ShadowFilterRadius", "4", "Engine.GameEngine");
         engineConf.Write("bEnableBranchingPCFShadows", "True", "Engine.Engine");
         engineConf.Write("bEnableBranchingPCFShadows", "True", "Engine.GameEngine");
         engineConf.Write("MaxAnisotropy", "16", "SystemSettings");

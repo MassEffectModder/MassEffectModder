@@ -481,7 +481,7 @@ bool Misc::ApplyPostInstall(MeType gameId, bool limit2k)
     ConfigIni engineConf = ConfigIni(path, true);
 #endif
     LODSettings::updateLOD(gameId, engineConf, limit2k);
-    LODSettings::updateGFXSettings(gameId, engineConf, false, false);
+    LODSettings::updateGFXSettings(gameId, engineConf);
 
     PINFO("Updating LODs and other settings finished.\n\n");
 
