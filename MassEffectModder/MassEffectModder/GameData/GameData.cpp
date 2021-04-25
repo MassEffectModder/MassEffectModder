@@ -489,8 +489,30 @@ void GameData::InternalInit(MeType type, ConfigIni &configIni)
         _path = QDir::cleanPath(path);
         if (QFile(GameExePath()).exists())
         {
-            configIni.Write(key, _path.replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameDataPath");
-            return;
+            auto exeVersion = getVersionString(GameExePath());
+            bool properVersion = false;
+            switch (type)
+            {
+            case MeType::ME1_TYPE:
+                if (exeVersion == "1.2.20608.0")
+                    properVersion = true;
+                break;
+            case MeType::ME2_TYPE:
+                if (exeVersion == "1.2.1604.0" || exeVersion == "01604.00")
+                    properVersion = true;
+                break;
+            case MeType::ME3_TYPE:
+                if (exeVersion == "1.5.5427.124" || exeVersion == "05427.124")
+                    properVersion = true;
+                break;
+            case MeType::UNKNOWN_TYPE:
+                break;
+            }
+            if (properVersion)
+            {
+                configIni.Write(key, _path.replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameDataPath");
+                return;
+            }
         }
         _path = "";
     }
