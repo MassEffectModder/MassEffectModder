@@ -131,3 +131,39 @@ bool DetectAdminRights()
 
     return status;
 }
+
+#if defined(_WIN32)
+QString getVersionString(const QString &filePath)
+{
+    QString versionString;
+    DWORD infoSize = GetFileVersionInfoSize(filePath.toStdWString().c_str(), nullptr);
+    if (infoSize == 0)
+    {
+        return versionString;
+    }
+
+    auto dataInfo = new quint8[infoSize];
+    if (!GetFileVersionInfo(filePath.toStdWString().c_str(), 0, infoSize, dataInfo))
+    {
+        delete[] dataInfo;
+        return versionString;
+    }
+
+    VS_FIXEDFILEINFO *fileInfo = nullptr;
+    UINT puLen;
+    if (!VerQueryValue(dataInfo, L"\\", (LPVOID *)&fileInfo, &puLen))
+    {
+        delete[] dataInfo;
+        return versionString;
+    }
+
+    versionString =
+            QString::number((fileInfo->dwFileVersionMS >> 16) & 0xffff) + "." +
+            QString::number((fileInfo->dwFileVersionMS) & 0xffff) + "." +
+            QString::number((fileInfo->dwFileVersionLS >> 16) & 0xffff) + "." +
+            QString::number((fileInfo->dwFileVersionLS) & 0xffff);
+    delete[] dataInfo;
+
+    return versionString;
+}
+#endif

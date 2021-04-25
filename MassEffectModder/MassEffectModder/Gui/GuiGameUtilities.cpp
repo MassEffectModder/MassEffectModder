@@ -138,18 +138,48 @@ void LayoutMain::ChangeGamePathSelected(MeType gameType)
     }
     if (path.length() != 0 && QFile(path).exists())
     {
-        if (gameType == MeType::ME3_TYPE)
-            path = DirName(DirName(DirName(path)));
-        else
-            path = DirName(DirName(path));
-        QString key = QString("ME%1").arg(static_cast<int>(gameType));
+        bool properVersion = false;
 #if defined(_WIN32)
-        configIni.Write(key, QString(path).replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameDataPath");
+        auto exeVersion = getVersionString(path);
+        switch (gameType)
+        {
+        case MeType::ME1_TYPE:
+            if (exeVersion == "1.2.20608.0")
+                properVersion = true;
+            break;
+        case MeType::ME2_TYPE:
+            if (exeVersion == "1.2.1604.0" || exeVersion == "01604.00")
+                properVersion = true;
+            break;
+        case MeType::ME3_TYPE:
+            if (exeVersion == "1.5.5427.124" || exeVersion == "05427.124")
+                properVersion = true;
+            break;
+        case MeType::UNKNOWN_TYPE:
+            break;
+        }
 #else
-        configIni.Write(key, path, "GameDataPath");
+        properVersion = true;
 #endif
-        g_GameData->Init(gameType, configIni, true);
-        QMessageBox::information(this, "Changing game path", "Game path changed to\n" + path);
+        if (properVersion)
+        {
+            if (gameType == MeType::ME3_TYPE)
+                path = DirName(DirName(DirName(path)));
+            else
+                path = DirName(DirName(path));
+            QString key = QString("ME%1").arg(static_cast<int>(gameType));
+#if defined(_WIN32)
+            configIni.Write(key, QString(path).replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameDataPath");
+#else
+            configIni.Write(key, path, "GameDataPath");
+#endif
+            g_GameData->Init(gameType, configIni, true);
+            QMessageBox::information(this, "Changing game path", "Game path changed to\n" + path);
+        }
+        else
+        {
+            QMessageBox::information(this, "Changing game path", "Game path NOT changed. Not supported version");
+        }
     }
     else
     {

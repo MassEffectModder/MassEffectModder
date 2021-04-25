@@ -196,4 +196,6 @@ inline int AsciiStringCompareCaseIgnore(const QString &str1, const QString &str2
 
 bool DetectAdminRights();
 
+QString getVersionString(const QString &filePath);
+
 #endif

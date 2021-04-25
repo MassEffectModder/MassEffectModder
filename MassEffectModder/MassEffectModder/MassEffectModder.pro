@@ -241,7 +241,7 @@ macx {
 
 win32 {
     QMAKE_CXXFLAGS += -fopenmp
-    LIBS += -limagehlp -lgomp
+    LIBS += -limagehlp -lgomp -lversion
 }
 
 linux {
