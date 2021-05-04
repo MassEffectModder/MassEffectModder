@@ -1208,8 +1208,7 @@ bool CmdLineTools::extractAllMovieTextures(MeType gameId, QString &outputDir, QS
                                  packages[p] +"\nExport Id: " + QString::number(e + 1) + "\nSkipping...\n");
                     continue;
                 }
-                QString outputFile = outputDir + "/" +  name +
-                        QString().asprintf("_0x%08X.bik", crc);
+                QString outputFile = outputDir + "/" +  name + QString::asprintf("_0x%08X.bik", crc);
                 if (QFile(outputFile).exists())
                     continue;
                 auto data = textureMovie.getData();
