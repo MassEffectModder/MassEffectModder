@@ -28,6 +28,7 @@ typedef enum : int
     HELP,
     VERSION,
     SCAN,
+    SCAN_TEXTURES,
     UPDATE_TOC,
     UNPACK_DLCS,
     REPACK,

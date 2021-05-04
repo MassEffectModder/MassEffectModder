@@ -36,6 +36,57 @@
 #include <Texture/TextureScan.h>
 #include <Types/MemTypes.h>
 
+int CmdLineTools::scan(MeType gameId)
+{
+    int errorCode = 0;
+
+    auto configIni = ConfigIni{};
+    g_GameData->Init(gameId, configIni);
+    if (!Misc::CheckGamePath())
+        return 1;
+
+    PINFO("Scan started...\n");
+
+    int currentPackage = 0;
+    int totalPackages = g_GameData->packageFiles.count();
+    for (int i = 0; i < totalPackages; i++)
+    {
+        PINFO(QString("Package ") + QString::number(currentPackage + 1) + "/" +
+                             QString::number(totalPackages) + " : " +
+                             g_GameData->packageFiles[i] + "\n");
+        Package package;
+        int status = package.Open(g_GameData->GamePath() + g_GameData->packageFiles[i]);
+        if (status != 0)
+        {
+            PERROR(QString("ERROR: Issue opening package file: ") + g_GameData->packageFiles[i] + "\n");
+            return 1;
+        }
+
+        for (int i = 0; i < package.exportsTable.count(); i++)
+        {
+            ByteBuffer exportData = package.getExportData(i);
+            if (exportData.ptr() == nullptr)
+            {
+                PERROR(QString("Error: broken export data in package: " +
+                                 g_GameData->packageFiles[i] +"\nExport Id: " + QString::number(i + 1) + "\nSkipping...\n"));
+                continue;
+            }
+            auto properties = new Properties(package, exportData);
+            exportData.Free();
+            auto serialize = properties->toArray();
+            delete properties;
+            serialize.Free();
+        }
+    }
+
+    long elapsed = Misc::elapsedTime();
+    PINFO(Misc::getTimerFormat(elapsed) + "\n");
+
+    PINFO("Scan finished.\n\n");
+
+    return errorCode;
+}
+
 int CmdLineTools::scanTextures(MeType gameId, bool removeEmptyMips)
 {
     int errorCode;
@@ -741,7 +792,7 @@ bool CmdLineTools::RepackTFCInDLC(MeType gameId, QString &dlcName, bool pullText
                 if (textureMovie.getProperties().exists("TextureFileCacheName"))
                 {
                     compactTFC = true;
-                    QString archive = textureMovie.getProperties().getProperty("TextureFileCacheName").valueName;
+                    QString archive = textureMovie.getProperties().getProperty("TextureFileCacheName").getValueName();
                     if (archive != "Textures_" + dlcName && !pullTextures)
                         compactTFC = false;
                 }
@@ -805,7 +856,7 @@ bool CmdLineTools::RepackTFCInDLC(MeType gameId, QString &dlcName, bool pullText
                 if (texture.getProperties().exists("TextureFileCacheName"))
                 {
                     compactTFC = true;
-                    QString archive = texture.getProperties().getProperty("TextureFileCacheName").valueName;
+                    QString archive = texture.getProperties().getProperty("TextureFileCacheName").getValueName();
                     if (archive != "Textures_" + dlcName && !pullTextures)
                         compactTFC = false;
                 }
@@ -1030,7 +1081,7 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, QString
                 {
                     if (!tfcPropExists)
                         continue;
-                    QString archive = texture.getProperties().getProperty("TextureFileCacheName").valueName;
+                    QString archive = texture.getProperties().getProperty("TextureFileCacheName").getValueName();
                     if (archive != textureTfcFilter ||
                         !texture.HasExternalMips())
                     {
@@ -1061,7 +1112,7 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, QString
                 }
                 if (QFile(outputFile).exists())
                     continue;
-                PixelFormat pixelFormat = Image::getPixelFormatType(texture.getProperties().getProperty("Format").valueName);
+                PixelFormat pixelFormat = Image::getPixelFormatType(texture.getProperties().getProperty("Format").getValueName());
                 if (png)
                 {
                     Texture::TextureMipMap mipmap = texture.getTopMipmap();
@@ -1189,7 +1240,7 @@ bool CmdLineTools::extractAllMovieTextures(MeType gameId, QString &outputDir, QS
                 {
                     if (!tfcPropExists)
                         continue;
-                    QString archive = textureMovie.getProperties().getProperty("TextureFileCacheName").valueName;
+                    QString archive = textureMovie.getProperties().getProperty("TextureFileCacheName").getValueName();
                     if (archive != textureTfcFilter ||
                         textureMovie.getStorageType() != StorageTypes::extUnc)
                     {

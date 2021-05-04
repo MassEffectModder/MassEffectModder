@@ -32,7 +32,10 @@ void DisplayHelp()
         "  --version [--ipc]\n" \
         "     Display program version\n" \
         "\n" \
-        "  --scan --gameid <game id> [--remove-empty-mips] [--ipc]\n" \
+        "  --scan --gameid <game id>\n" \
+        "     Scan game data.\n" \
+        "\n" \
+        "  --scan-textures --gameid <game id> [--remove-empty-mips] [--ipc]\n" \
         "     Scan game data for textures.\n" \
         "\n" \
         "  --update-toc\n" \

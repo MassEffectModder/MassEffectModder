@@ -72,6 +72,8 @@ int ProcessArguments()
             cmd = CmdType::VERSION;
         else if (arg == "--scan")
             cmd = CmdType::SCAN;
+        else if (arg == "--scan-textures")
+            cmd = CmdType::SCAN_TEXTURES;
         else if (arg == "--update-toc")
             cmd = CmdType::UPDATE_TOC;
         else if (arg == "--unpack-dlcs")
@@ -211,10 +213,6 @@ int ProcessArguments()
             repackMode = true;
             args.removeAt(l--);
         }
-        else if (arg == "--soft-shadows-mode")
-        {
-            args.removeAt(l--);
-        }
         else if (arg == "--meuitm-mode")
         {
             args.removeAt(l--);
@@ -324,13 +322,7 @@ int ProcessArguments()
             args.removeAt(l);
             args.removeAt(l--);
         }
-        else if (arg == "--filter" && hasValue(args, l))
-        {
-            filter = args[l + 1];
-            args.removeAt(l);
-            args.removeAt(l--);
-        }
-        else if (arg == "--filter-with-ext" && hasValue(args, l))
+        else if ((arg == "--filter-with-ext" || arg == "--filter") && hasValue(args, l))
         {
             filter = args[l + 1];
             args.removeAt(l);
@@ -384,6 +376,15 @@ int ProcessArguments()
         ConsoleSync();
         break;
     case CmdType::SCAN:
+        if (gameId == MeType::UNKNOWN_TYPE)
+        {
+            PERROR("Wrong game id!\n");
+            errorCode = 1;
+            break;
+        }
+        errorCode = tools.scan(gameId);
+        break;
+    case CmdType::SCAN_TEXTURES:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
             PERROR("Wrong game id!\n");

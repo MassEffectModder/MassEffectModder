@@ -33,6 +33,7 @@ public:
     typedef void (*ProgressCallback)(void *handle, int progress, const QString &stage);
 
     int scanTextures(MeType gameId, bool removeEmptyMips);
+    int scan(MeType gameId);
     void Repack(MeType gameId, ProgressCallback callback, void *callbackHandle);
     bool updateTOCs();
     bool unpackAllDLCs();
