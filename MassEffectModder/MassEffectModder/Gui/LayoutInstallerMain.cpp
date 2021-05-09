@@ -147,7 +147,7 @@ void LayoutInstallerMain::StartSelected()
     g_logs->BufferClearErrors();
     g_logs->BufferEnableErrors(true);
 
-    if (!Misc::InstallMods(gameId, resources, modFiles, false, false, false, false, false, false, -1,
+    if (!Misc::InstallMods(gameId, resources, modFiles, false, false, false, false, -1,
                            &LayoutInstallerMain::InstallCallback, this))
     {
         QMessageBox::critical(this, "Installing MEM mods", "Installation failed!");

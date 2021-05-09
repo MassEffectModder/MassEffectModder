@@ -108,63 +108,6 @@ void generateBinFile(int gameId)
     }
     stream.Close();
     files.clear();
-
-    if (gameId == 1)
-    {
-        // Polish version DB
-        entries = entriesME1PL;
-        entriesCount = MD5EntriesME1PLSize;
-        MemoryStream streamPL;
-        for (int p = 0; p < entriesCount; p++)
-        {
-            bool found = false;
-            for (int s = 0; s < files.count(); s++)
-            {
-                if (entries[p].path == files[s])
-                {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found)
-                files.append(entries[p].path);
-        }
-
-        streamPL.WriteInt32(files.count());
-        for (int p = 0; p < files.count(); p++)
-        {
-            streamPL.WriteStringASCIINull(files[p]);
-        }
-
-        streamPL.WriteInt32(entriesCount);
-        for (int p = 0; p < entriesCount; p++)
-        {
-            int index = -1;
-            for (int s = 0; s < files.count(); s++)
-            {
-                if (entries[p].path == files[s])
-                {
-                    index = s;
-                    break;
-                }
-            }
-            streamPL.WriteInt32(index);
-            streamPL.WriteInt32(entries[p].size);
-            streamPL.WriteFromBuffer(const_cast<quint8 *>(entries[p].md5), 16);
-        }
-        {
-            FileStream fs = FileStream(QString("MD5EntriesME1PL.bin"),
-                                       FileMode::Create, FileAccess::WriteOnly);
-            fs.WriteUInt32(md5Tag);
-            ByteBuffer tmp = streamPL.ToArray();
-            fs.WriteInt32(tmp.size());
-            quint8 *compressed = nullptr;
-            uint compressedSize = 0;
-            LzmaCompress(tmp.ptr(), tmp.size(), &compressed, &compressedSize, 9);
-            fs.WriteFromBuffer(compressed, compressedSize);
-            delete[] compressed;
-        }
-    }
 }
 
 int main(int argc, char *argv[])

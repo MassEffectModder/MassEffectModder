@@ -458,9 +458,8 @@ bool LayoutTexturesManager::Startup()
         resources.loadMD5Tables();
         g_logs->BufferClearErrors();
         g_logs->BufferEnableErrors(true);
-        QList<Texture4kNormEntry> texture4kNorms;
         TreeScan::PrepareListOfTextures(gameType, resources,
-                                        textures, texture4kNorms, removeEmptyMips, true,
+                                        textures, removeEmptyMips, true,
                                         &LayoutTexturesManager::PrepareTexturesCallback,
                                         mainWindow);
         g_logs->BufferEnableErrors(false);
@@ -473,7 +472,7 @@ bool LayoutTexturesManager::Startup()
         }
         if (removeEmptyMips)
         {
-            if (!Misc::ApplyPostInstall(GameData::gameType, false))
+            if (!Misc::ApplyPostInstall(GameData::gameType))
             {
                 buttonExit->setEnabled(true);
                 mainWindow->LockClose(false);
@@ -492,7 +491,7 @@ bool LayoutTexturesManager::Startup()
         QStringList pkgsToMarker;
         g_logs->BufferClearErrors();
         g_logs->BufferEnableErrors(true);
-        Misc::RemoveMipmaps(mipMaps, textures, pkgsToMarker, pkgsToRepack, false, false, true,
+        Misc::RemoveMipmaps(mipMaps, textures, pkgsToMarker, false, true,
                             &LayoutTexturesManager::PrepareTexturesCallback, mainWindow);
         mainWindow->statusBar()->clearMessage();
         QApplication::processEvents();
@@ -504,7 +503,7 @@ bool LayoutTexturesManager::Startup()
             mainWindow->LockClose(false);
             return false;
         }
-        if (!Misc::ApplyPostInstall(GameData::gameType, false))
+        if (!Misc::ApplyPostInstall(GameData::gameType))
         {
             buttonExit->setEnabled(true);
             mainWindow->LockClose(false);
@@ -921,17 +920,6 @@ void LayoutTexturesManager::UpdateRight(const QListWidgetItem *item)
                 text += "\nTexture instance: " + QString::number(index2 + 1) + "\n";
                 text += "  Texture name:       " + package.exportsTable[nodeTexture.exportID].objectName + "\n";
                 text += "  Export Id:          " + QString::number(nodeTexture.exportID + 1) + "\n";
-                if (g_GameData->GamePath() == MeType::ME1_TYPE)
-                {
-                    if (nodeTexture.linkToMaster == -1)
-                        text += "  Master Texture\n";
-                    else
-                    {
-                        text += "  Slave Texture\n";
-                        text += "    Refer to package: " + texture.basePackageName + "\n";
-                        text += "    Refer to texture: " + QString::number(nodeTexture.linkToMaster + 1) + "\n";
-                    }
-                }
                 text += "  Package path:       " + nodeTexture.path + "\n";
                 text += "  Texture properties:\n";
                 for (int l = 0; l < texture.getProperties().propertyList.count(); l++)
@@ -1078,14 +1066,14 @@ void LayoutTexturesManager::ReplaceTexture(const QListWidgetItem *item, bool con
         mapEntry.packagePath = texture.list[viewTexture.indexInPackages].path;
         QList<MapPackagesToMod> mapPackages;
         mapPackages.append(mapEntry);
-        mipMaps.replaceTextures(mapPackages, textures, pkgsToMarker, pkgsToRepack, modsToReplace,
-                                false, false, true, false, -1,
+        mipMaps.replaceTextures(mapPackages, textures, pkgsToMarker, modsToReplace,
+                                false, true, false, -1,
                                 &LayoutTexturesManager::ReplaceTextureCallback, mainWindow);
     }
     else
     {
-        mipMaps.replaceModsFromList(textures, pkgsToMarker, pkgsToRepack, modsToReplace,
-                                    false, false, true, false, -1,
+        mipMaps.replaceModsFromList(textures, pkgsToMarker, modsToReplace,
+                                    false, true, false, -1,
                                     &LayoutTexturesManager::ReplaceTextureCallback, mainWindow);
     }
     delete image;

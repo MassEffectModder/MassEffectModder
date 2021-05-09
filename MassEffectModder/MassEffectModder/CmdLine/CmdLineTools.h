@@ -34,11 +34,9 @@ public:
 
     int scanTextures(MeType gameId, bool removeEmptyMips);
     int scan(MeType gameId);
-    void Repack(MeType gameId, ProgressCallback callback, void *callbackHandle);
     bool updateTOCs();
     bool unpackAllDLCs();
     bool GetGamePaths();
-    bool repackGame(MeType gameId);
     bool unpackArchive(const QString &inputFile, QString &outputDir, QString &filterWithExt, bool flattenPath);
     bool listArchive(const QString &inputFile);
     bool applyModTag(MeType gameId, int MeuitmV, int AlotV);
@@ -48,11 +46,8 @@ public:
     bool convertGameImage(MeType gameId, QString &inputFile, QString &outputFile, bool markToConvert);
     bool convertGameImages(MeType gameId, QString &inputDir, QString &outputDir, bool markToConvert);
     bool convertImage(QString &inputFile, QString &outputFile, QString &format, int dxt1Threshold);
-    bool extractTPF(QString &inputDir, QString &outputDir);
-    bool extractMOD(MeType gameId, QString &inputDir, QString &outputDir);
     bool extractMEM(MeType gameId, QString &inputDir, QString &outputDir);
-    bool ApplyME1LAAPatch();
-    bool ApplyLODAndGfxSettings(MeType gameId, bool limit2k);
+    bool ApplyLODAndGfxSettings(MeType gameId);
     bool RemoveLODSettings(MeType gameId);
     bool PrintLODSettings(MeType gameId);
     bool CheckGameDataAndMods(MeType gameId);
@@ -60,10 +55,8 @@ public:
     bool DetectBadMods(MeType gameId);
     bool DetectMods(MeType gameId);
     void AddMarkers();
-    bool InstallMods(MeType gameId, QString &inputDir, bool repack,
-                     bool alotInstaller, bool skipMarkers, bool limit2k, bool verify, int cacheAmount);
-    bool RepackTFCInDLC(MeType gameId, QString &dlcName, bool pullTextures,
-                        bool compressed);
+    bool InstallMods(MeType gameId, QString &inputDir,
+                     bool alotInstaller, bool skipMarkers, bool verify, int cacheAmount);
     bool extractAllTextures(MeType gameId, QString &outputDir, QString &inputFile,
                             bool png, bool pccOnly, bool tfcOnly, bool mapCrc,
                             QString &textureTfcFilter);
@@ -71,7 +64,6 @@ public:
                                     bool pccOnly, bool tfcOnly, bool mapCrc,
                                     QString &textureTfcFilter);
     bool CheckTextures(MeType gameId);
-    bool FixMissingPropertyInTextures(MeType gameId, const QString& filter);
     bool checkGameFilesAfter(MeType gameType);
     bool detectsMismatchPackagesAfter(MeType gameType);
 };

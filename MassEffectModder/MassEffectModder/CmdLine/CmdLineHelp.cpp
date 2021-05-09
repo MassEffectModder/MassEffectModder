@@ -64,9 +64,6 @@ void DisplayHelp()
         "  [--repack] [--skip-markers] [--ipc] [--alot-mode] [--limit-2k] [--verify]\n" \
         "     Install MEM mods from input directory.\n" \
         "\n" \
-        "  --apply-me1-laa\n" \
-        "     Apply LAA patch to ME1 executable.\n" \
-        "\n" \
         "  --detect-mods --gameid <game id> [--ipc]\n" \
         "     Detect compatible mods.\n" \
         "\n" \
@@ -85,21 +82,7 @@ void DisplayHelp()
         "  --convert-to-mem --gameid <game id> --input <input dir> --output <output file> [--mark-to-convert] [--ipc]\n" \
         "     game id: 1 for ME1, 2 for ME2, 3 for ME3\n" \
         "     input dir: directory to be converted, containing following file extension(s):\n" \
-        "        MEM, MOD, TPF\n" \
-        "        BIN - package export raw data\n" \
-        "           Naming pattern used for package in DLC:\n" \
-        "             D<DLC dir length>-<DLC dir>-<pkg filename length>-<pkg filename>-E<pkg export id>.bin\n" \
-        "             example: D10-DLC_HEN_PR-23-BioH_EDI_02_Explore.pcc-E6101.bin\n" \
-        "           Naming pattern used for package in base directory:\n" \
-        "             B<pkg filename length>-<pkg filename>-E<pkg export id>.bin\n" \
-        "             example: B23-BioH_EDI_00_Explore.pcc-E5090.bin\n" \
-        "        XDELTA - package export xdelta3 patch data\n" \
-        "           Naming pattern used for package in DLC:\n" \
-        "             D<DLC dir length>-<DLC dir>-<pkg filename length>-<pkg filename>-E<pkg export id>.xdelta\n" \
-        "             example: D10-DLC_HEN_PR-23-BioH_EDI_02_Explore.pcc-E6101.xdelta\n" \
-        "           Naming pattern used for package in base directory:\n" \
-        "             B<pkg filename length>-<pkg filename>-E<pkg export id>.xdelta\n" \
-        "             example: B23-BioH_EDI_00_Explore.pcc-E5090.xdelta\n" \
+        "        MEM, TPF\n" \
         "        DDS, BMP, TGA, PNG\n" \
         "           input format supported for DDS images:\n" \
         "              DXT1, DXT3, DTX5, ATI2, V8U8, G8, ARGB, RGB\n" \
@@ -138,18 +121,6 @@ void DisplayHelp()
         "              uncompressed ARGB/RGB/RGBX\n" \
         "           Image filename must include texture CRC (0xhhhhhhhh)\n" \
         "     output dir: directory where textures converted to DDS are placed\n" \
-        "\n" \
-        "  --extract-mod --gameid <game id> --input <input dir/file> [--output <output dir>] [--ipc]\n" \
-        "     game id: 1 for ME1, 2 for ME2, 3 for ME3\n" \
-        "     input dir: directory of ME3Explorer MOD file(s)\n" \
-        "     input file: ME3Explorer MOD file to be extracted\n" \
-        "     Can extract textures and package export raw data\n" \
-        "     Naming pattern used for package in DLC:\n" \
-        "        D<DLC dir length>-<DLC dir>-<pkg filename length>-<pkg filename>-E<pkg export id>.bin\n" \
-        "        example: D10-DLC_HEN_PR-23-BioH_EDI_02_Explore.pcc-E6101.bin\n" \
-        "     Naming pattern used for package in base directory:\n" \
-        "        B<pkg filename length>-<pkg filename>-E<pkg export id>.bin\n" \
-        "        example: B23-BioH_EDI_00_Explore.pcc-E5090.bin\n" \
         "\n" \
         "  --extract-mem --gameid <game id> --input <input dir/file> [--output <output dir>] [--ipc]\n" \
         "     game id: 1 for ME1, 2 for ME2, 3 for ME3\n" \
@@ -236,10 +207,6 @@ void DisplayHelp()
         "\n";
 #endif
     help +=
-        "  --fix-textures-property --gameid <game id> [--filter <string>] [--ipc]\n" \
-        "     Fix missing \"NeverStream\" property for textures\n" \
-        "     which has more than 6 mips in package.\n" \
-        "     If filter param is provided, match packages by filter \"string\".\n" \
         "\n" \
         "\n" \
         "  Additonal option to enable debug logs level to all commands: --debug-logs\n" \

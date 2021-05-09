@@ -71,9 +71,6 @@ struct ModEntry
     bool arcTfcDLC;
     int instance;
 
-    bool binaryModType;
-    ByteBuffer binaryModData;
-
     QString memPath;
     quint64 memEntryOffset;
     long memEntrySize;
@@ -124,30 +121,26 @@ public:
 
     typedef void (*ProgressCallback)(void *handle, int progress, const QString &stage);
 
-    void removeMipMaps(int phase, QList<TextureMapEntry> &textures, QStringList &pkgsToMarker,
-                       QStringList &pkgsToRepack, bool repack, bool appendMarker, bool force,
+    void removeMipMaps(QList<TextureMapEntry> &textures, QStringList &pkgsToMarker, bool appendMarker, bool force,
                        ProgressCallback callback, void *callbackHandle);
-    void removeMipMapsPerPackage(int phase, QList<TextureMapEntry> &textures, Package &package,
-                                 RemoveMipsEntry &removeEntry,
-                                 QStringList &pkgsToMarker, QStringList &pkgsToRepack,
-                                 bool repack, bool appendMarker);
+    void removeMipMapsPerPackage(Package &package, RemoveMipsEntry &removeEntry,
+                                 QStringList &pkgsToMarker, bool appendMarker);
 
     PixelFormat changeTextureType(PixelFormat gamePixelFormat, PixelFormat texturePixelFormat,
                                   Texture &texture);
     bool VerifyTextures(QList<TextureMapEntry> &textures,
                         ProgressCallback callback, void *callbackHandle);
     QString replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapEntry> &textures,
-                            QStringList &pkgsToMarker, QStringList &pkgsToRepack,
+                            QStringList &pkgsToMarker,
                             QList<ModEntry> &modsToReplace,
-                            bool repack, bool appendMarker, bool verify,
+                            bool appendMarker, bool verify,
                             bool removeMips, int cacheAmount,
                             ProgressCallback callback, void *callbackHandle);
     QString replaceModsFromList(QList<TextureMapEntry> &textures, QStringList &pkgsToMarker,
-                                QStringList &pkgsToRepack, QList<ModEntry> &modsToReplace, bool repack,
+                                QList<ModEntry> &modsToReplace,
                                 bool appendMarker, bool verify, bool removeMips, int cacheAmount,
                                 ProgressCallback callback, void *callbackHandle);
     static void RemoveLowerMips(Image *image);
-    static void Remove4kNorms(QList<Texture4kNormEntry> &texture4kNorms);
 };
 
 #endif

@@ -77,7 +77,6 @@ private slots:
     void ApplyHQLODsME1Selected() { ApplyHQLODsSelected(MeType::ME1_TYPE); }
     void ApplyHQLODsME2Selected() { ApplyHQLODsSelected(MeType::ME2_TYPE); }
     void ApplyHQLODsME3Selected() { ApplyHQLODsSelected(MeType::ME3_TYPE); }
-    void Apply2kLODsSelected();
     void ApplyVanillaLODsME1Selected() { ApplyVanillaLODsSelected(MeType::ME1_TYPE); }
     void ApplyVanillaLODsME2Selected() { ApplyVanillaLODsSelected(MeType::ME2_TYPE); }
     void ApplyVanillaLODsME3Selected() { ApplyVanillaLODsSelected(MeType::ME3_TYPE); }
@@ -96,8 +95,6 @@ private slots:
     void ChangeUserPathME2Selected() { ChangeUserPathSelected(MeType::ME2_TYPE); }
     void ChangeUserPathME3Selected() { ChangeUserPathSelected(MeType::ME3_TYPE); }
 #endif
-    void RepackGameFilesME2Selected() { RepackGameFilesSelected(MeType::ME2_TYPE); }
-    void RepackGameFilesME3Selected() { RepackGameFilesSelected(MeType::ME3_TYPE); }
     void UpdateTOCsSelected();
     void ExtractDLCsSelected();
 
@@ -107,15 +104,9 @@ private slots:
     void ExtractModsME1Selected() { ExtractModsSelected(MeType::ME1_TYPE); }
     void ExtractModsME2Selected() { ExtractModsSelected(MeType::ME2_TYPE); }
     void ExtractModsME3Selected() { ExtractModsSelected(MeType::ME3_TYPE); }
-    void ConvertModME1Selected() { ConvertModSelected(MeType::ME1_TYPE); }
-    void ConvertModME2Selected() { ConvertModSelected(MeType::ME2_TYPE); }
-    void ConvertModME3Selected() { ConvertModSelected(MeType::ME3_TYPE); }
     void CreateModME1Selected() { CreateModSelected(MeType::ME1_TYPE); }
     void CreateModME2Selected() { CreateModSelected(MeType::ME2_TYPE); }
     void CreateModME3Selected() { CreateModSelected(MeType::ME3_TYPE); }
-    void CreateBinaryModME1Selected() { CreateBinaryModSelected(MeType::ME1_TYPE); }
-    void CreateBinaryModME2Selected() { CreateBinaryModSelected(MeType::ME2_TYPE); }
-    void CreateBinaryModME3Selected() { CreateBinaryModSelected(MeType::ME3_TYPE); }
 
     friend class HoverLabel;
 
@@ -139,7 +130,6 @@ private:
     QPushButton   *buttonTextureUtilitiesME1;
     QPushButton   *buttonRemoveScanFileME1;
     QPushButton   *buttonApplyHQLODsME1;
-    QPushButton   *buttonApply2kLODsME1;
     QPushButton   *buttonApplyVanillaLODsME1;
     QPushButton   *buttonApplyHQGfxME1;
     QSpacerItem   *spacerBottomTextureUtilitiesME1;
@@ -153,9 +143,7 @@ private:
     QPushButton   *buttonModsManagerME1;
     QPushButton   *buttonInstallModsME1;
     QPushButton   *buttonExtractModsME1;
-    QPushButton   *buttonConvertModME1;
     QPushButton   *buttonCreateModME1;
-    QPushButton   *buttonCreateBinaryModME1;
     QGroupBox     *groupBoxViewME1;
 
     HoverLabel    *labelME2;
@@ -168,7 +156,6 @@ private:
     QSpacerItem   *spacerBottomTextureUtilitiesME2;
     QPushButton   *buttonGameUtilitiesME2;
     QPushButton   *buttonCheckGameFilesME2;
-    QPushButton   *buttonRepackGameFilesME2;
     QPushButton   *buttonChangeGamePathME2;
 #if !defined(_WIN32)
     QPushButton   *buttonChangeUserPathME2;
@@ -177,9 +164,7 @@ private:
     QPushButton   *buttonModsManagerME2;
     QPushButton   *buttonInstallModsME2;
     QPushButton   *buttonExtractModsME2;
-    QPushButton   *buttonConvertModME2;
     QPushButton   *buttonCreateModME2;
-    QPushButton   *buttonCreateBinaryModME2;
     QGroupBox     *groupBoxViewME2;
 
     HoverLabel    *labelME3;
@@ -192,7 +177,6 @@ private:
     QSpacerItem   *spacerBottomTextureUtilitiesME3;
     QPushButton   *buttonGameUtilitiesME3;
     QPushButton   *buttonCheckGameFilesME3;
-    QPushButton   *buttonRepackGameFilesME3;
     QPushButton   *buttonUpdateTOCs;
     QPushButton   *buttonExtractDLCs;
     QPushButton   *buttonChangeGamePathME3;
@@ -203,9 +187,7 @@ private:
     QPushButton   *buttonModsManagerME3;
     QPushButton   *buttonInstallModsME3;
     QPushButton   *buttonExtractModsME3;
-    QPushButton   *buttonConvertModME3;
     QPushButton   *buttonCreateModME3;
-    QPushButton   *buttonCreateBinaryModME3;
     QGroupBox     *groupBoxViewME3;
 
     void OnStackChanged() override;
@@ -226,7 +208,7 @@ private:
     void ApplyHQLODsSelected(MeType gameType);
     void ApplyVanillaLODsSelected(MeType gameType);
     void ApplyHQGfxSelected(MeType gameType);
-    void ApplyLODs(MeType gameType, bool lods2k);
+    void ApplyLODs(MeType gameType);
     void ApplyHQGfx(MeType gameType);
 
     void CheckGameFilesSelected(MeType gameType);
@@ -234,17 +216,13 @@ private:
 #if !defined(_WIN32)
     void ChangeUserPathSelected(MeType gameType);
 #endif
-    void RepackGameFilesSelected(MeType gameType);
     static void CheckCallback(void *handle, int progress, const QString &stage);
     static void ExtractDlcCallback(void *handle, int progress, const QString &stage);
     static void RepackCallback(void *handle, int progress, const QString &stage);
 
     void ExtractModsSelected(MeType gameType);
-    void ConvertModSelected(MeType gameType);
     void CreateModSelected(MeType gameType);
-    void CreateBinaryModSelected(MeType gameType);
     static void ExtractModCallback(void *handle, int progress, const QString &stage);
-    static void ConvertModCallback(void *handle, int progress, const QString &stage);
     static void CreateModCallback(void *handle, int progress, const QString &stage);
 };
 

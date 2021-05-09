@@ -31,21 +31,17 @@ typedef enum : int
     SCAN_TEXTURES,
     UPDATE_TOC,
     UNPACK_DLCS,
-    REPACK,
     CONVERT_TO_MEM,
     CONVERT_GAME_IMAGE,
     CONVERT_GAME_IMAGES,
     CONVERT_IMAGE,
     INSTALL_MODS,
-    EXTRACT_MOD,
     EXTRACT_MEM,
-    EXTRACT_TPF,
     DETECT_MODS,
     DETECT_BAD_MODS,
     APPLY_LODS_GFX,
     PRINT_LODS,
     REMOVE_LODS,
-    APPLY_ME1_LAA,
     CHECK_GAME_DATA_TEXTURES,
     CHECK_GAME_DATA_MISMATCH,
     CHECK_GAME_DATA_AFTER,
@@ -54,7 +50,6 @@ typedef enum : int
     EXTRACT_ALL_DDS,
     EXTRACT_ALL_PNG,
     EXTRACT_ALL_BIK,
-    COMPACT_DLC,
     UNPACK_ARCHIVE,
     LIST_ARCHIVE,
     SET_GAME_DATA_PATH,
@@ -62,7 +57,6 @@ typedef enum : int
 #if !defined(_WIN32)
     SET_GAME_USER_PATH,
 #endif
-    FIX_TEXTURES_PROPERTY,
 } CmdType;
 
 int ProcessArguments();

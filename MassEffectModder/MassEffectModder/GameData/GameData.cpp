@@ -372,38 +372,31 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
 
         if (gameType == MeType::ME1_TYPE)
         {
-            if (QFile::exists(MainData() + "/Movies/niebieska_pl.bik"))
+            for (int i = 0; i < packageFiles.count(); i++)
             {
-                FullScanGame = true;
-            }
-            else
-            {
-                for (int i = 0; i < packageFiles.count(); i++)
+                QString path = packageFiles[i];
+                if (AsciiBaseNameStringContains(path, LANG_PL, LANG_PL_LEN) ||
+                    AsciiBaseNameStringContains(path, LANG_CS, LANG_CS_LEN) ||
+                    AsciiBaseNameStringContains(path, LANG_HU, LANG_HU_LEN) ||
+                    AsciiBaseNameStringContains(path, LANG_RU, LANG_RU_LEN) ||
+                    AsciiBaseNameStringContains(path, LANG_RA, LANG_RA_LEN))
                 {
-                    QString path = packageFiles[i];
-                    if (AsciiBaseNameStringContains(path, LANG_PL, LANG_PL_LEN) ||
-                        AsciiBaseNameStringContains(path, LANG_CS, LANG_CS_LEN) ||
-                        AsciiBaseNameStringContains(path, LANG_HU, LANG_HU_LEN) ||
-                        AsciiBaseNameStringContains(path, LANG_RU, LANG_RU_LEN) ||
-                        AsciiBaseNameStringContains(path, LANG_RA, LANG_RA_LEN))
+                    FullScanGame = true;
+                    break;
+                }
+            }
+            if (!FullScanGame)
+            {
+                for (int i = 0; i < mainFiles.count(); i++)
+                {
+                    QString path = mainFiles[i];
+                    if (AsciiBaseNameStringContains(path, LANG_DE, LANG_DE_LEN) ||
+                        AsciiBaseNameStringContains(path, LANG_FR, LANG_FR_LEN) ||
+                        AsciiBaseNameStringContains(path, LANG_IT, LANG_IT_LEN) ||
+                        AsciiBaseNameStringContains(path, LANG_ES, LANG_ES_LEN))
                     {
                         FullScanGame = true;
                         break;
-                    }
-                }
-                if (!FullScanGame)
-                {
-                    for (int i = 0; i < mainFiles.count(); i++)
-                    {
-                        QString path = mainFiles[i];
-                        if (AsciiBaseNameStringContains(path, LANG_DE, LANG_DE_LEN) ||
-                            AsciiBaseNameStringContains(path, LANG_FR, LANG_FR_LEN) ||
-                            AsciiBaseNameStringContains(path, LANG_IT, LANG_IT_LEN) ||
-                            AsciiBaseNameStringContains(path, LANG_ES, LANG_ES_LEN))
-                        {
-                            FullScanGame = true;
-                            break;
-                        }
                     }
                 }
             }

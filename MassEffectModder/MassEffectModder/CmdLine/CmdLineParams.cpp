@@ -78,8 +78,6 @@ int ProcessArguments()
             cmd = CmdType::UPDATE_TOC;
         else if (arg == "--unpack-dlcs")
             cmd = CmdType::UNPACK_DLCS;
-        else if (arg == "--repack")
-            cmd = CmdType::REPACK;
         else if (arg == "--convert-to-mem")
             cmd = CmdType::CONVERT_TO_MEM;
         else if (arg == "--convert-game-image")
@@ -90,12 +88,8 @@ int ProcessArguments()
             cmd = CmdType::CONVERT_IMAGE;
         else if (arg == "--install-mods")
             cmd = CmdType::INSTALL_MODS;
-        else if (arg == "--extract-mod")
-            cmd = CmdType::EXTRACT_MOD;
         else if (arg == "--extract-mem")
             cmd = CmdType::EXTRACT_MEM;
-        else if (arg == "--extract-tpf")
-            cmd = CmdType::EXTRACT_TPF;
         else if (arg == "--detect-mods")
             cmd = CmdType::DETECT_MODS;
         else if (arg == "--detect-bad-mods")
@@ -106,8 +100,6 @@ int ProcessArguments()
             cmd = CmdType::PRINT_LODS;
         else if (arg == "--remove-lods")
             cmd = CmdType::REMOVE_LODS;
-        else if (arg == "--apply-me1-laa")
-            cmd = CmdType::APPLY_ME1_LAA;
         else if (arg == "--check-game-data-textures")
             cmd = CmdType::CHECK_GAME_DATA_TEXTURES;
         else if (arg == "--check-game-data-mismatch")
@@ -124,8 +116,6 @@ int ProcessArguments()
             cmd = CmdType::EXTRACT_ALL_PNG;
         else if (arg == "--extract-all-bik")
             cmd = CmdType::EXTRACT_ALL_BIK;
-        else if (arg == "--compact-dlc")
-            cmd = CmdType::COMPACT_DLC;
         else if (arg == "--unpack-archive")
             cmd = CmdType::UNPACK_ARCHIVE;
         else if (arg == "--list-archive")
@@ -138,8 +128,6 @@ int ProcessArguments()
         else if (arg == "--set-game-user-path")
             cmd = CmdType::SET_GAME_USER_PATH;
 #endif
-        else if (arg == "--fix-textures-property")
-            cmd = CmdType::FIX_TEXTURES_PROPERTY;
         else
             continue;
         args.removeAt(l);
@@ -405,18 +393,6 @@ int ProcessArguments()
             errorCode = 1;
         break;
     }
-    case CmdType::REPACK:
-    {
-        if (gameId != MeType::ME2_TYPE && gameId != MeType::ME3_TYPE)
-        {
-            PERROR("Wrong game id!\n");
-            errorCode = 1;
-            break;
-        }
-        if (!tools.repackGame(gameId))
-            errorCode = 1;
-        break;
-    }
     case CmdType::CONVERT_TO_MEM:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
@@ -524,35 +500,10 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.InstallMods(gameId, input, repackMode, alotMode, skipMarkers, limit2k, verify, cacheAmountValue))
+        if (!tools.InstallMods(gameId, input, alotMode, skipMarkers, verify, cacheAmountValue))
         {
             errorCode = 1;
         }
-        break;
-    case CmdType::EXTRACT_MOD:
-        if (gameId == MeType::UNKNOWN_TYPE)
-        {
-            PERROR("Wrong game id!\n");
-            errorCode = 1;
-            break;
-        }
-        if (input.endsWith(".mod", Qt::CaseInsensitive))
-        {
-            if (!QFile(input).exists())
-            {
-                PERROR("Input file doesn't exists! " + input + "\n");
-                errorCode = 1;
-                break;
-            }
-        }
-        else if (!QDir(input).exists())
-        {
-            PERROR("Input folder doesn't exists! " + input + "\n");
-            errorCode = 1;
-            break;
-        }
-        if (!tools.extractMOD(gameId, input, output))
-            errorCode = 1;
         break;
     case CmdType::EXTRACT_MEM:
         if (gameId == MeType::UNKNOWN_TYPE)
@@ -577,25 +528,6 @@ int ProcessArguments()
             break;
         }
         if (!tools.extractMEM(gameId, input, output))
-            errorCode = 1;
-        break;
-    case CmdType::EXTRACT_TPF:
-        if (input.endsWith(".tpf", Qt::CaseInsensitive))
-        {
-            if (!QFile(input).exists())
-            {
-                PERROR("Input file doesn't exists! " + input + "\n");
-                errorCode = 1;
-                break;
-            }
-        }
-        else if (!QDir(input).exists())
-        {
-            PERROR("Input folder doesn't exists! " + input + "\n");
-            errorCode = 1;
-            break;
-        }
-        if (!tools.extractTPF(input, output))
             errorCode = 1;
         break;
     case CmdType::DETECT_MODS:
@@ -625,7 +557,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.ApplyLODAndGfxSettings(gameId, limit2k))
+        if (!tools.ApplyLODAndGfxSettings(gameId))
             errorCode = 1;
         break;
     case CmdType::PRINT_LODS:
@@ -646,10 +578,6 @@ int ProcessArguments()
             break;
         }
         if (!tools.RemoveLODSettings(gameId))
-            errorCode = 1;
-        break;
-    case CmdType::APPLY_ME1_LAA:
-        if (!tools.ApplyME1LAAPatch())
             errorCode = 1;
         break;
     case CmdType::CHECK_GAME_DATA_TEXTURES:
@@ -768,24 +696,6 @@ int ProcessArguments()
         if (!tools.extractAllMovieTextures(gameId, output, input, pccOnly, tfcOnly, mapCRC, tfcName))
             errorCode = 1;
         break;
-    case CmdType::COMPACT_DLC:
-    {
-        if (gameId == MeType::UNKNOWN_TYPE || gameId == MeType::ME1_TYPE)
-        {
-            PERROR("Wrong game id!\n");
-            errorCode = 1;
-            break;
-        }
-        if (dlcName.length() == 0)
-        {
-            PERROR("DLC name param missing!\n");
-            errorCode = 1;
-            break;
-        }
-        if (!tools.RepackTFCInDLC(gameId, dlcName, pullTextures, compressed))
-            errorCode = 1;
-        break;
-    }
     case CmdType::UNPACK_ARCHIVE:
         if (!QFile(input).exists())
         {
@@ -846,16 +756,6 @@ int ProcessArguments()
             errorCode = 1;
         break;
 #endif
-    case CmdType::FIX_TEXTURES_PROPERTY:
-        if (gameId == MeType::UNKNOWN_TYPE || gameId == MeType::ME1_TYPE)
-        {
-            PERROR("Wrong game id!\n");
-            errorCode = 1;
-            break;
-        }
-        if (!tools.FixMissingPropertyInTextures(gameId, filter))
-            errorCode = 1;
-        break;
     }
 
     return errorCode;

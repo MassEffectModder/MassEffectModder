@@ -59,8 +59,6 @@ typedef enum
 #define FileTextureTag        0x53444446
 #define FileTextureTag2       0x53444443
 #define FileMovieTextureTag   0x53494246
-#define FileBinaryTag         0x4E494246
-#define FileXdeltaTag         0x4E494258
 #define MEMI_TAG              0x494D454D
 #define MEMendFileMarker      "ThisIsMEMEndOfFileMarker"
 #define MEMMarkerLength       (sizeof(MEMendFileMarker) - 1)

@@ -68,7 +68,6 @@ public:
     QList<MD5FileEntry> entriesME2;
     QList<MD5FileEntry> entriesME3;
     QStringList tablePkgsME1;
-    QStringList tablePkgsME1PL;
     QStringList tablePkgsME2;
     QStringList tablePkgsME3;
 

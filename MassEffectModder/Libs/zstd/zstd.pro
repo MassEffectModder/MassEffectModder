@@ -40,6 +40,7 @@ HEADERS += \
            threading.h \
            xxhash.h \
            zstd_compress_internal.h \
+           zstd_compress_sequences.h \
            zstd_ddict.h \
            zstd_decompress_block.h \
            zstd_decompress_internal.h \

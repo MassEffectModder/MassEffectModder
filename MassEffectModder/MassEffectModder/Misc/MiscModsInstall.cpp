@@ -31,8 +31,8 @@
 #include <Helpers/FileStream.h>
 
 bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
-                     QStringList &pkgsToRepack, QStringList &pkgsToMarker,
-                     MipMaps &mipMaps, bool repack, bool appendMarker,
+                     QStringList &pkgsToMarker,
+                     MipMaps &mipMaps, bool appendMarker,
                      bool modded, bool verify, int cacheAmount,
                      ProgressCallback callback, void *callbackHandle)
 {
@@ -104,8 +104,6 @@ bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
         {
             QString name;
             uint crc = 0;
-            int exportId = -1;
-            QString pkgPath;
             fs.JumpTo(modFiles[l].offset);
             long size = modFiles[l].size;
             if (modFiles[l].tag == FileTextureTag ||
@@ -114,14 +112,6 @@ bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
             {
                 fs.ReadStringASCIINull(name);
                 crc = fs.ReadUInt32();
-            }
-            else if (modFiles[l].tag == FileBinaryTag ||
-                     modFiles[l].tag == FileXdeltaTag)
-            {
-                name = modFiles[l].name;
-                exportId = fs.ReadInt32();
-                fs.ReadStringASCIINull(pkgPath);
-                pkgPath = pkgPath.replace('\\', '/');
             }
             else
             {
@@ -161,87 +151,11 @@ bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
                                  QString::asprintf("_0x%08X", crc) + " is not present in your game setup.\n");
                 }
             }
-            else if (modFiles[l].tag == FileBinaryTag)
-            {
-                if (!QFile(g_GameData->GamePath() + pkgPath).exists())
-                {
-                    PINFO(QString("Warning: File ") + pkgPath +
-                                 " not exists in your game setup.\n");
-                    continue;
-                }
-                ModEntry entry{};
-                entry.binaryModType = true;
-                entry.packagePath = pkgPath;
-                entry.exportId = exportId;
-                entry.binaryModData = Misc::decompressData(fs, size);
-                if (entry.binaryModData.size() == 0)
-                {
-                    if (g_ipc)
-                    {
-                        ConsoleWrite(QString("[IPC]ERROR Failed decompress data: ") + name);
-                        ConsoleSync();
-                    }
-                    PERROR(QString("Failed decompress data: ") + name + "\n");
-                    continue;
-                }
-                modsToReplace.push_back(entry);
-            }
-            else if (modFiles[l].tag == FileXdeltaTag)
-            {
-                QString path = g_GameData->GamePath() + pkgPath;
-                if (!QFile(path).exists())
-                {
-                    PINFO(QString("Warning: File ") + pkgPath +
-                                 " not exists in your game setup.\n");
-                    continue;
-                }
-                ModEntry entry{};
-                Package pkg;
-                if (pkg.Open(path) != 0)
-                {
-                    PERROR(QString("Failed open package ") + pkgPath + "\n");
-                    continue;
-                }
-                ByteBuffer src = pkg.getExportData(exportId);
-                if (src.ptr() == nullptr)
-                {
-                    PERROR(QString("Failed get data, export id") +
-                                 QString::number(exportId) + ", package: " + pkgPath + "\n");
-                    continue;
-                }
-                ByteBuffer dst = Misc::decompressData(fs, size);
-                if (dst.size() == 0)
-                {
-                    if (g_ipc)
-                    {
-                        ConsoleWrite(QString("[IPC]ERROR Failed decompress data: ") + name);
-                        ConsoleSync();
-                    }
-                    PERROR(QString("Failed decompress data: ") + name + "\n");
-                    continue;
-                }
-                auto buffer = ByteBuffer(src.size());
-                uint dstLen = 0;
-                int status = XDelta3Decompress(src.ptr(), src.size(), dst.ptr(), dst.size(), buffer.ptr(), &dstLen);
-                src.Free();
-                dst.Free();
-                if (status != 0)
-                {
-                    PERROR(QString("Warning: Xdelta patch for ") + pkgPath + " failed to apply.\n");
-                    buffer.Free();
-                    continue;
-                }
-                entry.binaryModType = true;
-                entry.packagePath = pkgPath;
-                entry.exportId = exportId;
-                entry.binaryModData = buffer;
-                modsToReplace.push_back(entry);
-            }
         }
     }
 
-    mipMaps.replaceModsFromList(textures, pkgsToMarker, pkgsToRepack, modsToReplace,
-                                repack, appendMarker, verify, !modded, cacheAmount,
+    mipMaps.replaceModsFromList(textures, pkgsToMarker, modsToReplace,
+                                appendMarker, verify, !modded, cacheAmount,
                                 callback, callbackHandle);
 
     PINFO("Process textures finished.\n\n");
@@ -280,14 +194,13 @@ bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
 }
 
 bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFiles,
-                       bool repack, bool guiInstallerMode, bool alotInstallerMode,
-                       bool skipMarkers, bool limit2k, bool verify, int cacheAmount,
+                       bool guiInstallerMode, bool alotInstallerMode,
+                       bool skipMarkers, bool verify, int cacheAmount,
                        ProgressCallback callback, void *callbackHandle)
 {
     MipMaps mipMaps;
     QStringList pkgsToRepack;
     QStringList pkgsToMarker;
-    QList<Texture4kNormEntry> texture4kNorms;
 
     if (GameData::ConfigIniPath(gameId).length() == 0)
     {
@@ -324,9 +237,6 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
 
     Misc::startTimer();
 
-    if (gameId == MeType::ME1_TYPE)
-        repack = false;
-
     bool modded = detectMod(gameId);
     bool unpackNeeded = false;
     if (gameId == MeType::ME3_TYPE && !modded)
@@ -346,8 +256,6 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
             ConsoleWrite("[IPC]STAGE_ADD STAGE_VERIFYTEXTURES");
         if (!modded)
             ConsoleWrite("[IPC]STAGE_ADD STAGE_REMOVEMIPMAPS");
-        if (repack)
-            ConsoleWrite("[IPC]STAGE_ADD STAGE_REPACK");
         if (!skipMarkers && !modded)
             ConsoleWrite("[IPC]STAGE_ADD STAGE_MARKERS");
         ConsoleSync();
@@ -371,18 +279,6 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
         PINFO("Unpacking DLCs finished.\n\n");
     }
 
-    if (repack)
-    {
-        for (int i = 0; i < g_GameData->packageFiles.count(); i++)
-        {
-            pkgsToRepack.push_back(g_GameData->packageFiles[i]);
-        }
-        if (GameData::gameType == MeType::ME1_TYPE)
-            pkgsToRepack.removeOne("/BioGame/CookedPC/testVolumeLight_VFX.upk");
-        else if (GameData::gameType == MeType::ME2_TYPE)
-            pkgsToRepack.removeOne("/BioGame/CookedPC/BIOC_Materials.pcc");
-    }
-
     QList<TextureMapEntry> textures;
 
     if (!modded)
@@ -399,7 +295,7 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
             pkgsToMarker.removeOne("/BioGame/CookedPC/BIOC_Materials.pcc");
 
         PINFO("Scan textures started...\n");
-        if (!TreeScan::PrepareListOfTextures(gameId, resources, textures, texture4kNorms, false, true,
+        if (!TreeScan::PrepareListOfTextures(gameId, resources, textures, false, true,
                                         callback, callbackHandle))
         {
             PERROR("Failed to scan textures!\n");
@@ -424,21 +320,12 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
             return false;
     }
 
-    Misc::applyMods(modFiles, textures, pkgsToRepack, pkgsToMarker, mipMaps,
-                    repack, true, modded, verify, cacheAmount, callback, callbackHandle);
-
-
-    if (!modded && GameData::gameType == MeType::ME3_TYPE)
-        MipMaps::Remove4kNorms(texture4kNorms);
+    Misc::applyMods(modFiles, textures, pkgsToMarker, mipMaps,
+                    true, modded, verify, cacheAmount, callback, callbackHandle);
 
 
     if (!modded)
-        RemoveMipmaps(mipMaps, textures, pkgsToMarker, pkgsToRepack, repack, true, false,
-                      callback, callbackHandle);
-
-
-    if (repack)
-        Misc::RepackME23(gameId, true, pkgsToRepack, callback, callbackHandle);
+        RemoveMipmaps(mipMaps, textures, pkgsToMarker, true, false, callback, callbackHandle);
 
 
     if (!skipMarkers && !modded)
@@ -446,7 +333,7 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
 
     if (!alotInstallerMode)
     {
-        if (!ApplyPostInstall(gameId, limit2k))
+        if (!ApplyPostInstall(gameId))
             return false;
     }
 
@@ -467,7 +354,7 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
     return true;
 }
 
-bool Misc::ApplyPostInstall(MeType gameId, bool limit2k)
+bool Misc::ApplyPostInstall(MeType gameId)
 {
     if (!applyModTag(gameId, 0, 0))
         PERROR("Failed applying stamp for installation!\n");
@@ -480,7 +367,7 @@ bool Misc::ApplyPostInstall(MeType gameId, bool limit2k)
 #else
     ConfigIni engineConf = ConfigIni(path, true);
 #endif
-    LODSettings::updateLOD(gameId, engineConf, limit2k);
+    LODSettings::updateLOD(gameId, engineConf);
     LODSettings::updateGFXSettings(gameId, engineConf);
 
     PINFO("Updating LODs and other settings finished.\n\n");

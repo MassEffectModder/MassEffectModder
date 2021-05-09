@@ -199,8 +199,8 @@ bool MipMaps::VerifyTextures(QList<TextureMapEntry> &textures,
 }
 
 QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapEntry> &textures,
-                                 QStringList &pkgsToMarker, QStringList &pkgsToRepack,
-                                 QList<ModEntry> &modsToReplace, bool repack,
+                                 QStringList &pkgsToMarker,
+                                 QList<ModEntry> &modsToReplace,
                                  bool appendMarker, bool verify, bool removeMips, int cacheAmount,
                                  ProgressCallback callback, void *callbackHandle)
 {
@@ -520,7 +520,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                             mod.cacheCprMipmapsStorageType = StorageTypes::extZlib;
                         mod.cacheCprMipmapsDecompressedSize.push_back(image->getMipMaps()[m]->getRefData().size());
                         auto data = Package::compressData(image->getMipMaps()[m]->getRefData(),
-                                                            mod.cacheCprMipmapsStorageType, repack);
+                                                            mod.cacheCprMipmapsStorageType);
                         mod.cacheCprMipmaps.push_back(MipMap(data, image->getMipMaps()[m]->getOrigWidth(),
                                                       image->getMipMaps()[m]->getOrigHeight(), mod.cachedPixelFormat, true));
                         mod.cacheSize += data.size();
@@ -574,31 +574,10 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                     }
                     else
                     {
-                        if (GameData::gameType == MeType::ME1_TYPE)
-                        {
-                            if (matched.linkToMaster == -1)
-                            {
-                                if (!texture.getProperties().exists("NeverStream"))
-                                    texture.getProperties().setBoolValue("NeverStream", true);
-                            }
-                            if (matched.linkToMaster == -1 ||
-                                texture.mipMapsList.count() == 1)
-                            {
-                                mipmap.storageType = StorageTypes::pccLZO;
-                            }
-                            else
-                            {
-                                mipmap.storageType = StorageTypes::extLZO;
-                            }
-                        }
-                        else if (GameData::gameType == MeType::ME2_TYPE ||
-                                 GameData::gameType == MeType::ME3_TYPE)
-                        {
-                            if (texture.mipMapsList.count() == 1)
-                                mipmap.storageType = StorageTypes::pccUnc;
-                            else
-                                mipmap.storageType = StorageTypes::extZlib;
-                        }
+                        if (texture.mipMapsList.count() == 1)
+                            mipmap.storageType = StorageTypes::pccUnc;
+                        else
+                            mipmap.storageType = StorageTypes::extZlib;
                     }
 
                     mipmapsPre.push_front(mipmap);
@@ -794,13 +773,6 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                                 mipmap.freeNewData = true;
                             }
                         }
-                        else if ((mipmap.storageType == StorageTypes::extLZO ||
-                                  mipmap.storageType == StorageTypes::extZlib) && matched.linkToMaster != -1)
-                        {
-                            auto mip = mod.masterTextures.find(matched.linkToMaster).value()[m];
-                            mipmap.compressedSize = mip.compressedSize;
-                            mipmap.dataOffset = mip.dataOffset;
-                        }
                         else
                         {
                             CRASH();
@@ -907,23 +879,11 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                 }
                 bufferProperties.Free();
 
-                if (GameData::gameType == MeType::ME1_TYPE)
+                if (triggerCacheArc)
                 {
-                    if (matched.linkToMaster == -1)
-                    {
-                        QList<Texture::TextureMipMap> mastersList;
-                        mod.CopyMipMapsList(mastersList, texture.mipMapsList);
-                        mod.masterTextures.insert(entryMap.listIndex, mastersList);
-                    }
-                }
-                else
-                {
-                    if (triggerCacheArc)
-                    {
-                        mod.CopyMipMapsList(mod.arcTexture, texture.mipMapsList);
-                        memcpy(mod.arcTfcGuid, texture.getProperties().getProperty("TFCFileGuid").getValueStruct().ptr(), 16);
-                        mod.arcTfcName = texture.getProperties().getProperty("TextureFileCacheName").getValueName();
-                    }
+                    mod.CopyMipMapsList(mod.arcTexture, texture.mipMapsList);
+                    memcpy(mod.arcTfcGuid, texture.getProperties().getProperty("TFCFileGuid").getValueStruct().ptr(), 16);
+                    mod.arcTfcName = texture.getProperties().getProperty("TextureFileCacheName").getValueName();
                 }
 
                 matched.removeEmptyMips = false;
@@ -980,15 +940,13 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
 
         if (removeMips && !map[e].slave)
         {
-            removeMipMapsPerPackage(1, textures, package, map[e].removeMips,
-                                    pkgsToMarker, pkgsToRepack, repack, appendMarker);
+            removeMipMapsPerPackage(package, map[e].removeMips,
+                                    pkgsToMarker, appendMarker);
         }
         else
         {
-            if (package.SaveToFile(repack, false, appendMarker))
+            if (package.SaveToFile(false, false, appendMarker))
             {
-                if (repack)
-                    pkgsToRepack.removeOne(package.packagePath);
                 if (appendMarker)
                     pkgsToMarker.removeOne(package.packagePath);
             }
@@ -1025,18 +983,15 @@ static int comparePaths(const MapTexturesToMod &e1, const MapTexturesToMod &e2)
 }
 
 QString MipMaps::replaceModsFromList(QList<TextureMapEntry> &textures, QStringList &pkgsToMarker,
-                                     QStringList &pkgsToRepack, QList<ModEntry> &modsToReplace,
-                                     bool repack, bool appendMarker, bool verify, bool removeMips,
+                                     QList<ModEntry> &modsToReplace,
+                                     bool appendMarker, bool verify, bool removeMips,
                                      int cacheAmount, ProgressCallback callback, void *callbackHandle)
 {
     QString errors;
-    bool binaryMods = false;
 
     // Remove duplicates
     for (int i = 0; i < modsToReplace.count(); i++)
     {
-        if (modsToReplace[i].binaryModType)
-            binaryMods = true;
         ModEntry mod = modsToReplace[i];
         // Filter replacing blank textures
         if (TreeScan::IsBlankTexture(mod.textureCrc))
@@ -1048,36 +1003,18 @@ QString MipMaps::replaceModsFromList(QList<TextureMapEntry> &textures, QStringLi
 
         for (int l = 0; l < i; l++)
         {
-            if ((mod.textureCrc != 0 && mod.textureCrc == modsToReplace[l].textureCrc) ||
-                (mod.binaryModType && modsToReplace[l].binaryModType &&
-                mod.exportId == modsToReplace[l].exportId &&
-                AsciiStringMatch(mod.packagePath, modsToReplace[l].packagePath)))
+            if ((mod.textureCrc != 0 && mod.textureCrc == modsToReplace[l].textureCrc))
             {
-                if (!mod.binaryModType)
+                if (g_ipc)
                 {
-                    if (g_ipc)
-                    {
-                        ConsoleWrite(QString("[IPC]MOD_OVERRIDE ") + mod.textureName +
-                                     QString::asprintf("_0x%08X", mod.textureCrc) + ", " + mod.memPath);
-                        ConsoleSync();
-                    }
-                    else
-                    {
-                        PINFO(QString("Override texture: ") + mod.textureName +
-                              QString::asprintf("_0x%08X", mod.textureCrc) + ", " + mod.memPath + "\n");
-                    }
+                    ConsoleWrite(QString("[IPC]MOD_OVERRIDE ") + mod.textureName +
+                                 QString::asprintf("_0x%08X", mod.textureCrc) + ", " + mod.memPath);
+                    ConsoleSync();
                 }
                 else
                 {
-                    if (g_ipc)
-                    {
-                        ConsoleWrite(QString("[IPC]MOD_OVERRIDE ") + mod.memPath);
-                        ConsoleSync();
-                    }
-                    else
-                    {
-                        PINFO(QString("Override binary mod: ") + mod.memPath + "\n");
-                    }
+                    PINFO(QString("Override texture: ") + mod.textureName +
+                          QString::asprintf("_0x%08X", mod.textureCrc) + ", " + mod.memPath + "\n");
                 }
                 modsToReplace.removeAt(l);
                 i--;
@@ -1113,10 +1050,7 @@ QString MipMaps::replaceModsFromList(QList<TextureMapEntry> &textures, QStringLi
             entry.modIndex = index;
             entry.listIndex = t;
             entry.texturesIndex = k;
-            if (GameData::gameType == MeType::ME1_TYPE && textures[k].list[t].linkToMaster != -1)
-                mapSlaves.push_back(entry);
-            else
-                map.push_back(entry);
+            map.push_back(entry);
 
             ModEntry mod = modsToReplace[index];
             mod.instance++;
@@ -1198,7 +1132,7 @@ QString MipMaps::replaceModsFromList(QList<TextureMapEntry> &textures, QStringLi
             {
                 if (textures[k].list[t].path.length() == 0)
                     continue;
-                if (!textures[k].list[t].slave && textures[k].list[t].removeEmptyMips)
+                if (textures[k].list[t].removeEmptyMips)
                 {
                     for (int e = 0; e < mapPackages.count(); e++)
                     {
@@ -1217,75 +1151,6 @@ QString MipMaps::replaceModsFromList(QList<TextureMapEntry> &textures, QStringLi
         }
     }
 
-    if (binaryMods)
-    {
-        if (!g_ipc)
-        {
-            PINFO("\nInstalling binary mods...\n");
-        }
-
-        for (int i = 0; i < modsToReplace.count(); i++)
-        {
-            ModEntry mod = modsToReplace[i];
-            if (mod.binaryModType)
-            {
-                QString path = g_GameData->GamePath() + mod.packagePath;
-                if (!QFile(path).exists())
-                {
-                    errors += "Warning: File " + path + " not exists in your game setup.\n";
-                    mod.binaryModData.Free();
-                    continue;
-                }
-                Package pkg{};
-                if (pkg.Open(path) != 0)
-                {
-                    errors += "Warning: Failed open package: " + path + "\n";
-                    mod.binaryModData.Free();
-                    continue;
-                }
-                pkg.setExportData(mod.exportId, mod.binaryModData);
-                if (pkg.SaveToFile(repack, false, appendMarker))
-                {
-                    if (repack)
-                        pkgsToRepack.removeOne(pkg.packagePath);
-                    if (appendMarker)
-                        pkgsToMarker.removeOne(pkg.packagePath);
-                }
-
-                if (!mod.packagePath.contains("/DLC/") &&
-                    QDir(g_GameData->DLCData()).exists())
-                {
-                    QString file = BaseName(mod.packagePath);
-                    QStringList DLCs = QDir(g_GameData->DLCData(), "DLC_*", QDir::NoSort, QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
-                    foreach (QString DLCDir, DLCs)
-                    {
-                        QString path = g_GameData->DLCData() + "/" + DLCDir + g_GameData->DLCDataSuffix() + "/" + file;
-                        if (!QFile(path).exists())
-                        {
-                            continue;
-                        }
-
-                        Package pkg{};
-                        if (pkg.Open(path) != 0)
-                        {
-                            errors += "Warning: Failed open package: " + path + "\n";
-                            continue;
-                        }
-                        pkg.setExportData(mod.exportId, mod.binaryModData);
-                        if (pkg.SaveToFile(repack, false, appendMarker))
-                        {
-                            if (repack)
-                                pkgsToRepack.removeOne(pkg.packagePath);
-                            if (appendMarker)
-                                pkgsToMarker.removeOne(pkg.packagePath);
-                        }
-                    }
-                }
-                mod.binaryModData.Free();
-            }
-        }
-    }
-
     if (mapPackages.count() != 0)
     {
         if (!g_ipc)
@@ -1293,117 +1158,12 @@ QString MipMaps::replaceModsFromList(QList<TextureMapEntry> &textures, QStringLi
             PINFO("\nInstalling texture mods...\n");
         }
 
-        errors += replaceTextures(mapPackages, textures, pkgsToMarker, pkgsToRepack, modsToReplace,
-                                  repack, appendMarker, verify, removeMips, cacheAmount,
+        errors += replaceTextures(mapPackages, textures, pkgsToMarker, modsToReplace,
+                                  appendMarker, verify, removeMips, cacheAmount,
                                   callback, callbackHandle);
     }
 
     modsToReplace.clear();
 
     return errors;
-}
-
-void MipMaps::Remove4kNorms(QList<Texture4kNormEntry> &texture4kNorms)
-{
-    Package *package = nullptr;
-    QString lastPath;
-    int lastIndex = texture4kNorms.count() - 1;
-
-    for (int i = 0; i < texture4kNorms.count(); i++)
-    {
-        if (g_ipc)
-        {
-            ConsoleWrite(QString("[IPC]WARN_REMOVING_4K_NORM ") + texture4kNorms[i].path + " " +
-                         QString::number(texture4kNorms[i].exportId + 1) + " " + texture4kNorms[i].textureName);
-            ConsoleSync();
-        }
-
-        if (lastPath != texture4kNorms[i].path)
-        {
-            delete package;
-            package = new Package();
-            if (package->Open(g_GameData->GamePath() + texture4kNorms[i].path) != 0)
-            {
-                if (g_ipc)
-                {
-                    ConsoleWrite(QString("[IPC]ERROR Issue opening package file: ") + texture4kNorms[i].path + "\n");
-                    ConsoleSync();
-                }
-                else
-                {
-                    QString err;
-                    err += "---- Start --------------------------------------------\n";
-                    err += "Issue opening package file: " + texture4kNorms[i].path + "\n";
-                    err += "---- End ----------------------------------------------\n\n";
-                    PERROR(err);
-                }
-                continue;
-            }
-            lastPath = texture4kNorms[i].path;
-        }
-
-        ByteBuffer exportData = package->getExportData(texture4kNorms[i].exportId);
-        if (exportData.ptr() == nullptr)
-        {
-            if (g_ipc)
-            {
-                ConsoleWrite(QString("[IPC]ERROR Texture has broken export data in package: ") +
-                             package->packagePath + " Export Id: " +
-                             QString::number(texture4kNorms[i].exportId + 1));
-                ConsoleSync();
-            }
-            else
-            {
-                PERROR(QString("Error: Texture has broken export data in package: ") +
-                       package->packagePath +"\nExport Id: " +
-                       QString::number(texture4kNorms[i].exportId + 1) + "\nSkipping...\n");
-            }
-            continue;
-        }
-        Texture texture = Texture(*package, texture4kNorms[i].exportId, exportData);
-        exportData.Free();
-
-        if (texture.getTopMipmap().width < 4096 && texture.getTopMipmap().height < 4096)
-            continue;
-
-        texture.removeEmptyMips();
-        texture.removeTopMip();
-        texture.getProperties().setIntValue("SizeX", texture.mipMapsList.first().width);
-        texture.getProperties().setIntValue("SizeY", texture.mipMapsList.first().height);
-        texture.getProperties().setIntValue("MipTailBaseIdx", texture.mipMapsList.count() - 1);
-
-        uint packageDataOffset;
-        {
-            MemoryStream newData;
-            ByteBuffer buffer = texture.getProperties().toArray();
-            newData.WriteFromBuffer(buffer);
-            buffer.Free();
-            packageDataOffset = package->exportsTable[texture4kNorms[i].exportId].getDataOffset() + (uint)newData.Position();
-            buffer = texture.toArray(packageDataOffset);
-            newData.WriteFromBuffer(buffer);
-            buffer.Free();
-            buffer = newData.ToArray();
-            package->setExportData(texture4kNorms[i].exportId, buffer);
-            buffer.Free();
-        }
-
-        if (lastIndex == i || (texture4kNorms[i].path != texture4kNorms[i + 1].path))
-        {
-            if (!package->SaveToFile())
-            {
-                if (g_ipc)
-                {
-                    ConsoleWrite(QString("[IPC]ERROR Failed to save package: " + g_GameData->packageFiles[i]));
-                    ConsoleSync();
-                }
-                else
-                {
-                    PERROR(QString("ERROR: Failed to save package: ") + g_GameData->packageFiles[i] + "\n");
-                }
-                delete package;
-                return;
-            }
-        }
-    }
-    delete package;
 }

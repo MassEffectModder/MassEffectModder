@@ -104,7 +104,7 @@ int CmdLineTools::scanTextures(MeType gameId, bool removeEmptyMips)
 
     resources.loadMD5Tables();
     Misc::startTimer();
-    errorCode = TreeScan::PrepareListOfTextures(gameId, resources, textures, texture4kNorms, removeEmptyMips, true,
+    errorCode = TreeScan::PrepareListOfTextures(gameId, resources, textures, removeEmptyMips, true,
                                                 nullptr, nullptr);
     long elapsed = Misc::elapsedTime();
     PINFO(Misc::getTimerFormat(elapsed) + "\n");
@@ -135,20 +135,6 @@ bool CmdLineTools::unpackAllDLCs()
 
     Misc::startTimer();
     ME3DLC::unpackAllDLC(nullptr, nullptr);
-    long elapsed = Misc::elapsedTime();
-    PINFO(Misc::getTimerFormat(elapsed) + "\n");
-
-    return true;
-}
-
-bool CmdLineTools::repackGame(MeType gameId)
-{
-    ConfigIni configIni = ConfigIni();
-    g_GameData->Init(gameId, configIni);
-    if (!Misc::CheckGamePath())
-        return false;
-    Misc::startTimer();
-    Misc::Repack(gameId, nullptr, nullptr);
     long elapsed = Misc::elapsedTime();
     PINFO(Misc::getTimerFormat(elapsed) + "\n");
 
@@ -273,9 +259,6 @@ bool CmdLineTools::ConvertToMEM(MeType gameId, QString &inputDir, QString &memFi
     QFileInfoList list2;
     list = QDir(inputDir, "*.mem", QDir::SortFlag::IgnoreCase | QDir::SortFlag::Name, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
     list2 = QDir(inputDir, "*.tpf", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
-    list2 += QDir(inputDir, "*.mod", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
-    list2 += QDir(inputDir, "*.bin", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
-    list2 += QDir(inputDir, "*.xdelta", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
     list2 += QDir(inputDir, "*.dds", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
     list2 += QDir(inputDir, "*.png", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
     list2 += QDir(inputDir, "*.bmp", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
@@ -423,48 +406,6 @@ bool CmdLineTools::convertImage(QString &inputFile, QString &outputFile, QString
     return true;
 }
 
-bool CmdLineTools::extractTPF(QString &inputDir, QString &outputDir)
-{
-    inputDir = QDir::cleanPath(inputDir);
-    QFileInfoList list;
-    if (inputDir.endsWith(".tpf", Qt::CaseInsensitive))
-    {
-        list.push_back(QFileInfo(inputDir));
-    }
-    else
-    {
-        list = QDir(inputDir, "*.tpf",
-                     QDir::SortFlag::Name | QDir::SortFlag::IgnoreCase,
-                     QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
-    }
-
-    return Misc::extractTPF(list, outputDir);
-}
-
-bool CmdLineTools::extractMOD(MeType gameId, QString &inputDir, QString &outputDir)
-{
-    QList<TextureMapEntry> textures;
-    Resources resources;
-    resources.loadMD5Tables();
-
-    TreeScan::loadTexturesMap(gameId, resources, textures);
-
-    inputDir = QDir::cleanPath(inputDir);
-    QFileInfoList list;
-    if (inputDir.endsWith(".mod", Qt::CaseInsensitive))
-    {
-        list.push_back(QFileInfo(inputDir));
-    }
-    else
-    {
-        list = QDir(inputDir, "*.mod",
-                     QDir::SortFlag::Name | QDir::SortFlag::IgnoreCase,
-                     QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
-    }
-
-    return Misc::extractMOD(list, textures, outputDir);
-}
-
 bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputDir)
 {
     inputDir = QDir::cleanPath(inputDir);
@@ -483,24 +424,7 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
     return Misc::extractMEM(gameId, list, outputDir, nullptr, nullptr);
 }
 
-bool CmdLineTools::ApplyME1LAAPatch()
-{
-    ConfigIni configIni{};
-    g_GameData->Init(MeType::ME1_TYPE, configIni);
-    if (!Misc::CheckGamePath())
-        return false;
-
-    if (!Misc::ApplyLAAForME1Exe())
-        return false;
-    if (!Misc::ChangeProductNameForME1Exe())
-        return false;
-    if (!Misc::ChangeRegKeyForME1Exe())
-        return false;
-
-    return true;
-}
-
-bool CmdLineTools::ApplyLODAndGfxSettings(MeType gameId, bool limit2k)
+bool CmdLineTools::ApplyLODAndGfxSettings(MeType gameId)
 {
     if (GameData::ConfigIniPath(gameId).length() == 0)
     {
@@ -514,7 +438,7 @@ bool CmdLineTools::ApplyLODAndGfxSettings(MeType gameId, bool limit2k)
 #else
     ConfigIni engineConf = ConfigIni(path, true);
 #endif
-    LODSettings::updateLOD(gameId, engineConf, limit2k);
+    LODSettings::updateLOD(gameId, engineConf);
     LODSettings::updateGFXSettings(gameId, engineConf);
 
     return true;
@@ -613,8 +537,8 @@ bool CmdLineTools::DetectMods(MeType gameId)
     return Misc::ReportMods();
 }
 
-bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool repack,
-                               bool alotMode, bool skipMarkers, bool limit2k,
+bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir,
+                               bool alotMode, bool skipMarkers,
                                bool verify, int cacheAmount)
 {
     Resources resources;
@@ -633,370 +557,9 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir, bool repack,
         modFiles.push_back(file.absoluteFilePath());
     }
 
-    return Misc::InstallMods(gameId, resources, modFiles, repack,
-                             false, alotMode, skipMarkers, limit2k, verify, cacheAmount,
+    return Misc::InstallMods(gameId, resources, modFiles,
+                             false, alotMode, skipMarkers, verify, cacheAmount,
                              nullptr, nullptr);
-}
-
-bool CmdLineTools::RepackTFCInDLC(MeType gameId, QString &dlcName, bool pullTextures,
-                                  bool compressed)
-{
-    auto configIni = ConfigIni{};
-    QString filterPath = "/" + dlcName + "/";
-    g_GameData->Init(gameId, configIni, filterPath);
-    if (!Misc::CheckGamePath())
-        return false;
-
-    if (!QDir(g_GameData->DLCData() + "/" + dlcName).exists())
-    {
-        if (g_ipc)
-        {
-            ConsoleWrite(QString("[IPC]ERROR Could not found DLC: " + dlcName));
-            ConsoleSync();
-        }
-        else
-        {
-            PERROR("Error: Could not found DLC!\n");
-        }
-        return false;
-    }
-
-    QString DLCArchiveFile = g_GameData->DLCData() + "/" + dlcName +
-            g_GameData->DLCDataSuffix() + "/Textures_" + dlcName + ".tfc";
-    if (!QFile(DLCArchiveFile).exists())
-    {
-        if (g_ipc)
-        {
-            ConsoleWrite(QString("[IPC]ERROR Could not found TFC file: " + DLCArchiveFile));
-            ConsoleSync();
-        }
-        else
-        {
-            PERROR("Error: Could not found TFC file!\n");
-        }
-        return false;
-    }
-    QString DLCArchiveFileNew = DLCArchiveFile + "_new";
-    if (QFile(DLCArchiveFileNew).exists())
-    {
-        QFile(DLCArchiveFileNew).remove();
-    }
-
-    if (g_ipc)
-    {
-        ConsoleWrite("[IPC]STAGE_ADD STAGE_SCAN");
-        ConsoleWrite("[IPC]STAGE_ADD STAGE_REPACK");
-        ConsoleSync();
-    }
-
-    PINFO("Scan textures started...\n");
-
-    QList<TextureMapEntry> textures;
-    QList<Texture4kNormEntry> texture4kNorms;
-    Resources resources;
-    resources.loadMD5Tables();
-    g_GameData->FullScanGame = true;
-    TreeScan::PrepareListOfTextures(gameId, resources, textures, texture4kNorms, false, false,
-                                    nullptr, nullptr);
-
-    PINFO("Scan textures finished.\n\n");
-
-    if (g_ipc)
-    {
-        ConsoleWrite("[IPC]STAGE_CONTEXT STAGE_REPACK");
-        ConsoleSync();
-    }
-
-    ByteBuffer guid;
-    {
-        FileStream fs = FileStream(DLCArchiveFile, FileMode::Open, FileAccess::ReadOnly);
-        guid = fs.ReadToBuffer(16);
-    }
-
-    int lastProgress = -1;
-    for (int i = 0; i < g_GameData->packageFiles.count(); i++)
-    {
-        if (g_ipc)
-        {
-            ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + g_GameData->packageFiles[i]);
-            int newProgress = i * 100 / g_GameData->packageFiles.count();
-            if (lastProgress != newProgress)
-            {
-                ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + QString::number(newProgress));
-                lastProgress = newProgress;
-            }
-            ConsoleSync();
-        }
-        else
-        {
-            PINFO(QString("Package ") + QString::number(i + 1) + "/" +
-                                 QString::number(g_GameData->packageFiles.count()) + " : " +
-                                 g_GameData->packageFiles[i] + "\n");
-        }
-
-        Package package;
-        if (package.Open(g_GameData->GamePath() + g_GameData->packageFiles[i]) != 0)
-        {
-            if (g_ipc)
-            {
-                ConsoleWrite(QString("[IPC]ERROR Issue opening package file: ") + g_GameData->packageFiles[i]);
-                ConsoleSync();
-            }
-            else
-            {
-                PERROR(QString("ERROR: Issue opening package file: ") + g_GameData->packageFiles[i] + "\n");
-            }
-            continue;
-        }
-
-        for (int e = 0; e < package.exportsTable.count(); e++)
-        {
-            Package::ExportEntry& exp = package.exportsTable[e];
-            int id = package.getClassNameId(exp.getClassId());
-            if (id != package.nameIdTexture2D &&
-                id != package.nameIdLightMapTexture2D &&
-                id != package.nameIdShadowMapTexture2D &&
-                id != package.nameIdTextureFlipBook &&
-                id != package.nameIdTextureMovie)
-            {
-                continue;
-            }
-            ByteBuffer exportData = package.getExportData(e);
-            if (exportData.ptr() == nullptr)
-            {
-                if (g_ipc)
-                {
-                    ConsoleWrite(QString("[IPC]ERROR Texture ") + exp.objectName +
-                                 " has broken export data in package: " +
-                                 g_GameData->packageFiles[i] + "\nExport Id: " + QString::number(e + 1) + "\nSkipping...");
-                    ConsoleSync();
-                }
-                else
-                {
-                    PERROR(QString("Error: Texture ") + exp.objectName +
-                                 " has broken export data in package: " +
-                                 g_GameData->packageFiles[i] +"\nExport Id: " + QString::number(e + 1) + "\nSkipping...\n");
-                }
-                continue;
-            }
-            if (id == package.nameIdTextureMovie)
-            {
-                TextureMovie textureMovie(package, e, exportData);
-                exportData.Free();
-                if (!textureMovie.hasTextureData())
-                {
-                    continue;
-                }
-
-                bool compactTFC = false;
-                if (textureMovie.getProperties().exists("TextureFileCacheName"))
-                {
-                    compactTFC = true;
-                    QString archive = textureMovie.getProperties().getProperty("TextureFileCacheName").getValueName();
-                    if (archive != "Textures_" + dlcName && !pullTextures)
-                        compactTFC = false;
-                }
-
-                if (compactTFC && textureMovie.getStorageType() == StorageTypes::extUnc)
-                {
-                    if (!QFile(DLCArchiveFileNew).exists())
-                    {
-                        FileStream fs = FileStream(DLCArchiveFileNew, FileMode::Create, FileAccess::WriteOnly);
-                        fs.WriteFromBuffer(guid);
-                    }
-                    FileStream fs = FileStream(DLCArchiveFileNew, FileMode::Open, FileAccess::ReadWrite);
-                    fs.SeekEnd();
-                    auto data = textureMovie.getData();
-                    textureMovie.replaceMovieData(data, fs.Position());
-                    fs.WriteFromBuffer(data);
-                    data.Free();
-
-                    ByteBuffer bufferProperties = textureMovie.getProperties().toArray();
-                    {
-                        MemoryStream newData;
-                        newData.WriteFromBuffer(bufferProperties);
-                        ByteBuffer bufferTextureData = textureMovie.toArray();
-                        newData.WriteFromBuffer(bufferTextureData);
-                        bufferTextureData.Free();
-                        ByteBuffer bufferTexture = newData.ToArray();
-                        package.setExportData(e, bufferTexture);
-                        bufferTexture.Free();
-                    }
-                    bufferProperties.Free();
-
-                    textureMovie.getProperties().setNameValue("TextureFileCacheName", "Textures_" + dlcName);
-                    textureMovie.getProperties().setStructValue("TFCFileGuid", "Guid", guid);
-                }
-            }
-            else
-            {
-                Texture texture(package, e, exportData);
-                exportData.Free();
-                if (!texture.hasImageData())
-                {
-                    continue;
-                }
-
-                texture.removeEmptyMips();
-
-                if (!texture.getProperties().exists("LODGroup"))
-                    texture.getProperties().setByteValue("LODGroup", "TEXTUREGROUP_Character", "TextureGroup", 1025);
-
-                if (texture.numNotEmptyMips() > 6 &&
-                    !texture.HasExternalMips() &&
-                    !texture.getProperties().exists("NeverStream"))
-                {
-                    PINFO(QString("Adding missing property \"NeverStream\" for ") +
-                                  package.exportsTable[e].objectName + ", export id: " +
-                                  QString::number(e + 1) + "\n");
-                    texture.getProperties().setBoolValue("NeverStream", true);
-                }
-
-                bool compactTFC = false;
-                if (texture.getProperties().exists("TextureFileCacheName"))
-                {
-                    compactTFC = true;
-                    QString archive = texture.getProperties().getProperty("TextureFileCacheName").getValueName();
-                    if (archive != "Textures_" + dlcName && !pullTextures)
-                        compactTFC = false;
-                }
-
-                auto mipmaps = QList<Texture::TextureMipMap>();
-                for (int m = 0; m < texture.mipMapsList.count(); m++)
-                {
-                    auto mipmap = texture.mipMapsList[m];
-                    auto data = texture.getMipMapDataByIndex(m);
-
-                    if (compactTFC && !compressed &&
-                       (mipmap.storageType == StorageTypes::extZlib ||
-                        mipmap.storageType == StorageTypes::extLZO))
-                    {
-                        mipmap.storageType = StorageTypes::extUnc;
-                    }
-                    if (compactTFC && compressed &&
-                        mipmap.storageType == StorageTypes::extUnc)
-                    {
-                        mipmap.storageType = StorageTypes::extZlib;
-                    }
-                    if (mipmap.storageType == StorageTypes::pccZlib ||
-                        mipmap.storageType == StorageTypes::pccLZO)
-                    {
-                        mipmap.storageType = StorageTypes::pccUnc;
-                    }
-
-                    if ((compactTFC && (mipmap.storageType == StorageTypes::extZlib ||
-                                        mipmap.storageType == StorageTypes::extLZO)) ||
-                       (mipmap.storageType == StorageTypes::pccZlib ||
-                        mipmap.storageType == StorageTypes::pccLZO))
-                    {
-                        mipmap.newData = Package::compressData(data, mipmap.storageType, true);
-                        mipmap.compressedSize = mipmap.newData.size();
-                        mipmap.freeNewData = true;
-                    }
-                    if ((compactTFC && mipmap.storageType == StorageTypes::extUnc) ||
-                        mipmap.storageType == StorageTypes::pccUnc)
-                    {
-                        mipmap.compressedSize = mipmap.uncompressedSize;
-                        mipmap.newData = ByteBuffer(data.ptr(), data.size());
-                        mipmap.freeNewData = true;
-                    }
-                    if (compactTFC &&
-                       (mipmap.storageType == StorageTypes::extZlib ||
-                        mipmap.storageType == StorageTypes::extLZO ||
-                        mipmap.storageType == StorageTypes::extUnc))
-                    {
-                        if (!QFile(DLCArchiveFileNew).exists())
-                        {
-                            FileStream fs = FileStream(DLCArchiveFileNew, FileMode::Create, FileAccess::WriteOnly);
-                            fs.WriteFromBuffer(guid);
-                        }
-                        FileStream fs = FileStream(DLCArchiveFileNew, FileMode::Open, FileAccess::ReadWrite);
-                        fs.SeekEnd();
-                        mipmap.dataOffset = (uint)fs.Position();
-                        fs.WriteFromBuffer(mipmap.newData);
-                    }
-                    data.Free();
-                    mipmaps.push_back(mipmap);
-                    if (texture.mipMapsList.count() == 1)
-                        break;
-                }
-                texture.replaceMipMaps(mipmaps);
-
-                if (compactTFC)
-                {
-                    texture.getProperties().setNameValue("TextureFileCacheName", "Textures_" + dlcName);
-                    texture.getProperties().setStructValue("TFCFileGuid", "Guid", guid);
-                }
-
-                ByteBuffer bufferProperties = texture.getProperties().toArray();
-                {
-                    MemoryStream newData;
-                    newData.WriteFromBuffer(bufferProperties);
-                    ByteBuffer bufferTextureData = texture.toArray(0, false); // filled later
-                    newData.WriteFromBuffer(bufferTextureData);
-                    bufferTextureData.Free();
-                    ByteBuffer bufferTexture = newData.ToArray();
-                    package.setExportData(e, bufferTexture);
-                    bufferTexture.Free();
-                }
-                {
-                    MemoryStream newData;
-                    newData.WriteFromBuffer(bufferProperties);
-                    uint packageDataOffset = package.exportsTable[e].getDataOffset() + (uint)newData.Position();
-                    ByteBuffer bufferTextureData = texture.toArray(packageDataOffset);
-                    newData.WriteFromBuffer(bufferTextureData);
-                    bufferTextureData.Free();
-                    ByteBuffer bufferTexture = newData.ToArray();
-                    package.setExportData(e, bufferTexture);
-                    bufferTexture.Free();
-                }
-                bufferProperties.Free();
-            }
-        }
-
-        if (!package.SaveToFile(compressed, !compressed, false))
-        {
-            if (g_ipc)
-            {
-                ConsoleWrite(QString("[IPC]ERROR Failed save package: " + g_GameData->packageFiles[i]));
-                ConsoleSync();
-            }
-            else
-            {
-                PERROR(QString("ERROR: Failed save package: ") + g_GameData->packageFiles[i] + "\n");
-            }
-            return false;
-        }
-    }
-
-    if (!QFile(DLCArchiveFile).remove())
-    {
-        if (g_ipc)
-        {
-            ConsoleWrite(QString("[IPC]ERROR Could not remove TFC file: " + DLCArchiveFile));
-            ConsoleSync();
-        }
-        else
-        {
-            PERROR(QString("ERROR: Could not remove TFC file: ") + DLCArchiveFile + "\n");
-        }
-        return false;
-    }
-    if (!QFile(DLCArchiveFileNew).rename(DLCArchiveFile))
-    {
-        if (g_ipc)
-        {
-            ConsoleWrite(QString("[IPC]ERROR Could rename TFC file: " + DLCArchiveFileNew));
-            ConsoleSync();
-        }
-        else
-        {
-            PERROR(QString("ERROR: Could rename TFC file: ") + DLCArchiveFileNew + "\n");
-        }
-        return false;
-    }
-
-    return true;
 }
 
 bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, QString &inputFile,
@@ -1376,135 +939,6 @@ bool CmdLineTools::CheckTextures(MeType gameId)
             }
         }
     }
-    PINFO("Finished checking textures.\n\n");
-
-    return true;
-}
-
-bool CmdLineTools::FixMissingPropertyInTextures(MeType gameId, const QString& filter)
-{
-    ConfigIni configIni = ConfigIni();
-    g_GameData->Init(gameId, configIni);
-    if (!Misc::CheckGamePath())
-        return false;
-
-    PINFO("Starting checking textures...\n");
-
-    QStringList packages;
-    for (int i = 0; i < g_GameData->packageFiles.count(); i++)
-    {
-        if (filter != "")
-        {
-            if (!g_GameData->packageFiles[i].contains(filter, Qt::CaseInsensitive))
-            {
-                continue;
-            }
-        }
-        packages += g_GameData->packageFiles[i];
-    }
-
-    int lastProgress = -1;
-    for (int i = 0; i < packages.count(); i++)
-    {
-        Package package;
-        if (g_ipc)
-        {
-            ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + packages[i]);
-        }
-        else
-        {
-            PINFO(QString("Package ") + QString::number(i + 1) + " of " +
-                         QString::number(packages.count()) + " - " +
-                         packages[i] + "\n");
-        }
-        int newProgress = (i + 1) * 100 / packages.count();
-        if (g_ipc && lastProgress != newProgress)
-        {
-            ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + QString::number(newProgress));
-            ConsoleSync();
-            lastProgress = newProgress;
-        }
-        if (package.Open(g_GameData->GamePath() + packages[i]) != 0)
-        {
-            if (g_ipc)
-            {
-                ConsoleWrite(QString("[IPC]ERROR Error opening package file: ") +
-                             packages[i]);
-                ConsoleSync();
-            }
-            else
-            {
-                QString err = "";
-                err += "---- Start --------------------------------------------\n\n" ;
-                err += "Error opening package file: " + packages[i] + "\n\n";
-                err += "---- End ----------------------------------------------\n\n";
-                PERROR(err);
-            }
-            continue;
-        }
-
-        bool modified = false;
-        for (int e = 0; e < package.exportsTable.count(); e++)
-        {
-            int id = package.getClassNameId(package.exportsTable[e].getClassId());
-            if (id == package.nameIdTexture2D ||
-                id == package.nameIdLightMapTexture2D ||
-                id == package.nameIdShadowMapTexture2D ||
-                id == package.nameIdTextureFlipBook)
-            {
-                ByteBuffer exportData = package.getExportData(e);
-                Texture texture(package, e, exportData);
-                exportData.Free();
-                if (GameData::gameType != MeType::ME1_TYPE &&
-                    texture.numNotEmptyMips() > 6 &&
-                    !texture.HasExternalMips() &&
-                    !texture.getProperties().exists("NeverStream"))
-                {
-                    PINFO(QString("Adding missing property \"NeverStream\" for ") +
-                                  package.exportsTable[e].objectName + ", export id: " +
-                                  QString::number(e + 1) + "\n");
-                    texture.getProperties().setBoolValue("NeverStream", true);
-                    modified = true;
-                }
-                else
-                {
-                    continue;
-                }
-
-                ByteBuffer properties = texture.getProperties().toArray();
-                {
-                    MemoryStream newData;
-                    newData.WriteFromBuffer(properties);
-                    ByteBuffer buffer = texture.toArray(0, false); // filled later
-                    newData.WriteFromBuffer(buffer);
-                    buffer.Free();
-                    buffer = newData.ToArray();
-                    package.setExportData(e, buffer);
-                    buffer.Free();
-                }
-
-                uint packageDataOffset;
-                {
-                    MemoryStream newData;
-                    newData.WriteFromBuffer(properties);
-                    packageDataOffset = package.exportsTable[e].getDataOffset() + (uint)newData.Position();
-                    ByteBuffer buffer = texture.toArray(packageDataOffset);
-                    newData.WriteFromBuffer(buffer);
-                    buffer.Free();
-                    buffer = newData.ToArray();
-                    package.setExportData(e, buffer);
-                    buffer.Free();
-                }
-                properties.Free();
-            }
-        }
-        if (modified)
-            package.SaveToFile(false, false, false);
-    }
-
-    if (GameData::gameType == MeType::ME3_TYPE)
-        TOCBinFile::UpdateAllTOCBinFiles();
-
     PINFO("Finished checking textures.\n\n");
 
     return true;

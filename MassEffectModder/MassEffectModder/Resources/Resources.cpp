@@ -73,7 +73,6 @@ void Resources::loadMD5Tables()
         CRASH();
 
     loadMD5Table(":/MD5EntriesME1.bin", tablePkgsME1, entriesME1);
-    loadMD5Table(":/MD5EntriesME1PL.bin", tablePkgsME1PL, entriesME1);
     loadMD5Table(":/MD5EntriesME2.bin", tablePkgsME2, entriesME2);
     loadMD5Table(":/MD5EntriesME3.bin", tablePkgsME3, entriesME3);
 
@@ -86,7 +85,6 @@ void Resources::unloadMD5Tables()
         return;
 
     tablePkgsME1.clear();
-    tablePkgsME1PL.clear();
     tablePkgsME2.clear();
     tablePkgsME3.clear();
     entriesME1.clear();

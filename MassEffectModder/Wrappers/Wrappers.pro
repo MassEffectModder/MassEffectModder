@@ -26,11 +26,6 @@ SOURCES += \
 SOURCES += \
     WrapperPng.cpp \
     WrapperUnrar.cpp \
-    WrapperXdelta.cpp \
-}
-
-equals(ZSTD_ENABLE, true) {
-SOURCES += \
     WrapperZstd.cpp
 }
 
@@ -66,7 +61,6 @@ INCLUDEPATH += \
     $$PWD/../Libs/dxtc \
     $$PWD/../Libs/lzo2 \
     $$PWD/../Libs/png \
-    $$PWD/../Libs/xdelta3 \
     $$PWD/../Libs/zlib \
     $$PWD/../Libs/zstd \
     $$PWD/../Libs/unrar
@@ -77,7 +71,6 @@ DEPENDPATH += \
     $$PWD/../Libs/dxtc \
     $$PWD/../Libs/lzo2 \
     $$PWD/../Libs/png \
-    $$PWD/../Libs/xdelta3 \
     $$PWD/../Libs/zlib \
     $$PWD/../Libs/zstd \
     $$PWD/../Libs/unrar

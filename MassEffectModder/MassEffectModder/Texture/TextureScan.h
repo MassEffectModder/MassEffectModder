@@ -37,15 +37,8 @@ struct Texture4kNormEntry
 struct TextureMapPackageEntry
 {
     int exportID;
-    QString packageName; // only used while texture scan for ME1
-    QString basePackageName; // only used while texture scan for ME1
-    bool weakSlave;
-    bool slave;
     QString path;
-    int linkToMaster;
-    uint mipmapOffset;
     QList<uint> crcs;
-    QList<uint> masterDataOffset;
     bool removeEmptyMips;
     int numMips;
     bool movieTexture;
@@ -65,8 +58,8 @@ class TreeScan
 {
 private:
 
-    static void FindTextures(MeType gameId, QList<TextureMapEntry> &textures,
-                             const QString &packagePath, QList<Texture4kNormEntry> &texture4kNorms, bool modified);
+    static void FindTextures(QList<TextureMapEntry> &textures,
+                             const QString &packagePath, bool modified);
 
 public:
 
@@ -76,12 +69,10 @@ public:
     static void loadTexturesMap(MeType gameId, Resources &resources, QList<TextureMapEntry> &textures);
     static bool loadTexturesMapFile(QString &path, QList<TextureMapEntry> &textures, bool ignoreCheck = false);
     static bool PrepareListOfTextures(MeType gameId, Resources &resources,
-                                     QList<TextureMapEntry> &textures, QList<Texture4kNormEntry> &texture4kNorms,
+                                     QList<TextureMapEntry> &textures,
                                      bool removeEmptyMips, bool saveMapFile,
                                      ProgressCallback callback, void *callbackHandle);
     static bool IsBlankTexture(uint crc);
-    static void WarnNorm4k(MeType gameId, Texture *texture, const QString &textureName, const QString &packagePath,
-                           int exportId, QList<Texture4kNormEntry> &texture4kNorms);
 };
 
 

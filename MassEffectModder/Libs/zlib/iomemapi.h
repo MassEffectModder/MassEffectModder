@@ -36,9 +36,6 @@
 extern "C" {
 #endif
 
-extern unsigned char tpfXorKey[2];
-extern int gXor;
-
 ZEXTERN voidpf create_ioapi_from_buffer(zlib_filefunc64_def* ioMemApi, voidpf buffer, size_t bufferLen);
 
 unzFile unzOpenIoMem(voidpf stream, zlib_filefunc64_def* pzlib_filefunc64_def, int is64bitOpenFunction);

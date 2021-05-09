@@ -215,13 +215,6 @@ LayoutMain::LayoutMain(MainWindow *window)
     buttonApplyHQLODsME3->setFont(ButtonFont);
     connect(buttonApplyHQLODsME3, &QPushButton::clicked, this, &LayoutMain::ApplyHQLODsME3Selected);
 
-    buttonApply2kLODsME1 = new QPushButton("Apply 2k LODs Settings");
-    buttonApply2kLODsME1->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    buttonApply2kLODsME1->setMinimumWidth(kButtonMinSmallWidth);
-    buttonApply2kLODsME1->setMinimumHeight(kButtonMinHeight);
-    buttonApply2kLODsME1->setFont(ButtonFont);
-    connect(buttonApply2kLODsME1, &QPushButton::clicked, this, &LayoutMain::Apply2kLODsSelected);
-
     buttonApplyVanillaLODsME1 = new QPushButton("Apply Vanilla LODs Settings");
     buttonApplyVanillaLODsME1->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonApplyVanillaLODsME1->setMinimumWidth(kButtonMinSmallWidth);
@@ -285,20 +278,6 @@ LayoutMain::LayoutMain(MainWindow *window)
     ButtonFont.setPointSize(kFontSize);
     buttonCheckGameFilesME3->setFont(ButtonFont);
     connect(buttonCheckGameFilesME3, &QPushButton::clicked, this, &LayoutMain::CheckGameFilesME3Selected);
-
-    buttonRepackGameFilesME2 = new QPushButton("Repack Game Files");
-    buttonRepackGameFilesME2->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    buttonRepackGameFilesME2->setMinimumWidth(kButtonMinSmallWidth);
-    buttonRepackGameFilesME2->setMinimumHeight(kButtonMinHeight);
-    buttonRepackGameFilesME2->setFont(ButtonFont);
-    connect(buttonRepackGameFilesME2, &QPushButton::clicked, this, &LayoutMain::RepackGameFilesME2Selected);
-
-    buttonRepackGameFilesME3 = new QPushButton("Repack Game Files");
-    buttonRepackGameFilesME3->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    buttonRepackGameFilesME3->setMinimumWidth(kButtonMinSmallWidth);
-    buttonRepackGameFilesME3->setMinimumHeight(kButtonMinHeight);
-    buttonRepackGameFilesME3->setFont(ButtonFont);
-    connect(buttonRepackGameFilesME3, &QPushButton::clicked, this, &LayoutMain::RepackGameFilesME3Selected);
 
     buttonUpdateTOCs = new QPushButton("Update TOCs");
     buttonUpdateTOCs->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -400,27 +379,6 @@ LayoutMain::LayoutMain(MainWindow *window)
     buttonExtractModsME3->setFont(ButtonFont);
     connect(buttonExtractModsME3, &QPushButton::clicked, this, &LayoutMain::ExtractModsME3Selected);
 
-    buttonConvertModME1 = new QPushButton("Convert Mod");
-    buttonConvertModME1->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    buttonConvertModME1->setMinimumWidth(kButtonMinSmallWidth);
-    buttonConvertModME1->setMinimumHeight(kButtonMinHeight);
-    buttonConvertModME1->setFont(ButtonFont);
-    connect(buttonConvertModME1, &QPushButton::clicked, this, &LayoutMain::ConvertModME1Selected);
-
-    buttonConvertModME2 = new QPushButton("Convert Mod");
-    buttonConvertModME2->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    buttonConvertModME2->setMinimumWidth(kButtonMinSmallWidth);
-    buttonConvertModME2->setMinimumHeight(kButtonMinHeight);
-    buttonConvertModME2->setFont(ButtonFont);
-    connect(buttonConvertModME2, &QPushButton::clicked, this, &LayoutMain::ConvertModME2Selected);
-
-    buttonConvertModME3 = new QPushButton("Convert Mod");
-    buttonConvertModME3->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    buttonConvertModME3->setMinimumWidth(kButtonMinSmallWidth);
-    buttonConvertModME3->setMinimumHeight(kButtonMinHeight);
-    buttonConvertModME3->setFont(ButtonFont);
-    connect(buttonConvertModME3, &QPushButton::clicked, this, &LayoutMain::ConvertModME3Selected);
-
     buttonCreateModME1 = new QPushButton("Create Mod");
     buttonCreateModME1->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonCreateModME1->setMinimumWidth(kButtonMinSmallWidth);
@@ -441,27 +399,6 @@ LayoutMain::LayoutMain(MainWindow *window)
     buttonCreateModME3->setMinimumHeight(kButtonMinHeight);
     buttonCreateModME3->setFont(ButtonFont);
     connect(buttonCreateModME3, &QPushButton::clicked, this, &LayoutMain::CreateModME3Selected);
-
-    buttonCreateBinaryModME1 = new QPushButton("Create Binary Mod");
-    buttonCreateBinaryModME1->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    buttonCreateBinaryModME1->setMinimumWidth(kButtonMinSmallWidth);
-    buttonCreateBinaryModME1->setMinimumHeight(kButtonMinHeight);
-    buttonCreateBinaryModME1->setFont(ButtonFont);
-    connect(buttonCreateBinaryModME1, &QPushButton::clicked, this, &LayoutMain::CreateBinaryModME1Selected);
-
-    buttonCreateBinaryModME2 = new QPushButton("Create Binary Mod");
-    buttonCreateBinaryModME2->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    buttonCreateBinaryModME2->setMinimumWidth(kButtonMinSmallWidth);
-    buttonCreateBinaryModME2->setMinimumHeight(kButtonMinHeight);
-    buttonCreateBinaryModME2->setFont(ButtonFont);
-    connect(buttonCreateBinaryModME2, &QPushButton::clicked, this, &LayoutMain::CreateBinaryModME2Selected);
-
-    buttonCreateBinaryModME3 = new QPushButton("Create Binary Mod");
-    buttonCreateBinaryModME3->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    buttonCreateBinaryModME3->setMinimumWidth(kButtonMinSmallWidth);
-    buttonCreateBinaryModME3->setMinimumHeight(kButtonMinHeight);
-    buttonCreateBinaryModME3->setFont(ButtonFont);
-    connect(buttonCreateBinaryModME3, &QPushButton::clicked, this, &LayoutMain::CreateBinaryModME3Selected);
 
 
     auto verticalLayoutMenuME1 = new QVBoxLayout();
@@ -493,7 +430,6 @@ LayoutMain::LayoutMain(MainWindow *window)
     verticalLayoutMenuME1->addWidget(buttonTextureUtilitiesME1, 1);
     groupVertTextureUtilitiesME1->addWidget(buttonRemoveScanFileME1, 1);
     groupVertTextureUtilitiesME1->addWidget(buttonApplyHQLODsME1, 1);
-    groupVertTextureUtilitiesME1->addWidget(buttonApply2kLODsME1, 1);
     groupVertTextureUtilitiesME1->addWidget(buttonApplyVanillaLODsME1, 1);
     groupVertTextureUtilitiesME1->addWidget(buttonApplyHQGfxME1, 1);
     spacerBottomTextureUtilitiesME1 = new QSpacerItem(0, 20);
@@ -544,7 +480,6 @@ LayoutMain::LayoutMain(MainWindow *window)
     groupVertGameUtilitiesME2->setAlignment(Qt::AlignCenter);
     verticalLayoutMenuME2->addWidget(buttonGameUtilitiesME2, 1);
     groupVertGameUtilitiesME2->addWidget(buttonCheckGameFilesME2, 1);
-    groupVertGameUtilitiesME2->addWidget(buttonRepackGameFilesME2, 1);
     groupVertGameUtilitiesME2->addWidget(buttonChangeGamePathME2, 1);
 #if !defined(_WIN32)
     groupVertGameUtilitiesME2->addWidget(buttonChangeUserPathME2, 1);
@@ -557,7 +492,6 @@ LayoutMain::LayoutMain(MainWindow *window)
     groupVertGameUtilitiesME3->setAlignment(Qt::AlignCenter);
     verticalLayoutMenuME3->addWidget(buttonGameUtilitiesME3, 1);
     groupVertGameUtilitiesME3->addWidget(buttonCheckGameFilesME3, 1);
-    groupVertGameUtilitiesME3->addWidget(buttonRepackGameFilesME3, 1);
     groupVertGameUtilitiesME3->addWidget(buttonUpdateTOCs, 1);
     groupVertGameUtilitiesME3->addWidget(buttonExtractDLCs, 1);
     groupVertGameUtilitiesME3->addWidget(buttonChangeGamePathME3, 1);
@@ -573,9 +507,7 @@ LayoutMain::LayoutMain(MainWindow *window)
     verticalLayoutMenuME1->addWidget(buttonModsManagerME1, 1);
     groupVertModManagerME1->addWidget(buttonInstallModsME1, 1);
     groupVertModManagerME1->addWidget(buttonExtractModsME1, 1);
-    groupVertModManagerME1->addWidget(buttonConvertModME1, 1);
     groupVertModManagerME1->addWidget(buttonCreateModME1, 1);
-    groupVertModManagerME1->addWidget(buttonCreateBinaryModME1, 1);
     verticalLayoutMenuME1->addLayout(groupVertModManagerME1);
 
     auto groupVertModManagerME2 = new QVBoxLayout();
@@ -583,9 +515,7 @@ LayoutMain::LayoutMain(MainWindow *window)
     verticalLayoutMenuME2->addWidget(buttonModsManagerME2, 1);
     groupVertModManagerME2->addWidget(buttonInstallModsME2, 1);
     groupVertModManagerME2->addWidget(buttonExtractModsME2, 1);
-    groupVertModManagerME2->addWidget(buttonConvertModME2, 1);
     groupVertModManagerME2->addWidget(buttonCreateModME2, 1);
-    groupVertModManagerME2->addWidget(buttonCreateBinaryModME2, 1);
     verticalLayoutMenuME2->addLayout(groupVertModManagerME2);
 
     auto groupVertModManagerME3 = new QVBoxLayout();
@@ -593,9 +523,7 @@ LayoutMain::LayoutMain(MainWindow *window)
     verticalLayoutMenuME3->addWidget(buttonModsManagerME3, 1);
     groupVertModManagerME3->addWidget(buttonInstallModsME3, 1);
     groupVertModManagerME3->addWidget(buttonExtractModsME3, 1);
-    groupVertModManagerME3->addWidget(buttonConvertModME3, 1);
     groupVertModManagerME3->addWidget(buttonCreateModME3, 1);
-    groupVertModManagerME3->addWidget(buttonCreateBinaryModME3, 1);
     verticalLayoutMenuME3->addLayout(groupVertModManagerME3);
 
     labelME1 = new HoverLabel(1, this);
@@ -770,7 +698,6 @@ void LayoutMain::HideAllSubMenusME1()
     buttonTextureUtilitiesME1->setChecked(false);
     buttonRemoveScanFileME1->hide();
     buttonApplyHQLODsME1->hide();
-    buttonApply2kLODsME1->hide();
     buttonApplyVanillaLODsME1->hide();
     buttonApplyHQGfxME1->hide();
     spacerBottomTextureUtilitiesME1->changeSize(0, 0);
@@ -784,9 +711,7 @@ void LayoutMain::HideAllSubMenusME1()
     buttonModsManagerME1->setChecked(false);
     buttonInstallModsME1->hide();
     buttonExtractModsME1->hide();
-    buttonConvertModME1->hide();
     buttonCreateModME1->hide();
-    buttonCreateBinaryModME1->hide();
 }
 
 void LayoutMain::HideAllSubMenusME2()
@@ -799,7 +724,6 @@ void LayoutMain::HideAllSubMenusME2()
     spacerBottomTextureUtilitiesME2->changeSize(0, 0);
     buttonGameUtilitiesME2->setChecked(false);
     buttonCheckGameFilesME2->hide();
-    buttonRepackGameFilesME2->hide();
     buttonChangeGamePathME2->hide();
 #if !defined(_WIN32)
     buttonChangeUserPathME2->hide();
@@ -808,9 +732,7 @@ void LayoutMain::HideAllSubMenusME2()
     buttonModsManagerME2->setChecked(false);
     buttonInstallModsME2->hide();
     buttonExtractModsME2->hide();
-    buttonConvertModME2->hide();
     buttonCreateModME2->hide();
-    buttonCreateBinaryModME2->hide();
 }
 
 void LayoutMain::HideAllSubMenusME3()
@@ -823,7 +745,6 @@ void LayoutMain::HideAllSubMenusME3()
     spacerBottomTextureUtilitiesME3->changeSize(0, 0);
     buttonGameUtilitiesME3->setChecked(false);
     buttonCheckGameFilesME3->hide();
-    buttonRepackGameFilesME3->hide();
     buttonUpdateTOCs->hide();
     buttonExtractDLCs->hide();
     buttonChangeGamePathME3->hide();
@@ -834,9 +755,7 @@ void LayoutMain::HideAllSubMenusME3()
     buttonModsManagerME3->setChecked(false);
     buttonInstallModsME3->hide();
     buttonExtractModsME3->hide();
-    buttonConvertModME3->hide();
     buttonCreateModME3->hide();
-    buttonCreateBinaryModME3->hide();
 }
 
 void LayoutMain::ButtonTexturesMenagaerSelected(MeType gameType)
@@ -878,7 +797,6 @@ void LayoutMain::ButtonTextureUtilitiesME1Selected()
     buttonModsManagerME1->setChecked(false);
     buttonRemoveScanFileME1->setHidden(!checked);
     buttonApplyHQLODsME1->setHidden(!checked);
-    buttonApply2kLODsME1->setHidden(!checked);
     buttonApplyVanillaLODsME1->setHidden(!checked);
     buttonApplyHQGfxME1->setHidden(!checked);
     spacerBottomTextureUtilitiesME1->changeSize(0, checked ? 20 : 0);
@@ -951,7 +869,6 @@ void LayoutMain::ButtonGameUtilitiesME2Selected()
     buttonGameUtilitiesME2->setChecked(checked);
     buttonModsManagerME2->setChecked(false);
     buttonCheckGameFilesME2->setHidden(!checked);
-    buttonRepackGameFilesME2->setHidden(!checked);
     buttonChangeGamePathME2->setHidden(!checked);
 #if !defined(_WIN32)
     buttonChangeUserPathME2->setHidden(!checked);
@@ -971,7 +888,6 @@ void LayoutMain::ButtonGameUtilitiesME3Selected()
     buttonGameUtilitiesME3->setChecked(checked);
     buttonModsManagerME3->setChecked(false);
     buttonCheckGameFilesME3->setHidden(!checked);
-    buttonRepackGameFilesME3->setHidden(!checked);
     buttonUpdateTOCs->setHidden(!checked);
     buttonExtractDLCs->setHidden(!checked);
     buttonChangeGamePathME3->setHidden(!checked);
@@ -994,9 +910,7 @@ void LayoutMain::ButtonModsManagerME1Selected()
     buttonModsManagerME1->setChecked(checked);
     buttonInstallModsME1->setHidden(!checked);
     buttonExtractModsME1->setHidden(!checked);
-    buttonConvertModME1->setHidden(!checked);
     buttonCreateModME1->setHidden(!checked);
-    buttonCreateBinaryModME1->setHidden(!checked);
     buttonModsManagerME1->show();
 }
 
@@ -1012,9 +926,7 @@ void LayoutMain::ButtonModsManagerME2Selected()
     buttonModsManagerME2->setChecked(checked);
     buttonInstallModsME2->setHidden(!checked);
     buttonExtractModsME2->setHidden(!checked);
-    buttonConvertModME2->setHidden(!checked);
     buttonCreateModME2->setHidden(!checked);
-    buttonCreateBinaryModME2->setHidden(!checked);
     buttonModsManagerME2->show();
 }
 
@@ -1030,8 +942,6 @@ void LayoutMain::ButtonModsManagerME3Selected()
     buttonModsManagerME3->setChecked(checked);
     buttonInstallModsME3->setHidden(!checked);
     buttonExtractModsME3->setHidden(!checked);
-    buttonConvertModME3->setHidden(!checked);
     buttonCreateModME3->setHidden(!checked);
-    buttonCreateBinaryModME3->setHidden(!checked);
     buttonModsManagerME3->show();
 }

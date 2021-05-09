@@ -37,11 +37,6 @@ Texture::Texture(Package &package, int exportId, const ByteBuffer &data, bool fi
         return;
 
     textureData = new MemoryStream(data, properties->propertyEndOffset, data.size() - properties->propertyEndOffset);
-    if (GameData::gameType != MeType::ME3_TYPE)
-    {
-        textureData->Skip(12); // 12 zeros
-        textureData->SkipInt32(); // position in the package
-    }
 
     int numMipMaps = textureData->ReadInt32();
     for (int l = 0; l < numMipMaps; l++)
@@ -104,38 +99,6 @@ Texture::Texture(Package &package, int exportId, const ByteBuffer &data, bool fi
 
     packagePath = package.packagePath;
     packageName = BaseNameWithoutExt(packagePath).toLower();
-    if (GameData::gameType == MeType::ME1_TYPE)
-    {
-        QString baseName = package.resolvePackagePath(package.exportsTable[exportId].getLinkId()).split('.')[0].toLower();
-        bool found = false;
-        for (int i = 0; i < mipMapsList.count(); i++)
-        {
-            if (mipMapsList[i].storageType == StorageTypes::extLZO ||
-                mipMapsList[i].storageType == StorageTypes::extZlib ||
-                mipMapsList[i].storageType == StorageTypes::extUnc)
-            {
-                basePackageName = baseName;
-                if (basePackageName.length() == 0)
-                    CRASH();
-                slave = true;
-                found = true;
-                break;
-            }
-        }
-        if (!found)
-        {
-            if (baseName.length() != 0 && !properties->exists("NeverStream"))
-            {
-                if (std::binary_search(g_GameData->packageME1UpperNames.begin(),
-                                       g_GameData->packageME1UpperNames.end(),
-                                       baseName, comparePath))
-                {
-                    basePackageName = baseName;
-                    weakSlave = true;
-                }
-            }
-        }
-    }
 }
 
 Texture::~Texture()
@@ -162,10 +125,6 @@ void Texture::replaceMipMaps(const QList<TextureMipMap> &newMipMaps)
 
     delete textureData;
     textureData = new MemoryStream();
-    if (GameData::gameType != MeType::ME3_TYPE)
-    {
-        textureData->WriteZeros(16);
-    }
     textureData->WriteInt32(newMipMaps.count());
     for (int l = 0; l < newMipMaps.count(); l++)
     {
@@ -190,8 +149,6 @@ uint Texture::getCrcData(ByteBuffer data)
 {
     if (data.ptr() == nullptr)
         return 0;
-    if (properties->getProperty("Format").getValueName() == "PF_NormalMap_HQ") // only ME1 and ME2
-        return ~crc32_16bytes_prefetch(data.ptr(), data.size() / 2);
     return ~crc32_16bytes_prefetch(data.ptr(), data.size());
 }
 
@@ -330,53 +287,40 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
     case StorageTypes::extZlib:
         {
             QString filename;
-            if (GameData::gameType == MeType::ME1_TYPE)
+            QString archive = properties->getProperty("TextureFileCacheName").getValueName();
+            filename = g_GameData->MainData() + "/" + archive + ".tfc";
+            if (packagePath.contains("/DLC", Qt::CaseInsensitive))
             {
-                auto found = g_GameData->mapME1PackageUpperNames.find(basePackageName);
-                if (found.key().length() == 0)
+                QString DLCArchiveFile = g_GameData->GamePath() + DirName(packagePath) + "/" + archive + ".tfc";
+                if (QFile(DLCArchiveFile).exists())
+                    filename = DLCArchiveFile;
+                else if (!QFile(filename).exists())
                 {
-                    PERROR((QString("File not found in game: ") + basePackageName + ".*" + "\n").toStdString().c_str());
-                    return ByteBuffer();
-                }
-                filename = g_GameData->GamePath() + g_GameData->packageFiles[found.value()];
-            }
-            else
-            {
-                QString archive = properties->getProperty("TextureFileCacheName").getValueName();
-                filename = g_GameData->MainData() + "/" + archive + ".tfc";
-                if (packagePath.contains("/DLC", Qt::CaseInsensitive))
-                {
-                    QString DLCArchiveFile = g_GameData->GamePath() + DirName(packagePath) + "/" + archive + ".tfc";
-                    if (QFile(DLCArchiveFile).exists())
-                        filename = DLCArchiveFile;
-                    else if (!QFile(filename).exists())
+                    QStringList files = g_GameData->tfcFiles.filter(QRegExp("*" + archive + ".tfc",
+                                                                            Qt::CaseInsensitive, QRegExp::Wildcard));
+                    if (files.count() == 1)
+                        filename = g_GameData->GamePath() + files.first();
+                    else if (files.count() == 0)
                     {
-                        QStringList files = g_GameData->tfcFiles.filter(QRegExp("*" + archive + ".tfc",
-                                                                                Qt::CaseInsensitive, QRegExp::Wildcard));
-                        if (files.count() == 1)
-                            filename = g_GameData->GamePath() + files.first();
-                        else if (files.count() == 0)
+                        if (g_ipc)
                         {
-                            if (g_ipc)
-                            {
-                                ConsoleWrite("[IPC]ERROR_REFERENCED_TFC_NOT_FOUND " + archive + ".tfc");
-                                ConsoleSync();
-                            }
-                            else
-                            {
-                                PERROR(QString("TFC file not found: ") + archive + ".tfc" + "\n");
-                            }
-                            return ByteBuffer();
+                            ConsoleWrite("[IPC]ERROR_REFERENCED_TFC_NOT_FOUND " + archive + ".tfc");
+                            ConsoleSync();
                         }
                         else
                         {
-                            QString list;
-                            foreach(QString file, files)
-                                list += file + "\n";
-                            PERROR((QString("More instances of TFC file: ") + archive + ".tfc\n" +
-                                       list).toStdString().c_str());
-                            return ByteBuffer();
+                            PERROR(QString("TFC file not found: ") + archive + ".tfc" + "\n");
                         }
+                        return ByteBuffer();
+                    }
+                    else
+                    {
+                        QString list;
+                        foreach(QString file, files)
+                            list += file + "\n";
+                        PERROR((QString("More instances of TFC file: ") + archive + ".tfc\n" +
+                                   list).toStdString().c_str());
+                        return ByteBuffer();
                     }
                 }
             }
@@ -429,10 +373,6 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
 const ByteBuffer Texture::toArray(uint pccTextureDataOffset, bool updateOffset)
 {
     MemoryStream newData;
-    if (GameData::gameType != MeType::ME3_TYPE)
-    {
-        newData.WriteZeros(16);
-    }
     newData.WriteInt32(mipMapsList.count());
     for (int l = 0; l < mipMapsList.count(); l++)
     {

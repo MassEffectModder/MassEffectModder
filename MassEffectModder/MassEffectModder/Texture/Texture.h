@@ -53,7 +53,6 @@ public:
 
     QList<TextureMipMap> mipMapsList;
     QString packageName;
-    QString basePackageName;
     bool slave{};
     bool weakSlave{};
     int dataExportId;

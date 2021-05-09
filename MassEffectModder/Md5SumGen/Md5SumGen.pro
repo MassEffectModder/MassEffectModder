@@ -19,7 +19,6 @@ SOURCES += \
     ../Wrappers/Wrapper7Zip.cpp \
     Main.cpp \
     MD5EntriesME1.cpp \
-    MD5EntriesME1PL.cpp \
     MD5EntriesME2.cpp \
     MD5EntriesME3.cpp
 

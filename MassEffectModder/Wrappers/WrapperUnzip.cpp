@@ -50,24 +50,10 @@ typedef struct
     unzFile file;
     unz_global_info globalInfo;
     unz_file_info64 curFileInfo;
-    int tpfMode;
 } UnzipHandle;
 #pragma pack()
 
-static unsigned char tpfPassword[] =
-{
-    0x73, 0x2A, 0x63, 0x7D, 0x5F, 0x0A, 0xA6, 0xBD,
-    0x7D, 0x65, 0x7E, 0x67, 0x61, 0x2A, 0x7F, 0x7F,
-    0x74, 0x61, 0x67, 0x5B, 0x60, 0x70, 0x45, 0x74,
-    0x5C, 0x22, 0x74, 0x5D, 0x6E, 0x6A, 0x73, 0x41,
-    0x77, 0x6E, 0x46, 0x47, 0x77, 0x49, 0x0C, 0x4B,
-    0x46, 0x6F, '\0'
-};
-
-unsigned char tpfXorKey[2] = { 0xA4, 0x3F };
-int gXor = 0;
-
-void *ZipOpenFromFile(const void *path, int *numEntries, int tpf)
+void *ZipOpenFromFile(const void *path, int *numEntries)
 {
     UnzipHandle *unzipHandle;
     int result;
@@ -77,7 +63,6 @@ void *ZipOpenFromFile(const void *path, int *numEntries, int tpf)
         return nullptr;
 
     memset(unzipHandle, 0, sizeof(UnzipHandle));
-    gXor = unzipHandle->tpfMode = tpf;
 
 #if defined(_WIN32)
     fill_win32_filefunc64W(&unzipHandle->api);
@@ -103,7 +88,7 @@ void *ZipOpenFromFile(const void *path, int *numEntries, int tpf)
     return static_cast<void *>(unzipHandle);
 }
 
-void *ZipOpenFromMem(unsigned char *src, unsigned long long srcLen, int *numEntries, int tpf)
+void *ZipOpenFromMem(unsigned char *src, unsigned long long srcLen, int *numEntries)
 {
     UnzipHandle *unzipHandle;
     int result;
@@ -111,8 +96,6 @@ void *ZipOpenFromMem(unsigned char *src, unsigned long long srcLen, int *numEntr
     unzipHandle = static_cast<UnzipHandle *>(malloc(sizeof(UnzipHandle)));
     if (unzipHandle == nullptr || numEntries == nullptr)
         return nullptr;
-
-    gXor = unzipHandle->tpfMode = tpf;
 
     unzipHandle->handle = create_ioapi_from_buffer(&unzipHandle->api, src, srcLen);
     if (unzipHandle->handle == nullptr)
@@ -204,7 +187,7 @@ int ZipLocateFile(void *handle, const char *filename)
     return 0;
 }
 
-int ZipReadCurrentFile(void *handle, unsigned char *dst, unsigned long long dst_len, const unsigned char *pass)
+int ZipReadCurrentFile(void *handle, unsigned char *dst, unsigned long long dst_len)
 {
     auto unzipHandle = static_cast<UnzipHandle *>(handle);
     int result;
@@ -212,16 +195,7 @@ int ZipReadCurrentFile(void *handle, unsigned char *dst, unsigned long long dst_
     if (unzipHandle == nullptr || dst == nullptr)
         return -1;
 
-    if ((unzipHandle->curFileInfo.flag & 1) != 0)
-    {
-        result = unzOpenCurrentFilePassword(unzipHandle->file,
-                unzipHandle->tpfMode == 1 ? reinterpret_cast<char *>(tpfPassword) :
-                                            pass == nullptr ? "" : reinterpret_cast<const char *>(pass));
-    }
-    else
-    {
-        result = unzOpenCurrentFile(unzipHandle->file);
-    }
+    result = unzOpenCurrentFile(unzipHandle->file);
     if (result != UNZ_OK)
         return result;
 
@@ -387,7 +361,7 @@ int ZipUnpack(const void *path, const void *output_path,
     totalUnpackedSize = 0;
     progressUnpackedSize = 0;
 
-    void *handle = ZipOpenFromFile(path, &numEntries, 0);
+    void *handle = ZipOpenFromFile(path, &numEntries);
     if (handle == nullptr)
     {
 #if defined(_WIN32)
@@ -632,7 +606,7 @@ int ZipList(const void *path, bool ipc)
     int numEntries = 0;
     char fileName[260];
 
-    void *handle = ZipOpenFromFile(path, &numEntries, 0);
+    void *handle = ZipOpenFromFile(path, &numEntries);
     if (handle == nullptr)
     {
 #if defined(_WIN32)

@@ -53,9 +53,6 @@ int SevenZipList(const void *path, bool ipc = false);
 int RarUnpack(const void *path, const void *output_path, const void *filter, bool full_path, bool ipc = false);
 int RarList(const void *path, bool ipc = false);
 
-int XDelta3Compress(BYTE *src1, BYTE *src2, UINT32 src_len, BYTE *delta, UINT32 *delta_len);
-int XDelta3Decompress(BYTE *src, UINT32 src_len, BYTE *delta, UINT32 delta_len, BYTE *dst, UINT32 *dst_len);
-
 int ZlibDecompress(BYTE *src, UINT32 src_len, BYTE *dst, UINT32 *dst_len);
 int ZlibCompress(BYTE *src, UINT32 src_len, BYTE **dst, UINT32 *dst_len, int compression_level = -1);
 

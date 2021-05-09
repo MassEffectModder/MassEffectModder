@@ -31,9 +31,6 @@
 
 #include "ioapi.h"
 
-extern unsigned char tpfXorKey[2];
-extern int gXor;
-
 voidpf call_zopen64 (const zlib_filefunc64_32_def* pfilefunc,const void*filename,int mode)
 {
     if (pfilefunc->zfile_func64.zopen64_file != NULL)
@@ -135,38 +132,16 @@ static voidpf ZCALLBACK fopen64_file_func (voidpf opaque __attribute__ ((unused)
 }
 
 
-static uLong ZCALLBACK fread_file_func (voidpf opaque, voidpf stream, void* buf, uLong size)
+static uLong ZCALLBACK fread_file_func (voidpf opaque, __attribute__ ((unused)) voidpf stream, void* buf, uLong size)
 {
     uLong ret;
-    uLong filePos = 0;
-    if (gXor)
-        filePos = (uLong)ftell64_file_func(opaque, stream);
     ret = (uLong)fread(buf, 1, (size_t)size, (FILE *)stream);
-    if (gXor)
-    {
-        unsigned char *src = buf;
-        uLong pos = 0;
-        if (filePos & 1)
-            src[pos++] ^= tpfXorKey[1];
-        for (uLong i = pos; i < size; i++)
-            src[i] ^= tpfXorKey[(i - pos) % 2];
-    }
     return ret;
 }
 
-static uLong ZCALLBACK fwrite_file_func (voidpf opaque, voidpf stream, const void* buf, uLong size)
+static uLong ZCALLBACK fwrite_file_func (voidpf opaque __attribute__ ((unused)), voidpf stream, const void* buf, uLong size)
 {
     uLong ret;
-    if (gXor)
-    {
-        uLong filePos = (uLong)ftell64_file_func(opaque, stream);
-        unsigned char *src = (unsigned char *)buf;
-        uLong pos = 0;
-        if (filePos & 1)
-            src[pos++] ^= tpfXorKey[1];
-        for (uLong i = pos; i < size; i++)
-            src[i] ^= tpfXorKey[(i - pos) % 2];
-    }
     ret = (uLong)fwrite(buf, 1, (size_t)size, (FILE *)stream);
     return ret;
 }

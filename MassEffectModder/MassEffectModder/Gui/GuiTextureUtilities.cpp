@@ -59,7 +59,7 @@ void LayoutMain::RemoveScanFileSelected(MeType gameType)
     }
 }
 
-void LayoutMain::ApplyLODs(MeType gameType, bool lods2k)
+void LayoutMain::ApplyLODs(MeType gameType)
 {
     if (GameData::ConfigIniPath(gameType).length() == 0)
     {
@@ -74,7 +74,7 @@ void LayoutMain::ApplyLODs(MeType gameType, bool lods2k)
 #else
     ConfigIni engineConf = ConfigIni(path, true);
 #endif
-    LODSettings::updateLOD(gameType, engineConf, lods2k);
+    LODSettings::updateLOD(gameType, engineConf);
 
     QMessageBox::information(this, "Appling HQ LODs settings.",
             QString("Game configuration file at ") + path + " updated.");
@@ -82,12 +82,7 @@ void LayoutMain::ApplyLODs(MeType gameType, bool lods2k)
 
 void LayoutMain::ApplyHQLODsSelected(MeType gameType)
 {
-    ApplyLODs(gameType, false);
-}
-
-void LayoutMain::Apply2kLODsSelected()
-{
-    ApplyLODs(MeType::ME1_TYPE, true);
+    ApplyLODs(gameType);
 }
 
 void LayoutMain::ApplyVanillaLODsSelected(MeType gameType)

@@ -30,139 +30,6 @@
 #include <Helpers/Logs.h>
 #include <Helpers/FileStream.h>
 
-bool Misc::ApplyLAAForME1Exe()
-{
-    if (QFile(g_GameData->GameExePath()).exists())
-    {
-        FileStream fs = FileStream(g_GameData->GameExePath(), FileMode::Open, FileAccess::ReadWrite);
-        {
-            fs.JumpTo(0x3C); // jump to offset of COFF header
-            uint offset = fs.ReadUInt32() + 4; // skip PE signature too
-            fs.JumpTo(offset + 0x12); // jump to flags entry
-            ushort flag = fs.ReadUInt16(); // read flags
-            if ((flag & 0x20) != 0x20) // check for LAA flag
-            {
-                PINFO(QString("Patching ME1 for LAA: ") + g_GameData->GameExePath() + "\n");
-                flag |= 0x20;
-                fs.Skip(-2);
-                fs.WriteUInt16(flag); // write LAA flag
-            }
-            else
-            {
-                PINFO(QString("File already has LAA flag enabled: ") + g_GameData->GameExePath() + "\n");
-            }
-        }
-        return true;
-    }
-
-    PERROR(QString("File not found: ") + g_GameData->GameExePath() + "\n");
-    return false;
-}
-
-bool Misc::ChangeProductNameForME1Exe()
-{
-    if (QFile(g_GameData->GameExePath()).exists())
-    {
-        // search for "ProductName Mass Effect"
-        quint8 pattern[] = { 0x50, 0, 0x72, 0, 0x6F, 0, 0x64, 0, 0x75, 0, 0x63, 0, 0x74, 0, 0x4E, 0, 0x61, 0, 0x6D, 0, 0x65, 0, 0, 0, 0, 0,
-                           0x4D, 0, 0x61, 0, 0x73, 0, 0x73, 0, 0x20, 0, 0x45, 0, 0x66, 0, 0x66, 0, 0x65, 0, 0x63, 0, 0x74, 0 };
-        FileStream fs = FileStream(g_GameData->GameExePath(), FileMode::Open, FileAccess::ReadWrite);
-        ByteBuffer buffer = fs.ReadAllToBuffer();
-        quint8 *ptr = buffer.ptr();
-        int pos = -1;
-        for (qint64 i = 0; i < buffer.size(); i++)
-        {
-            if (ptr[i] == pattern[0])
-            {
-                bool found = true;
-                for (unsigned long long l = 1; l < sizeof (pattern); l++)
-                {
-                    if (ptr[i + l] != pattern[l])
-                    {
-                        found = false;
-                        break;
-                    }
-                }
-                if (found)
-                {
-                    pos = i;
-                    break;
-                }
-            }
-        }
-        if (pos != -1)
-        {
-            // replace to "Mass_Effect"
-            fs.JumpTo(pos + 34);
-            fs.WriteByte(0x5f);
-            PINFO(QString("Patching ME1 for Product Name: ") + g_GameData->GameExePath() + "\n");
-        }
-        else
-        {
-            PINFO(QString("Specific Product Name not found or already changed: ") +
-                         g_GameData->GameExePath() + "\n");
-        }
-        buffer.Free();
-        return true;
-    }
-
-    PERROR(QString("File not found: ") + g_GameData->GameExePath() + "\n");
-    return false;
-}
-
-bool Misc::ChangeRegKeyForME1Exe()
-{
-    if (QFile(g_GameData->GameExePath()).exists())
-    {
-        // search for "enableLocalPhysXCore"
-        quint8 pattern[] = { 0x65, 0, 0x6E, 0, 0x61, 0, 0x62, 0, 0x6C, 0, 0x65, 0,
-                             0x4C, 0, 0x6F, 0, 0x63, 0, 0x61, 0, 0x6C, 0, 0x50, 0,
-                             0x68, 0, 0x79, 0, 0x73, 0, 0x58, 0, 0x43, 0, 0x6F, 0,
-                             0x72, 0, 0x65, 0 };
-        FileStream fs = FileStream(g_GameData->GameExePath(), FileMode::Open, FileAccess::ReadWrite);
-        ByteBuffer buffer = fs.ReadAllToBuffer();
-        quint8 *ptr = buffer.ptr();
-        int pos = -1;
-        for (qint64 i = 0; i < buffer.size(); i++)
-        {
-            if (ptr[i] == pattern[0])
-            {
-                bool found = true;
-                for (unsigned long long l = 1; l < sizeof (pattern); l++)
-                {
-                    if (ptr[i + l] != pattern[l])
-                    {
-                        found = false;
-                        break;
-                    }
-                }
-                if (found)
-                {
-                    pos = i;
-                    break;
-                }
-            }
-        }
-        if (pos != -1)
-        {
-            // replace to "enableLocalPhysXCor_"
-            fs.JumpTo(pos + 38);
-            fs.WriteByte(0x5f);
-            PINFO(QString("Patching ME1 'enableLocalPhysXCore': ") + g_GameData->GameExePath() + "\n");
-        }
-        else
-        {
-            PINFO(QString("Specific 'enableLocalPhysXCore' not found or already changed: ") +
-                         g_GameData->GameExePath() + "\n");
-        }
-        buffer.Free();
-        return true;
-    }
-
-    PERROR(QString("File not found: ") + g_GameData->GameExePath() + "\n");
-    return false;
-}
-
 bool Misc::applyModTag(MeType gameId, int MeuitmV, int AlotV)
 {
     QString path;
@@ -460,71 +327,6 @@ void Misc::detectMods(QStringList &mods)
     }
 }
 
-void Misc::RepackME23(MeType gameId, bool appendMarker, QStringList &pkgsToRepack,
-                      ProgressCallback callback, void *callbackHandle)
-{
-    PINFO("Repack started...\n");
-    Misc::restartStageTimer();
-    if (g_ipc)
-    {
-        ConsoleWrite("[IPC]STAGE_CONTEXT STAGE_REPACK");
-        ConsoleSync();
-    }
-
-    if (gameId == MeType::ME2_TYPE)
-        pkgsToRepack.removeOne("/BioGame/CookedPC/BIOC_Materials.pcc");
-    int lastProgress = -1;
-    for (int i = 0; i < pkgsToRepack.count(); i++)
-    {
-#ifdef GUI
-        QApplication::processEvents();
-#endif
-        if (g_ipc)
-        {
-            ConsoleWrite(QString("[IPC]PROCESSING_FILE ") + pkgsToRepack[i]);
-            ConsoleSync();
-        }
-        else
-        {
-            PINFO(QString("Repack " + QString::number(i + 1) + "/" +
-                                 QString::number(pkgsToRepack.count()) +
-                                 " ") + pkgsToRepack[i] + "\n");
-        }
-        int newProgress = i * 100 / pkgsToRepack.count();
-        if (lastProgress != newProgress)
-        {
-            lastProgress = newProgress;
-            if (g_ipc)
-            {
-                ConsoleWrite(QString("[IPC]TASK_PROGRESS ") + QString::number(newProgress));
-                ConsoleSync();
-            }
-        }
-        if (callback)
-        {
-            callback(callbackHandle, newProgress, QString("Repacking package: ") + pkgsToRepack[i]);
-        }
-        auto package = new Package();
-        package->Open(g_GameData->GamePath() + pkgsToRepack[i], true);
-        if (!package->getCompressedFlag() || (package->getCompressedFlag() &&
-             package->compressionType != Package::CompressionType::Zlib))
-        {
-            delete package;
-            package = new Package();
-            package->Open(g_GameData->GamePath() + pkgsToRepack[i]);
-            package->SaveToFile(true, false, appendMarker);
-        }
-        delete package;
-    }
-    long elapsed = Misc::elapsedStageTime();
-    if (g_ipc)
-    {
-        ConsoleWrite(QString("[IPC]STAGE_TIMING %1").arg(elapsed));
-        ConsoleSync();
-    }
-    PINFO("Repack finished.\n\n");
-}
-
 QByteArray Misc::calculateMD5(const QString &filePath)
 {
     QFile file(filePath);
@@ -533,21 +335,8 @@ QByteArray Misc::calculateMD5(const QString &filePath)
     return QByteArray(16, 0);
 }
 
-void Misc::Repack(MeType gameId, ProgressCallback callback, void *callbackHandle)
-{
-    QStringList pkgsToRepack;
-    for (int i = 0; i < g_GameData->packageFiles.count(); i++)
-    {
-        pkgsToRepack.push_back(g_GameData->packageFiles[i]);
-    }
-    Misc::RepackME23(gameId, false, pkgsToRepack, callback, callbackHandle);
-    if (GameData::gameType == MeType::ME3_TYPE)
-        TOCBinFile::UpdateAllTOCBinFiles();
-}
-
 bool Misc::RemoveMipmaps(MipMaps &mipMaps, QList<TextureMapEntry> &textures,
-                         QStringList &pkgsToMarker, QStringList &pkgsToRepack,
-                         bool repack, bool appendMarker, bool force,
+                         QStringList &pkgsToMarker, bool appendMarker, bool force,
                          ProgressCallback callback, void *callbackHandle)
 {
     PINFO("Remove empty mipmaps started...\n");
@@ -558,11 +347,7 @@ bool Misc::RemoveMipmaps(MipMaps &mipMaps, QList<TextureMapEntry> &textures,
         ConsoleSync();
     }
 
-    mipMaps.removeMipMaps(1, textures, pkgsToMarker, pkgsToRepack, repack, appendMarker, force,
-                          callback, callbackHandle);
-    if (GameData::gameType == MeType::ME1_TYPE)
-        mipMaps.removeMipMaps(2, textures, pkgsToMarker, pkgsToRepack, repack, appendMarker, force,
-                              callback, callbackHandle);
+    mipMaps.removeMipMaps(textures, pkgsToMarker, appendMarker, force, callback, callbackHandle);
 
     long elapsed = Misc::elapsedStageTime();
     if (g_ipc)

@@ -231,50 +231,6 @@ void LayoutMain::RepackCallback(void *handle, int progress, const QString &stage
     QApplication::processEvents();
 }
 
-void LayoutMain::RepackGameFilesSelected(MeType gameType)
-{
-    LockGui(true);
-
-    mainWindow->statusBar()->showMessage("Detecting game data...");
-    QApplication::processEvents();
-    ConfigIni configIni{};
-    g_GameData->Init(gameType, configIni, true);
-    if (!Misc::CheckGamePath())
-    {
-        mainWindow->statusBar()->clearMessage();
-        QMessageBox::critical(this, "Repacking package files", "Game data not found.");
-        LockGui(false);
-        return;
-    }
-
-    if (!Misc::checkWriteAccessDir(g_GameData->MainData()))
-    {
-        mainWindow->statusBar()->clearMessage();
-        QMessageBox::critical(this, "Repacking package files",
-                              QString("Detected program has not write access to game folder.") +
-              "\n\nCorrect access to game directory." +
-              "\n\nThen start again.");
-        LockGui(false);
-        return;
-    }
-
-    g_logs->BufferClearErrors();
-    g_logs->BufferEnableErrors(true);
-    Misc::Repack(gameType, &LayoutMain::RepackCallback, mainWindow);
-    g_logs->BufferEnableErrors(false);
-    mainWindow->statusBar()->clearMessage();
-    if (g_logs->BufferGetErrors() != "")
-    {
-        MessageWindow msg;
-        msg.Show(mainWindow, "Errors while repacking package files", g_logs->BufferGetErrors());
-    }
-    else
-    {
-        QMessageBox::information(this, "Repacking package files", "All package files repacked.");
-    }
-    LockGui(false);
-}
-
 void LayoutMain::UpdateTOCsSelected()
 {
     LockGui(true);

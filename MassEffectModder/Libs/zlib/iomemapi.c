@@ -46,20 +46,7 @@ static uLong ZCALLBACK iomem_read_func(voidpf opaque __attribute__ ((unused)), v
     if (ioMemHandle->bufferPos + size > ioMemHandle->bufferLen)
         size = (uLong)(ioMemHandle->bufferLen - ioMemHandle->bufferPos);
 
-    if (gXor)
-    {
-        unsigned char *src = ioMemHandle->buffer;
-        unsigned char *dst = buf;
-        unsigned long pos = 0;
-        if (ioMemHandle->bufferPos & 1)
-            dst[pos++] = src[ioMemHandle->bufferPos] ^ tpfXorKey[1];
-        for (unsigned long i = pos; i < size; i++)
-            dst[i] = src[ioMemHandle->bufferPos + i] ^ tpfXorKey[(i - pos) % 2];
-    }
-    else
-    {
-        memcpy(buf, (char *)ioMemHandle->buffer + ioMemHandle->bufferPos, size);
-    }
+    memcpy(buf, (char *)ioMemHandle->buffer + ioMemHandle->bufferPos, size);
     ioMemHandle->bufferPos += size;
 
     return size;
@@ -81,20 +68,7 @@ static uLong ZCALLBACK iomem_write_func(voidpf opaque __attribute__ ((unused)), 
         ioMemHandle->bufferLen = ioMemHandle->bufferPos + size;
     }
 
-    if (gXor)
-    {
-        unsigned char *dst = ioMemHandle->buffer;
-        unsigned char *src = (unsigned char *)buf;
-        unsigned long pos = (unsigned long)ioMemHandle->bufferPos;
-        if (pos & 1)
-            dst[pos++] = src[0] ^ tpfXorKey[1];
-        for (unsigned long i = pos; i < size; i++)
-            dst[ioMemHandle->bufferPos + i] = src[i] ^ tpfXorKey[(i - pos) % 2];
-    }
-    else
-    {
-        memcpy((char*)ioMemHandle->buffer + ioMemHandle->bufferPos, buf, size);
-    }
+    memcpy((char*)ioMemHandle->buffer + ioMemHandle->bufferPos, buf, size);
     ioMemHandle->bufferPos += size;
 
     return size;

@@ -70,8 +70,8 @@ void MipMaps::prepareListToRemove(QList<TextureMapEntry> &textures, QList<Remove
     }
 }
 
-void MipMaps::removeMipMaps(int phase, QList<TextureMapEntry> &textures, QStringList &pkgsToMarker,
-                            QStringList &pkgsToRepack, bool repack, bool appendMarker, bool force,
+void MipMaps::removeMipMaps(QList<TextureMapEntry> &textures, QStringList &pkgsToMarker,
+                            bool appendMarker, bool force,
                             ProgressCallback callback, void *callbackHandle)
 {
     int lastProgress = -1;
@@ -107,25 +107,12 @@ void MipMaps::removeMipMaps(int phase, QList<TextureMapEntry> &textures, QString
         }
         else
         {
-            if (GameData::gameType == ME1_TYPE)
-            {
-                PINFO("Removing empty mipmaps (" + QString::number(phase) + ") " +
-                             QString::number(i + 1) + "/" +
-                             QString::number(list.count()) + " " + list[i].pkgPath + "\n");
-            }
-            else
-            {
-                PINFO("Removing empty mipmaps " +
-                             QString::number(i + 1) + "/" +
-                             QString::number(list.count()) + " " + list[i].pkgPath + "\n");
-            }
+            PINFO("Removing empty mipmaps " +
+                         QString::number(i + 1) + "/" +
+                         QString::number(list.count()) + " " + list[i].pkgPath + "\n");
         }
 
-        int newProgress;
-        if (GameData::gameType == ME1_TYPE)
-            newProgress = (list.count() * (phase - 1) + i + 1) * 100 / (list.count() * 2);
-        else
-            newProgress = (i + 1) * 100 / list.count();
+        int newProgress = (i + 1) * 100 / list.count();
         if (lastProgress != newProgress)
         {
             lastProgress = newProgress;
@@ -159,14 +146,14 @@ void MipMaps::removeMipMaps(int phase, QList<TextureMapEntry> &textures, QString
             return;
         }
 
-        removeMipMapsPerPackage(phase, textures, package, list[i],
-                                pkgsToMarker, pkgsToRepack, repack, appendMarker);
+        removeMipMapsPerPackage(package, list[i],
+                                pkgsToMarker, appendMarker);
     }
 }
 
-void MipMaps::removeMipMapsPerPackage(int phase, QList<TextureMapEntry> &textures, Package &package,
-                                      RemoveMipsEntry &removeEntry, QStringList &pkgsToMarker,
-                                      QStringList &pkgsToRepack, bool repack, bool appendMarker)
+void MipMaps::removeMipMapsPerPackage(Package &package, RemoveMipsEntry &removeEntry,
+                                      QStringList &pkgsToMarker,
+                                      bool appendMarker)
 {
     for (int l = 0; l < removeEntry.exportIDs.count(); l++)
     {
@@ -205,77 +192,6 @@ void MipMaps::removeMipMapsPerPackage(int phase, QList<TextureMapEntry> &texture
         texture.getProperties().setIntValue("MipTailBaseIdx", texture.mipMapsList.count() - 1);
 
         TextureMapPackageEntry m;
-        int foundListEntry = -1;
-        int foundTextureEntry = -1;
-        if (GameData::gameType == ME1_TYPE)
-        {
-            QString pkgName = package.packagePath.toLower();
-            for (int k = 0; k < textures.count(); k++)
-            {
-                for (int t = 0; t < textures[k].list.count(); t++)
-                {
-                    if (textures[k].list[t].exportID == exportID &&
-                        AsciiStringMatchCaseIgnore(textures[k].list[t].path, pkgName))
-                    {
-                        foundTextureEntry = k;
-                        foundListEntry = t;
-                        break;
-                    }
-                }
-            }
-            if (foundListEntry == -1)
-            {
-                if (g_ipc)
-                {
-                    ConsoleWrite(QString("[IPC]ERROR Texture ") + package.exportsTable[exportID].objectName +
-                                 " not found in tree: " + removeEntry.pkgPath + ", skipping...");
-                    ConsoleSync();
-                }
-                else
-                {
-                    PERROR(QString("Error: Texture ") + package.exportsTable[exportID].objectName +
-                                 " not found in package: " + removeEntry.pkgPath + ", skipping...\n");
-                }
-                continue;
-            }
-
-            m = textures[foundTextureEntry].list[foundListEntry];
-            if (m.linkToMaster != -1)
-            {
-                if (phase == 1)
-                {
-                    continue;
-                }
-
-                const TextureMapPackageEntry& foundMasterTex = textures[foundTextureEntry].list[m.linkToMaster];
-                if (texture.mipMapsList.count() != foundMasterTex.masterDataOffset.count())
-                {
-                    if (g_ipc)
-                    {
-                        ConsoleWrite(QString("[IPC]ERROR Texture ") + package.exportsTable[exportID].objectName + " in package: " + foundMasterTex.path + " has wrong reference, skipping...");
-                        ConsoleSync();
-                    }
-                    else
-                    {
-                        PERROR(QString("Error: Texture ") + package.exportsTable[exportID].objectName +
-                               " in package: " + foundMasterTex.path + " has wrong reference, skipping...\n");
-                    }
-                    continue;
-                }
-                for (int t = 0; t < texture.mipMapsList.count(); t++)
-                {
-                    Texture::TextureMipMap mipmap = texture.mipMapsList[t];
-                    if (mipmap.storageType == StorageTypes::extLZO ||
-                        mipmap.storageType == StorageTypes::extZlib ||
-                        mipmap.storageType == StorageTypes::extUnc)
-                    {
-                        mipmap.dataOffset = foundMasterTex.masterDataOffset[t];
-                        texture.mipMapsList[t] = mipmap;
-                    }
-                }
-            }
-        }
-
         uint packageDataOffset;
         {
             MemoryStream newData;
@@ -290,28 +206,9 @@ void MipMaps::removeMipMapsPerPackage(int phase, QList<TextureMapEntry> &texture
             package.setExportData(exportID, buffer);
             buffer.Free();
         }
-
-        if (GameData::gameType == ME1_TYPE)
-        {
-            if (m.linkToMaster == -1)
-            {
-                if (phase == 2)
-                    CRASH();
-                m.masterDataOffset.clear();
-                for (int t = 0; t < texture.mipMapsList.count(); t++)
-                {
-                    m.masterDataOffset.push_back(packageDataOffset + texture.mipMapsList[t].internalOffset);
-                }
-            }
-
-            m.removeEmptyMips = false;
-            textures[foundTextureEntry].list[foundListEntry] = m;
-        }
     }
-    if (package.SaveToFile(repack, false, appendMarker))
+    if (package.SaveToFile(false, false, appendMarker))
     {
-        if (repack)
-            pkgsToRepack.removeOne(package.packagePath);
         pkgsToMarker.removeOne(package.packagePath);
     }
 }

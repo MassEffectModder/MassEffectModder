@@ -1,7 +1,6 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
     <file>MD5EntriesME1.bin</file>
-    <file>MD5EntriesME1PL.bin</file>
     <file>MD5EntriesME2.bin</file>
     <file>MD5EntriesME3.bin</file>
     <file>me1map.bin</file>
