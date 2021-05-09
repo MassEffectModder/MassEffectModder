@@ -30,8 +30,11 @@ class Properties
 {
 public:
 
-    struct PropertyEntry
+    class PropertyEntry
     {
+        friend Properties;
+
+    private:
         QString type;
         QString name;
         QString valueNameType;
@@ -41,8 +44,27 @@ public:
         bool valueBool;
         ByteBuffer valueRaw;
         ByteBuffer valueStruct;
+        //QList<PropertyEntry> valueStruct;
+        //QList<PropertyEntry> valueArray;
         int index;
         bool fetched;
+
+    public:
+
+        QString getValueNameType() { return valueNameType; }
+        QString getValueName() { return valueName; }
+        qint32 getValueInt() { return valueInt; }
+        float setValueFloat() { return valueFloat; }
+        bool getValueBool() { return valueBool; }
+        ByteBuffer getValueStruct() { return valueStruct; }
+
+        void setIntValue(qint32 value);
+        void setFloatValue(float value);
+        void setByteValue(const QString &valueName, const QString &valueNameType, qint32 valueInt = 0);
+        void setBoolValue(bool value);
+        void setNameValue(const QString &valueName);
+        void setStrValue(const QString &valueName);
+        void setStructValue(const QString &valueName, ByteBuffer valueStruct);
     };
 
     QList<PropertyEntry> propertyList;
@@ -65,10 +87,10 @@ public:
     void removeProperty(const QString &name);
     void setIntValue(const QString &name, qint32 value);
     void setFloatValue(const QString &name, float value);
-    void setByteValue(const QString &name, const QString &valueName,
-                      const QString &valueNameType, qint32 valueInt = 0);
+    void setByteValue(const QString &name, const QString &valueName, const QString &valueNameType, qint32 valueInt = 0);
     void setBoolValue(const QString &name, bool value);
     void setNameValue(const QString &name, const QString &valueName);
+    void setStrValue(const QString &name, const QString &valueName);
     void setStructValue(const QString &name, const QString &valueName, ByteBuffer valueStruct);
     ByteBuffer toArray();
 };

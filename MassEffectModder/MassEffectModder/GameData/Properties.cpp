@@ -158,6 +158,37 @@ void Properties::fetchValue(int index)
     }
     else if (property.type == "StrProperty")
     {
+        qint32 len = *reinterpret_cast<qint32 *>(property.valueRaw.ptr() + 0);
+        if (len < 0) // unicode
+        {
+            property.valueName = "";
+            if (GameData::gameType == MeType::ME3_TYPE)
+            {
+                for (int n = 0; n < -len; n++)
+                {
+                    quint16 c = *reinterpret_cast<qint16 *>(property.valueRaw.ptr() + 4 + n);
+                    property.valueName += QChar(static_cast<ushort>(c));
+                }
+            }
+            else
+            {
+                for (int n = 0; n < -len; n++)
+                {
+                    quint8 c = *reinterpret_cast<qint8 *>(property.valueRaw.ptr() + 4 + n);
+                    property.valueName += (char)c;
+                }
+            }
+        }
+        else
+        {
+            for (int n = 0; n < len; n++)
+            {
+                quint8 c = *reinterpret_cast<qint8 *>(property.valueRaw.ptr() + 4 + n);
+                property.valueName += (char)c;
+            }
+        }
+        if (property.name.endsWith(QChar('\0')))
+            property.name.chop(1);
     }
     else if (property.type == "FloatProperty")
     {
@@ -212,17 +243,13 @@ QString Properties::getDisplayString(int index)
     {
         result += QString(property.valueBool ? "true" : "false") + "\n";
     }
-    else if (property.type == "StrProperty")
-    {
-        result += "\n";
-    }
     else if (property.type == "FloatProperty")
     {
         result += QString::number(property.valueFloat) + "\n";
     }
-    else if (property.type == "NameProperty")
+    else if (property.type == "NameProperty" || property.type == "StrProperty")
     {
-        result += property.valueName;
+        result += property.valueName + "\n";
     }
     else if (property.type == "StructProperty")
     {
@@ -515,6 +542,70 @@ void Properties::setNameValue(const QString &name, const QString &valueName)
     qint32 nameId = package->getNameId(valueName);
     memcpy(property.valueRaw.ptr(), &nameId, sizeof(qint32));
     memset(property.valueRaw.ptr() + 4, 0, sizeof(qint32));
+    property.valueName = valueName;
+
+    if (exists(name))
+    {
+        for (int i = 0; i < propertyList.count(); i++)
+        {
+            if (propertyList[i].name == name)
+            {
+                propertyList[i] = property;
+                break;
+            }
+        }
+    }
+    else
+        propertyList.push_front(property);
+}
+
+void Properties::setStrValue(const QString &name, const QString &valueName)
+{
+    PropertyEntry property{};
+    if (exists(name))
+    {
+        for (int i = 0; i < propertyList.count(); i++)
+        {
+            if (propertyList[i].name == name)
+            {
+                property = propertyList[i];
+                break;
+            }
+        }
+        if (property.type != "StrProperty")
+            CRASH();
+    }
+    else
+    {
+        property.type = "StrProperty";
+    }
+
+    if (!package->existsNameId(name))
+        package->addName(name);
+    property.name = name;
+    property.fetched = true;
+
+    qint32 len = valueName.length();
+    if (len != 0)
+        len += 1;
+    if (GameData::gameType == MeType::ME3_TYPE)
+    {
+        len *= 2;
+        property.valueRaw = ByteBuffer(len + 4);
+        auto s = const_cast<ushort *>(valueName.utf16());
+        memcpy(property.valueRaw.ptr() + 4, s, valueName.length() * 2);
+        memset(property.valueRaw.ptr() + 8 + valueName.length() * 2, 0, sizeof(qint16));
+        len = -len;
+    }
+    else
+    {
+        property.valueRaw = ByteBuffer(len + 4);
+        std::string string = valueName.toStdString();
+        auto s = const_cast<char *>(string.c_str());
+        memcpy(property.valueRaw.ptr() + 4, s, valueName.length());
+        memset(property.valueRaw.ptr() + 8 + valueName.length(), 0, sizeof(qint8));
+    }
+    memcpy(property.valueRaw.ptr(), &len, sizeof(qint32));
     property.valueName = valueName;
 
     if (exists(name))

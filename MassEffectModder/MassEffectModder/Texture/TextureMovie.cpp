@@ -123,7 +123,7 @@ const ByteBuffer TextureMovie::getData()
             }
             else
             {
-                QString archive = properties->getProperty("TextureFileCacheName").valueName;
+                QString archive = properties->getProperty("TextureFileCacheName").getValueName();
                 filename = g_GameData->MainData() + "/" + archive + ".tfc";
                 if (packagePath.contains("/DLC", Qt::CaseInsensitive))
                 {

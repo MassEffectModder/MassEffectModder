@@ -190,7 +190,7 @@ uint Texture::getCrcData(ByteBuffer data)
 {
     if (data.ptr() == nullptr)
         return 0;
-    if (properties->getProperty("Format").valueName == "PF_NormalMap_HQ") // only ME1 and ME2
+    if (properties->getProperty("Format").getValueName() == "PF_NormalMap_HQ") // only ME1 and ME2
         return ~crc32_16bytes_prefetch(data.ptr(), data.size() / 2);
     return ~crc32_16bytes_prefetch(data.ptr(), data.size());
 }
@@ -342,7 +342,7 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
             }
             else
             {
-                QString archive = properties->getProperty("TextureFileCacheName").valueName;
+                QString archive = properties->getProperty("TextureFileCacheName").getValueName();
                 filename = g_GameData->MainData() + "/" + archive + ".tfc";
                 if (packagePath.contains("/DLC", Qt::CaseInsensitive))
                 {

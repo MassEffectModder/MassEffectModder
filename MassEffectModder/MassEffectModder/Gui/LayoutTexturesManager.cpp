@@ -850,7 +850,7 @@ void LayoutTexturesManager::UpdateRight(const QListWidgetItem *item)
         }
         int width = texture.getTopMipmap().width;
         int height = texture.getTopMipmap().height;
-        PixelFormat pixelFormat = Image::getPixelFormatType(texture.getProperties().getProperty("Format").valueName);
+        PixelFormat pixelFormat = Image::getPixelFormatType(texture.getProperties().getProperty("Format").getValueName());
         ByteBuffer bitmap;
         if (imageViewMode)
         {
@@ -1237,7 +1237,7 @@ void LayoutTexturesManager::ExtractTexture(const ViewTexture& viewTexture, bool 
         if (QFile(outputFile).exists())
             QFile(outputFile).remove();
 
-        PixelFormat pixelFormat = Image::getPixelFormatType(texture.getProperties().getProperty("Format").valueName);
+        PixelFormat pixelFormat = Image::getPixelFormatType(texture.getProperties().getProperty("Format").getValueName());
         if (png)
         {
             ByteBuffer data = texture.getTopImageData();

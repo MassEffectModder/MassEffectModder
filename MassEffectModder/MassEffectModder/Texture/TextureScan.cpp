@@ -102,7 +102,7 @@ void TreeScan::WarnNorm4k(MeType gameId, Texture *texture, const QString &textur
     if (!texture->getProperties().exists("CompressionSettings"))
         return;
 
-    QString cmp = texture->getProperties().getProperty("CompressionSettings").valueName;
+    QString cmp = texture->getProperties().getProperty("CompressionSettings").getValueName();
     if (cmp == "TC_Normalmap" ||
         cmp == "TC_NormalmapHQ" ||
         cmp == "TC_NormalmapAlpha" ||
@@ -1085,9 +1085,9 @@ void TreeScan::FindTextures(MeType gameId, QList<TextureMapEntry> &textures, con
                 {
                     if (generateBuiltinMapFiles)
                     {
-                        foundTex.width = textureMovie->getProperties().getProperty("SizeX").valueInt;
-                        foundTex.height = textureMovie->getProperties().getProperty("SizeY").valueInt;
-                        foundTex.pixfmt = Image::getPixelFormatType(textureMovie->getProperties().getProperty("Format").valueName);
+                        foundTex.width = textureMovie->getProperties().getProperty("SizeX").getValueInt();
+                        foundTex.height = textureMovie->getProperties().getProperty("SizeY").getValueInt();
+                        foundTex.pixfmt = Image::getPixelFormatType(textureMovie->getProperties().getProperty("Format").getValueName());
                         foundTex.flags = TextureType::Movie;
                     }
                     delete textureMovie;
@@ -1098,10 +1098,10 @@ void TreeScan::FindTextures(MeType gameId, QList<TextureMapEntry> &textures, con
                     {
                         foundTex.width = texture->getTopMipmap().width;
                         foundTex.height = texture->getTopMipmap().height;
-                        foundTex.pixfmt = Image::getPixelFormatType(texture->getProperties().getProperty("Format").valueName);
+                        foundTex.pixfmt = Image::getPixelFormatType(texture->getProperties().getProperty("Format").getValueName());
                         if (texture->getProperties().exists("CompressionSettings"))
                         {
-                            QString cmp = texture->getProperties().getProperty("CompressionSettings").valueName;
+                            QString cmp = texture->getProperties().getProperty("CompressionSettings").getValueName();
                             if (cmp == "TC_OneBitAlpha")
                                 foundTex.flags = TextureType::OneBitAlpha;
                             else if (cmp == "TC_Displacementmap")

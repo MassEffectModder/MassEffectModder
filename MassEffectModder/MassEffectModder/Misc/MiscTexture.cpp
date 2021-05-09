@@ -170,7 +170,7 @@ QString Misc::CorrectTexture(Image *image, Texture &texture,
         if (newPixelFormat == PixelFormat::DXT1 && texture.getProperties().exists("CompressionSettings"))
         {
             if (texture.getProperties().exists("CompressionSettings") &&
-                texture.getProperties().getProperty("CompressionSettings").valueName == "TC_OneBitAlpha")
+                texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_OneBitAlpha")
             {
                 dxt1HasAlpha = true;
                 if (image->getPixelFormat() == PixelFormat::ARGB ||
