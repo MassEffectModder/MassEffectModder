@@ -84,9 +84,9 @@ bool TreeScan::IsBlankTexture(uint crc)
     0xFEE00359,
     };
 
-    for (uint i = 0; i < (sizeof (crcTable) / sizeof(uint)); i++)
+    for (unsigned int crcValue : crcTable)
     {
-        if (crc == crcTable[i])
+        if (crc == crcValue)
             return true;
     }
     return false;

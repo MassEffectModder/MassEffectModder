@@ -253,7 +253,7 @@ void Updater::finishedDownloadRelasesList(QNetworkReply *reply)
 #else
     QString pattern = "MassEffectModder-macOS-v";
 #endif
-    QList<QVariant> listLateterReleases;
+    QVector<QVariant> listLateterReleases;
     int latestVersion = MEM_VERSION;
     QList<QVariant> listReleases = jsonRelases.toVariant().toList();
     for (const QVariant &releaseNode : listReleases)

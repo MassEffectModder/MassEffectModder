@@ -62,7 +62,7 @@ int ZlibCompress(BYTE *src, UINT32 src_len, BYTE **dst, UINT32 *dst_len, int com
 int ZstdDecompress(BYTE *src, UINT32 src_len, BYTE *dst, UINT32 *dst_len);
 int ZstdCompress(BYTE *src, UINT32 src_len, BYTE **dst, UINT32 *dst_len, int compression_level = 3);
 
-int LzxDecompress(BYTE *src, UINT32 src_len, BYTE *dst, UINT32 *dst_len);
+int LzxDecompress(BYTE *src, UINT32 src_len, BYTE *dst, const UINT32 *dst_len);
 
 int PngRead(BYTE *src, UINT32 srcSize,
              BYTE **dst, UINT32 *dstSize,

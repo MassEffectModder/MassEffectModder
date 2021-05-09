@@ -29,7 +29,7 @@ extern "C" {
 
 #ifndef EXPORT_LIBS
 
-int LzxDecompress(unsigned char *src, unsigned int src_len, unsigned char *dst, unsigned int *dst_len)
+int LzxDecompress(unsigned char *src, unsigned int src_len, unsigned char *dst, const unsigned int *dst_len)
 {
     int status = lzx_decompress(src, src_len, dst, *dst_len);
     if (status != 0)
