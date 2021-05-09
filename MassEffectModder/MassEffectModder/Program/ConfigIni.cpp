@@ -205,7 +205,7 @@ bool ConfigIni::Write(const QString &key, const QString &value, const QString &s
             return false;
         delete outputFile;
 
-        FileStream *file = new FileStream(_iniPath, FileMode::Create, FileAccess::WriteOnly);
+        auto *file = new FileStream(_iniPath, FileMode::Create, FileAccess::WriteOnly);
         for (int i = 0; i < list.count(); i++)
         {
             QString line = list[i];
@@ -294,7 +294,7 @@ bool ConfigIni::DeleteKey(const QString &key, const QString &section)
             return false;
         delete outputFile;
 
-        FileStream *file = new FileStream(_iniPath, FileMode::Create, FileAccess::WriteOnly);
+        auto *file = new FileStream(_iniPath, FileMode::Create, FileAccess::WriteOnly);
         for (int i = 0; i < list.count(); i++)
         {
             QString line = list[i];

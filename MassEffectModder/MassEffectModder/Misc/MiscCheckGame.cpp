@@ -174,7 +174,7 @@ bool Misc::checkGameFilesSub(FileStream *fs, QStringList &files, QList<MD5FileEn
             fs->WriteStringASCII(QString("{\n\"") + files[index] + "\",\n{ ");
             for (int i = 0; i < md5.count(); i++)
             {
-                fs->WriteStringASCII(QString().asprintf("0x%02X, ", (quint8)md5[i]));
+                fs->WriteStringASCII(QString::asprintf("0x%02X, ", (quint8)md5[i]));
             }
             fs->WriteStringASCII("},\n\"\",\n},\n");
         }
@@ -183,7 +183,7 @@ bool Misc::checkGameFilesSub(FileStream *fs, QStringList &files, QList<MD5FileEn
             fs->WriteStringASCII(QString("{\n\"") + files[index] + "\",\n{ ");
             for (int i = 0; i < md5.count(); i++)
             {
-                fs->WriteStringASCII(QString().asprintf("0x%02X, ", (quint8)md5[i]));
+                fs->WriteStringASCII(QString::asprintf("0x%02X, ", (quint8)md5[i]));
             }
             fs->WriteStringASCII(QString("},\n") +
                                  QString::number(QFile(g_GameData->GamePath() + files[index]).size()) + ",\n},\n");
@@ -194,12 +194,12 @@ bool Misc::checkGameFilesSub(FileStream *fs, QStringList &files, QList<MD5FileEn
             errors += "File " + files[index] + " has wrong MD5 checksum: ";
             for (int i = 0; i < md5.count(); i++)
             {
-                errors += QString().asprintf("%02X", (quint8)md5[i]);
+                errors += QString::asprintf("%02X", (quint8)md5[i]);
             }
             errors += ", expected: ";
             for (unsigned char i : md5Entry)
             {
-                errors += QString().asprintf("%02X", i);
+                errors += QString::asprintf("%02X", i);
             }
             errors += "\n";
             if (g_ipc)

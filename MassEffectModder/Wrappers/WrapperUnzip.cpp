@@ -418,7 +418,6 @@ int ZipUnpack(const void *path, const void *output_path,
         }
         totalUnpackedSize += dstLen;
         ZipGoToNextFile(handle);
-        continue;
     }
 
     ZipGoToFirstFile(handle);

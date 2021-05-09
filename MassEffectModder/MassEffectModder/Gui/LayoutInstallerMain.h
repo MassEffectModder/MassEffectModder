@@ -47,7 +47,6 @@ private:
     const int kFontSize = 8;
 #endif
 
-    int                 currentMESelection;
     InstallerWindow     *installerWindow;
     MeType              gameId;
     QPushButton         *buttonStart;

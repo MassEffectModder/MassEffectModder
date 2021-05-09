@@ -92,7 +92,7 @@ QString DirName(const QString &path)
 
 QString BaseNameWithoutExt(const QString &path)
 {
-    const QString str = BaseName(path);
+    QString str = BaseName(path);
     int index = str.lastIndexOf(".");
     if (index == -1)
         return str;
