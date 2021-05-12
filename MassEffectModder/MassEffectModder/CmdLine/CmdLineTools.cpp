@@ -98,7 +98,6 @@ int CmdLineTools::scanTextures(MeType gameId, bool removeEmptyMips)
     PINFO("Scan textures started...\n");
 
     QList<TextureMapEntry> textures;
-    QList<Texture4kNormEntry> texture4kNorms;
     Resources resources;
 
     resources.loadMD5Tables();
@@ -133,7 +132,7 @@ bool CmdLineTools::GetGamePaths()
         g_GameData->Init((MeType)gameId, configIni);
 
         QString pathData = g_GameData->GamePath();
-        QString pathConfig = g_GameData->GameUserPath((MeType)gameId);
+        QString pathConfig = GameData::GameUserPath((MeType)gameId);
 
         if (g_ipc)
         {
@@ -647,8 +646,7 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, QString
                                  packages[p] +"\nExport Id: " + QString::number(e + 1) + "\nSkipping...\n");
                     continue;
                 }
-                QString outputFile = outputDir + "/" +  name +
-                        QString().asprintf("_0x%08X", crc);
+                QString outputFile = outputDir + "/" +  name + QString::asprintf("_0x%08X", crc);
                 if (png)
                 {
                     outputFile += ".png";
@@ -697,7 +695,7 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, QString
                     else
                     {
                         PERROR(QString("Texture skipped. Texture ") + name +
-                                     QString().asprintf("_0x%08X", crc) + " is broken in game data!\n");
+                                     QString::asprintf("_0x%08X", crc) + " is broken in game data!\n");
                     }
                 }
             }
