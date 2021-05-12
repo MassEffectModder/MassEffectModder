@@ -25,7 +25,6 @@
 #include <Helpers/MiscHelpers.h>
 #include <Helpers/Logs.h>
 #include <GameData/GameData.h>
-#include <GameData/DLC.h>
 #include <GameData/TOCFile.h>
 #include <Misc/Misc.h>
 
@@ -224,21 +223,14 @@ void LayoutMain::ChangeUserPathSelected(MeType gameType)
 }
 #endif
 
-void LayoutMain::RepackCallback(void *handle, int progress, const QString &stage)
-{
-    auto *win = static_cast<MainWindow *>(handle);
-    win->statusBar()->showMessage(QString("Total progress: ") + QString::number(progress) + "% - " + stage);
-    QApplication::processEvents();
-}
-
-void LayoutMain::UpdateTOCsSelected()
+void LayoutMain::UpdateTOCsSelected(MeType gameType)
 {
     LockGui(true);
 
     mainWindow->statusBar()->showMessage("Detecting game data...");
     QApplication::processEvents();
     ConfigIni configIni{};
-    g_GameData->Init(MeType::ME3_TYPE, configIni, true);
+    g_GameData->Init(gameType, configIni, true);
     if (!Misc::CheckGamePath())
     {
         mainWindow->statusBar()->clearMessage();
@@ -262,55 +254,4 @@ void LayoutMain::UpdateTOCsSelected()
     mainWindow->statusBar()->clearMessage();
     QMessageBox::information(this, "Updating TOC files", "All TOC files updated.");
     LockGui(false);
-}
-
-void LayoutMain::ExtractDLCsSelected()
-{
-    LockGui(true);
-
-    mainWindow->statusBar()->showMessage("Detecting game data...");
-    QApplication::processEvents();
-    ConfigIni configIni{};
-    g_GameData->Init(MeType::ME3_TYPE, configIni, true);
-    if (!Misc::CheckGamePath())
-    {
-        mainWindow->statusBar()->clearMessage();
-        QMessageBox::critical(this, "Unpacking DLCs", "Game data not found.");
-        LockGui(false);
-        return;
-    }
-
-    if (!Misc::checkWriteAccessDir(g_GameData->MainData()))
-    {
-        mainWindow->statusBar()->clearMessage();
-        QMessageBox::critical(this, "Unpacking DLCs",
-                              QString("Detected program has not write access to game folder.") +
-              "\n\nCorrect access to game directory." +
-              "\n\nThen start again.");
-        LockGui(false);
-        return;
-    }
-
-    g_logs->BufferClearErrors();
-    g_logs->BufferEnableErrors(true);
-    ME3DLC::unpackAllDLC(&LayoutMain::ExtractDlcCallback, mainWindow);
-    g_logs->BufferEnableErrors(false);
-    mainWindow->statusBar()->clearMessage();
-    if (g_logs->BufferGetErrors() != "")
-    {
-        MessageWindow msg;
-        msg.Show(mainWindow, "Errors while unpacking DLCs", g_logs->BufferGetErrors());
-    }
-    else
-    {
-        QMessageBox::information(this, "Unpacking DLCs", "All DLCs unpacked.");
-    }
-    LockGui(false);
-}
-
-void LayoutMain::ExtractDlcCallback(void *handle, int progress, const QString &stage)
-{
-    auto *win = static_cast<MainWindow *>(handle);
-    win->statusBar()->showMessage(QString("Total progress: ") + QString::number(progress) + "% - " + stage);
-    QApplication::processEvents();
 }

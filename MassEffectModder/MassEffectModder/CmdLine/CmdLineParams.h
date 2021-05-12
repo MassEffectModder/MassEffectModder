@@ -30,7 +30,6 @@ typedef enum : int
     SCAN,
     SCAN_TEXTURES,
     UPDATE_TOC,
-    UNPACK_DLCS,
     CONVERT_TO_MEM,
     CONVERT_GAME_IMAGE,
     CONVERT_GAME_IMAGES,

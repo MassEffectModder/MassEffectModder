@@ -22,7 +22,6 @@
 #include <Misc/Misc.h>
 #include <GameData/GameData.h>
 #include <GameData/TOCFile.h>
-#include <GameData/DLC.h>
 #include <GameData/LODSettings.h>
 #include <MipMaps/MipMaps.h>
 #include <Wrappers.h>
@@ -238,15 +237,10 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
     Misc::startTimer();
 
     bool modded = detectMod(gameId);
-    bool unpackNeeded = false;
-    if (gameId == MeType::ME3_TYPE && !modded)
-        unpackNeeded = Misc::unpackSFARisNeeded();
     if (g_ipc)
     {
         if (!modded)
         {
-            if (gameId == MeType::ME3_TYPE && unpackNeeded)
-                ConsoleWrite("[IPC]STAGE_ADD STAGE_UNPACKDLC");
             if (!g_GameData->FullScanGame)
                 ConsoleWrite("[IPC]STAGE_ADD STAGE_PRESCAN");
             ConsoleWrite("[IPC]STAGE_ADD STAGE_SCAN");
@@ -259,24 +253,6 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
         if (!skipMarkers && !modded)
             ConsoleWrite("[IPC]STAGE_ADD STAGE_MARKERS");
         ConsoleSync();
-    }
-
-    Misc::startStageTimer();
-    if (gameId == MeType::ME3_TYPE && !modded && unpackNeeded)
-    {
-        PINFO("Unpacking DLCs started...\n");
-        if (g_ipc)
-        {
-            ConsoleWrite("[IPC]STAGE_CONTEXT STAGE_UNPACKDLC");
-            ConsoleSync();
-        }
-
-        ME3DLC::unpackAllDLC(callback, callbackHandle);
-
-        ConfigIni configIni = ConfigIni();
-        g_GameData->Init(gameId, configIni, true);
-
-        PINFO("Unpacking DLCs finished.\n\n");
     }
 
     QList<TextureMapEntry> textures;
@@ -337,8 +313,7 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
             return false;
     }
 
-    if (gameId == MeType::ME3_TYPE)
-        TOCBinFile::UpdateAllTOCBinFiles();
+    TOCBinFile::UpdateAllTOCBinFiles();
 
     if (g_ipc)
     {

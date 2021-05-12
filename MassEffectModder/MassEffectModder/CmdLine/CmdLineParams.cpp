@@ -23,7 +23,6 @@
 #include <CmdLine/CmdLineTools.h>
 #include <Helpers/MiscHelpers.h>
 #include <Helpers/Logs.h>
-#include <GameData/DLC.h>
 #include <GameData/GameData.h>
 #include <GameData/TOCFile.h>
 #include <Misc/Misc.h>
@@ -76,8 +75,6 @@ int ProcessArguments()
             cmd = CmdType::SCAN_TEXTURES;
         else if (arg == "--update-toc")
             cmd = CmdType::UPDATE_TOC;
-        else if (arg == "--unpack-dlcs")
-            cmd = CmdType::UNPACK_DLCS;
         else if (arg == "--convert-to-mem")
             cmd = CmdType::CONVERT_TO_MEM;
         else if (arg == "--convert-game-image")
@@ -383,13 +380,13 @@ int ProcessArguments()
         break;
     case CmdType::UPDATE_TOC:
     {
-        if (!tools.updateTOCs())
+        if (gameId == MeType::UNKNOWN_TYPE)
+        {
+            PERROR("Wrong game id!\n");
             errorCode = 1;
-        break;
-    }
-    case CmdType::UNPACK_DLCS:
-    {
-        if (!tools.unpackAllDLCs())
+            break;
+        }
+        if (!tools.updateTOCs(gameId))
             errorCode = 1;
         break;
     }

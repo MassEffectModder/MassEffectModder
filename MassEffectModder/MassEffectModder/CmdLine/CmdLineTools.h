@@ -34,8 +34,7 @@ public:
 
     int scanTextures(MeType gameId, bool removeEmptyMips);
     int scan(MeType gameId);
-    bool updateTOCs();
-    bool unpackAllDLCs();
+    bool updateTOCs(MeType gameId);
     bool GetGamePaths();
     bool unpackArchive(const QString &inputFile, QString &outputDir, QString &filterWithExt, bool flattenPath);
     bool listArchive(const QString &inputFile);

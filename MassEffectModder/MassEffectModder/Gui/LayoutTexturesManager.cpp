@@ -221,17 +221,6 @@ bool LayoutTexturesManager::Startup()
         return false;
     }
 
-    if (gameType == MeType::ME3_TYPE && Misc::unpackSFARisNeeded())
-    {
-        QMessageBox::critical(this, "Texture Manager", QString("Game has NOT unpacked DLCs.") +
-                              "\n\nPlease select 'Unpack DLCs'\n" + "from the 'Game Utilities'\n" +
-                              "then start Texture Manager again.");
-        mainWindow->statusBar()->clearMessage();
-        buttonExit->setEnabled(true);
-        mainWindow->LockClose(false);
-        return false;
-    }
-
     QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
             "/MassEffectModder";
     QString filename = path + QString("/me%1map.bin").arg(static_cast<int>(gameType));
@@ -478,8 +467,7 @@ bool LayoutTexturesManager::Startup()
                 mainWindow->LockClose(false);
                 return false;
             }
-            if (GameData::gameType == MeType::ME3_TYPE)
-                TOCBinFile::UpdateAllTOCBinFiles();
+            TOCBinFile::UpdateAllTOCBinFiles();
         }
     }
     else if (removeEmptyMips)
@@ -509,8 +497,7 @@ bool LayoutTexturesManager::Startup()
             mainWindow->LockClose(false);
             return false;
         }
-        if (GameData::gameType == MeType::ME3_TYPE)
-            TOCBinFile::UpdateAllTOCBinFiles();
+        TOCBinFile::UpdateAllTOCBinFiles();
     }
 
     QElapsedTimer timer;
@@ -1081,8 +1068,7 @@ void LayoutTexturesManager::ReplaceTexture(const QListWidgetItem *item, bool con
     {
         modEntry.injectedMovieTexture.Free();
     }
-    if (GameData::gameType == MeType::ME3_TYPE)
-        TOCBinFile::UpdateAllTOCBinFiles();
+    TOCBinFile::UpdateAllTOCBinFiles();
     mainWindow->statusBar()->clearMessage();
     UpdateRight(item);
     if (g_logs->BufferGetErrors() != "")

@@ -21,7 +21,6 @@
 
 #include <CmdLine/CmdLineTools.h>
 #include <GameData/GameData.h>
-#include <GameData/DLC.h>
 #include <GameData/LODSettings.h>
 #include <GameData/TOCFile.h>
 #include <Helpers/MiscHelpers.h>
@@ -114,29 +113,14 @@ int CmdLineTools::scanTextures(MeType gameId, bool removeEmptyMips)
     return errorCode;
 }
 
-bool CmdLineTools::updateTOCs()
+bool CmdLineTools::updateTOCs(MeType gameId)
 {
     ConfigIni configIni = ConfigIni();
-    g_GameData->Init(MeType::ME3_TYPE, configIni);
+    g_GameData->Init(gameId, configIni);
     if (!Misc::CheckGamePath())
         return false;
 
     TOCBinFile::UpdateAllTOCBinFiles();
-
-    return true;
-}
-
-bool CmdLineTools::unpackAllDLCs()
-{
-    ConfigIni configIni = ConfigIni();
-    g_GameData->Init(MeType::ME3_TYPE, configIni);
-    if (!Misc::CheckGamePath())
-        return false;
-
-    Misc::startTimer();
-    ME3DLC::unpackAllDLC(nullptr, nullptr);
-    long elapsed = Misc::elapsedTime();
-    PINFO(Misc::getTimerFormat(elapsed) + "\n");
 
     return true;
 }

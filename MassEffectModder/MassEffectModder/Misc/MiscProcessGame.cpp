@@ -359,30 +359,3 @@ bool Misc::RemoveMipmaps(MipMaps &mipMaps, QList<TextureMapEntry> &textures,
 
     return true;
 }
-
-bool Misc::unpackSFARisNeeded()
-{
-    if (QDir(g_GameData->DLCData()).exists())
-    {
-        QStringList DLCs = QDir(g_GameData->DLCData(), "DLC_*", QDir::NoSort, QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
-        foreach (QString DLCDir, DLCs)
-        {
-            QStringList packages;
-            QDirIterator iterator(g_GameData->DLCData() + "/" + DLCDir + g_GameData->DLCDataSuffix(), QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
-            bool isValid = false;
-            bool unpacked = false;
-            while (iterator.hasNext())
-            {
-                iterator.next();
-                if (iterator.filePath().endsWith("Default.sfar", Qt::CaseInsensitive))
-                    isValid = true;
-                if (iterator.filePath().endsWith("Mount.dlc", Qt::CaseInsensitive))
-                    unpacked = true;
-            }
-            if (isValid && !unpacked)
-                return true;
-        }
-    }
-
-    return false;
-}

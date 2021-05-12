@@ -279,19 +279,26 @@ LayoutMain::LayoutMain(MainWindow *window)
     buttonCheckGameFilesME3->setFont(ButtonFont);
     connect(buttonCheckGameFilesME3, &QPushButton::clicked, this, &LayoutMain::CheckGameFilesME3Selected);
 
-    buttonUpdateTOCs = new QPushButton("Update TOCs");
-    buttonUpdateTOCs->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    buttonUpdateTOCs->setMinimumWidth(kButtonMinSmallWidth);
-    buttonUpdateTOCs->setMinimumHeight(kButtonMinHeight);
-    buttonUpdateTOCs->setFont(ButtonFont);
-    connect(buttonUpdateTOCs, &QPushButton::clicked, this, &LayoutMain::UpdateTOCsSelected);
+    buttonUpdateTOCsME1 = new QPushButton("Update TOCs");
+    buttonUpdateTOCsME1->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+    buttonUpdateTOCsME1->setMinimumWidth(kButtonMinSmallWidth);
+    buttonUpdateTOCsME1->setMinimumHeight(kButtonMinHeight);
+    buttonUpdateTOCsME1->setFont(ButtonFont);
+    connect(buttonUpdateTOCsME1, &QPushButton::clicked, this, &LayoutMain::UpdateTOCsME1Selected);
 
-    buttonExtractDLCs = new QPushButton("Unpack DLCs");
-    buttonExtractDLCs->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    buttonExtractDLCs->setMinimumWidth(kButtonMinSmallWidth);
-    buttonExtractDLCs->setMinimumHeight(kButtonMinHeight);
-    buttonExtractDLCs->setFont(ButtonFont);
-    connect(buttonExtractDLCs, &QPushButton::clicked, this, &LayoutMain::ExtractDLCsSelected);
+    buttonUpdateTOCsME2 = new QPushButton("Update TOCs");
+    buttonUpdateTOCsME2->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+    buttonUpdateTOCsME2->setMinimumWidth(kButtonMinSmallWidth);
+    buttonUpdateTOCsME2->setMinimumHeight(kButtonMinHeight);
+    buttonUpdateTOCsME2->setFont(ButtonFont);
+    connect(buttonUpdateTOCsME2, &QPushButton::clicked, this, &LayoutMain::UpdateTOCsME2Selected);
+
+    buttonUpdateTOCsME3 = new QPushButton("Update TOCs");
+    buttonUpdateTOCsME3->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+    buttonUpdateTOCsME3->setMinimumWidth(kButtonMinSmallWidth);
+    buttonUpdateTOCsME3->setMinimumHeight(kButtonMinHeight);
+    buttonUpdateTOCsME3->setFont(ButtonFont);
+    connect(buttonUpdateTOCsME3, &QPushButton::clicked, this, &LayoutMain::UpdateTOCsME3Selected);
 
     buttonChangeGamePathME1 = new QPushButton("Change Game Path");
     buttonChangeGamePathME1->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -468,6 +475,7 @@ LayoutMain::LayoutMain(MainWindow *window)
     groupVertGameUtilitiesME1->setAlignment(Qt::AlignCenter);
     verticalLayoutMenuME1->addWidget(buttonGameUtilitiesME1, 1);
     groupVertGameUtilitiesME1->addWidget(buttonCheckGameFilesME1, 1);
+    groupVertGameUtilitiesME1->addWidget(buttonUpdateTOCsME1, 1);
     groupVertGameUtilitiesME1->addWidget(buttonChangeGamePathME1, 1);
 #if !defined(_WIN32)
     groupVertGameUtilitiesME1->addWidget(buttonChangeUserPathME1, 1);
@@ -480,6 +488,7 @@ LayoutMain::LayoutMain(MainWindow *window)
     groupVertGameUtilitiesME2->setAlignment(Qt::AlignCenter);
     verticalLayoutMenuME2->addWidget(buttonGameUtilitiesME2, 1);
     groupVertGameUtilitiesME2->addWidget(buttonCheckGameFilesME2, 1);
+    groupVertGameUtilitiesME2->addWidget(buttonUpdateTOCsME2, 1);
     groupVertGameUtilitiesME2->addWidget(buttonChangeGamePathME2, 1);
 #if !defined(_WIN32)
     groupVertGameUtilitiesME2->addWidget(buttonChangeUserPathME2, 1);
@@ -492,8 +501,7 @@ LayoutMain::LayoutMain(MainWindow *window)
     groupVertGameUtilitiesME3->setAlignment(Qt::AlignCenter);
     verticalLayoutMenuME3->addWidget(buttonGameUtilitiesME3, 1);
     groupVertGameUtilitiesME3->addWidget(buttonCheckGameFilesME3, 1);
-    groupVertGameUtilitiesME3->addWidget(buttonUpdateTOCs, 1);
-    groupVertGameUtilitiesME3->addWidget(buttonExtractDLCs, 1);
+    groupVertGameUtilitiesME3->addWidget(buttonUpdateTOCsME3, 1);
     groupVertGameUtilitiesME3->addWidget(buttonChangeGamePathME3, 1);
 #if !defined(_WIN32)
     groupVertGameUtilitiesME3->addWidget(buttonChangeUserPathME3, 1);
@@ -703,6 +711,7 @@ void LayoutMain::HideAllSubMenusME1()
     spacerBottomTextureUtilitiesME1->changeSize(0, 0);
     buttonGameUtilitiesME1->setChecked(false);
     buttonCheckGameFilesME1->hide();
+    buttonUpdateTOCsME1->hide();
     buttonChangeGamePathME1->hide();
 #if !defined(_WIN32)
     buttonChangeUserPathME1->hide();
@@ -724,6 +733,7 @@ void LayoutMain::HideAllSubMenusME2()
     spacerBottomTextureUtilitiesME2->changeSize(0, 0);
     buttonGameUtilitiesME2->setChecked(false);
     buttonCheckGameFilesME2->hide();
+    buttonUpdateTOCsME2->hide();
     buttonChangeGamePathME2->hide();
 #if !defined(_WIN32)
     buttonChangeUserPathME2->hide();
@@ -745,8 +755,7 @@ void LayoutMain::HideAllSubMenusME3()
     spacerBottomTextureUtilitiesME3->changeSize(0, 0);
     buttonGameUtilitiesME3->setChecked(false);
     buttonCheckGameFilesME3->hide();
-    buttonUpdateTOCs->hide();
-    buttonExtractDLCs->hide();
+    buttonUpdateTOCsME3->hide();
     buttonChangeGamePathME3->hide();
 #if !defined(_WIN32)
     buttonChangeUserPathME3->hide();
@@ -850,6 +859,7 @@ void LayoutMain::ButtonGameUtilitiesME1Selected()
     buttonGameUtilitiesME1->setChecked(checked);
     buttonModsManagerME1->setChecked(false);
     buttonCheckGameFilesME1->setHidden(!checked);
+    buttonUpdateTOCsME1->setHidden(!checked);
     buttonChangeGamePathME1->setHidden(!checked);
 #if !defined(_WIN32)
     buttonChangeUserPathME1->setHidden(!checked);
@@ -869,6 +879,7 @@ void LayoutMain::ButtonGameUtilitiesME2Selected()
     buttonGameUtilitiesME2->setChecked(checked);
     buttonModsManagerME2->setChecked(false);
     buttonCheckGameFilesME2->setHidden(!checked);
+    buttonUpdateTOCsME2->setHidden(!checked);
     buttonChangeGamePathME2->setHidden(!checked);
 #if !defined(_WIN32)
     buttonChangeUserPathME2->setHidden(!checked);
@@ -888,8 +899,7 @@ void LayoutMain::ButtonGameUtilitiesME3Selected()
     buttonGameUtilitiesME3->setChecked(checked);
     buttonModsManagerME3->setChecked(false);
     buttonCheckGameFilesME3->setHidden(!checked);
-    buttonUpdateTOCs->setHidden(!checked);
-    buttonExtractDLCs->setHidden(!checked);
+    buttonUpdateTOCsME3->setHidden(!checked);
     buttonChangeGamePathME3->setHidden(!checked);
 #if !defined(_WIN32)
     buttonChangeUserPathME3->setHidden(!checked);

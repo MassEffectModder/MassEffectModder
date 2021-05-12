@@ -24,7 +24,6 @@ equals(GUI_MODE, true) {
 TEMPLATE = app
 
 SOURCES += \
-    GameData/DLC.cpp \
     GameData/GameData.cpp \
     GameData/LODSettings.cpp \
     GameData/Package.cpp \
@@ -83,7 +82,6 @@ SOURCES += \
 PRECOMPILED_HEADER = Types/Precompiled.h
 
 HEADERS += \
-    GameData/DLC.h \
     GameData/GameData.h \
     GameData/LODSettings.h \
     GameData/Package.h \

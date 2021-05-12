@@ -95,8 +95,9 @@ private slots:
     void ChangeUserPathME2Selected() { ChangeUserPathSelected(MeType::ME2_TYPE); }
     void ChangeUserPathME3Selected() { ChangeUserPathSelected(MeType::ME3_TYPE); }
 #endif
-    void UpdateTOCsSelected();
-    void ExtractDLCsSelected();
+    void UpdateTOCsME1Selected() { UpdateTOCsSelected(MeType::ME1_TYPE); }
+    void UpdateTOCsME2Selected() { UpdateTOCsSelected(MeType::ME2_TYPE); }
+    void UpdateTOCsME3Selected() { UpdateTOCsSelected(MeType::ME3_TYPE); }
 
     void InstallModsME1Selected() { ButtonModsInstallerSelected(MeType::ME1_TYPE); }
     void InstallModsME2Selected() { ButtonModsInstallerSelected(MeType::ME2_TYPE); }
@@ -135,6 +136,7 @@ private:
     QSpacerItem   *spacerBottomTextureUtilitiesME1;
     QPushButton   *buttonGameUtilitiesME1;
     QPushButton   *buttonCheckGameFilesME1;
+    QPushButton   *buttonUpdateTOCsME1;
     QPushButton   *buttonChangeGamePathME1;
 #if !defined(_WIN32)
     QPushButton   *buttonChangeUserPathME1;
@@ -156,6 +158,7 @@ private:
     QSpacerItem   *spacerBottomTextureUtilitiesME2;
     QPushButton   *buttonGameUtilitiesME2;
     QPushButton   *buttonCheckGameFilesME2;
+    QPushButton   *buttonUpdateTOCsME2;
     QPushButton   *buttonChangeGamePathME2;
 #if !defined(_WIN32)
     QPushButton   *buttonChangeUserPathME2;
@@ -177,8 +180,7 @@ private:
     QSpacerItem   *spacerBottomTextureUtilitiesME3;
     QPushButton   *buttonGameUtilitiesME3;
     QPushButton   *buttonCheckGameFilesME3;
-    QPushButton   *buttonUpdateTOCs;
-    QPushButton   *buttonExtractDLCs;
+    QPushButton   *buttonUpdateTOCsME3;
     QPushButton   *buttonChangeGamePathME3;
 #if !defined(_WIN32)
     QPushButton   *buttonChangeUserPathME3;
@@ -212,13 +214,12 @@ private:
     void ApplyHQGfx(MeType gameType);
 
     void CheckGameFilesSelected(MeType gameType);
+    void UpdateTOCsSelected(MeType gameType);
     void ChangeGamePathSelected(MeType gameType);
 #if !defined(_WIN32)
     void ChangeUserPathSelected(MeType gameType);
 #endif
     static void CheckCallback(void *handle, int progress, const QString &stage);
-    static void ExtractDlcCallback(void *handle, int progress, const QString &stage);
-    static void RepackCallback(void *handle, int progress, const QString &stage);
 
     void ExtractModsSelected(MeType gameType);
     void CreateModSelected(MeType gameType);

@@ -38,14 +38,8 @@ void DisplayHelp()
         "  --scan-textures --gameid <game id> [--remove-empty-mips] [--ipc]\n" \
         "     Scan game data for textures.\n" \
         "\n" \
-        "  --update-toc\n" \
-        "     Update TOC files in ME3.\n" \
-        "\n" \
-        "  --unpack-dlcs [--ipc]\n" \
-        "     Unpack ME3 DLCs.\n" \
-        "\n" \
-        "  --repack --gameid <game id> [--ipc]\n" \
-        "     Repack ME2 or ME3 packages.\n" \
+        "  --update-toc --gameid <game id>\n" \
+        "     Update TOC files\n" \
         "\n" \
         "  --check-game-data-after --gameid <game id> [--ipc]\n" \
         "     Check game data for mods installed after textures installation.\n" \
