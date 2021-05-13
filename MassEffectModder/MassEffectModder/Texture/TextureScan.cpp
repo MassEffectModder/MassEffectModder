@@ -60,7 +60,7 @@ void TreeScan::loadTexturesMap(MeType gameId, Resources &resources, QList<Textur
     else
         pkgs = resources.tablePkgsME3;
 
-    FileStream tmp = FileStream(QString(":/me%1map.bin").arg((int)gameId), FileMode::Open, FileAccess::ReadOnly);
+    FileStream tmp = FileStream(QString(":/mele%1map.bin").arg((int)gameId), FileMode::Open, FileAccess::ReadOnly);
     if (tmp.ReadUInt32() != 0x504D5443)
         CRASH();
     ByteBuffer decompressed(tmp.ReadInt32());
@@ -262,7 +262,7 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
             "/MassEffectModder";
     if (!QDir(path).exists())
         QDir(path).mkpath(path);
-    QString filename = path + QString("/me%1map.bin").arg((int)gameId);
+    QString filename = path + QString("/mele%1map.bin").arg((int)gameId);
 
 #ifdef GUI
     QElapsedTimer timer;

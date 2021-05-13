@@ -101,7 +101,7 @@ int runQtApplication(int argc, char *argv[])
             "/MassEffectModder/Logs";
     QDir().mkpath(path);
     auto dateTime = QDateTime::currentDateTime();
-    QString logFile = QString::asprintf("/MEMLog-%04d%02d%02d_%08d.txt", dateTime.date().year(),
+    QString logFile = QString::asprintf("/MEMLogLE-%04d%02d%02d_%08d.txt", dateTime.date().year(),
             dateTime.date().month(), dateTime.date().day(), dateTime.time().msecsSinceStartOfDay());
     g_logs->EnableOutputFile(path + "/" + logFile, true);
     g_logs->ChangeLogLevel(LOG_INFO);

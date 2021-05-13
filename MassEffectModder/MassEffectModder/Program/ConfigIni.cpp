@@ -80,7 +80,7 @@ ConfigIni::ConfigIni(const QString &iniPath, bool mode, bool unixMode)
         _iniPath = path + "/MassEffectModder.ini";
         valid = true;
 #else
-        settings = new QSettings(path + "/MassEffectModder.ini", QSettings::IniFormat);
+        settings = new QSettings(path + "/MassEffectModderLE.ini", QSettings::IniFormat);
         if (settings->status() == QSettings::NoError)
             valid = true;
 #endif

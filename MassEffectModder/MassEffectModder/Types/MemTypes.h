@@ -53,9 +53,9 @@ typedef enum
 } TextureType;
 
 #define textureMapBinTag      0x5054454D
-#define textureMapBinVersion  2
+#define textureMapBinVersion  1
 #define TextureModTag         0x444F4D54
-#define TextureModVersion     2
+#define TextureModVersion     3
 #define FileTextureTag        0x53444446
 #define FileTextureTag2       0x53444443
 #define FileMovieTextureTag   0x53494246
