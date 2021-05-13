@@ -364,6 +364,8 @@ bool CmdLineTools::convertImage(QString &inputFile, QString &outputFile, QString
         pixFmt = PixelFormat::ARGB;
     else if (format == "rgb")
         pixFmt = PixelFormat::RGB;
+    else if (format == "rgba")
+        pixFmt = PixelFormat::RGBA;
     else if (format == "g8")
         pixFmt = PixelFormat::G8;
     else

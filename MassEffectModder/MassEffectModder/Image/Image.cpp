@@ -295,6 +295,7 @@ ByteBuffer Image::convertRawToARGB(const quint8 *src, int w, int h, PixelFormat 
             tmpPtr = ByteBuffer(src, w * h * 4);
             break;
         }
+        case PixelFormat::RGBA: tmpPtr = RGBAToARGB(src, w, h); break;
         case PixelFormat::RGB: tmpPtr = RGBToARGB(src, w, h); break;
         case PixelFormat::V8U8: tmpPtr = V8U8ToARGB(src, w, h); break;
         case PixelFormat::G8: tmpPtr = G8ToARGB(src, w, h); break;
@@ -314,6 +315,11 @@ ByteBuffer Image::convertRawToRGB(const quint8 *src, int w, int h, PixelFormat f
     auto dataRGB = ARGBtoRGB(dataARGB.ptr(), w, h);
     dataARGB.Free();
     return dataRGB;
+}
+
+ByteBuffer Image::convertRawToRGBA(const quint8 *src, int w, int h, PixelFormat format, bool clearAlpha)
+{
+    return convertRawToARGB(src, w, h, format, clearAlpha);
 }
 
 ByteBuffer Image::convertRawToBGR(const quint8 *src, int w, int h, PixelFormat format)
@@ -350,6 +356,20 @@ ByteBuffer Image::RGBToARGB(const quint8 *src, int w, int h)
         ptr[4 * i + 1] = src[3 * i + 1];
         ptr[4 * i + 2] = src[3 * i + 2];
         ptr[4 * i + 3] = 255;
+    }
+    return tmpData;
+}
+
+ByteBuffer Image::RGBAToARGB(const quint8 *src, int w, int h)
+{
+    ByteBuffer tmpData(w * h * 4);
+    quint8 *ptr = tmpData.ptr();
+    for (int i = 0; i < w * h; i++)
+    {
+        ptr[4 * i + 0] = src[4 * i + 2];
+        ptr[4 * i + 1] = src[4 * i + 1];
+        ptr[4 * i + 2] = src[4 * i + 0];
+        ptr[4 * i + 3] = src[4 * i + 3];
     }
     return tmpData;
 }
@@ -569,6 +589,9 @@ ByteBuffer Image::convertToFormat(PixelFormat srcFormat, const quint8 *src, int 
         }
         case PixelFormat::ARGB:
             tempData = convertRawToARGB(src, w, h, srcFormat);
+            break;
+        case PixelFormat::RGBA:
+            tempData = convertRawToRGBA(src, w, h, srcFormat);
             break;
         case PixelFormat::RGB:
             tempData = convertRawToRGB(src, w, h, srcFormat);

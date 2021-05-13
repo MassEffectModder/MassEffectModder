@@ -61,12 +61,6 @@ void Image::LoadImageDDS(Stream &stream)
 
     ddsPixelFormat.flags = stream.ReadUInt32();
     ddsPixelFormat.fourCC = stream.ReadUInt32();
-    if ((ddsPixelFormat.flags & DDPF_FOURCC) != 0 && ddsPixelFormat.fourCC == FOURCC_DX10_TAG)
-    {
-        PERROR("DX10 DDS format not supported.\n");
-        return;
-    }
-
     ddsPixelFormat.bits = stream.ReadUInt32();
     ddsPixelFormat.Rmask = stream.ReadUInt32();
     ddsPixelFormat.Gmask = stream.ReadUInt32();
@@ -146,11 +140,77 @@ void Image::LoadImageDDS(Stream &stream)
             pixelFormat = PixelFormat::ATI2;
             break;
 
+        case FOURCC_DX10_TAG:
+            DX10Type = true;
+            break;
+
         default:
             PERROR("Not supported DDS format.\n");
             return;
     }
     stream.Skip(20); // dwCaps, dwCaps2, dwCaps3, dwCaps4, dwReserved2
+
+    DDS_FORMAT dds10Format = DDS_FORMAT_UNKNOWN;
+    DDS_RESOURCE_DIMENSION dds10ResDim = DDS_RESOURCE_DIMENSION_UNKNOWN;
+    quint32 dds10NumElements = 0;
+    if (DX10Type)
+    {
+        dds10Format = (DDS_FORMAT)stream.ReadUInt32();
+        dds10ResDim = (DDS_RESOURCE_DIMENSION)stream.ReadUInt32();
+        if (dds10ResDim != DDS_RESOURCE_DIMENSION_TEXTURE2D)
+        {
+            PERROR("DDS DX10 dimension resource different than Texture2D is not supported.\n");
+            return;
+        }
+        auto miscFlags = (DDS_RESOURCE_MISC_FLAG)stream.ReadUInt32();
+        if (miscFlags & DDS_RESOURCE_MISC_TEXTURECUBE)
+        {
+            PERROR("DDS DX10 dimension resource flag cube is not supported.\n");
+            return;
+        }
+        dds10NumElements = stream.ReadUInt32();
+        if (dds10NumElements != 1)
+        {
+            PERROR("DDS DX10 number of elements must be 1.\n");
+            return;
+        }
+        auto miscFlags2 = (DDS_ALPHA_MODE)stream.ReadUInt32();
+        if (miscFlags2 != DDS_ALPHA_MODE_UNKNOWN && miscFlags2 != DDS_ALPHA_MODE_OPAQUE)
+        {
+            PERROR("DDS DX10 alpha mode different than opaque is not supported.\n");
+            return;
+        }
+
+        switch (dds10Format)
+        {
+            case DDS_FORMAT_R8G8B8A8_UNORM:
+                pixelFormat = PixelFormat::RGBA;
+                break;
+            case DDS_FORMAT_R8_UNORM:
+                pixelFormat = PixelFormat::G8;
+                DX10Type = false;
+                break;
+            case DDS_FORMAT_BC1_UNORM:
+                pixelFormat = PixelFormat::DXT1;
+                DX10Type = false;
+                break;
+            case DDS_FORMAT_BC2_UNORM:
+                pixelFormat = PixelFormat::DXT3;
+                DX10Type = false;
+                break;
+            case DDS_FORMAT_BC3_UNORM:
+                pixelFormat = PixelFormat::DXT5;
+                DX10Type = false;
+                break;
+            case DDS_FORMAT_BC5_UNORM:
+                pixelFormat = PixelFormat::ATI2;
+                DX10Type = false;
+                break;
+            default:
+                PERROR("Not supported DDS DX10 format.\n");
+                return;
+        }
+    }
 
     for (int i = 0; i < dwMipMapCount; i++)
     {
@@ -297,6 +357,11 @@ Image::DDS_PF Image::getDDSPixelFormat(PixelFormat format)
             pixelFormat.Rmask = 0xFF;
             break;
 
+        case PixelFormat::RGBA:
+            pixelFormat.flags = DDPF_FOURCC;
+            pixelFormat.fourCC = FOURCC_DX10_TAG;
+            break;
+
         default:
             CRASH_MSG("Invalid texture format.");
     }
@@ -338,6 +403,28 @@ void Image::StoreImageToDDS(Stream &stream, PixelFormat format)
     stream.WriteUInt32(0); // dwCaps3
     stream.WriteUInt32(0); // dwCaps4
     stream.WriteUInt32(0); // dwReserved2
+
+    DDS_FORMAT dds10Format;
+    switch (format == PixelFormat::UnknownPixelFormat ? pixelFormat : format)
+    {
+        case PixelFormat::RGBA:
+            dds10Format = DDS_FORMAT_R8G8B8A8_UNORM;
+            DX10Type = true;
+            break;
+        default:
+            CRASH_MSG("Not supported DDS DX10 format.\n");
+            return;
+    }
+
+    if (DX10Type)
+    {
+        stream.WriteUInt32(dds10Format);
+        stream.WriteUInt32(DDS_RESOURCE_DIMENSION_TEXTURE2D); // RESOURCE_DIMENSION
+        stream.WriteUInt32(0); // miscFlag
+        stream.WriteUInt32(1); // arraySize
+        stream.WriteUInt32(DDS_ALPHA_MODE_OPAQUE); // miscFlag2
+    }
+
     for (int i = 0; i < mipMaps.count(); i++)
     {
         stream.WriteFromBuffer(mipMaps[i]->getRefData().ptr(),

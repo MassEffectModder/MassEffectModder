@@ -79,7 +79,7 @@ void DisplayHelp()
         "        MEM, TPF\n" \
         "        DDS, BMP, TGA, PNG\n" \
         "           input format supported for DDS images:\n" \
-        "              DXT1, DXT3, DTX5, ATI2, V8U8, G8, ARGB, RGB\n" \
+        "              DXT1, DXT3, DTX5, ATI2, V8U8, G8, ARGB, RGB, RGBA\n" \
         "           input format supported for TGA images:\n" \
         "              uncompressed ARGB/RGB, compressed ARGB/RGB\n" \
         "           input format supported for BMP images:\n" \
@@ -94,7 +94,7 @@ void DisplayHelp()
         "     Input file with following extension:\n" \
         "        DDS, BMP, TGA, PNG\n" \
         "           input format supported for DDS images:\n" \
-        "              DXT1, DXT3, DTX5, ATI2, V8U8, G8, ARGB, RGB\n" \
+        "              DXT1, DXT3, DTX5, ATI2, V8U8, G8, ARGB, RGB, RGBA\n" \
         "           input format supported for TGA images:\n" \
         "              uncompressed ARGB/RGB, compressed ARGB/RGB\n" \
         "           input format supported for BMP images:\n" \
@@ -108,7 +108,7 @@ void DisplayHelp()
         "        Input files with following extension:\n" \
         "        DDS, BMP, TGA, PNG\n" \
         "           input format supported for DDS images:\n" \
-        "              DXT1, DXT3, DTX5, ATI2, V8U8, G8, ARGB, RGB\n" \
+        "              DXT1, DXT3, DTX5, ATI2, V8U8, G8, ARGB, RGB, RGBA\n" \
         "           input format supported for TGA images:\n" \
         "              uncompressed ARGB/RGB, compressed ARGB/RGB\n" \
         "           input pixel format supported for BMP images:\n" \
@@ -120,29 +120,17 @@ void DisplayHelp()
         "     game id: 1 for ME1, 2 for ME2, 3 for ME3\n" \
         "     input dir: directory of MEM mod file(s)\n" \
         "     input file: MEM file to be extracted\n" \
-        "     Can extract textures and package export raw data\n" \
-        "     Naming pattern used for package in DLC:\n" \
-        "        D<DLC dir length>-<DLC dir>-<pkg filename length>-<pkg filename>-E<pkg export id>.bin\n" \
-        "        example: D10-DLC_HEN_PR-23-BioH_EDI_02_Explore.pcc-E6101.bin\n" \
-        "     Naming pattern used for package in base directory:\n" \
-        "        B<pkg filename length>-<pkg filename>-E<pkg export id>.bin\n" \
-        "        example: B23-BioH_EDI_00_Explore.pcc-E5090.bin\n" \
-        "\n" \
-        "  --extract-tpf --gameid <game id> --input <input dir/file> [--output <output dir>] [--ipc]\n" \
-        "     input dir: directory containing the TPF file(s) to be extracted\n" \
-        "     input file: TPF file to be extracted\n" \
-        "     Textures are extracted as they are in the TPF, no additional modifications are made.\n" \
         "\n" \
         "  --convert-image --format <output pixel format> [--threshold <dxt1 alpha threshold>] --input <input image> --output <output image>\n" \
         "     input image file types: DDS, BMP, TGA, PNG\n" \
         "           input format supported for DDS images:\n" \
-        "              DXT1, DXT3, DTX5, ATI2, V8U8, G8, ARGB, RGB\n" \
+        "              DXT1, DXT3, DTX5, ATI2, V8U8, G8, ARGB, RGB, RGBA\n" \
         "           input format supported for TGA images:\n" \
         "              uncompressed ARGB/RGB, compressed ARGB/RGB\n" \
         "           input format supported for BMP images:\n" \
         "              uncompressed ARGB/RGB/RGBX\n" \
         "     output image file type: DDS\n" \
-        "     output pixel format: DXT1 (no alpha), DXT1a (alpha), DXT3, DXT5, ATI2, V8U8, G8, ARGB, RGB\n" \
+        "     output pixel format: DXT1 (no alpha), DXT1a (alpha), DXT3, DXT5, ATI2, V8U8, G8, ARGB, RGB, RGBA\n" \
         "     For DXT1a you have to set the alpha threshold (0-255). 128 is suggested as a default value.\n" \
         "\n" \
         "  --extract-all-dds --gameid <game id> --output <output dir> [--tfc-name <filter name>|--pcc-only|--tfc-only] [--package-path <path>] [--map-crc]\n" \
@@ -174,11 +162,6 @@ void DisplayHelp()
         "     Package path: single package mode.\n" \
         "     Map Crc: it will try to find vanilla texture crc from texture map.\n" \
         "     Textures are extracted as they are in game data.\n" \
-        "\n" \
-        "  --compact-dlc --gameid <game id> --dlc-name <DLC name> [--pull-textures] [--no-compression] [--ipc]\n" \
-        "     Compact textures in TFC, repack textures according compression flag.\n" \
-        "     DLC name is DLC folder name.\n" \
-        "     Pull textures option make DLC as standalone, not depend on external TFC files.\n" \
         "\n" \
         "  --set-game-data-path --gameid <game id> --path <path>\n" \
         "     game id: 1 for ME1, 2 for ME2, 3 for ME3\n" \
