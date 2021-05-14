@@ -223,7 +223,7 @@ bool LayoutTexturesManager::Startup()
 
     QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
             "/MassEffectModder";
-    QString filename = path + QString("/me%1map.bin").arg(static_cast<int>(gameType));
+    QString filename = path + QString("/mele%1map.bin").arg(static_cast<int>(gameType));
     if (QFile::exists(filename))
     {
         FileStream fs = FileStream(filename, FileMode::Open, FileAccess::ReadOnly);
@@ -744,10 +744,7 @@ void LayoutTexturesManager::UpdateGui()
             rightView->setCurrentIndex(kRightWidgetList);
         else
             rightView->setCurrentIndex(kRightWidgetImage);
-        if (gameType != MeType::ME1_TYPE)
-            buttonPackageSingle->setEnabled(textureSelected && !singlePackageMode);
-        else
-            buttonPackageSingle->setEnabled(false);
+        buttonPackageSingle->setEnabled(textureSelected && !singlePackageMode);
         buttonPackageMulti->setEnabled(textureSelected && singlePackageMode);
     }
     else
@@ -756,10 +753,7 @@ void LayoutTexturesManager::UpdateGui()
             rightView->setCurrentIndex(kRightWidgetList);
         else
             rightView->setCurrentIndex(kRightWidgetText);
-        if (gameType != MeType::ME1_TYPE)
-            buttonPackageSingle->setEnabled(textureSelected && !singlePackageMode);
-        else
-            buttonPackageSingle->setEnabled(false);
+        buttonPackageSingle->setEnabled(textureSelected && !singlePackageMode);
         buttonPackageMulti->setEnabled(textureSelected & singlePackageMode);
     }
 }

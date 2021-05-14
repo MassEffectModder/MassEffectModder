@@ -231,13 +231,10 @@ int Package::Open(const QString &filename, bool headerOnly, bool fullLoad)
     else
         loadDepends(*packageStream);
 
-    if (packageFileVersion == packageFileVersionME3)
-    {
-        if (getCompressedFlag())
-            loadGuids(*packageData);
-        else
-            loadGuids(*packageStream);
-    }
+    if (getCompressedFlag())
+        loadGuids(*packageData);
+    else
+        loadGuids(*packageStream);
 
     if (fullLoad)
     {
@@ -452,17 +449,6 @@ bool Package::ReserveSpaceBeforeExportData(int space)
         {
             return false;
         }
-        if (packageFileVersion == packageFileVersionME1)
-        {
-            int id = getClassNameId(sortedExports[i].getClassId());
-            if (id == nameIdTexture2D ||
-                id == nameIdLightMapTexture2D ||
-                id == nameIdShadowMapTexture2D ||
-                id == nameIdTextureFlipBook)
-            {
-                return false;
-            }
-        }
         expandDataSize += sortedExports[i].getDataSize();
         if (!dryRun)
             MoveExportDataToEnd((int)sortedExports[i].id);
@@ -536,10 +522,6 @@ int Package::addName(const QString &name)
 
     NameEntry entry{};
     entry.name = name;
-    if (packageFileVersion == packageFileVersionME1)
-        entry.flags = 0x0007001000000000ULL;
-    if (packageFileVersion == packageFileVersionME2)
-        entry.flags = 0xfffffff2;
     namesTable.push_back(entry);
     setNamesCount(namesTable.count());
     namesTableModified = true;
@@ -557,22 +539,10 @@ void Package::loadNames(Stream &input)
         if (len < 0) // unicode
         {
             entry.name = "";
-            if (packageFileVersion == packageFileVersionME3)
+            for (int n = 0; n < -len; n++)
             {
-                for (int n = 0; n < -len; n++)
-                {
-                    quint16 c = input.ReadUInt16();
-                    entry.name += QChar(static_cast<ushort>(c));
-                }
-            }
-            else
-            {
-                for (int n = 0; n < -len; n++)
-                {
-                    quint8 c = input.ReadByte();
-                    input.ReadByte();
-                    entry.name += (char)c;
-                }
+                quint16 c = input.ReadUInt16();
+                entry.name += QChar(static_cast<ushort>(c));
             }
         }
         else
@@ -592,11 +562,6 @@ void Package::loadNames(Stream &input)
             nameIdTextureFlipBook = i;
         else if (nameIdTextureFlipBook == -1 && entry.name == "TextureMovie")
             nameIdTextureMovie = i;
-
-        if (packageFileVersion == packageFileVersionME1)
-            entry.flags = input.ReadUInt64();
-        if (packageFileVersion == packageFileVersionME2)
-            entry.flags = input.ReadUInt32();
 
         namesTable.push_back(entry);
     }
@@ -627,20 +592,8 @@ void Package::saveNames(Stream &output)
             {
                 output.WriteInt32(0);
             }
-            else if (packageFileVersion == packageFileVersionME3)
-            {
-                output.WriteInt32(-(entry.name.length() + 1));
-                output.WriteStringUnicode16Null(entry.name);
-            }
-            else
-            {
-                output.WriteInt32(entry.name.length() + 1);
-                output.WriteStringASCIINull(entry.name);
-            }
-            if (packageFileVersion == packageFileVersionME1)
-                output.WriteUInt64(entry.flags);
-            if (packageFileVersion == packageFileVersionME2)
-                output.WriteUInt32(entry.flags);
+            output.WriteInt32(-(entry.name.length() + 1));
+            output.WriteStringUnicode16Null(entry.name);
         }
     }
 }
@@ -691,10 +644,7 @@ void Package::saveExtraNames(Stream &output, bool rawMode)
     {
         if (rawMode)
         {
-            if (packageFileVersion == packageFileVersionME3)
-                output.WriteInt32(-(extraNamesTable[c].raw.size() / 2));
-            else
-                output.WriteInt32(extraNamesTable[c].raw.size());
+            output.WriteInt32(-(extraNamesTable[c].raw.size() / 2));
             output.WriteFromBuffer(extraNamesTable[c].raw.ptr(), extraNamesTable[c].raw.size());
         }
         else
@@ -703,16 +653,8 @@ void Package::saveExtraNames(Stream &output, bool rawMode)
             {
                 output.WriteInt32(0);
             }
-            else if (packageFileVersion == packageFileVersionME3)
-            {
-                output.WriteInt32(-(extraNamesTable[c].name.length() + 1));
-                output.WriteStringUnicode16Null(extraNamesTable[c].name);
-            }
-            else
-            {
-                output.WriteInt32(extraNamesTable[c].name.length() + 1);
-                output.WriteStringASCIINull(extraNamesTable[c].name);
-            }
+            output.WriteInt32(-(extraNamesTable[c].name.length() + 1));
+            output.WriteStringUnicode16Null(extraNamesTable[c].name);
         }
     }
 }
@@ -788,10 +730,6 @@ void Package::loadExports(Stream &input)
 
         long start = input.Position();
         input.Skip(entry.DataOffsetOffset + 4);
-        if (packageFileVersion != packageFileVersionME3)
-        {
-            input.Skip(input.ReadUInt32() * 12); // skip entries
-        }
         input.SkipInt32();
         input.Skip(input.ReadUInt32() * 4 + 16 + 4); // skip entries + skip guid + some
 
@@ -867,9 +805,6 @@ void Package::saveGuids(Stream &output)
 
 bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appendMarker)
 {
-    if (packageFileVersion == packageFileVersionME1)
-        forceCompressed = false;
-
     if (!modified && !forceDecompressed && !forceCompressed)
         return false;
 
@@ -894,8 +829,6 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
     tempOutput.WriteUInt32(targetCompression);
     tempOutput.WriteUInt32(0); // number of chunks - filled later if needed
     tempOutput.WriteUInt32(someTag);
-    if (packageFileVersion == packageFileVersionME2)
-        tempOutput.WriteUInt32(0); // const 0
     saveExtraNames(tempOutput);
     dataOffset = tempOutput.Position();
 
@@ -907,13 +840,10 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
     if (tempOutput.Position() > sortedExports[0].getDataOffset())
         CRASH();
 
-    if (packageFileVersion == packageFileVersionME3)
-    {
-        setGuidsOffset(tempOutput.Position());
-        saveGuids(tempOutput);
-        if (tempOutput.Position() > sortedExports[0].getDataOffset())
-            CRASH();
-    }
+    setGuidsOffset(tempOutput.Position());
+    saveGuids(tempOutput);
+    if (tempOutput.Position() > sortedExports[0].getDataOffset())
+        CRASH();
 
     bool spaceForNamesAvailable = true;
     bool spaceForImportsAvailable = true;
@@ -1102,8 +1032,6 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
         fs->WriteUInt32(chunks.count());
         fs->Skip(SizeOfChunk * chunks.count()); // skip chunks table - filled later
         fs->WriteUInt32(someTag);
-        if (packageFileVersion == packageFileVersionME2)
-            fs->WriteUInt32(0); // const 0
         saveExtraNames(*fs);
 
 #ifdef GUI

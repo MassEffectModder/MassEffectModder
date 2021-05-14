@@ -70,21 +70,14 @@ void Properties::getProperty(quint8 *data, int offset)
             property.type == "ObjectProperty")
         {
         }
-        else if (property.type == "StructProperty")
+        else if (property.type == "StructProperty" ||
+                 property.type == "ByteProperty")
         {
             size += 8;
         }
-        else if (property.type == "ByteProperty")
-        {
-            if (GameData::gameType == MeType::ME3_TYPE)
-                size += 8;
-        }
         else if (property.type == "BoolProperty")
         {
-            if (GameData::gameType == MeType::ME3_TYPE)
-                size = 1;
-            else
-                size = 4;
+            size = 1;
         }
         else
             CRASH("");
@@ -140,17 +133,9 @@ void Properties::fetchValue(int index)
     }
     else if (property.type == "ByteProperty")
     {
-        if (GameData::gameType == MeType::ME3_TYPE)
-        {
-            property.valueNameType = package->getName(*reinterpret_cast<qint32 *>(property.valueRaw.ptr() + 0));
-            property.valueName = package->getName(*reinterpret_cast<qint32 *>(property.valueRaw.ptr() + 8));
-            property.valueInt = *reinterpret_cast<qint32 *>(property.valueRaw.ptr() + 12);
-        }
-        else
-        {
-            property.valueName = package->getName(*reinterpret_cast<qint32 *>(property.valueRaw.ptr() + 0));
-            property.valueInt = *reinterpret_cast<qint32 *>(property.valueRaw.ptr()  + 4);
-        }
+        property.valueNameType = package->getName(*reinterpret_cast<qint32 *>(property.valueRaw.ptr() + 0));
+        property.valueName = package->getName(*reinterpret_cast<qint32 *>(property.valueRaw.ptr() + 8));
+        property.valueInt = *reinterpret_cast<qint32 *>(property.valueRaw.ptr() + 12);
     }
     else if (property.type == "BoolProperty")
     {
@@ -162,21 +147,10 @@ void Properties::fetchValue(int index)
         if (len < 0) // unicode
         {
             property.valueName = "";
-            if (GameData::gameType == MeType::ME3_TYPE)
+            for (int n = 0; n < -len; n++)
             {
-                for (int n = 0; n < -len; n++)
-                {
-                    quint16 c = *reinterpret_cast<qint16 *>(property.valueRaw.ptr() + 4 + n);
-                    property.valueName += QChar(static_cast<ushort>(c));
-                }
-            }
-            else
-            {
-                for (int n = 0; n < -len; n++)
-                {
-                    quint8 c = *reinterpret_cast<qint8 *>(property.valueRaw.ptr() + 4 + n);
-                    property.valueName += (char)c;
-                }
+                quint16 c = *reinterpret_cast<qint16 *>(property.valueRaw.ptr() + 4 + n);
+                property.valueName += QChar(static_cast<ushort>(c));
             }
         }
         else
@@ -234,8 +208,7 @@ QString Properties::getDisplayString(int index)
     }
     else if (property.type == "ByteProperty")
     {
-        if (GameData::gameType == MeType::ME3_TYPE)
-            result += property.valueNameType + ": ";
+        result += property.valueNameType + ": ";
         result += property.valueName + ": ";
         result += QString::number(property.valueInt) + "\n";
     }
@@ -395,15 +368,8 @@ void Properties::setByteValue(const QString &name, const QString &valueName,
     }
     else
     {
-        if (GameData::gameType == MeType::ME3_TYPE)
-        {
-            property.valueRaw = ByteBuffer(16);
-            memset(property.valueRaw.ptr() + 4, 0, sizeof(qint32));
-        }
-        else
-        {
-            property.valueRaw = ByteBuffer(8);
-        }
+        property.valueRaw = ByteBuffer(16);
+        memset(property.valueRaw.ptr() + 4, 0, sizeof(qint32));
         property.type = "ByteProperty";
         if (!package->existsNameId(property.type))
             package->addName(property.type);
@@ -416,22 +382,13 @@ void Properties::setByteValue(const QString &name, const QString &valueName,
 
     if (!package->existsNameId(valueName))
         package->addName(valueName);
-    if (GameData::gameType == MeType::ME3_TYPE)
-    {
-        if (!package->existsNameId(valueNameType))
-            package->addName(valueNameType);
-        qint32 nameTypeId = package->getNameId(valueNameType);
-        qint32 nameId = package->getNameId(valueName);
-        memcpy(property.valueRaw.ptr(), &nameTypeId, sizeof(qint32));
-        memcpy(property.valueRaw.ptr() + 8, &nameId, sizeof(qint32));
-        memcpy(property.valueRaw.ptr() + 12, &valueInt, sizeof(qint32));
-    }
-    else
-    {
-        qint32 nameId = package->getNameId(valueName);
-        memcpy(property.valueRaw.ptr() + 0, &nameId, sizeof(qint32));
-        memcpy(property.valueRaw.ptr() + 4, &valueInt, sizeof(qint32));
-    }
+    if (!package->existsNameId(valueNameType))
+        package->addName(valueNameType);
+    qint32 nameTypeId = package->getNameId(valueNameType);
+    qint32 nameId = package->getNameId(valueName);
+    memcpy(property.valueRaw.ptr(), &nameTypeId, sizeof(qint32));
+    memcpy(property.valueRaw.ptr() + 8, &nameId, sizeof(qint32));
+    memcpy(property.valueRaw.ptr() + 12, &valueInt, sizeof(qint32));
     property.valueName = valueName;
     property.valueInt = valueInt;
     if (exists(name))
@@ -467,15 +424,7 @@ void Properties::setBoolValue(const QString &name, bool value)
     }
     else
     {
-        if (GameData::gameType == MeType::ME3_TYPE)
-        {
-            property.valueRaw = ByteBuffer(1);
-        }
-        else
-        {
-            property.valueRaw = ByteBuffer(4);
-            memset(property.valueRaw.ptr() + 1, 0, 3);
-        }
+        property.valueRaw = ByteBuffer(1);
         property.type = "BoolProperty";
         if (!package->existsNameId(property.type))
             package->addName(property.type);
@@ -588,23 +537,12 @@ void Properties::setStrValue(const QString &name, const QString &valueName)
     qint32 len = valueName.length();
     if (len != 0)
         len += 1;
-    if (GameData::gameType == MeType::ME3_TYPE)
-    {
-        len *= 2;
-        property.valueRaw = ByteBuffer(len + 4);
-        auto s = const_cast<ushort *>(valueName.utf16());
-        memcpy(property.valueRaw.ptr() + 4, s, valueName.length() * 2);
-        memset(property.valueRaw.ptr() + 8 + valueName.length() * 2, 0, sizeof(qint16));
-        len = -len;
-    }
-    else
-    {
-        property.valueRaw = ByteBuffer(len + 4);
-        std::string string = valueName.toStdString();
-        auto s = const_cast<char *>(string.c_str());
-        memcpy(property.valueRaw.ptr() + 4, s, valueName.length());
-        memset(property.valueRaw.ptr() + 8 + valueName.length(), 0, sizeof(qint8));
-    }
+    len *= 2;
+    property.valueRaw = ByteBuffer(len + 4);
+    auto s = const_cast<ushort *>(valueName.utf16());
+    memcpy(property.valueRaw.ptr() + 4, s, valueName.length() * 2);
+    memset(property.valueRaw.ptr() + 8 + valueName.length() * 2, 0, sizeof(qint16));
+    len = -len;
     memcpy(property.valueRaw.ptr(), &len, sizeof(qint32));
     property.valueName = valueName;
 
@@ -695,14 +633,10 @@ ByteBuffer Properties::toArray()
         mem.WriteInt32(package->getNameId(propertyList[i].type));
         mem.WriteInt32(0); // skip
         int size = propertyList[i].valueRaw.size();
-        if (propertyList[i].type == "StructProperty")
+        if (propertyList[i].type == "StructProperty" ||
+            propertyList[i].type == "ByteProperty")
         {
             size -= 8;
-        }
-        else if (propertyList[i].type == "ByteProperty")
-        {
-            if (GameData::gameType == MeType::ME3_TYPE)
-                size -= 8;
         }
         else if (propertyList[i].type == "BoolProperty")
         {
