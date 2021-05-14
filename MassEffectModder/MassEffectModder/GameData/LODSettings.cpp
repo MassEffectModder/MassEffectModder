@@ -391,70 +391,16 @@ void LODSettings::removeLOD(MeType gameId, ConfigIni &engineConf)
     }
 }
 
-void LODSettings::updateGFXSettings(MeType gameId, ConfigIni &engineConf)
+void LODSettings::updateGFXSettings(MeType gameId, ConfigIni &/*engineConf*/)
 {
     if (gameId == MeType::ME1_TYPE)
     {
-        engineConf.Write("MaxShadowResolution", "2048", "Engine.Engine");
-        engineConf.Write("MaxShadowResolution", "2048", "Engine.GameEngine");
-        engineConf.Write("MinShadowResolution", "64", "Engine.Engine");
-        engineConf.Write("MinShadowResolution", "64", "Engine.GameEngine");
-        engineConf.Write("DynamicShadows", "True", "SystemSettings");
-        engineConf.Write("EnableDynamicShadows", "True", "WinDrv.WindowsClient");
-        engineConf.Write("DepthBias", "0.030000", "Engine.Engine");
-        engineConf.Write("DepthBias", "0.030000", "Engine.GameEngine");
-        engineConf.Write("ShadowFilterQualityBias", "2", "SystemSettings");
-        engineConf.Write("ShadowFilterRadius", "4", "Engine.Engine");
-        engineConf.Write("ShadowFilterRadius", "4", "Engine.GameEngine");
-        engineConf.Write("bEnableBranchingPCFShadows", "True", "Engine.Engine");
-        engineConf.Write("bEnableBranchingPCFShadows", "True", "Engine.GameEngine");
-        engineConf.Write("MaxAnisotropy", "16", "SystemSettings");
-        engineConf.Write("TextureLODLevel", "3", "WinDrv.WindowsClient");
-        engineConf.Write("FilterLevel", "2", "WinDrv.WindowsClient");
-        engineConf.Write("Trilinear", "True", "SystemSettings");
-        engineConf.Write("MotionBlur", "True", "SystemSettings");
-        engineConf.Write("DepthOfField", "True", "SystemSettings");
-        engineConf.Write("Bloom", "True", "SystemSettings");
-        engineConf.Write("QualityBloom", "True", "SystemSettings");
-        engineConf.Write("ParticleLODBias", "-1", "SystemSettings");
-        engineConf.Write("SkeletalMeshLODBias", "-1", "SystemSettings");
-        engineConf.Write("DetailMode", "2", "SystemSettings");
-        engineConf.Write("PoolSize", "1536", "TextureStreaming");
-        engineConf.Write("MinTimeToGuaranteeMinMipCount", "0", "TextureStreaming");
-        engineConf.Write("MaxTimeToGuaranteeMinMipCount", "0", "TextureStreaming");
     }
     else if (gameId == MeType::ME2_TYPE)
     {
-        engineConf.Write("MaxShadowResolution", "2048", "SystemSettings");
-        engineConf.Write("MinShadowResolution", "64", "SystemSettings");
-        engineConf.Write("ShadowFilterQualityBias", "2", "SystemSettings");
-        engineConf.Write("ShadowFilterRadius", "4", "SystemSettings");
-        engineConf.Write("bEnableBranchingPCFShadows", "True", "SystemSettings");
-        engineConf.Write("MaxAnisotropy", "16", "SystemSettings");
-        engineConf.Write("Trilinear", "True", "SystemSettings");
-        engineConf.Write("MotionBlur", "True", "SystemSettings");
-        engineConf.Write("DepthOfField", "True", "SystemSettings");
-        engineConf.Write("Bloom", "True", "SystemSettings");
-        engineConf.Write("QualityBloom", "True", "SystemSettings");
-        engineConf.Write("ParticleLODBias", "-1", "SystemSettings");
-        engineConf.Write("SkeletalMeshLODBias", "-1", "SystemSettings");
-        engineConf.Write("DetailMode", "2", "SystemSettings");
     }
     else if (gameId == MeType::ME3_TYPE)
     {
-        engineConf.Write("MaxShadowResolution", "2048", "SystemSettings");
-        engineConf.Write("MinShadowResolution", "64", "SystemSettings");
-        engineConf.Write("ShadowFilterQualityBias", "2", "SystemSettings");
-        engineConf.Write("ShadowFilterRadius", "4", "SystemSettings");
-        engineConf.Write("bEnableBranchingPCFShadows", "True", "SystemSettings");
-        engineConf.Write("MaxAnisotropy", "16", "SystemSettings");
-        engineConf.Write("MotionBlur", "True", "SystemSettings");
-        engineConf.Write("DepthOfField", "True", "SystemSettings");
-        engineConf.Write("Bloom", "True", "SystemSettings");
-        engineConf.Write("QualityBloom", "True", "SystemSettings");
-        engineConf.Write("ParticleLODBias", "-1", "SystemSettings");
-        engineConf.Write("SkeletalMeshLODBias", "-1", "SystemSettings");
-        engineConf.Write("DetailMode", "2", "SystemSettings");
     }
     else
     {
