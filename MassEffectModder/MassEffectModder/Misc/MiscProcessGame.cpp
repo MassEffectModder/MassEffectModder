@@ -46,12 +46,7 @@ bool Misc::applyModTag(MeType gameId, int MeuitmV, int AlotV)
     int prevAlotV = fs.ReadInt32();
     int prevProductV = fs.ReadInt32();
     uint memiTag = fs.ReadUInt32();
-    if (memiTag == MEMI_TAG)
-    {
-        if (prevProductV < 10 || prevProductV == 4352 || prevProductV == 16777472) // default before MEM v178
-            prevProductV = prevAlotV = prevMeuitmV = 0;
-    }
-    else
+    if (memiTag != MEMI_TAG)
         prevProductV = prevAlotV = prevMeuitmV = 0;
     if (MeuitmV != 0)
         prevMeuitmV = MeuitmV;
