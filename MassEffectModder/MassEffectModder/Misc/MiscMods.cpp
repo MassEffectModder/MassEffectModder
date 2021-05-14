@@ -221,13 +221,13 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
                 fs.JumpTo(fileMod.offset);
                 fileMod.offset = outFs.Position();
                 if (fileMod.tag == FileTextureTag ||
-                    fileMod.tag == FileTextureTag2 ||
                     fileMod.tag == FileMovieTextureTag)
                 {
                     QString str;
                     fs.ReadStringASCIINull(str);
                     outFs.WriteStringASCIINull(str);
-                    outFs.WriteUInt32(fs.ReadUInt32());
+                    outFs.WriteUInt32(fs.ReadUInt32()); // crc
+                    outFs.WriteUInt32(fs.ReadUInt32()); // flags
                 }
                 else
                     CRASH();
@@ -279,14 +279,6 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
             if (!Misc::CheckImage(image, f, file, -1))
                 continue;
 
-            if (f.flags == TextureType::Normalmap &&
-                image.getMipMaps().count() > 1 &&
-               (image.getMipMaps().first()->getWidth() > 2048 ||
-                image.getMipMaps().first()->getHeight() > 2048))
-            {
-                image.removeMipByIndex(0);
-            }
-
             if (!forceHash)
             {
                 PixelFormat newPixelFormat = f.pixfmt;
@@ -304,7 +296,6 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
 
             mod.data = image.StoreImageToDDS();
             mod.textureName = f.name;
-            mod.binaryModType = 0;
             mod.textureCrc = crc;
             mod.markConvert = entryMarkToConvert;
             mods.push_back(mod);
@@ -386,7 +377,6 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
 
             mod.data = fs.ReadToBuffer(dataSize);
             mod.textureName = f.name;
-            mod.binaryModType = 0;
             mod.movieTexture = true;
             mod.textureCrc = crc;
             mod.markConvert = false;
@@ -414,7 +404,9 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
             }
 
             if (mods[l].markConvert)
-                fileMod.tag = FileTextureTag2;
+            {
+                fileMod.flags |= (quint32)TextureFlags::MarkToConvert;
+            }
             else if (mods[l].movieTexture)
                 fileMod.tag = FileMovieTextureTag;
             else
@@ -547,16 +539,16 @@ bool Misc::extractMEM(MeType gameId, QFileInfoList &inputList, QString &outputDi
             QApplication::processEvents();
 #endif
             QString name;
-            uint crc = 0;
+            quint32 crc = 0, flags = 0;
             long size = 0;
             fs.JumpTo(modFiles[i].offset);
             size = modFiles[i].size;
             if (modFiles[i].tag == FileTextureTag ||
-                modFiles[i].tag == FileTextureTag2 ||
                 modFiles[i].tag == FileMovieTextureTag)
             {
                 fs.ReadStringASCIINull(name);
                 crc = fs.ReadUInt32();
+                flags = fs.ReadUInt32();
             }
 
             PINFO(QString("Processing MEM mod ") + file.fileName() +
@@ -591,7 +583,6 @@ bool Misc::extractMEM(MeType gameId, QFileInfoList &inputList, QString &outputDi
             }
 
             if (modFiles[i].tag == FileTextureTag ||
-                modFiles[i].tag == FileTextureTag2 ||
                 modFiles[i].tag == FileMovieTextureTag)
             {
                 int idx = name.indexOf("-hash");
@@ -605,8 +596,10 @@ bool Misc::extractMEM(MeType gameId, QFileInfoList &inputList, QString &outputDi
                     filename += ".dds";
                 else if (modFiles[i].tag == FileMovieTextureTag)
                     filename += ".bik";
-                else
+                else if (flags & TextureFlags::MarkToConvert)
                     filename += "-memconvert.dds";
+                else
+                    CRASH();
                 FileStream output = FileStream(filename, FileMode::Create, FileAccess::ReadWrite);
                 output.WriteFromBuffer(dst);
             }
@@ -630,7 +623,7 @@ bool Misc::extractMEM(MeType gameId, QFileInfoList &inputList, QString &outputDi
     return true;
 }
 
-bool Misc::compressData(ByteBuffer inputData, Stream &ouputStream)
+bool Misc::compressData(ByteBuffer inputData, Stream &ouputStream, CompressionDataType compType)
 {
     uint compressedSize = 0;
     uint dataBlockLeft = inputData.size();
@@ -660,8 +653,25 @@ bool Misc::compressData(ByteBuffer inputData, Stream &ouputStream)
     for (int b = 0; b < blocks.count(); b++)
     {
         Package::ChunkBlock block = blocks[b];
-        if (ZlibCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) == -100)
-            CRASH_MSG("Out of memory!");
+        if (compType == CompressionDataType::LZO)
+        {
+            if (LzoCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) == -100)
+                CRASH_MSG("Out of memory!");
+        }
+        else if (compType == CompressionDataType::Zlib)
+        {
+            if (ZlibCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) == -100)
+                CRASH_MSG("Out of memory!");
+        }
+        else if (compType == CompressionDataType::LZMA)
+        {
+            block.compressedBuffer = nullptr;
+            block.comprSize = 0;
+            if (LzmaCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) != 0)
+                failed = true;
+        }
+        else
+            CRASH_MSG("Compression type not expected!");
         if (block.comprSize == 0)
         {
             failed = true;
@@ -686,6 +696,7 @@ bool Misc::compressData(ByteBuffer inputData, Stream &ouputStream)
     ouputStream.SeekBegin();
     ouputStream.WriteUInt32(compressedSize);
     ouputStream.WriteInt32(inputData.size());
+    ouputStream.WriteUInt32((quint32)compType);
     foreach (Package::ChunkBlock block, blocks)
     {
         ouputStream.WriteUInt32(block.comprSize);
@@ -699,6 +710,7 @@ ByteBuffer Misc::decompressData(Stream &stream, long compressedSize)
 {
     uint compressedChunkSize = stream.ReadUInt32();
     uint uncompressedChunkSize = stream.ReadUInt32();
+    auto compType = (CompressionDataType)stream.ReadUInt32();
     auto data = ByteBuffer(uncompressedChunkSize);
     uint blocksCount = (uncompressedChunkSize + ModsDataEnums::MaxBlockSize - 1) / ModsDataEnums::MaxBlockSize;
     if ((compressedChunkSize + ModsDataEnums::SizeOfChunk + ModsDataEnums::SizeOfChunkBlock * blocksCount) != (uint)compressedSize)
@@ -736,8 +748,23 @@ ByteBuffer Misc::decompressData(Stream &stream, long compressedSize)
     {
         uint dstLen = ModsDataEnums::MaxBlockSize * 2;
         Package::ChunkBlock block = blocks[b];
-        if (ZlibDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen) == -100)
-            CRASH_MSG("Out of memory!");
+        if (compType == CompressionDataType::LZO)
+        {
+            LzoDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen);
+        }
+        else if (compType == CompressionDataType::Zlib)
+        {
+            if (ZlibDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen) == -100)
+                CRASH_MSG("Out of memory!");
+        }
+        else if (compType == CompressionDataType::LZMA)
+        {
+            uint dstLen = block.uncomprSize;
+            if (LzmaDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen) != 0)
+                failed = true;
+        }
+        else
+            CRASH_MSG("Compression type not expected!");
         if (dstLen != block.uncomprSize)
         {
             failed = true;

@@ -43,7 +43,6 @@ struct BinaryMod
     QString packagePath;
     int exportId;
     ByteBuffer data;
-    int binaryModType;
     bool movieTexture;
     QString textureName;
     uint textureCrc;
@@ -143,7 +142,7 @@ public:
     static bool checkGameFiles(MeType gameType, Resources &resources, QString &errors,
                                QStringList &mods, ProgressCallback callback,
                                void *callbackHandle);
-    static bool compressData(ByteBuffer inputData, Stream &ouputStream);
+    static bool compressData(ByteBuffer inputData, Stream &ouputStream, CompressionDataType compType = CompressionDataType::LZMA);
     static ByteBuffer decompressData(Stream &stream, long compressedSize);
 };
 
