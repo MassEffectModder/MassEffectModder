@@ -27,7 +27,6 @@ SOURCES += \
         kmp_str.cpp \
         kmp_taskdeps.cpp \
         kmp_tasking.cpp \
-        kmp_taskq.cpp \
         kmp_threadprivate.cpp \
         kmp_utility.cpp \
         kmp_version.cpp \

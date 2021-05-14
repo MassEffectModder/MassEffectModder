@@ -3,10 +3,9 @@
  */
 //===----------------------------------------------------------------------===//
 //
-//                     The LLVM Compiler Infrastructure
-//
-// This file is dual licensed under the MIT and the University of Illinois Open
-// Source Licenses. See LICENSE.txt for details.
+// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
+// See https://llvm.org/LICENSE.txt for license information.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
 //===----------------------------------------------------------------------===//
 #ifndef KMP_CONFIG_H
@@ -45,6 +44,8 @@
 #define OMPT_DEBUG LIBOMP_OMPT_DEBUG
 #define LIBOMP_OMPT_SUPPORT 0
 #define OMPT_SUPPORT LIBOMP_OMPT_SUPPORT
+#define LIBOMP_PROFILING_SUPPORT 0
+#define OMP_PROFILING_SUPPORT LIBOMP_PROFILING_SUPPORT
 #define LIBOMP_OMPT_OPTIONAL 1
 #define OMPT_OPTIONAL LIBOMP_OMPT_OPTIONAL
 #define LIBOMP_USE_ADAPTIVE_LOCKS 1
@@ -65,21 +66,32 @@
 #define KMP_LIBRARY_FILE "libomp.a"
 #define KMP_VERSION_MAJOR 5
 #define KMP_VERSION_MINOR 0
-#define LIBOMP_OMP_VERSION 50
-#define OMP_50_ENABLED (LIBOMP_OMP_VERSION >= 50)
-#define OMP_45_ENABLED (LIBOMP_OMP_VERSION >= 45)
-#define OMP_40_ENABLED (LIBOMP_OMP_VERSION >= 40)
-#define OMP_30_ENABLED (LIBOMP_OMP_VERSION >= 30)
 #define LIBOMP_TSAN_SUPPORT 0
 #if LIBOMP_TSAN_SUPPORT
 #define TSAN_SUPPORT
 #endif
 #define MSVC 0
 #define KMP_MSVC_COMPAT MSVC
+#define LIBOMP_HAVE_WAITPKG_INTRINSICS 1
+#define KMP_HAVE_WAITPKG_INTRINSICS LIBOMP_HAVE_WAITPKG_INTRINSICS
+#define LIBOMP_HAVE_RTM_INTRINSICS 1
+#define KMP_HAVE_RTM_INTRINSICS LIBOMP_HAVE_RTM_INTRINSICS
+#define LIBOMP_HAVE_IMMINTRIN_H 1
+#define KMP_HAVE_IMMINTRIN_H LIBOMP_HAVE_IMMINTRIN_H
+#define LIBOMP_HAVE_INTRIN_H 0
+#define KMP_HAVE_INTRIN_H LIBOMP_HAVE_INTRIN_H
+#define LIBOMP_HAVE_ATTRIBUTE_WAITPKG 1
+#define KMP_HAVE_ATTRIBUTE_WAITPKG LIBOMP_HAVE_ATTRIBUTE_WAITPKG
+#define LIBOMP_HAVE_ATTRIBUTE_RTM 1
+#define KMP_HAVE_ATTRIBUTE_RTM LIBOMP_HAVE_ATTRIBUTE_RTM
+#define LIBOMP_ARCH_AARCH64_A64FX 0
+#define KMP_ARCH_AARCH64_A64FX LIBOMP_ARCH_AARCH64_A64FX
 
 // Configured cache line based on architecture
 #if KMP_ARCH_PPC64
 # define CACHE_LINE 128
+#elif KMP_ARCH_AARCH64_A64FX
+# define CACHE_LINE 256
 #else
 # define CACHE_LINE 64
 #endif
