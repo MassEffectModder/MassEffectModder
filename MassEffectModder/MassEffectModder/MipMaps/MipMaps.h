@@ -65,7 +65,6 @@ struct ModEntry
     quint64 cacheSize;
     QList<int> cacheCprMipmapsDecompressedSize;
     PixelFormat cachedPixelFormat;
-    QMap<int, QList<Texture::TextureMipMap>> masterTextures;
     QList<Texture::TextureMipMap> arcTexture;
     quint8 arcTfcGuid[16];
     QString arcTfcName;
@@ -110,7 +109,6 @@ struct MapPackagesToMod
     long usage;
     int instances;
     long weight;
-    bool slave;
     RemoveMipsEntry removeMips;
 };
 
