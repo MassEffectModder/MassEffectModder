@@ -106,30 +106,11 @@ void LayoutMain::ChangeGamePathSelected(MeType gameType)
     QApplication::processEvents();
     ConfigIni configIni{};
     g_GameData->Init(gameType, configIni, true);
-    QString filter, exeSuffix;
-    QString caption = "Please select the Mass Effect " +
-            QString::number(static_cast<int>(gameType)) +
-            " executable file";
-    switch (gameType)
-    {
-    case MeType::ME1_TYPE:
-        filter = "ME1 executable file (MassEffect.exe)";
-        exeSuffix = "/Binaries";
-        break;
-    case MeType::ME2_TYPE:
-        filter = "ME2 executable file (MassEffect2.exe)";
-        exeSuffix = "/Binaries";
-        break;
-    case MeType::ME3_TYPE:
-        filter = "ME3 executable file (MassEffect3.exe)";
-        exeSuffix = "/Binaries/Win32";
-        break;
-    case MeType::UNKNOWN_TYPE:
-        CRASH();
-    }
-    QString path;
-    QFileDialog dialog = QFileDialog(this, caption,
-                                     g_GameData->GamePath() + exeSuffix, filter);
+    QString meGameString = QString::number(static_cast<int>(gameType));
+    QString caption = "Please select the Mass Effect " + meGameString + " executable file";
+    QString filter = "ME" + meGameString + " executable file (MassEffect" + meGameString + ".exe)";
+    QString path, exeSuffix = "/Binaries/Win64";
+    QFileDialog dialog = QFileDialog(this, caption, g_GameData->GamePath() + exeSuffix, filter);
     dialog.setFileMode(QFileDialog::ExistingFile);
     if (dialog.exec())
     {
@@ -155,17 +136,14 @@ void LayoutMain::ChangeGamePathSelected(MeType gameType)
                 properVersion = true;
             break;
         case MeType::UNKNOWN_TYPE:
-            break;
+            CRASH();
         }
 #else
         properVersion = true;
 #endif
         if (properVersion)
         {
-            if (gameType == MeType::ME3_TYPE)
-                path = DirName(DirName(DirName(path)));
-            else
-                path = DirName(DirName(path));
+            path = DirName(DirName(DirName(path)));
             QString key = QString("ME%1").arg(static_cast<int>(gameType));
 #if defined(_WIN32)
             configIni.Write(key, QString(path).replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameDataPath");

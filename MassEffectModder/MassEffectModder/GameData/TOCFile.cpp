@@ -47,12 +47,13 @@ void TOCBinFile::GenerateMainTocBinFile()
 #endif
         MainIterator.next();
         if (MainIterator.filePath().endsWith(".pcc", Qt::CaseInsensitive) ||
-            MainIterator.filePath().endsWith(".upk", Qt::CaseInsensitive) ||
             MainIterator.filePath().endsWith(".tfc", Qt::CaseInsensitive) ||
             MainIterator.filePath().endsWith(".tlk", Qt::CaseInsensitive) ||
+            MainIterator.filePath().endsWith(".isb", Qt::CaseInsensitive) ||
             MainIterator.filePath().endsWith(".afc", Qt::CaseInsensitive) ||
             MainIterator.filePath().endsWith(".cnd", Qt::CaseInsensitive) ||
             MainIterator.filePath().endsWith(".txt", Qt::CaseInsensitive) ||
+            MainIterator.filePath().endsWith(".usf", Qt::CaseInsensitive) ||
             MainIterator.filePath().endsWith(".bin", Qt::CaseInsensitive))
         {
             files.push_back(MainIterator.filePath().mid(pathLen + 1));
@@ -101,7 +102,6 @@ void TOCBinFile::GenerateDLCsTocBinFiles()
                     isValid = true;
                 }
                 if (iterator.filePath().endsWith(".pcc", Qt::CaseInsensitive) ||
-                    iterator.filePath().endsWith(".upk", Qt::CaseInsensitive) ||
                     iterator.filePath().endsWith(".tfc", Qt::CaseInsensitive) ||
                     iterator.filePath().endsWith(".tlk", Qt::CaseInsensitive) ||
                     iterator.filePath().endsWith(".afc", Qt::CaseInsensitive) ||

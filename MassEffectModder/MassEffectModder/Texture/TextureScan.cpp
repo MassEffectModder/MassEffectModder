@@ -342,14 +342,6 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
                 count--;
             }
         }
-        if (GameData::gameType == MeType::ME1_TYPE)
-        {
-            g_GameData->mapME1PackageUpperNames.clear();
-            for (int i = 0; i < g_GameData->packageFiles.count(); i++)
-            {
-                g_GameData->mapME1PackageUpperNames.insert(BaseNameWithoutExt(g_GameData->packageFiles[i]).toLower(), i);
-            }
-        }
     }
     long elapsed = Misc::elapsedStageTime();
     if (g_ipc)

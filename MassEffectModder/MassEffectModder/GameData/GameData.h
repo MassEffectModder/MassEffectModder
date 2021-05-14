@@ -36,20 +36,8 @@ bool comparePath(const QString &e1, const QString &e2);
 #define EXTENSION_PCC      ".pcc"
 #define EXTENSION_PCC_LEN  (sizeof(EXTENSION_PCC) - 1)
 
-#define EXTENSION_U        ".u"
-#define EXTENSION_U_LEN    (sizeof(EXTENSION_U) - 1)
-
-#define EXTENSION_UPK      ".upk"
-#define EXTENSION_UPK_LEN  (sizeof(EXTENSION_UPK) - 1)
-
-#define EXTENSION_SFM      ".sfm"
-#define EXTENSION_SFM_LEN  (sizeof(EXTENSION_SFM) - 1)
-
 #define EXTENSION_BIK      ".bik"
 #define EXTENSION_BIK_LEN  (sizeof(EXTENSION_BIK) - 1)
-
-#define EXTENSION_SFAR     ".sfar"
-#define EXTENSION_SFAR_LEN (sizeof(EXTENSION_SFAR) - 1)
 
 #define EXTENSION_INI      ".ini"
 #define EXTENSION_INI_LEN  (sizeof(EXTENSION_INI) - 1)
@@ -112,14 +100,11 @@ public:
     QStringList packageFiles;
     QStringList mainFiles;
     QStringList DLCFiles;
-    QStringList sfarFiles;
     QStringList tfcFiles;
     QStringList coalescedFiles;
     QStringList afcFiles;
     QStringList tlkFiles;
     QStringList bikFiles;
-    QStringList packageME1UpperNames;
-    QMap<QString, int> mapME1PackageUpperNames;
     bool FullScanGame;
     bool DLCDataCacheDone = false;
 
