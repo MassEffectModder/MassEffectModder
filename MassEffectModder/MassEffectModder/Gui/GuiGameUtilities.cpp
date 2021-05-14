@@ -124,15 +124,15 @@ void LayoutMain::ChangeGamePathSelected(MeType gameType)
         switch (gameType)
         {
         case MeType::ME1_TYPE:
-            if (exeVersion == "1.2.20608.0")
+            if (exeVersion == "2.0.0.47902")
                 properVersion = true;
             break;
         case MeType::ME2_TYPE:
-            if (exeVersion == "1.2.1604.0" || exeVersion == "01604.00")
+            if (exeVersion == "2.0.0.47902")
                 properVersion = true;
             break;
         case MeType::ME3_TYPE:
-            if (exeVersion == "1.5.5427.124" || exeVersion == "05427.124")
+            if (exeVersion == "2.0.0.47902")
                 properVersion = true;
             break;
         case MeType::UNKNOWN_TYPE:
