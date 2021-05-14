@@ -262,7 +262,7 @@ void Misc::AddMarkers(QStringList &pkgsToMarker,
     for (int i = 0; i < pkgsToMarker.count(); i++)
     {
         int newProgress = (i + 1) * 100 / pkgsToMarker.count();
-        if ((newProgress - lastProgress) >= 5)
+        if ((newProgress - lastProgress) >= 10)
         {
             lastProgress = newProgress;
             if (g_ipc)
