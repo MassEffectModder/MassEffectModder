@@ -72,25 +72,34 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
                 timer.restart();
             }
 #endif
-            const QString& path = files[f];
+            const QString &path = files[f];
+            if (AsciiStringEndsWith(files[f], EXTENSION_TFC, EXTENSION_TFC_LEN))
+            {
+                tfcFiles.push_back(path);
+                continue;
+            }
+            if (AsciiStringEndsWith(files[f], GLOBALPERIST, GLOBALPERIST_LEN))
+                continue;
+            if (AsciiStringEndsWith(files[f], GUIDCACHE_PCC, GUIDCACHE_PCC_LEN))
+                continue;
+            if (AsciiBaseNameStringStartsWith(files[f], GUIDCACHE, GUIDCACHE_LEN))
+                continue;
+            if (AsciiBaseNameStringStartsWith(files[f], COALESCED, COALESCED_LEN))
+            {
+                coalescedFiles.push_back(path);
+                continue;
+            }
+
             if (gameType == MeType::ME1_TYPE)
             {
-                if (AsciiStringEndsWith(files[f], EXTENSION_BIK, EXTENSION_BIK_LEN))
+                if (AsciiStringEndsWith(files[f], EXTENSION_ISB, EXTENSION_ISB_LEN))
                 {
-                    bikFiles.push_back(path);
+                    afcFiles.push_back(path);
                     continue;
                 }
-                if (AsciiStringEndsWith(files[f], EXTENSION_TFC, EXTENSION_TFC_LEN))
-                {
-                    tfcFiles.push_back(path);
-                    continue;
-                }
-                if (AsciiStringEndsWith(files[f], SHADER1_PCC, SHADER1_PCC_LEN))
-                    continue;
-                if (AsciiStringEndsWith(files[f], SHADER2_PCC, SHADER2_PCC_LEN))
-                    continue;
             }
-            else if (gameType == MeType::ME2_TYPE)
+            else if (gameType == MeType::ME2_TYPE ||
+                     gameType == MeType::ME3_TYPE)
             {
                 if (AsciiStringEndsWith(files[f], EXTENSION_AFC, EXTENSION_AFC_LEN))
                 {
@@ -102,102 +111,15 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
                     tlkFiles.push_back(path);
                     continue;
                 }
-                if (AsciiStringEndsWith(files[f], EXTENSION_TFC, EXTENSION_TFC_LEN))
-                {
-                    tfcFiles.push_back(path);
-                    continue;
-                }
-            }
-            else if (gameType == MeType::ME3_TYPE)
-            {
-                if (AsciiStringEndsWith(files[f], EXTENSION_AFC, EXTENSION_AFC_LEN))
-                {
-                    afcFiles.push_back(path);
-                    continue;
-                }
-                if (AsciiStringEndsWith(files[f], EXTENSION_TLK, EXTENSION_TLK_LEN))
-                {
-                    tlkFiles.push_back(path);
-                    continue;
-                }
-                if (AsciiStringEndsWith(files[f], EXTENSION_TFC, EXTENSION_TFC_LEN))
-                {
-                    tfcFiles.push_back(path);
-                    continue;
-                }
-                if (AsciiStringEndsWith(files[f], GUIDCACHE_PCC, GUIDCACHE_PCC_LEN))
-                    continue;
             }
             mainFiles.push_back(path);
         };
 
-        if (gameType == MeType::ME1_TYPE)
+        QString splashPath = bioGamePath() + "/Splash/PC/Splash.bmp";
+        QString path = splashPath.mid(pathLen);
+        if (QFile::exists(splashPath))
         {
-            QString splashPath = bioGamePath() + "/Splash/Splash.bmp";
-            QString path = splashPath.mid(pathLen);
-            if (QFile::exists(splashPath))
-            {
-                coalescedFiles.push_back(path);
-            }
-            QDirIterator iterator(bioGamePath() + "/Config", QDir::Files | QDir::NoSymLinks);
-            while (iterator.hasNext())
-            {
-                iterator.next();
-                QString path = iterator.filePath().mid(pathLen);
-                if (AsciiStringEndsWith(path, EXTENSION_INI, EXTENSION_INI_LEN))
-                {
-                    coalescedFiles.push_back(path);
-                }
-            }
-            QDirIterator iterator2(_path + "/Engine/Config", QDir::Files | QDir::NoSymLinks);
-            while (iterator2.hasNext())
-            {
-                iterator2.next();
-                QString path = iterator2.filePath().mid(pathLen);
-                if (AsciiStringEndsWith(path, EXTENSION_INI, EXTENSION_INI_LEN))
-                {
-                    coalescedFiles.push_back(path);
-                }
-            }
-        }
-        if (gameType == MeType::ME2_TYPE)
-        {
-            QString iniPath = bioGamePath() + "/Config/PC/Cooked/Coalesced.ini";
-            QString path = iniPath.mid(pathLen);
-            if (QFile::exists(iniPath))
-            {
-                coalescedFiles.push_back(path);
-            }
-
-            iniPath = bioGamePath() + "/Config/DefaultEngine.ini";
-            path = iniPath.mid(pathLen);
-            if (QFile::exists(iniPath))
-            {
-                coalescedFiles.push_back(path);
-            }
-
-            QString splashPath = bioGamePath() + "/Splash/PC/Splash.bmp";
-            path = splashPath.mid(pathLen);
-            if (QFile::exists(splashPath))
-            {
-                coalescedFiles.push_back(path);
-            }
-        }
-        if (gameType == MeType::ME3_TYPE)
-        {
-            QString binPath = MainData() + "/Coalesced.bin";
-            QString path = binPath.mid(pathLen);
-            if (QFile::exists(binPath))
-            {
-                coalescedFiles.push_back(path);
-            }
-
-            QString splashPath = bioGamePath() + "/Splash/PC/Splash.bmp";
-            path = splashPath.mid(pathLen);
-            if (QFile::exists(splashPath))
-            {
-                coalescedFiles.push_back(path);
-            }
+            coalescedFiles.push_back(path);
         }
 
         QDirIterator iterator2(_path+ "/Engine/Shaders", QDir::Files | QDir::NoSymLinks);
@@ -260,17 +182,7 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
                 DLCFiles += files;
             }
 
-            if (gameType == MeType::ME1_TYPE)
-            {
-                for (int i = 0; i < DLCFiles.count(); i++)
-                {
-                    if (AsciiStringEndsWith(DLCFiles[i], EXTENSION_TFC, EXTENSION_TFC_LEN))
-                        tfcFiles.push_back(DLCFiles[i]);
-                    else if (AsciiStringEndsWith(DLCFiles[i], EXTENSION_INI, EXTENSION_INI_LEN))
-                        coalescedFiles.push_back(DLCFiles[i]);
-                }
-            }
-            else if (gameType == MeType::ME2_TYPE)
+            if (gameType == MeType::ME2_TYPE)
             {
                 for (int i = 0; i < DLCFiles.count(); i++)
                 {

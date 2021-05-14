@@ -30,6 +30,9 @@ bool comparePath(const QString &e1, const QString &e2);
 #define EXTENSION_AFC      ".afc"
 #define EXTENSION_AFC_LEN  (sizeof(EXTENSION_AFC) - 1)
 
+#define EXTENSION_ISB      ".isb"
+#define EXTENSION_ISB_LEN  (sizeof(EXTENSION_ISB) - 1)
+
 #define EXTENSION_TFC      ".tfc"
 #define EXTENSION_TFC_LEN  (sizeof(EXTENSION_TFC) - 1)
 
@@ -48,17 +51,17 @@ bool comparePath(const QString &e1, const QString &e2);
 #define EXTENSION_TLK      ".tlk"
 #define EXTENSION_TLK_LEN  (sizeof(EXTENSION_TLK) - 1)
 
+#define GLOBALPERIST       "globalpersistentcookerdata.upk"
+#define GLOBALPERIST_LEN   (sizeof(GLOBALPERIST) - 1)
+
 #define GUIDCACHE_PCC      "guidcache.pcc"
 #define GUIDCACHE_PCC_LEN  (sizeof(GUIDCACHE_PCC) - 1)
 
 #define GUIDCACHE          "guidcache"
 #define GUIDCACHE_LEN      (sizeof(GUIDCACHE) - 1)
 
-#define SHADER1_PCC        "localshadercache-pc-d3d-sm3.upk"
-#define SHADER1_PCC_LEN    (sizeof(SHADER1_PCC) - 1)
-
-#define SHADER2_PCC        "refshadercache-pc-d3d-sm3.upk"
-#define SHADER2_PCC_LEN    (sizeof(SHADER2_PCC) - 1)
+#define COALESCED          "coalesced"
+#define COALESCED_LEN      (sizeof(COALESCED) - 1)
 
 #define LANG_PL            "_plpc."
 #define LANG_PL_LEN        (sizeof(LANG_PL) - 1)
