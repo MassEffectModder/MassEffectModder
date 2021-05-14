@@ -18,6 +18,7 @@ SOURCES += \
     Wrapper7Zip.cpp \
     WrapperDxtc.cpp \
     WrapperLzo.cpp \
+    WrapperOodle.cpp \
     WrapperUnLzx.cpp \
     WrapperUnzip.cpp \
     WrapperZlib.cpp
@@ -61,6 +62,7 @@ INCLUDEPATH += \
     $$PWD/../Libs/dxtc \
     $$PWD/../Libs/lzo2 \
     $$PWD/../Libs/png \
+    $$PWD/../Libs/oodle \
     $$PWD/../Libs/zlib \
     $$PWD/../Libs/zstd \
     $$PWD/../Libs/unrar
@@ -71,6 +73,7 @@ DEPENDPATH += \
     $$PWD/../Libs/dxtc \
     $$PWD/../Libs/lzo2 \
     $$PWD/../Libs/png \
+    $$PWD/../Libs/oodle \
     $$PWD/../Libs/zlib \
     $$PWD/../Libs/zstd \
     $$PWD/../Libs/unrar
@@ -85,6 +88,7 @@ Release:LIBS += \
     -L$$OUT_PWD/../Libs/7z/release -l7z \
     -L$$OUT_PWD/../Libs/dxtc/release -ldxtc \
     -L$$OUT_PWD/../Libs/lzo2/release -llzo2 \
+    -L$$OUT_PWD/../Libs/oodle/release -loodle \
     -L$$OUT_PWD/../Libs/unlzx/release -lunlzx \
     -L$$OUT_PWD/../Libs/zlib/release -lzlib
 
@@ -95,6 +99,7 @@ Debug:LIBS += \
     -L$$OUT_PWD/../Libs/7z/debug -l7z \
     -L$$OUT_PWD/../Libs/dxtc/debug -ldxtc \
     -L$$OUT_PWD/../Libs/lzo2/debug -llzo2 \
+    -L$$OUT_PWD/../Libs/oodle/debug -loodle \
     -L$$OUT_PWD/../Libs/unlzx/debug -lunlzx \
     -L$$OUT_PWD/../Libs/zlib/debug -lzlib
 
@@ -106,6 +111,7 @@ LIBS += \
     -L$$OUT_PWD/../Libs/7z -l7z \
     -L$$OUT_PWD/../Libs/dxtc -ldxtc \
     -L$$OUT_PWD/../Libs/lzo2 -llzo2 \
+    -L$$OUT_PWD/../Libs/oodle -loodle \
     -L$$OUT_PWD/../Libs/unlzx -lunlzx \
     -L$$OUT_PWD/../Libs/zlib -lzlib
 

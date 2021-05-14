@@ -5,6 +5,9 @@ CONFIG += ordered
 WRAPPERS_SHARED = true
 cache(WRAPPERS_SHARED, set)
 
+ZSTD_ENABLE = false
+cache(ZSTD_ENABLE, set)
+
 SUBDIRS += \
     Libs/7z \
     Libs/dxtc \
@@ -13,9 +16,14 @@ SUBDIRS += \
     Libs/unlzx \
     Libs/zlib
 
-!equals(WRAPPERS_SHARED, true) {
+equals(ZSTD_ENABLE, true) {
 SUBDIRS += \
     Libs/zstd
+}
+
+!equals(WRAPPERS_SHARED, true) {
+SUBDIRS += \
+    Libs/oodle
 }
 
 SUBDIRS += \

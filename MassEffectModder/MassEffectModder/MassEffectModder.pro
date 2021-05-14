@@ -191,10 +191,12 @@ Release:LIBS += \
     -L$$OUT_PWD/../Libs/lzo2/release -llzo2 \
     -L$$OUT_PWD/../Libs/unlzx/release -lunlzx \
     -L$$OUT_PWD/../Libs/png/release -lpng \
-    -L$$OUT_PWD/../Libs/xdelta3/release -lxdelta3 \
+    -L$$OUT_PWD/../Libs/oodle/release -loodle \
     -L$$OUT_PWD/../Libs/zlib/release -lzlib \
-    -L$$OUT_PWD/../Libs/unrar/release -lunrar \
-    -L$$OUT_PWD/../Libs/zstd/release -lzstd
+    -L$$OUT_PWD/../Libs/unrar/release -lunrar
+equals(ZSTD_ENABLE, true) {
+    Release:LIBS += -L$$OUT_PWD/../Libs/zstd/debug -lzstd
+}
 Debug:LIBS += \
     -L$$OUT_PWD/../Wrappers/debug -lWrappers \
     -L$$OUT_PWD/../Libs/7z/debug -l7z \
@@ -203,10 +205,12 @@ Debug:LIBS += \
     -L$$OUT_PWD/../Libs/lzo2/debug -llzo2 \
     -L$$OUT_PWD/../Libs/unlzx/debug -lunlzx \
     -L$$OUT_PWD/../Libs/png/debug -lpng \
-    -L$$OUT_PWD/../Libs/xdelta3/debug -lxdelta3 \
+    -L$$OUT_PWD/../Libs/oodle/debug -loodle \
     -L$$OUT_PWD/../Libs/zlib/debug -lzlib \
-    -L$$OUT_PWD/../Libs/unrar/debug -lunrar \
-    -L$$OUT_PWD/../Libs/zstd/debug -lzstd
+    -L$$OUT_PWD/../Libs/unrar/debug -lunrar
+equals(ZSTD_ENABLE, true) {
+    Debug:LIBS += -L$$OUT_PWD/../Libs/zstd/debug -lzstd
+}
 } else:unix: {
 LIBS += \
     -L$$OUT_PWD/../Wrappers -lWrappers \
@@ -217,10 +221,12 @@ LIBS += \
     -L$$OUT_PWD/../Libs/unlzx -lunlzx \
     -L$$OUT_PWD/../Libs/omp -lomp \
     -L$$OUT_PWD/../Libs/png -lpng \
-    -L$$OUT_PWD/../Libs/xdelta3 -lxdelta3 \
+    -L$$OUT_PWD/../Libs/oodle -loodle \
     -L$$OUT_PWD/../Libs/zlib -lzlib \
-    -L$$OUT_PWD/../Libs/unrar -lunrar \
-    -L$$OUT_PWD/../Libs/zstd -lzstd
+    -L$$OUT_PWD/../Libs/unrar -lunrar
+equals(ZSTD_ENABLE, true) {
+    LIBS += -L$$OUT_PWD/../Libs/zstd -lzstd
+}
 }
 
 macx {
