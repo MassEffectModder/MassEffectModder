@@ -351,8 +351,7 @@ void GameData::InternalInit(MeType type, ConfigIni &configIni)
 {
     gameType = type;
 
-    QString key = QString("ME%1").arg(static_cast<int>(gameType));
-    QString path = configIni.Read(key, "GameDataPath");
+    QString path = configIni.Read("MELE", "GameDataPath");
     if (path.length() != 0)
     {
         _path = QDir::cleanPath(path);
@@ -364,39 +363,11 @@ void GameData::InternalInit(MeType type, ConfigIni &configIni)
     }
 
 #if defined(_WIN32)
-    QString registryKey = R"(HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\BioWare\Mass Effect)";
-    QString entry = "Path";
-
-    if (type == MeType::ME2_TYPE)
-        registryKey += " 2";
-    else if (type == MeType::ME3_TYPE)
-    {
-        registryKey += " 3";
-        entry = "Install Dir";
-    }
+    QString registryKey = R"(HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\BioWare\Mass Effect Legendary Edition)";
+    QString entry = "Install Dir";
 
     QSettings settings(registryKey, QSettings::NativeFormat);
     path = settings.value(entry, "").toString();
-    if (path.length() != 0)
-    {
-        _path = QDir::cleanPath(path);
-        if (QFile(GameExePath()).exists())
-        {
-            configIni.Write(key, _path.replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameDataPath");
-            return;
-        }
-        _path = "";
-    }
-
-    registryKey = R"(HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App)";
-    if (type == MeType::ME1_TYPE)
-        registryKey += " 17460";
-    else if (type == MeType::ME2_TYPE)
-        registryKey += " 24980";
-    entry = "InstallLocation";
-
-    QSettings settings2(registryKey, QSettings::NativeFormat);
-    path = settings2.value(entry, "").toString();
     if (path.length() != 0)
     {
         _path = QDir::cleanPath(path);
@@ -407,15 +378,15 @@ void GameData::InternalInit(MeType type, ConfigIni &configIni)
             switch (type)
             {
             case MeType::ME1_TYPE:
-                if (exeVersion == "1.2.20608.0")
+                if (exeVersion == "2.0.0.47902")
                     properVersion = true;
                 break;
             case MeType::ME2_TYPE:
-                if (exeVersion == "1.2.1604.0" || exeVersion == "01604.00")
+                if (exeVersion == "2.0.0.47902")
                     properVersion = true;
                 break;
             case MeType::ME3_TYPE:
-                if (exeVersion == "1.5.5427.124" || exeVersion == "05427.124")
+                if (exeVersion == "2.0.0.47902")
                     properVersion = true;
                 break;
             case MeType::UNKNOWN_TYPE:
@@ -435,9 +406,9 @@ void GameData::InternalInit(MeType type, ConfigIni &configIni)
     if (_path.length() != 0 && QFile(GameExePath()).exists())
     {
 #if defined(_WIN32)
-        configIni.Write(key, _path.replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameDataPath");
+        configIni.Write("MELE", _path.replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameDataPath");
 #else
-        configIni.Write(key, _path, "GameDataPath");
+        configIni.Write("MELE", _path, "GameDataPath");
 #endif
     }
 }
@@ -452,7 +423,7 @@ const QString GameData::bioGamePath()
         case MeType::ME1_TYPE:
         case MeType::ME2_TYPE:
         case MeType::ME3_TYPE:
-            return _path + "/BioGame";
+            return _path + "/Game/ME" + QString::number((int)gameType) + "/BioGame";
         case MeType::UNKNOWN_TYPE:
             CRASH();
     }
@@ -516,11 +487,10 @@ const QString GameData::GameExePath()
     switch (gameType)
     {
         case MeType::ME1_TYPE:
-            return _path + "/Binaries/Win64/MassEffect1.exe";
         case MeType::ME2_TYPE:
-            return _path + "/Binaries/Win64/MassEffect2.exe";
         case MeType::ME3_TYPE:
-            return _path + "/Binaries/Win64/MassEffect3.exe";
+        return _path + "/Game/ME" + QString::number((int)gameType) +
+                "/BioGame/Binaries/Win64/MassEffect" + QString::number((int)gameType) + ".exe";
         case MeType::UNKNOWN_TYPE:
             CRASH();
     }
@@ -528,18 +498,13 @@ const QString GameData::GameExePath()
     CRASH();
 }
 
-const QString GameData::GameUserPath(MeType type)
+const QString GameData::GameUserPath()
 {
 #if defined(_WIN32)
-    QString path = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).first() + "/BioWare/Mass Effect";
-    if (type == MeType::ME2_TYPE)
-        path += " 2";
-    else if (type == MeType::ME3_TYPE)
-        path += " 3";
+    QString path = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).first() + "/BioWare/Mass Effect Legendary Edition";
 #else
     ConfigIni configIni;
-    QString key = QString("ME%1").arg(static_cast<int>(type));
-    QString path = configIni.Read(key, "GameUserPath");
+    QString path = configIni.Read("MELE", "GameUserPath");
     if (!QDir(path).exists())
         path = "";
 #endif
@@ -549,15 +514,15 @@ const QString GameData::GameUserPath(MeType type)
 
 const QString GameData::ConfigIniPath(MeType type)
 {
-    QString path = GameUserPath(type);
-    if (path == "")
-        return path;
+    if (_path.length() == 0)
+        CRASH_MSG("Game path not set!");
+
     switch (type)
     {
         case MeType::ME1_TYPE:
         case MeType::ME2_TYPE:
         case MeType::ME3_TYPE:
-            return path + "/BIOGame/Config";
+            return bioGamePath() + "/Config";
         case MeType::UNKNOWN_TYPE:
             CRASH();
     }

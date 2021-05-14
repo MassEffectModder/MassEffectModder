@@ -44,7 +44,7 @@ void LayoutMain::RemoveScanFileSelected(MeType gameType)
     {
         QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
                 "/MassEffectModder";
-        QString filename = path + QString("/me%1map.bin").arg(static_cast<int>(gameType));
+        QString filename = path + QString("/mele%1map.bin").arg(static_cast<int>(gameType));
         if (QFile(filename).exists())
         {
             QFile(filename).remove();
@@ -61,13 +61,7 @@ void LayoutMain::RemoveScanFileSelected(MeType gameType)
 
 void LayoutMain::ApplyLODs(MeType gameType)
 {
-    if (GameData::ConfigIniPath(gameType).length() == 0)
-    {
-        QMessageBox::critical(this, "Appling HQ LODs settings.",
-                              "Game User path is not defined.");
-        return;
-    }
-    QString path = GameData::EngineConfigIniPath(gameType);
+    QString path = g_GameData->EngineConfigIniPath(gameType);
     QDir().mkpath(DirName(path));
 #if defined(_WIN32)
     ConfigIni engineConf = ConfigIni(path);
@@ -87,14 +81,7 @@ void LayoutMain::ApplyHQLODsSelected(MeType gameType)
 
 void LayoutMain::ApplyVanillaLODsSelected(MeType gameType)
 {
-    if (GameData::ConfigIniPath(gameType).length() == 0)
-    {
-        QMessageBox::critical(this, "Appling vanilla LODs settings.",
-                              "Game User path is not defined.");
-        return;
-    }
-    QString path = GameData::EngineConfigIniPath(gameType);
-    QDir().mkpath(DirName(path));
+    QString path = g_GameData->EngineConfigIniPath(gameType);
 #if defined(_WIN32)
     ConfigIni engineConf = ConfigIni(path);
 #else
@@ -108,13 +95,7 @@ void LayoutMain::ApplyVanillaLODsSelected(MeType gameType)
 
 void LayoutMain::ApplyHQGfx(MeType gameType)
 {
-    if (GameData::ConfigIniPath(gameType).length() == 0)
-    {
-        QMessageBox::critical(this, "Appling HQ gfx settings.",
-                              "Game User path is not defined.");
-        return;
-    }
-    QString path = GameData::EngineConfigIniPath(gameType);
+    QString path = g_GameData->EngineConfigIniPath(gameType);
     QDir().mkpath(DirName(path));
 #if defined(_WIN32)
     ConfigIni engineConf = ConfigIni(path);

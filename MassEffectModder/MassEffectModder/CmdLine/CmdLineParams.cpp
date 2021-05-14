@@ -749,7 +749,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!Misc::SetGameUserPath(gameId, path))
+        if (!Misc::SetGameUserPath(path))
             errorCode = 1;
         break;
 #endif

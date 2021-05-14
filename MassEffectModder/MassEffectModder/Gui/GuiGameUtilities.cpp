@@ -144,7 +144,7 @@ void LayoutMain::ChangeGamePathSelected(MeType gameType)
         if (properVersion)
         {
             path = DirName(DirName(DirName(path)));
-            QString key = QString("ME%1").arg(static_cast<int>(gameType));
+            QString key = QString("MELE");
 #if defined(_WIN32)
             configIni.Write(key, QString(path).replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameDataPath");
 #else
@@ -178,17 +178,16 @@ void LayoutMain::ChangeUserPathSelected(MeType gameType)
             QString::number(static_cast<int>(gameType)) +
             " user configuration path";
     QString path = QFileDialog::getExistingDirectory(this, caption,
-                                                     GameData::GameUserPath(gameType),
+                                                     g_GameData->GameUserPath(),
                                                      QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     if (path.length() != 0 && QDir(path).exists())
     {
-        QString key = QString("ME%1").arg(static_cast<int>(gameType));
 #if defined(_WIN32)
-        configIni.Write(key, QString(path).replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameUserPath");
+        configIni.Write("MELE", QString(path).replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameUserPath");
 #else
-        configIni.Write(key, path, "GameUserPath");
+        configIni.Write("MELE", path, "GameUserPath");
 #endif
-        QString newPath = GameData::GameUserPath(gameType);
+        QString newPath = g_GameData->GameUserPath();
         QMessageBox::information(this, "Changing user configuration path",
                                  "User configuration path changed to\n" + newPath);
     }

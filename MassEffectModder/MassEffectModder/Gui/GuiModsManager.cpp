@@ -57,7 +57,7 @@ void LayoutMain::ExtractModsSelected(MeType gameType)
         return;
     }
     outDir = QDir::cleanPath(outDir);
-    QFileInfoList listMEM, listTPF, listMOD;
+    QFileInfoList listMEM;
     quint64 diskFreeSpace = Misc::getDiskFreeSpace(outDir);
     quint64 diskUsage = 0;
     foreach (QString file, files)

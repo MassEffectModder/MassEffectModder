@@ -74,7 +74,7 @@ private:
 public:
 
     static bool SetGameDataPath(MeType gameId, const QString &path);
-    static bool SetGameUserPath(MeType gameId, const QString &path);
+    static bool SetGameUserPath(const QString &path);
     static bool ConvertEndLines(const QString &path, bool unixMode);
     static bool checkWriteAccessDir(const QString &path);
     static bool checkWriteAccessFile(QString &path);

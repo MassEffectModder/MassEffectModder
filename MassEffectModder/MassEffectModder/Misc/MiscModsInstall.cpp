@@ -200,19 +200,8 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
     QStringList pkgsToRepack;
     QStringList pkgsToMarker;
 
-    if (GameData::ConfigIniPath(gameId).length() == 0)
-    {
-        PERROR("Game User path is not defined.\n");
-        return false;
-    }
-
     if (!alotInstallerMode && !guiInstallerMode)
     {
-        if (gameId == MeType::ME1_TYPE && !QFile(GameData::EngineConfigIniPath(gameId)).exists())
-        {
-            PERROR("Error: Missing game configuration file.\nYou need atleast once launch the game first.\n");
-            return false;
-        }
         bool writeAccess = Misc::CheckAndCorrectAccessToGame();
         if (!writeAccess)
         {
@@ -334,7 +323,7 @@ bool Misc::ApplyPostInstall(MeType gameId)
         PERROR("Failed applying stamp for installation!\n");
 
     PINFO("Updating LODs and other settings started...\n");
-    QString path = GameData::EngineConfigIniPath(gameId);
+    QString path = g_GameData->EngineConfigIniPath(gameId);
     QDir().mkpath(DirName(path));
 #if defined(_WIN32)
     ConfigIni engineConf = ConfigIni(path);

@@ -28,11 +28,10 @@ bool Misc::SetGameDataPath(MeType gameId, const QString &path)
 {
     ConfigIni configIni;
 
-    QString key = QString("ME%1").arg(static_cast<int>(gameId));
 #if defined(_WIN32)
-    configIni.Write(key, QString(path).replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameDataPath");
+    configIni.Write("MELE", QString(path).replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameDataPath");
 #else
-    configIni.Write(key, path, "GameDataPath");
+    configIni.Write("MELE", path, "GameDataPath");
 #endif
     g_GameData->Init(gameId, configIni, true);
     if (!QFile(g_GameData->GameExePath()).exists())
@@ -45,18 +44,17 @@ bool Misc::SetGameDataPath(MeType gameId, const QString &path)
     return true;
 }
 
-bool Misc::SetGameUserPath(MeType gameId, const QString &path)
+bool Misc::SetGameUserPath(const QString &path)
 {
     ConfigIni configIni;
 
-    QString key = QString("ME%1").arg(static_cast<int>(gameId));
 #if defined(_WIN32)
-    configIni.Write(key, QString(path).replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameUserPath");
+    configIni.Write("MELE", QString(path).replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameUserPath");
 #else
-    configIni.Write(key, path, "GameUserPath");
+    configIni.Write("MELE", path, "GameUserPath");
 #endif
 
-    QString newPath = GameData::GameUserPath(gameId);
+    QString newPath = g_GameData->GameUserPath();
     if (newPath.length() == 0 || !QDir(newPath).exists())
     {
         PERROR("Error: Could not found game user config path!\n");

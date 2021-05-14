@@ -126,25 +126,19 @@ bool CmdLineTools::updateTOCs(MeType gameId)
 
 bool CmdLineTools::GetGamePaths()
 {
-    for (int gameId = 1; gameId <= 3; gameId++)
+    ConfigIni configIni = ConfigIni();
+    g_GameData->Init(MeType::ME1_TYPE, configIni);
+
+    QString pathData = g_GameData->GamePath();
+
+    if (g_ipc)
     {
-        ConfigIni configIni = ConfigIni();
-        g_GameData->Init((MeType)gameId, configIni);
-
-        QString pathData = g_GameData->GamePath();
-        QString pathConfig = GameData::GameUserPath((MeType)gameId);
-
-        if (g_ipc)
-        {
-            ConsoleWrite(QString("[IPC]GAMEPATH ") + QString::number(gameId) + " " + pathData);
-            ConsoleWrite(QString("[IPC]GAMECONFIGPATH ") + QString::number(gameId) + " " + pathConfig);
-            ConsoleSync();
-        }
-        else
-        {
-            ConsoleWrite(QString("Game data path - ME") + QString::number(gameId) + " : " + pathData);
-            ConsoleWrite(QString("Game user config path - ME") + QString::number(gameId) + " : " + pathConfig);
-        }
+        ConsoleWrite(QString("[IPC]GAMEPATH ") + pathData);
+        ConsoleSync();
+    }
+    else
+    {
+        ConsoleWrite(QString("Game data path - MELE: ") + pathData);
     }
 
     return true;
@@ -411,12 +405,7 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
 
 bool CmdLineTools::ApplyLODAndGfxSettings(MeType gameId)
 {
-    if (GameData::ConfigIniPath(gameId).length() == 0)
-    {
-        PERROR("Game User path is not defined.\n");
-        return false;
-    }
-    QString path = GameData::EngineConfigIniPath(gameId);
+    QString path = g_GameData->EngineConfigIniPath(gameId);
     QDir().mkpath(DirName(path));
 #if defined(_WIN32)
     ConfigIni engineConf = ConfigIni(path);
@@ -431,12 +420,7 @@ bool CmdLineTools::ApplyLODAndGfxSettings(MeType gameId)
 
 bool CmdLineTools::RemoveLODSettings(MeType gameId)
 {
-    if (GameData::ConfigIniPath(gameId).length() == 0)
-    {
-        PERROR("Game User path is not defined.\n");
-        return false;
-    }
-    QString path = GameData::EngineConfigIniPath(gameId);
+    QString path = g_GameData->EngineConfigIniPath(gameId);
     if (!QFile(path).exists())
         return true;
 #if defined(_WIN32)
@@ -451,12 +435,7 @@ bool CmdLineTools::RemoveLODSettings(MeType gameId)
 
 bool CmdLineTools::PrintLODSettings(MeType gameId)
 {
-    if (GameData::ConfigIniPath(gameId).length() == 0)
-    {
-        PERROR("Game User path is not defined.\n");
-        return false;
-    }
-    QString path = GameData::EngineConfigIniPath(gameId);
+    QString path = g_GameData->EngineConfigIniPath(gameId);
     bool exist = QFile(path).exists();
     if (!exist)
         return true;

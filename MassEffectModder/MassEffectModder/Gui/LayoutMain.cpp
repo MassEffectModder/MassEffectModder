@@ -322,7 +322,7 @@ LayoutMain::LayoutMain(MainWindow *window)
     connect(buttonChangeGamePathME3, &QPushButton::clicked, this, &LayoutMain::ChangeGamePathME3Selected);
 
 #if !defined(_WIN32)
-    buttonChangeUserPathME1 = new QPushButton("Change User Path");
+/*    buttonChangeUserPathME1 = new QPushButton("Change User Path");
     buttonChangeUserPathME1->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonChangeUserPathME1->setMinimumWidth(kButtonMinSmallWidth);
     buttonChangeUserPathME1->setMinimumHeight(kButtonMinHeight);
@@ -341,7 +341,7 @@ LayoutMain::LayoutMain(MainWindow *window)
     buttonChangeUserPathME3->setMinimumWidth(kButtonMinSmallWidth);
     buttonChangeUserPathME3->setMinimumHeight(kButtonMinHeight);
     buttonChangeUserPathME3->setFont(ButtonFont);
-    connect(buttonChangeUserPathME3, &QPushButton::clicked, this, &LayoutMain::ChangeUserPathME3Selected);
+    connect(buttonChangeUserPathME3, &QPushButton::clicked, this, &LayoutMain::ChangeUserPathME3Selected);*/
 #endif
 
     buttonInstallModsME1 = new QPushButton("Mods Installer");
@@ -478,7 +478,7 @@ LayoutMain::LayoutMain(MainWindow *window)
     groupVertGameUtilitiesME1->addWidget(buttonUpdateTOCsME1, 1);
     groupVertGameUtilitiesME1->addWidget(buttonChangeGamePathME1, 1);
 #if !defined(_WIN32)
-    groupVertGameUtilitiesME1->addWidget(buttonChangeUserPathME1, 1);
+    //groupVertGameUtilitiesME1->addWidget(buttonChangeUserPathME1, 1);
 #endif
     spacerBottomGameUtilitiesME1 = new QSpacerItem(0, 20);
     groupVertGameUtilitiesME1->addItem(spacerBottomGameUtilitiesME1);
@@ -491,7 +491,7 @@ LayoutMain::LayoutMain(MainWindow *window)
     groupVertGameUtilitiesME2->addWidget(buttonUpdateTOCsME2, 1);
     groupVertGameUtilitiesME2->addWidget(buttonChangeGamePathME2, 1);
 #if !defined(_WIN32)
-    groupVertGameUtilitiesME2->addWidget(buttonChangeUserPathME2, 1);
+    //groupVertGameUtilitiesME2->addWidget(buttonChangeUserPathME2, 1);
 #endif
     spacerBottomGameUtilitiesME2 = new QSpacerItem(0, 20);
     groupVertGameUtilitiesME2->addItem(spacerBottomGameUtilitiesME2);
@@ -504,7 +504,7 @@ LayoutMain::LayoutMain(MainWindow *window)
     groupVertGameUtilitiesME3->addWidget(buttonUpdateTOCsME3, 1);
     groupVertGameUtilitiesME3->addWidget(buttonChangeGamePathME3, 1);
 #if !defined(_WIN32)
-    groupVertGameUtilitiesME3->addWidget(buttonChangeUserPathME3, 1);
+    //groupVertGameUtilitiesME3->addWidget(buttonChangeUserPathME3, 1);
 #endif
     spacerBottomGameUtilitiesME3 = new QSpacerItem(0, 20);
     groupVertGameUtilitiesME3->addItem(spacerBottomGameUtilitiesME3);
@@ -714,7 +714,7 @@ void LayoutMain::HideAllSubMenusME1()
     buttonUpdateTOCsME1->hide();
     buttonChangeGamePathME1->hide();
 #if !defined(_WIN32)
-    buttonChangeUserPathME1->hide();
+    //buttonChangeUserPathME1->hide();
 #endif
     spacerBottomGameUtilitiesME1->changeSize(0, 0);
     buttonModsManagerME1->setChecked(false);
@@ -736,7 +736,7 @@ void LayoutMain::HideAllSubMenusME2()
     buttonUpdateTOCsME2->hide();
     buttonChangeGamePathME2->hide();
 #if !defined(_WIN32)
-    buttonChangeUserPathME2->hide();
+    //buttonChangeUserPathME2->hide();
 #endif
     spacerBottomGameUtilitiesME2->changeSize(0, 0);
     buttonModsManagerME2->setChecked(false);
@@ -758,7 +758,7 @@ void LayoutMain::HideAllSubMenusME3()
     buttonUpdateTOCsME3->hide();
     buttonChangeGamePathME3->hide();
 #if !defined(_WIN32)
-    buttonChangeUserPathME3->hide();
+    //buttonChangeUserPathME3->hide();
 #endif
     spacerBottomGameUtilitiesME3->changeSize(0, 0);
     buttonModsManagerME3->setChecked(false);
@@ -862,7 +862,7 @@ void LayoutMain::ButtonGameUtilitiesME1Selected()
     buttonUpdateTOCsME1->setHidden(!checked);
     buttonChangeGamePathME1->setHidden(!checked);
 #if !defined(_WIN32)
-    buttonChangeUserPathME1->setHidden(!checked);
+    //buttonChangeUserPathME1->setHidden(!checked);
 #endif
     spacerBottomGameUtilitiesME1->changeSize(0, checked ? 20 : 0);
     buttonGameUtilitiesME1->show();
@@ -882,7 +882,7 @@ void LayoutMain::ButtonGameUtilitiesME2Selected()
     buttonUpdateTOCsME2->setHidden(!checked);
     buttonChangeGamePathME2->setHidden(!checked);
 #if !defined(_WIN32)
-    buttonChangeUserPathME2->setHidden(!checked);
+    //buttonChangeUserPathME2->setHidden(!checked);
 #endif
     spacerBottomGameUtilitiesME2->changeSize(0, checked ? 20 : 0);
     buttonGameUtilitiesME2->show();
@@ -902,7 +902,7 @@ void LayoutMain::ButtonGameUtilitiesME3Selected()
     buttonUpdateTOCsME3->setHidden(!checked);
     buttonChangeGamePathME3->setHidden(!checked);
 #if !defined(_WIN32)
-    buttonChangeUserPathME3->setHidden(!checked);
+    //buttonChangeUserPathME3->setHidden(!checked);
 #endif
     spacerBottomGameUtilitiesME3->changeSize(0, checked ? 20 : 0);
     buttonGameUtilitiesME3->show();
