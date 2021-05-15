@@ -333,10 +333,7 @@ bool Package::getData(uint offset, uint length, Stream *outputStream, quint8 *ou
                     for (int b = 0; b < blocks.count(); b++)
                     {
                         const ChunkBlock& block = blocks[b];
-                        uint dstLen = MaxBlockSize * 2;
-                        if (OodleDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen) != 0)
-                            failed = true;
-                        if (dstLen != block.uncomprSize)
+                        if (OodleDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, block.uncomprSize) != 0)
                             failed = true;
                     }
                 }

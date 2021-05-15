@@ -26,7 +26,7 @@
 
 #ifndef EXPORT_LIBS
 
-int OodleDecompress(unsigned char *src, unsigned int srcLen, unsigned char *dst, unsigned int *dstLen)
+int OodleDecompress(unsigned char *src, unsigned int srcLen, unsigned char *dst, unsigned int dstLen)
 {
     return OodleDecompressData(src, srcLen, dst, dstLen);
 }

@@ -27,7 +27,7 @@
 int OodleCompressData(unsigned char *src, unsigned int srcLen,
                       unsigned char **dst, unsigned int *dstLen, int compressionLevel);
 int OodleDecompressData(unsigned char *src, unsigned int srcLen,
-                        unsigned char *dst, unsigned int *dstLen);
+                        unsigned char *dst, unsigned int dstLen);
 
 #endif
 
