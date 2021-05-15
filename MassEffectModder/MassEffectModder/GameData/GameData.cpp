@@ -90,16 +90,8 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
                 continue;
             }
 
-            if (gameType == MeType::ME1_TYPE)
-            {
-                if (AsciiStringEndsWith(files[f], EXTENSION_ISB, EXTENSION_ISB_LEN))
-                {
-                    afcFiles.push_back(path);
-                    continue;
-                }
-            }
-            else if (gameType == MeType::ME2_TYPE ||
-                     gameType == MeType::ME3_TYPE)
+            if (gameType == MeType::ME2_TYPE ||
+                gameType == MeType::ME3_TYPE)
             {
                 if (AsciiStringEndsWith(files[f], EXTENSION_AFC, EXTENSION_AFC_LEN))
                 {
@@ -122,7 +114,7 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
             coalescedFiles.push_back(path);
         }
 
-        QDirIterator iterator2(_path+ "/Engine/Shaders", QDir::Files | QDir::NoSymLinks);
+        QDirIterator iterator2(_path + "/Game/ME" + QString::number((int)gameType) + "/Engine/Shaders", QDir::Files | QDir::NoSymLinks);
         while (iterator2.hasNext())
         {
             iterator2.next();
@@ -141,6 +133,17 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
             if (AsciiStringEndsWith(path, EXTENSION_BIK, EXTENSION_BIK_LEN))
             {
                 bikFiles.push_back(path);
+            }
+        }
+
+        QDirIterator iterator4(bioGamePath() + "/Content/Packages/ISACT", QDir::Files | QDir::NoSymLinks);
+        while (iterator4.hasNext())
+        {
+            iterator4.next();
+            QString path = iterator4.filePath().mid(pathLen);
+            if (AsciiStringEndsWith(path, EXTENSION_ISB, EXTENSION_ISB_LEN))
+            {
+                afcFiles.push_back(path);
             }
         }
 
