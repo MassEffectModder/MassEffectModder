@@ -96,7 +96,7 @@ public:
     {
         SizeOfChunkBlock = 8,
         SizeOfChunk = 16,
-        MaxBlockSize = 0x20000, // 128KB
+        MaxBlockSize = 0x40000, // 256KB
         MaxChunkSize = 0x100000, // 1MB
     };
 

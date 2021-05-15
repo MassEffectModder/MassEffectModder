@@ -327,6 +327,19 @@ bool Package::getData(uint offset, uint length, Stream *outputStream, quint8 *ou
                             failed = true;
                     }
                 }
+                else if (compressionType == CompressionType::Oddle)
+                {
+                    #pragma omp parallel for
+                    for (int b = 0; b < blocks.count(); b++)
+                    {
+                        const ChunkBlock& block = blocks[b];
+                        uint dstLen = MaxBlockSize * 2;
+                        if (OodleDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen) != 0)
+                            failed = true;
+                        if (dstLen != block.uncomprSize)
+                            failed = true;
+                    }
+                }
                 else
                     CRASH_MSG("Compression type not expected!");
 
@@ -1109,6 +1122,11 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
                     if (ZlibCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize,
                                      forceCompressed ? 9 : 1) == -100)
                         CRASH_MSG("Out of memory!");
+                }
+                else if (targetCompression == CompressionType::Oddle)
+                {
+                    if (OodleCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) != 0)
+                        CRASH_MSG("Compression failed!");
                 }
                 else
                     CRASH_MSG("Compression type not expected!");
