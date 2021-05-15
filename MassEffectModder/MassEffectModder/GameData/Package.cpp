@@ -478,12 +478,16 @@ const QString Package::StorageTypeToString(StorageTypes type)
         return "pccLZO";
     case StorageTypes::pccZlib:
         return "pccZlib";
+    case StorageTypes::pccOodle:
+        return "pccOodle";
     case StorageTypes::extUnc:
         return "extUnc";
     case StorageTypes::extLZO:
         return "extLZO";
     case StorageTypes::extZlib:
         return "extZlib";
+    case StorageTypes::extOodle:
+        return "extOodle";
     case StorageTypes::empty:
         return "empty";
     default:
@@ -1232,6 +1236,11 @@ const ByteBuffer Package::compressData(const ByteBuffer &inputData, StorageTypes
                              maxCompress ? 9 : 1) == -100)
                 CRASH_MSG("Out of memory!");
         }
+        else if (type == StorageTypes::extOodle || type == StorageTypes::pccOodle)
+        {
+            if (OodleCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) != 0)
+                CRASH_MSG("Compression failed!");
+        }
         else
             CRASH_MSG("Compression type not expected!");
         if (block.comprSize == 0)
@@ -1339,6 +1348,19 @@ const ByteBuffer Package::decompressData(Stream &stream, StorageTypes type,
             Package::ChunkBlock block = blocks[b];
             if (ZlibDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen) == -100)
                 CRASH_MSG("Out of memory!");
+            if (dstLen != block.uncomprSize)
+                errorFlag = true;
+        }
+    }
+    else if (type == StorageTypes::extOodle || type == StorageTypes::pccOodle)
+    {
+        #pragma omp parallel for
+        for (int b = 0; b < blocks.count(); b++)
+        {
+            uint dstLen = MaxBlockSize * 2;
+            Package::ChunkBlock block = blocks[b];
+            if (OodleDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, dstLen) != 0)
+                errorFlag = true;
             if (dstLen != block.uncomprSize)
                 errorFlag = true;
         }

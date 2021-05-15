@@ -37,6 +37,11 @@ Texture::Texture(Package &package, int exportId, const ByteBuffer &data, bool fi
         return;
 
     textureData = new MemoryStream(data, properties->propertyEndOffset, data.size() - properties->propertyEndOffset);
+    if (GameData::gameType != MeType::ME3_TYPE)
+    {
+        textureData->Skip(12); // 12 zeros
+        textureData->SkipInt32(); // position in the package
+    }
 
     int numMipMaps = textureData->ReadInt32();
     for (int l = 0; l < numMipMaps; l++)
@@ -51,8 +56,9 @@ Texture::Texture(Package &package, int exportId, const ByteBuffer &data, bool fi
             mipmap.internalOffset = textureData->Position();
             textureData->Skip(mipmap.uncompressedSize);
         }
-        if (mipmap.storageType == StorageTypes::pccLZO ||
-            mipmap.storageType == StorageTypes::pccZlib)
+        else if (mipmap.storageType == StorageTypes::pccLZO ||
+                 mipmap.storageType == StorageTypes::pccZlib ||
+                 mipmap.storageType == StorageTypes::pccOodle)
         {
             mipmap.internalOffset = textureData->Position();
             textureData->Skip(mipmap.compressedSize);
@@ -125,6 +131,10 @@ void Texture::replaceMipMaps(const QList<TextureMipMap> &newMipMaps)
 
     delete textureData;
     textureData = new MemoryStream();
+    if (GameData::gameType != MeType::ME3_TYPE)
+    {
+        textureData->WriteZeros(16);
+    }
     textureData->WriteInt32(newMipMaps.count());
     for (int l = 0; l < newMipMaps.count(); l++)
     {
@@ -136,7 +146,8 @@ void Texture::replaceMipMaps(const QList<TextureMipMap> &newMipMaps)
 
         if (mipmap.storageType == StorageTypes::pccUnc ||
             mipmap.storageType == StorageTypes::pccLZO ||
-            mipmap.storageType == StorageTypes::pccZlib)
+            mipmap.storageType == StorageTypes::pccZlib ||
+            mipmap.storageType == StorageTypes::pccOodle)
         {
             mipmap.internalOffset = textureData->Position();
             textureData->WriteFromBuffer(mipmap.newData);
@@ -270,6 +281,7 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
         }
     case StorageTypes::pccLZO:
     case StorageTypes::pccZlib:
+    case StorageTypes::pccOodle:
         {
             textureData->JumpTo(mipmap.internalOffset);
             mipMapData = Package::decompressData(dynamic_cast<Stream &>(*textureData), mipmap.storageType, mipmap.uncompressedSize, mipmap.compressedSize);
@@ -285,6 +297,7 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
     case StorageTypes::extUnc:
     case StorageTypes::extLZO:
     case StorageTypes::extZlib:
+    case StorageTypes::extOodle:
         {
             QString filename;
             QString archive = properties->getProperty("TextureFileCacheName").getValueName();
@@ -344,7 +357,7 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
             }
             auto fs = FileStream(filename, FileMode::Open, FileAccess::ReadOnly);
             fs.JumpTo(mipmap.dataOffset);
-            if (mipmap.storageType == StorageTypes::extLZO || mipmap.storageType == StorageTypes::extZlib)
+            if (mipmap.storageType == StorageTypes::extLZO || mipmap.storageType == StorageTypes::extZlib || mipmap.storageType == StorageTypes::extOodle)
             {
                 mipMapData = Package::decompressData(dynamic_cast<Stream &>(fs), mipmap.storageType, mipmap.uncompressedSize, mipmap.compressedSize);
                 if (mipMapData.ptr() == nullptr)
@@ -373,6 +386,10 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
 const ByteBuffer Texture::toArray(uint pccTextureDataOffset, bool updateOffset)
 {
     MemoryStream newData;
+    if (GameData::gameType != MeType::ME3_TYPE)
+    {
+        newData.WriteZeros(16);
+    }
     newData.WriteInt32(mipMapsList.count());
     for (int l = 0; l < mipMapsList.count(); l++)
     {
@@ -390,7 +407,8 @@ const ByteBuffer Texture::toArray(uint pccTextureDataOffset, bool updateOffset)
             newData.CopyFrom(*textureData, mipmap.uncompressedSize);
         }
         else if (mipmap.storageType == StorageTypes::pccLZO ||
-                 mipmap.storageType == StorageTypes::pccZlib)
+                 mipmap.storageType == StorageTypes::pccZlib ||
+                 mipmap.storageType == StorageTypes::pccOodle)
         {
             mipmap.dataOffset = newData.Position() + pccTextureDataOffset + 4;
             newData.WriteUInt32(mipmap.dataOffset);

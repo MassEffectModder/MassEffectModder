@@ -42,19 +42,14 @@ TextureMovie::TextureMovie(Package &package, int exportId, const ByteBuffer &dat
     uncompressedSize = textureData->ReadInt32();
     compressedSize = textureData->ReadInt32();
     dataOffset = textureData->ReadInt32();
-    if (storageType == StorageTypes::pccUnc ||
-        storageType == StorageTypes::pccLZO ||
-        storageType == StorageTypes::pccZlib)
+    if (storageType == StorageTypes::pccUnc)
     {
         dataOffset = textureData->Position();
         quint32 tag = textureData->ReadUInt32();
         if (tag != BIK_TAG)
             CRASH_MSG("Not supported movie texture");
     }
-    if (storageType == StorageTypes::pccLZO ||
-        storageType == StorageTypes::pccZlib ||
-        storageType == StorageTypes::extLZO ||
-        storageType == StorageTypes::extZlib)
+    else if (storageType != StorageTypes::extUnc)
     {
         CRASH_MSG("TextureMovie as compressed data is not supported!");
     }
@@ -99,8 +94,10 @@ const ByteBuffer TextureMovie::getData()
         }
     case StorageTypes::pccLZO:
     case StorageTypes::pccZlib:
+    case StorageTypes::pccOodle:
     case StorageTypes::extLZO:
     case StorageTypes::extZlib:
+    case StorageTypes::extOodle:
         {
             CRASH_MSG("TextureMovie as compressed data is not supported!");
         }

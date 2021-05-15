@@ -27,22 +27,25 @@
 
 enum StorageFlags
 {
-    noFlags        = 0,
-    externalFile   = 1 << 0,
-    compressedZlib = 1 << 1,
-    compressedLZO  = 1 << 4,
-    unused         = 1 << 5,
+    noFlags         = 0,
+    externalFile    = 1 << 0,
+    compressedZlib  = 1 << 1,
+    compressedLZO   = 1 << 4,
+    unused          = 1 << 5,
+    compressedOodle = 1 << 12,
 };
 
 enum StorageTypes
 {
-    pccUnc = StorageFlags::noFlags,                                      // ME1 (Compressed PCC), ME2 (Compressed PCC)
-    pccLZO = StorageFlags::compressedLZO,                                // ME1 (Uncompressed PCC)
-    pccZlib = StorageFlags::compressedZlib,                              // ME1 (Uncompressed PCC)
-    extUnc = StorageFlags::externalFile,                                 // ME3 (DLC TFC archive)
-    extLZO = StorageFlags::externalFile | StorageFlags::compressedLZO,   // ME1 (Reference to PCC), ME2 (TFC archive)
-    extZlib = StorageFlags::externalFile | StorageFlags::compressedZlib, // ME3 (non-DLC TFC archive)
-    empty = StorageFlags::externalFile | StorageFlags::unused,           // ME1, ME2, ME3
+    pccUnc = StorageFlags::noFlags,
+    pccLZO = StorageFlags::compressedLZO,
+    pccZlib = StorageFlags::compressedZlib,
+    pccOodle = StorageFlags::compressedOodle,
+    extUnc = StorageFlags::externalFile,
+    extLZO = StorageFlags::externalFile | StorageFlags::compressedLZO,
+    extZlib = StorageFlags::externalFile | StorageFlags::compressedZlib,
+    extOodle = StorageFlags::externalFile | StorageFlags::compressedOodle,
+    empty = StorageFlags::externalFile | StorageFlags::unused,
 };
 
 class Package

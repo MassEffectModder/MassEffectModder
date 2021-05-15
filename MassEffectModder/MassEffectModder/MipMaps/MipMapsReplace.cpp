@@ -720,8 +720,10 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                     mipmap.uncompressedSize = mod.cacheCprMipmapsDecompressedSize[m];
                     if (mipmap.storageType == StorageTypes::extLZO ||
                         mipmap.storageType == StorageTypes::extZlib ||
+                        mipmap.storageType == StorageTypes::extOodle ||
                         mipmap.storageType == StorageTypes::pccLZO ||
-                        mipmap.storageType == StorageTypes::pccZlib)
+                        mipmap.storageType == StorageTypes::pccZlib ||
+                        mipmap.storageType == StorageTypes::pccOodle)
                     {
                         mipmap.newData = mod.cacheCprMipmaps[m].getRefData();
                         mipmap.compressedSize = mipmap.newData.size();
