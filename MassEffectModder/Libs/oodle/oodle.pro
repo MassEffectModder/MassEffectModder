@@ -4,7 +4,7 @@ CONFIG += staticlib warn_off
 QT -= gui core
 
 SOURCES += \
-    oodle.c
+    oodle.cpp
 
 HEADERS += \
     oodle.h

@@ -22,10 +22,6 @@
 #ifndef OODLE_H
 #define OODLE_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #ifndef EXPORT_LIBS
 
 int OodleCompressData(unsigned char *src, unsigned int srcLen,
@@ -33,10 +29,6 @@ int OodleCompressData(unsigned char *src, unsigned int srcLen,
 int OodleDecompressData(unsigned char *src, unsigned int srcLen,
                         unsigned char *dst, unsigned int *dstLen);
 
-#endif
-
-#ifdef __cplusplus
-}
 #endif
 
 #endif
