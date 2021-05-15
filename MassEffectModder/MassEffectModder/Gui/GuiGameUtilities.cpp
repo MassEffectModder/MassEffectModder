@@ -143,7 +143,7 @@ void LayoutMain::ChangeGamePathSelected(MeType gameType)
 #endif
         if (properVersion)
         {
-            path = DirName(DirName(DirName(path)));
+            path = DirName(DirName(DirName(DirName(DirName(path)))));
             QString key = QString("MELE");
 #if defined(_WIN32)
             configIni.Write(key, QString(path).replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameDataPath");
