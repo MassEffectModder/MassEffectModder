@@ -279,7 +279,7 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
     {
         QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
                 "/MassEffectModder";
-        QString mapFile = path + QString("/me%1map.bin").arg((int)gameId);
+        QString mapFile = path + QString("/mele%1map.bin").arg((int)gameId);
         if (!TreeScan::loadTexturesMapFile(mapFile, textures))
             return false;
     }

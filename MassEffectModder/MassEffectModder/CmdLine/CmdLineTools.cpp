@@ -973,7 +973,7 @@ bool CmdLineTools::detectsMismatchPackagesAfter(MeType gameType)
 
     QString path = QStandardPaths::standardLocations(QStandardPaths::GenericConfigLocation).first() +
             "/MassEffectModder";
-    QString mapFile = path + QString("/me%1map.bin").arg((int)gameType);
+    QString mapFile = path + QString("/mele%1map.bin").arg((int)gameType);
     FileStream fs = FileStream(mapFile, FileMode::Open, FileAccess::ReadOnly);
     uint tag = fs.ReadUInt32();
     uint version = fs.ReadUInt32();
