@@ -410,7 +410,7 @@ const QString GameData::GameExePath()
         case MeType::ME2_TYPE:
         case MeType::ME3_TYPE:
         return _path + "/Game/ME" + QString::number((int)gameType) +
-                "/BioGame/Binaries/Win64/MassEffect" + QString::number((int)gameType) + ".exe";
+                "/Binaries/Win64/MassEffect" + QString::number((int)gameType) + ".exe";
         case MeType::UNKNOWN_TYPE:
             CRASH();
     }
