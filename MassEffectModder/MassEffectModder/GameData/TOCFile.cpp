@@ -109,6 +109,7 @@ void TOCBinFile::GenerateDLCsTocBinFiles()
                     iterator.filePath().endsWith(".afc", Qt::CaseInsensitive) ||
                     iterator.filePath().endsWith(".cnd", Qt::CaseInsensitive) ||
                     iterator.filePath().endsWith(".bik", Qt::CaseInsensitive) ||
+                    iterator.filePath().endsWith(".dlc", Qt::CaseInsensitive) ||
                     iterator.filePath().endsWith(".txt", Qt::CaseInsensitive) ||
                     iterator.filePath().endsWith(".bin", Qt::CaseInsensitive))
                 {
