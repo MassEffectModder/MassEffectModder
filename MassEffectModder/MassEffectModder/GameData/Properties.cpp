@@ -537,12 +537,23 @@ void Properties::setStrValue(const QString &name, const QString &valueName)
     qint32 len = valueName.length();
     if (len != 0)
         len += 1;
-    len *= 2;
-    property.valueRaw = ByteBuffer(len + 4);
-    auto s = const_cast<ushort *>(valueName.utf16());
-    memcpy(property.valueRaw.ptr() + 4, s, valueName.length() * 2);
-    memset(property.valueRaw.ptr() + 8 + valueName.length() * 2, 0, sizeof(qint16));
-    len = -len;
+    if (GameData::gameType == MeType::ME3_TYPE)
+    {
+        len *= 2;
+        property.valueRaw = ByteBuffer(len + 4);
+        auto s = const_cast<ushort *>(valueName.utf16());
+        memcpy(property.valueRaw.ptr() + 4, s, valueName.length() * 2);
+        memset(property.valueRaw.ptr() + 8 + valueName.length() * 2, 0, sizeof(qint16));
+        len = -len;
+    }
+    else
+    {
+        property.valueRaw = ByteBuffer(len + 4);
+        std::string string = valueName.toStdString();
+        auto s = const_cast<char *>(string.c_str());
+        memcpy(property.valueRaw.ptr() + 4, s, valueName.length());
+        memset(property.valueRaw.ptr() + 8 + valueName.length(), 0, sizeof(qint8));
+    }
     memcpy(property.valueRaw.ptr(), &len, sizeof(qint32));
     property.valueName = valueName;
 
