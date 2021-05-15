@@ -107,7 +107,7 @@ int Package::Open(const QString &filename, bool headerOnly, bool fullLoad)
         PERROR(QString("Package file has 0 length: %1\n").arg(filename));
         return -1;
     }
-    if (QFileInfo(filename).size() < packageHeaderSizeME3)
+    if (QFileInfo(filename).size() < packageHeaderSize684)
     {
         PERROR(QString("Broken package header in: %1\n").arg(filename));
         return -1;
@@ -122,20 +122,15 @@ int Package::Open(const QString &filename, bool headerOnly, bool fullLoad)
         return -1;
     }
     ushort ver = packageStream->ReadUInt16();
-    if (ver == packageFileVersionME1)
+    if (ver == packageFileVersion684)
     {
-        packageHeaderSize = packageHeaderSizeME1;
-        packageFileVersion = packageFileVersionME1;
+        packageHeaderSize = packageHeaderSize684;
+        packageFileVersion = packageFileVersion684;
     }
-    else if (ver == packageFileVersionME2)
+    else if (ver == packageFileVersion685)
     {
-        packageHeaderSize = packageHeaderSizeME2;
-        packageFileVersion = packageFileVersionME2;
-    }
-    else if (ver == packageFileVersionME3)
-    {
-        packageHeaderSize = packageHeaderSizeME3;
-        packageFileVersion = packageFileVersionME3;
+        packageHeaderSize = packageHeaderSize685;
+        packageFileVersion = packageFileVersion685;
     }
     else
     {
@@ -174,8 +169,6 @@ int Package::Open(const QString &filename, bool headerOnly, bool fullLoad)
     }
     long afterChunksTable = packageStream->Position();
     someTag = packageStream->ReadUInt32();
-    if (packageFileVersion == packageFileVersionME2)
-        packageStream->SkipInt32(); // const 0
 
     loadExtraNames(*packageStream);
 
@@ -539,10 +532,22 @@ void Package::loadNames(Stream &input)
         if (len < 0) // unicode
         {
             entry.name = "";
-            for (int n = 0; n < -len; n++)
+            if (packageFileVersion == packageFileVersion685)
             {
-                quint16 c = input.ReadUInt16();
-                entry.name += QChar(static_cast<ushort>(c));
+                for (int n = 0; n < -len; n++)
+                {
+                    quint16 c = input.ReadUInt16();
+                    entry.name += QChar(static_cast<ushort>(c));
+                }
+            }
+            else
+            {
+                for (int n = 0; n < -len; n++)
+                {
+                    quint8 c = input.ReadByte();
+                    input.ReadByte();
+                    entry.name += (char)c;
+                }
             }
         }
         else
@@ -592,8 +597,16 @@ void Package::saveNames(Stream &output)
             {
                 output.WriteInt32(0);
             }
-            output.WriteInt32(-(entry.name.length() + 1));
-            output.WriteStringUnicode16Null(entry.name);
+            else if (packageFileVersion == packageFileVersion685)
+            {
+                output.WriteInt32(-(entry.name.length() + 1));
+                output.WriteStringUnicode16Null(entry.name);
+            }
+            else
+            {
+                output.WriteInt32(entry.name.length() + 1);
+                output.WriteStringASCIINull(entry.name);
+            }
         }
     }
 }
@@ -644,7 +657,10 @@ void Package::saveExtraNames(Stream &output, bool rawMode)
     {
         if (rawMode)
         {
-            output.WriteInt32(-(extraNamesTable[c].raw.size() / 2));
+            if (packageFileVersion == packageFileVersion685)
+                output.WriteInt32(-(extraNamesTable[c].raw.size() / 2));
+            else
+                output.WriteInt32(extraNamesTable[c].raw.size());
             output.WriteFromBuffer(extraNamesTable[c].raw.ptr(), extraNamesTable[c].raw.size());
         }
         else
@@ -653,8 +669,16 @@ void Package::saveExtraNames(Stream &output, bool rawMode)
             {
                 output.WriteInt32(0);
             }
-            output.WriteInt32(-(extraNamesTable[c].name.length() + 1));
-            output.WriteStringUnicode16Null(extraNamesTable[c].name);
+            else if (packageFileVersion == packageFileVersion685)
+            {
+                output.WriteInt32(-(extraNamesTable[c].name.length() + 1));
+                output.WriteStringUnicode16Null(extraNamesTable[c].name);
+            }
+            else
+            {
+                output.WriteInt32(extraNamesTable[c].name.length() + 1);
+                output.WriteStringASCIINull(extraNamesTable[c].name);
+            }
         }
     }
 }

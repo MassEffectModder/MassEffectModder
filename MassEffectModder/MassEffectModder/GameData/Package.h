@@ -52,16 +52,14 @@ public:
     enum PackageEnums
     {
         DataTag = 0x9E2A83C1,
-        packageFileVersionME1 = 491,
-        packageFileVersionME2 = 512,
-        packageFileVersionME3 = 684,
+        packageFileVersion684 = 684,
+        packageFileVersion685 = 685,
     };
 
     enum PackageHeaderEnums
     {
-        packageHeaderSizeME1 = 121,
-        packageHeaderSizeME2 = 117,
-        packageHeaderSizeME3 = 126,
+        packageHeaderSize684 = 117,
+        packageHeaderSize685 = 126,
 
         sizeOfGeneration = 12,
 
@@ -84,8 +82,9 @@ public:
     enum CompressionType
     {
         None = 0,
-        Zlib,
-        LZO
+        Zlib = 1,
+        LZO = 2,
+        Oddle = 1024
     };
 
     enum PackageFlags
@@ -283,7 +282,7 @@ private:
 
     inline int getTablesOffset()
     {
-        if (packageFileVersion == packageFileVersionME3)
+        if (packageFileVersion == packageFileVersion685)
             return getPackageHeaderFlagsOffset() + sizeof(uint) + sizeof(uint); // additional entry in header
         return getPackageHeaderFlagsOffset() + sizeof(uint);
     }
