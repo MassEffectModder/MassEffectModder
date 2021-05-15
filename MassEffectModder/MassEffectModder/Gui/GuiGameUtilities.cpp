@@ -162,6 +162,7 @@ void LayoutMain::ChangeGamePathSelected(MeType gameType)
     {
         QMessageBox::information(this, "Changing game path", "Game path NOT changed.");
     }
+    mainWindow->statusBar()->clearMessage();
     LockGui(false);
 }
 
@@ -196,6 +197,7 @@ void LayoutMain::ChangeUserPathSelected(MeType gameType)
         QMessageBox::information(this, "Changing user configuration path",
                                  "User configuration path NOT changed.");
     }
+    mainWindow->statusBar()->clearMessage();
     LockGui(false);
 }
 #endif
