@@ -151,6 +151,7 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
             {
                 QStringList files;
                 QDirIterator iterator(DLCData() + "/" + DLCDir + DLCDataSuffix(), QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
+                bool isValid = false;
                 while (iterator.hasNext())
                 {
 #ifdef GUI
@@ -161,6 +162,10 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
                     }
 #endif
                     iterator.next();
+                    if (iterator.filePath().endsWith("Mount.dlc", Qt::CaseInsensitive))
+                    {
+                        isValid = true;
+                    }
                     QString path = iterator.filePath().mid(pathLen);
                     if (filterPath.length() != 0 && !path.contains(filterPath, Qt::CaseInsensitive))
                         continue;
@@ -169,17 +174,20 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
                     files.push_back(path);
                 }
 
-                QDirIterator iterator2(DLCData() + "/" + DLCDir + "/Movies", QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
-                while (iterator2.hasNext())
+                if (isValid)
                 {
-                    iterator2.next();
-                    QString path = iterator2.filePath().mid(pathLen);
-                    if (AsciiStringEndsWith(path, EXTENSION_BIK, EXTENSION_BIK_LEN))
+                    QDirIterator iterator2(DLCData() + "/" + DLCDir + "/Movies", QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
+                    while (iterator2.hasNext())
                     {
-                        bikFiles.push_back(path);
+                        iterator2.next();
+                        QString path = iterator2.filePath().mid(pathLen);
+                        if (AsciiStringEndsWith(path, EXTENSION_BIK, EXTENSION_BIK_LEN))
+                        {
+                            bikFiles.push_back(path);
+                        }
                     }
+                    DLCFiles += files;
                 }
-                DLCFiles += files;
             }
 
             if (gameType == MeType::ME2_TYPE)
