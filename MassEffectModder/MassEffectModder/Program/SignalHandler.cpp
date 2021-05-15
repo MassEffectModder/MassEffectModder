@@ -46,7 +46,7 @@ void LogCrash(string output, string &message)
     msgBox.setDetailedText(QString::fromStdString(output));
     msgBox.setWindowModality(Qt::ApplicationModal);
     auto *spacer = new QSpacerItem(800, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
-    auto *layout = dynamic_cast<QGridLayout*>(msgBox.layout());
+    auto *layout = dynamic_cast<QGridLayout *>(msgBox.layout());
     layout->addItem(spacer, layout->rowCount(), 0, 1, layout->columnCount());
     msgBox.exec();
 #endif
