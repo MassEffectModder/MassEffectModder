@@ -530,9 +530,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                 }
 
                 int forceInternalMip = false;
-                bool hadNeverStream = false;
                 if (texture.getProperties().exists("NeverStream")) {
-                    hadNeverStream = true;
                     texture.getProperties().removeProperty("NeverStream");
                 }
 
