@@ -41,16 +41,12 @@ int ProcessArguments()
     MeType gameId = MeType::UNKNOWN_TYPE;
     bool markToConvert = false;
     bool alotMode = false;
-    bool repackMode = false;
     bool skipMarkers = false;
-    bool limit2k = false;
     bool pccOnly = false;
     bool tfcOnly = false;
     bool verify = false;
     bool mapCRC = false;
     bool removeEmptyMips = false;
-    bool pullTextures = false;
-    bool compressed = true;
     bool flattenPath = false;
     int thresholdValue = 128;
     int cacheAmountValue = -1;
@@ -193,18 +189,8 @@ int ProcessArguments()
             alotMode = true;
             args.removeAt(l--);
         }
-        else if (arg == "--repack-mode")
-        {
-            repackMode = true;
-            args.removeAt(l--);
-        }
         else if (arg == "--meuitm-mode")
         {
-            args.removeAt(l--);
-        }
-        else if (arg == "--limit-2k")
-        {
-            limit2k = true;
             args.removeAt(l--);
         }
         else if (arg == "--skip-markers")
@@ -317,17 +303,6 @@ int ProcessArguments()
         {
             removeEmptyMips = true;
             args.removeAt(l);
-            args.removeAt(l--);
-        }
-        else if (arg == "--pull-textures")
-        {
-            pullTextures = true;
-            args.removeAt(l);
-            args.removeAt(l--);
-        }
-        else if (arg == "--no-compression")
-        {
-            compressed = false;
             args.removeAt(l--);
         }
         else if (arg == "--flatten-archive-path")
