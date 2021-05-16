@@ -234,10 +234,7 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
     int progress = 0;
     int allFilesCount = g_GameData->packageFiles.count();
     allFilesCount += g_GameData->tfcFiles.count();
-    allFilesCount += g_GameData->coalescedFiles.count();
-    allFilesCount += g_GameData->afcFiles.count();
-    allFilesCount += g_GameData->tlkFiles.count();
-    allFilesCount += g_GameData->bikFiles.count();
+    allFilesCount += g_GameData->othersFiles.count();
 
     mods.clear();
     FileStream *fs = nullptr;
@@ -257,22 +254,8 @@ bool Misc::checkGameFiles(MeType gameType, Resources &resources, QString &errors
                                 errors, mods, callback, callbackHandle);
     if (!state)
         vanilla = false;
-    state = checkGameFilesSub(fs, g_GameData->coalescedFiles, entries, lastProgress, progress, allFilesCount,
+    state = checkGameFilesSub(fs, g_GameData->othersFiles, entries, lastProgress, progress, allFilesCount,
                                 errors, mods, callback, callbackHandle);
-    if (!state)
-        vanilla = false;
-    state = checkGameFilesSub(fs, g_GameData->afcFiles, entries, lastProgress, progress, allFilesCount,
-                                errors, mods, callback, callbackHandle);
-    if (!state)
-        vanilla = false;
-    state = checkGameFilesSub(fs, g_GameData->tlkFiles, entries, lastProgress, progress, allFilesCount,
-                                errors, mods, callback, callbackHandle);
-    if (!state)
-        vanilla = false;
-    state = checkGameFilesSub(fs, g_GameData->bikFiles, entries, lastProgress, progress, allFilesCount,
-                                errors, mods, callback, callbackHandle);
-    if (!state)
-        vanilla = false;
 
     if (generateModsMd5Entries || generateMd5Entries)
     {

@@ -86,7 +86,7 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
                 continue;
             if (AsciiBaseNameStringStartsWith(files[f], COALESCED, COALESCED_LEN))
             {
-                coalescedFiles.push_back(path);
+                othersFiles.push_back(path);
                 continue;
             }
 
@@ -95,12 +95,12 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
             {
                 if (AsciiStringEndsWith(files[f], EXTENSION_AFC, EXTENSION_AFC_LEN))
                 {
-                    afcFiles.push_back(path);
+                    othersFiles.push_back(path);
                     continue;
                 }
                 if (AsciiStringEndsWith(files[f], EXTENSION_TLK, EXTENSION_TLK_LEN))
                 {
-                    tlkFiles.push_back(path);
+                    othersFiles.push_back(path);
                     continue;
                 }
             }
@@ -111,7 +111,7 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
         QString path = splashPath.mid(pathLen);
         if (QFile::exists(splashPath))
         {
-            coalescedFiles.push_back(path);
+            othersFiles.push_back(path);
         }
 
         QDirIterator iterator2(_path + "/Game/ME" + QString::number((int)gameType) + "/Engine/Shaders", QDir::Files | QDir::NoSymLinks);
@@ -121,7 +121,7 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
             QString path = iterator2.filePath().mid(pathLen);
             if (AsciiStringEndsWith(path, EXTENSION_USF, EXTENSION_USF_LEN))
             {
-                coalescedFiles.push_back(path);
+                othersFiles.push_back(path);
             }
         }
 
@@ -132,7 +132,7 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
             QString path = iterator3.filePath().mid(pathLen);
             if (AsciiStringEndsWith(path, EXTENSION_BIK, EXTENSION_BIK_LEN))
             {
-                bikFiles.push_back(path);
+                othersFiles.push_back(path);
             }
         }
 
@@ -143,7 +143,7 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
             QString path = iterator4.filePath().mid(pathLen);
             if (AsciiStringEndsWith(path, EXTENSION_ISB, EXTENSION_ISB_LEN))
             {
-                afcFiles.push_back(path);
+                othersFiles.push_back(path);
             }
         }
 
@@ -186,7 +186,7 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
                         QString path = iterator2.filePath().mid(pathLen);
                         if (AsciiStringEndsWith(path, EXTENSION_BIK, EXTENSION_BIK_LEN))
                         {
-                            bikFiles.push_back(path);
+                            othersFiles.push_back(path);
                         }
                     }
                     DLCFiles += files;
@@ -200,11 +200,11 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
                     if (AsciiStringEndsWith(DLCFiles[i], EXTENSION_TFC, EXTENSION_TFC_LEN))
                         tfcFiles.push_back(DLCFiles[i]);
                     else if (AsciiStringEndsWith(DLCFiles[i], EXTENSION_AFC, EXTENSION_AFC_LEN))
-                        afcFiles.push_back(DLCFiles[i]);
+                        othersFiles.push_back(DLCFiles[i]);
                     else if (AsciiStringEndsWith(DLCFiles[i], EXTENSION_TLK, EXTENSION_TLK_LEN))
-                        tlkFiles.push_back(DLCFiles[i]);
+                        othersFiles.push_back(DLCFiles[i]);
                     else if (AsciiStringEndsWith(DLCFiles[i], EXTENSION_INI, EXTENSION_INI_LEN))
-                        coalescedFiles.push_back(DLCFiles[i]);
+                        othersFiles.push_back(DLCFiles[i]);
                 }
             }
             else if (gameType == MeType::ME3_TYPE)
@@ -214,11 +214,23 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
                     if (AsciiStringEndsWith(DLCFiles[i], EXTENSION_TFC, EXTENSION_TFC_LEN))
                         tfcFiles.push_back(DLCFiles[i]);
                     else if (AsciiStringEndsWith(DLCFiles[i], EXTENSION_AFC, EXTENSION_AFC_LEN))
-                        afcFiles.push_back(DLCFiles[i]);
+                        othersFiles.push_back(DLCFiles[i]);
                     else if (AsciiStringEndsWith(DLCFiles[i], EXTENSION_TLK, EXTENSION_TLK_LEN))
-                        tlkFiles.push_back(DLCFiles[i]);
+                        othersFiles.push_back(DLCFiles[i]);
                 }
             }
+        }
+
+        QDirIterator iterator5(_path + "/Game/Launcher", QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
+        while (iterator5.hasNext())
+        {
+            iterator5.next();
+            QString path = iterator5.filePath().mid(pathLen);
+            if (AsciiStringEndsWith(path, EXTENSION_EXE, EXTENSION_EXE_LEN))
+                continue;
+            if (AsciiStringEndsWith(path, EXTENSION_DLL, EXTENSION_DLL_LEN))
+                continue;
+            othersFiles.push_back(path);
         }
 
         std::sort(tfcFiles.begin(), tfcFiles.end(), comparePath);
@@ -488,10 +500,7 @@ void GameData::ClosePackagesList()
     mainFiles.clear();
     DLCFiles.clear();
     tfcFiles.clear();
-    coalescedFiles.clear();
-    afcFiles.clear();
-    tlkFiles.clear();
-    bikFiles.clear();
+    othersFiles.clear();
 }
 
 GameData *g_GameData;

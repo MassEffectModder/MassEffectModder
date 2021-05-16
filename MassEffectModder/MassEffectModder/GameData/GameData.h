@@ -51,6 +51,12 @@ bool comparePath(const QString &e1, const QString &e2);
 #define EXTENSION_TLK      ".tlk"
 #define EXTENSION_TLK_LEN  (sizeof(EXTENSION_TLK) - 1)
 
+#define EXTENSION_EXE      ".exe"
+#define EXTENSION_EXE_LEN  (sizeof(EXTENSION_EXE) - 1)
+
+#define EXTENSION_DLL      ".dll"
+#define EXTENSION_DLL_LEN  (sizeof(EXTENSION_DLL) - 1)
+
 #define GLOBALPERIST       "globalpersistentcookerdata.upk"
 #define GLOBALPERIST_LEN   (sizeof(GLOBALPERIST) - 1)
 
@@ -104,10 +110,7 @@ public:
     QStringList mainFiles;
     QStringList DLCFiles;
     QStringList tfcFiles;
-    QStringList coalescedFiles;
-    QStringList afcFiles;
-    QStringList tlkFiles;
-    QStringList bikFiles;
+    QStringList othersFiles;
     bool FullScanGame;
     bool DLCDataCacheDone = false;
 
