@@ -1357,11 +1357,8 @@ const ByteBuffer Package::decompressData(Stream &stream, StorageTypes type,
         #pragma omp parallel for
         for (int b = 0; b < blocks.count(); b++)
         {
-            uint dstLen = MaxBlockSize * 2;
             Package::ChunkBlock block = blocks[b];
-            if (OodleDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, dstLen) != 0)
-                errorFlag = true;
-            if (dstLen != block.uncomprSize)
+            if (OodleDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, block.uncomprSize) != 0)
                 errorFlag = true;
         }
     }
