@@ -256,7 +256,6 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
 
         std::sort(packageFiles.begin(), packageFiles.end(), comparePath);
     }
-    g_GameData->FullScanGame = true;
 }
 
 void GameData::Init(MeType type)

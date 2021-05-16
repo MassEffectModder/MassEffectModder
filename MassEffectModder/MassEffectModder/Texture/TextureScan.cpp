@@ -35,7 +35,7 @@
 #include <MipMaps/MipMaps.h>
 #include <Misc/Misc.h>
 
-static bool generateBuiltinMapFiles = true; // change to true to enable map files generation
+static bool generateBuiltinMapFiles = false; // change to true to enable map files generation
 
 bool TreeScan::IsBlankTexture(uint crc)
 {
