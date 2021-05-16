@@ -235,7 +235,6 @@ bool CmdLineTools::ConvertToMEM(MeType gameId, QString &inputDir, QString &memFi
     QFileInfoList list;
     QFileInfoList list2;
     list = QDir(inputDir, "*.mem", QDir::SortFlag::IgnoreCase | QDir::SortFlag::Name, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
-    list2 = QDir(inputDir, "*.tpf", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
     list2 += QDir(inputDir, "*.dds", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
     list2 += QDir(inputDir, "*.png", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
     list2 += QDir(inputDir, "*.bmp", QDir::SortFlag::Unsorted, QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
@@ -362,6 +361,8 @@ bool CmdLineTools::convertImage(QString &inputFile, QString &outputFile, QString
         pixFmt = PixelFormat::RGBA;
     else if (format == "g8")
         pixFmt = PixelFormat::G8;
+    else if (format == "bc7")
+        pixFmt = PixelFormat::BC7;
     else
     {
         PERROR(QString("Error: not supported format: ") + format + "\n");

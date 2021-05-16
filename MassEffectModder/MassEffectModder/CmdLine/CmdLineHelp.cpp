@@ -79,7 +79,7 @@ void DisplayHelp()
         "        MEM, TPF\n" \
         "        DDS, BMP, TGA, PNG\n" \
         "           input format supported for DDS images:\n" \
-        "              DXT1, DXT3, DTX5, ATI2, V8U8, G8, ARGB, RGB, RGBA\n" \
+        "              DXT1, DXT3, DTX5, ATI2, V8U8, G8, ARGB, RGB, RGBA, BC7\n" \
         "           input format supported for TGA images:\n" \
         "              uncompressed ARGB/RGB, compressed ARGB/RGB\n" \
         "           input format supported for BMP images:\n" \
@@ -94,7 +94,7 @@ void DisplayHelp()
         "     Input file with following extension:\n" \
         "        DDS, BMP, TGA, PNG\n" \
         "           input format supported for DDS images:\n" \
-        "              DXT1, DXT3, DTX5, ATI2, V8U8, G8, ARGB, RGB, RGBA\n" \
+        "              DXT1, DXT3, DTX5, ATI2, V8U8, G8, ARGB, RGB, RGBA, BC7\n" \
         "           input format supported for TGA images:\n" \
         "              uncompressed ARGB/RGB, compressed ARGB/RGB\n" \
         "           input format supported for BMP images:\n" \
@@ -108,7 +108,7 @@ void DisplayHelp()
         "        Input files with following extension:\n" \
         "        DDS, BMP, TGA, PNG\n" \
         "           input format supported for DDS images:\n" \
-        "              DXT1, DXT3, DTX5, ATI2, V8U8, G8, ARGB, RGB, RGBA\n" \
+        "              DXT1, DXT3, DTX5, ATI2, V8U8, G8, ARGB, RGB, RGBA, BC7\n" \
         "           input format supported for TGA images:\n" \
         "              uncompressed ARGB/RGB, compressed ARGB/RGB\n" \
         "           input pixel format supported for BMP images:\n" \
@@ -124,7 +124,7 @@ void DisplayHelp()
         "  --convert-image --format <output pixel format> [--threshold <dxt1 alpha threshold>] --input <input image> --output <output image>\n" \
         "     input image file types: DDS, BMP, TGA, PNG\n" \
         "           input format supported for DDS images:\n" \
-        "              DXT1, DXT3, DTX5, ATI2, V8U8, G8, ARGB, RGB, RGBA\n" \
+        "              DXT1, DXT3, DTX5, ATI2, V8U8, G8, ARGB, RGB, RGBA, BC7\n" \
         "           input format supported for TGA images:\n" \
         "              uncompressed ARGB/RGB, compressed ARGB/RGB\n" \
         "           input format supported for BMP images:\n" \
