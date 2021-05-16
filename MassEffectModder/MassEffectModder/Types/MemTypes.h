@@ -76,7 +76,7 @@ typedef enum
 #define MEMendFileMarker      "ThisIsMEMEndOfFileMarker"
 #define MEMMarkerLength       (sizeof(MEMendFileMarker) - 1)
 
-#define BIK_TAG               0x694B4942 // 'BIKi'
+#define BIK_TAG               0x6A32424B // 'HB2j'
 
 #define PERCENT_OF_SIZE(x, y) (((x) * (y)) / 100)
 #ifndef MIN

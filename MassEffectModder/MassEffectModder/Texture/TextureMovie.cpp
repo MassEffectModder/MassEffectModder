@@ -38,6 +38,11 @@ TextureMovie::TextureMovie(Package &package, int exportId, const ByteBuffer &dat
 
     textureData = new MemoryStream(data, properties->propertyEndOffset, data.size() - properties->propertyEndOffset);
 
+    if (GameData::gameType != MeType::ME3_TYPE)
+    {
+        textureData->Skip(12); // 12 zeros
+        textureData->SkipInt32(); // position in the package
+    }
     storageType = (StorageTypes)textureData->ReadInt32();
     uncompressedSize = textureData->ReadInt32();
     compressedSize = textureData->ReadInt32();
@@ -62,6 +67,10 @@ void TextureMovie::replaceMovieData(ByteBuffer newData, uint offset)
 
     delete textureData;
     textureData = new MemoryStream();
+    if (GameData::gameType != MeType::ME3_TYPE)
+    {
+        textureData->WriteZeros(16);
+    }
     textureData->WriteUInt32(storageType);
     textureData->WriteInt32(uncompressedSize);
     textureData->WriteInt32(compressedSize);
@@ -201,6 +210,10 @@ uint TextureMovie::getCrcData()
 const ByteBuffer TextureMovie::toArray()
 {
     MemoryStream newData;
+    if (GameData::gameType != MeType::ME3_TYPE)
+    {
+        newData.WriteZeros(16);
+    }
     newData.WriteInt32(storageType);
     newData.WriteInt32(uncompressedSize);
     newData.WriteInt32(compressedSize);
