@@ -1275,7 +1275,6 @@ const ByteBuffer Package::compressData(const ByteBuffer &inputData, StorageTypes
 const ByteBuffer Package::decompressData(Stream &stream, StorageTypes type,
                                          int uncompressedSize, int compressedSize)
 {
-    auto data = ByteBuffer(uncompressedSize);
     uint blockTag = stream.ReadUInt32();
     if (blockTag != DataTag)
     {
@@ -1371,6 +1370,7 @@ const ByteBuffer Package::decompressData(Stream &stream, StorageTypes type,
         return ByteBuffer();
     }
 
+    auto data = ByteBuffer(uncompressedSize);
     int dstPos = 0;
     for (int b = 0; b < blocks.count(); b++)
     {
