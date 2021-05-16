@@ -48,7 +48,7 @@ PixelFormat Misc::changeTextureType(MeType gameId, PixelFormat gamePixelFormat, 
         }
         else if ((gamePixelFormat == PixelFormat::DXT5 || gamePixelFormat == PixelFormat::DXT1) &&
             (texturePixelFormat == PixelFormat::ARGB || texturePixelFormat == PixelFormat::RGB) &&
-            flags == TextureType::Normal)
+            flags == TextureType::Diffuse)
         {
             gamePixelFormat = PixelFormat::ARGB;
         }

@@ -35,7 +35,7 @@
 #include <MipMaps/MipMaps.h>
 #include <Misc/Misc.h>
 
-static bool generateBuiltinMapFiles = false; // change to true to enable map files generation
+static bool generateBuiltinMapFiles = true; // change to true to enable map files generation
 
 bool TreeScan::IsBlankTexture(uint crc)
 {
@@ -864,9 +864,15 @@ void TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &pac
                             else if (cmp == "TC_Normalmap" ||
                                 cmp == "TC_NormalmapHQ" ||
                                 cmp == "TC_NormalmapAlpha" ||
+                                cmp == "TC_NormalmapBC5" ||
+                                cmp == "TC_NormalmapBC7" ||
                                 cmp == "TC_NormalmapUncompressed")
                             {
                                 foundTex.flags = TextureType::Normalmap;
+                            }
+                            else if (cmp == "TC_BC7")
+                            {
+                                foundTex.flags = TextureType::BC7Type;
                             }
                             else
                             {
@@ -875,7 +881,7 @@ void TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &pac
                         }
                         else
                         {
-                            foundTex.flags = TextureType::Normal;
+                            foundTex.flags = TextureType::Diffuse;
                         }
                     }
                     delete texture;

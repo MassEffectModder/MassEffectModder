@@ -718,6 +718,10 @@ PixelFormat Image::getPixelFormatType(const QString &format)
         return PixelFormat::RGB;
     if (format == "PF_G8")
         return PixelFormat::G8;
+    if (format == "PF_BC5")
+        return PixelFormat::BC5;
+    if (format == "PF_BC7")
+        return PixelFormat::BC7;
 
     CRASH_MSG("Invalid texture format.");
 }
@@ -742,6 +746,10 @@ QString Image::getEngineFormatType(PixelFormat format)
             return "PF_R8G8B8";
         case PixelFormat::G8:
             return "PF_G8";
+        case PixelFormat::BC5:
+            return "PF_BC5";
+        case PixelFormat::BC7:
+            return "PF_BC7";
         default:
             CRASH_MSG("Invalid texture format.");
     }

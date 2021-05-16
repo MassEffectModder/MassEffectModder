@@ -34,7 +34,7 @@ typedef enum
 
 typedef enum
 {
-    UnknownPixelFormat, DXT1, DXT3, DXT5, ATI2, V8U8, ARGB, RGBA, RGB, G8
+    UnknownPixelFormat, DXT1, DXT3, DXT5, ATI2, V8U8, ARGB, RGBA, RGB, G8, BC5, BC7
 } PixelFormat;
 
 typedef enum
@@ -44,11 +44,12 @@ typedef enum
 
 typedef enum
 {
-    Normal = 0,
+    Diffuse = 0,
     Normalmap,
     OneBitAlpha,
     GreyScale,
     Displacementmap,
+    BC7Type,
     Movie,
 } TextureType;
 
