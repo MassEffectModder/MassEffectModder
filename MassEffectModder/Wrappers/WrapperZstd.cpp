@@ -23,6 +23,7 @@
 #include <zstd.h>
 #include <cstring>
 #include <memory>
+#include <cstdio>
 
 int ZstdDecompress(unsigned char *src, unsigned int src_len, unsigned char *dst, unsigned int *dst_len)
 {

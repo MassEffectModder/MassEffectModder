@@ -26,8 +26,12 @@ SOURCES += \
 !equals(WRAPPERS_SHARED, true) {
 SOURCES += \
     WrapperPng.cpp \
-    WrapperUnrar.cpp \
-    WrapperZstd.cpp
+    WrapperUnrar.cpp
+
+equals(ZSTD_ENABLE, true) {
+    SOURCES += WrapperZstd.cpp
+}
+
 }
 
 !equals(WRAPPERS_SHARED, true) {
