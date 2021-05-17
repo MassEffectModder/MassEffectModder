@@ -188,14 +188,14 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<TextureMapEntry> &textur
         int len = fs.ReadInt32();
         fs.ReadStringASCII(texture.name, len);
         texture.crc = fs.ReadUInt32();
-        quint32 flags = fs.ReadUInt32();
         uint countPackages = fs.ReadUInt32();
         texture.list = QList<TextureMapPackageEntry>();
         for (uint k = 0; k < countPackages; k++)
         {
             TextureMapPackageEntry matched{};
-            matched.movieTexture = ((flags & 1) == 1);
             matched.exportID = fs.ReadInt32();
+            quint32 flags = fs.ReadUInt32();
+            matched.movieTexture = ((flags & 1) == 1);
             len = fs.ReadInt32();
             fs.ReadStringASCII(matched.path, len);
             matched.path.replace(QChar('\\'), QChar('/'));
