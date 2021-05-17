@@ -328,7 +328,7 @@ void GameData::InternalInit(MeType type, ConfigIni &configIni)
             }
             if (properVersion)
             {
-                configIni.Write(key, _path.replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameDataPath");
+                configIni.Write("MELE", _path.replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameDataPath");
                 return;
             }
         }
