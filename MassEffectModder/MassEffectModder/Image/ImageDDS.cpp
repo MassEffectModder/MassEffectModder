@@ -712,7 +712,7 @@ ByteBuffer Image::decompressMipmap(PixelFormat srcFormat, const quint8 *src, int
                     DxtcDecompressRGBABlock(dstBlock, block);
                     writeBlock4X4ARGB(dstBlock, dst.ptr(), w, x, y);
                 }
-                else if (srcFormat == PixelFormat::ATI2)
+                else if (srcFormat == PixelFormat::ATI2 || srcFormat == PixelFormat::BC5)
                 {
                     uint blockX[2];
                     uint blockY[2];
@@ -727,6 +727,11 @@ ByteBuffer Image::decompressMipmap(PixelFormat srcFormat, const quint8 *src, int
                     DxtcDecompressAlphaBlock(blockDstR, blockX);
                     DxtcDecompressAlphaBlock(blockDstG, blockY);
                     writeBlock4X4ARGBATI2(blockDstR, blockDstG, dst.ptr(), w, x, y);
+                }
+                else if (srcFormat == PixelFormat::BC7)
+                {
+                    memset(dst.ptr(), 0, dst.size());
+                    return dst;
                 }
                 else
                     CRASH_MSG("Not supported codec.");
