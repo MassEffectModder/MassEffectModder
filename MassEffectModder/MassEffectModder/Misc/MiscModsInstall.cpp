@@ -224,7 +224,7 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
 
     Misc::startTimer();
 
-    bool modded = detectMod(gameId);
+    bool modded = detectMod();
     if (g_ipc)
     {
         if (!modded)
@@ -253,10 +253,7 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
         {
             pkgsToMarker.push_back(g_GameData->packageFiles[i]);
         }
-        if (GameData::gameType == MeType::ME1_TYPE)
-            pkgsToMarker.removeOne("/BioGame/CookedPC/testVolumeLight_VFX.upk");
-        else if (GameData::gameType == MeType::ME2_TYPE)
-            pkgsToMarker.removeOne("/BioGame/CookedPC/BIOC_Materials.pcc");
+        pkgsToMarker.removeOne(g_GameData->MainData() + "/SFXTest.pcc");
 
         PINFO("Scan textures started...\n");
         if (!TreeScan::PrepareListOfTextures(gameId, resources, textures, false, true,
@@ -319,7 +316,7 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
 
 bool Misc::ApplyPostInstall(MeType gameId)
 {
-    if (!applyModTag(gameId, 0, 0))
+    if (!applyModTag(0, 0))
         PERROR("Failed applying stamp for installation!\n");
 
     PINFO("Updating LODs and other settings started...\n");

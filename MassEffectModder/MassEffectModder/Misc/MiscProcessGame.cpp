@@ -30,17 +30,9 @@
 #include <Helpers/Logs.h>
 #include <Helpers/FileStream.h>
 
-bool Misc::applyModTag(MeType gameId, int MeuitmV, int AlotV)
+bool Misc::applyModTag(int MeuitmV, int AlotV)
 {
-    QString path;
-    if (gameId == MeType::ME1_TYPE)
-        path = "/BioGame/CookedPC/testVolumeLight_VFX.upk";
-    else if (gameId == MeType::ME2_TYPE)
-        path = "/BioGame/CookedPC/BIOC_Materials.pcc";
-    else if (gameId == MeType::ME3_TYPE)
-        path = "/BIOGame/CookedPCConsole/adv_combat_tutorial_xbox_D_Int.afc";
-
-    FileStream fs = FileStream(g_GameData->GamePath() + path, FileMode::Open, FileAccess::ReadWrite);
+    FileStream fs = FileStream(g_GameData->MainData() + "/SFXTest.pcc", FileMode::Open, FileAccess::ReadWrite);
     fs.Seek(-16, SeekOrigin::End);
     int prevMeuitmV = fs.ReadInt32();
     int prevAlotV = fs.ReadInt32();
@@ -62,13 +54,8 @@ bool Misc::applyModTag(MeType gameId, int MeuitmV, int AlotV)
 
 bool Misc::CheckForMarkers(ProgressCallback callback, void *callbackHandle)
 {
-    QString path;
-    if (GameData::gameType == MeType::ME1_TYPE)
-        path = "/BioGame/CookedPC/testVolumeLight_VFX.upk";
-    else if (GameData::gameType == MeType::ME2_TYPE)
-        path = "/BioGame/CookedPC/BIOC_Materials.pcc";
-
     QStringList packages;
+    QString path = g_GameData->MainData() + "/SFXTest.pcc";
     for (int i = 0; i < g_GameData->packageFiles.count(); i++)
     {
         if (path.length() != 0 && AsciiStringMatchCaseIgnore(g_GameData->packageFiles[i], path))
@@ -117,12 +104,7 @@ bool Misc::CheckForMarkers(ProgressCallback callback, void *callbackHandle)
 
 bool Misc::MarkersPresent(ProgressCallback callback, void *callbackHandle)
 {
-    QString path;
-    if (GameData::gameType == MeType::ME1_TYPE)
-        path = "/BioGame/CookedPC/testVolumeLight_VFX.upk";
-    else if (GameData::gameType == MeType::ME2_TYPE)
-        path = "/BioGame/CookedPC/BIOC_Materials.pcc";
-
+    QString path = g_GameData->MainData() + "/SFXTest.pcc";
     QStringList packages;
     for (int i = 0; i < g_GameData->packageFiles.count(); i++)
     {
@@ -232,17 +214,9 @@ bool Misc::ReportMods()
     return true;
 }
 
-bool Misc::detectMod(MeType gameId)
+bool Misc::detectMod()
 {
-    QString path;
-    if (gameId == MeType::ME1_TYPE)
-        path = "/BioGame/CookedPC/testVolumeLight_VFX.upk";
-    else if (gameId == MeType::ME2_TYPE)
-        path = "/BioGame/CookedPC/BIOC_Materials.pcc";
-    else
-        path = "/BIOGame/CookedPCConsole/adv_combat_tutorial_xbox_D_Int.afc";
-
-    FileStream fs = FileStream(g_GameData->GamePath() + path, FileMode::Open, FileAccess::ReadOnly);
+    FileStream fs = FileStream(g_GameData->MainData() + "/SFXTest.pcc", FileMode::Open, FileAccess::ReadOnly);
     fs.Seek(-4, SeekOrigin::End);
     auto tag = fs.ReadUInt32();
     return tag == MEMI_TAG;

@@ -916,15 +916,8 @@ bool CmdLineTools::checkGameFilesAfter(MeType gameType)
         return false;
 
     PINFO("Checking for vanilla files after textures installation...\n");
-    QString path;
-    if (GameData::gameType == MeType::ME1_TYPE)
-    {
-        path = "/BioGame/CookedPC/testVolumeLight_VFX.upk";
-    }
-    if (GameData::gameType == MeType::ME2_TYPE)
-    {
-        path = "/BioGame/CookedPC/BIOC_Materials.pcc";
-    }
+
+    QString path = g_GameData->MainData() + "/SFXTest.pcc";
     QStringList filesToUpdate = QStringList();
     for (int i = 0; i < g_GameData->packageFiles.count(); i++)
     {

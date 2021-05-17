@@ -79,11 +79,7 @@ void MipMaps::removeMipMaps(QList<TextureMapEntry> &textures, QStringList &pkgsT
     QList<RemoveMipsEntry> list;
     prepareListToRemove(textures, list, force);
 
-    QString path;
-    if (GameData::gameType == ME1_TYPE)
-        path = "/BioGame/CookedPC/testVolumeLight_VFX.upk";
-    else if (GameData::gameType == ME2_TYPE)
-        path = "/BioGame/CookedPC/BIOC_Materials.pcc";
+    QString path = g_GameData->MainData() + "/SFXTest.pcc";
 #ifdef GUI
     QElapsedTimer timer;
     timer.start();

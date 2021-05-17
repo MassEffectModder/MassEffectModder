@@ -90,7 +90,7 @@ public:
     static long elapsedStageTime();
     static QString getTimerFormat(long time);
     static bool CheckGamePath();
-    static bool applyModTag(MeType gameId, int MeuitmV, int AlotV);
+    static bool applyModTag(int MeuitmV, int AlotV);
     static PixelFormat changeTextureType(MeType gameId, PixelFormat gamePixelFormat,
                                          PixelFormat texturePixelFormat,
                                          TextureType flags);
@@ -135,7 +135,7 @@ public:
     static int GetNumberOfMipsFromMap(TextureMapEntry &f);
     static QByteArray calculateMD5(const QString &filePath);
     static void detectMods(QStringList &mods);
-    static bool detectMod(MeType gameId);
+    static bool detectMod();
     static void detectBrokenMod(QStringList &mods);
     static bool CheckGameDataAndMods(MeType gameId, Resources &resources);
     static bool ApplyPostInstall(MeType gameId);
