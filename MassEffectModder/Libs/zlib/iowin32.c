@@ -21,9 +21,6 @@
 #include "ioapi.h"
 #include "iowin32.h"
 
-extern unsigned char tpfXorKey[2];
-extern int gXor;
-
 #ifndef INVALID_HANDLE_VALUE
 #define INVALID_HANDLE_VALUE (0xFFFFFFFF)
 #endif
@@ -212,23 +209,12 @@ uLong ZCALLBACK win32_read_file_func (voidpf opaque, voidpf stream, void* buf,uL
     if (hFile != NULL)
     {
         unsigned long filePos = 0;
-        if (gXor)
-            filePos = (unsigned long)win32_tell64_file_func(opaque, stream);
         if (!ReadFile(hFile, buf, size, &ret, NULL))
         {
             DWORD dwErr = GetLastError();
             if (dwErr == ERROR_HANDLE_EOF)
                 dwErr = 0;
             ((WIN32FILE_IOWIN*)stream) -> error=(int)dwErr;
-        }
-        if (gXor)
-        {
-            unsigned char *src = buf;
-            unsigned long pos = 0;
-            if (filePos & 1)
-                src[pos++] ^= tpfXorKey[1];
-                for (unsigned long i = pos; i < size; i++)
-                    src[i] ^= tpfXorKey[(i - pos) % 2];
         }
     }
 
@@ -245,16 +231,6 @@ uLong ZCALLBACK win32_write_file_func (voidpf opaque,voidpf stream,const void* b
 
     if (hFile != NULL)
     {
-        if (gXor)
-        {
-            unsigned long filePos = (unsigned long)win32_tell64_file_func(opaque, stream);
-            unsigned char *src = (unsigned char *)buf;
-            unsigned long pos = 0;
-            if (filePos & 1)
-                src[pos++] ^= tpfXorKey[1];
-            for (unsigned long i = pos; i < size; i++)
-                src[i] ^= tpfXorKey[(i - pos) % 2];
-        }
         if (!WriteFile(hFile, buf, size, &ret, NULL))
         {
             DWORD dwErr = GetLastError();
