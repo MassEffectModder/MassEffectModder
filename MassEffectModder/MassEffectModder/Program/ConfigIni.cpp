@@ -77,7 +77,7 @@ ConfigIni::ConfigIni(const QString &iniPath, bool mode, bool unixMode)
         QDir().mkpath(path);
 #if defined(_WIN32)
         settings = nullptr;
-        _iniPath = path + "/MassEffectModder.ini";
+        _iniPath = path + "/MassEffectModderLE.ini";
         valid = true;
 #else
         settings = new QSettings(path + "/MassEffectModderLE.ini", QSettings::IniFormat);
