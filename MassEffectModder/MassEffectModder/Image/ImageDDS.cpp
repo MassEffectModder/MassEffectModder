@@ -731,7 +731,6 @@ ByteBuffer Image::decompressMipmap(PixelFormat srcFormat, const quint8 *src, int
                 else if (srcFormat == PixelFormat::BC7)
                 {
                     memset(dst.ptr(), 0, dst.size());
-                    return dst;
                 }
                 else
                     CRASH_MSG("Not supported codec.");
