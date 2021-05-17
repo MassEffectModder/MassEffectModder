@@ -102,7 +102,7 @@ bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
         for (int l = 0; l < numFiles; l++, currentNumberOfTotalMods++)
         {
             QString name;
-            quint32 crc = 0, flags = 0;
+            quint32 crc = 0;
             fs.JumpTo(modFiles[l].offset);
             long size = modFiles[l].size;
             if (modFiles[l].tag == FileTextureTag ||
@@ -110,7 +110,7 @@ bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
             {
                 fs.ReadStringASCIINull(name);
                 crc = fs.ReadUInt32();
-                flags = fs.ReadUInt32();
+                fs.ReadUInt32(); // flags
             }
             else
             {

@@ -416,7 +416,7 @@ void Image::StoreImageToDDS(Stream &stream, PixelFormat format)
     stream.WriteUInt32(0); // dwCaps4
     stream.WriteUInt32(0); // dwReserved2
 
-    DDS_FORMAT dds10Format;
+    DDS_FORMAT dds10Format = DDS_FORMAT::DDS_FORMAT_UNKNOWN;
     UINT32 miscFlag2 = 0;
     switch (format == PixelFormat::UnknownPixelFormat ? pixelFormat : format)
     {
