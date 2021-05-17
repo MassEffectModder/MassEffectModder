@@ -268,11 +268,11 @@ bool CmdLineTools::convertGameTexture(MeType gameId, const QString &inputFile,
 
     PixelFormat newPixelFormat = foundTex.pixfmt;
     if (markToConvert)
-        newPixelFormat = Misc::changeTextureType(gameId, foundTex.pixfmt, image.getPixelFormat(), foundTex.flags);
+        newPixelFormat = Misc::changeTextureType(gameId, foundTex.pixfmt, image.getPixelFormat(), foundTex.type);
 
     bool dxt1HasAlpha = false;
     quint8 dxt1Threshold = 128;
-    if (foundTex.flags == TextureType::OneBitAlpha)
+    if (foundTex.type == TextureType::OneBitAlpha)
     {
         dxt1HasAlpha = true;
         if (image.getPixelFormat() == PixelFormat::ARGB ||

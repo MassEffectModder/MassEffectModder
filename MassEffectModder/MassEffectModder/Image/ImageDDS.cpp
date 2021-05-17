@@ -206,6 +206,10 @@ void Image::LoadImageDDS(Stream &stream)
                 pixelFormat = PixelFormat::ATI2;
                 DX10Type = false;
                 break;
+            case DDS_FORMAT_BC7_UNORM:
+                pixelFormat = PixelFormat::BC7;
+                DX10Type = true;
+                break;
             default:
                 PERROR("Not supported DDS DX10 format.\n");
                 return;
@@ -227,7 +231,9 @@ void Image::LoadImageDDS(Stream &stream)
 
         if (pixelFormat == PixelFormat::DXT1 ||
             pixelFormat == PixelFormat::DXT3 ||
-            pixelFormat == PixelFormat::DXT5)
+            pixelFormat == PixelFormat::DXT5 ||
+            pixelFormat == PixelFormat::BC5 ||
+            pixelFormat == PixelFormat::BC7)
         {
             if (w < 4)
                 w = 4;
@@ -323,6 +329,7 @@ Image::DDS_PF Image::getDDSPixelFormat(PixelFormat format)
             break;
 
         case PixelFormat::ATI2:
+        case PixelFormat::BC5:
             pixelFormat.flags = DDPF_FOURCC;
             pixelFormat.fourCC = FOURCC_ATI2_TAG;
             break;
@@ -358,6 +365,11 @@ Image::DDS_PF Image::getDDSPixelFormat(PixelFormat format)
             break;
 
         case PixelFormat::RGBA:
+            pixelFormat.flags = DDPF_FOURCC;
+            pixelFormat.fourCC = FOURCC_DX10_TAG;
+            break;
+
+        case PixelFormat::BC7:
             pixelFormat.flags = DDPF_FOURCC;
             pixelFormat.fourCC = FOURCC_DX10_TAG;
             break;
@@ -405,15 +417,20 @@ void Image::StoreImageToDDS(Stream &stream, PixelFormat format)
     stream.WriteUInt32(0); // dwReserved2
 
     DDS_FORMAT dds10Format;
+    UINT32 miscFlag2 = 0;
     switch (format == PixelFormat::UnknownPixelFormat ? pixelFormat : format)
     {
         case PixelFormat::RGBA:
             dds10Format = DDS_FORMAT_R8G8B8A8_UNORM;
+            miscFlag2 = DDS_ALPHA_MODE_OPAQUE;
+            DX10Type = true;
+            break;
+        case PixelFormat::BC7:
+            dds10Format = DDS_FORMAT_BC7_UNORM;
             DX10Type = true;
             break;
         default:
-            CRASH_MSG("Not supported DDS DX10 format.\n");
-            return;
+            break;
     }
 
     if (DX10Type)
@@ -422,7 +439,7 @@ void Image::StoreImageToDDS(Stream &stream, PixelFormat format)
         stream.WriteUInt32(DDS_RESOURCE_DIMENSION_TEXTURE2D); // RESOURCE_DIMENSION
         stream.WriteUInt32(0); // miscFlag
         stream.WriteUInt32(1); // arraySize
-        stream.WriteUInt32(DDS_ALPHA_MODE_OPAQUE); // miscFlag2
+        stream.WriteUInt32(miscFlag2);
     }
 
     for (int i = 0; i < mipMaps.count(); i++)

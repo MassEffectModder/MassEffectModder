@@ -28,7 +28,9 @@ MipMap::MipMap(int w, int h, PixelFormat format)
 
     if (format == PixelFormat::DXT1 ||
         format == PixelFormat::DXT3 ||
-        format == PixelFormat::DXT5)
+        format == PixelFormat::DXT5 ||
+        format == PixelFormat::BC5 ||
+        format == PixelFormat::BC7)
     {
         if (width < 4)
             width = 4;
@@ -47,7 +49,9 @@ MipMap::MipMap(const ByteBuffer &src, int w, int h, PixelFormat format, bool ski
 
     if (format == PixelFormat::DXT1 ||
         format == PixelFormat::DXT3 ||
-        format == PixelFormat::DXT5)
+        format == PixelFormat::DXT5 ||
+        format == PixelFormat::BC5 ||
+        format == PixelFormat::BC7)
     {
         if (width < 4)
             width = 4;
@@ -79,6 +83,8 @@ int MipMap::getBufferSize(int w, int h, PixelFormat format)
         case PixelFormat::DXT5:
         case PixelFormat::ATI2:
         case PixelFormat::G8:
+        case PixelFormat::BC5:
+        case PixelFormat::BC7:
             return w * h;
         case PixelFormat::DXT1:
             return (w * h) / 2;

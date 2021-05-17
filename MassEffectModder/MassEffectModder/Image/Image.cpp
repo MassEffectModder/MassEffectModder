@@ -269,6 +269,8 @@ ByteBuffer Image::convertRawToARGB(const quint8 *src, int w, int h, PixelFormat 
         case PixelFormat::DXT1:
         case PixelFormat::DXT3:
         case PixelFormat::DXT5:
+        case PixelFormat::BC5:
+        case PixelFormat::BC7:
             if (w < 4 || h < 4)
             {
                 if (w < 4)
@@ -564,6 +566,7 @@ ByteBuffer Image::convertToFormat(PixelFormat srcFormat, const quint8 *src, int 
         case PixelFormat::DXT3:
         case PixelFormat::DXT5:
         case PixelFormat::ATI2:
+        case PixelFormat::BC5:
         {
             if (dstFormat == PixelFormat::ATI2 && (w < 4 || h < 4))
             {
@@ -670,7 +673,9 @@ void Image::correctMips(PixelFormat dstFormat, bool dxt1HasAlpha, quint8 dxt1Thr
 
         if (pixelFormat == PixelFormat::DXT1 ||
             pixelFormat == PixelFormat::DXT3 ||
-            pixelFormat == PixelFormat::DXT5)
+            pixelFormat == PixelFormat::DXT5 ||
+            pixelFormat == PixelFormat::BC5 ||
+            pixelFormat == PixelFormat::BC7)
         {
             if (width < 4 || height < 4)
             {

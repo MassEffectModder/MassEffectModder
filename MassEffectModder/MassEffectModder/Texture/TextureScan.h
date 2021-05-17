@@ -50,7 +50,7 @@ struct TextureMapEntry
     uint crc;
     QList<TextureMapPackageEntry> list;
     PixelFormat pixfmt;
-    TextureType flags;
+    TextureType type;
     int width, height;
 };
 

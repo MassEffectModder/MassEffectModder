@@ -84,18 +84,17 @@ void TreeScan::loadTexturesMap(MeType gameId, Resources &resources, QList<Textur
         texture.width = fs.ReadInt16();
         texture.height = fs.ReadInt16();
         texture.pixfmt = (PixelFormat)fs.ReadByte();
-        texture.flags = (TextureType)fs.ReadByte();
+        texture.type = (TextureType)fs.ReadByte();
         int countPackages = fs.ReadInt16();
         texture.list = QList<TextureMapPackageEntry>();
         for (int k = 0; k < countPackages; k++)
         {
             TextureMapPackageEntry matched{};
             matched.exportID = fs.ReadInt32();
-            quint8 flags = fs.ReadUInt32();
-            matched.movieTexture = (flags & 1) != 1;
-            matched.removeEmptyMips = (flags & 2) != 2;
+            quint8 flags = fs.ReadByte();
+            matched.removeEmptyMips = (flags & 1) == 1;
             matched.numMips = fs.ReadByte();
-            matched.movieTexture = (texture.flags == TextureType::Movie);
+            matched.movieTexture = (texture.type == TextureType::Movie);
             matched.path = pkgs[fs.ReadInt16()];
             matched.path.replace(QChar('\\'), QChar('/'));
             texture.list.push_back(matched);
@@ -147,13 +146,14 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<TextureMapEntry> &textur
         int len = fs.ReadInt32();
         fs.ReadStringASCII(texture.name, len);
         texture.crc = fs.ReadUInt32();
+        quint32 flags = fs.ReadUInt32();
         uint countPackages = fs.ReadUInt32();
         texture.list = QList<TextureMapPackageEntry>();
         for (uint k = 0; k < countPackages; k++)
         {
             TextureMapPackageEntry matched{};
+            matched.movieTexture = ((flags & 1) == 1);
             matched.exportID = fs.ReadInt32();
-            matched.movieTexture = (fs.ReadUInt32() & 1) != 1;
             len = fs.ReadInt32();
             fs.ReadStringASCII(matched.path, len);
             matched.path.replace(QChar('\\'), QChar('/'));
@@ -590,7 +590,7 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
                 mem.WriteInt16(texture.width);
                 mem.WriteInt16(texture.height);
                 mem.WriteByte(texture.pixfmt);
-                mem.WriteByte(texture.flags);
+                mem.WriteByte(texture.type);
 
                 mem.WriteInt16(texture.list.count());
             }
@@ -605,7 +605,6 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
                 if (generateBuiltinMapFiles)
                 {
                     quint8 flags = m.removeEmptyMips ? 1 : 0;
-                    flags |= m.movieTexture ? 1 : 0;
                     mem.WriteByte(flags);
                     mem.WriteByte(m.numMips);
                     mem.WriteInt16(pkgs.indexOf(m.path));
@@ -613,7 +612,6 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
                 else
                 {
                     quint32 flags = m.removeEmptyMips ? 1 : 0;
-                    flags |= m.movieTexture ? 1 : 0;
                     mem.WriteUInt32(flags);
                     mem.WriteInt32(m.path.length());
                     QString path = m.path;
@@ -841,7 +839,7 @@ void TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &pac
                         foundTex.width = textureMovie->getProperties().getProperty("SizeX").getValueInt();
                         foundTex.height = textureMovie->getProperties().getProperty("SizeY").getValueInt();
                         foundTex.pixfmt = Image::getPixelFormatType(textureMovie->getProperties().getProperty("Format").getValueName());
-                        foundTex.flags = TextureType::Movie;
+                        foundTex.type = TextureType::Movie;
                     }
                     delete textureMovie;
                 }
@@ -856,11 +854,11 @@ void TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &pac
                         {
                             QString cmp = texture->getProperties().getProperty("CompressionSettings").getValueName();
                             if (cmp == "TC_OneBitAlpha")
-                                foundTex.flags = TextureType::OneBitAlpha;
+                                foundTex.type = TextureType::OneBitAlpha;
                             else if (cmp == "TC_Displacementmap")
-                                foundTex.flags = TextureType::Displacementmap;
+                                foundTex.type = TextureType::Displacementmap;
                             else if (cmp == "TC_Grayscale")
-                                foundTex.flags = TextureType::GreyScale;
+                                foundTex.type = TextureType::GreyScale;
                             else if (cmp == "TC_Normalmap" ||
                                 cmp == "TC_NormalmapHQ" ||
                                 cmp == "TC_NormalmapAlpha" ||
@@ -868,11 +866,11 @@ void TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &pac
                                 cmp == "TC_NormalmapBC7" ||
                                 cmp == "TC_NormalmapUncompressed")
                             {
-                                foundTex.flags = TextureType::Normalmap;
+                                foundTex.type = TextureType::Normalmap;
                             }
                             else if (cmp == "TC_BC7")
                             {
-                                foundTex.flags = TextureType::BC7Type;
+                                foundTex.type = TextureType::BC7Type;
                             }
                             else
                             {
@@ -881,7 +879,7 @@ void TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &pac
                         }
                         else
                         {
-                            foundTex.flags = TextureType::Diffuse;
+                            foundTex.type = TextureType::Diffuse;
                         }
                     }
                     delete texture;
