@@ -626,38 +626,18 @@ ByteBuffer Image::compressMipmap(PixelFormat dstFormat, const quint8 *src, int w
     for (int p = 1; p <= cores; p++)
         range[p] = (partSize * p);
 
+    BC7BlockEncoder **bc7Encoder = nullptr;
     if (dstFormat == PixelFormat::BC7)
     {
-        BC7BlockEncoder *bc7Encoder = nullptr;
-        int status = BC7CreateEncoder(0.05f, false, false, 0xCF, 1.0, &bc7Encoder);
-        if (status != 0)
-        {
-            CRASH();
-        }
-
+        bc7Encoder = new BC7BlockEncoder *[cores];
         for (int p = 0; p < cores; p++)
         {
-            for (int y = range[p]; y < range[p + 1]; y++)
+            int status = BC7CreateEncoder(0.05f, false, false, 0xCF, 1.0, &bc7Encoder[p]);
+            if (status != 0)
             {
-                for (int x = 0; x < w / 4; x++)
-                {
-                    quint8 block[BLOCK_SIZE_4X4];
-                    double blockToEncode[BLOCK_SIZE_4X4][4];
-                    quint8 srcBlock[BLOCK_SIZE_4X4X4];
-                    readBlock4X4ARGB(srcBlock, src, w, x, y);
-                    convertBlock4X4X4ByteToFloat(blockToEncode, srcBlock);
-                    BC7CompressBlock(bc7Encoder, blockToEncode, block);
-                    writeBlock4X4BPP8((quint8 *)block, dst.ptr(), w, x, y);
-                }
+                CRASH();
             }
         }
-
-        if (BC7DestoyEncoder(bc7Encoder) != 0)
-        {
-            CRASH();
-        }
-
-        return dst;
     }
 
     #pragma omp parallel for num_threads(cores)
@@ -702,10 +682,32 @@ ByteBuffer Image::compressMipmap(PixelFormat dstFormat, const quint8 *src, int w
                     DxtcCompressAlphaBlock(srcBlockY, blockY);
                     writeBlock4X4ATI2((quint8 *)blockX, (quint8 *)blockY, dst.ptr(), w, x, y);
                 }
+                else if (dstFormat == PixelFormat::BC7)
+                {
+                    quint8 block[BLOCK_SIZE_4X4];
+                    double blockToEncode[BLOCK_SIZE_4X4][4];
+                    quint8 srcBlock[BLOCK_SIZE_4X4X4];
+                    readBlock4X4ARGB(srcBlock, src, w, x, y);
+                    convertBlock4X4X4ByteToFloat(blockToEncode, srcBlock);
+                    BC7CompressBlock(bc7Encoder[omp_get_thread_num()], blockToEncode, block);
+                    writeBlock4X4BPP8((quint8 *)block, dst.ptr(), w, x, y);
+                }
                 else
                     CRASH_MSG("Not supported codec.");
             }
         }
+    }
+
+    if (dstFormat == PixelFormat::BC7)
+    {
+        for (int p = 0; p < cores; p++)
+        {
+            if (BC7DestoyEncoder(bc7Encoder[p]) != 0)
+            {
+                CRASH();
+            }
+        }
+        delete[] bc7Encoder;
     }
 
     return dst;
@@ -728,38 +730,18 @@ ByteBuffer Image::decompressMipmap(PixelFormat srcFormat, const quint8 *src, int
     for (int p = 1; p <= cores; p++)
         range[p] = (partSize * p);
 
+    BC7BlockDecoder **bc7Decoder = nullptr;
     if (srcFormat == PixelFormat::BC7)
     {
-        BC7BlockDecoder *bc7Decoder = nullptr;
-        int status = BC7CreateDecoder(&bc7Decoder);
-        if (status != 0)
-        {
-            CRASH();
-        }
-
+        bc7Decoder = new BC7BlockDecoder *[cores];
         for (int p = 0; p < cores; p++)
         {
-            for (int y = range[p]; y < range[p + 1]; y++)
+            int status = BC7CreateDecoder(&bc7Decoder[p]);
+            if (status != 0)
             {
-                for (int x = 0; x < w / 4; x++)
-                {
-                    quint8 block[BLOCK_SIZE_4X4X4];
-                    double dstBlock[BLOCK_SIZE_4X4][4];
-                    quint8 destBlock[BLOCK_SIZE_4X4X4];
-                    readBlock4X4BPP8(block, src, w, x, y);
-                    BC7DecompressBlock(bc7Decoder, block, dstBlock);
-                    convertBlock4X4X4FloatToByte(destBlock, dstBlock);
-                    writeBlock4X4ARGB(destBlock, dst.ptr(), w, x, y);
-                }
+                CRASH();
             }
         }
-
-        if (BC7DestoyDecoder(bc7Decoder) != 0)
-        {
-            CRASH();
-        }
-
-        return dst;
     }
 
     #pragma omp parallel for num_threads(cores)
@@ -809,10 +791,32 @@ ByteBuffer Image::decompressMipmap(PixelFormat srcFormat, const quint8 *src, int
                     DxtcDecompressAlphaBlock(blockDstG, blockY);
                     writeBlock4X4ARGBATI2(blockDstR, blockDstG, dst.ptr(), w, x, y);
                 }
+                else if (srcFormat == PixelFormat::BC7)
+                {
+                    quint8 block[BLOCK_SIZE_4X4X4];
+                    double dstBlock[BLOCK_SIZE_4X4][4];
+                    quint8 destBlock[BLOCK_SIZE_4X4X4];
+                    readBlock4X4BPP8(block, src, w, x, y);
+                    BC7DecompressBlock(bc7Decoder[omp_get_thread_num()], block, dstBlock);
+                    convertBlock4X4X4FloatToByte(destBlock, dstBlock);
+                    writeBlock4X4ARGB(destBlock, dst.ptr(), w, x, y);
+                }
                 else
                     CRASH_MSG("Not supported codec.");
             }
         }
+    }
+
+    if (srcFormat == PixelFormat::BC7)
+    {
+        for (int p = 0; p < cores; p++)
+        {
+            if (BC7DestoyDecoder(bc7Decoder[p]) != 0)
+            {
+                CRASH();
+            }
+        }
+        delete[] bc7Decoder;
     }
 
     return dst;
