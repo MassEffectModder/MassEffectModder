@@ -5,6 +5,7 @@ CONFIG += ordered
 SUBDIRS += \
     Libs/7z \
     Libs/bfd \
+    Libs/bc7 \
     Libs/dxtc \
     Libs/lzo2 \
     Libs/unlzx

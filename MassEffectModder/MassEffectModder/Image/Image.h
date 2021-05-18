@@ -54,6 +54,7 @@
 #define DDSCAPS_TEXTURE          0x1000
 #define DDSCAPS_MIPMAP           0x400000
 
+#define BLOCK_SIZE_4X4           16
 #define BLOCK_SIZE_4X4X4         64
 #define BLOCK_SIZE_4X4BPP4       8
 #define BLOCK_SIZE_4X4BPP8       16
@@ -280,16 +281,20 @@ private:
     static void writeBlock4X4ARGB(const quint8 blockARGB[BLOCK_SIZE_4X4X4], quint8 *dstARGB,
                                   int dstW, int blockX, int blockY);
 
-    static void readBlock4X4BPP4(uint block[2], const quint8 *src, int srcW, int blockX, int blockY);
-    static void writeBlock4X4BPP4(const uint block[2], quint8 *dst, int dstW, int blockX, int blockY);
+    static void readBlock4X4BPP4(quint8 *dst, const quint8 *src, int srcW, int blockX, int blockY);
+    static void writeBlock4X4BPP4(quint8 *src, quint8 *dst, int dstW, int blockX, int blockY);
 
-    static void readBlock4X4BPP8(uint block[4], const quint8 *src, int srcW, int blockX, int blockY);
-    static void writeBlock4X4BPP8(const uint block[4], quint8 *dst, int dstW, int blockX, int blockY);
+    static void readBlock4X4BPP8(quint8 *dst, const quint8 *src, int srcW, int blockX, int blockY);
+    static void writeBlock4X4BPP8(quint8 *src, quint8 *dst, int dstW, int blockX, int blockY);
+
+    static void convertBlock4X4X4FloatToByte(quint8 dst[BLOCK_SIZE_4X4X4], double src[16][4]);
+    static void convertBlock4X4X4ByteToFloat(double dst[BLOCK_SIZE_4X4][4], const quint8 src[BLOCK_SIZE_4X4X4]);
+
 
     static void readBlock4X4ATI2(quint8 blockDstX[BLOCK_SIZE_4X4BPP8],
                                  quint8 blockDstY[BLOCK_SIZE_4X4BPP8],
                                  const quint8 *src, int srcW, int blockX, int blockY);
-    static void writeBlock4X4ATI2(const uint blockSrcX[2], const uint blockSrcY[2],
+    static void writeBlock4X4ATI2(quint8 *blockSrcX, quint8 *blockSrcY,
                                   quint8 *dst, int dstW, int blockX, int blockY);
 
     static void writeBlock4X4ARGBATI2(const quint8 blockR[BLOCK_SIZE_4X4BPP8],

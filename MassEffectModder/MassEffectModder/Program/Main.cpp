@@ -29,6 +29,7 @@
 #include <Helpers/Logs.h>
 #include <Helpers/MiscHelpers.h>
 #include <Program/SignalHandler.h>
+#include <Wrappers.h>
 #if defined(_WIN32)
 #include <fcntl.h>
 #endif
@@ -194,7 +195,11 @@ int main(int argc, char *argv[])
     InstallSignalsHandler();
     CreateLogs();
 
+    BC7InitializeLibrary();
+
     int status = runQtApplication(argc, argv);
+
+    BC7ShutdownLibrary();
 
     ReleaseLogs();
 

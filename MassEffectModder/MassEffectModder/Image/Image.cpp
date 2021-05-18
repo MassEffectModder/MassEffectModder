@@ -567,6 +567,7 @@ ByteBuffer Image::convertToFormat(PixelFormat srcFormat, const quint8 *src, int 
         case PixelFormat::DXT5:
         case PixelFormat::ATI2:
         case PixelFormat::BC5:
+        case PixelFormat::BC7:
         {
             if (dstFormat == PixelFormat::ATI2 && (w < 4 || h < 4))
             {

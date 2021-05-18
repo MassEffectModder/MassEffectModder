@@ -26,6 +26,9 @@ typedef unsigned char      BYTE;
 typedef unsigned int       UINT32;
 typedef unsigned long long UINT64;
 
+class BC7BlockEncoder;
+class BC7BlockDecoder;
+
 int LzmaDecompress(BYTE *src, UINT32 src_len, BYTE *dst, UINT32 *dst_len);
 int LzmaCompress(BYTE *src, UINT32 src_len, BYTE **dst, UINT32 *dst_len, int compress_level = 5);
 
@@ -72,6 +75,7 @@ int PngWrite(const BYTE *src, BYTE **dst, UINT32 *dstSize,
 
 #define BLOCK_SIZE_4X4        16
 #define BLOCK_SIZE_4X4X4      64
+#define BLOCK_SIZE_4X4X2      32
 
 void DxtcCompressRGBABlock(BYTE rgbaBlock[BLOCK_SIZE_4X4X4], UINT32 compressedBlock[4]);
 void DxtcDecompressRGBABlock(BYTE rgbaBlock[BLOCK_SIZE_4X4X4], UINT32 compressedBlock[4]);
@@ -82,6 +86,15 @@ void DxtcCompressRGBBlock(BYTE rgbBlock[BLOCK_SIZE_4X4X4], UINT32 compressedBloc
 void DxtcDecompressRGBBlock(BYTE rgbBlock[BLOCK_SIZE_4X4X4], UINT32 compressedBlock[2], bool bDXT1);
 void DxtcCompressAlphaBlock(BYTE alphaBlock[BLOCK_SIZE_4X4], UINT32 compressedBlock[2]);
 void DxtcDecompressAlphaBlock(BYTE alphaBlock[BLOCK_SIZE_4X4], UINT32 compressedBlock[2]);
+
+int BC7InitializeLibrary();
+int BC7ShutdownLibrary();
+int BC7CreateEncoder(double quality, bool restrictColour, bool restrictAlpha, UINT32 modeMask, double performance, BC7BlockEncoder **encoder);
+int BC7CreateDecoder(BC7BlockDecoder **decoder);
+int BC7DestoyEncoder(BC7BlockEncoder *encoder);
+int BC7DestoyDecoder(BC7BlockDecoder *decoder);
+int BC7CompressBlock(BC7BlockEncoder *encoder, double in[BLOCK_SIZE_4X4][4], BYTE *out);
+int BC7DecompressBlock(BC7BlockDecoder *decoder, BYTE *in, double out[BLOCK_SIZE_4X4][4]);
 
 void BacktraceGetFilename(char *dst, const char *src, int maxLen);
 int BacktraceGetInfoFromModule(char *moduleFilePath, UINT64 offset, char *sourceFile,

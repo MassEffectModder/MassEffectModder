@@ -1,5 +1,5 @@
 /*
- * Wrapper LZO2
+ * Wrapper DXTc
  *
  * Copyright (C) 2014-2021 Pawel Kolodziejski
  *
