@@ -54,7 +54,7 @@ TextureMovie::TextureMovie(Package &package, int exportId, const ByteBuffer &dat
         if (tag != BIK_TAG)
             CRASH_MSG("Not supported movie texture");
     }
-    else if (storageType != StorageTypes::extUnc)
+    else if (storageType != StorageTypes::extUnc && storageType == StorageTypes::extUnc2)
     {
         CRASH_MSG("TextureMovie as compressed data is not supported!");
     }
@@ -112,6 +112,7 @@ const ByteBuffer TextureMovie::getData()
         }
         break;
     case StorageTypes::extUnc:
+    case StorageTypes::extUnc2:
         {
             QString filename;
             QString archive = properties->getProperty("TextureFileCacheName").getValueName();

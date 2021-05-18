@@ -565,7 +565,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                     Texture::TextureMipMap mipmap = mipmapsPre[m];
                     if ((mipmap.storageType == StorageTypes::extZlib ||
                          mipmap.storageType == StorageTypes::extLZO ||
-                         mipmap.storageType == StorageTypes::extUnc) &&
+                         mipmap.storageType == StorageTypes::extUnc ||
+                         mipmap.storageType == StorageTypes::extUnc2) &&
                          mod.arcTexture.count() != 0)
                     {
                         if (mod.arcTexture[m].storageType != mipmap.storageType)
@@ -727,7 +728,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                         mipmap.compressedSize = mipmap.newData.size();
                     }
                     else if (mipmap.storageType == StorageTypes::pccUnc ||
-                             mipmap.storageType == StorageTypes::extUnc)
+                             mipmap.storageType == StorageTypes::extUnc ||
+                             mipmap.storageType == StorageTypes::extUnc2)
                     {
                         mipmap.compressedSize = mipmap.uncompressedSize;
                         if (image)
@@ -746,7 +748,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                     }
                     if (mipmap.storageType == StorageTypes::extZlib ||
                         mipmap.storageType == StorageTypes::extLZO ||
-                        mipmap.storageType == StorageTypes::extUnc)
+                        mipmap.storageType == StorageTypes::extUnc ||
+                        mipmap.storageType == StorageTypes::extUnc2)
                     {
                         if (mod.arcTexture.count() == 0)
                         {

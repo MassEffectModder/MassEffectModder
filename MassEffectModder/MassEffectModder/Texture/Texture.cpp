@@ -295,6 +295,7 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
             break;
         }
     case StorageTypes::extUnc:
+    case StorageTypes::extUnc2:
     case StorageTypes::extLZO:
     case StorageTypes::extZlib:
     case StorageTypes::extOodle:
@@ -457,6 +458,7 @@ bool Texture::HasExternalMips()
     for (int l = 0; l < mipMapsList.count(); l++)
     {
         if (mipMapsList[l].storageType == StorageTypes::extUnc ||
+            mipMapsList[l].storageType == StorageTypes::extUnc2 ||
             mipMapsList[l].storageType == StorageTypes::extLZO ||
             mipMapsList[l].storageType == StorageTypes::extZlib)
         {
