@@ -355,53 +355,6 @@ bool LayoutTexturesManager::Startup()
         return false;
     }
 
-    mainWindow->statusBar()->showMessage("Checking for empty mips...");
-    QApplication::processEvents();
-    bool gameHasEmptyMips = false;
-    QString packageVerify;
-    int exportIdVerify = 0;
-    if (GameData::gameType == MeType::ME1_TYPE)
-    {
-        packageVerify = "/BioGame/CookedPC/Packages/VFX_Prototype/v_Explosion_PrototypeTest_01.upk";
-        exportIdVerify = 4888;
-    }
-    else if (GameData::gameType == MeType::ME2_TYPE)
-    {
-        packageVerify = "/BioGame/CookedPC/BioA_CitHub_500Udina.pcc";
-        exportIdVerify = 3655;
-    }
-    else if (GameData::gameType == MeType::ME3_TYPE)
-    {
-        packageVerify = "/BioGame/CookedPCConsole/BIOG_UIWorld.pcc";
-        exportIdVerify = 464;
-    }
-
-    if (QFile::exists(g_GameData->GamePath() + packageVerify))
-    {
-        Package package;
-        int status = package.Open(g_GameData->GamePath() + packageVerify);
-        if (status != 0)
-        {
-            QMessageBox::critical(this, "Texture Manager",
-                                  QString("Failed game data detection."));
-            buttonExit->setEnabled(true);
-            mainWindow->LockClose(false);
-            return false;
-        }
-        ByteBuffer exportData = package.getExportData(exportIdVerify);
-        if (exportData.ptr() == nullptr)
-        {
-            QMessageBox::critical(this, "Texture Manager",
-                                  QString("Failed game data detection."));
-            buttonExit->setEnabled(true);
-            mainWindow->LockClose(false);
-            return false;
-        }
-        Texture texture(package, exportIdVerify, exportData);
-        exportData.Free();
-        gameHasEmptyMips = texture.hasEmptyMips();
-    }
-
     mainWindow->statusBar()->clearMessage();
     QApplication::processEvents();
     bool removeEmptyMips = false;
@@ -418,15 +371,6 @@ bool LayoutTexturesManager::Startup()
             mainWindow->LockClose(false);
             return false;
         }
-    }
-
-    if (gameHasEmptyMips)
-    {
-        int answer = QMessageBox::question(this, "Texture Manager",
-                              QString("Detected empty mips in game files.") +
-              "\n\nYou can remove empty mips or you can skip this step.", "Remove", "Skip");
-        if (answer == 0)
-            removeEmptyMips = true;
     }
 
     if (!Misc::checkWriteAccessDir(g_GameData->MainData()))
