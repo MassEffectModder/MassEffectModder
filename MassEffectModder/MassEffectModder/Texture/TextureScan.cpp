@@ -1090,7 +1090,6 @@ void TreeScan::FindTextures(MeType gameId, QList<TextureMapEntry> &textures, con
                         foundTex.pixfmt = Image::getPixelFormatType(textureMovie->getProperties().getProperty("Format").valueName);
                         foundTex.flags = TextureProperty::TextureTypes::Movie;
                     }
-                    delete textureMovie;
                 }
                 else
                 {
@@ -1125,10 +1124,11 @@ void TreeScan::FindTextures(MeType gameId, QList<TextureMapEntry> &textures, con
                             foundTex.flags = TextureProperty::TextureTypes::Normal;
                         }
                     }
-                    delete texture;
                 }
                 textures.push_back(foundTex);
             }
+            delete textureMovie;
+            delete texture;
         }
     }
 }
