@@ -852,7 +852,7 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
         CRASH_MSG("force de/compression can't be both enabled!");
 
     CompressionType targetCompression = compressionType;
-    if (forceCompressed)
+    if (forceCompressed || compressionType == CompressionType::Oddle)
         targetCompression = CompressionType::Zlib;
 
     if (!appendMarker)

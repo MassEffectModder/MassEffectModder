@@ -145,7 +145,8 @@ bool Misc::CorrectTexture(Image &image, TextureMapEntry &f, int numMips,
             dxt1HasAlpha = true;
             if (image.getPixelFormat() == PixelFormat::ARGB ||
                 image.getPixelFormat() == PixelFormat::DXT3 ||
-                image.getPixelFormat() == PixelFormat::DXT5)
+                image.getPixelFormat() == PixelFormat::DXT5 ||
+                image.getPixelFormat() == PixelFormat::BC7)
             {
                 PINFO(QString("Warning for texture: " ) + f.name +
                              ". This texture converted from full alpha to binary alpha.\n");
@@ -175,7 +176,8 @@ QString Misc::CorrectTexture(Image *image, Texture &texture,
                 dxt1HasAlpha = true;
                 if (image->getPixelFormat() == PixelFormat::ARGB ||
                     image->getPixelFormat() == PixelFormat::DXT3 ||
-                    image->getPixelFormat() == PixelFormat::DXT5)
+                    image->getPixelFormat() == PixelFormat::DXT5 ||
+                    image->getPixelFormat() == PixelFormat::BC7)
                 {
                     errors += "Warning for texture: " + textureName +
                               ". This texture converted from full alpha to binary alpha.\n";

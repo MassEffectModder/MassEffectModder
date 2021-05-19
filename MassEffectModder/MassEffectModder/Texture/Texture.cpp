@@ -460,6 +460,7 @@ bool Texture::HasExternalMips()
         if (mipMapsList[l].storageType == StorageTypes::extUnc ||
             mipMapsList[l].storageType == StorageTypes::extUnc2 ||
             mipMapsList[l].storageType == StorageTypes::extLZO ||
+            mipMapsList[l].storageType == StorageTypes::extOodle ||
             mipMapsList[l].storageType == StorageTypes::extZlib)
         {
             return true;

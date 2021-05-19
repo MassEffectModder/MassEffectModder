@@ -485,6 +485,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                     if (mod.cachedPixelFormat == PixelFormat::DXT1 ||
                         mod.cachedPixelFormat == PixelFormat::DXT3 ||
                         mod.cachedPixelFormat == PixelFormat::DXT5 ||
+                        mod.cachedPixelFormat == PixelFormat::BC5 ||
+                        mod.cachedPixelFormat == PixelFormat::BC7 ||
                         mod.cachedPixelFormat == PixelFormat::ATI2)
                     {
                         RemoveLowerMips(image);
@@ -565,6 +567,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                     Texture::TextureMipMap mipmap = mipmapsPre[m];
                     if ((mipmap.storageType == StorageTypes::extZlib ||
                          mipmap.storageType == StorageTypes::extLZO ||
+                         mipmap.storageType == StorageTypes::extOodle ||
                          mipmap.storageType == StorageTypes::extUnc ||
                          mipmap.storageType == StorageTypes::extUnc2) &&
                          mod.arcTexture.count() != 0)
@@ -652,6 +655,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                         }
 
                         if (testMipmap.storageType == StorageTypes::extZlib ||
+                            testMipmap.storageType == StorageTypes::extOodle ||
                             testMipmap.storageType == StorageTypes::extLZO)
                         {
                             Texture::TextureMipMap oldTestMipmap = texture.getMipmap(testMipmap.width, testMipmap.height);
@@ -747,6 +751,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                         }
                     }
                     if (mipmap.storageType == StorageTypes::extZlib ||
+                        mipmap.storageType == StorageTypes::extOodle ||
                         mipmap.storageType == StorageTypes::extLZO ||
                         mipmap.storageType == StorageTypes::extUnc ||
                         mipmap.storageType == StorageTypes::extUnc2)

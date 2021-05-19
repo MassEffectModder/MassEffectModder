@@ -225,7 +225,8 @@ const ByteBuffer TextureMovie::toArray()
         newData.CopyFrom(*textureData, uncompressedSize);
     }
     else if (storageType == StorageTypes::pccLZO ||
-             storageType == StorageTypes::pccZlib)
+             storageType == StorageTypes::pccZlib ||
+             storageType == StorageTypes::pccOodle)
     {
         CRASH_MSG("TextureMovie as compressed data is not supported!");
     }

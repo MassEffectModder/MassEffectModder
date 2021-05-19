@@ -277,7 +277,8 @@ bool CmdLineTools::convertGameTexture(MeType gameId, const QString &inputFile,
         dxt1HasAlpha = true;
         if (image.getPixelFormat() == PixelFormat::ARGB ||
             image.getPixelFormat() == PixelFormat::DXT3 ||
-            image.getPixelFormat() == PixelFormat::DXT5)
+            image.getPixelFormat() == PixelFormat::DXT5 ||
+            image.getPixelFormat() == PixelFormat::BC7)
         {
             PINFO(QString("Warning for texture: ") + BaseName(inputFile) +
                          ". This texture converted from full alpha to binary alpha.\n");
@@ -759,7 +760,8 @@ bool CmdLineTools::extractAllMovieTextures(MeType gameId, QString &outputDir, QS
                 bool tfcPropExists = textureMovie.getProperties().exists("TextureFileCacheName");
                 if ((pccOnly && tfcPropExists) ||
                     (tfcOnly && !tfcPropExists) ||
-                    (tfcOnly && textureMovie.getStorageType() != StorageTypes::extUnc))
+                    (tfcOnly && textureMovie.getStorageType() != StorageTypes::extUnc &&
+                     textureMovie.getStorageType() != StorageTypes::extUnc2))
                 {
                     continue;
                 }
