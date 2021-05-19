@@ -883,7 +883,6 @@ void TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &pac
                         foundTex.pixfmt = Image::getPixelFormatType(textureMovie->getProperties().getProperty("Format").getValueName());
                         foundTex.type = TextureType::Movie;
                     }
-                    delete textureMovie;
                 }
                 else
                 {
@@ -924,10 +923,11 @@ void TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &pac
                             foundTex.type = TextureType::Diffuse;
                         }
                     }
-                    delete texture;
                 }
                 textures.push_back(foundTex);
             }
+            delete textureMovie;
+            delete texture;
         }
     }
 }
