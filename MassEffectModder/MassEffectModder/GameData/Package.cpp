@@ -1128,7 +1128,7 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
                 }
                 else if (targetCompression == CompressionType::Oddle)
                 {
-                    if (OodleCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) != 0)
+                    if (OodleCompress(block.uncompressedBuffer, block.uncomprSize, block.compressedBuffer, &block.comprSize) != 0)
                         CRASH_MSG("Compression failed!");
                 }
                 else
@@ -1240,7 +1240,7 @@ const ByteBuffer Package::compressData(const ByteBuffer &inputData, StorageTypes
         }
         else if (type == StorageTypes::extOodle || type == StorageTypes::pccOodle)
         {
-            if (OodleCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) != 0)
+            if (OodleCompress(block.uncompressedBuffer, block.uncomprSize, block.compressedBuffer, &block.comprSize) != 0)
                 CRASH_MSG("Compression failed!");
         }
         else
