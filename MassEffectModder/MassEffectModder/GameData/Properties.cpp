@@ -226,8 +226,7 @@ QString Properties::getDisplayString(int index)
     }
     else if (property.type == "StructProperty")
     {
-        result += property.valueName + ": ";
-        result += QString::number(property.valueInt) + "\n";
+        result += property.valueName + "\n";
     }
     else
         CRASH();
