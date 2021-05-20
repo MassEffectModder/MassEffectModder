@@ -284,7 +284,7 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
                 PixelFormat newPixelFormat = f.pixfmt;
                 if (entryMarkToConvert)
                 {
-                    newPixelFormat = changeTextureType(gameId, f.pixfmt, image.getPixelFormat(), f.type);
+                    newPixelFormat = changeTextureType(f.pixfmt, image.getPixelFormat(), f.type);
                     if (f.pixfmt == newPixelFormat)
                         PINFO(QString("Warning for texture: ") + mod.textureName +
                               " This texture can not be converted to desired format...\n");

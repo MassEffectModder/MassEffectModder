@@ -246,7 +246,7 @@ bool CmdLineTools::ConvertToMEM(MeType gameId, QString &inputDir, QString &memFi
     return Misc::convertDataModtoMem(list, memFile, gameId, textures, markToConvert, nullptr, nullptr);
 }
 
-bool CmdLineTools::convertGameTexture(MeType gameId, const QString &inputFile,
+bool CmdLineTools::convertGameTexture(const QString &inputFile,
                                       QString &outputFile, QList<TextureMapEntry> &textures,
                                       bool markToConvert)
 {
@@ -268,7 +268,7 @@ bool CmdLineTools::convertGameTexture(MeType gameId, const QString &inputFile,
 
     PixelFormat newPixelFormat = foundTex.pixfmt;
     if (markToConvert)
-        newPixelFormat = Misc::changeTextureType(gameId, foundTex.pixfmt, image.getPixelFormat(), foundTex.type);
+        newPixelFormat = Misc::changeTextureType(foundTex.pixfmt, image.getPixelFormat(), foundTex.type);
 
     bool dxt1HasAlpha = false;
     quint8 dxt1Threshold = 128;
@@ -302,7 +302,7 @@ bool CmdLineTools::convertGameImage(MeType gameId, QString &inputFile, QString &
     resources.loadMD5Tables();
 
     TreeScan::loadTexturesMap(gameId, resources, textures);
-    return convertGameTexture(gameId, inputFile, outputFile, textures, markToConvert);
+    return convertGameTexture(inputFile, outputFile, textures, markToConvert);
 }
 
 bool CmdLineTools::convertGameImages(MeType gameId, QString &inputDir, QString &outputDir, bool markToConvert)
@@ -327,7 +327,7 @@ bool CmdLineTools::convertGameImages(MeType gameId, QString &inputDir, QString &
     foreach (QFileInfo file, list)
     {
         QString outputFile = outputDir + "/" + BaseNameWithoutExt(file.fileName()) + ".dds";
-        if (!convertGameTexture(gameId, file.absoluteFilePath(), outputFile, textures, markToConvert))
+        if (!convertGameTexture(file.absoluteFilePath(), outputFile, textures, markToConvert))
             status = false;
     }
 

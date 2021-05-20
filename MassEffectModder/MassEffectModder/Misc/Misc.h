@@ -91,7 +91,7 @@ public:
     static QString getTimerFormat(long time);
     static bool CheckGamePath();
     static bool applyModTag(int MeuitmV, int AlotV);
-    static PixelFormat changeTextureType(MeType gameId, PixelFormat gamePixelFormat,
+    static PixelFormat changeTextureType(PixelFormat gamePixelFormat,
                                          PixelFormat texturePixelFormat,
                                          TextureType flags);
     static uint scanFilenameForCRC(const QString &inputFile);

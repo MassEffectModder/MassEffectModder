@@ -24,47 +24,26 @@
 #include <Helpers/Logs.h>
 #include <Resources/Resources.h>
 
-PixelFormat Misc::changeTextureType(MeType gameId, PixelFormat gamePixelFormat, PixelFormat texturePixelFormat,
-                                    TextureType flags)
+PixelFormat Misc::changeTextureType(PixelFormat gamePixelFormat, PixelFormat texturePixelFormat, TextureType flags)
 {
-    if ((gamePixelFormat == PixelFormat::DXT5 || gamePixelFormat == PixelFormat::DXT1 || gamePixelFormat == PixelFormat::ATI2) &&
-        (texturePixelFormat == PixelFormat::RGB || texturePixelFormat == PixelFormat::ARGB ||
-         texturePixelFormat == PixelFormat::ATI2 || texturePixelFormat == PixelFormat::V8U8))
+    if (texturePixelFormat == PixelFormat::ARGB && flags == TextureType::OneBitAlpha)
     {
-        if (texturePixelFormat == PixelFormat::ARGB && flags == TextureType::OneBitAlpha)
-        {
-            gamePixelFormat = PixelFormat::ARGB;
-        }
-        else if (texturePixelFormat == PixelFormat::ATI2 &&
-            gamePixelFormat == PixelFormat::DXT1 &&
-            flags == TextureType::Normalmap)
-        {
-            gamePixelFormat = PixelFormat::ATI2;
-        }
-        else if (gameId != MeType::ME3_TYPE && texturePixelFormat == PixelFormat::ARGB &&
-            flags == TextureType::Normalmap)
-        {
-            gamePixelFormat = PixelFormat::ARGB;
-        }
-        else if ((gamePixelFormat == PixelFormat::DXT5 || gamePixelFormat == PixelFormat::DXT1) &&
-            (texturePixelFormat == PixelFormat::ARGB || texturePixelFormat == PixelFormat::RGB) &&
-            flags == TextureType::Diffuse)
-        {
-            gamePixelFormat = PixelFormat::ARGB;
-        }
-        else if (gamePixelFormat == PixelFormat::DXT5 && texturePixelFormat == PixelFormat::ARGB &&
-            gameId == MeType::ME3_TYPE &&
-            flags == TextureType::Normalmap)
-        {
-            gamePixelFormat = PixelFormat::ARGB;
-        }
-        else if ((gamePixelFormat == PixelFormat::DXT5 || gamePixelFormat == PixelFormat::DXT1) &&
-            (texturePixelFormat == PixelFormat::ARGB || texturePixelFormat == PixelFormat::V8U8) &&
-            gameId == MeType::ME3_TYPE &&
-            flags == TextureType::Normalmap)
-        {
-            gamePixelFormat = PixelFormat::V8U8;
-        }
+        gamePixelFormat = texturePixelFormat;
+    }
+    else if ((texturePixelFormat == PixelFormat::ATI2 || texturePixelFormat == PixelFormat::BC5 ||
+              texturePixelFormat == PixelFormat::BC7 || texturePixelFormat == PixelFormat::V8U8 ||
+              texturePixelFormat == PixelFormat::ARGB) &&
+              flags == TextureType::Normalmap)
+    {
+        gamePixelFormat = texturePixelFormat;
+    }
+    else if ((gamePixelFormat == PixelFormat::DXT1 || gamePixelFormat == PixelFormat::DXT5 ||
+              gamePixelFormat == PixelFormat::BC7) &&
+             (texturePixelFormat == PixelFormat::ARGB || texturePixelFormat == PixelFormat::RGB ||
+              texturePixelFormat == PixelFormat::BC7) &&
+              flags == TextureType::Diffuse)
+    {
+        gamePixelFormat = texturePixelFormat;
     }
 
     return gamePixelFormat;

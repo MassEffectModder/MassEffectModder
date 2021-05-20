@@ -33,59 +33,77 @@ static const quint8 tfcNewGuid[16] = { 0xB4, 0xD2, 0xD7, 0x16, 0x08, 0x4A, 0x4B,
 
 PixelFormat MipMaps::changeTextureType(PixelFormat gamePixelFormat, PixelFormat texturePixelFormat, Texture &texture)
 {
-    if ((gamePixelFormat == PixelFormat::DXT5 || gamePixelFormat == PixelFormat::DXT1 || gamePixelFormat == PixelFormat::ATI2) &&
-        (texturePixelFormat == PixelFormat::RGB || texturePixelFormat == PixelFormat::ARGB ||
-         texturePixelFormat == PixelFormat::ATI2 || texturePixelFormat == PixelFormat::V8U8))
+    if (texturePixelFormat == PixelFormat::ARGB && texture.getProperties().exists("CompressionSettings") &&
+        texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_OneBitAlpha")
     {
-        if (texturePixelFormat == PixelFormat::ARGB && texture.getProperties().exists("CompressionSettings") &&
-            texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_OneBitAlpha")
-        {
-            gamePixelFormat = PixelFormat::ARGB;
-            texture.getProperties().setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
-            texture.getProperties().removeProperty("CompressionSettings");
-        }
-        else if (texturePixelFormat == PixelFormat::ATI2 &&
-            texture.getProperties().exists("CompressionSettings") &&
-            texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_Normalmap")
-        {
-            gamePixelFormat = PixelFormat::ATI2;
-            texture.getProperties().setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
+        gamePixelFormat = PixelFormat::ARGB;
+        texture.getProperties().setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
+        texture.getProperties().removeProperty("CompressionSettings");
+    }
+    else if ((gamePixelFormat == PixelFormat::DXT1) &&
+             (texturePixelFormat == PixelFormat::ATI2 || texturePixelFormat == PixelFormat::BC5) &&
+        texture.getProperties().exists("CompressionSettings") &&
+        texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_Normalmap")
+    {
+        gamePixelFormat = texturePixelFormat;
+        texture.getProperties().setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
+        if (texturePixelFormat == PixelFormat::ATI2)
             texture.getProperties().setByteValue("CompressionSettings", "TC_NormalmapHQ", "TextureCompressionSettings");
-        }
-        else if (GameData::gameType != MeType::ME3_TYPE && texturePixelFormat == PixelFormat::ARGB &&
-            texture.getProperties().exists("CompressionSettings") &&
-            (texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_Normalmap" ||
-            texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_NormalmapHQ"))
-        {
-            gamePixelFormat = PixelFormat::ARGB;
-            texture.getProperties().setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
-            texture.getProperties().setByteValue("CompressionSettings", "TC_Normalmap", "TextureCompressionSettings");
-        }
-        else if ((gamePixelFormat == PixelFormat::DXT5 || gamePixelFormat == PixelFormat::DXT1) &&
-            (texturePixelFormat == PixelFormat::ARGB || texturePixelFormat == PixelFormat::RGB) &&
-            !texture.getProperties().exists("CompressionSettings"))
-        {
-            gamePixelFormat = PixelFormat::ARGB;
-            texture.getProperties().setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
-        }
-        else if (GameData::gameType == MeType::ME3_TYPE && gamePixelFormat == PixelFormat::DXT5 &&
-            texturePixelFormat == PixelFormat::ARGB &&
-            texture.getProperties().exists("CompressionSettings") &&
-            texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_NormalmapAlpha")
-        {
-            gamePixelFormat = PixelFormat::ARGB;
-            texture.getProperties().setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
-        }
-        else if (GameData::gameType == MeType::ME3_TYPE && gamePixelFormat == PixelFormat::DXT1 &&
-            (texturePixelFormat == PixelFormat::ARGB || texturePixelFormat == PixelFormat::V8U8) &&
-            texture.getProperties().exists("CompressionSettings") &&
-            (texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_Normalmap" ||
-            texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_NormalmapHQ"))
-        {
-            gamePixelFormat = PixelFormat::V8U8;
-            texture.getProperties().setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
-            texture.getProperties().setByteValue("CompressionSettings", "TC_NormalmapUncompressed", "TextureCompressionSettings");
-        }
+        else
+            texture.getProperties().setByteValue("CompressionSettings", "TC_NormalmapBC5", "TextureCompressionSettings");
+    }
+    else if ((gamePixelFormat == PixelFormat::DXT1 || gamePixelFormat == PixelFormat::ATI2 ||
+              gamePixelFormat == PixelFormat::BC5) &&
+             (texturePixelFormat == PixelFormat::BC7) &&
+        texture.getProperties().exists("CompressionSettings") &&
+        (texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_Normalmap" ||
+         texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_NormalmapHQ" ||
+         texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_NormalmapBC5"))
+    {
+        gamePixelFormat = PixelFormat::BC7;
+        texture.getProperties().setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
+        texture.getProperties().setByteValue("CompressionSettings", "TC_NormalmapBC7", "TextureCompressionSettings");
+    }
+    else if ((gamePixelFormat == PixelFormat::DXT1 || gamePixelFormat == PixelFormat::ATI2 ||
+              gamePixelFormat == PixelFormat::BC5 || gamePixelFormat == PixelFormat::BC7) &&
+             (texturePixelFormat == PixelFormat::V8U8) &&
+        texture.getProperties().exists("CompressionSettings") &&
+        (texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_Normalmap" ||
+         texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_NormalmapHQ" ||
+         texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_NormalmapBC5" ||
+         texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_NormalmapBC7"))
+    {
+        gamePixelFormat = PixelFormat::V8U8;
+        texture.getProperties().setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
+        texture.getProperties().setByteValue("CompressionSettings", "TC_NormalmapUncompressed", "TextureCompressionSettings");
+    }
+    else if (gamePixelFormat == PixelFormat::DXT5 &&
+        (texturePixelFormat == PixelFormat::ARGB || texturePixelFormat == PixelFormat::BC7) &&
+        texture.getProperties().exists("CompressionSettings") &&
+        texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_NormalmapAlpha")
+    {
+        gamePixelFormat = PixelFormat::ARGB;
+        texture.getProperties().setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
+    }
+    else if ((gamePixelFormat == PixelFormat::DXT1 || gamePixelFormat == PixelFormat::DXT5) &&
+        (texturePixelFormat == PixelFormat::BC7) &&
+        !texture.getProperties().exists("CompressionSettings"))
+    {
+        gamePixelFormat = PixelFormat::BC7;
+        texture.getProperties().setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
+        texture.getProperties().setByteValue("CompressionSettings", "TC_BC7", "TextureCompressionSettings");
+    }
+    else if ((gamePixelFormat == PixelFormat::DXT1 || gamePixelFormat == PixelFormat::DXT5 ||
+              gamePixelFormat == PixelFormat::BC7) &&
+        (texturePixelFormat == PixelFormat::ARGB || texturePixelFormat == PixelFormat::RGB) &&
+        (!texture.getProperties().exists("CompressionSettings") ||
+             (texture.getProperties().exists("CompressionSettings") &&
+              texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_BC7")))
+    {
+        gamePixelFormat = PixelFormat::ARGB;
+        texture.getProperties().setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
+        if (texture.getProperties().exists("CompressionSettings"))
+            texture.getProperties().removeProperty("CompressionSettings");
     }
 
     return gamePixelFormat;

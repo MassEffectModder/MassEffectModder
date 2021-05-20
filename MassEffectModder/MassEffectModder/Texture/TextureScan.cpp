@@ -910,9 +910,7 @@ void TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &pac
                                 foundTex.type = TextureType::Normalmap;
                             }
                             else if (cmp == "TC_BC7")
-                            {
-                                foundTex.type = TextureType::BC7Type;
-                            }
+                                foundTex.type = TextureType::Diffuse;
                             else
                             {
                                 CRASH();

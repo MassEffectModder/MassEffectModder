@@ -49,7 +49,6 @@ typedef enum
     OneBitAlpha,
     GreyScale,
     Displacementmap,
-    BC7Type,
     Movie,
 } TextureType;
 
