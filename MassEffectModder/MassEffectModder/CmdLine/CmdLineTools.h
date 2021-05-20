@@ -58,7 +58,7 @@ public:
                      bool alotInstaller, bool skipMarkers, bool verify, int cacheAmount);
     bool extractAllTextures(MeType gameId, QString &outputDir, QString &inputFile,
                             bool png, bool pccOnly, bool tfcOnly, bool mapCrc,
-                            QString &textureTfcFilter);
+                            QString &textureTfcFilter, bool clearAlpha = false);
     bool extractAllMovieTextures(MeType gameId, QString &outputDir, QString &inputFile,
                                     bool pccOnly, bool tfcOnly, bool mapCrc,
                                     QString &textureTfcFilter);

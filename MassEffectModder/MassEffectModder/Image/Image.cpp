@@ -539,9 +539,9 @@ ByteBuffer Image::downscaleRGB(const quint8 *src, int w, int h)
     return tmpData;
 }
 
-void Image::saveToPng(const quint8 *src, int w, int h, PixelFormat format, const QString &filename)
+void Image::saveToPng(const quint8 *src, int w, int h, PixelFormat format, const QString &filename, bool clearAlpha)
 {
-    auto dataARGB = convertRawToARGB(src, w, h, format, true);
+    auto dataARGB = convertRawToARGB(src, w, h, format, clearAlpha);
     quint8 *buffer;
     quint32 bufferSize;
     if (PngWrite(dataARGB.ptr(), &buffer, &bufferSize, w, h) != 0)
