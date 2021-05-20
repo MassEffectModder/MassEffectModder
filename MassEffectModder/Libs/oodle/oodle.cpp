@@ -21,14 +21,27 @@
 
 #include "oodle.h"
 
-int OodleCompressData(unsigned char *src, unsigned int srcLen,
-                      unsigned char *dst, unsigned int *dstLen, int compressionLevel)
+#ifdef WIN32
+
+bool OodleLoadLib(const wchar_t *libPath)
 {
-  return -1;
+    return true;
+}
+
+void OodleUnloadLib()
+{
+}
+
+#endif
+
+int OodleCompressData(unsigned char *src, unsigned int srcLen,
+                      unsigned char *dst, unsigned int *dstLen)
+{
+    return -1;
 }
 
 int OodleDecompressData(unsigned char *src, unsigned int srcLen,
                         unsigned char *dst, unsigned int dstLen)
 {
-  return -1;
+    return -1;
 }

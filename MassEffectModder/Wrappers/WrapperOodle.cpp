@@ -26,15 +26,27 @@
 
 #ifndef EXPORT_LIBS
 
+#ifdef WIN32
+bool OodleInitLib(const wchar_t *libPath)
+{
+    return OodleLoadLib(libPath);
+}
+
+void OodleUninitLib()
+{
+    OodleUnloadLib();
+}
+#endif
+
 int OodleDecompress(unsigned char *src, unsigned int srcLen, unsigned char *dst, unsigned int dstLen)
 {
     return OodleDecompressData(src, srcLen, dst, dstLen);
 }
 
 int OodleCompress(unsigned char *src, unsigned int srcLen,
-                  unsigned char *dst, unsigned int *dstLen, int compressionLevel)
+                  unsigned char *dst, unsigned int *dstLen)
 {
-    return OodleCompressData(src, srcLen, dst, dstLen, compressionLevel);
+    return OodleCompressData(src, srcLen, dst, dstLen);
 }
 
 #else
@@ -50,9 +62,9 @@ LIB_EXPORT int OodleDecompress(unsigned char *src, unsigned int srcLen, unsigned
     return OodleDecompressData(src, srcLen, dst, dstLen);
 }
 
-LIB_EXPORT int OodleCompress(unsigned char *src, unsigned int srcLen, unsigned char *dst, unsigned int *dstLen, int compressionLevel)
+LIB_EXPORT int OodleCompress(unsigned char *src, unsigned int srcLen, unsigned char *dst, unsigned int *dstLen)
 {
-    return OodleCompress(src, srcLen, dst, dstLen, compressionLevel);
+    return OodleCompress(src, srcLen, dst, dstLen);
 }
 
 #endif

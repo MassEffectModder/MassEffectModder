@@ -22,6 +22,7 @@
 #include <GameData/GameData.h>
 #include <Helpers/Exception.h>
 #include <Helpers/MiscHelpers.h>
+#include <Wrappers.h>
 
 MeType GameData::gameType = UNKNOWN_TYPE;
 
@@ -43,6 +44,12 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
 
     if (packageFiles.count() == 0)
     {
+#ifdef WIN32
+        QString dllPath = _path + "/Game/ME" + QString::number((int)gameType) +
+                "/Binaries/Win64/oo2core_8_win64.dll";
+        OodleInitLib(dllPath.toStdWString().c_str());
+#endif
+
 #ifdef GUI
         QElapsedTimer timer;
         timer.start();

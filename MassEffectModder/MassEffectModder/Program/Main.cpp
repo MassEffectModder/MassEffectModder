@@ -201,6 +201,10 @@ int main(int argc, char *argv[])
 
     BC7ShutdownLibrary();
 
+#if defined(_WIN32)
+    OodleUninitLib();
+#endif
+
     ReleaseLogs();
 
     return status;

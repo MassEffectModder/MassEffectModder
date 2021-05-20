@@ -59,8 +59,12 @@ int RarList(const void *path, bool ipc = false);
 int ZlibDecompress(BYTE *src, UINT32 src_len, BYTE *dst, UINT32 *dst_len);
 int ZlibCompress(BYTE *src, UINT32 src_len, BYTE **dst, UINT32 *dst_len, int compression_level = -1);
 
+#ifdef WIN32
+bool OodleInitLib(const wchar_t *libPath);
+void OodleUninitLib();
+#endif
 int OodleDecompress(BYTE *src, UINT32 src_len, BYTE *dst, UINT32 dst_len);
-int OodleCompress(BYTE *src, UINT32 src_len, BYTE *dst, UINT32 *dst_len, int compression_level = 4);
+int OodleCompress(BYTE *src, UINT32 src_len, BYTE *dst, UINT32 *dst_len);
 
 int ZstdDecompress(BYTE *src, UINT32 src_len, BYTE *dst, UINT32 *dst_len);
 int ZstdCompress(BYTE *src, UINT32 src_len, BYTE **dst, UINT32 *dst_len, int compression_level = 3);
