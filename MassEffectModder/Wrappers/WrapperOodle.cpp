@@ -49,22 +49,4 @@ int OodleCompress(unsigned char *src, unsigned int srcLen,
     return OodleCompressData(src, srcLen, dst, dstLen);
 }
 
-#else
-
-#ifdef _WIN32
-#define LIB_EXPORT extern "C" __declspec(dllexport)
-#else
-#define LIB_EXPORT extern "C"
-#endif
-
-LIB_EXPORT int OodleDecompress(unsigned char *src, unsigned int srcLen, unsigned char *dst, unsigned int *dstLen)
-{
-    return OodleDecompressData(src, srcLen, dst, dstLen);
-}
-
-LIB_EXPORT int OodleCompress(unsigned char *src, unsigned int srcLen, unsigned char *dst, unsigned int *dstLen)
-{
-    return OodleCompress(src, srcLen, dst, dstLen);
-}
-
 #endif

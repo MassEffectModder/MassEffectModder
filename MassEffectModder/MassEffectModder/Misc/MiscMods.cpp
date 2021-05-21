@@ -653,12 +653,7 @@ bool Misc::compressData(ByteBuffer inputData, Stream &ouputStream, CompressionDa
     for (int b = 0; b < blocks.count(); b++)
     {
         Package::ChunkBlock block = blocks[b];
-        if (compType == CompressionDataType::LZO)
-        {
-            if (LzoCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) == -100)
-                CRASH_MSG("Out of memory!");
-        }
-        else if (compType == CompressionDataType::Zlib)
+        if (compType == CompressionDataType::Zlib)
         {
             if (ZlibCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) == -100)
                 CRASH_MSG("Out of memory!");
@@ -748,11 +743,7 @@ ByteBuffer Misc::decompressData(Stream &stream, long compressedSize)
     {
         uint dstLen = ModsDataEnums::MaxBlockSize * 2;
         Package::ChunkBlock block = blocks[b];
-        if (compType == CompressionDataType::LZO)
-        {
-            LzoDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen);
-        }
-        else if (compType == CompressionDataType::Zlib)
+        if (compType == CompressionDataType::Zlib)
         {
             if (ZlibDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen) == -100)
                 CRASH_MSG("Out of memory!");

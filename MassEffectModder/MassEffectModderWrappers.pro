@@ -22,11 +22,6 @@ SUBDIRS += \
     Libs/zstd
 }
 
-!equals(WRAPPERS_SHARED, true) {
-SUBDIRS += \
-    Libs/oodle
-}
-
 SUBDIRS += \
     Libs/unrar \
     Wrappers

@@ -189,7 +189,6 @@ Release:LIBS += \
     -L$$OUT_PWD/../Libs/bfd/release -lbfd \
     -L$$OUT_PWD/../Libs/bc7/release -lbc7 \
     -L$$OUT_PWD/../Libs/dxtc/release -ldxtc \
-    -L$$OUT_PWD/../Libs/lzo2/release -llzo2 \
     -L$$OUT_PWD/../Libs/unlzx/release -lunlzx \
     -L$$OUT_PWD/../Libs/png/release -lpng \
     -L$$OUT_PWD/../Libs/oodle/release -loodle \
@@ -204,7 +203,6 @@ Debug:LIBS += \
     -L$$OUT_PWD/../Libs/bfd/debug -lbfd \
     -L$$OUT_PWD/../Libs/bc7/debug -lbc7 \
     -L$$OUT_PWD/../Libs/dxtc/debug -ldxtc \
-    -L$$OUT_PWD/../Libs/lzo2/debug -llzo2 \
     -L$$OUT_PWD/../Libs/unlzx/debug -lunlzx \
     -L$$OUT_PWD/../Libs/png/debug -lpng \
     -L$$OUT_PWD/../Libs/oodle/debug -loodle \
@@ -220,7 +218,6 @@ LIBS += \
     -L$$OUT_PWD/../Libs/bfd -lbfd \
     -L$$OUT_PWD/../Libs/bc7 -lbc7 \
     -L$$OUT_PWD/../Libs/dxtc -ldxtc \
-    -L$$OUT_PWD/../Libs/lzo2 -llzo2 \
     -L$$OUT_PWD/../Libs/unlzx -lunlzx \
     -L$$OUT_PWD/../Libs/omp -lomp \
     -L$$OUT_PWD/../Libs/png -lpng \

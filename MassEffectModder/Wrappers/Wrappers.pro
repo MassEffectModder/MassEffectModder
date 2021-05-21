@@ -18,14 +18,13 @@ SOURCES += \
     Wrapper7Zip.cpp \
     WrapperBc7.cpp \
     WrapperDxtc.cpp \
-    WrapperLzo.cpp \
-    WrapperOodle.cpp \
     WrapperUnLzx.cpp \
     WrapperUnzip.cpp \
     WrapperZlib.cpp
 
 !equals(WRAPPERS_SHARED, true) {
 SOURCES += \
+    WrapperOodle.cpp \
     WrapperPng.cpp \
     WrapperUnrar.cpp
 
@@ -33,6 +32,8 @@ equals(ZSTD_ENABLE, true) {
     SOURCES += WrapperZstd.cpp
 }
 
+} else {
+    WrapperLzo.cpp \
 }
 
 !equals(WRAPPERS_SHARED, true) {
@@ -95,10 +96,13 @@ Release:LIBS += \
     -L$$OUT_PWD/../Libs/7z/release -l7z \
     -L$$OUT_PWD/../Libs/bc7/release -lbc7 \
     -L$$OUT_PWD/../Libs/dxtc/release -ldxtc \
-    -L$$OUT_PWD/../Libs/lzo2/release -llzo2 \
-    -L$$OUT_PWD/../Libs/oodle/release -loodle \
     -L$$OUT_PWD/../Libs/unlzx/release -lunlzx \
     -L$$OUT_PWD/../Libs/zlib/release -lzlib
+
+!equals(WRAPPERS_SHARED, true) {
+} else {
+    Release:LIBS += -L$$OUT_PWD/../Libs/lzo2/release -llzo2
+}
 
 equals(ZSTD_ENABLE, true) {
     Release:LIBS += -L$$OUT_PWD/../Libs/zstd/release -lzstd
@@ -107,10 +111,13 @@ Debug:LIBS += \
     -L$$OUT_PWD/../Libs/7z/debug -l7z \
     -L$$OUT_PWD/../Libs/bc7/debug -lbc7 \
     -L$$OUT_PWD/../Libs/dxtc/debug -ldxtc \
-    -L$$OUT_PWD/../Libs/lzo2/debug -llzo2 \
-    -L$$OUT_PWD/../Libs/oodle/debug -loodle \
     -L$$OUT_PWD/../Libs/unlzx/debug -lunlzx \
     -L$$OUT_PWD/../Libs/zlib/debug -lzlib
+
+!equals(WRAPPERS_SHARED, true) {
+} else {
+    Debug:LIBS += -L$$OUT_PWD/../Libs/lzo2 -llzo2
+}
 
 equals(ZSTD_ENABLE, true) {
     Debug:LIBS += -L$$OUT_PWD/../Libs/zstd/debug -lzstd
@@ -121,9 +128,14 @@ LIBS += \
     -L$$OUT_PWD/../Libs/bc7 -lbc7 \
     -L$$OUT_PWD/../Libs/dxtc -ldxtc \
     -L$$OUT_PWD/../Libs/lzo2 -llzo2 \
-    -L$$OUT_PWD/../Libs/oodle -loodle \
     -L$$OUT_PWD/../Libs/unlzx -lunlzx \
     -L$$OUT_PWD/../Libs/zlib -lzlib
+
+!equals(WRAPPERS_SHARED, true) {
+    LIBS += -L$$OUT_PWD/../Libs/oodle -loodle
+} else {
+    LIBS += -L$$OUT_PWD/../Libs/lzo2 -llzo2
+}
 
 equals(ZSTD_ENABLE, true) {
     LIBS += -L$$OUT_PWD/../Libs/zstd -lzstd

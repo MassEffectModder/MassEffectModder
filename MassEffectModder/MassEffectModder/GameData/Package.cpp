@@ -303,18 +303,7 @@ bool Package::getData(uint offset, uint length, Stream *outputStream, quint8 *ou
                 }
 
                 bool failed = false;
-                if (compressionType == CompressionType::LZO)
-                {
-                    for (int b = 0; b < blocks.count(); b++)
-                    {
-                        const ChunkBlock& block = blocks[b];
-                        uint dstLen = MaxBlockSize * 2;
-                        LzoDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen);
-                        if (dstLen != block.uncomprSize)
-                            failed = true;
-                    }
-                }
-                else if (compressionType == CompressionType::Zlib)
+                if (compressionType == CompressionType::Zlib)
                 {
                     #pragma omp parallel for
                     for (int b = 0; b < blocks.count(); b++)
@@ -1115,12 +1104,7 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
             for (int b = 0; b < chunk.blocks.count(); b++)
             {
                 ChunkBlock block = chunk.blocks[b];
-                if (targetCompression == CompressionType::LZO)
-                {
-                    if (LzoCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) == -100)
-                        CRASH_MSG("Out of memory!");
-                }
-                else if (targetCompression == CompressionType::Zlib)
+                if (targetCompression == CompressionType::Zlib)
                 {
                     if (ZlibCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize,
                                      forceCompressed ? 9 : 1) == -100)
@@ -1227,12 +1211,7 @@ const ByteBuffer Package::compressData(const ByteBuffer &inputData, StorageTypes
     for (int b = 0; b < blocks.count(); b++)
     {
         Package::ChunkBlock block = blocks[b];
-        if (type == StorageTypes::extLZO || type == StorageTypes::pccLZO)
-        {
-            if (LzoCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) == -100)
-                CRASH_MSG("Out of memory!");
-        }
-        else if (type == StorageTypes::extZlib || type == StorageTypes::pccZlib)
+        if (type == StorageTypes::extZlib || type == StorageTypes::pccZlib)
         {
             if (ZlibCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize,
                              maxCompress ? 9 : 1) == -100)
@@ -1329,18 +1308,7 @@ const ByteBuffer Package::decompressData(Stream &stream, StorageTypes type,
     }
 
     bool errorFlag = false;
-    if (type == StorageTypes::extLZO || type == StorageTypes::pccLZO)
-    {
-        for (int b = 0; b < blocks.count(); b++)
-        {
-            uint dstLen = MaxBlockSize * 2;
-            Package::ChunkBlock block = blocks[b];
-            LzoDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen);
-            if (dstLen != block.uncomprSize)
-                errorFlag = true;
-        }
-    }
-    else if (type == StorageTypes::extZlib || type == StorageTypes::pccZlib)
+    if (type == StorageTypes::extZlib || type == StorageTypes::pccZlib)
     {
         #pragma omp parallel for
         for (int b = 0; b < blocks.count(); b++)
