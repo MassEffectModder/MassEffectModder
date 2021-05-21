@@ -364,17 +364,17 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                     }
 
                     bool oldSpace = mod.memEntrySize <= (long)textureMovie.getUncompressedSize();
-                    if (!oldSpace)
+                    if (!oldSpace || !archiveFile.contains("TexturesMEM"))
                     {
                         quint32 fileLength = QFile(archiveFile).size();
-                        if (fileLength + 0x5000000UL > 0x80000000UL)
+                        if (fileLength + 0x5000000UL > 0x80000000UL || !archiveFile.contains("TexturesMEM"))
                         {
                             archiveFile = "";
                             ByteBuffer guid(tfcNewGuid, 16);
-                            for (int indexTfc = 0; indexTfc < 100; indexTfc++)
+                            for (qint32 indexTfc = 0; indexTfc < 9999; indexTfc++)
                             {
-                                guid.ptr()[0] = indexTfc;
-                                QString tfcNewName = QString::asprintf("TexturesMEM%02d", indexTfc);
+                                *(qint32 *)guid.ptr() = indexTfc;
+                                QString tfcNewName = QString::asprintf("TexturesMEM%04d", indexTfc);
                                 archiveFile = g_GameData->MainData() + "/" + tfcNewName + ".tfc";
                                 if (!QFile(archiveFile).exists())
                                 {
@@ -722,14 +722,14 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                         }
 
                         quint32 fileLength = QFile(archiveFile).size();
-                        if (!oldSpace && fileLength + 0x5000000UL > 0x80000000UL)
+                        if ((!oldSpace && fileLength + 0x5000000UL > 0x80000000UL) || !archiveFile.contains("TexturesMEM"))
                         {
                             archiveFile = "";
                             ByteBuffer guid(tfcNewGuid, 16);
-                            for (int indexTfc = 0; indexTfc < 100; indexTfc++)
+                            for (qint32 indexTfc = 0; indexTfc < 9999; indexTfc++)
                             {
-                                guid.ptr()[0] = indexTfc;
-                                QString tfcNewName = QString::asprintf("TexturesMEM%02d", indexTfc);
+                                *(qint32 *)guid.ptr() = indexTfc;
+                                QString tfcNewName = QString::asprintf("TexturesMEM%04d", indexTfc);
                                 archiveFile = g_GameData->MainData() + "/" + tfcNewName + ".tfc";
                                 if (!QFile(archiveFile).exists())
                                 {
