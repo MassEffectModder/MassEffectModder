@@ -194,48 +194,6 @@ LayoutMain::LayoutMain(MainWindow *window)
     buttonRemoveScanFileME3->setFont(ButtonFont);
     connect(buttonRemoveScanFileME3, &QPushButton::clicked, this, &LayoutMain::RemoveScanFileME3Selected);
 
-    buttonApplyHQLODsME1 = new QPushButton("Apply HQ LODs Settings");
-    buttonApplyHQLODsME1->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    buttonApplyHQLODsME1->setMinimumWidth(kButtonMinSmallWidth);
-    buttonApplyHQLODsME1->setMinimumHeight(kButtonMinHeight);
-    buttonApplyHQLODsME1->setFont(ButtonFont);
-    connect(buttonApplyHQLODsME1, &QPushButton::clicked, this, &LayoutMain::ApplyHQLODsME1Selected);
-
-    buttonApplyHQLODsME2 = new QPushButton("Apply HQ LODs Settings");
-    buttonApplyHQLODsME2->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    buttonApplyHQLODsME2->setMinimumWidth(kButtonMinSmallWidth);
-    buttonApplyHQLODsME2->setMinimumHeight(kButtonMinHeight);
-    buttonApplyHQLODsME2->setFont(ButtonFont);
-    connect(buttonApplyHQLODsME2, &QPushButton::clicked, this, &LayoutMain::ApplyHQLODsME2Selected);
-
-    buttonApplyHQLODsME3 = new QPushButton("Apply HQ LODs Settings");
-    buttonApplyHQLODsME3->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    buttonApplyHQLODsME3->setMinimumWidth(kButtonMinSmallWidth);
-    buttonApplyHQLODsME3->setMinimumHeight(kButtonMinHeight);
-    buttonApplyHQLODsME3->setFont(ButtonFont);
-    connect(buttonApplyHQLODsME3, &QPushButton::clicked, this, &LayoutMain::ApplyHQLODsME3Selected);
-
-    buttonApplyVanillaLODsME1 = new QPushButton("Apply Vanilla LODs Settings");
-    buttonApplyVanillaLODsME1->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    buttonApplyVanillaLODsME1->setMinimumWidth(kButtonMinSmallWidth);
-    buttonApplyVanillaLODsME1->setMinimumHeight(kButtonMinHeight);
-    buttonApplyVanillaLODsME1->setFont(ButtonFont);
-    connect(buttonApplyVanillaLODsME1, &QPushButton::clicked, this, &LayoutMain::ApplyVanillaLODsME1Selected);
-
-    buttonApplyVanillaLODsME2 = new QPushButton("Apply Vanilla LODs Settings");
-    buttonApplyVanillaLODsME2->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    buttonApplyVanillaLODsME2->setMinimumWidth(kButtonMinSmallWidth);
-    buttonApplyVanillaLODsME2->setMinimumHeight(kButtonMinHeight);
-    buttonApplyVanillaLODsME2->setFont(ButtonFont);
-    connect(buttonApplyVanillaLODsME2, &QPushButton::clicked, this, &LayoutMain::ApplyVanillaLODsME2Selected);
-
-    buttonApplyVanillaLODsME3 = new QPushButton("Apply Vanilla LODs Settings");
-    buttonApplyVanillaLODsME3->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    buttonApplyVanillaLODsME3->setMinimumWidth(kButtonMinSmallWidth);
-    buttonApplyVanillaLODsME3->setMinimumHeight(kButtonMinHeight);
-    buttonApplyVanillaLODsME3->setFont(ButtonFont);
-    connect(buttonApplyVanillaLODsME3, &QPushButton::clicked, this, &LayoutMain::ApplyVanillaLODsME3Selected);
-
     buttonApplyHQGfxME1 = new QPushButton("Apply HQ GFX Settings");
     buttonApplyHQGfxME1->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     buttonApplyHQGfxME1->setMinimumWidth(kButtonMinSmallWidth);
@@ -436,8 +394,6 @@ LayoutMain::LayoutMain(MainWindow *window)
 #endif
     verticalLayoutMenuME1->addWidget(buttonTextureUtilitiesME1, 1);
     groupVertTextureUtilitiesME1->addWidget(buttonRemoveScanFileME1, 1);
-    groupVertTextureUtilitiesME1->addWidget(buttonApplyHQLODsME1, 1);
-    groupVertTextureUtilitiesME1->addWidget(buttonApplyVanillaLODsME1, 1);
     groupVertTextureUtilitiesME1->addWidget(buttonApplyHQGfxME1, 1);
     spacerBottomTextureUtilitiesME1 = new QSpacerItem(0, 20);
     groupVertTextureUtilitiesME1->addItem(spacerBottomTextureUtilitiesME1);
@@ -450,8 +406,6 @@ LayoutMain::LayoutMain(MainWindow *window)
 #endif
     verticalLayoutMenuME2->addWidget(buttonTextureUtilitiesME2, 1);
     groupVertTextureUtilitiesME2->addWidget(buttonRemoveScanFileME2, 1);
-    groupVertTextureUtilitiesME2->addWidget(buttonApplyHQLODsME2, 1);
-    groupVertTextureUtilitiesME2->addWidget(buttonApplyVanillaLODsME2, 1);
     groupVertTextureUtilitiesME2->addWidget(buttonApplyHQGfxME2, 1);
     spacerBottomTextureUtilitiesME2 = new QSpacerItem(0, 20);
     groupVertTextureUtilitiesME2->addItem(spacerBottomTextureUtilitiesME2);
@@ -464,8 +418,6 @@ LayoutMain::LayoutMain(MainWindow *window)
 #endif
     verticalLayoutMenuME3->addWidget(buttonTextureUtilitiesME3, 1);
     groupVertTextureUtilitiesME3->addWidget(buttonRemoveScanFileME3, 1);
-    groupVertTextureUtilitiesME3->addWidget(buttonApplyHQLODsME3, 1);
-    groupVertTextureUtilitiesME3->addWidget(buttonApplyVanillaLODsME3, 1);
     groupVertTextureUtilitiesME3->addWidget(buttonApplyHQGfxME3, 1);
     spacerBottomTextureUtilitiesME3 = new QSpacerItem(0, 20);
     groupVertTextureUtilitiesME3->addItem(spacerBottomTextureUtilitiesME3);
@@ -705,8 +657,6 @@ void LayoutMain::HideAllSubMenusME1()
 {
     buttonTextureUtilitiesME1->setChecked(false);
     buttonRemoveScanFileME1->hide();
-    buttonApplyHQLODsME1->hide();
-    buttonApplyVanillaLODsME1->hide();
     buttonApplyHQGfxME1->hide();
     spacerBottomTextureUtilitiesME1->changeSize(0, 0);
     buttonGameUtilitiesME1->setChecked(false);
@@ -727,8 +677,6 @@ void LayoutMain::HideAllSubMenusME2()
 {
     buttonTextureUtilitiesME2->setChecked(false);
     buttonRemoveScanFileME2->hide();
-    buttonApplyHQLODsME2->hide();
-    buttonApplyVanillaLODsME2->hide();
     buttonApplyHQGfxME2->hide();
     spacerBottomTextureUtilitiesME2->changeSize(0, 0);
     buttonGameUtilitiesME2->setChecked(false);
@@ -749,8 +697,6 @@ void LayoutMain::HideAllSubMenusME3()
 {
     buttonTextureUtilitiesME3->setChecked(false);
     buttonRemoveScanFileME3->hide();
-    buttonApplyHQLODsME3->hide();
-    buttonApplyVanillaLODsME3->hide();
     buttonApplyHQGfxME3->hide();
     spacerBottomTextureUtilitiesME3->changeSize(0, 0);
     buttonGameUtilitiesME3->setChecked(false);
@@ -805,8 +751,6 @@ void LayoutMain::ButtonTextureUtilitiesME1Selected()
     buttonGameUtilitiesME1->setChecked(false);
     buttonModsManagerME1->setChecked(false);
     buttonRemoveScanFileME1->setHidden(!checked);
-    buttonApplyHQLODsME1->setHidden(!checked);
-    buttonApplyVanillaLODsME1->setHidden(!checked);
     buttonApplyHQGfxME1->setHidden(!checked);
     spacerBottomTextureUtilitiesME1->changeSize(0, checked ? 20 : 0);
     buttonTextureUtilitiesME1->show();
@@ -823,8 +767,6 @@ void LayoutMain::ButtonTextureUtilitiesME2Selected()
     buttonGameUtilitiesME2->setChecked(false);
     buttonModsManagerME2->setChecked(false);
     buttonRemoveScanFileME2->setHidden(!checked);
-    buttonApplyHQLODsME2->setHidden(!checked);
-    buttonApplyVanillaLODsME2->setHidden(!checked);
     buttonApplyHQGfxME2->setHidden(!checked);
     spacerBottomTextureUtilitiesME2->changeSize(0, checked ? 20 : 0);
     buttonTextureUtilitiesME2->show();
@@ -841,8 +783,6 @@ void LayoutMain::ButtonTextureUtilitiesME3Selected()
     buttonGameUtilitiesME3->setChecked(false);
     buttonModsManagerME3->setChecked(false);
     buttonRemoveScanFileME3->setHidden(!checked);
-    buttonApplyHQLODsME3->setHidden(!checked);
-    buttonApplyVanillaLODsME3->setHidden(!checked);
     buttonApplyHQGfxME3->setHidden(!checked);
     spacerBottomTextureUtilitiesME3->changeSize(0, checked ? 20 : 0);
     buttonTextureUtilitiesME3->show();

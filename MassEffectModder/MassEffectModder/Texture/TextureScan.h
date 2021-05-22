@@ -39,7 +39,6 @@ struct TextureMapPackageEntry
     int exportID;
     QString path;
     QList<uint> crcs;
-    bool removeEmptyMips;
     int numMips;
     bool movieTexture;
 };
@@ -69,8 +68,7 @@ public:
     static void loadTexturesMap(MeType gameId, Resources &resources, QList<TextureMapEntry> &textures);
     static bool loadTexturesMapFile(QString &path, QList<TextureMapEntry> &textures, bool ignoreCheck = false);
     static bool PrepareListOfTextures(MeType gameId, Resources &resources,
-                                     QList<TextureMapEntry> &textures,
-                                     bool removeEmptyMips, bool saveMapFile,
+                                     QList<TextureMapEntry> &textures, bool saveMapFile,
                                      ProgressCallback callback, void *callbackHandle);
     static bool IsBlankTexture(uint crc);
 };

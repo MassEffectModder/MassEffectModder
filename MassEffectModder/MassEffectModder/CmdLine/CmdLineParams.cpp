@@ -46,7 +46,6 @@ int ProcessArguments()
     bool tfcOnly = false;
     bool verify = false;
     bool mapCRC = false;
-    bool removeEmptyMips = false;
     bool flattenPath = false;
     bool clearAlpha = false;
     int thresholdValue = 128;
@@ -305,12 +304,6 @@ int ProcessArguments()
             args.removeAt(l);
             args.removeAt(l--);
         }
-        else if (arg == "--remove-empty-mips")
-        {
-            removeEmptyMips = true;
-            args.removeAt(l);
-            args.removeAt(l--);
-        }
         else if (arg == "--flatten-archive-path")
         {
             flattenPath = true;
@@ -357,7 +350,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        errorCode = tools.scanTextures(gameId, removeEmptyMips);
+        errorCode = tools.scanTextures(gameId);
         break;
     case CmdType::UPDATE_TOC:
     {
@@ -549,14 +542,6 @@ int ProcessArguments()
             errorCode = 1;
         break;
     case CmdType::REMOVE_LODS:
-        if (gameId == MeType::UNKNOWN_TYPE)
-        {
-            PERROR("Wrong game id!\n");
-            errorCode = 1;
-            break;
-        }
-        if (!tools.RemoveLODSettings(gameId))
-            errorCode = 1;
         break;
     case CmdType::CHECK_GAME_DATA_TEXTURES:
         if (gameId == MeType::UNKNOWN_TYPE)

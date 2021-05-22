@@ -392,7 +392,7 @@ bool LayoutTexturesManager::Startup()
         g_logs->BufferClearErrors();
         g_logs->BufferEnableErrors(true);
         TreeScan::PrepareListOfTextures(gameType, resources,
-                                        textures, removeEmptyMips, true,
+                                        textures, true,
                                         &LayoutTexturesManager::PrepareTexturesCallback,
                                         mainWindow);
         g_logs->BufferEnableErrors(false);
@@ -413,35 +413,6 @@ bool LayoutTexturesManager::Startup()
             }
             TOCBinFile::UpdateAllTOCBinFiles();
         }
-    }
-    else if (removeEmptyMips)
-    {
-        mainWindow->statusBar()->showMessage("Preparing to remove empty mips...");
-        QApplication::processEvents();
-        MipMaps mipMaps;
-        QStringList pkgsToRepack;
-        QStringList pkgsToMarker;
-        g_logs->BufferClearErrors();
-        g_logs->BufferEnableErrors(true);
-        Misc::RemoveMipmaps(mipMaps, textures, pkgsToMarker, false, true,
-                            &LayoutTexturesManager::PrepareTexturesCallback, mainWindow);
-        mainWindow->statusBar()->clearMessage();
-        QApplication::processEvents();
-        if (g_logs->BufferGetErrors() != "")
-        {
-            MessageWindow msg;
-            msg.Show(mainWindow, "Errors while removing empty mips", g_logs->BufferGetErrors());
-            buttonExit->setEnabled(true);
-            mainWindow->LockClose(false);
-            return false;
-        }
-        if (!Misc::ApplyPostInstall(GameData::gameType))
-        {
-            buttonExit->setEnabled(true);
-            mainWindow->LockClose(false);
-            return false;
-        }
-        TOCBinFile::UpdateAllTOCBinFiles();
     }
 
     QElapsedTimer timer;
@@ -992,13 +963,13 @@ void LayoutTexturesManager::ReplaceTexture(const QListWidgetItem *item, bool con
         QList<MapPackagesToMod> mapPackages;
         mapPackages.append(mapEntry);
         mipMaps.replaceTextures(mapPackages, textures, pkgsToMarker, modsToReplace,
-                                false, true, false, -1,
+                                false, true, -1,
                                 &LayoutTexturesManager::ReplaceTextureCallback, mainWindow);
     }
     else
     {
         mipMaps.replaceModsFromList(textures, pkgsToMarker, modsToReplace,
-                                    false, true, false, -1,
+                                    false, true, -1,
                                     &LayoutTexturesManager::ReplaceTextureCallback, mainWindow);
     }
     delete image;

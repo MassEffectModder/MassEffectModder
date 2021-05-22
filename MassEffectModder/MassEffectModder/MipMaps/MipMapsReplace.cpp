@@ -219,7 +219,7 @@ bool MipMaps::VerifyTextures(QList<TextureMapEntry> &textures,
 QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapEntry> &textures,
                                  QStringList &pkgsToMarker,
                                  QList<ModEntry> &modsToReplace,
-                                 bool appendMarker, bool verify, bool removeMips, int cacheAmount,
+                                 bool appendMarker, bool verify, int cacheAmount,
                                  ProgressCallback callback, void *callbackHandle)
 {
     QString errors = "";
@@ -457,6 +457,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
 
                 if (!texture.getProperties().exists("LODGroup"))
                     texture.getProperties().setByteValue("LODGroup", "TEXTUREGROUP_Character", "TextureGroup", 1025);
+
+                texture.getProperties().setIntValue("InternalFormatLODBias", -10);
 
                 Image *image = nullptr;
                 if (mod.cacheCprMipmaps.count() == 0)
@@ -815,6 +817,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
 
                 texture.getProperties().setIntValue("SizeX", texture.mipMapsList.first().width);
                 texture.getProperties().setIntValue("SizeY", texture.mipMapsList.first().height);
+                texture.getProperties().setIntValue("OriginalSizeX", texture.mipMapsList.first().width);
+                texture.getProperties().setIntValue("OriginalSizeY", texture.mipMapsList.first().height);
                 if (texture.getProperties().exists("MipTailBaseIdx"))
                     texture.getProperties().setIntValue("MipTailBaseIdx", texture.mipMapsList.count() - 1);
 
@@ -847,16 +851,6 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                     mod.CopyMipMapsList(mod.arcTexture, texture.mipMapsList);
                     memcpy(mod.arcTfcGuid, texture.getProperties().getProperty("TFCFileGuid").getValueStruct().ptr(), 16);
                     mod.arcTfcName = texture.getProperties().getProperty("TextureFileCacheName").getValueName();
-                }
-
-                matched.removeEmptyMips = false;
-                for (int r = 0; r < map[e].removeMips.exportIDs.count(); r++)
-                {
-                    if (map[e].removeMips.exportIDs[r] == matched.exportID)
-                    {
-                        map[e].removeMips.exportIDs.removeAt(r);
-                        break;
-                    }
                 }
 
                 if (g_ipc)
@@ -897,18 +891,10 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
             }
         }
 
-        if (removeMips)
+        if (package.SaveToFile(false, false, appendMarker))
         {
-            removeMipMapsPerPackage(package, map[e].removeMips,
-                                    pkgsToMarker, appendMarker);
-        }
-        else
-        {
-            if (package.SaveToFile(false, false, appendMarker))
-            {
-                if (appendMarker)
-                    pkgsToMarker.removeOne(package.packagePath);
-            }
+            if (appendMarker)
+                pkgsToMarker.removeOne(package.packagePath);
         }
     }
 
@@ -943,7 +929,7 @@ static int comparePaths(const MapTexturesToMod &e1, const MapTexturesToMod &e2)
 
 QString MipMaps::replaceModsFromList(QList<TextureMapEntry> &textures, QStringList &pkgsToMarker,
                                      QList<ModEntry> &modsToReplace,
-                                     bool appendMarker, bool verify, bool removeMips,
+                                     bool appendMarker, bool verify,
                                      int cacheAmount, ProgressCallback callback, void *callbackHandle)
 {
     QString errors;
@@ -1042,39 +1028,12 @@ QString MipMaps::replaceModsFromList(QList<TextureMapEntry> &textures, QStringLi
             mapEntry.packagePath = map[i].packagePath;
             mapEntry.usage = modsToReplace[map[i].modIndex].memEntrySize;
             mapEntry.instances = modsToReplace[map[i].modIndex].instance;
-            mapEntry.removeMips.pkgPath = map[i].packagePath;
             previousPath = map[i].packagePath.toLower();
             mapPackages.push_back(mapEntry);
             packagesIndex++;
         }
     }
     map.clear();
-
-    if (removeMips)
-    {
-        for (int k = 0; k < textures.count(); k++)
-        {
-            for (int t = 0; t < textures[k].list.count(); t++)
-            {
-                if (textures[k].list[t].path.length() == 0)
-                    continue;
-                if (textures[k].list[t].removeEmptyMips)
-                {
-                    for (int e = 0; e < mapPackages.count(); e++)
-                    {
-                        if (AsciiStringMatch(mapPackages[e].packagePath, textures[k].list[t].path))
-                        {
-                            mapPackages[e].removeMips.exportIDs.push_back(textures[k].list[t].exportID);
-                            TextureMapPackageEntry f = textures[k].list[t];
-                            f.removeEmptyMips = false;
-                            textures[k].list[t] = f;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-    }
 
     if (mapPackages.count() != 0)
     {
@@ -1084,7 +1043,7 @@ QString MipMaps::replaceModsFromList(QList<TextureMapEntry> &textures, QStringLi
         }
 
         errors += replaceTextures(mapPackages, textures, pkgsToMarker, modsToReplace,
-                                  appendMarker, verify, removeMips, cacheAmount,
+                                  appendMarker, verify, cacheAmount,
                                   callback, callbackHandle);
     }
 

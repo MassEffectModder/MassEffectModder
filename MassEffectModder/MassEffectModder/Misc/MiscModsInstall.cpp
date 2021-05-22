@@ -32,7 +32,7 @@
 bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
                      QStringList &pkgsToMarker,
                      MipMaps &mipMaps, bool appendMarker,
-                     bool modded, bool verify, int cacheAmount,
+                     bool verify, int cacheAmount,
                      ProgressCallback callback, void *callbackHandle)
 {
     bool status = true;
@@ -153,7 +153,7 @@ bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
     }
 
     mipMaps.replaceModsFromList(textures, pkgsToMarker, modsToReplace,
-                                appendMarker, verify, !modded, cacheAmount,
+                                appendMarker, verify, cacheAmount,
                                 callback, callbackHandle);
 
     PINFO("Process textures finished.\n\n");
@@ -236,8 +236,6 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
         ConsoleWrite("[IPC]STAGE_ADD STAGE_INSTALLTEXTURES");
         if (verify)
             ConsoleWrite("[IPC]STAGE_ADD STAGE_VERIFYTEXTURES");
-        if (!modded)
-            ConsoleWrite("[IPC]STAGE_ADD STAGE_REMOVEMIPMAPS");
         if (!skipMarkers && !modded)
             ConsoleWrite("[IPC]STAGE_ADD STAGE_MARKERS");
         ConsoleSync();
@@ -256,7 +254,7 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
         pkgsToMarker.removeOne(g_GameData->MainData() + "/SFXTest.pcc");
 
         PINFO("Scan textures started...\n");
-        if (!TreeScan::PrepareListOfTextures(gameId, resources, textures, false, true,
+        if (!TreeScan::PrepareListOfTextures(gameId, resources, textures, true,
                                         callback, callbackHandle))
         {
             PERROR("Failed to scan textures!\n");
@@ -282,11 +280,8 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
     }
 
     Misc::applyMods(modFiles, textures, pkgsToMarker, mipMaps,
-                    true, modded, verify, cacheAmount, callback, callbackHandle);
+                    true, verify, cacheAmount, callback, callbackHandle);
 
-
-    if (!modded)
-        RemoveMipmaps(mipMaps, textures, pkgsToMarker, true, false, callback, callbackHandle);
 
 
     if (!skipMarkers && !modded)
@@ -327,7 +322,6 @@ bool Misc::ApplyPostInstall(MeType gameId)
 #else
     ConfigIni engineConf = ConfigIni(path, true);
 #endif
-    LODSettings::updateLOD(gameId, engineConf);
     LODSettings::updateGFXSettings(gameId, engineConf);
 
     PINFO("Updating LODs and other settings finished.\n\n");

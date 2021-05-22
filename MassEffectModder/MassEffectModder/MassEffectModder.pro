@@ -42,7 +42,6 @@ SOURCES += \
     Md5/MD5BadEntries.cpp \
     Md5/MD5ModEntries.cpp \
     MipMaps/MipMap.cpp \
-    MipMaps/MipMapsEmptyMips.cpp \
     MipMaps/MipMapsReplace.cpp \
     Misc/Misc.cpp \
     Misc/MiscCheckGame.cpp \

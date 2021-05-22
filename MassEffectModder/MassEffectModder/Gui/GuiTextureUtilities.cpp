@@ -59,40 +59,6 @@ void LayoutMain::RemoveScanFileSelected(MeType gameType)
     }
 }
 
-void LayoutMain::ApplyLODs(MeType gameType)
-{
-    QString path = g_GameData->EngineConfigIniPath(gameType);
-    QDir().mkpath(DirName(path));
-#if defined(_WIN32)
-    ConfigIni engineConf = ConfigIni(path);
-#else
-    ConfigIni engineConf = ConfigIni(path, true);
-#endif
-    LODSettings::updateLOD(gameType, engineConf);
-
-    QMessageBox::information(this, "Appling HQ LODs settings.",
-            QString("Game configuration file at ") + path + " updated.");
-}
-
-void LayoutMain::ApplyHQLODsSelected(MeType gameType)
-{
-    ApplyLODs(gameType);
-}
-
-void LayoutMain::ApplyVanillaLODsSelected(MeType gameType)
-{
-    QString path = g_GameData->EngineConfigIniPath(gameType);
-#if defined(_WIN32)
-    ConfigIni engineConf = ConfigIni(path);
-#else
-    ConfigIni engineConf = ConfigIni(path, true);
-#endif
-    LODSettings::removeLOD(gameType, engineConf);
-
-    QMessageBox::information(this, "Appling vanilla LODs settings.",
-            QString("Game configuration file at ") + path + " updated.");
-}
-
 void LayoutMain::ApplyHQGfx(MeType gameType)
 {
     QString path = g_GameData->EngineConfigIniPath(gameType);

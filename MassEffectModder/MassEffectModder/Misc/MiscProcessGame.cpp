@@ -303,28 +303,3 @@ QByteArray Misc::calculateMD5(const QString &filePath)
         return QCryptographicHash::hash(file.readAll(), QCryptographicHash::Md5);
     return QByteArray(16, 0);
 }
-
-bool Misc::RemoveMipmaps(MipMaps &mipMaps, QList<TextureMapEntry> &textures,
-                         QStringList &pkgsToMarker, bool appendMarker, bool force,
-                         ProgressCallback callback, void *callbackHandle)
-{
-    PINFO("Remove empty mipmaps started...\n");
-    Misc::restartStageTimer();
-    if (g_ipc)
-    {
-        ConsoleWrite("[IPC]STAGE_CONTEXT STAGE_REMOVEMIPMAPS");
-        ConsoleSync();
-    }
-
-    mipMaps.removeMipMaps(textures, pkgsToMarker, appendMarker, force, callback, callbackHandle);
-
-    long elapsed = Misc::elapsedStageTime();
-    if (g_ipc)
-    {
-        ConsoleWrite(QString("[IPC]STAGE_TIMING %1").arg(elapsed));
-        ConsoleSync();
-    }
-    PINFO("Remove empty mipmaps finished.\n\n");
-
-    return true;
-}

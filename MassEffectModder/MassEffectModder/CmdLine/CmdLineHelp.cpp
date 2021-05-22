@@ -35,7 +35,7 @@ void DisplayHelp()
         "  --scan --gameid <game id>\n" \
         "     Scan game data.\n" \
         "\n" \
-        "  --scan-textures --gameid <game id> [--remove-empty-mips] [--ipc]\n" \
+        "  --scan-textures --gameid <game id> [--ipc]\n" \
         "     Scan game data for textures.\n" \
         "\n" \
         "  --update-toc --gameid <game id>\n" \
@@ -64,14 +64,8 @@ void DisplayHelp()
         "  --detect-bad-mods --gameid <game id> [--ipc]\n" \
         "     Detect not compatible mods.\n" \
         "\n" \
-        "  --apply-lods-gfx --gameid <game id> [--soft-shadows-mode] [--meuitm-mode] [--limit-2k]\n" \
+        "  --apply-lods-gfx --gameid <game id>\n" \
         "     Update LODs and GFX settings.\n" \
-        "\n" \
-        "  --remove-lods --gameid <game id>\n" \
-        "     Remove LODs settings.\n" \
-        "\n" \
-        "  --print-lods --gameid <game id> [--ipc]\n" \
-        "     Print LODs settings.\n" \
         "\n" \
         "  --convert-to-mem --gameid <game id> --input <input dir> --output <output file> [--mark-to-convert] [--ipc]\n" \
         "     game id: 1 for ME1, 2 for ME2, 3 for ME3\n" \

@@ -38,12 +38,6 @@ struct FileMod
     qint64 size;
 };
 
-struct RemoveMipsEntry
-{
-    QString pkgPath;
-    QList<int> exportIDs;
-};
-
 struct TFCTexture
 {
     quint8 guid[16];
@@ -109,21 +103,13 @@ struct MapPackagesToMod
     long usage;
     int instances;
     long weight;
-    RemoveMipsEntry removeMips;
 };
 
 class MipMaps
 {
-    void prepareListToRemove(QList<TextureMapEntry> &textures, QList<RemoveMipsEntry> &list, bool force);
-
 public:
 
     typedef void (*ProgressCallback)(void *handle, int progress, const QString &stage);
-
-    void removeMipMaps(QList<TextureMapEntry> &textures, QStringList &pkgsToMarker, bool appendMarker, bool force,
-                       ProgressCallback callback, void *callbackHandle);
-    void removeMipMapsPerPackage(Package &package, RemoveMipsEntry &removeEntry,
-                                 QStringList &pkgsToMarker, bool appendMarker);
 
     PixelFormat changeTextureType(PixelFormat gamePixelFormat, PixelFormat texturePixelFormat,
                                   Texture &texture);
@@ -133,11 +119,11 @@ public:
                             QStringList &pkgsToMarker,
                             QList<ModEntry> &modsToReplace,
                             bool appendMarker, bool verify,
-                            bool removeMips, int cacheAmount,
+                            int cacheAmount,
                             ProgressCallback callback, void *callbackHandle);
     QString replaceModsFromList(QList<TextureMapEntry> &textures, QStringList &pkgsToMarker,
                                 QList<ModEntry> &modsToReplace,
-                                bool appendMarker, bool verify, bool removeMips, int cacheAmount,
+                                bool appendMarker, bool verify, int cacheAmount,
                                 ProgressCallback callback, void *callbackHandle);
     static void RemoveLowerMips(Image *image);
 };

@@ -32,7 +32,7 @@ class CmdLineTools
 public:
     typedef void (*ProgressCallback)(void *handle, int progress, const QString &stage);
 
-    int scanTextures(MeType gameId, bool removeEmptyMips);
+    int scanTextures(MeType gameId);
     int scan(MeType gameId);
     bool updateTOCs(MeType gameId);
     bool GetGamePaths();
@@ -47,7 +47,6 @@ public:
     bool convertImage(QString &inputFile, QString &outputFile, QString &format, int dxt1Threshold);
     bool extractMEM(MeType gameId, QString &inputDir, QString &outputDir);
     bool ApplyLODAndGfxSettings(MeType gameId);
-    bool RemoveLODSettings(MeType gameId);
     bool PrintLODSettings(MeType gameId);
     bool CheckGameDataAndMods(MeType gameId);
     bool CheckForMarkers(MeType gameId);

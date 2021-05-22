@@ -106,9 +106,6 @@ public:
     static bool InstallMods(MeType gameId, Resources &resources, QStringList &modFiles, bool guiInstallerMode, bool alotInstallerMode,
                            bool skipMarkers, bool verify, int cacheAmount,
                            ProgressCallback callback, void *callbackHandle);
-    static bool RemoveMipmaps(MipMaps &mipMaps, QList<TextureMapEntry> &textures,
-                              QStringList &pkgsToMarker, bool appendMarker, bool force,
-                              ProgressCallback callback, void *callbackHandle);
 
     static bool extractMEM(MeType gameId, QFileInfoList &inputList, QString &outputDir,
                            ProgressCallback callback, void *callbackHandle);
@@ -119,8 +116,7 @@ public:
     static bool ReportBadMods();
     static bool ReportMods();
     static bool applyMods(QStringList &files, QList<TextureMapEntry> &textures, QStringList &pkgsToMarker,
-                          MipMaps &mipMaps, bool alotMode,
-                          bool modded, bool verify, int cacheAmount,
+                          MipMaps &mipMaps, bool alotMode, bool verify, int cacheAmount,
                           ProgressCallback callback, void *callbackHandle);
     static QString CorrectTexture(Image *image, Texture &texture, PixelFormat newPixelFormat,
                                   const QString &textureName);

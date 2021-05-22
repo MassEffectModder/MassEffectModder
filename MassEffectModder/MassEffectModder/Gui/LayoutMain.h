@@ -74,12 +74,6 @@ private slots:
     void RemoveScanFileME1Selected() { RemoveScanFileSelected(MeType::ME1_TYPE); }
     void RemoveScanFileME2Selected() { RemoveScanFileSelected(MeType::ME2_TYPE); }
     void RemoveScanFileME3Selected() { RemoveScanFileSelected(MeType::ME3_TYPE); }
-    void ApplyHQLODsME1Selected() { ApplyHQLODsSelected(MeType::ME1_TYPE); }
-    void ApplyHQLODsME2Selected() { ApplyHQLODsSelected(MeType::ME2_TYPE); }
-    void ApplyHQLODsME3Selected() { ApplyHQLODsSelected(MeType::ME3_TYPE); }
-    void ApplyVanillaLODsME1Selected() { ApplyVanillaLODsSelected(MeType::ME1_TYPE); }
-    void ApplyVanillaLODsME2Selected() { ApplyVanillaLODsSelected(MeType::ME2_TYPE); }
-    void ApplyVanillaLODsME3Selected() { ApplyVanillaLODsSelected(MeType::ME3_TYPE); }
     void ApplyHQGfxME1Selected() { ApplyHQGfxSelected(MeType::ME1_TYPE); }
     void ApplyHQGfxME2Selected() { ApplyHQGfxSelected(MeType::ME2_TYPE); }
     void ApplyHQGfxME3Selected() { ApplyHQGfxSelected(MeType::ME3_TYPE); }
@@ -130,8 +124,6 @@ private:
     QLabel        *iconME1Logo;
     QPushButton   *buttonTextureUtilitiesME1;
     QPushButton   *buttonRemoveScanFileME1;
-    QPushButton   *buttonApplyHQLODsME1;
-    QPushButton   *buttonApplyVanillaLODsME1;
     QPushButton   *buttonApplyHQGfxME1;
     QSpacerItem   *spacerBottomTextureUtilitiesME1;
     QPushButton   *buttonGameUtilitiesME1;
@@ -152,8 +144,6 @@ private:
     QLabel        *iconME2Logo;
     QPushButton   *buttonTextureUtilitiesME2;
     QPushButton   *buttonRemoveScanFileME2;
-    QPushButton   *buttonApplyHQLODsME2;
-    QPushButton   *buttonApplyVanillaLODsME2;
     QPushButton   *buttonApplyHQGfxME2;
     QSpacerItem   *spacerBottomTextureUtilitiesME2;
     QPushButton   *buttonGameUtilitiesME2;
@@ -174,8 +164,6 @@ private:
     QLabel        *iconME3Logo;
     QPushButton   *buttonTextureUtilitiesME3;
     QPushButton   *buttonRemoveScanFileME3;
-    QPushButton   *buttonApplyHQLODsME3;
-    QPushButton   *buttonApplyVanillaLODsME3;
     QPushButton   *buttonApplyHQGfxME3;
     QSpacerItem   *spacerBottomTextureUtilitiesME3;
     QPushButton   *buttonGameUtilitiesME3;
@@ -207,10 +195,7 @@ private:
     void ButtonModsInstallerSelected(MeType gameType);
 
     void RemoveScanFileSelected(MeType gameType);
-    void ApplyHQLODsSelected(MeType gameType);
-    void ApplyVanillaLODsSelected(MeType gameType);
     void ApplyHQGfxSelected(MeType gameType);
-    void ApplyLODs(MeType gameType);
     void ApplyHQGfx(MeType gameType);
 
     void CheckGameFilesSelected(MeType gameType);

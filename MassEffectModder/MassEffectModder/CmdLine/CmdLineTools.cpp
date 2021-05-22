@@ -86,7 +86,7 @@ int CmdLineTools::scan(MeType gameId)
     return errorCode;
 }
 
-int CmdLineTools::scanTextures(MeType gameId, bool removeEmptyMips)
+int CmdLineTools::scanTextures(MeType gameId)
 {
     int errorCode;
 
@@ -102,8 +102,7 @@ int CmdLineTools::scanTextures(MeType gameId, bool removeEmptyMips)
 
     resources.loadMD5Tables();
     Misc::startTimer();
-    errorCode = TreeScan::PrepareListOfTextures(gameId, resources, textures, removeEmptyMips, true,
-                                                nullptr, nullptr);
+    errorCode = TreeScan::PrepareListOfTextures(gameId, resources, textures, true, nullptr, nullptr);
     long elapsed = Misc::elapsedTime();
     PINFO(Misc::getTimerFormat(elapsed) + "\n");
 
@@ -414,23 +413,7 @@ bool CmdLineTools::ApplyLODAndGfxSettings(MeType gameId)
 #else
     ConfigIni engineConf = ConfigIni(path, true);
 #endif
-    LODSettings::updateLOD(gameId, engineConf);
     LODSettings::updateGFXSettings(gameId, engineConf);
-
-    return true;
-}
-
-bool CmdLineTools::RemoveLODSettings(MeType gameId)
-{
-    QString path = g_GameData->EngineConfigIniPath(gameId);
-    if (!QFile(path).exists())
-        return true;
-#if defined(_WIN32)
-    ConfigIni engineConf = ConfigIni(path);
-#else
-    ConfigIni engineConf = ConfigIni(path, true);
-#endif
-    LODSettings::removeLOD(gameId, engineConf);
 
     return true;
 }
@@ -449,12 +432,6 @@ bool CmdLineTools::PrintLODSettings(MeType gameId)
     if (g_ipc)
     {
         LODSettings::readLODIpc(gameId, engineConf);
-    }
-    else
-    {
-        QString log;
-        LODSettings::readLOD(gameId, engineConf, log);
-        PINFO(log);
     }
 
     return true;
@@ -863,24 +840,7 @@ bool CmdLineTools::CheckTextures(MeType gameId)
                 ByteBuffer exportData = package.getExportData(e);
                 Texture texture(package, e, exportData);
                 exportData.Free();
-                if (texture.hasEmptyMips())
-                {
-                    if (g_ipc)
-                    {
-                        ConsoleWrite(QString("[IPC]ERROR_MIPMAPS_NOT_REMOVED Empty mipmap not removed in texture: ") +
-                                package.exportsTable[e].objectName + ", package: " +
-                                g_GameData->packageFiles[i] + ", export id: " + QString::number(e + 1));
-                        ConsoleSync();
-                    }
-                    else
-                    {
-                        PERROR(QString("ERROR: Empty mipmap not removed in texture: ") +
-                               package.exportsTable[e].objectName + "\nPackage: " +
-                               g_GameData->packageFiles[i] + "\nExport Id: " + QString::number(e + 1) + "\n");
-                    }
-                    continue;
-                }
-
+                texture.removeEmptyMips();
                 for (int m = 0; m < texture.mipMapsList.count(); m++)
                 {
                     ByteBuffer data = texture.getMipMapDataByIndex(m);

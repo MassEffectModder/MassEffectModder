@@ -133,8 +133,7 @@ void TreeScan::loadTexturesMap(MeType gameId, Resources &resources, QList<Textur
         {
             TextureMapPackageEntry matched{};
             matched.exportID = fs.ReadInt32();
-            quint8 flags = fs.ReadByte();
-            matched.removeEmptyMips = (flags & 1) == 1;
+            /*quint8 flags = */fs.ReadByte();
             matched.numMips = fs.ReadByte();
             matched.movieTexture = (texture.type == TextureType::Movie);
             matched.path = pkgs[fs.ReadInt16()];
@@ -279,7 +278,7 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<TextureMapEntry> &textur
 
 bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
                                     QList<TextureMapEntry> &textures,
-                                    bool removeEmptyMips, bool saveMapFile,
+                                    bool saveMapFile,
                                     ProgressCallback callback, void *callbackHandle)
 {
     QStringList pkgs;
@@ -646,14 +645,13 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
                 mem.WriteInt32(m.exportID);
                 if (generateBuiltinMapFiles)
                 {
-                    quint8 flags = m.removeEmptyMips ? 1 : 0;
-                    mem.WriteByte(flags);
+                    mem.WriteByte(/*flags*/0);
                     mem.WriteByte(m.numMips);
                     mem.WriteInt16(pkgs.indexOf(m.path));
                 }
                 else
                 {
-                    quint32 flags = m.removeEmptyMips ? 1 : 0;
+                    quint32 flags = m.movieTexture ? 1 : 0;
                     mem.WriteUInt32(flags);
                     mem.WriteInt32(m.path.length());
                     QString path = m.path;
@@ -696,17 +694,6 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
     {
         ConsoleWrite(QString("[IPC]STAGE_TIMING %1").arg(elapsed));
         ConsoleSync();
-    }
-
-    if (removeEmptyMips)
-    {
-        PINFO("\nRemove empty mips started...\n");
-        MipMaps mipMaps;
-        QStringList pkgsToMarkers;
-        QStringList pkgsToRepack;
-        mipMaps.removeMipMaps(textures, pkgsToMarkers, false, false, callback, callbackHandle);
-        TOCBinFile::UpdateAllTOCBinFiles();
-        PINFO("\nRemove empty mips finished.\n\n");
     }
 
     return true;
@@ -789,7 +776,6 @@ void TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &pac
                     continue;
                 }
 
-                matchTexture.removeEmptyMips = texture->hasEmptyMips();
                 matchTexture.numMips = texture->numNotEmptyMips();
                 crc = texture->getCrcTopMipmap();
             }
