@@ -874,9 +874,9 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
     if (tempOutput.Position() > sortedExports[0].getDataOffset())
         CRASH();
 
-    bool spaceForNamesAvailable = true;
-    bool spaceForImportsAvailable = true;
-    bool spaceForExportsAvailable = true;
+    bool spaceForNamesAvailable = false;
+    bool spaceForImportsAvailable = false;
+    bool spaceForExportsAvailable = false;
 
     setEndOfTablesOffset(tempOutput.Position());
     long namesOffsetTmp = tempOutput.Position();
@@ -888,10 +888,7 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
             tempOutput.JumpTo(namesOffsetTmp);
             saveNames(tempOutput);
             SortExportsTableByDataOffset(exportsTable, sortedExports);
-        }
-        else
-        {
-            spaceForNamesAvailable = false;
+            spaceForNamesAvailable = true;
         }
     }
     if (spaceForNamesAvailable)
@@ -908,10 +905,7 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
                 tempOutput.JumpTo(importsOffsetTmp);
                 saveImports(tempOutput);
                 SortExportsTableByDataOffset(exportsTable, sortedExports);
-            }
-            else
-            {
-                spaceForImportsAvailable = false;
+                spaceForImportsAvailable = true;
             }
         }
         if (spaceForImportsAvailable)
@@ -927,10 +921,7 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
                 {
                     tempOutput.JumpTo(exportsOffsetTmp);
                     saveExports(tempOutput);
-                }
-                else
-                {
-                    spaceForExportsAvailable = false;
+                    spaceForExportsAvailable = true;
                 }
             }
             if (spaceForExportsAvailable)
