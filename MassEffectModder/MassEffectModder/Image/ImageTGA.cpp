@@ -101,9 +101,9 @@ void Image::LoadImageTGA(Stream &stream)
                 quint8 pixelR, pixelG, pixelB, pixelA;
                 if (repeat != 0)
                 {
-                    pixelR = stream.ReadByte();
-                    pixelG = stream.ReadByte();
                     pixelB = stream.ReadByte();
+                    pixelG = stream.ReadByte();
+                    pixelR = stream.ReadByte();
                     if (imageDepth == 32)
                         pixelA = stream.ReadByte();
                     else
@@ -120,9 +120,12 @@ void Image::LoadImageTGA(Stream &stream)
                 {
                     for (; w < imageWidth && count > 0; w++, count--)
                     {
-                        ptr[pos++] = stream.ReadByte();
-                        ptr[pos++] = stream.ReadByte();
-                        ptr[pos++] = stream.ReadByte();
+                        pixelB = stream.ReadByte();
+                        pixelG = stream.ReadByte();
+                        pixelR = stream.ReadByte();
+                        ptr[pos++] = pixelR;
+                        ptr[pos++] = pixelG;
+                        ptr[pos++] = pixelB;
                         if (imageDepth == 32)
                             ptr[pos++] = stream.ReadByte();
                         else
@@ -146,9 +149,12 @@ void Image::LoadImageTGA(Stream &stream)
         {
             for (int w = 0; w < imageWidth; w++)
             {
-                ptr[pos++] = stream.ReadByte();
-                ptr[pos++] = stream.ReadByte();
-                ptr[pos++] = stream.ReadByte();
+                quint8 pixelB = stream.ReadByte();
+                quint8 pixelG = stream.ReadByte();
+                quint8 pixelR = stream.ReadByte();
+                ptr[pos++] = pixelR;
+                ptr[pos++] = pixelG;
+                ptr[pos++] = pixelB;
                 if (imageDepth == 32)
                     ptr[pos++] = stream.ReadByte();
                 else
@@ -157,9 +163,9 @@ void Image::LoadImageTGA(Stream &stream)
         }
     }
 
-    pixelFormat = PixelFormat::ARGB;
+    pixelFormat = PixelFormat::Internal;
 
-    mipMaps.push_back(new MipMap(buffer, imageWidth, imageHeight, PixelFormat::ARGB));
+    mipMaps.push_back(new MipMap(buffer, imageWidth, imageHeight, PixelFormat::Internal));
 
     buffer.Free();
 }

@@ -122,9 +122,12 @@ void Image::LoadImageBMP(Stream &stream)
         {
             if (bits == 24)
             {
-                ptr[pos++] = stream.ReadByte();
-                ptr[pos++] = stream.ReadByte();
-                ptr[pos++] = stream.ReadByte();
+                uint b = stream.ReadByte();
+                uint g = stream.ReadByte();
+                uint r = stream.ReadByte();
+                ptr[pos++] = r;
+                ptr[pos++] = g;
+                ptr[pos++] = b;
                 ptr[pos++] = 255;
             }
             else if (bits == 32)
@@ -134,9 +137,9 @@ void Image::LoadImageBMP(Stream &stream)
                 uint p3 = stream.ReadByte();
                 uint p4 = stream.ReadByte();
                 uint pixel = p4 << 24 | p3 << 16 | p2 << 8 | p1;
-                ptr[pos++] = (pixel & Bmask) >> Bshift;
-                ptr[pos++] = (pixel & Gmask) >> Gshift;
                 ptr[pos++] = (pixel & Rmask) >> Rshift;
+                ptr[pos++] = (pixel & Gmask) >> Gshift;
+                ptr[pos++] = (pixel & Bmask) >> Bshift;
                 ptr[pos++] = (pixel & Amask) >> Ashift;
             }
         }
@@ -166,9 +169,9 @@ void Image::LoadImageBMP(Stream &stream)
         }
     }
 
-    pixelFormat = PixelFormat::ARGB;
+    pixelFormat = PixelFormat::Internal;
 
-    mipMaps.push_back(new MipMap(buffer, imageWidth, imageHeight, PixelFormat::ARGB));
+    mipMaps.push_back(new MipMap(buffer, imageWidth, imageHeight, PixelFormat::Internal));
 
     buffer.Free();
 }

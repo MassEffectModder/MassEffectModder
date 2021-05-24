@@ -138,9 +138,9 @@ int PngRead(unsigned char *src, unsigned int srcSize,
         for (png_uint_32 x = 0; x < pngWidth; x++)
         {
             dstPtr[dstOffset + 3] = lineData[lineOffset++];
-            dstPtr[dstOffset + 0] = lineData[lineOffset++];
-            dstPtr[dstOffset + 1] = lineData[lineOffset++];
             dstPtr[dstOffset + 2] = lineData[lineOffset++];
+            dstPtr[dstOffset + 1] = lineData[lineOffset++];
+            dstPtr[dstOffset + 0] = lineData[lineOffset++];
             dstOffset += 4;
         }
     }
@@ -188,9 +188,9 @@ int PngWrite(const unsigned char *src, unsigned char **dst, unsigned int *dstSiz
         int lineOffset = 0;
         for (png_uint_32 x = 0; x < width; x++)
         {
-            lineData[lineOffset++] = src[srcOffset + 2];
-            lineData[lineOffset++] = src[srcOffset + 1];
             lineData[lineOffset++] = src[srcOffset + 0];
+            lineData[lineOffset++] = src[srcOffset + 1];
+            lineData[lineOffset++] = src[srcOffset + 2];
             lineData[lineOffset++] = src[srcOffset + 3];
             srcOffset += 4;
         }

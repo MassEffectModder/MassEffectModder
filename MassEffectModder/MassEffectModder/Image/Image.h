@@ -232,24 +232,26 @@ private:
     void LoadImageDDS(Stream &stream);
     void LoadImageTGA(Stream &stream);
     void LoadImageBMP(Stream &stream);
-    static void clearAlphaFromARGB(quint8 *data, int w, int h);
-    static ByteBuffer RGBToARGB(const quint8 *src, int w, int h);
-    static ByteBuffer RGBAToARGB(const quint8 *src, int w, int h);
-    static ByteBuffer ARGBtoRGB(const quint8 *src, int w, int h);
-    static ByteBuffer ARGBtoBGR(const quint8 *src, int w, int h);
-    static ByteBuffer V8U8ToARGB(const quint8 *src, int w, int h);
-    static ByteBuffer ARGBtoV8U8(const quint8 *src, int w, int h);
-    static ByteBuffer G8ToARGB(const quint8 *src, int w, int h);
-    static ByteBuffer ARGBtoG8(const quint8 *src, int w, int h);
-    static ByteBuffer ARGBtoAlphaGreyscale(const quint8 *src, int w, int h);
-    static ByteBuffer downscaleARGB(const quint8 *src, int w, int h);
-    static ByteBuffer downscaleRGB(const quint8 *src, int w, int h);
+    static void clearAlphaFromInternal(quint8 *data, int w, int h);
+    static ByteBuffer RGBtoInternal(const quint8 *src, int w, int h);
+    static ByteBuffer ARGBtoInternal(const quint8 *src, int w, int h);
+    static ByteBuffer RGBAtoInternal(const quint8 *src, int w, int h);
+    static ByteBuffer InternalToARGB(const quint8 *src, int w, int h);
+    static ByteBuffer InternalToRGB(const quint8 *src, int w, int h);
+    static ByteBuffer InternalToRGBA(const quint8 *src, int w, int h);
+    static ByteBuffer InternalToBGR(const quint8 *src, int w, int h);
+    static ByteBuffer V8U8ToInternal(const quint8 *src, int w, int h);
+    static ByteBuffer InternalToV8U8(const quint8 *src, int w, int h);
+    static ByteBuffer G8ToInternal(const quint8 *src, int w, int h);
+    static ByteBuffer InternalToG8(const quint8 *src, int w, int h);
+    static ByteBuffer InternalToAlphaGreyscale(const quint8 *src, int w, int h);
+    static ByteBuffer downscaleInternal(const quint8 *src, int w, int h);
     static ByteBuffer convertToFormat(PixelFormat srcFormat, const quint8 *src, int w, int h,
                                    PixelFormat dstFormat, bool dxt1HasAlpha = false, quint8 dxt1Threshold = 128);
 
 public:
 
-    QList<MipMap *>& getMipMaps() { return mipMaps; }
+    QList<MipMap *> &getMipMaps() { return mipMaps; }
     PixelFormat getPixelFormat() { return pixelFormat; }
 
     Image(const QString &fileName, ImageFormat format = ImageFormat::UnknownImageFormat);
@@ -259,9 +261,10 @@ public:
     Image(const ByteBuffer &data, const QString &extension);
     Image(QList<MipMap *> &mipmaps, PixelFormat pixelFmt);
     ~Image();
-    static ByteBuffer convertRawToARGB(const quint8 *src, int w, int h, PixelFormat format, bool clearAlpha = false);
+    static ByteBuffer convertRawToInternal(const quint8 *src, int w, int h, PixelFormat format, bool clearAlpha = false);
     static ByteBuffer convertRawToRGB(const quint8 *src, int w, int h, PixelFormat format);
-    static ByteBuffer convertRawToRGBA(const quint8 *src, int w, int h, PixelFormat format, bool clearAlpha = false);
+    static ByteBuffer convertRawToARGB(const quint8 *src, int w, int h, PixelFormat format);
+    static ByteBuffer convertRawToRGBA(const quint8 *src, int w, int h, PixelFormat format);
     static ByteBuffer convertRawToBGR(const quint8 *src, int w, int h, PixelFormat format);
     static ByteBuffer convertRawToAlphaGreyscale(const quint8 *src, int w, int h, PixelFormat format);
     static void saveToPng(const quint8 *src, int w, int h, PixelFormat format, const QString &filename, bool clearAlpha = false);
@@ -276,28 +279,28 @@ public:
 private:
 
     static DDS_PF getDDSPixelFormat(PixelFormat format);
-    static void readBlock4X4ARGB(quint8 blockARGB[BLOCK_SIZE_4X4X4], const quint8 *srcARGB,
+    static void readBlockInternalToDxt(quint8 blockARGB[BLOCK_SIZE_4X4X4], const quint8 *srcARGB,
                                  int srcW, int blockX, int blockY);
-    static void writeBlock4X4ARGB(const quint8 blockARGB[BLOCK_SIZE_4X4X4], quint8 *dstARGB,
+    static void writeBlockDxtToInternal(const quint8 blockARGB[BLOCK_SIZE_4X4X4], quint8 *dstARGB,
                                   int dstW, int blockX, int blockY);
 
-    static void readBlock4X4BPP4(quint8 *dst, const quint8 *src, int srcW, int blockX, int blockY);
-    static void writeBlock4X4BPP4(quint8 *src, quint8 *dst, int dstW, int blockX, int blockY);
+    static void readBlockDxtBpp4(quint8 *dst, const quint8 *src, int srcW, int blockX, int blockY);
+    static void writeBlockDxtBpp4(quint8 *src, quint8 *dst, int dstW, int blockX, int blockY);
 
-    static void readBlock4X4BPP8(quint8 *dst, const quint8 *src, int srcW, int blockX, int blockY);
-    static void writeBlock4X4BPP8(quint8 *src, quint8 *dst, int dstW, int blockX, int blockY);
+    static void readBlockDxtBpp8(quint8 *dst, const quint8 *src, int srcW, int blockX, int blockY);
+    static void writeBlockDxtBpp8(quint8 *src, quint8 *dst, int dstW, int blockX, int blockY);
 
     static void convertBlock4X4X4FloatToByte(quint8 dst[BLOCK_SIZE_4X4X4], double src[16][4]);
     static void convertBlock4X4X4ByteToFloat(double dst[BLOCK_SIZE_4X4][4], const quint8 src[BLOCK_SIZE_4X4X4]);
 
 
-    static void readBlock4X4ATI2(quint8 blockDstX[BLOCK_SIZE_4X4BPP8],
+    static void readBlockInternalToAti2(quint8 blockDstX[BLOCK_SIZE_4X4BPP8],
                                  quint8 blockDstY[BLOCK_SIZE_4X4BPP8],
                                  const quint8 *src, int srcW, int blockX, int blockY);
     static void writeBlock4X4ATI2(quint8 *blockSrcX, quint8 *blockSrcY,
                                   quint8 *dst, int dstW, int blockX, int blockY);
 
-    static void writeBlock4X4ARGBATI2(const quint8 blockR[BLOCK_SIZE_4X4BPP8],
+    static void writeBlockAti2ToInternal(const quint8 blockR[BLOCK_SIZE_4X4BPP8],
                                       const quint8 blockG[BLOCK_SIZE_4X4BPP8],
                                       quint8 *dstARGB, int srcW, int blockX, int blockY);
 
@@ -308,8 +311,6 @@ private:
 public:
 
     bool checkDDSHaveAllMipmaps();
-    Image *convertToARGB();
-    Image *convertToRGB();
     void StoreImageToDDS(Stream &stream, PixelFormat format = PixelFormat::UnknownPixelFormat);
     ByteBuffer StoreImageToDDS();
 };

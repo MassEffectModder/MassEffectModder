@@ -34,7 +34,7 @@ typedef enum
 
 typedef enum
 {
-    UnknownPixelFormat, DXT1, DXT3, DXT5, ATI2, V8U8, ARGB, RGBA, RGB, G8, BC5, BC7
+    UnknownPixelFormat, Internal, DXT1, DXT3, DXT5, ATI2, V8U8, ARGB, RGBA, RGB, G8, BC5, BC7
 } PixelFormat;
 
 typedef enum
