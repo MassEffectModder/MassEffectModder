@@ -85,6 +85,13 @@ PixelFormat MipMaps::changeTextureType(PixelFormat gamePixelFormat, PixelFormat 
         gamePixelFormat = PixelFormat::ARGB;
         texture.getProperties().setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
     }
+    else if ((gamePixelFormat == PixelFormat::DXT1) &&
+        (texturePixelFormat == PixelFormat::DXT5) &&
+        !texture.getProperties().exists("CompressionSettings"))
+    {
+        gamePixelFormat = PixelFormat::DXT5;
+        texture.getProperties().setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
+    }
     else if ((gamePixelFormat == PixelFormat::DXT1 || gamePixelFormat == PixelFormat::DXT5) &&
         (texturePixelFormat == PixelFormat::BC7) &&
         !texture.getProperties().exists("CompressionSettings"))
@@ -97,14 +104,19 @@ PixelFormat MipMaps::changeTextureType(PixelFormat gamePixelFormat, PixelFormat 
               gamePixelFormat == PixelFormat::BC7) &&
         (texturePixelFormat == PixelFormat::ARGB || texturePixelFormat == PixelFormat::RGB) &&
         (!texture.getProperties().exists("CompressionSettings") ||
-             (texture.getProperties().exists("CompressionSettings") &&
-              texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_BC7")))
+        (texture.getProperties().exists("CompressionSettings") &&
+         texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_BC7")))
     {
         gamePixelFormat = PixelFormat::ARGB;
         texture.getProperties().setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
         if (texture.getProperties().exists("CompressionSettings"))
             texture.getProperties().removeProperty("CompressionSettings");
     }
+    else
+    {
+        PINFO(QString("This texture will not be converted to desired pixel format.\n"));
+    }
+
 
     return gamePixelFormat;
 }

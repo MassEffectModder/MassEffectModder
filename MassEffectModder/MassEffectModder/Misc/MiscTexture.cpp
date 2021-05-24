@@ -26,9 +26,14 @@
 
 PixelFormat Misc::changeTextureType(PixelFormat gamePixelFormat, PixelFormat texturePixelFormat, TextureType flags)
 {
+    if (texturePixelFormat == PixelFormat::Internal)
+    {
+        texturePixelFormat = PixelFormat::ARGB;
+    }
+
     if (texturePixelFormat == PixelFormat::ARGB && flags == TextureType::OneBitAlpha)
     {
-        gamePixelFormat = texturePixelFormat;
+        gamePixelFormat = PixelFormat::ARGB;
     }
     else if ((texturePixelFormat == PixelFormat::ATI2 || texturePixelFormat == PixelFormat::BC5 ||
               texturePixelFormat == PixelFormat::BC7 || texturePixelFormat == PixelFormat::V8U8 ||
@@ -40,10 +45,14 @@ PixelFormat Misc::changeTextureType(PixelFormat gamePixelFormat, PixelFormat tex
     else if ((gamePixelFormat == PixelFormat::DXT1 || gamePixelFormat == PixelFormat::DXT5 ||
               gamePixelFormat == PixelFormat::BC7) &&
              (texturePixelFormat == PixelFormat::ARGB || texturePixelFormat == PixelFormat::RGB ||
-              texturePixelFormat == PixelFormat::BC7) &&
+              texturePixelFormat == PixelFormat::DXT5 || texturePixelFormat == PixelFormat::BC7) &&
               flags == TextureType::Diffuse)
     {
         gamePixelFormat = texturePixelFormat;
+    }
+    else
+    {
+        PINFO(QString("This texture will not be converted to desired pixel format.\n"));
     }
 
     return gamePixelFormat;
