@@ -43,8 +43,8 @@ struct BinaryMod
     QString packagePath;
     int exportId;
     ByteBuffer data;
+    QString name;
     bool movieTexture;
-    QString textureName;
     uint textureCrc;
     bool markConvert;
     bool forceHash;

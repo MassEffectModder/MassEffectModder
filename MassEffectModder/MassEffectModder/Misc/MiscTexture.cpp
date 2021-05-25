@@ -50,10 +50,6 @@ PixelFormat Misc::changeTextureType(PixelFormat gamePixelFormat, PixelFormat tex
     {
         gamePixelFormat = texturePixelFormat;
     }
-    else
-    {
-        PINFO(QString("This texture will not be converted to desired pixel format.\n"));
-    }
 
     return gamePixelFormat;
 }

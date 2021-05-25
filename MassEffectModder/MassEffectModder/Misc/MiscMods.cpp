@@ -217,17 +217,14 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
                 fs.ReadStringASCIINull(fileMod.name);
                 fileMod.offset = fs.ReadInt64();
                 fileMod.size = fs.ReadInt64();
+                fileMod.flags = fs.ReadUInt64();
                 qint64 prevPos = fs.Position();
                 fs.JumpTo(fileMod.offset);
                 fileMod.offset = outFs.Position();
                 if (fileMod.tag == FileTextureTag ||
                     fileMod.tag == FileMovieTextureTag)
                 {
-                    QString str;
-                    fs.ReadStringASCIINull(str);
-                    outFs.WriteStringASCIINull(str);
                     outFs.WriteUInt32(fs.ReadUInt32()); // crc
-                    outFs.WriteUInt32(fs.ReadUInt32()); // flags
                 }
                 else
                     CRASH();
@@ -269,11 +266,6 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
             {
                 f.width = image.getMipMaps().first()->getOrigWidth();
                 f.height = image.getMipMaps().first()->getOrigHeight();
-                QString filename = BaseName(file);
-                int idx = filename.indexOf("0x");
-                if (idx > 1)
-                    f.name = filename.left(idx - 1);
-                f.name += "-hash";
             }
 
             if (!Misc::CheckImage(image, f, file, -1))
@@ -286,18 +278,26 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
                 {
                     newPixelFormat = changeTextureType(f.pixfmt, image.getPixelFormat(), f.type);
                     if (f.pixfmt == newPixelFormat)
-                        PINFO(QString("Warning for texture: ") + mod.textureName +
+                        PINFO(QString("Warning for texture: ") + BaseName(file)  +
                               " This texture can not be converted to desired format...\n");
                 }
 
                 int numMips = Misc::GetNumberOfMipsFromMap(f);
                 CorrectTexture(image, f, numMips, newPixelFormat, file);
             }
+            else if (image.getPixelFormat() == PixelFormat::Internal)
+            {
+                PINFO(QString("Warning for texture: ") + BaseName(file) +
+                      " This texture can not be included as non-DDS...\n");
+                continue;
+            }
 
             mod.data = image.StoreImageToDDS();
-            mod.textureName = f.name;
+            mod.name = f.name + QString::asprintf("_0x%08X", f.crc);
+            mod.movieTexture = false;
             mod.textureCrc = crc;
             mod.markConvert = entryMarkToConvert;
+            mod.forceHash = forceHash;
             mods.push_back(mod);
         }
         else if (file.endsWith(".bik", Qt::CaseInsensitive))
@@ -319,15 +319,6 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
                                  " is not present in your game setup.\n");
                     continue;
                 }
-            }
-
-            if (forceHash)
-            {
-                QString filename = BaseName(file);
-                int idx = filename.indexOf("0x");
-                if (idx > 1)
-                    f.name = filename.left(idx - 1);
-                f.name += "-hash";
             }
 
             FileStream fs = FileStream(file, FileMode::Open);
@@ -376,10 +367,11 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
             fs.SeekBegin();
 
             mod.data = fs.ReadToBuffer(dataSize);
-            mod.textureName = f.name;
+            mod.name = f.name + QString::asprintf("_0x%08X", f.crc);
             mod.movieTexture = true;
             mod.textureCrc = crc;
             mod.markConvert = false;
+            mod.forceHash = forceHash;
             mods.push_back(mod);
         }
 
@@ -390,6 +382,12 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
 #endif
             FileMod fileMod{};
             std::unique_ptr<Stream> dst (new MemoryStream());
+            if (mods[l].movieTexture)
+                fileMod.tag = FileMovieTextureTag;
+            else
+                fileMod.tag = FileTextureTag;
+            fileMod.name = mods[l].name;
+
             if (mods[l].data.size() != 0)
             {
                 Misc::compressData(mods[l].data, *dst);
@@ -404,19 +402,10 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
             }
 
             if (mods[l].markConvert)
-            {
-                fileMod.flags |= (quint32)TextureFlags::MarkToConvert;
-            }
-            else if (mods[l].movieTexture)
-                fileMod.tag = FileMovieTextureTag;
-            else
-                fileMod.tag = FileTextureTag;
-            fileMod.name = mods[l].textureName + QString::asprintf("_0x%08X", mods[l].textureCrc);
-            if (mods[l].movieTexture)
-                fileMod.name += ".bik";
-            else
-                fileMod.name += ".dds";
-            outFs.WriteStringASCIINull(mods[l].textureName);
+                fileMod.flags |= (quint32)ModEtryFlags::MarkToConvert;
+            if (mods[l].forceHash)
+                fileMod.flags |= (quint32)ModEtryFlags::ForceHash;
+
             outFs.WriteUInt32(mods[l].textureCrc);
             if (mods[l].data.size() != 0)
                 outFs.CopyFrom(*dst, dst->Length());
@@ -459,6 +448,7 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
         outFs.WriteStringASCIINull(modFiles[i].name);
         outFs.WriteInt64(modFiles[i].offset);
         outFs.WriteInt64(modFiles[i].size);
+        outFs.WriteInt64(modFiles[i].flags);
     }
 
     long elapsed = Misc::elapsedTime();
@@ -524,11 +514,9 @@ bool Misc::extractMEM(MeType gameId, QFileInfoList &inputList, QString &outputDi
             FileMod fileMod{};
             fileMod.tag = fs.ReadUInt32();
             fs.ReadStringASCIINull(fileMod.name);
-            int idx = fileMod.name.indexOf("-hash");
-            if (idx != -1)
-                fileMod.name = fileMod.name.left(idx);
             fileMod.offset = fs.ReadInt64();
             fileMod.size = fs.ReadInt64();
+            fileMod.flags = fs.ReadUInt64();
             modFiles.push_back(fileMod);
         }
         numFiles = modFiles.count();
@@ -538,22 +526,31 @@ bool Misc::extractMEM(MeType gameId, QFileInfoList &inputList, QString &outputDi
 #ifdef GUI
             QApplication::processEvents();
 #endif
-            QString name;
-            quint32 crc = 0, flags = 0;
+            quint32 crc = 0;
             long size = 0;
             fs.JumpTo(modFiles[i].offset);
             size = modFiles[i].size;
+
             if (modFiles[i].tag == FileTextureTag ||
                 modFiles[i].tag == FileMovieTextureTag)
             {
-                fs.ReadStringASCIINull(name);
                 crc = fs.ReadUInt32();
-                flags = fs.ReadUInt32();
+            }
+            else
+            {
+                if (g_ipc)
+                {
+                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + file.absoluteFilePath());
+                    ConsoleSync();
+                }
+                PERROR(QString("Unknown tag for file: ") + QString::number(i + 1) + " of " +
+                       QString::number(numFiles) + "\n");
+                continue;
             }
 
             PINFO(QString("Processing MEM mod ") + file.fileName() +
                              " - File " + QString::number(i + 1) + " of " +
-                             QString::number(numFiles) + " - " + name + "\n");
+                             QString::number(numFiles) + " - " + modFiles[i].name + "\n");
             int newProgress = currentNumberOfTotalMods * 100 / totalNumberOfMods;
             if (lastProgress != newProgress)
             {
@@ -585,32 +582,19 @@ bool Misc::extractMEM(MeType gameId, QFileInfoList &inputList, QString &outputDi
             if (modFiles[i].tag == FileTextureTag ||
                 modFiles[i].tag == FileMovieTextureTag)
             {
-                int idx = name.indexOf("-hash");
-                if (idx != -1)
-                    name = name.left(idx);
-                QString filename = outputMODdir + "/" +
-                        BaseName(name + QString::asprintf("_0x%08X", crc));
-                if (idx != -1)
+                QString filename = outputMODdir + "/" + modFiles[i].name;
+                if (modFiles[i].flags == ModEtryFlags::ForceHash)
                     filename += "-hash";
+                if (modFiles[i].flags & ModEtryFlags::MarkToConvert)
+                    filename += "-memconvert";
                 if (modFiles[i].tag == FileTextureTag)
                     filename += ".dds";
                 else if (modFiles[i].tag == FileMovieTextureTag)
                     filename += ".bik";
-                else if (flags & TextureFlags::MarkToConvert)
-                    filename += "-memconvert.dds";
                 else
                     CRASH();
                 FileStream output = FileStream(filename, FileMode::Create, FileAccess::ReadWrite);
                 output.WriteFromBuffer(dst);
-            }
-            else
-            {
-                if (g_ipc)
-                {
-                    ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + file.absoluteFilePath());
-                    ConsoleSync();
-                }
-                PERROR(QString("Unknown tag for file: ") + name + "\n");
             }
             dst.Free();
         }
@@ -660,10 +644,8 @@ bool Misc::compressData(ByteBuffer inputData, Stream &ouputStream, CompressionDa
         }
         else if (compType == CompressionDataType::LZMA)
         {
-            block.compressedBuffer = nullptr;
-            block.comprSize = 0;
-            if (LzmaCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) != 0)
-                failed = true;
+            if (LzmaCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) == -100)
+                CRASH_MSG("Out of memory!");
         }
         else
             CRASH_MSG("Compression type not expected!");
@@ -750,7 +732,7 @@ ByteBuffer Misc::decompressData(Stream &stream, long compressedSize)
         }
         else if (compType == CompressionDataType::LZMA)
         {
-            uint dstLen = block.uncomprSize;
+            dstLen = block.uncomprSize;
             if (LzmaDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen) != 0)
                 failed = true;
         }

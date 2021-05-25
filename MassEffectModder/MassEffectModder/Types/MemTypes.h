@@ -56,7 +56,8 @@ typedef enum
 {
     None = 0,
     MarkToConvert = 1,
-} TextureFlags;
+    ForceHash = 2,
+} ModEtryFlags;
 
 typedef enum
 {

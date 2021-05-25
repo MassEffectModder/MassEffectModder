@@ -32,8 +32,8 @@
 struct FileMod
 {
     quint32 tag;
-    quint32 flags;
     QString name;
+    quint64 flags;
     qint64 offset;
     qint64 size;
 };

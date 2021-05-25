@@ -267,7 +267,12 @@ bool CmdLineTools::convertGameTexture(const QString &inputFile,
 
     PixelFormat newPixelFormat = foundTex.pixfmt;
     if (markToConvert)
+    {
         newPixelFormat = Misc::changeTextureType(foundTex.pixfmt, image.getPixelFormat(), foundTex.type);
+        if (foundTex.pixfmt == newPixelFormat)
+            PINFO(QString("Warning for texture: ") + foundTex.name +
+                  " This texture can not be converted to desired format...\n");
+    }
 
     bool dxt1HasAlpha = false;
     quint8 dxt1Threshold = 128;
