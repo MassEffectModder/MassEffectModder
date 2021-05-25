@@ -59,7 +59,7 @@ public:
     enum ModsDataEnums
     {
         SizeOfChunkBlock = 8,
-        SizeOfChunk = 8,
+        SizeOfChunk = 12,
         MaxBlockSize = 0x40000, // 256KB
     };
 

@@ -63,7 +63,7 @@ int LzmaCompress(unsigned char *src, unsigned int src_len,
                               (size_t)src_len,
                               tmpbuf,
                               &propsSize,
-                              compress_level, 0, -1, -1, -1, -1, 1);
+                              compress_level, 0, -1, -1, -1, -1, -1);
     if (status == SZ_OK)
     {
         *dst = new unsigned char[destLen + LZMA_PROPS_SIZE];
