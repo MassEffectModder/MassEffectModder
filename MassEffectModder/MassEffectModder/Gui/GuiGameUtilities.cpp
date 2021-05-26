@@ -229,7 +229,7 @@ void LayoutMain::UpdateTOCsSelected(MeType gameType)
         return;
     }
 
-    TOCBinFile::UpdateAllTOCBinFiles();
+    TOCBinFile::UpdateAllTOCBinFiles(gameType);
     mainWindow->statusBar()->clearMessage();
     QMessageBox::information(this, "Updating TOC files", "All TOC files updated.");
     LockGui(false);

@@ -293,7 +293,7 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
             return false;
     }
 
-    TOCBinFile::UpdateAllTOCBinFiles();
+    TOCBinFile::UpdateAllTOCBinFiles(gameId);
 
     if (g_ipc)
     {

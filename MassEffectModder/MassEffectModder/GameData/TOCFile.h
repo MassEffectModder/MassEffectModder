@@ -22,6 +22,8 @@
 #ifndef TOC_FILE_H
 #define TOC_FILE_H
 
+#include <Types/MemTypes.h>
+
 #define TOCTag 0x3AB70C13 // TOC tag
 
 class TOCBinFile
@@ -34,13 +36,13 @@ class TOCBinFile
 
 private:
 
-    static void GenerateMainTocBinFile();
+    static void GenerateMainTocBinFile(MeType gameType);
     static void GenerateDLCsTocBinFiles();
-    static void CreateTocBinFile(QString &path, QList<FileEntry> filesList);
+    static void CreateTocBinFile(QString &path, QVector<FileEntry> filesList);
 
 public:
 
-    static void UpdateAllTOCBinFiles();
+    static void UpdateAllTOCBinFiles(MeType gameType);
 };
 
 #endif

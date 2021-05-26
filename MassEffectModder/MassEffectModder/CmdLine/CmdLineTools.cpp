@@ -118,7 +118,7 @@ bool CmdLineTools::updateTOCs(MeType gameId)
     if (!Misc::CheckGamePath())
         return false;
 
-    TOCBinFile::UpdateAllTOCBinFiles();
+    TOCBinFile::UpdateAllTOCBinFiles(gameId);
 
     return true;
 }

@@ -29,16 +29,17 @@ static bool compareFullPath(const QString &e1, const QString &e2)
     return e1.compare(e2, Qt::CaseInsensitive) < 0;
 }
 
-void TOCBinFile::UpdateAllTOCBinFiles()
+void TOCBinFile::UpdateAllTOCBinFiles(MeType gameType)
 {
-    GenerateMainTocBinFile();
+    GenerateMainTocBinFile(gameType);
     GenerateDLCsTocBinFiles();
 }
 
-void TOCBinFile::GenerateMainTocBinFile()
+void TOCBinFile::GenerateMainTocBinFile(MeType gameType)
 {
     QStringList files;
-    int pathLen = g_GameData->GamePath().length();
+    QString gamePath = g_GameData->GamePath() + "/Game/ME" + QString::number((int)gameType);
+    int pathLen = gamePath.length();
     QDirIterator MainIterator(g_GameData->MainData(), QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
     while (MainIterator.hasNext())
     {
@@ -50,11 +51,9 @@ void TOCBinFile::GenerateMainTocBinFile()
             MainIterator.filePath().endsWith(".upk", Qt::CaseInsensitive) ||
             MainIterator.filePath().endsWith(".tfc", Qt::CaseInsensitive) ||
             MainIterator.filePath().endsWith(".tlk", Qt::CaseInsensitive) ||
-            MainIterator.filePath().endsWith(".isb", Qt::CaseInsensitive) ||
             MainIterator.filePath().endsWith(".afc", Qt::CaseInsensitive) ||
             MainIterator.filePath().endsWith(".cnd", Qt::CaseInsensitive) ||
-            MainIterator.filePath().endsWith(".txt", Qt::CaseInsensitive) ||
-            MainIterator.filePath().endsWith(".usf", Qt::CaseInsensitive) ||
+            MainIterator.filePath().endsWith(".ini", Qt::CaseInsensitive) ||
             MainIterator.filePath().endsWith(".bin", Qt::CaseInsensitive))
         {
             files.push_back(MainIterator.filePath().mid(pathLen + 1));
@@ -69,9 +68,28 @@ void TOCBinFile::GenerateMainTocBinFile()
             files.push_back(MoviesIterator.filePath().mid(pathLen + 1));
     }
 
+    if (QDir(g_GameData->bioGamePath() + "/Content").exists())
+    {
+        QDirIterator IsbIterator(g_GameData->bioGamePath() + "/Content", QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
+        while (IsbIterator.hasNext())
+        {
+            IsbIterator.next();
+            if (IsbIterator.filePath().endsWith(".isb", Qt::CaseInsensitive))
+                files.push_back(IsbIterator.filePath().mid(pathLen + 1));
+        }
+    }
+
+    QDirIterator UsfIterator(gamePath + "/Engine", QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
+    while (UsfIterator.hasNext())
+    {
+        UsfIterator.next();
+        if (UsfIterator.filePath().endsWith(".usf", Qt::CaseInsensitive))
+            files.push_back(UsfIterator.filePath().mid(pathLen + 1));
+    }
+
     std::sort(files.begin(), files.end(), compareFullPath);
 
-    QList<FileEntry> filesList;
+    QVector<FileEntry> filesList;
     for (int f = 0; f < files.count(); f++)
     {
         FileEntry file{};
@@ -109,8 +127,8 @@ void TOCBinFile::GenerateDLCsTocBinFiles()
                     iterator.filePath().endsWith(".afc", Qt::CaseInsensitive) ||
                     iterator.filePath().endsWith(".cnd", Qt::CaseInsensitive) ||
                     iterator.filePath().endsWith(".bik", Qt::CaseInsensitive) ||
+                    iterator.filePath().endsWith(".ini", Qt::CaseInsensitive) ||
                     iterator.filePath().endsWith(".dlc", Qt::CaseInsensitive) ||
-                    iterator.filePath().endsWith(".txt", Qt::CaseInsensitive) ||
                     iterator.filePath().endsWith(".bin", Qt::CaseInsensitive))
                 {
                     files.push_back(iterator.filePath().mid(pathLen + DLCDir.length() + 2));
@@ -123,7 +141,7 @@ void TOCBinFile::GenerateDLCsTocBinFiles()
 
             std::sort(files.begin(), files.end(), compareFullPath);
 
-            QList<FileEntry> filesList;
+            QVector<FileEntry> filesList;
             for (int f = 0; f < files.count(); f++)
             {
                 FileEntry file{};
@@ -138,7 +156,7 @@ void TOCBinFile::GenerateDLCsTocBinFiles()
     }
 }
 
-void TOCBinFile::CreateTocBinFile(QString &path, QList<FileEntry> filesList)
+void TOCBinFile::CreateTocBinFile(QString &path, QVector<FileEntry> filesList)
 {
     if (QFile(path).exists())
         QFile::remove(path);

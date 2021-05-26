@@ -405,13 +405,13 @@ bool LayoutTexturesManager::Startup()
         }
         if (removeEmptyMips)
         {
-            if (!Misc::ApplyPostInstall(GameData::gameType))
+            if (!Misc::ApplyPostInstall(gameType))
             {
                 buttonExit->setEnabled(true);
                 mainWindow->LockClose(false);
                 return false;
             }
-            TOCBinFile::UpdateAllTOCBinFiles();
+            TOCBinFile::UpdateAllTOCBinFiles(gameType);
         }
     }
 
@@ -977,7 +977,7 @@ void LayoutTexturesManager::ReplaceTexture(const QListWidgetItem *item, bool con
     {
         modEntry.injectedMovieTexture.Free();
     }
-    TOCBinFile::UpdateAllTOCBinFiles();
+    TOCBinFile::UpdateAllTOCBinFiles(gameType);
     mainWindow->statusBar()->clearMessage();
     UpdateRight(item);
     if (g_logs->BufferGetErrors() != "")
