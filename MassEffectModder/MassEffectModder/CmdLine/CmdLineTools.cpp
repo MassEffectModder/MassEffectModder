@@ -44,13 +44,13 @@ int CmdLineTools::scan(MeType gameId)
     if (!Misc::CheckGamePath())
         return 1;
 
+    Misc::startTimer();
     PINFO("Scan started...\n");
 
-    int currentPackage = 0;
     int totalPackages = g_GameData->packageFiles.count();
     for (int i = 0; i < totalPackages; i++)
     {
-        PINFO(QString("Package ") + QString::number(currentPackage + 1) + "/" +
+        PINFO(QString("Package ") + QString::number(i + 1) + "/" +
                              QString::number(totalPackages) + " : " +
                              g_GameData->packageFiles[i] + "\n");
         Package package;
@@ -61,13 +61,13 @@ int CmdLineTools::scan(MeType gameId)
             return 1;
         }
 
-        for (int i = 0; i < package.exportsTable.count(); i++)
+        for (int e = 0; e < package.exportsTable.count(); e++)
         {
-            ByteBuffer exportData = package.getExportData(i);
+            ByteBuffer exportData = package.getExportData(e);
             if (exportData.ptr() == nullptr)
             {
                 PERROR(QString("Error: broken export data in package: " +
-                                 g_GameData->packageFiles[i] +"\nExport Id: " + QString::number(i + 1) + "\nSkipping...\n"));
+                                 g_GameData->packageFiles[i] +"\nExport Id: " + QString::number(e + 1) + "\nSkipping...\n"));
                 continue;
             }
             auto properties = new Properties(package, exportData);
