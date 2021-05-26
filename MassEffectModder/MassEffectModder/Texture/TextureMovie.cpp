@@ -101,10 +101,8 @@ const ByteBuffer TextureMovie::getData()
             data = textureData->ReadToBuffer(uncompressedSize);
             break;
         }
-    case StorageTypes::pccLZO:
     case StorageTypes::pccZlib:
     case StorageTypes::pccOodle:
-    case StorageTypes::extLZO:
     case StorageTypes::extZlib:
     case StorageTypes::extOodle:
         {
@@ -224,8 +222,7 @@ const ByteBuffer TextureMovie::toArray()
         textureData->JumpTo(dataOffset);
         newData.CopyFrom(*textureData, uncompressedSize);
     }
-    else if (storageType == StorageTypes::pccLZO ||
-             storageType == StorageTypes::pccZlib ||
+    else if (storageType == StorageTypes::pccZlib ||
              storageType == StorageTypes::pccOodle)
     {
         CRASH_MSG("TextureMovie as compressed data is not supported!");

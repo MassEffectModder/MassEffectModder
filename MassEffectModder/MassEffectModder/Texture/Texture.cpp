@@ -56,8 +56,7 @@ Texture::Texture(Package &package, int exportId, const ByteBuffer &data, bool fi
             mipmap.internalOffset = textureData->Position();
             textureData->Skip(mipmap.uncompressedSize);
         }
-        else if (mipmap.storageType == StorageTypes::pccLZO ||
-                 mipmap.storageType == StorageTypes::pccZlib ||
+        else if (mipmap.storageType == StorageTypes::pccZlib ||
                  mipmap.storageType == StorageTypes::pccOodle)
         {
             mipmap.internalOffset = textureData->Position();
@@ -145,7 +144,6 @@ void Texture::replaceMipMaps(const QList<TextureMipMap> &newMipMaps)
         textureData->WriteUInt32(mipmap.dataOffset);
 
         if (mipmap.storageType == StorageTypes::pccUnc ||
-            mipmap.storageType == StorageTypes::pccLZO ||
             mipmap.storageType == StorageTypes::pccZlib ||
             mipmap.storageType == StorageTypes::pccOodle)
         {
@@ -279,7 +277,6 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
             mipMapData = textureData->ReadToBuffer(mipmap.uncompressedSize);
             break;
         }
-    case StorageTypes::pccLZO:
     case StorageTypes::pccZlib:
     case StorageTypes::pccOodle:
         {
@@ -296,7 +293,6 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
         }
     case StorageTypes::extUnc:
     case StorageTypes::extUnc2:
-    case StorageTypes::extLZO:
     case StorageTypes::extZlib:
     case StorageTypes::extOodle:
         {
@@ -358,7 +354,7 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
             }
             auto fs = FileStream(filename, FileMode::Open, FileAccess::ReadOnly);
             fs.JumpTo(mipmap.dataOffset);
-            if (mipmap.storageType == StorageTypes::extLZO || mipmap.storageType == StorageTypes::extZlib || mipmap.storageType == StorageTypes::extOodle)
+            if (mipmap.storageType == StorageTypes::extZlib || mipmap.storageType == StorageTypes::extOodle)
             {
                 mipMapData = Package::decompressData(dynamic_cast<Stream &>(fs), mipmap.storageType, mipmap.uncompressedSize, mipmap.compressedSize);
                 if (mipMapData.ptr() == nullptr)
@@ -407,8 +403,7 @@ const ByteBuffer Texture::toArray(uint pccTextureDataOffset, bool updateOffset)
                 mipmap.internalOffset = newData.Position();
             newData.CopyFrom(*textureData, mipmap.uncompressedSize);
         }
-        else if (mipmap.storageType == StorageTypes::pccLZO ||
-                 mipmap.storageType == StorageTypes::pccZlib ||
+        else if (mipmap.storageType == StorageTypes::pccZlib ||
                  mipmap.storageType == StorageTypes::pccOodle)
         {
             mipmap.dataOffset = newData.Position() + pccTextureDataOffset + 4;
@@ -459,7 +454,6 @@ bool Texture::HasExternalMips()
     {
         if (mipMapsList[l].storageType == StorageTypes::extUnc ||
             mipMapsList[l].storageType == StorageTypes::extUnc2 ||
-            mipMapsList[l].storageType == StorageTypes::extLZO ||
             mipMapsList[l].storageType == StorageTypes::extOodle ||
             mipMapsList[l].storageType == StorageTypes::extZlib)
         {

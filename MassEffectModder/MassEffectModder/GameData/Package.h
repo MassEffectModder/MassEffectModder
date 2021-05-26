@@ -39,12 +39,10 @@ enum StorageFlags
 enum StorageTypes
 {
     pccUnc = StorageFlags::noFlags,
-    pccLZO = StorageFlags::compressedLZO,
     pccZlib = StorageFlags::compressedZlib,
     pccOodle = StorageFlags::compressedOodle,
     extUnc = StorageFlags::externalFile,
     extUnc2 = StorageFlags::externalFile | StorageFlags::someFlag1,
-    extLZO = StorageFlags::externalFile | StorageFlags::compressedLZO,
     extZlib = StorageFlags::externalFile | StorageFlags::compressedZlib,
     extOodle = StorageFlags::externalFile | StorageFlags::compressedOodle,
     empty = StorageFlags::externalFile | StorageFlags::unused,

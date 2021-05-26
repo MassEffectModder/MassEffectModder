@@ -598,7 +598,6 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                 {
                     Texture::TextureMipMap mipmap = mipmapsPre[m];
                     if ((mipmap.storageType == StorageTypes::extZlib ||
-                         mipmap.storageType == StorageTypes::extLZO ||
                          mipmap.storageType == StorageTypes::extOodle ||
                          mipmap.storageType == StorageTypes::extUnc ||
                          mipmap.storageType == StorageTypes::extUnc2) &&
@@ -687,8 +686,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                         }
 
                         if (testMipmap.storageType == StorageTypes::extZlib ||
-                            testMipmap.storageType == StorageTypes::extOodle ||
-                            testMipmap.storageType == StorageTypes::extLZO)
+                            testMipmap.storageType == StorageTypes::extOodle)
                         {
                             Texture::TextureMipMap oldTestMipmap = texture.getMipmap(testMipmap.width, testMipmap.height);
                             if (mod.cacheCprMipmaps[mip].getRefData().size() > oldTestMipmap.compressedSize)
@@ -753,10 +751,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                 {
                     Texture::TextureMipMap mipmap = mipmaps[m];
                     mipmap.uncompressedSize = mod.cacheCprMipmapsDecompressedSize[m];
-                    if (mipmap.storageType == StorageTypes::extLZO ||
-                        mipmap.storageType == StorageTypes::extZlib ||
+                    if (mipmap.storageType == StorageTypes::extZlib ||
                         mipmap.storageType == StorageTypes::extOodle ||
-                        mipmap.storageType == StorageTypes::pccLZO ||
                         mipmap.storageType == StorageTypes::pccZlib ||
                         mipmap.storageType == StorageTypes::pccOodle)
                     {
@@ -784,7 +780,6 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                     }
                     if (mipmap.storageType == StorageTypes::extZlib ||
                         mipmap.storageType == StorageTypes::extOodle ||
-                        mipmap.storageType == StorageTypes::extLZO ||
                         mipmap.storageType == StorageTypes::extUnc ||
                         mipmap.storageType == StorageTypes::extUnc2)
                     {

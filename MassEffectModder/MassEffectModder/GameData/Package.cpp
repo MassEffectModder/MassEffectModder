@@ -463,8 +463,6 @@ const QString Package::StorageTypeToString(StorageTypes type)
     {
     case StorageTypes::pccUnc:
         return "pccUnc";
-    case StorageTypes::pccLZO:
-        return "pccLZO";
     case StorageTypes::pccZlib:
         return "pccZlib";
     case StorageTypes::pccOodle:
@@ -473,8 +471,6 @@ const QString Package::StorageTypeToString(StorageTypes type)
         return "extUnc";
     case StorageTypes::extUnc2:
         return "extUnc2";
-    case StorageTypes::extLZO:
-        return "extLZO";
     case StorageTypes::extZlib:
         return "extZlib";
     case StorageTypes::extOodle:
