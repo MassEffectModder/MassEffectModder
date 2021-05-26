@@ -849,6 +849,23 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
             appendMarker = true;
     }
 
+    if (exportsTable.count() == 0)
+    {
+        if (appendMarker)
+        {
+            auto *fs = new FileStream(g_GameData->GamePath() + packagePath,
+                                      FileMode::Open, FileAccess::WriteOnly);
+            if (fs)
+            {
+                fs->SeekEnd();
+                QString str(MEMendFileMarker);
+                fs->WriteStringASCII(str);
+                delete fs;
+            }
+        }
+        return true;
+    }
+
     MemoryStream tempOutput;
     tempOutput.WriteFromBuffer(packageHeader, packageHeaderSize);
     tempOutput.WriteUInt32(targetCompression);
