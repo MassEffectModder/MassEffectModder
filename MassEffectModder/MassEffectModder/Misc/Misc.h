@@ -88,7 +88,7 @@ public:
     static void startStageTimer();
     static void restartStageTimer();
     static long elapsedStageTime();
-    static QString getTimerFormat(long time);
+    static QString getTimerFormat(quint64 time);
     static bool CheckGamePath();
     static bool applyModTag(int MeuitmV, int AlotV);
     static PixelFormat changeTextureType(PixelFormat gamePixelFormat,

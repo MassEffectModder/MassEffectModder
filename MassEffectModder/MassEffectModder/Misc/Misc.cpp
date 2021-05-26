@@ -192,7 +192,7 @@ long Misc::elapsedStageTime()
     return timerStage.elapsed();
 }
 
-QString Misc::getTimerFormat(long time)
+QString Misc::getTimerFormat(quint64 time)
 {
     if (time / 1000 == 0)
         return QString("%1 milliseconds").arg(time);
