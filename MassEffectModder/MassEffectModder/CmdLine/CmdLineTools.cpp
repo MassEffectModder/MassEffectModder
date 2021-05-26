@@ -413,8 +413,9 @@ bool CmdLineTools::extractMEM(MeType gameId, QString &inputDir, QString &outputD
 
 bool CmdLineTools::ApplyLODAndGfxSettings(MeType gameId)
 {
+    ConfigIni configIni{};
+    g_GameData->Init(gameId, configIni);
     QString path = g_GameData->EngineConfigIniPath(gameId);
-    QDir().mkpath(DirName(path));
 #if defined(_WIN32)
     ConfigIni engineConf = ConfigIni(path);
 #else
@@ -427,6 +428,8 @@ bool CmdLineTools::ApplyLODAndGfxSettings(MeType gameId)
 
 bool CmdLineTools::PrintLODSettings(MeType gameId)
 {
+    ConfigIni configIni{};
+    g_GameData->Init(gameId, configIni);
     QString path = g_GameData->EngineConfigIniPath(gameId);
     bool exist = QFile(path).exists();
     if (!exist)

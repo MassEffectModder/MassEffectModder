@@ -61,8 +61,9 @@ void LayoutMain::RemoveScanFileSelected(MeType gameType)
 
 void LayoutMain::ApplyHQGfx(MeType gameType)
 {
+    ConfigIni configIni{};
+    g_GameData->Init(gameType, configIni);
     QString path = g_GameData->EngineConfigIniPath(gameType);
-    QDir().mkpath(DirName(path));
 #if defined(_WIN32)
     ConfigIni engineConf = ConfigIni(path);
 #else
