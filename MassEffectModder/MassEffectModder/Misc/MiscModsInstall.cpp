@@ -96,32 +96,30 @@ bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
             fs.ReadStringASCIINull(fileMod.name);
             fileMod.offset = fs.ReadInt64();
             fileMod.size = fs.ReadInt64();
-            fileMod.flags = fs.ReadInt32();
+            fileMod.flags = fs.ReadInt64();
             modFiles.push_back(fileMod);
         }
         numFiles = modFiles.count();
         for (int l = 0; l < numFiles; l++, currentNumberOfTotalMods++)
         {
-            QString name;
             quint32 crc = 0;
             fs.JumpTo(modFiles[l].offset);
             long size = modFiles[l].size;
             if (modFiles[l].tag == FileTextureTag ||
                 modFiles[l].tag == FileMovieTextureTag)
             {
-                fs.ReadStringASCIINull(name);
                 crc = fs.ReadUInt32();
             }
             else
             {
                 if (g_ipc)
                 {
-                    ConsoleWrite(QString("[IPC]ERROR Unknown tag for file: ") + name);
+                    ConsoleWrite(QString("[IPC]ERROR Unknown tag for file: ") + modFiles[l].name);
                     ConsoleSync();
                 }
                 else
                 {
-                    PERROR(QString("Unknown tag for file: ") + name + "\n");
+                    PERROR(QString("Unknown tag for file: ") + modFiles[l].name + "\n");
                 }
                 continue;
             }
@@ -145,8 +143,8 @@ bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
                 }
                 else
                 {
-                    PINFO(QString("Texture skipped. Texture ") + name +
-                                 QString::asprintf("_0x%08X", crc) + " is not present in your game setup.\n");
+                    PINFO(QString("Texture skipped. Texture ") + modFiles[l].name +
+                          " is not present in your game setup.\n");
                 }
             }
         }
