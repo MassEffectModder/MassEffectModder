@@ -33,6 +33,11 @@ static const quint8 tfcNewGuid[16] = { 0xB4, 0xD2, 0xD7, 0x16, 0x08, 0x4A, 0x4B,
 
 PixelFormat MipMaps::changeTextureType(PixelFormat gamePixelFormat, PixelFormat texturePixelFormat, Texture &texture)
 {
+    if (texturePixelFormat == PixelFormat::Internal)
+    {
+        texturePixelFormat = PixelFormat::ARGB;
+    }
+
     if (texturePixelFormat == PixelFormat::ARGB && texture.getProperties().exists("CompressionSettings") &&
         texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_OneBitAlpha")
     {
