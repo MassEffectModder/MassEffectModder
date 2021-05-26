@@ -6,9 +6,6 @@
          Modifications for Zip64 support
          Copyright (C) 2009-2010 Mathias Svensson ( http://result42.com )
 
-         Xor encoding support
-         Copyright (C) 2018-2019 Pawel Kolodziejski
-
          For more info read MiniZip_info.txt
 
 */
