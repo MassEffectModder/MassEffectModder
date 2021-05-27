@@ -621,7 +621,7 @@ void LayoutTexturesManager::PrepareTexturesCallback(void *handle, int progress, 
 {
     auto *win = static_cast<MainWindow *>(handle);
     win->statusBar()->showMessage(QString("Preparing... Stage: ") + stage +
-                                  " -  Progress: " + QString::number(progress) + "%");
+                                  " Progress: " + QString::number(progress) + "%");
     QApplication::processEvents();
 }
 
@@ -629,7 +629,7 @@ void LayoutTexturesManager::ReplaceTextureCallback(void *handle, int progress, c
 {
     auto *win = static_cast<MainWindow *>(handle);
     win->statusBar()->showMessage(QString("Replacing texture...") +
-                                  " -  Progress: " + QString::number(progress) + "%");
+                                  " Progress: " + QString::number(progress) + "%");
     QApplication::processEvents();
 }
 
