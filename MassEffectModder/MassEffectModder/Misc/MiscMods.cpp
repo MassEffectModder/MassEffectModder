@@ -540,7 +540,6 @@ bool Misc::extractMEM(MeType gameId, QFileInfoList &inputList, QString &outputDi
 #ifdef GUI
             QApplication::processEvents();
 #endif
-            quint32 crc = 0;
             long size = 0;
             fs.JumpTo(modFiles[i].offset);
             size = modFiles[i].size;
@@ -548,7 +547,7 @@ bool Misc::extractMEM(MeType gameId, QFileInfoList &inputList, QString &outputDi
             if (modFiles[i].tag == FileTextureTag ||
                 modFiles[i].tag == FileMovieTextureTag)
             {
-                crc = fs.ReadUInt32();
+                /*quint32 crc = */fs.ReadUInt32();
             }
             else
             {
