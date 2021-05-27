@@ -39,7 +39,7 @@ public:
     bool unpackArchive(const QString &inputFile, QString &outputDir, QString &filterWithExt, bool flattenPath);
     bool listArchive(const QString &inputFile);
     bool applyModTag(MeType gameId, int MeuitmV, int AlotV);
-    bool ConvertToMEM(MeType gameId, QString &inputDir, QString &memFile, bool markToConvert, bool bc7format, float bc7quality);
+    bool ConvertToMEM(MeType gameId, QString &inputDir, QString &memFile, bool fastMode, bool markToConvert, bool bc7format, float bc7quality);
     bool convertGameTexture(const QString &inputFile, QString &outputFile,
                             QList<TextureMapEntry> &textures, bool markToConvert, float bc7quality);
     bool convertGameImage(MeType gameId, QString &inputFile, QString &outputFile, bool markToConvert, float bc7quality);

@@ -224,7 +224,8 @@ bool CmdLineTools::listArchive(const QString &inputFile)
     return result == 0;
 }
 
-bool CmdLineTools::ConvertToMEM(MeType gameId, QString &inputDir, QString &memFile, bool markToConvert, bool bc7format, float bc7quality)
+bool CmdLineTools::ConvertToMEM(MeType gameId, QString &inputDir, QString &memFile, bool fastMode,
+                                bool markToConvert, bool bc7format, float bc7quality)
 {
     QList<TextureMapEntry> textures;
     Resources resources;
@@ -242,7 +243,7 @@ bool CmdLineTools::ConvertToMEM(MeType gameId, QString &inputDir, QString &memFi
     std::sort(list2.begin(), list2.end(), Misc::compareFileInfoPath);
     list.append(list2);
 
-    return Misc::convertDataModtoMem(list, memFile, gameId, textures, markToConvert, bc7format, bc7quality, nullptr, nullptr);
+    return Misc::convertDataModtoMem(list, memFile, gameId, textures, fastMode, markToConvert, bc7format, bc7quality, nullptr, nullptr);
 }
 
 bool CmdLineTools::convertGameTexture(const QString &inputFile,

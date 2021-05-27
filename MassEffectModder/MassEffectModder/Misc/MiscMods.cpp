@@ -143,7 +143,7 @@ bool Misc::DetectBc7FromFile(const QString &file)
 
 bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
                                MeType gameId, QList<TextureMapEntry> &textures,
-                               bool markToConvert, bool bc7format, float bc7quality,
+                               bool fastMode, bool markToConvert, bool bc7format, float bc7quality,
                                ProgressCallback callback, void *callbackHandle)
 {
     PINFO("Mods conversion started...\n");
@@ -404,7 +404,7 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
 
             if (mods[l].data.size() != 0)
             {
-                Misc::compressData(mods[l].data, *dst);
+                Misc::compressData(mods[l].data, *dst, fastMode ? CompressionDataType::Zlib : CompressionDataType::LZMA);
                 dst->SeekBegin();
                 fileMod.offset = outFs.Position();
                 fileMod.size = dst->Length();

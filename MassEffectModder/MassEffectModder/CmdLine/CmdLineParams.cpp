@@ -50,6 +50,7 @@ int ProcessArguments()
     bool clearAlpha = false;
     bool bc7format = false;
     float bc7qualityValue = 0.2f;
+    bool fastMode = false;
     int thresholdValue = 128;
     int cacheAmountValue = -1;
     QString input, output, threshold, format, tfcName;
@@ -179,6 +180,11 @@ int ProcessArguments()
                 return -1;
             }
             args.removeAt(l);
+            args.removeAt(l--);
+        }
+        else if (arg == "--fast-mode")
+        {
+            fastMode = true;
             args.removeAt(l--);
         }
         else if (arg == "--mark-to-convert")
@@ -409,7 +415,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.ConvertToMEM(gameId, input, output, markToConvert, bc7format, bc7qualityValue))
+        if (!tools.ConvertToMEM(gameId, input, output, fastMode, markToConvert, bc7format, bc7qualityValue))
             errorCode = 1;
         break;
     case CmdType::CONVERT_GAME_IMAGE:

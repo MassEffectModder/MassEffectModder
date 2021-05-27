@@ -102,7 +102,7 @@ public:
     static TextureMapEntry FoundTextureInTheInternalMap(MeType gameId, uint crc);
     static bool compareFileInfoPath(const QFileInfo &e1, const QFileInfo &e2);
     static bool convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
-                                    MeType gameId, QList<TextureMapEntry> &textures, bool markToConvert, bool bc7format, float bc7quality,
+                                    MeType gameId, QList<TextureMapEntry> &textures, bool fastMode, bool markToConvert, bool bc7format, float bc7quality,
                                     ProgressCallback callback, void *callbackHandle);
     static bool InstallMods(MeType gameId, Resources &resources, QStringList &modFiles, bool guiInstallerMode, bool alotInstallerMode,
                            bool skipMarkers, bool verify, int cacheAmount,
