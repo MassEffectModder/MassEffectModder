@@ -364,9 +364,9 @@ ByteBuffer Image::RGBtoInternal(const quint8 *src, int w, int h)
     quint8 *ptr = tmpData.ptr();
     for (int i = 0; i < w * h; i++)
     {
-        ptr[4 * i + 0] = src[3 * i + 0];
+        ptr[4 * i + 0] = src[3 * i + 2];
         ptr[4 * i + 1] = src[3 * i + 1];
-        ptr[4 * i + 2] = src[3 * i + 2];
+        ptr[4 * i + 2] = src[3 * i + 0];
         ptr[4 * i + 3] = 255;
     }
     return tmpData;
@@ -378,9 +378,9 @@ ByteBuffer Image::RGBAtoInternal(const quint8 *src, int w, int h)
     quint8 *ptr = tmpData.ptr();
     for (int i = 0; i < w * h; i++)
     {
-        ptr[4 * i + 0] = src[4 * i + 2];
+        ptr[4 * i + 0] = src[4 * i + 0];
         ptr[4 * i + 1] = src[4 * i + 1];
-        ptr[4 * i + 2] = src[4 * i + 0];
+        ptr[4 * i + 2] = src[4 * i + 2];
         ptr[4 * i + 3] = src[4 * i + 3];
     }
     return tmpData;
