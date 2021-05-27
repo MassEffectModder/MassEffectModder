@@ -47,6 +47,7 @@ struct BinaryMod
     bool movieTexture;
     uint textureCrc;
     bool markConvert;
+    bool bc7Format;
     bool forceHash;
     long offset;
     long size;
@@ -93,7 +94,7 @@ public:
     static bool applyModTag(int MeuitmV, int AlotV);
     static PixelFormat changeTextureType(PixelFormat gamePixelFormat,
                                          PixelFormat texturePixelFormat,
-                                         TextureType flags);
+                                         TextureType flags, bool bc7format = false);
     static uint scanFilenameForCRC(const QString &inputFile);
     static uint GetCRCFromTextureMap(QList<TextureMapEntry> &textures, int exportId,
                                      const QString &path);
@@ -101,7 +102,7 @@ public:
     static TextureMapEntry FoundTextureInTheInternalMap(MeType gameId, uint crc);
     static bool compareFileInfoPath(const QFileInfo &e1, const QFileInfo &e2);
     static bool convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
-                                    MeType gameId, QList<TextureMapEntry> &textures, bool markToConvert,
+                                    MeType gameId, QList<TextureMapEntry> &textures, bool markToConvert, bool bc7format,
                                     ProgressCallback callback, void *callbackHandle);
     static bool InstallMods(MeType gameId, Resources &resources, QStringList &modFiles, bool guiInstallerMode, bool alotInstallerMode,
                            bool skipMarkers, bool verify, int cacheAmount,
@@ -128,6 +129,7 @@ public:
     static bool CheckImage(Image &image, Texture &texture, const QString &textureName);
     static bool DetectMarkToConvertFromFile(const QString &file);
     static bool DetectHashFromFile(const QString &file);
+    static bool DetectBc7FromFile(const QString &file);
     static int GetNumberOfMipsFromMap(TextureMapEntry &f);
     static QByteArray calculateMD5(const QString &filePath);
     static void detectMods(QStringList &mods);

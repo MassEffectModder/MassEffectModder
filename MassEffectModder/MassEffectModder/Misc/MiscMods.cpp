@@ -135,8 +135,15 @@ bool Misc::DetectHashFromFile(const QString &file)
     return idx > 0;
 }
 
+bool Misc::DetectBc7FromFile(const QString &file)
+{
+    int idx = file.indexOf("-bc7format", Qt::CaseInsensitive);
+    return idx > 0;
+}
+
 bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
-                               MeType gameId, QList<TextureMapEntry> &textures, bool markToConvert,
+                               MeType gameId, QList<TextureMapEntry> &textures,
+                               bool markToConvert, bool bc7format,
                                ProgressCallback callback, void *callbackHandle)
 {
     PINFO("Mods conversion started...\n");
@@ -246,8 +253,14 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
             if (crc == 0)
                 continue;
 
-            if (DetectMarkToConvertFromFile(file))
+            if (bc7format || DetectMarkToConvertFromFile(file))
                 entryMarkToConvert = true;
+
+            if (DetectBc7FromFile(file))
+            {
+                bc7format = true;
+                entryMarkToConvert = true;
+            }
 
             bool forceHash = DetectHashFromFile(file);
             if (!forceHash)
@@ -276,7 +289,7 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
                 PixelFormat newPixelFormat = f.pixfmt;
                 if (entryMarkToConvert)
                 {
-                    newPixelFormat = changeTextureType(f.pixfmt, image.getPixelFormat(), f.type);
+                    newPixelFormat = changeTextureType(f.pixfmt, image.getPixelFormat(), f.type, bc7format);
                     if (f.pixfmt == newPixelFormat)
                         PINFO(QString("Warning for texture: ") + BaseName(file)  +
                               " This texture can not be converted to desired format...\n");
@@ -297,6 +310,7 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
             mod.movieTexture = false;
             mod.textureCrc = crc;
             mod.markConvert = entryMarkToConvert;
+            mod.bc7Format = bc7format;
             mod.forceHash = forceHash;
             mods.push_back(mod);
         }

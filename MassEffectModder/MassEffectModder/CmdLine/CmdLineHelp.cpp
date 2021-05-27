@@ -67,7 +67,7 @@ void DisplayHelp()
         "  --apply-lods-gfx --gameid <game id>\n" \
         "     Update GFX settings.\n" \
         "\n" \
-        "  --convert-to-mem --gameid <game id> --input <input dir> --output <output file> [--mark-to-convert] [--ipc]\n" \
+        "  --convert-to-mem --gameid <game id> --input <input dir> --output <output file> [--mark-to-convert] [--bc7-format] [--ipc]\n" \
         "     game id: 1 for ME1, 2 for ME2, 3 for ME3\n" \
         "     input dir: directory to be converted, containing following file extension(s):\n" \
         "        MEM, TPF\n" \
@@ -82,6 +82,11 @@ void DisplayHelp()
         "        BIK\n" \
         "           Movie filename must include texture CRC (0xhhhhhhhh)\n" \
         "     ipc: turn on IPC traces\n" \
+        "\n" \
+        "  --extract-mem --gameid <game id> --input <input dir/file> [--output <output dir>] [--ipc]\n" \
+        "     game id: 1 for ME1, 2 for ME2, 3 for ME3\n" \
+        "     input dir: directory of MEM mod file(s)\n" \
+        "     input file: MEM file to be extracted\n" \
         "\n" \
         "  --convert-game-image --gameid <game id> --input <input image> --output <output image> [--mark-to-convert]\n" \
         "     game id: 1 for ME1, 2 for ME2, 3 for ME3\n" \
@@ -109,11 +114,6 @@ void DisplayHelp()
         "              uncompressed ARGB/RGB/RGBX\n" \
         "           Image filename must include texture CRC (0xhhhhhhhh)\n" \
         "     output dir: directory where textures converted to DDS are placed\n" \
-        "\n" \
-        "  --extract-mem --gameid <game id> --input <input dir/file> [--output <output dir>] [--ipc]\n" \
-        "     game id: 1 for ME1, 2 for ME2, 3 for ME3\n" \
-        "     input dir: directory of MEM mod file(s)\n" \
-        "     input file: MEM file to be extracted\n" \
         "\n" \
         "  --convert-image --format <output pixel format> [--threshold <dxt1 alpha threshold>] --input <input image> --output <output image>\n" \
         "     input image file types: DDS, BMP, TGA, PNG\n" \

@@ -55,8 +55,8 @@ typedef enum
 typedef enum
 {
     None = 0,
-    MarkToConvert = 1,
-    ForceHash = 2,
+    ForceHash = 1,
+    MarkToConvert = 2,
 } ModEtryFlags;
 
 typedef enum

@@ -24,7 +24,7 @@
 #include <Helpers/Logs.h>
 #include <Resources/Resources.h>
 
-PixelFormat Misc::changeTextureType(PixelFormat gamePixelFormat, PixelFormat texturePixelFormat, TextureType flags)
+PixelFormat Misc::changeTextureType(PixelFormat gamePixelFormat, PixelFormat texturePixelFormat, TextureType flags, bool bc7format)
 {
     if (texturePixelFormat == PixelFormat::Internal ||
         texturePixelFormat == PixelFormat::RGBA)
@@ -41,7 +41,10 @@ PixelFormat Misc::changeTextureType(PixelFormat gamePixelFormat, PixelFormat tex
               texturePixelFormat == PixelFormat::ARGB || texturePixelFormat == PixelFormat::RGB) &&
               flags == TextureType::Normalmap)
     {
-        gamePixelFormat = texturePixelFormat;
+        if (bc7format)
+            gamePixelFormat = PixelFormat::BC7;
+        else
+            gamePixelFormat = texturePixelFormat;
     }
     else if ((gamePixelFormat == PixelFormat::DXT1 || gamePixelFormat == PixelFormat::DXT5 ||
               gamePixelFormat == PixelFormat::BC7) &&
@@ -49,7 +52,10 @@ PixelFormat Misc::changeTextureType(PixelFormat gamePixelFormat, PixelFormat tex
               texturePixelFormat == PixelFormat::DXT5 || texturePixelFormat == PixelFormat::BC7) &&
               flags == TextureType::Diffuse)
     {
-        gamePixelFormat = texturePixelFormat;
+        if (bc7format)
+            gamePixelFormat = PixelFormat::BC7;
+        else
+            gamePixelFormat = texturePixelFormat;
     }
 
     return gamePixelFormat;

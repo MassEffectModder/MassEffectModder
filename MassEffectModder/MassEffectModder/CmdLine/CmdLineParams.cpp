@@ -48,6 +48,7 @@ int ProcessArguments()
     bool mapCRC = false;
     bool flattenPath = false;
     bool clearAlpha = false;
+    bool bc7format = false;
     int thresholdValue = 128;
     int cacheAmountValue = -1;
     QString input, output, threshold, format, tfcName;
@@ -182,6 +183,11 @@ int ProcessArguments()
         else if (arg == "--mark-to-convert")
         {
             markToConvert = true;
+            args.removeAt(l--);
+        }
+        else if (arg == "--bc7-format")
+        {
+            bc7format = true;
             args.removeAt(l--);
         }
         else if (arg == "--alot-mode")
@@ -389,7 +395,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.ConvertToMEM(gameId, input, output, markToConvert))
+        if (!tools.ConvertToMEM(gameId, input, output, markToConvert, bc7format))
             errorCode = 1;
         break;
     case CmdType::CONVERT_GAME_IMAGE:
