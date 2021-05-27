@@ -527,7 +527,7 @@ void LayoutTexturesManager::ListMiddleContextMenu(const QPoint &pos)
         menu->addAction(subMenu);
         if (!nodeTexture.movieTexture)
         {
-            subMenu = new QAction("Replace Texture (uncompressed)", this);
+            subMenu = new QAction("Replace Texture (upgrade)", this);
             connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ReplaceConvertSelected);
             menu->addAction(subMenu);
             subMenu = new QAction("Extract to DDS", this);
