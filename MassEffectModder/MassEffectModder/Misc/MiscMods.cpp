@@ -143,7 +143,7 @@ bool Misc::DetectBc7FromFile(const QString &file)
 
 bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
                                MeType gameId, QList<TextureMapEntry> &textures,
-                               bool markToConvert, bool bc7format,
+                               bool markToConvert, bool bc7format, float bc7quality,
                                ProgressCallback callback, void *callbackHandle)
 {
     PINFO("Mods conversion started...\n");
@@ -296,7 +296,7 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
                 }
 
                 int numMips = Misc::GetNumberOfMipsFromMap(f);
-                CorrectTexture(image, f, numMips, newPixelFormat, file);
+                CorrectTexture(image, f, numMips, newPixelFormat, file, bc7quality);
             }
             else if (image.getPixelFormat() == PixelFormat::Internal)
             {

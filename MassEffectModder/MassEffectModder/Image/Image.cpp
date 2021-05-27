@@ -574,7 +574,7 @@ void Image::saveToPng(const quint8 *src, int w, int h, PixelFormat format, const
 }
 
 ByteBuffer Image::convertToFormat(PixelFormat srcFormat, const quint8 *src, int w, int h, PixelFormat dstFormat,
-                               bool dxt1HasAlpha, quint8 dxt1Threshold)
+                               bool dxt1HasAlpha, quint8 dxt1Threshold, float bc7quality)
 {
     ByteBuffer tempData;
 
@@ -604,7 +604,7 @@ ByteBuffer Image::convertToFormat(PixelFormat srcFormat, const quint8 *src, int 
             else
             {
                 ByteBuffer tempDataRGBA = convertRawToInternal(src, w, h, srcFormat);
-                tempData = compressMipmap(dstFormat, tempDataRGBA.ptr(), w, h, dxt1HasAlpha, dxt1Threshold);
+                tempData = compressMipmap(dstFormat, tempDataRGBA.ptr(), w, h, dxt1HasAlpha, dxt1Threshold, bc7quality);
                 tempDataRGBA.Free();
             }
             break;
@@ -639,7 +639,7 @@ ByteBuffer Image::convertToFormat(PixelFormat srcFormat, const quint8 *src, int 
     return tempData;
 }
 
-void Image::correctMips(PixelFormat dstFormat, bool dxt1HasAlpha, quint8 dxt1Threshold)
+void Image::correctMips(PixelFormat dstFormat, bool dxt1HasAlpha, quint8 dxt1Threshold, float bc7quality)
 {
     MipMap *firstMip = mipMaps.first();
     auto tempData = convertRawToInternal(firstMip->getRefData().ptr(), firstMip->getWidth(), firstMip->getHeight(), pixelFormat);
@@ -660,7 +660,7 @@ void Image::correctMips(PixelFormat dstFormat, bool dxt1HasAlpha, quint8 dxt1Thr
     if (dstFormat != pixelFormat || (dstFormat == PixelFormat::DXT1 && !dxt1HasAlpha))
     {
         auto top = convertToFormat(PixelFormat::Internal,
-                                   tempData.ptr(), width, height, dstFormat, dxt1HasAlpha, dxt1Threshold);
+                                   tempData.ptr(), width, height, dstFormat, dxt1HasAlpha, dxt1Threshold, bc7quality);
         mipMaps.push_back(new MipMap(top, width, height, dstFormat));
         top.Free();
         pixelFormat = dstFormat;
@@ -710,7 +710,8 @@ void Image::correctMips(PixelFormat dstFormat, bool dxt1HasAlpha, quint8 dxt1Thr
         auto tempDataDownscaled = downscaleInternal(tempData.ptr(), prevW, prevH);
         if (pixelFormat != PixelFormat::Internal)
         {
-            auto converted = convertToFormat(PixelFormat::Internal, tempDataDownscaled.ptr(), origW, origH, pixelFormat, dxt1HasAlpha, dxt1Threshold);
+            auto converted = convertToFormat(PixelFormat::Internal, tempDataDownscaled.ptr(), origW, origH,
+                                             pixelFormat, dxt1HasAlpha, dxt1Threshold, bc7quality);
             mipMaps.push_back(new MipMap(converted, origW, origH, pixelFormat));
             converted.Free();
         }

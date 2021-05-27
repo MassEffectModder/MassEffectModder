@@ -39,12 +39,12 @@ public:
     bool unpackArchive(const QString &inputFile, QString &outputDir, QString &filterWithExt, bool flattenPath);
     bool listArchive(const QString &inputFile);
     bool applyModTag(MeType gameId, int MeuitmV, int AlotV);
-    bool ConvertToMEM(MeType gameId, QString &inputDir, QString &memFile, bool markToConvert, bool bc7format);
+    bool ConvertToMEM(MeType gameId, QString &inputDir, QString &memFile, bool markToConvert, bool bc7format, float bc7quality);
     bool convertGameTexture(const QString &inputFile, QString &outputFile,
-                            QList<TextureMapEntry> &textures, bool markToConvert);
-    bool convertGameImage(MeType gameId, QString &inputFile, QString &outputFile, bool markToConvert);
-    bool convertGameImages(MeType gameId, QString &inputDir, QString &outputDir, bool markToConvert);
-    bool convertImage(QString &inputFile, QString &outputFile, QString &format, int dxt1Threshold);
+                            QList<TextureMapEntry> &textures, bool markToConvert, float bc7quality);
+    bool convertGameImage(MeType gameId, QString &inputFile, QString &outputFile, bool markToConvert, float bc7quality);
+    bool convertGameImages(MeType gameId, QString &inputDir, QString &outputDir, bool markToConvert, float bc7quality);
+    bool convertImage(QString &inputFile, QString &outputFile, QString &format, int dxt1Threshold, float bc7qualityValue);
     bool extractMEM(MeType gameId, QString &inputDir, QString &outputDir);
     bool ApplyLODAndGfxSettings(MeType gameId);
     bool PrintLODSettings(MeType gameId);

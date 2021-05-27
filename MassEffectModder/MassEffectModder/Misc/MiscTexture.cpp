@@ -114,7 +114,7 @@ uint Misc::GetCRCFromTextureMap(QList<TextureMapEntry> &textures, int exportId,
 }
 
 bool Misc::CorrectTexture(Image &image, TextureMapEntry &f, int numMips,
-                          PixelFormat newPixelFormat, const QString &file)
+                          PixelFormat newPixelFormat, const QString &file, float bc7quality)
 {
     if (!image.checkDDSHaveAllMipmaps() ||
        (numMips > 1 && image.getMipMaps().count() <= 1) ||
@@ -143,14 +143,14 @@ bool Misc::CorrectTexture(Image &image, TextureMapEntry &f, int numMips,
                              ". This texture converted from full alpha to binary alpha.\n");
             }
         }
-        image.correctMips(newPixelFormat, dxt1HasAlpha, dxt1Threshold);
+        image.correctMips(newPixelFormat, dxt1HasAlpha, dxt1Threshold, bc7quality);
         return true;
     }
     return false;
 }
 
 QString Misc::CorrectTexture(Image *image, Texture &texture,
-                             PixelFormat newPixelFormat, const QString &textureName)
+                             PixelFormat newPixelFormat, const QString &textureName, float bc7quality)
 {
     QString errors;
     if (!image->checkDDSHaveAllMipmaps() ||
@@ -175,7 +175,7 @@ QString Misc::CorrectTexture(Image *image, Texture &texture,
                 }
             }
         }
-        image->correctMips(newPixelFormat, dxt1HasAlpha, dxt1Threshold);
+        image->correctMips(newPixelFormat, dxt1HasAlpha, dxt1Threshold, bc7quality);
     }
     return errors;
 }

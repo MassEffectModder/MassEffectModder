@@ -49,10 +49,11 @@ int ProcessArguments()
     bool flattenPath = false;
     bool clearAlpha = false;
     bool bc7format = false;
+    float bc7qualityValue = 0.2f;
     int thresholdValue = 128;
     int cacheAmountValue = -1;
     QString input, output, threshold, format, tfcName;
-    QString dlcName, path, cacheAmount, filter;
+    QString dlcName, path, cacheAmount, filter, bc7quality;
     CmdLineTools tools;
 
     QStringList args = QCoreApplication::arguments();
@@ -260,6 +261,19 @@ int ProcessArguments()
             args.removeAt(l);
             args.removeAt(l--);
         }
+        else if (arg == "--bc7-quality" && hasValue(args, l))
+        {
+            bc7quality = args[l + 1];
+            if (bc7quality.length() != 0)
+            {
+                bool ok;
+                bc7qualityValue = bc7quality.toFloat(&ok);
+                if (!ok)
+                    bc7qualityValue = 0.2f;
+            }
+            args.removeAt(l);
+            args.removeAt(l--);
+        }
         else if (arg == "--format" && hasValue(args, l))
         {
             format = args[l + 1];
@@ -395,7 +409,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.ConvertToMEM(gameId, input, output, markToConvert, bc7format))
+        if (!tools.ConvertToMEM(gameId, input, output, markToConvert, bc7format, bc7qualityValue))
             errorCode = 1;
         break;
     case CmdType::CONVERT_GAME_IMAGE:
@@ -417,7 +431,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.convertGameImage(gameId, input, output, markToConvert))
+        if (!tools.convertGameImage(gameId, input, output, markToConvert, bc7qualityValue))
             errorCode = 1;
         break;
     case CmdType::CONVERT_IMAGE:
@@ -433,7 +447,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.convertImage(input, output, format, thresholdValue))
+        if (!tools.convertImage(input, output, format, thresholdValue, bc7qualityValue))
             errorCode = 1;
         break;
     case CmdType::CONVERT_GAME_IMAGES:
@@ -455,7 +469,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.convertGameImages(gameId, input, output, markToConvert))
+        if (!tools.convertGameImages(gameId, input, output, markToConvert, bc7qualityValue))
             errorCode = 1;
         break;
     case CmdType::INSTALL_MODS:

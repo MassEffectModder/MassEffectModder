@@ -247,7 +247,7 @@ private:
     static ByteBuffer InternalToAlphaGreyscale(const quint8 *src, int w, int h);
     static ByteBuffer downscaleInternal(const quint8 *src, int w, int h);
     static ByteBuffer convertToFormat(PixelFormat srcFormat, const quint8 *src, int w, int h,
-                                   PixelFormat dstFormat, bool dxt1HasAlpha = false, quint8 dxt1Threshold = 128);
+                                   PixelFormat dstFormat, bool dxt1HasAlpha, quint8 dxt1Threshold, float bc7quality);
 
 public:
 
@@ -268,7 +268,7 @@ public:
     static ByteBuffer convertRawToBGR(const quint8 *src, int w, int h, PixelFormat format);
     static ByteBuffer convertRawToAlphaGreyscale(const quint8 *src, int w, int h, PixelFormat format);
     static void saveToPng(const quint8 *src, int w, int h, PixelFormat format, const QString &filename, bool clearAlpha = false);
-    void correctMips(PixelFormat dstFormat, bool dxt1HasAlpha = false, quint8 dxt1Threshold = 128);
+    void correctMips(PixelFormat dstFormat, bool dxt1HasAlpha, quint8 dxt1Threshold, float bc7quality);
     static PixelFormat getPixelFormatType(const QString &format);
     static QString getEngineFormatType(PixelFormat format);
     void removeMipByIndex(int n);
@@ -305,7 +305,7 @@ private:
                                       quint8 *dstARGB, int srcW, int blockX, int blockY);
 
     static ByteBuffer compressMipmap(PixelFormat dstFormat, const quint8 *src, int w, int h,
-                                     bool useDXT1Alpha = false, quint8 DXT1Threshold = 128);
+                                     bool useDXT1Alpha, quint8 DXT1Threshold, float bc7quality);
     static ByteBuffer decompressMipmap(PixelFormat srcFormat, const quint8 *src, int w, int h);
 
 public:

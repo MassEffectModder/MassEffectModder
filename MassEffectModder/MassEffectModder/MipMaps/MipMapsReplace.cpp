@@ -520,7 +520,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                         newPixelFormat = changeTextureType(pixelFormat, image->getPixelFormat(), texture);
                     mod.cachedPixelFormat = newPixelFormat;
 
-                    errors += Misc::CorrectTexture(image, texture, newPixelFormat, mod.textureName);
+                    errors += Misc::CorrectTexture(image, texture, newPixelFormat, mod.textureName, 0.2f);
 
                     // remove lower mipmaps below 4x4 for DXT compressed textures
                     if (mod.cachedPixelFormat == PixelFormat::DXT1 ||

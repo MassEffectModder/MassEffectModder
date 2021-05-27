@@ -575,7 +575,7 @@ void Image::writeBlockAti2ToInternal(const quint8 blockR[BLOCK_SIZE_4X4BPP8],
 }
 
 ByteBuffer Image::compressMipmap(PixelFormat dstFormat, const quint8 *src, int w, int h,
-                                   bool useDXT1Alpha, quint8 DXT1Threshold)
+                                   bool useDXT1Alpha, quint8 DXT1Threshold, float bc7quality)
 {
     int blockSize = BLOCK_SIZE_4X4BPP8;
     if (dstFormat == PixelFormat::DXT1)
@@ -602,7 +602,7 @@ ByteBuffer Image::compressMipmap(PixelFormat dstFormat, const quint8 *src, int w
         bc7Encoder = new BC7BlockEncoder *[cores];
         for (int p = 0; p < cores; p++)
         {
-            int status = BC7CreateEncoder(0.2f, false, false, 0xCF, 1.0, &bc7Encoder[p]);
+            int status = BC7CreateEncoder(bc7quality, false, false, 0xCF, 1.0, &bc7Encoder[p]);
             if (status != 0)
             {
                 CRASH();

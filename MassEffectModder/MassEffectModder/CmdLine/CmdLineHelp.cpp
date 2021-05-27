@@ -67,7 +67,7 @@ void DisplayHelp()
         "  --apply-lods-gfx --gameid <game id>\n" \
         "     Update GFX settings.\n" \
         "\n" \
-        "  --convert-to-mem --gameid <game id> --input <input dir> --output <output file> [--mark-to-convert] [--bc7-format] [--ipc]\n" \
+        "  --convert-to-mem --gameid <game id> --input <input dir> --output <output file> [--mark-to-convert] [--bc7-format] [--bc7-quality <num>] [--ipc]\n" \
         "     game id: 1 for ME1, 2 for ME2, 3 for ME3\n" \
         "     input dir: directory to be converted, containing following file extension(s):\n" \
         "        MEM, TPF\n" \
@@ -82,13 +82,14 @@ void DisplayHelp()
         "        BIK\n" \
         "           Movie filename must include texture CRC (0xhhhhhhhh)\n" \
         "     ipc: turn on IPC traces\n" \
+        "     BC7 quality: allow to change BC7 compression quality: 0.0 - 1.0. Default: 0.2\n" \
         "\n" \
         "  --extract-mem --gameid <game id> --input <input dir/file> [--output <output dir>] [--ipc]\n" \
         "     game id: 1 for ME1, 2 for ME2, 3 for ME3\n" \
         "     input dir: directory of MEM mod file(s)\n" \
         "     input file: MEM file to be extracted\n" \
         "\n" \
-        "  --convert-game-image --gameid <game id> --input <input image> --output <output image> [--mark-to-convert]\n" \
+        "  --convert-game-image --gameid <game id> --input <input image> --output <output image> [--mark-to-convert] [--bc7-quality <num>]\n" \
         "     game id: 1 for ME1, 2 for ME2, 3 for ME3\n" \
         "     Input file with following extension:\n" \
         "        DDS, BMP, TGA, PNG\n" \
@@ -100,8 +101,9 @@ void DisplayHelp()
         "              uncompressed ARGB/RGB/RGBX\n" \
         "           Image filename must include texture CRC (0xhhhhhhhh)\n" \
         "     Output file is DDS image\n" \
+        "     BC7 quality: allow to change BC7 compression quality: 0.0 - 1.0. Default: 0.2\n" \
         "\n" \
-        "  --convert-game-images --gameid <game id> --input <input dir> --output <output dir> [--mark-to-convert]\n" \
+        "  --convert-game-images --gameid <game id> --input <input dir> --output <output dir> [--mark-to-convert] [--bc7-quality <num>]\n" \
         "     game id: 1 for ME1, 2 for ME2, 3 for ME3\n" \
         "     input dir: directory to be converted, containing following file extension(s):\n" \
         "        Input files with following extension:\n" \
@@ -114,8 +116,9 @@ void DisplayHelp()
         "              uncompressed ARGB/RGB/RGBX\n" \
         "           Image filename must include texture CRC (0xhhhhhhhh)\n" \
         "     output dir: directory where textures converted to DDS are placed\n" \
+        "     BC7 quality: allow to change BC7 compression quality: 0.0 - 1.0. Default: 0.2\n" \
         "\n" \
-        "  --convert-image --format <output pixel format> [--threshold <dxt1 alpha threshold>] --input <input image> --output <output image>\n" \
+        "  --convert-image --format <output pixel format> [--threshold <dxt1 alpha threshold>] --input <input image> --output <output image> [--bc7-quality <num>]\n" \
         "     input image file types: DDS, BMP, TGA, PNG\n" \
         "           input format supported for DDS images:\n" \
         "              DXT1, DXT3, DTX5, ATI2, V8U8, G8, ARGB, RGB, RGBA, BC5, BC7\n" \
@@ -126,6 +129,7 @@ void DisplayHelp()
         "     output image file type: DDS\n" \
         "     output pixel format: DXT1 (no alpha), DXT1a (alpha), DXT3, DXT5, ATI2, V8U8, G8, ARGB, RGB, RGBA, BC5, BC7\n" \
         "     For DXT1a you have to set the alpha threshold (0-255). 128 is suggested as a default value.\n" \
+        "     BC7 quality: allow to change BC7 compression quality: 0.0 - 1.0. Default: 0.2\n" \
         "\n" \
         "  --extract-all-dds --gameid <game id> --output <output dir> [--tfc-name <filter name>|--pcc-only|--tfc-only] [--package-path <path>] [--map-crc]\n" \
         "     game id: 1 for ME1, 2 for ME2, 3 for ME3\n" \

@@ -224,7 +224,7 @@ bool CmdLineTools::listArchive(const QString &inputFile)
     return result == 0;
 }
 
-bool CmdLineTools::ConvertToMEM(MeType gameId, QString &inputDir, QString &memFile, bool markToConvert, bool bc7format)
+bool CmdLineTools::ConvertToMEM(MeType gameId, QString &inputDir, QString &memFile, bool markToConvert, bool bc7format, float bc7quality)
 {
     QList<TextureMapEntry> textures;
     Resources resources;
@@ -242,12 +242,12 @@ bool CmdLineTools::ConvertToMEM(MeType gameId, QString &inputDir, QString &memFi
     std::sort(list2.begin(), list2.end(), Misc::compareFileInfoPath);
     list.append(list2);
 
-    return Misc::convertDataModtoMem(list, memFile, gameId, textures, markToConvert, bc7format, nullptr, nullptr);
+    return Misc::convertDataModtoMem(list, memFile, gameId, textures, markToConvert, bc7format, bc7quality, nullptr, nullptr);
 }
 
 bool CmdLineTools::convertGameTexture(const QString &inputFile,
                                       QString &outputFile, QList<TextureMapEntry> &textures,
-                                      bool markToConvert)
+                                      bool markToConvert, float bc7quality)
 {
     uint crc = Misc::scanFilenameForCRC(inputFile);
     if (crc == 0)
@@ -288,7 +288,7 @@ bool CmdLineTools::convertGameTexture(const QString &inputFile,
                          ". This texture converted from full alpha to binary alpha.\n");
         }
     }
-    image.correctMips(newPixelFormat, dxt1HasAlpha, dxt1Threshold);
+    image.correctMips(newPixelFormat, dxt1HasAlpha, dxt1Threshold, bc7quality);
     if (QFile(outputFile).exists())
         QFile(outputFile).remove();
     FileStream fs = FileStream(outputFile, FileMode::Create, FileAccess::WriteOnly);
@@ -299,17 +299,17 @@ bool CmdLineTools::convertGameTexture(const QString &inputFile,
     return true;
 }
 
-bool CmdLineTools::convertGameImage(MeType gameId, QString &inputFile, QString &outputFile, bool markToConvert)
+bool CmdLineTools::convertGameImage(MeType gameId, QString &inputFile, QString &outputFile, bool markToConvert, float bc7quality)
 {
     QList<TextureMapEntry> textures;
     Resources resources;
     resources.loadMD5Tables();
 
     TreeScan::loadTexturesMap(gameId, resources, textures);
-    return convertGameTexture(inputFile, outputFile, textures, markToConvert);
+    return convertGameTexture(inputFile, outputFile, textures, markToConvert, bc7quality);
 }
 
-bool CmdLineTools::convertGameImages(MeType gameId, QString &inputDir, QString &outputDir, bool markToConvert)
+bool CmdLineTools::convertGameImages(MeType gameId, QString &inputDir, QString &outputDir, bool markToConvert, float bc7quality)
 {
     QList<TextureMapEntry> textures;
     Resources resources;
@@ -331,14 +331,14 @@ bool CmdLineTools::convertGameImages(MeType gameId, QString &inputDir, QString &
     foreach (QFileInfo file, list)
     {
         QString outputFile = outputDir + "/" + BaseNameWithoutExt(file.fileName()) + ".dds";
-        if (!convertGameTexture(file.absoluteFilePath(), outputFile, textures, markToConvert))
+        if (!convertGameTexture(file.absoluteFilePath(), outputFile, textures, markToConvert, bc7quality))
             status = false;
     }
 
     return status;
 }
 
-bool CmdLineTools::convertImage(QString &inputFile, QString &outputFile, QString &format, int dxt1Threshold)
+bool CmdLineTools::convertImage(QString &inputFile, QString &outputFile, QString &format, int dxt1Threshold, float bc7qualityValue)
 {
     format = format.toLower();
     PixelFormat pixFmt;
@@ -384,7 +384,7 @@ bool CmdLineTools::convertImage(QString &inputFile, QString &outputFile, QString
     }
     if (QFile(outputFile).exists())
         QFile(outputFile).remove();
-    image.correctMips(pixFmt, dxt1HasAlpha, dxt1Threshold);
+    image.correctMips(pixFmt, dxt1HasAlpha, dxt1Threshold, bc7qualityValue);
     FileStream fs = FileStream(outputFile, FileMode::Create, FileAccess::WriteOnly);
     ByteBuffer buffer = image.StoreImageToDDS();
     fs.WriteFromBuffer(buffer);

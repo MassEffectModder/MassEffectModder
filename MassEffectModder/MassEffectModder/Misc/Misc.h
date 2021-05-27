@@ -102,7 +102,7 @@ public:
     static TextureMapEntry FoundTextureInTheInternalMap(MeType gameId, uint crc);
     static bool compareFileInfoPath(const QFileInfo &e1, const QFileInfo &e2);
     static bool convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
-                                    MeType gameId, QList<TextureMapEntry> &textures, bool markToConvert, bool bc7format,
+                                    MeType gameId, QList<TextureMapEntry> &textures, bool markToConvert, bool bc7format, float bc7quality,
                                     ProgressCallback callback, void *callbackHandle);
     static bool InstallMods(MeType gameId, Resources &resources, QStringList &modFiles, bool guiInstallerMode, bool alotInstallerMode,
                            bool skipMarkers, bool verify, int cacheAmount,
@@ -120,9 +120,9 @@ public:
                           MipMaps &mipMaps, bool alotMode, bool verify, int cacheAmount,
                           ProgressCallback callback, void *callbackHandle);
     static QString CorrectTexture(Image *image, Texture &texture, PixelFormat newPixelFormat,
-                                  const QString &textureName);
+                                  const QString &textureName, float bc7quality);
     static bool CorrectTexture(Image &image, TextureMapEntry &f, int numMips,
-                              PixelFormat newPixelFormat, const QString &file);
+                              PixelFormat newPixelFormat, const QString &file, float bc7quality);
     static bool CheckMEMHeader(FileStream &fs, const QString &file);
     static bool CheckMEMGameVersion(FileStream &fs, const QString &file, int gameId);
     static bool CheckImage(Image &image, TextureMapEntry &f, const QString &file, int index);

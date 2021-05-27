@@ -168,7 +168,7 @@ void LayoutMain::CreateModSelected(MeType gameType)
     Resources resources;
     resources.loadMD5Tables();
     TreeScan::loadTexturesMap(gameType, resources, textures);
-    if (!Misc::convertDataModtoMem(list, modFile, gameType, textures, false, false,
+    if (!Misc::convertDataModtoMem(list, modFile, gameType, textures, false, false, 0.2f,
                               &LayoutMain::CreateModCallback, mainWindow))
     {
         QMessageBox::critical(this, "Creating MEM mod", "Creating MEM mod failed!");
