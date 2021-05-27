@@ -68,13 +68,13 @@ BC_ERROR CMP_InitializeBC7Library();
 BC_ERROR CMP_ShutdownBC7Library();
 
 //
-// CMP_CreateBC7Encoder()  - Creates an encoder object with the specified quality and settings for BC7  codec
+// CMP_CreateBC7Encoder()  - Creates an encoder object with the specified quality and settings for BC7 codec
 //
 // Library must be initialized before calling this function.
 //
 // Arguments and Settings:
 //
-//      quality       - Quality of encoding. This value ranges between 0.0 and 1.0. (Valid only for BC7 in this release) default is 0.01
+//      quality       - Quality of encoding. This value ranges between 0.0 and 1.0. Default is 0.01.
 //                      0.0 gives the fastest, lowest quality encoding, 1.0 is the slowest, highest quality encoding
 //                      In general even quality level 0.0 will give very good results on the vast majority of images
 //                      Higher quality settings may be needed for some difficult images (e.g. normal maps) to give good results
@@ -82,11 +82,11 @@ BC_ERROR CMP_ShutdownBC7Library();
 //                      give very close to the highest possible quality, increasing the level above this will cause large
 //                      increases in encoding time for very marginal gains in quality
 //
-//      performance   - Perfromance of encoding. This value ranges between 0.0 and 1.0. (Valid only for BC7 in this release) Typical default is 1.0
+//      performance   - Perfromance of encoding. This value ranges between 0.0 and 1.0. Typical default is 1.0.
 //                      Encoding time can be reduced by incresing this value for a given Quality level. Lower values will improve overall quality with
 //                        optimal setting been performed at a value of 0.
 //
-//      restrictColor - (for BC7) This setting is a quality tuning setting which may be necessary for convenience in some applications.
+//      restrictColor - This setting is a quality tuning setting which may be necessary for convenience in some applications.
 //                      BC7 can be used for encoding data with up to four-components (e.g. ARGB), but the output of a BC7 decoder
 //                        is effectively always 4-components, even if the original input contained less
 //                      If BC7 is used to encode three-component data (e.g. RGB) then the encoder generally assumes that it doesn't matter what
@@ -99,14 +99,14 @@ BC_ERROR CMP_ShutdownBC7Library();
 //                      restrict itself to using encodings where the reconstructed 4th component is also always guaranteed to contain 1.0 (255)
 //                      This may cause a very slight loss in overall quality measured in absolute RMS error, but this will generally be negligible
 //
-//      restrictAlpha - (for BC7) This setting is a quality tuning setting which may be necessary for some textures. Some textures may need alpha values
+//      restrictAlpha - This setting is a quality tuning setting which may be necessary for some textures. Some textures may need alpha values
 //                      of 1.0 and 0.0 to be exactly represented, but some BC7 block modes distribute error between the colour and alpha
 //                      channels (because they have a shared least significant bit in the encoding). This could result in the alpha values
 //                      being pulled away from zero or one by the global minimization of the error. If this flag is specified then the encoder
 //                      will restrict its behaviour so that for blocks which contain an alpha of zero or one then these values should be
 //                      precisely represented
 //
-//      modeMask      - This is an advanced option. (Valid only for BC7 in this release)
+//      modeMask      - This is an advanced option.
 //                      BC7 can encode blocks using any of 8 different block modes in order to obtain the highest quality (for reference of how each
 //                      of these block modes work consult the BC7 specification)
 //                      Under some circumstances it is possible that it might be desired to manipulate the encoder to only produce certain modes
@@ -117,9 +117,7 @@ BC_ERROR CMP_ShutdownBC7Library();
 //                      Restricting the available modes will generally reduce quality, but will also increase encoding speed
 //
 //      encoder       - Address of a pointer to an encoder.
-//                      This function will allocate a BC7BlockEncoder or BC6HBlockEncoder object using new
-//
-//      isSigned      - For BC6H this flag sets the bit layout, false = UF16 (unsigned float) and true = SF16 (signed float)
+//                      This function will allocate a BC7BlockEncoder object using new
 //
 BC_ERROR CMP_CreateBC7Encoder(double quality, bool restrictColour, bool restrictAlpha, CMP_DWORD modeMask, double performance,
                               BC7BlockEncoder **encoder);
