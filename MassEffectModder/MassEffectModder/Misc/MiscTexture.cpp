@@ -26,7 +26,8 @@
 
 PixelFormat Misc::changeTextureType(PixelFormat gamePixelFormat, PixelFormat texturePixelFormat, TextureType flags)
 {
-    if (texturePixelFormat == PixelFormat::Internal)
+    if (texturePixelFormat == PixelFormat::Internal ||
+        texturePixelFormat == PixelFormat::RGBA)
     {
         texturePixelFormat = PixelFormat::ARGB;
     }
@@ -37,7 +38,7 @@ PixelFormat Misc::changeTextureType(PixelFormat gamePixelFormat, PixelFormat tex
     }
     else if ((texturePixelFormat == PixelFormat::ATI2 || texturePixelFormat == PixelFormat::BC5 ||
               texturePixelFormat == PixelFormat::BC7 || texturePixelFormat == PixelFormat::V8U8 ||
-              texturePixelFormat == PixelFormat::ARGB) &&
+              texturePixelFormat == PixelFormat::ARGB || texturePixelFormat == PixelFormat::RGB) &&
               flags == TextureType::Normalmap)
     {
         gamePixelFormat = texturePixelFormat;

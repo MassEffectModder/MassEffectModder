@@ -33,7 +33,8 @@ static const quint8 tfcNewGuid[16] = { 0xB4, 0xD2, 0xD7, 0x16, 0x08, 0x4A, 0x4B,
 
 PixelFormat MipMaps::changeTextureType(PixelFormat gamePixelFormat, PixelFormat texturePixelFormat, Texture &texture)
 {
-    if (texturePixelFormat == PixelFormat::Internal)
+    if (texturePixelFormat == PixelFormat::Internal ||
+        texturePixelFormat == PixelFormat::RGBA)
     {
         texturePixelFormat = PixelFormat::ARGB;
     }
@@ -70,13 +71,16 @@ PixelFormat MipMaps::changeTextureType(PixelFormat gamePixelFormat, PixelFormat 
         texture.getProperties().setByteValue("CompressionSettings", "TC_NormalmapBC7", "TextureCompressionSettings");
     }
     else if ((gamePixelFormat == PixelFormat::DXT1 || gamePixelFormat == PixelFormat::ATI2 ||
-              gamePixelFormat == PixelFormat::BC5 || gamePixelFormat == PixelFormat::BC7) &&
-             (texturePixelFormat == PixelFormat::V8U8) &&
+              gamePixelFormat == PixelFormat::BC5 || gamePixelFormat == PixelFormat::BC7 ||
+              gamePixelFormat == PixelFormat::ARGB || gamePixelFormat == PixelFormat::RGB) &&
+             (texturePixelFormat == PixelFormat::V8U8 || texturePixelFormat == PixelFormat::ARGB ||
+              texturePixelFormat == PixelFormat::RGB) &&
         texture.getProperties().exists("CompressionSettings") &&
         (texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_Normalmap" ||
          texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_NormalmapHQ" ||
          texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_NormalmapBC5" ||
-         texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_NormalmapBC7"))
+         texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_NormalmapBC7" ||
+         texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_NormalmapUncompressed"))
     {
         gamePixelFormat = PixelFormat::V8U8;
         texture.getProperties().setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
