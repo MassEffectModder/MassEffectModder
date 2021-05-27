@@ -602,7 +602,7 @@ ByteBuffer Image::compressMipmap(PixelFormat dstFormat, const quint8 *src, int w
         bc7Encoder = new BC7BlockEncoder *[cores];
         for (int p = 0; p < cores; p++)
         {
-            int status = BC7CreateEncoder(0.05f, false, false, 0xCF, 1.0, &bc7Encoder[p]);
+            int status = BC7CreateEncoder(0.2f, false, false, 0xCF, 1.0, &bc7Encoder[p]);
             if (status != 0)
             {
                 CRASH();
