@@ -135,7 +135,12 @@ void TOCBinFile::GenerateMainTocBinFile(MeType gameType)
     {
         FileEntry file{};
         if (!files[f].endsWith("pcconsoletoc.bin", Qt::CaseInsensitive))
-            file.size = QFileInfo(g_GameData->GamePath() + "/" + files[f]).size();
+        {
+            QString path = gamePath + "/" + files[f];
+            if (!QFile::exists(path))
+                CRASH();
+            file.size = QFileInfo(path).size();
+        }
         file.path = files[f].replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive);
         filesList.push_back(file);
     }
@@ -187,7 +192,12 @@ void TOCBinFile::GenerateDLCsTocBinFiles()
             {
                 FileEntry file{};
                 if (!files[f].endsWith("pcconsoletoc.bin", Qt::CaseInsensitive))
-                    file.size = QFileInfo(g_GameData->DLCData() + "/" + DLCDir + "/" + files[f]).size();
+                {
+                    QString path = g_GameData->DLCData() + "/" + DLCDir + "/" + files[f];
+                    if (!QFile::exists(path))
+                        CRASH();
+                    file.size = QFileInfo(path).size();
+                }
                 file.path = files[f].replace(QChar('/'), QChar('\\'));
                 filesList.push_back(file);
             }
