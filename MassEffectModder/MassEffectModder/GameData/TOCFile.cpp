@@ -60,47 +60,6 @@ void TOCBinFile::GenerateMainTocBinFile(MeType gameType)
         }
     }
 
-    if (QDir(g_GameData->DLCData()).exists())
-    {
-        QStringList DLCs = QDir(g_GameData->DLCData(), "DLC_*", QDir::NoSort, QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
-        foreach (QString DLCDir, DLCs)
-        {
-            QStringList dlcfiles;
-            QString DLCPath = gamePath + "/BioGame/DLC/" + DLCDir;
-            QDirIterator iterator(DLCPath, QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
-            bool isValid = false;
-            while (iterator.hasNext())
-            {
-                iterator.next();
-                if (iterator.filePath().endsWith("Mount.dlc", Qt::CaseInsensitive))
-                {
-                    isValid = true;
-                }
-                if (iterator.filePath().endsWith(".pcc", Qt::CaseInsensitive) ||
-                    iterator.filePath().endsWith(".upk", Qt::CaseInsensitive) ||
-                    iterator.filePath().endsWith(".tfc", Qt::CaseInsensitive) ||
-                    iterator.filePath().endsWith(".tlk", Qt::CaseInsensitive) ||
-                    iterator.filePath().endsWith(".afc", Qt::CaseInsensitive) ||
-                    iterator.filePath().endsWith(".cnd", Qt::CaseInsensitive) ||
-                    iterator.filePath().endsWith(".bik", Qt::CaseInsensitive) ||
-                    iterator.filePath().endsWith(".ini", Qt::CaseInsensitive) ||
-                    iterator.filePath().endsWith(".dlc", Qt::CaseInsensitive) ||
-                    iterator.filePath().endsWith(".bin", Qt::CaseInsensitive))
-                {
-                    dlcfiles.push_back(iterator.filePath().mid(pathLen + 1));
-                }
-            }
-            if (!isValid)
-            {
-                continue;
-            }
-            for (int f = 0; f < dlcfiles.count(); f++)
-            {
-                files.push_back(dlcfiles[f]);
-            }
-        }
-    }
-
     QDirIterator MoviesIterator(g_GameData->bioGamePath() + "/Movies", QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
     while (MoviesIterator.hasNext())
     {
