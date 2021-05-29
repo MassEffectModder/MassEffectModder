@@ -102,12 +102,13 @@ bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
         numFiles = modFiles.count();
         for (int l = 0; l < numFiles; l++, currentNumberOfTotalMods++)
         {
-            quint32 crc = 0;
+            quint32 crc = 0, textureFlags = 0;
             fs.JumpTo(modFiles[l].offset);
             long size = modFiles[l].size;
             if (modFiles[l].tag == FileTextureTag ||
                 modFiles[l].tag == FileMovieTextureTag)
             {
+                textureFlags = fs.ReadUInt32();
                 crc = fs.ReadUInt32();
             }
             else
@@ -133,7 +134,7 @@ bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
                     ModEntry entry{};
                     entry.textureCrc = f.crc;
                     entry.textureName = f.name;
-                    if (modFiles[l].flags & ModEtryFlags::MarkToConvert)
+                    if (textureFlags & ModTextureFlags::MarkToConvert)
                         entry.markConvert = true;
                     entry.memPath = files[i];
                     entry.memEntryOffset = fs.Position();

@@ -231,6 +231,7 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
                 if (fileMod.tag == FileTextureTag ||
                     fileMod.tag == FileMovieTextureTag)
                 {
+                    outFs.WriteUInt32(fs.ReadUInt32()); // flags
                     outFs.WriteUInt32(fs.ReadUInt32()); // crc
                 }
                 else
@@ -306,7 +307,7 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
             }
 
             mod.data = image.StoreImageToDDS();
-            mod.name = f.name + QString::asprintf("_0x%08X", f.crc);
+            mod.name = f.name;
             mod.movieTexture = false;
             mod.textureCrc = crc;
             mod.markConvert = entryMarkToConvert;
@@ -381,7 +382,7 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
             fs.SeekBegin();
 
             mod.data = fs.ReadToBuffer(dataSize);
-            mod.name = f.name + QString::asprintf("_0x%08X", f.crc);
+            mod.name = f.name;
             mod.movieTexture = true;
             mod.textureCrc = crc;
             mod.markConvert = false;
@@ -395,6 +396,7 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
             QApplication::processEvents();
 #endif
             FileMod fileMod{};
+            quint32 textureFlags{};
             std::unique_ptr<Stream> dst (new MemoryStream());
             if (mods[l].movieTexture)
                 fileMod.tag = FileMovieTextureTag;
@@ -416,10 +418,11 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
             }
 
             if (mods[l].markConvert)
-                fileMod.flags |= (quint32)ModEtryFlags::MarkToConvert;
+                textureFlags |= (quint32)ModTextureFlags::MarkToConvert;
             if (mods[l].forceHash)
-                fileMod.flags |= (quint32)ModEtryFlags::ForceHash;
+                textureFlags |= (quint32)ModTextureFlags::ForceHash;
 
+            outFs.WriteUInt32(textureFlags);
             outFs.WriteUInt32(mods[l].textureCrc);
             if (mods[l].data.size() != 0)
                 outFs.CopyFrom(*dst, dst->Length());
@@ -541,13 +544,15 @@ bool Misc::extractMEM(MeType gameId, QFileInfoList &inputList, QString &outputDi
             QApplication::processEvents();
 #endif
             long size = 0;
+            quint32 flags = 0, crc = 0;
             fs.JumpTo(modFiles[i].offset);
             size = modFiles[i].size;
 
             if (modFiles[i].tag == FileTextureTag ||
                 modFiles[i].tag == FileMovieTextureTag)
             {
-                /*quint32 crc = */fs.ReadUInt32();
+                flags = fs.ReadUInt32();
+                crc = fs.ReadUInt32();
             }
             else
             {
@@ -595,10 +600,10 @@ bool Misc::extractMEM(MeType gameId, QFileInfoList &inputList, QString &outputDi
             if (modFiles[i].tag == FileTextureTag ||
                 modFiles[i].tag == FileMovieTextureTag)
             {
-                QString filename = outputMODdir + "/" + modFiles[i].name;
-                if (modFiles[i].flags == ModEtryFlags::ForceHash)
+                QString filename = outputMODdir + "/" + modFiles[i].name + QString::asprintf("_0x%08X", crc);
+                if (flags == ModTextureFlags::ForceHash)
                     filename += "-hash";
-                if (modFiles[i].flags & ModEtryFlags::MarkToConvert)
+                if (flags & ModTextureFlags::MarkToConvert)
                     filename += "-memconvert";
                 if (modFiles[i].tag == FileTextureTag)
                     filename += ".dds";
