@@ -385,7 +385,10 @@ bool CmdLineTools::convertImage(QString &inputFile, QString &outputFile, QString
     }
     if (QFile(outputFile).exists())
         QFile(outputFile).remove();
+    Misc::startTimer();
     image.correctMips(pixFmt, dxt1HasAlpha, dxt1Threshold, bc7qualityValue);
+    long elapsed = Misc::elapsedTime();
+    PINFO(Misc::getTimerFormat(elapsed) + "\n");
     FileStream fs = FileStream(outputFile, FileMode::Create, FileAccess::WriteOnly);
     ByteBuffer buffer = image.StoreImageToDDS();
     fs.WriteFromBuffer(buffer);
