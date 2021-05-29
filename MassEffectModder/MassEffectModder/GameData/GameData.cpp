@@ -44,10 +44,12 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
 
     if (packageFiles.count() == 0)
     {
-#ifdef WIN32
         QString dllPath = _path + "/Game/ME" + QString::number((int)gameType) +
                 "/Binaries/Win64/oo2core_8_win64.dll";
+#ifdef WIN32
         OodleInitLib(dllPath.toStdWString().c_str());
+#else
+        OodleInitLib(dllPath.toStdString().c_str());
 #endif
 
 #ifdef GUI

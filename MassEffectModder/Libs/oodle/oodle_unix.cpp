@@ -21,9 +21,7 @@
 
 #include "oodle.h"
 
-#ifdef WIN32
-
-bool OodleLoadLib(const wchar_t *libPath)
+bool OodleLoadLib(const char *libPath)
 {
     return true;
 }
@@ -31,8 +29,6 @@ bool OodleLoadLib(const wchar_t *libPath)
 void OodleUnloadLib()
 {
 }
-
-#endif
 
 int OodleCompressData(unsigned char *src, unsigned int srcLen,
                       unsigned char *dst, unsigned int *dstLen)

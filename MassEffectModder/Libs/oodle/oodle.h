@@ -26,8 +26,10 @@
 
 #ifdef WIN32
 bool OodleLoadLib(const wchar_t *libPath);
-void OodleUnloadLib();
+#else
+bool OodleLoadLib(const char *libPath);
 #endif
+void OodleUnloadLib();
 int OodleCompressData(unsigned char *src, unsigned int srcLen,
                       unsigned char *dst, unsigned int *dstLen);
 int OodleDecompressData(unsigned char *src, unsigned int srcLen,

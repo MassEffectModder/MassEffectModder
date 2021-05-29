@@ -3,8 +3,11 @@ CONFIG += staticlib warn_off
 
 QT -= gui core
 
-SOURCES += \
-    oodle.cpp
+win32 {
+    SOURCES += oodle_win.cpp
+} else {
+    SOURCES += oodle_unix.cpp
+}
 
 HEADERS += \
     oodle.h

@@ -28,6 +28,9 @@
 
 #ifdef WIN32
 bool OodleInitLib(const wchar_t *libPath)
+#else
+bool OodleInitLib(const char *libPath)
+#endif
 {
     return OodleLoadLib(libPath);
 }
@@ -36,7 +39,6 @@ void OodleUninitLib()
 {
     OodleUnloadLib();
 }
-#endif
 
 int OodleDecompress(unsigned char *src, unsigned int srcLen, unsigned char *dst, unsigned int dstLen)
 {
@@ -44,9 +46,35 @@ int OodleDecompress(unsigned char *src, unsigned int srcLen, unsigned char *dst,
 }
 
 int OodleCompress(unsigned char *src, unsigned int srcLen,
-                  unsigned char *dst, unsigned int *dstLen)
+                  unsigned char **dst, unsigned int *dstLen)
 {
-    return OodleCompressData(src, srcLen, dst, dstLen);
+    unsigned int tmpBufLen = srcLen * 2;
+    unsigned int len = tmpBufLen;
+    auto *tmpbuf = new unsigned char[tmpBufLen];
+    if (tmpbuf == nullptr)
+        return -100;
+
+    int status = OodleCompressData(src, srcLen, tmpbuf, &tmpBufLen);
+    if (status == 0)
+    {
+        *dst = new unsigned char[len];
+        if (*dst == nullptr)
+        {
+            delete[] tmpbuf;
+            return -100;
+        }
+        memcpy(*dst, tmpbuf, len);
+        *dstLen = static_cast<unsigned int>(len);
+    }
+    else
+    {
+        printf("compress2 failed - error: %d\n", status);
+        *dstLen = 0;
+    }
+
+    delete[] tmpbuf;
+
+    return status;
 }
 
 #endif

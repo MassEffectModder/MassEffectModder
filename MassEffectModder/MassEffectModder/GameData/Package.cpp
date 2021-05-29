@@ -837,8 +837,12 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
         CRASH_MSG("force de/compression can't be both enabled!");
 
     CompressionType targetCompression = compressionType;
-    if (forceCompressed || compressionType == CompressionType::Oddle)
+    if (forceCompressed)
+#ifdef WIN32
+        targetCompression = CompressionType::Oddle;
+#else
         targetCompression = CompressionType::Zlib;
+#endif
 
     if (!appendMarker)
     {
@@ -1125,8 +1129,8 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
                 }
                 else if (targetCompression == CompressionType::Oddle)
                 {
-                    if (OodleCompress(block.uncompressedBuffer, block.uncomprSize, block.compressedBuffer, &block.comprSize) != 0)
-                        CRASH_MSG("Compression failed!");
+                    if (OodleCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) == -100)
+                        CRASH_MSG("Out of memory!");
                 }
                 else
                     CRASH_MSG("Compression type not expected!");
@@ -1232,7 +1236,7 @@ const ByteBuffer Package::compressData(const ByteBuffer &inputData, StorageTypes
         }
         else if (type == StorageTypes::extOodle || type == StorageTypes::pccOodle)
         {
-            if (OodleCompress(block.uncompressedBuffer, block.uncomprSize, block.compressedBuffer, &block.comprSize) != 0)
+            if (OodleCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) == -100)
                 CRASH_MSG("Compression failed!");
         }
         else
