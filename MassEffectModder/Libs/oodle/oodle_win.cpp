@@ -73,7 +73,7 @@ int OodleCompressData(unsigned char *src, unsigned int srcLen,
     if (!OodleLZCompress)
         return -5;
 
-    unsigned int outputSize = OodleLZCompress(13, src, srcLen, dst, 0, 0, 0, 0, 0, 0);
+    unsigned int outputSize = OodleLZCompress(13, src, srcLen, dst, 4, 0, 0, 0, 0, 0);
     if (outputSize < 0)
         return -1;
 
