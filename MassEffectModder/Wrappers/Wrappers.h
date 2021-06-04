@@ -32,9 +32,6 @@ class BC7BlockDecoder;
 int LzmaDecompress(BYTE *src, UINT32 src_len, BYTE *dst, UINT32 *dst_len);
 int LzmaCompress(BYTE *src, UINT32 src_len, BYTE **dst, UINT32 *dst_len, int compress_level = 5);
 
-int LzoDecompress(BYTE *src, UINT32 src_len, BYTE *dst, UINT32 *dst_len);
-int LzoCompress(BYTE *src, UINT32 src_len, BYTE **dst, UINT32 *dst_len);
-
 void *ZipOpenFromFile(const void *path, int *numEntries, int tpf);
 void *ZipOpenFromMem(BYTE *src, UINT64 srcLen, int *numEntries, int tpf);
 int ZipGetCurrentFileInfo(void *handle, char *fileName,

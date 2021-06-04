@@ -16,14 +16,14 @@ SOURCES += \
 
 SOURCES += \
     Wrapper7Zip.cpp \
-    WrapperBc7.cpp \
-    WrapperDxtc.cpp \
     WrapperUnLzx.cpp \
     WrapperUnzip.cpp \
     WrapperZlib.cpp
 
 !equals(WRAPPERS_SHARED, true) {
 SOURCES += \
+    WrapperBc7.cpp \
+    WrapperDxtc.cpp \
     WrapperOodle.cpp \
     WrapperPng.cpp \
     WrapperUnrar.cpp
@@ -31,9 +31,6 @@ SOURCES += \
 equals(ZSTD_ENABLE, true) {
     SOURCES += WrapperZstd.cpp
 }
-
-} else {
-    WrapperLzo.cpp \
 }
 
 !equals(WRAPPERS_SHARED, true) {
@@ -67,7 +64,6 @@ INCLUDEPATH += \
     $$PWD/../Libs/bfd \
     $$PWD/../Libs/bc7 \
     $$PWD/../Libs/dxtc \
-    $$PWD/../Libs/lzo2 \
     $$PWD/../Libs/png \
     $$PWD/../Libs/oodle \
     $$PWD/../Libs/zlib \
@@ -79,7 +75,6 @@ DEPENDPATH += \
     $$PWD/../Libs/bfd \
     $$PWD/../Libs/bc7 \
     $$PWD/../Libs/dxtc \
-    $$PWD/../Libs/lzo2 \
     $$PWD/../Libs/png \
     $$PWD/../Libs/oodle \
     $$PWD/../Libs/zlib \
@@ -94,14 +89,12 @@ QMAKE_CXXFLAGS += -DEXPORT_LIBS
 win32-g++: {
 Release:LIBS += \
     -L$$OUT_PWD/../Libs/7z/release -l7z \
-    -L$$OUT_PWD/../Libs/bc7/release -lbc7 \
-    -L$$OUT_PWD/../Libs/dxtc/release -ldxtc \
     -L$$OUT_PWD/../Libs/unlzx/release -lunlzx \
     -L$$OUT_PWD/../Libs/zlib/release -lzlib
 
 !equals(WRAPPERS_SHARED, true) {
-} else {
-    Release:LIBS += -L$$OUT_PWD/../Libs/lzo2/release -llzo2
+    Release:LIBS += -L$$OUT_PWD/../Libs/bc7/release -lbc7 \
+    Release:LIBS += -L$$OUT_PWD/../Libs/dxtc/release -ldxtc
 }
 
 equals(ZSTD_ENABLE, true) {
@@ -109,14 +102,12 @@ equals(ZSTD_ENABLE, true) {
 }
 Debug:LIBS += \
     -L$$OUT_PWD/../Libs/7z/debug -l7z \
-    -L$$OUT_PWD/../Libs/bc7/debug -lbc7 \
-    -L$$OUT_PWD/../Libs/dxtc/debug -ldxtc \
     -L$$OUT_PWD/../Libs/unlzx/debug -lunlzx \
     -L$$OUT_PWD/../Libs/zlib/debug -lzlib
 
 !equals(WRAPPERS_SHARED, true) {
-} else {
-    Debug:LIBS += -L$$OUT_PWD/../Libs/lzo2 -llzo2
+    Debug:LIBS += -L$$OUT_PWD/../Libs/bc7/debug -lbc7 \
+    Debug:LIBS += -L$$OUT_PWD/../Libs/dxtc/debug -ldxtc \
 }
 
 equals(ZSTD_ENABLE, true) {
@@ -125,16 +116,13 @@ equals(ZSTD_ENABLE, true) {
 } else:unix: {
 LIBS += \
     -L$$OUT_PWD/../Libs/7z -l7z \
-    -L$$OUT_PWD/../Libs/bc7 -lbc7 \
-    -L$$OUT_PWD/../Libs/dxtc -ldxtc \
-    -L$$OUT_PWD/../Libs/lzo2 -llzo2 \
     -L$$OUT_PWD/../Libs/unlzx -lunlzx \
     -L$$OUT_PWD/../Libs/zlib -lzlib
 
 !equals(WRAPPERS_SHARED, true) {
+    LIBS += -L$$OUT_PWD/../Libs/bc7 -lbc7 \
+    LIBS += -L$$OUT_PWD/../Libs/dxtc -ldxtc \
     LIBS += -L$$OUT_PWD/../Libs/oodle -loodle
-} else {
-    LIBS += -L$$OUT_PWD/../Libs/lzo2 -llzo2
 }
 
 equals(ZSTD_ENABLE, true) {

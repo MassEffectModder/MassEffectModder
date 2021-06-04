@@ -7,7 +7,6 @@ SUBDIRS += \
     Libs/bfd \
     Libs/bc7 \
     Libs/dxtc \
-    Libs/lzo2 \
     Libs/unlzx
 
 !win32 {
