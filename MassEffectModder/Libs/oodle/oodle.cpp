@@ -1,6 +1,4 @@
 /*
- * MassEffectModder
- *
  * Copyright (C) 2021 Pawel Kolodziejski
  *
  * This program is free software; you can redistribute it and/or
@@ -22,19 +20,36 @@
 #include "oodle.h"
 
 #include <cstdint>
+#include <cstddef>
+
+#ifdef WIN32
 #include <windows.h>
+#else
+extern "C" {
+#include "winnt_types.h"
+#include "pe_linker.h"
+}
+#endif
 
 typedef int64_t WINAPI OodleLZDecompressFunc(uint8_t *src, int64_t srcLen, uint8_t *dst, int64_t dstLen,
-                                            int64_t, int64_t, int64_t, int64_t, size_t, int64_t,
+                                            int64_t, int64_t, int64_t, int64_t, int64_t, int64_t,
                                             int64_t, int64_t, int64_t, int64_t);
 typedef int64_t WINAPI OodleLZCompressFunc(int codecId, uint8_t *src, int64_t srcLen, uint8_t *dst, int64_t,
                                            int64_t, int64_t, int64_t, int64_t, int64_t);
 
 static OodleLZDecompressFunc *OodleLZDecompress = nullptr;
 static OodleLZCompressFunc *OodleLZCompress = nullptr;
+#ifdef WIN32
 static HINSTANCE libInst = nullptr;
+#else
+static struct pe_image *libInst = nullptr;
+#endif
 
+#ifdef WIN32
 bool OodleLoadLib(const wchar_t *libPath)
+#else
+bool OodleLoadLib(const char *libPath)
+#endif
 {
     if (!libPath)
         return false;
@@ -85,8 +100,8 @@ int OodleCompressData(unsigned char *src, unsigned int srcLen,
 int OodleDecompressData(unsigned char *src, unsigned int srcLen,
                         unsigned char *dst, unsigned int dstLen)
 {
-    byte b1 = src[0];
-    byte b2 = src[1];
+    unsigned char b1 = src[0];
+    unsigned char b2 = src[1];
     unsigned int outputSize;
 
     if ((b1 == 0x8C || b1 == 0xCC) && (b2 == 12))

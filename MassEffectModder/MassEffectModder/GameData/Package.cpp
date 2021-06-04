@@ -838,11 +838,7 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
 
     CompressionType targetCompression = compressionType;
     if (forceCompressed)
-#ifdef WIN32
         targetCompression = CompressionType::Oddle;
-#else
-        targetCompression = CompressionType::Zlib;
-#endif
 
     if (!appendMarker)
     {

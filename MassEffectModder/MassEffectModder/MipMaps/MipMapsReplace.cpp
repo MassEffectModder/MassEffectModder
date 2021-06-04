@@ -555,11 +555,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                     {
                         if (verify)
                             matched.crcs.push_back(texture.getCrcData(image->getMipMaps()[m]->getRefData()));
-#ifdef WIN32
                         mod.cacheCprMipmapsStorageType = StorageTypes::extOodle;
-#else
-                        mod.cacheCprMipmapsStorageType = StorageTypes::extZlib;
-#endif
                         mod.cacheCprMipmapsDecompressedSize.push_back(image->getMipMaps()[m]->getRefData().size());
                         auto data = Package::compressData(image->getMipMaps()[m]->getRefData(),
                                                             mod.cacheCprMipmapsStorageType);
@@ -600,11 +596,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                         if (texture.mipMapsList.count() == 1)
                             mipmap.storageType = StorageTypes::pccUnc;
                         else
-#ifdef WIN32
                             mipmap.storageType = StorageTypes::extOodle;
-#else
-                            mipmap.storageType = StorageTypes::extZlib;
-#endif
                     }
 
                     mipmapsPre.push_front(mipmap);

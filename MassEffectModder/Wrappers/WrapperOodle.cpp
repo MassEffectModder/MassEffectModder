@@ -54,7 +54,7 @@ int OodleCompress(unsigned char *src, unsigned int srcLen,
     if (tmpbuf == nullptr)
         return -100;
 
-    int status = OodleCompressData(src, srcLen, tmpbuf, &tmpBufLen);
+    int status = OodleCompressData(src, srcLen, tmpbuf, &len);
     if (status == 0)
     {
         *dst = new unsigned char[len];

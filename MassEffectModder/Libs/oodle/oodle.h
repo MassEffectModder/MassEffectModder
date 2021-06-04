@@ -1,6 +1,4 @@
 /*
- * MassEffectModder
- *
  * Copyright (C) 2021 Pawel Kolodziejski
  *
  * This program is free software; you can redistribute it and/or
