@@ -397,7 +397,7 @@ static PVOID WINAPI GetProcAddressLocal(HANDLE hModule, PCHAR lpProcName)
     DebugLog("%p [%s]", hModule, lpProcName);
 
     if (hModule == (HANDLE) NULL || hModule == (HANDLE) 'LOAD' || hModule == (HANDLE) 'KERN') {
-    	return NULL;
+        return NULL;
     }
 
     if (pe_hsearch_r(key, FIND, &item, crtexports)) {
