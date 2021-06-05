@@ -31,11 +31,10 @@ extern "C" {
 }
 #endif
 
-typedef int64_t WINAPI OodleLZDecompressFunc(uint8_t *src, int64_t srcLen, uint8_t *dst, int64_t dstLen,
-                                            int64_t, int64_t, int64_t, int64_t, int64_t, int64_t,
-                                            int64_t, int64_t, int64_t, int64_t);
-typedef int64_t WINAPI OodleLZCompressFunc(int codecId, uint8_t *src, int64_t srcLen, uint8_t *dst, int64_t,
-                                           int64_t, int64_t, int64_t, int64_t, int64_t);
+typedef int64_t WINAPI OodleLZDecompressFunc(uint8_t *src, int64_t srcLen, uint8_t *dst, int64_t dstLen, int,
+                                             int, int, void *, int64_t, void *, void *, void *, int64_t, int);
+typedef int64_t WINAPI OodleLZCompressFunc(int codecId, uint8_t *src, int64_t srcLen, uint8_t *dst,
+                                           int compressionLevel, void *, void *, void *, void *, int64_t);
 
 static OodleLZDecompressFunc *OodleLZDecompress = nullptr;
 static OodleLZCompressFunc *OodleLZCompress = nullptr;
@@ -88,7 +87,7 @@ int OodleCompressData(unsigned char *src, unsigned int srcLen,
     if (!OodleLZCompress)
         return -5;
 
-    unsigned int outputSize = OodleLZCompress(13, src, srcLen, dst, 4, 0, 0, 0, 0, 0);
+    unsigned int outputSize = OodleLZCompress(13, src, srcLen, dst, 4, nullptr, nullptr, nullptr, nullptr, 0);
     if (outputSize < 0)
         return -1;
 
@@ -108,7 +107,7 @@ int OodleDecompressData(unsigned char *src, unsigned int srcLen,
     {
         if (!OodleLZDecompress)
             return -5;
-        outputSize = OodleLZDecompress(src, srcLen, dst, dstLen, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        outputSize = OodleLZDecompress(src, srcLen, dst, dstLen, 0, 0, 0, nullptr, 0, nullptr, nullptr, nullptr, 0, 0);
         if (outputSize < 0)
             return -1;
         return 0;
