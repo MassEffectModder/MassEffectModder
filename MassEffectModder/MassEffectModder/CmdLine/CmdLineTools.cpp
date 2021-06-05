@@ -21,7 +21,7 @@
 
 #include <CmdLine/CmdLineTools.h>
 #include <GameData/GameData.h>
-#include <GameData/LODSettings.h>
+#include <GameData/UserSettings.h>
 #include <GameData/TOCFile.h>
 #include <Helpers/MiscHelpers.h>
 #include <Helpers/Logs.h>
@@ -425,7 +425,7 @@ bool CmdLineTools::ApplyLODAndGfxSettings(MeType gameId)
 #else
     ConfigIni engineConf = ConfigIni(path, true);
 #endif
-    LODSettings::updateGFXSettings(gameId, engineConf);
+    UserSettings::updateGFXSettings(gameId, engineConf);
 
     return true;
 }
@@ -445,7 +445,7 @@ bool CmdLineTools::PrintLODSettings(MeType gameId)
 #endif
     if (g_ipc)
     {
-        LODSettings::readLODIpc(gameId, engineConf);
+        UserSettings::readLODIpc(gameId, engineConf);
     }
 
     return true;

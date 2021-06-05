@@ -25,10 +25,10 @@ TEMPLATE = app
 
 SOURCES += \
     GameData/GameData.cpp \
-    GameData/LODSettings.cpp \
     GameData/Package.cpp \
     GameData/Properties.cpp \
     GameData/TOCFile.cpp \
+    GameData/UserSettings.cpp \
     Helpers/Crc32.cpp \
     Helpers/FileStream.cpp \
     Helpers/Logs.cpp \
@@ -82,10 +82,10 @@ PRECOMPILED_HEADER = Types/Precompiled.h
 
 HEADERS += \
     GameData/GameData.h \
-    GameData/LODSettings.h \
     GameData/Package.h \
     GameData/Properties.h \
     GameData/TOCFile.h \
+    GameData/UserSettings.h \
     Helpers/ByteBuffer.h \
     Helpers/BinarySearch.h \
     Helpers/Crc32.h \

@@ -22,7 +22,7 @@
 #include <Misc/Misc.h>
 #include <GameData/GameData.h>
 #include <GameData/TOCFile.h>
-#include <GameData/LODSettings.h>
+#include <GameData/UserSettings.h>
 #include <MipMaps/MipMaps.h>
 #include <Wrappers.h>
 #include <Helpers/MiscHelpers.h>
@@ -321,7 +321,7 @@ bool Misc::ApplyPostInstall(MeType gameId)
 #else
     ConfigIni engineConf = ConfigIni(path, true);
 #endif
-    LODSettings::updateGFXSettings(gameId, engineConf);
+    UserSettings::updateGFXSettings(gameId, engineConf);
 
     PINFO("Updating LODs and other settings finished.\n\n");
 

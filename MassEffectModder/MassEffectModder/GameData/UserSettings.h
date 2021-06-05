@@ -25,7 +25,7 @@
 #include <Program/ConfigIni.h>
 #include <Types/MemTypes.h>
 
-class LODSettings
+class UserSettings
 {
 
 public:

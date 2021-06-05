@@ -19,11 +19,11 @@
  *
  */
 
-#include <GameData/LODSettings.h>
+#include <GameData/UserSettings.h>
 #include <Helpers/Exception.h>
 #include <Helpers/MiscHelpers.h>
 
-void LODSettings::readLODIpc(MeType gameId, ConfigIni &engineConf)
+void UserSettings::readLODIpc(MeType gameId, ConfigIni &engineConf)
 {
     if (gameId == MeType::ME1_TYPE)
     {
@@ -115,7 +115,7 @@ void LODSettings::readLODIpc(MeType gameId, ConfigIni &engineConf)
     }
 }
 
-void LODSettings::updateGFXSettings(MeType gameId, ConfigIni &/*engineConf*/)
+void UserSettings::updateGFXSettings(MeType gameId, ConfigIni &/*engineConf*/)
 {
     if (gameId == MeType::ME1_TYPE)
     {

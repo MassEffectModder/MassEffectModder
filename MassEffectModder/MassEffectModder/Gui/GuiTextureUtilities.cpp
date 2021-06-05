@@ -25,7 +25,7 @@
 #include <Helpers/Logs.h>
 #include <Program/ConfigIni.h>
 #include <GameData/GameData.h>
-#include <GameData/LODSettings.h>
+#include <GameData/UserSettings.h>
 #include <Misc/Misc.h>
 
 void LayoutMain::RemoveScanFileSelected(MeType gameType)
@@ -69,7 +69,7 @@ void LayoutMain::ApplyHQGfx(MeType gameType)
 #else
     ConfigIni engineConf = ConfigIni(path, true);
 #endif
-    LODSettings::updateGFXSettings(gameType, engineConf);
+    UserSettings::updateGFXSettings(gameType, engineConf);
 
     QMessageBox::information(this, "Appling HQ gfx settings.",
             QString("Game configuration file at ") + path + " updated.");
