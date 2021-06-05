@@ -99,19 +99,12 @@ int OodleCompressData(unsigned char *src, unsigned int srcLen,
 int OodleDecompressData(unsigned char *src, unsigned int srcLen,
                         unsigned char *dst, unsigned int dstLen)
 {
-    unsigned char b1 = src[0];
-    unsigned char b2 = src[1];
-    unsigned int outputSize;
+    if (!OodleLZDecompress)
+        return -5;
 
-    if ((b1 == 0x8C || b1 == 0xCC) && (b2 == 12))
-    {
-        if (!OodleLZDecompress)
-            return -5;
-        outputSize = OodleLZDecompress(src, srcLen, dst, dstLen, 0, 0, 0, nullptr, 0, nullptr, nullptr, nullptr, 0, 0);
-        if (outputSize < 0)
-            return -1;
-        return 0;
-    }
+    unsigned int outputSize = OodleLZDecompress(src, srcLen, dst, dstLen, 0, 0, 0, nullptr, 0, nullptr, nullptr, nullptr, 0, 0);
+    if (outputSize < 0)
+        return -1;
 
-    return -10;
+    return 0;
 }
