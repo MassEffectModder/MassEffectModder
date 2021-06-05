@@ -12,7 +12,6 @@ SUBDIRS += \
     Libs/7z \
     Libs/unlzx \
     Libs/zlib
-}
 
 SUBDIRS += \
     Libs/unrar \
