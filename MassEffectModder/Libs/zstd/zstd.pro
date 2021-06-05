@@ -17,6 +17,9 @@ SOURCES += \
            hash.c \
            zstd_common.c \
            zstd_compress.c \
+           zstd_compress_literals.c \
+           zstd_compress_sequences.c \
+           zstd_compress_superblock.c \
            zstd_ddict.c \
            zstd_decompress.c \
            zstd_decompress_block.c \
@@ -41,6 +44,9 @@ HEADERS += \
            xxhash.h \
            zstd_compress_internal.h \
            zstd_compress_sequences.h \
+           zstd_compress_superblock.h \
+           zstd_cwksp.h \
+           zstd_deps.h \
            zstd_ddict.h \
            zstd_decompress_block.h \
            zstd_decompress_internal.h \
@@ -50,7 +56,9 @@ HEADERS += \
            zstd_internal.h \
            zstd_lazy.h \
            zstd_ldm.h \
-           zstd_opt.h
+           zstd_ldm_geartab.h \
+           zstd_opt.h \
+           zstd_trace.h
 
 QMAKE_CFLAGS += -O3 -D ZSTD_STRIP_ERROR_STRINGS \
             -Wall -Wextra -Wcast-qual -Wcast-align -Wshadow \
