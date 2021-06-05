@@ -1,5 +1,5 @@
 /* 7zDec.c -- Decoding from 7z folder
-2019-02-02 : Igor Pavlov : Public domain */
+2021-02-09 : Igor Pavlov : Public domain */
 
 #include "Precomp.h"
 
@@ -57,7 +57,7 @@ static Byte ReadByte(const IByteIn *pp)
     return *p->cur++;
   if (p->res == SZ_OK)
   {
-    size_t size = p->cur - p->begin;
+    size_t size = (size_t)(p->cur - p->begin);
     p->processed += size;
     p->res = ILookInStream_Skip(p->inStream, size);
     size = (1 << 25);
@@ -102,28 +102,32 @@ static SRes SzDecodePpmd(const Byte *props, unsigned propsSize, UInt64 inSize, c
     Ppmd7_Init(&ppmd, order);
   }
   {
-    CPpmd7z_RangeDec rc;
-    Ppmd7z_RangeDec_CreateVTable(&rc);
-    rc.Stream = &s.vt;
-    if (!Ppmd7z_RangeDec_Init(&rc))
+    ppmd.rc.dec.Stream = &s.vt;
+    if (!Ppmd7z_RangeDec_Init(&ppmd.rc.dec))
       res = SZ_ERROR_DATA;
-    else if (s.extra)
-      res = (s.res != SZ_OK ? s.res : SZ_ERROR_DATA);
-    else
+    else if (!s.extra)
     {
-      SizeT i;
-      for (i = 0; i < outSize; i++)
+      Byte *buf = outBuffer;
+      const Byte *lim = buf + outSize;
+      for (; buf != lim; buf++)
       {
-        int sym = Ppmd7_DecodeSymbol(&ppmd, &rc.vt);
+        int sym = Ppmd7z_DecodeSymbol(&ppmd);
         if (s.extra || sym < 0)
           break;
-        outBuffer[i] = (Byte)sym;
+        *buf = (Byte)sym;
       }
-      if (i != outSize)
-        res = (s.res != SZ_OK ? s.res : SZ_ERROR_DATA);
-      else if (s.processed + (s.cur - s.begin) != inSize || !Ppmd7z_RangeDec_IsFinishedOK(&rc))
+      if (buf != lim)
         res = SZ_ERROR_DATA;
+      else if (!Ppmd7z_RangeDec_IsFinishedOK(&ppmd.rc.dec))
+      {
+        /* if (Ppmd7z_DecodeSymbol(&ppmd) != PPMD7_SYM_END || !Ppmd7z_RangeDec_IsFinishedOK(&ppmd.rc.dec)) */
+        res = SZ_ERROR_DATA;
+      }
     }
+    if (s.extra)
+      res = (s.res != SZ_OK ? s.res : SZ_ERROR_DATA);
+    else if (s.processed + (size_t)(s.cur - s.begin) != inSize)
+      res = SZ_ERROR_DATA;
   }
   Ppmd7_Free(&ppmd, allocMain);
   return res;
@@ -254,7 +258,7 @@ static SRes SzDecodeLzmaStream(const Byte *props, unsigned propsSize, UInt64 pac
 #ifdef USE_WINDOWS_FILE
         if (streamOutInfo[fileIndex].outStream.file.handle != INVALID_HANDLE_VALUE)
 #else
-        if (streamOutInfo[fileIndex].outStream.file.file != NULL)
+        if (streamOutInfo[fileIndex].outStream.file.fd != -1)
 #endif
         {
             if (streamOutInfo[fileIndex].outStream.vt.Write(&streamOutInfo[fileIndex].outStream.vt, outBuf, outProcessed) != outProcessed)
@@ -439,7 +443,7 @@ static SRes SzDecodeLzma2Stream(const Byte *props, unsigned propsSize, UInt64 pa
 #ifdef USE_WINDOWS_FILE
         if (streamOutInfo[fileIndex].outStream.file.handle != INVALID_HANDLE_VALUE)
 #else
-        if (streamOutInfo[fileIndex].outStream.file.file != NULL)
+        if (streamOutInfo[fileIndex].outStream.file.fd != -1)
 #endif
         {
             if (streamOutInfo[fileIndex].outStream.vt.Write(&streamOutInfo[fileIndex].outStream.vt, outBuf, outProcessed) != outProcessed)
@@ -547,7 +551,7 @@ static SRes SzDecodeCopyStream(UInt64 inSize, ILookInStream *inStream, SzArEx_St
 #ifdef USE_WINDOWS_FILE
         if (streamOutInfo[fileIndex].outStream.file.handle != INVALID_HANDLE_VALUE)
 #else
-        if (streamOutInfo[fileIndex].outStream.file.file != NULL)
+        if (streamOutInfo[fileIndex].outStream.file.fd != -1)
 #endif
         {
             if (streamOutInfo[fileIndex].outStream.vt.Write(&streamOutInfo[fileIndex].outStream.vt, inBuf, curSize) != curSize)

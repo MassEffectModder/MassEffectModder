@@ -711,7 +711,7 @@ int sevenzip_unpack(const char *path, const char *output_path,
 #ifdef USE_WINDOWS_FILE
                         if (streamOutInfo[i].outStream.file.handle != INVALID_HANDLE_VALUE)
 #else
-                        if (streamOutInfo[i].outStream.file.file != NULL)
+                        if (streamOutInfo[i].outStream.file.fd != -1)
 #endif
                         {
                             SizeT outProcessed = outSizeProcessed;
