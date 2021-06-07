@@ -321,15 +321,15 @@ void GameData::InternalInit(MeType type, ConfigIni &configIni)
             switch (type)
             {
             case MeType::ME1_TYPE:
-                if (exeVersion == "2.0.0.48204")
+                if (exeVersion == "2.0.0.48602")
                     properVersion = true;
                 break;
             case MeType::ME2_TYPE:
-                if (exeVersion == "2.0.0.48204")
+                if (exeVersion == "2.0.0.48602")
                     properVersion = true;
                 break;
             case MeType::ME3_TYPE:
-                if (exeVersion == "2.0.0.48204")
+                if (exeVersion == "2.0.0.48602")
                     properVersion = true;
                 break;
             case MeType::UNKNOWN_TYPE:
