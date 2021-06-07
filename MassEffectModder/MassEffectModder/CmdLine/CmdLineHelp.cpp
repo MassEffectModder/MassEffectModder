@@ -187,7 +187,7 @@ void DisplayHelp()
         "     Map Crc: it will try to find vanilla texture crc from texture map.\n" \
         "     Textures are extracted as they are in game data, only DDS header is added.\n" \
         "\n" \
-        "  --extract-all-png --gameid <game id> --output <output dir> [--tfc-name <filter name>|--pcc-only|--tfc-only] [--package-path <path>] [--map-crc]\n" \
+        "  --extract-all-png --gameid <game id> --output <output dir> [--tfc-name <filter name>|--pcc-only|--tfc-only] [--package-path <path>] [--map-crc] [--clear-alpha]\n" \
         "     game id: 1 for ME1, 2 for ME2, 3 for ME3\n" \
         "     output dir: directory where textures converted to PNG are placed\n" \
         "     TFC filter name: it will filter only textures stored in specific TFC file.\n" \
@@ -195,6 +195,7 @@ void DisplayHelp()
         "     Or option: --tfc-only to extract only textures stored in TFC files.\n" \
         "     Package path: single package mode.\n" \
         "     Map Crc: it will try to find vanilla texture crc from texture map.\n" \
+        "     Alpha channel can be cleared in PNG output by \"--clear-alpha\".n" \
         "     Textures are extracted with only top mipmap.\n" \
         "\n" \
         "  --extract-all-bik --gameid <game id> --output <output dir> [--tfc-name <filter name>|--pcc-only|--tfc-only] [--package-path <path>] [--map-crc]\n" \

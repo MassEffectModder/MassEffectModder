@@ -53,6 +53,7 @@ int ProcessArguments()
     bool pullTextures = false;
     bool compressed = true;
     bool flattenPath = false;
+    bool clearAlpha = false;
     int thresholdValue = 128;
     int cacheAmountValue = -1;
     QString input, output, threshold, format, tfcName;
@@ -268,6 +269,11 @@ int ProcessArguments()
         else if (arg == "--map-crc")
         {
             mapCRC = true;
+            args.removeAt(l--);
+        }
+        else if (arg == "--clear-alpha")
+        {
+            clearAlpha = true;
             args.removeAt(l--);
         }
         else if (arg == "--threshold" && hasValue(args, l))
@@ -742,7 +748,7 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!tools.extractAllTextures(gameId, output, input, true, pccOnly, tfcOnly, mapCRC, tfcName))
+        if (!tools.extractAllTextures(gameId, output, input, true, pccOnly, tfcOnly, mapCRC, tfcName, clearAlpha))
             errorCode = 1;
         break;
     case CmdType::EXTRACT_ALL_BIK:

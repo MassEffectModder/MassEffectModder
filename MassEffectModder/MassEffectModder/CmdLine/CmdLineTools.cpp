@@ -950,7 +950,7 @@ bool CmdLineTools::RepackTFCInDLC(MeType gameId, QString &dlcName, bool pullText
 
 bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, QString &inputFile,
                                       bool png, bool pccOnly, bool tfcOnly, bool mapCrc,
-                                      QString &textureTfcFilter)
+                                      QString &textureTfcFilter, bool clearAlpha)
 {
     Resources resources;
     resources.loadMD5Tables();
@@ -1070,7 +1070,7 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, QString
                     {
                         if (QFile(outputFile).exists())
                             QFile(outputFile).remove();
-                        Image::saveToPng(data.ptr(), mipmap.width, mipmap.height, pixelFormat, outputFile);
+                        Image::saveToPng(data.ptr(), mipmap.width, mipmap.height, pixelFormat, outputFile, clearAlpha);
                         data.Free();
                     }
                 }
