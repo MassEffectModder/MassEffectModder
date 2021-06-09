@@ -395,46 +395,6 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
         ConsoleSync();
     }
 
-    for (int i = 0; i < g_GameData->packageFiles.count(); i++)
-    {
-#ifdef GUI
-        if (timer.elapsed() > 100)
-        {
-            QApplication::processEvents();
-            timer.restart();
-        }
-#endif
-        bool modified = true;
-        bool foundPkg = false;
-        QString package = g_GameData->packageFiles[i].toLower();
-        long packageSize = QFile(g_GameData->GamePath() + g_GameData->packageFiles[i]).size();
-        auto range = std::equal_range(md5Entries.begin(), md5Entries.end(),
-                                      package, Resources::ComparePath());
-        for (auto it = range.first; it != range.second; it++)
-        {
-            if (it->path.compare(package, Qt::CaseSensitive) != 0)
-                break;
-            foundPkg = true;
-            if (packageSize == it->size)
-            {
-                modified = false;
-                break;
-            }
-        }
-        if (foundPkg && modified)
-        {
-            if (g_ipc)
-            {
-                ConsoleWrite(QString("[IPC]ERROR Modified  package file: ") + g_GameData->packageFiles[i]);
-                ConsoleSync();
-            }
-            else
-            {
-                PERROR(QString("ERROR: modified package file: ") + g_GameData->packageFiles[i] + "\n");
-            }
-            return false;
-        }
-    }
     if (!generateBuiltinMapFiles)
     {
         QStringList addedFiles;
