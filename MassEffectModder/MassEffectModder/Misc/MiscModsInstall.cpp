@@ -228,8 +228,7 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
     {
         if (!modded)
         {
-            if (!g_GameData->FullScanGame)
-                ConsoleWrite("[IPC]STAGE_ADD STAGE_PRESCAN");
+            ConsoleWrite("[IPC]STAGE_ADD STAGE_PRESCAN");
             ConsoleWrite("[IPC]STAGE_ADD STAGE_SCAN");
         }
         ConsoleWrite("[IPC]STAGE_ADD STAGE_INSTALLTEXTURES");

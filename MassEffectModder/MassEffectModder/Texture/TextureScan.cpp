@@ -310,7 +310,7 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
     timer.start();
 #endif
     Misc::restartStageTimer();
-    if (!generateBuiltinMapFiles && !g_GameData->FullScanGame)
+    if (!generateBuiltinMapFiles)
     {
         if (g_ipc)
         {
@@ -352,36 +352,33 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
         }
     }
 
-    if (!g_GameData->FullScanGame)
+    int count = g_GameData->packageFiles.count();
+    for (int i = 0; i < count; i++)
     {
-        int count = g_GameData->packageFiles.count();
-        for (int i = 0; i < count; i++)
-        {
 #ifdef GUI
-            if (timer.elapsed() > 100)
-            {
-                QApplication::processEvents();
-                timer.restart();
-            }
+        if (timer.elapsed() > 100)
+        {
+            QApplication::processEvents();
+            timer.restart();
+        }
 #endif
-            QString str = g_GameData->packageFiles[i];
-            if (str.contains("_IT.") ||
-                str.contains("_FR.") ||
-                str.contains("_ES.") ||
-                str.contains("_DE.") ||
-                str.contains("_RA.") ||
-                str.contains("_RU.") ||
-                str.contains("_PLPC.") ||
-                str.contains("_BRA.") ||
-                str.contains("_DEU.") ||
-                str.contains("_FRA.") ||
-                str.contains("_ITA.") ||
-                str.contains("_POL."))
-            {
-                g_GameData->packageFiles.push_back(str);
-                g_GameData->packageFiles.removeAt(i--);
-                count--;
-            }
+        QString str = g_GameData->packageFiles[i];
+        if (str.contains("_IT.") ||
+            str.contains("_FR.") ||
+            str.contains("_ES.") ||
+            str.contains("_DE.") ||
+            str.contains("_RA.") ||
+            str.contains("_RU.") ||
+            str.contains("_PLPC.") ||
+            str.contains("_BRA.") ||
+            str.contains("_DEU.") ||
+            str.contains("_FRA.") ||
+            str.contains("_ITA.") ||
+            str.contains("_POL."))
+        {
+            g_GameData->packageFiles.push_back(str);
+            g_GameData->packageFiles.removeAt(i--);
+            count--;
         }
     }
     long elapsed = Misc::elapsedStageTime();
@@ -438,8 +435,7 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
             return false;
         }
     }
-
-    if (!generateBuiltinMapFiles && !g_GameData->FullScanGame)
+    if (!generateBuiltinMapFiles)
     {
         QStringList addedFiles;
         QStringList modifiedFiles;

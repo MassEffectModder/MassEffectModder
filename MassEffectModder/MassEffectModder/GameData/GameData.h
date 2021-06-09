@@ -111,7 +111,6 @@ public:
     QStringList DLCFiles;
     QStringList tfcFiles;
     QStringList othersFiles;
-    bool FullScanGame;
     bool DLCDataCacheDone = false;
 
     void Init(MeType type);
