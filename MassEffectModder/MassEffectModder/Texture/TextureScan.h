@@ -67,6 +67,7 @@ public:
     TreeScan() = default;
     static void loadTexturesMap(MeType gameId, Resources &resources, QList<TextureMapEntry> &textures);
     static bool loadTexturesMapFile(QString &path, QList<TextureMapEntry> &textures, bool ignoreCheck = false);
+    static void loadTexturesMapFileV1(Stream &streeam, QList<TextureMapEntry> &textures, QStringList &packages);
     static bool PrepareListOfTextures(MeType gameId, Resources &resources,
                                      QList<TextureMapEntry> &textures, bool saveMapFile,
                                      ProgressCallback callback, void *callbackHandle);

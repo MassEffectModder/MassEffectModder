@@ -166,7 +166,7 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<TextureMapEntry> &textur
     FileStream fs = FileStream(path, FileMode::Open, FileAccess::ReadOnly);
     uint tag = fs.ReadUInt32();
     uint version = fs.ReadUInt32();
-    if (tag != textureMapBinTag || version != textureMapBinVersion)
+    if (tag != textureMapBinTag || version > textureMapBinVersion)
     {
         if (g_ipc)
         {
@@ -180,39 +180,12 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<TextureMapEntry> &textur
         return false;
     }
 
-    uint countTexture = fs.ReadUInt32();
-    for (uint i = 0; i < countTexture; i++)
-    {
-        TextureMapEntry texture{};
-        int len = fs.ReadInt32();
-        fs.ReadStringASCII(texture.name, len);
-        texture.crc = fs.ReadUInt32();
-        uint countPackages = fs.ReadUInt32();
-        texture.list = QList<TextureMapPackageEntry>();
-        for (uint k = 0; k < countPackages; k++)
-        {
-            TextureMapPackageEntry matched{};
-            matched.exportID = fs.ReadInt32();
-            quint32 flags = fs.ReadUInt32();
-            matched.movieTexture = ((flags & 1) == 1);
-            len = fs.ReadInt32();
-            fs.ReadStringASCII(matched.path, len);
-            matched.path.replace(QChar('\\'), QChar('/'));
-            texture.list.push_back(matched);
-        }
-        textures.push_back(texture);
-    }
-
     QStringList packages = QStringList();
-    int numPackages = fs.ReadInt32();
-    for (int i = 0; i < numPackages; i++)
-    {
-        int len = fs.ReadInt32();
-        QString pkgPath;
-        fs.ReadStringASCII(pkgPath, len);
-        pkgPath.replace(QChar('\\'), QChar('/'));
-        packages.push_back(pkgPath);
-    }
+
+    if (version == 1)
+        loadTexturesMapFileV1(fs, textures, packages);
+    else
+        CRASH();
 
     if (!ignoreCheck)
     {
@@ -274,6 +247,42 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<TextureMapEntry> &textur
     }
 
     return !foundRemoved && !foundAdded;
+}
+
+void TreeScan::loadTexturesMapFileV1(Stream &streeam, QList<TextureMapEntry> &textures, QStringList &packages)
+{
+    uint countTexture = streeam.ReadUInt32();
+    for (uint i = 0; i < countTexture; i++)
+    {
+        TextureMapEntry texture{};
+        int len = streeam.ReadInt32();
+        streeam.ReadStringASCII(texture.name, len);
+        texture.crc = streeam.ReadUInt32();
+        uint countPackages = streeam.ReadUInt32();
+        texture.list = QList<TextureMapPackageEntry>();
+        for (uint k = 0; k < countPackages; k++)
+        {
+            TextureMapPackageEntry matched{};
+            matched.exportID = streeam.ReadInt32();
+            quint32 flags = streeam.ReadUInt32();
+            matched.movieTexture = ((flags & 1) == 1);
+            len = streeam.ReadInt32();
+            streeam.ReadStringASCII(matched.path, len);
+            matched.path.replace(QChar('\\'), QChar('/'));
+            texture.list.push_back(matched);
+        }
+        textures.push_back(texture);
+    }
+
+    int numPackages = streeam.ReadInt32();
+    for (int i = 0; i < numPackages; i++)
+    {
+        int len = streeam.ReadInt32();
+        QString pkgPath;
+        streeam.ReadStringASCII(pkgPath, len);
+        pkgPath.replace(QChar('\\'), QChar('/'));
+        packages.push_back(pkgPath);
+    }
 }
 
 bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
