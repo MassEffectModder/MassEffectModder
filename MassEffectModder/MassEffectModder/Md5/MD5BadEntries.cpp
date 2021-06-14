@@ -23,6 +23,13 @@
 
 MD5ModFileEntry badMOD[] =
 {
+
+{
+"/Game/ME2/BioGame/CookedPCConsole/SFXGame.pcc",
+{ 0xB3, 0x7E, 0x7A, 0xCD, 0x92, 0xD1, 0x44, 0x0E, 0x2F, 0x4D, 0x5D, 0xCE, 0x4C, 0xDA, 0x85, 0xBC, },
+"ME2LE One Probe All Resources - v0.0.2",
+},
+
 };
 
 const int badMODSize = sizeof (badMOD) / sizeof (MD5ModFileEntry);
