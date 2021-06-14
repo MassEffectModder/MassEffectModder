@@ -54,6 +54,7 @@ SOURCES += \
     Program/SignalHandler.cpp \
     Resources/Resources.cpp \
     Texture/Texture.cpp \
+    Texture/TextureCube.cpp \
     Texture/TextureMovie.cpp \
     Texture/TextureScan.cpp
 
@@ -106,6 +107,7 @@ HEADERS += \
     Program/SignalHandler.h \
     Resources/Resources.h \
     Texture/Texture.h \
+    Texture/TextureCube.h \
     Texture/TextureMovie.h \
     Texture/TextureScan.h \
     Types/MemTypes.h

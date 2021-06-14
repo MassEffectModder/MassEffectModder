@@ -25,6 +25,7 @@
 #include <Texture/TextureScan.h>
 #include <Texture/Texture.h>
 #include <Texture/TextureMovie.h>
+#include <Texture/TextureCube.h>
 #include <GameData/Package.h>
 #include <GameData/GameData.h>
 #include <GameData/TOCFile.h>
@@ -690,7 +691,8 @@ void TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &pac
             id == package.nameIdLightMapTexture2D ||
             id == package.nameIdShadowMapTexture2D ||
             id == package.nameIdTextureFlipBook ||
-            id == package.nameIdTextureMovie)
+            id == package.nameIdTextureMovie ||
+            id == package.nameIdTextureCube)
         {
             ByteBuffer exportData = package.getExportData(i);
             if (exportData.ptr() == nullptr)
@@ -712,6 +714,7 @@ void TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &pac
             }
 
             TextureMovie *textureMovie = nullptr;
+            TextureCube *textureCube = nullptr;
             Texture *texture = nullptr;
             uint crc;
 
@@ -730,6 +733,13 @@ void TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &pac
                 }
                 matchTexture.movieTexture = true;
                 crc = textureMovie->getCrcData();
+            }
+            else if (id == package.nameIdTextureCube)
+            {
+                textureCube = new TextureCube(package, exportData);
+                exportData.Free();
+                delete textureCube;
+                continue;
             }
             else
             {

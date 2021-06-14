@@ -53,8 +53,6 @@ public:
 
     QList<TextureMipMap> mipMapsList;
     QString packageName;
-    bool slave{};
-    bool weakSlave{};
     int dataExportId;
 
     Texture(Package &package, int exportId, const ByteBuffer &data, bool fixDim = true);

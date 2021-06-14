@@ -568,6 +568,8 @@ void Package::loadNames(Stream &input)
             nameIdTextureFlipBook = i;
         else if (nameIdTextureFlipBook == -1 && entry.name == "TextureMovie")
             nameIdTextureMovie = i;
+        else if (nameIdTextureCube == -1 && entry.name == "TextureCube")
+            nameIdTextureCube = i;
 
         namesTable.push_back(entry);
     }

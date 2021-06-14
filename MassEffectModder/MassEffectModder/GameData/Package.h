@@ -207,6 +207,7 @@ public:
     int nameIdShadowMapTexture2D = -1;
     int nameIdTextureFlipBook = -1;
     int nameIdTextureMovie = -1;
+    int nameIdTextureCube = -1;
 
     inline bool getCompressedFlag()
     {
