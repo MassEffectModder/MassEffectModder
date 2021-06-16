@@ -363,8 +363,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                         }
                     }
 
-                    bool oldSpace = mod.memEntrySize <= (long)textureMovie.getUncompressedSize();
-                    if (!oldSpace || !archiveFile.contains("TexturesMEM"))
+                    if (!archiveFile.contains("TexturesMEM"))
                     {
                         quint32 fileLength = QFile(archiveFile).size();
                         if (fileLength + 0x5000000UL > 0x80000000UL || !archiveFile.contains("TexturesMEM"))
@@ -632,7 +631,6 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
 
                 bool triggerCacheArc = false;
                 bool newTfcFile = false;
-                bool oldSpace = true;
                 QString archiveFile;
                 if (GameData::gameType == MeType::ME2_TYPE ||
                     GameData::gameType == MeType::ME3_TYPE)
@@ -688,41 +686,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                             mod.arcTfcDLC = false;
                         }
 
-                        // check if texture fit in old space
-                        for (int mip = 0; mip < mod.cacheCprMipmaps.count(); mip++)
-                        {
-                            Texture::TextureMipMap testMipmap{};
-                            testMipmap.width = mod.cacheCprMipmaps[mip].getOrigWidth();
-                            testMipmap.height = mod.cacheCprMipmaps[mip].getOrigHeight();
-                            if (texture.existMipmap(testMipmap.width, testMipmap.height))
-                                testMipmap.storageType = texture.getMipmap(testMipmap.width, testMipmap.height).storageType;
-                            else
-                            {
-                                oldSpace = false;
-                                break;
-                            }
-
-                            if (testMipmap.storageType == StorageTypes::extZlib ||
-                                testMipmap.storageType == StorageTypes::extLZO)
-                            {
-                                Texture::TextureMipMap oldTestMipmap = texture.getMipmap(testMipmap.width, testMipmap.height);
-                                if (mod.cacheCprMipmaps[mip].getRefData().size() > oldTestMipmap.compressedSize)
-                                {
-                                    oldSpace = false;
-                                    break;
-                                }
-                            }
-                            else
-                            {
-                                oldSpace = false;
-                                break;
-                            }
-                            if (texture.mipMapsList.count() == 1)
-                                break;
-                        }
-
                         quint32 fileLength = QFile(archiveFile).size();
-                        if ((!oldSpace && fileLength + 0x5000000UL > 0x80000000UL) || !archiveFile.contains("TexturesMEM"))
+                        if ((fileLength + 0x5000000UL > 0x80000000UL) || !archiveFile.contains("TexturesMEM"))
                         {
                             archiveFile = "";
                             ByteBuffer guid(tfcNewGuid, 16);
@@ -841,22 +806,10 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                             if (mod.arcTexture.count() == 0)
                             {
                                 triggerCacheArc = true;
-
-                                if (!newTfcFile && oldSpace)
-                                {
-                                    FileStream fs = FileStream(archiveFile, FileMode::Open, FileAccess::ReadWrite);
-                                    Texture::TextureMipMap oldMipmap = texture.getMipmap(mipmap.width, mipmap.height);
-                                    fs.JumpTo(oldMipmap.dataOffset);
-                                    mipmap.dataOffset = oldMipmap.dataOffset;
-                                    fs.WriteFromBuffer(mipmap.newData);
-                                }
-                                else
-                                {
-                                    FileStream fs = FileStream(archiveFile, FileMode::Open, FileAccess::ReadWrite);
-                                    fs.SeekEnd();
-                                    mipmap.dataOffset = (uint)fs.Position();
-                                    fs.WriteFromBuffer(mipmap.newData);
-                                }
+                                FileStream fs = FileStream(archiveFile, FileMode::Open, FileAccess::ReadWrite);
+                                fs.SeekEnd();
+                                mipmap.dataOffset = (uint)fs.Position();
+                                fs.WriteFromBuffer(mipmap.newData);
                             }
                             else
                             {
