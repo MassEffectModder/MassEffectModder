@@ -235,7 +235,7 @@ equals(ZSTD_ENABLE, true) {
 }
 
 macx {
-    QMAKE_CXXFLAGS += -Xclang -fopenmp
+    QMAKE_CXXFLAGS += -Xpreprocessor -fopenmp
     QMAKE_CXXFLAGS_RELEASE += -fvisibility=hidden -fvisibility-inlines-hidden
     QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.13
 }
