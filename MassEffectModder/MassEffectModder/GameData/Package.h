@@ -55,6 +55,7 @@ public:
     enum PackageEnums
     {
         DataTag = 0x9E2A83C1,
+        LEXTag = 0x4C43454C,
         packageFileVersion684 = 684,
         packageFileVersion685 = 685,
     };

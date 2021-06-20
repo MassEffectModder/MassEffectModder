@@ -842,13 +842,27 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
     if (forceCompressed)
         targetCompression = CompressionType::Oddle;
 
-    if (!appendMarker)
+    QString marker;
+    packageStream->Seek(-MEMMarkerLength, SeekOrigin::End);
+    packageStream->ReadStringASCII(marker, MEMMarkerLength);
+    bool memiMarkerPresent = false;
+    if (marker == QString(MEMendFileMarker))
     {
-        QString marker;
-        packageStream->Seek(-MEMMarkerLength, SeekOrigin::End);
-        packageStream->ReadStringASCII(marker, MEMMarkerLength);
-        if (marker == QString(MEMendFileMarker))
-            appendMarker = true;
+        appendMarker = true;
+        memiMarkerPresent = true;
+    }
+
+    int offsetMarker = memiMarkerPresent ? MEMMarkerLength : 0;
+    packageStream->Seek(-(offsetMarker + 4), SeekOrigin::End);
+    quint32 tag = packageStream->ReadUInt32();
+    ByteBuffer markerBuffer;
+    quint32 markerSize = 0;
+    if (tag == LEXTag)
+    {
+        packageStream->Seek(-(offsetMarker + 8), SeekOrigin::End);
+        markerSize = packageStream->ReadUInt32();
+        packageStream->Seek(-(markerSize + offsetMarker + 8), SeekOrigin::End);
+        markerBuffer = packageStream->ReadToBuffer(markerSize);
     }
 
     if (exportsTable.count() == 0)
@@ -1169,6 +1183,15 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
             }
         }
         chunks.clear();
+    }
+
+    if (tag == LEXTag)
+    {
+        fs->SeekEnd();
+        fs->WriteFromBuffer(markerBuffer);
+        fs->WriteInt32(markerSize);
+        fs->WriteUInt32(LEXTag);
+        markerBuffer.Free();
     }
 
     if (appendMarker)
