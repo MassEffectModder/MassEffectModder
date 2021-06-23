@@ -736,7 +736,7 @@ void TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &pac
             }
             else if (id == package.nameIdTextureCube)
             {
-                textureCube = new TextureCube(package, exportData);
+                textureCube = new TextureCube(package, i, exportData);
                 exportData.Free();
                 delete textureCube;
                 continue;

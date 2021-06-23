@@ -77,7 +77,7 @@ private:
 
 public:
 
-    Properties(Package &pkg, const ByteBuffer &data);
+    Properties(Package &pkg, const ByteBuffer &data, int propertyOffset);
     ~Properties();
     PropertyEntry getProperty(const QString &name);
     void fetchValue(const QString &name);

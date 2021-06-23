@@ -404,6 +404,7 @@ public:
     void SortExportsTableByDataOffset(const QList<ExportEntry> &list, QList<ExportEntry> &sortedExports);
     bool ReserveSpaceBeforeExportData(int space);
     static const QString StorageTypeToString(StorageTypes type);
+    int getPropertiesOffset(int exportIndex);
     int getNameId(const QString &name);
     bool existsNameId(const QString &name);
     QString getName(int id);

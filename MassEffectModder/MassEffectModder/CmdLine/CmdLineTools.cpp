@@ -70,7 +70,7 @@ int CmdLineTools::scan(MeType gameId)
                                  g_GameData->packageFiles[i] +"\nExport Id: " + QString::number(e + 1) + "\nSkipping...\n"));
                 continue;
             }
-            auto properties = new Properties(package, exportData);
+            auto properties = new Properties(package, exportData, package.getPropertiesOffset(e));
             exportData.Free();
             auto serialize = properties->toArray();
             delete properties;

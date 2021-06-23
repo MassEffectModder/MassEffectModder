@@ -27,11 +27,11 @@
 #include <GameData/Properties.h>
 #include <Types/MemTypes.h>
 
-Properties::Properties(Package &pkg, const ByteBuffer &data)
+Properties::Properties(Package &pkg, const ByteBuffer &data, int propertyOffset)
 {
     package = &pkg;
     headerData = *reinterpret_cast<quint32 *>(data.ptr());
-    getProperty(data.ptr(), 4);
+    getProperty(data.ptr(), propertyOffset);
 }
 
 Properties::~Properties()

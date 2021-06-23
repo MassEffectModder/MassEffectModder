@@ -32,7 +32,7 @@ TextureMovie::TextureMovie(Package &package, int exportId, const ByteBuffer &dat
 {
     dataExportId = exportId;
     packagePath = package.packagePath;
-    properties = new Properties(package, data);
+    properties = new Properties(package, data, package.getPropertiesOffset(exportId));
     if (data.size() == properties->propertyEndOffset)
         return;
 

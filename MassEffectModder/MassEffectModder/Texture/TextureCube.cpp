@@ -25,9 +25,9 @@
 #include <Texture/TextureCube.h>
 #include <Types/MemTypes.h>
 
-TextureCube::TextureCube(Package &package, const ByteBuffer &data)
+TextureCube::TextureCube(Package &package, int exportIndex, const ByteBuffer &data)
 {
-    properties = new Properties(package, data);
+    properties = new Properties(package, data, package.getPropertiesOffset(exportIndex));
     if (data.size() == properties->propertyEndOffset)
         return;
 }

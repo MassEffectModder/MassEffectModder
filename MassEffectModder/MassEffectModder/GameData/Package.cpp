@@ -93,6 +93,15 @@ QString Package::resolvePackagePath(int id)
     return s;
 }
 
+int Package::getPropertiesOffset(int exportIndex)
+{
+    int propertyOffset;
+
+    propertyOffset = 4;
+
+    return propertyOffset;
+}
+
 int Package::Open(const QString &filename, bool headerOnly, bool fullLoad)
 {
     packagePath = g_GameData->RelativeGameData(filename);

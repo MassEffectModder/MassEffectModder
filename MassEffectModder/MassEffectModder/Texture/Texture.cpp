@@ -32,7 +32,7 @@
 Texture::Texture(Package &package, int exportId, const ByteBuffer &data, bool fixDim)
 {
     dataExportId = exportId;
-    properties = new Properties(package, data);
+    properties = new Properties(package, data, package.getPropertiesOffset(exportId));
     if (data.size() == properties->propertyEndOffset)
         return;
 

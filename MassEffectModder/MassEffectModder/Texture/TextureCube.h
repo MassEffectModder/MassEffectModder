@@ -34,7 +34,7 @@ private:
 
 public:
 
-    TextureCube(Package &package, const ByteBuffer &data);
+    TextureCube(Package &package, int exportIndex, const ByteBuffer &data);
     ~TextureCube();
     Properties& getProperties() { return *properties; }
 };
