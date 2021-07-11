@@ -23,6 +23,7 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <cmath>
 #include <string>
 #include <utility>
 #include <mutex>

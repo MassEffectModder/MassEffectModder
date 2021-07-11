@@ -344,6 +344,7 @@ ByteBuffer Image::convertRawToInternal(const ByteBuffer src, int w, int h, Pixel
         case PixelFormat::RGB: tmpPtr = RGBtoInternal(src, w, h); break;
         case PixelFormat::V8U8: tmpPtr = V8U8ToInternal(src, w, h); break;
         case PixelFormat::G8: tmpPtr = G8ToInternal(src, w, h); break;
+        case PixelFormat::RGBE: tmpPtr = RGBEToInternal(src, w, h); break;
         default:
             CRASH_MSG("Invalid texture format.");
     }
@@ -564,11 +565,81 @@ ByteBuffer Image::InternalToG8(const ByteBuffer src, int w, int h)
     return tmpData;
 }
 
+static inline void float2rgbe(unsigned char rgbe[4], float red, float green, float blue)
+{
+    float v = red;
+
+    if (green > v)
+        v = green;
+
+    if (blue > v)
+        v = blue;
+
+    if (v < 1e-32)
+    {
+        rgbe[0] = rgbe[1] = rgbe[2] = rgbe[3] = 0;
+    }
+    else
+    {
+        int e;
+        v = frexp(v, &e) * 256.0f / v;
+        rgbe[0] = (quint8)(red * v);
+        rgbe[1] = (quint8)(green * v);
+        rgbe[2] = (quint8)(blue * v);
+        rgbe[3] = (quint8)(e + 128);
+    }
+}
+
+ByteBuffer Image::InternalToRGBE(const ByteBuffer src, int w, int h)
+{
+    ByteBuffer tmpData(w * h * 4);
+    quint8 *ptr = tmpData.ptr();
+    float *srcPtr = src.ptrAsFloat();
+
+    for (int i = 0; i < w * h; i++)
+    {
+        float2rgbe(&ptr[4 * i], srcPtr[4 * i + 0], srcPtr[4 * i + 1], srcPtr[4 * i + 2]);
+    }
+
+    return tmpData;
+}
+
+static inline void rgbe2float(float *red, float *green, float *blue, unsigned char rgbe[4])
+{
+    if (rgbe[3])
+    {
+        float f = ldexp(1.0f, rgbe[3] - (int)(128 + 8));
+        *red = rgbe[0] * f;
+        *green = rgbe[1] * f;
+        *blue = rgbe[2] * f;
+    }
+    else
+    {
+        *red = *green = *blue = 0.0f;
+    }
+}
+
+ByteBuffer Image::RGBEToInternal(const ByteBuffer src, int w, int h)
+{
+    ByteBuffer tmpData(w * h * 4 * sizeof(float));
+    float *ptr = tmpData.ptrAsFloat();
+    quint8 *srcPtr = src.ptr();
+
+    for (int i = 0; i < w * h; i++)
+    {
+        rgbe2float(&ptr[4 * i + 0], &ptr[4 * i + 1], &ptr[4 * i + 2], &srcPtr[4 * i]);
+        ptr[4 * i + 3] = 1.0f;
+    }
+
+    return tmpData;
+}
+
 ByteBuffer Image::InternalToAlphaGreyscale(const ByteBuffer src, int w, int h)
 {
     ByteBuffer tmpData(w * h * 3);
     quint8 *ptr = tmpData.ptr();
     float *srcPtr = src.ptrAsFloat();
+
     for (int i = 0; i < w * h; i++)
     {
         float alpha = srcPtr[4 * i + 3];
@@ -576,6 +647,7 @@ ByteBuffer Image::InternalToAlphaGreyscale(const ByteBuffer src, int w, int h)
         ptr[3 * i + 1] = ROUND_FLOAT_TO_BYTE(alpha);
         ptr[3 * i + 2] = ROUND_FLOAT_TO_BYTE(alpha);
     }
+
     return tmpData;
 }
 
@@ -688,6 +760,13 @@ ByteBuffer Image::convertToFormat(PixelFormat srcFormat, const ByteBuffer src, i
         {
             ByteBuffer tempDataInternal = convertRawToInternal(src, w, h, srcFormat);
             tempData = InternalToG8(tempDataInternal, w, h);
+            tempDataInternal.Free();
+            break;
+        }
+        case PixelFormat::RGBE:
+        {
+            ByteBuffer tempDataInternal = convertRawToInternal(src, w, h, srcFormat);
+            tempData = InternalToRGBE(tempDataInternal, w, h);
             tempDataInternal.Free();
             break;
         }

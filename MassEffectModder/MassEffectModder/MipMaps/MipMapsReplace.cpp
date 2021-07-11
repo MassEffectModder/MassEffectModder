@@ -121,6 +121,18 @@ PixelFormat MipMaps::changeTextureType(PixelFormat gamePixelFormat, PixelFormat 
         if (texture.getProperties().exists("CompressionSettings"))
             texture.getProperties().removeProperty("CompressionSettings");
     }
+    else if ((gamePixelFormat == PixelFormat::DXT1 || gamePixelFormat == PixelFormat::DXT5 ||
+              gamePixelFormat == PixelFormat::BC7 || gamePixelFormat == PixelFormat::ARGB ||
+              gamePixelFormat == PixelFormat::RGB) &&
+        (texturePixelFormat == PixelFormat::RGBE) &&
+        (!texture.getProperties().exists("CompressionSettings") ||
+        (texture.getProperties().exists("CompressionSettings") &&
+         texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_BC7")))
+    {
+        gamePixelFormat = PixelFormat::ARGB;
+        texture.getProperties().setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
+        texture.getProperties().setByteValue("CompressionSettings", "TC_HighDynamicRange", "TextureCompressionSettings");
+    }
     else
     {
         PINFO(QString("This texture will not be converted to desired pixel format.\n"));

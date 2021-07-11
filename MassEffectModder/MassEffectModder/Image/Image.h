@@ -244,6 +244,8 @@ private:
     static ByteBuffer InternalToV8U8(const ByteBuffer src, int w, int h);
     static ByteBuffer G8ToInternal(const ByteBuffer src, int w, int h);
     static ByteBuffer InternalToG8(const ByteBuffer src, int w, int h);
+    static ByteBuffer InternalToRGBE(const ByteBuffer src, int w, int h);
+    static ByteBuffer RGBEToInternal(const ByteBuffer src, int w, int h);
     static ByteBuffer InternalToAlphaGreyscale(const ByteBuffer src, int w, int h);
     static ByteBuffer downscaleInternal(const ByteBuffer src, int w, int h);
     static ByteBuffer convertToFormat(PixelFormat srcFormat, const ByteBuffer src, int w, int h,

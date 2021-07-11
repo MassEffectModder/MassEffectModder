@@ -371,8 +371,8 @@ bool CmdLineTools::convertImage(QString &inputFile, QString &outputFile, QString
         pixFmt = PixelFormat::BC5;
     else if (format == "bc7")
         pixFmt = PixelFormat::BC7;
-    else if (format == "hdr")
-        pixFmt = PixelFormat::HDR;
+    else if (format == "rgbe")
+        pixFmt = PixelFormat::RGBE;
     else
     {
         PERROR(QString("Error: not supported format: ") + format + "\n");
