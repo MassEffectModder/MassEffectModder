@@ -311,6 +311,15 @@ void GameData::InternalInit(MeType type, ConfigIni &configIni)
 
     QSettings settings(registryKey, QSettings::NativeFormat);
     path = settings.value(entry, "").toString();
+
+    if (path.length() == 0)
+    {
+        registryKey = R"(HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 1328670)";
+        entry = "InstallLocation";
+        QSettings settings2(registryKey, QSettings::NativeFormat);
+        path = settings2.value(entry, "").toString();
+    }
+
     if (path.length() != 0)
     {
         _path = QDir::cleanPath(path);
