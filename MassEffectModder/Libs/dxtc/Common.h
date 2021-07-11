@@ -35,26 +35,21 @@ typedef unsigned int        CODEC_DWORD;         ///< A 32-bit integer format.
 typedef unsigned short      CODEC_WORD;          ///< A 16-bit integer format.
 typedef unsigned char       CODEC_BYTE;          ///< An 8-bit integer format.
 typedef char                CODEC_CHAR;          ///< An 8-bit char    format.
-typedef float               CODECFLOAT;         ///< A 32-bit float   format.
+typedef float               CODECFLOAT;          ///< A 32-bit float   format.
 
 #define BLOCK_SIZE_4X4        16
 #define BLOCK_SIZE_4X4X4      64
 
-#define RGBA8888_CHANNEL_A    3
-#define RGBA8888_CHANNEL_R    2
-#define RGBA8888_CHANNEL_G    1
-#define RGBA8888_CHANNEL_B    0
-
-#define RGBA8888_OFFSET_A (RGBA8888_CHANNEL_A * 8)
-#define RGBA8888_OFFSET_R (RGBA8888_CHANNEL_R * 8)
-#define RGBA8888_OFFSET_G (RGBA8888_CHANNEL_G * 8)
-#define RGBA8888_OFFSET_B (RGBA8888_CHANNEL_B * 8)
+#define RGBA32F_OFFSET_R 2
+#define RGBA32F_OFFSET_G 1
+#define RGBA32F_OFFSET_B 0
+#define RGBA32F_OFFSET_A 3
 
 #define BYTE_MASK        0x00ff
 
-#define BYTE_MAXVAL 255
-#define BYTE_MAX_FLOAT 255.0f
-#define CONVERT_FLOAT_TO_BYTE(f) static_cast<CMP_BYTE>(((f) * BYTE_MAX_FLOAT) + 0.5)
+#define BYTE_MAXVAL      255
+#define BYTE_MAX_FLOAT   255.0f
+#define CONVERT_FLOAT_TO_BYTE(f) static_cast<CODEC_BYTE>(lroundf((f) * BYTE_MAX_FLOAT))
 #define CONVERT_BYTE_TO_FLOAT(b) ((b) / BYTE_MAX_FLOAT)
 
 #ifndef max

@@ -73,7 +73,7 @@ void DisplayHelp()
         "        MEM, TPF\n" \
         "        DDS, BMP, TGA, PNG\n" \
         "           input format supported for DDS images:\n" \
-        "              DXT1, DXT3, DTX5, ATI2, V8U8, G8, ARGB, RGB, RGBA, BC7\n" \
+        "              DXT1, DXT3, DTX5, ATI2, V8U8, G8, ARGB, RGB, RGBA, BC7, HDR\n" \
         "           input format supported for TGA images:\n" \
         "              uncompressed ARGB/RGB, compressed ARGB/RGB\n" \
         "           input format supported for BMP images:\n" \
@@ -95,7 +95,7 @@ void DisplayHelp()
         "     Input file with following extension:\n" \
         "        DDS, BMP, TGA, PNG\n" \
         "           input format supported for DDS images:\n" \
-        "              DXT1, DXT3, DTX5, ATI2, V8U8, G8, ARGB, RGB, RGBA, BC5, BC7\n" \
+        "              DXT1, DXT3, DTX5, ATI2, V8U8, G8, ARGB, RGB, RGBA, BC5, BC7, HDR\n" \
         "           input format supported for TGA images:\n" \
         "              uncompressed ARGB/RGB, compressed ARGB/RGB\n" \
         "           input format supported for BMP images:\n" \
@@ -110,7 +110,7 @@ void DisplayHelp()
         "        Input files with following extension:\n" \
         "        DDS, BMP, TGA, PNG\n" \
         "           input format supported for DDS images:\n" \
-        "              DXT1, DXT3, DTX5, ATI2, V8U8, G8, ARGB, RGB, RGBA, BC5, BC7\n" \
+        "              DXT1, DXT3, DTX5, ATI2, V8U8, G8, ARGB, RGB, RGBA, BC5, BC7, HDR\n" \
         "           input format supported for TGA images:\n" \
         "              uncompressed ARGB/RGB, compressed ARGB/RGB\n" \
         "           input pixel format supported for BMP images:\n" \
@@ -122,13 +122,13 @@ void DisplayHelp()
         "  --convert-image --format <output pixel format> [--threshold <dxt1 alpha threshold>] --input <input image> --output <output image> [--bc7-quality <num>]\n" \
         "     input image file types: DDS, BMP, TGA, PNG\n" \
         "           input format supported for DDS images:\n" \
-        "              DXT1, DXT3, DTX5, ATI2, V8U8, G8, ARGB, RGB, RGBA, BC5, BC7\n" \
+        "              DXT1, DXT3, DTX5, ATI2, V8U8, G8, ARGB, RGB, RGBA, BC5, BC7, HDR\n" \
         "           input format supported for TGA images:\n" \
         "              uncompressed ARGB/RGB, compressed ARGB/RGB\n" \
         "           input format supported for BMP images:\n" \
         "              uncompressed ARGB/RGB/RGBX\n" \
         "     output image file type: DDS\n" \
-        "     output pixel format: DXT1 (no alpha), DXT1a (alpha), DXT3, DXT5, ATI2, V8U8, G8, ARGB, RGB, RGBA, BC5, BC7\n" \
+        "     output pixel format: DXT1 (no alpha), DXT1a (alpha), DXT3, DXT5, ATI2, V8U8, G8, ARGB, RGB, RGBA, BC5, BC7, HDR\n" \
         "     For DXT1a you have to set the alpha threshold (0-255). 128 is suggested as a default value.\n" \
         "     BC7 quality: allow to change BC7 compression quality: 0.0 - 1.0. Default: 0.2\n" \
         "\n" \

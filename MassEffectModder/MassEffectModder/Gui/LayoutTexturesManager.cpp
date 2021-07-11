@@ -746,14 +746,17 @@ void LayoutTexturesManager::UpdateRight(const QListWidgetItem *item)
         int width = texture.getTopMipmap().width;
         int height = texture.getTopMipmap().height;
         PixelFormat pixelFormat = Image::getPixelFormatType(texture.getProperties().getProperty("Format").getValueName());
+        bool oneBitAlpha = texture.getProperties().exists("CompressionSettings") &&
+                           texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_OneBitAlpha";
+        bool clearAlpha = (pixelFormat == PixelFormat::DXT1) && !oneBitAlpha;
         ByteBuffer bitmap;
         if (imageViewMode)
         {
-            bitmap = Image::convertRawToBGR(data.ptr(), width, height, pixelFormat);
+            bitmap = Image::convertRawToBGR(data, width, height, pixelFormat, clearAlpha);
         }
         else
         {
-            bitmap = Image::convertRawToAlphaGreyscale(data.ptr(), width, height, pixelFormat);
+            bitmap = Image::convertRawToAlphaGreyscale(data, width, height, pixelFormat, clearAlpha);
         }
         QImage image = QImage(bitmap.ptr(), width, height, width * 3, QImage::Format::Format_RGB888);
         data.Free();
@@ -1121,6 +1124,11 @@ void LayoutTexturesManager::ExtractTexture(const ViewTexture& viewTexture, bool 
             QFile(outputFile).remove();
 
         PixelFormat pixelFormat = Image::getPixelFormatType(texture.getProperties().getProperty("Format").getValueName());
+        bool oneBitAlpha = texture.getProperties().exists("CompressionSettings") &&
+                           texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_OneBitAlpha";
+        bool clearAlpha = (pixelFormat == PixelFormat::DXT1) && !oneBitAlpha;
+        bool depthHdr = texture.getProperties().exists("CompressionSettings") &&
+                        texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_HighDynamicRange";
         if (png)
         {
             ByteBuffer data = texture.getTopImageData();
@@ -1134,7 +1142,7 @@ void LayoutTexturesManager::ExtractTexture(const ViewTexture& viewTexture, bool 
                 return;
             }
             Texture::TextureMipMap mipmap = texture.getTopMipmap();
-            Image::saveToPng(data.ptr(), mipmap.width, mipmap.height, pixelFormat, outputFile);
+            Image::saveToPng(data, mipmap.width, mipmap.height, pixelFormat, outputFile, !depthHdr, clearAlpha);
             data.Free();
         }
         else

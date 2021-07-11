@@ -71,24 +71,24 @@ int ZstdCompress(BYTE *src, UINT32 src_len, BYTE **dst, UINT32 *dst_len, int com
 int LzxDecompress(BYTE *src, UINT32 src_len, BYTE *dst, const UINT32 *dst_len);
 
 int PngRead(BYTE *src, UINT32 srcSize,
-             BYTE **dst, UINT32 *dstSize,
+             float **dst, UINT32 *dstSize,
              UINT32 *width, UINT32 *height);
-int PngWrite(const BYTE *src, BYTE **dst, UINT32 *dstSize,
-              UINT32 width, UINT32 height);
+int PngWrite(const float *src, BYTE **dst, UINT32 *dstSize,
+              UINT32 width, UINT32 height, bool storeAs8bits = true);
 
 #define BLOCK_SIZE_4X4        16
 #define BLOCK_SIZE_4X4X4      64
 #define BLOCK_SIZE_4X4X2      32
 
-void DxtcCompressRGBABlock(BYTE rgbaBlock[BLOCK_SIZE_4X4X4], UINT32 compressedBlock[4]);
-void DxtcDecompressRGBABlock(BYTE rgbaBlock[BLOCK_SIZE_4X4X4], UINT32 compressedBlock[4]);
-void DxtcCompressRGBABlock_ExplicitAlpha(BYTE rgbaBlock[BLOCK_SIZE_4X4X4], UINT32 compressedBlock[4]);
-void DxtcDecompressRGBABlock_ExplicitAlpha(BYTE rgbaBlock[BLOCK_SIZE_4X4X4], UINT32 compressedBlock[4]);
-void DxtcCompressRGBBlock(BYTE rgbBlock[BLOCK_SIZE_4X4X4], UINT32 compressedBlock[2], bool bDXT1 = false,
-                      bool bDXT1UseAlpha = false, unsigned char bDXT1UseAlphaThreshold = 0);
-void DxtcDecompressRGBBlock(BYTE rgbBlock[BLOCK_SIZE_4X4X4], UINT32 compressedBlock[2], bool bDXT1);
-void DxtcCompressAlphaBlock(BYTE alphaBlock[BLOCK_SIZE_4X4], UINT32 compressedBlock[2]);
-void DxtcDecompressAlphaBlock(BYTE alphaBlock[BLOCK_SIZE_4X4], UINT32 compressedBlock[2]);
+void DxtcCompressRGBABlock(float rgbaBlock[BLOCK_SIZE_4X4X4], UINT32 compressedBlock[4]);
+void DxtcDecompressRGBABlock(float rgbaBlock[BLOCK_SIZE_4X4X4], UINT32 compressedBlock[4]);
+void DxtcCompressRGBABlock_ExplicitAlpha(float rgbaBlock[BLOCK_SIZE_4X4X4], UINT32 compressedBlock[4]);
+void DxtcDecompressRGBABlock_ExplicitAlpha(float rgbaBlock[BLOCK_SIZE_4X4X4], UINT32 compressedBlock[4]);
+void DxtcCompressRGBBlock(float rgbBlock[BLOCK_SIZE_4X4X4], UINT32 compressedBlock[2], bool bDXT1 = false,
+                      bool bDXT1UseAlpha = false, float bDXT1UseAlphaThreshold = 0);
+void DxtcDecompressRGBBlock(float rgbBlock[BLOCK_SIZE_4X4X4], const UINT32 compressedBlock[2], bool bDXT1);
+void DxtcCompressAlphaBlock(float alphaBlock[BLOCK_SIZE_4X4], UINT32 compressedBlock[2]);
+void DxtcDecompressAlphaBlock(float alphaBlock[BLOCK_SIZE_4X4], UINT32 compressedBlock[2]);
 
 int BC7InitializeLibrary();
 int BC7ShutdownLibrary();

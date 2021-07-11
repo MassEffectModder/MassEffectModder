@@ -232,28 +232,29 @@ private:
     void LoadImageDDS(Stream &stream);
     void LoadImageTGA(Stream &stream);
     void LoadImageBMP(Stream &stream);
-    static void clearAlphaFromInternal(quint8 *data, int w, int h);
-    static ByteBuffer RGBtoInternal(const quint8 *src, int w, int h);
-    static ByteBuffer ARGBtoInternal(const quint8 *src, int w, int h);
-    static ByteBuffer RGBAtoInternal(const quint8 *src, int w, int h);
-    static ByteBuffer InternalToARGB(const quint8 *src, int w, int h);
-    static ByteBuffer InternalToRGB(const quint8 *src, int w, int h);
-    static ByteBuffer InternalToRGBA(const quint8 *src, int w, int h);
-    static ByteBuffer InternalToBGR(const quint8 *src, int w, int h);
-    static ByteBuffer V8U8ToInternal(const quint8 *src, int w, int h);
-    static ByteBuffer InternalToV8U8(const quint8 *src, int w, int h);
-    static ByteBuffer G8ToInternal(const quint8 *src, int w, int h);
-    static ByteBuffer InternalToG8(const quint8 *src, int w, int h);
-    static ByteBuffer InternalToAlphaGreyscale(const quint8 *src, int w, int h);
-    static ByteBuffer downscaleInternal(const quint8 *src, int w, int h);
-    static ByteBuffer convertToFormat(PixelFormat srcFormat, const quint8 *src, int w, int h,
-                                   PixelFormat dstFormat, bool dxt1HasAlpha, quint8 dxt1Threshold, float bc7quality);
+    static void clearAlphaFromInternal(ByteBuffer data, int w, int h);
+    static ByteBuffer RGBtoInternal(const ByteBuffer src, int w, int h);
+    static ByteBuffer ARGBtoInternal(const ByteBuffer src, int w, int h);
+    static ByteBuffer RGBAtoInternal(const ByteBuffer src, int w, int h);
+    static ByteBuffer InternalToARGB(const ByteBuffer src, int w, int h);
+    static ByteBuffer InternalToRGB(const ByteBuffer src, int w, int h);
+    static ByteBuffer InternalToRGBA(const ByteBuffer src, int w, int h);
+    static ByteBuffer InternalToBGR(const ByteBuffer src, int w, int h);
+    static ByteBuffer V8U8ToInternal(const ByteBuffer src, int w, int h);
+    static ByteBuffer InternalToV8U8(const ByteBuffer src, int w, int h);
+    static ByteBuffer G8ToInternal(const ByteBuffer src, int w, int h);
+    static ByteBuffer InternalToG8(const ByteBuffer src, int w, int h);
+    static ByteBuffer InternalToAlphaGreyscale(const ByteBuffer src, int w, int h);
+    static ByteBuffer downscaleInternal(const ByteBuffer src, int w, int h);
+    static ByteBuffer convertToFormat(PixelFormat srcFormat, const ByteBuffer src, int w, int h,
+                                      PixelFormat dstFormat, bool dxt1HasAlpha, float dxt1Threshold, float bc7quality);
 
 public:
 
     QList<MipMap *> &getMipMaps() { return mipMaps; }
     PixelFormat getPixelFormat() { return pixelFormat; }
 
+    Image(int width, int height);
     Image(const QString &fileName, ImageFormat format = ImageFormat::UnknownImageFormat);
     Image(Stream &stream, ImageFormat format);
     Image(Stream &stream, const QString &extension);
@@ -261,14 +262,15 @@ public:
     Image(const ByteBuffer &data, const QString &extension);
     Image(QList<MipMap *> &mipmaps, PixelFormat pixelFmt);
     ~Image();
-    static ByteBuffer convertRawToInternal(const quint8 *src, int w, int h, PixelFormat format, bool clearAlpha = false);
-    static ByteBuffer convertRawToRGB(const quint8 *src, int w, int h, PixelFormat format);
-    static ByteBuffer convertRawToARGB(const quint8 *src, int w, int h, PixelFormat format);
-    static ByteBuffer convertRawToRGBA(const quint8 *src, int w, int h, PixelFormat format);
-    static ByteBuffer convertRawToBGR(const quint8 *src, int w, int h, PixelFormat format);
-    static ByteBuffer convertRawToAlphaGreyscale(const quint8 *src, int w, int h, PixelFormat format);
-    static void saveToPng(const quint8 *src, int w, int h, PixelFormat format, const QString &filename, bool clearAlpha = false);
-    void correctMips(PixelFormat dstFormat, bool dxt1HasAlpha, quint8 dxt1Threshold, float bc7quality);
+    void generateGradient();
+    static ByteBuffer convertRawToInternal(const ByteBuffer src, int w, int h, PixelFormat format, bool clearAlpha = false);
+    static ByteBuffer convertRawToRGB(const ByteBuffer src, int w, int h, PixelFormat format);
+    static ByteBuffer convertRawToARGB(const ByteBuffer src, int w, int h, PixelFormat format);
+    static ByteBuffer convertRawToRGBA(const ByteBuffer src, int w, int h, PixelFormat format);
+    static ByteBuffer convertRawToBGR(const ByteBuffer src, int w, int h, PixelFormat format, bool clearAlpha = false);
+    static ByteBuffer convertRawToAlphaGreyscale(const ByteBuffer src, int w, int h, PixelFormat format, bool clearAlpha = false);
+    static void saveToPng(const ByteBuffer src, int w, int h, PixelFormat format, const QString &filename, bool storeAs8bits, bool clearAlpha = false);
+    void correctMips(PixelFormat dstFormat, bool dxt1HasAlpha, float dxt1Threshold, float bc7quality);
     static PixelFormat getPixelFormatType(const QString &format);
     static QString getEngineFormatType(PixelFormat format);
     void removeMipByIndex(int n);
@@ -279,9 +281,9 @@ public:
 private:
 
     static DDS_PF getDDSPixelFormat(PixelFormat format);
-    static void readBlockInternalToDxt(quint8 blockARGB[BLOCK_SIZE_4X4X4], const quint8 *srcARGB,
+    static void readBlockInternalToDxt(float blockARGB[BLOCK_SIZE_4X4X4], const float *srcARGB,
                                  int srcW, int blockX, int blockY);
-    static void writeBlockDxtToInternal(const quint8 blockARGB[BLOCK_SIZE_4X4X4], quint8 *dstARGB,
+    static void writeBlockDxtToInternal(const float blockARGB[BLOCK_SIZE_4X4X4], float *dstARGB,
                                   int dstW, int blockX, int blockY);
 
     static void readBlockDxtBpp4(quint8 *dst, const quint8 *src, int srcW, int blockX, int blockY);
@@ -290,23 +292,23 @@ private:
     static void readBlockDxtBpp8(quint8 *dst, const quint8 *src, int srcW, int blockX, int blockY);
     static void writeBlockDxtBpp8(quint8 *src, quint8 *dst, int dstW, int blockX, int blockY);
 
-    static void convertBlock4X4X4FloatToByte(quint8 dst[BLOCK_SIZE_4X4X4], double src[16][4]);
-    static void convertBlock4X4X4ByteToFloat(double dst[BLOCK_SIZE_4X4][4], const quint8 src[BLOCK_SIZE_4X4X4]);
+    static void convertBlock4X4X4DoubleToFloat(float dst[BLOCK_SIZE_4X4X4], double src[16][4]);
+    static void convertBlock4X4X4FloatToDouble(double dst[BLOCK_SIZE_4X4][4], const float src[BLOCK_SIZE_4X4X4]);
 
 
-    static void readBlockInternalToAti2(quint8 blockDstX[BLOCK_SIZE_4X4BPP8],
-                                 quint8 blockDstY[BLOCK_SIZE_4X4BPP8],
-                                 const quint8 *src, int srcW, int blockX, int blockY);
+    static void readBlockInternalToAti2(float blockDstX[BLOCK_SIZE_4X4BPP8],
+                                 float blockDstY[BLOCK_SIZE_4X4BPP8],
+                                 const float *src, int srcW, int blockX, int blockY);
     static void writeBlock4X4ATI2(quint8 *blockSrcX, quint8 *blockSrcY,
                                   quint8 *dst, int dstW, int blockX, int blockY);
 
-    static void writeBlockAti2ToInternal(const quint8 blockR[BLOCK_SIZE_4X4BPP8],
-                                      const quint8 blockG[BLOCK_SIZE_4X4BPP8],
-                                      quint8 *dstARGB, int srcW, int blockX, int blockY);
+    static void writeBlockAti2ToInternal(const float blockR[BLOCK_SIZE_4X4BPP8],
+                                         const float blockG[BLOCK_SIZE_4X4BPP8],
+                                         float *dstARGB, int srcW, int blockX, int blockY);
 
-    static ByteBuffer compressMipmap(PixelFormat dstFormat, const quint8 *src, int w, int h,
+    static ByteBuffer compressMipmap(PixelFormat dstFormat, const ByteBuffer src, int w, int h,
                                      bool useDXT1Alpha, quint8 DXT1Threshold, float bc7quality);
-    static ByteBuffer decompressMipmap(PixelFormat srcFormat, const quint8 *src, int w, int h);
+    static ByteBuffer decompressMipmap(PixelFormat srcFormat, const ByteBuffer src, int w, int h);
 
 public:
 

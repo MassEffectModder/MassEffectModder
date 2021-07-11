@@ -2193,7 +2193,7 @@ static void CompressRGBBlockX(CODECFLOAT _RsltRmpPnts[NUM_CHANNELS][NUM_ENDPOINT
 
 --------------------------------------------------------------------------------------------------------*/
 
-CODECFLOAT CompRGBBlock(CODECFLOAT* block_32, CODEC_WORD dwBlockSize,
+CODECFLOAT CompRGBBlock(const CODECFLOAT* block_32, CODEC_WORD dwBlockSize,
                         CODEC_BYTE nRedBits, CODEC_BYTE nGreenBits, CODEC_BYTE nBlueBits,
                         CODEC_BYTE nEndpoints[3][NUM_ENDPOINTS], CODEC_BYTE* pcIndices, CODEC_BYTE dwNumPoints,
                         bool _bUseSSE2, bool b3DRefinement, CODEC_BYTE nRefinementSteps, CODECFLOAT* _pfChannelWeights,
@@ -2210,9 +2210,9 @@ CODECFLOAT CompRGBBlock(CODECFLOAT* block_32, CODEC_WORD dwBlockSize,
     for(CODEC_DWORD i = 0; i < dwBlockSize; i++)
         if(!_bUseAlpha || (block_32[(i* 4) + 3] >= _fAlphaThreshold))
         {
-            fBlk[(dwColors* 4) + 0] = block_32[(i*4) + 2];
+            fBlk[(dwColors* 4) + 0] = block_32[(i*4) + 0];
             fBlk[(dwColors* 4) + 1] = block_32[(i*4) + 1];
-            fBlk[(dwColors* 4) + 2] = block_32[(i*4) + 0];
+            fBlk[(dwColors* 4) + 2] = block_32[(i*4) + 2];
             fBlk[(dwColors* 4) + 3] = 0.f;
             dwColors++;
         }
@@ -2269,9 +2269,9 @@ CODECFLOAT CompRGBBlock(CODECFLOAT* block_32, CODEC_WORD dwBlockSize,
 
         for(CODEC_DWORD i = 0; i < dwBlockSize; i++)
             {
-                fBlk[(i* 4) + 0] = block_32[(i*4) + 2] * 255.0f;
+                fBlk[(i* 4) + 0] = block_32[(i*4) + 0] * 255.0f;
                 fBlk[(i* 4) + 1] = block_32[(i*4) + 1] * 255.0f;
-                fBlk[(i* 4) + 2] = block_32[(i*4) + 0] * 255.0f;
+                fBlk[(i* 4) + 2] = block_32[(i*4) + 2] * 255.0f;
                 fBlk[(i* 4) + 3] = block_32[(i*4) + 3] * 255.0f;
             }
 
@@ -2428,7 +2428,7 @@ static void GetRmp1(CODECFLOAT _rampDat[MAX_POINTS], CODECFLOAT _ramp[NUM_ENDPOI
     if(_ramp[0] == _ramp[1])
         return;
 
-    if(!bFixedRampPoints  && _ramp[0] <= _ramp[1] || bFixedRampPoints && _ramp[0] > _ramp[1])
+    if((!bFixedRampPoints  && _ramp[0] <= _ramp[1]) || (bFixedRampPoints && _ramp[0] > _ramp[1]))
     {
         CODECFLOAT t = _ramp[0];
         _ramp[0] = _ramp[1];

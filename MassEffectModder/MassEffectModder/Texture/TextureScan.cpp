@@ -870,8 +870,11 @@ void TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &pac
                             {
                                 foundTex.type = TextureType::Normalmap;
                             }
-                            else if (cmp == "TC_BC7")
+                            else if (cmp == "TC_BC7" ||
+                                     cmp == "TC_HighDynamicRange")
+                            {
                                 foundTex.type = TextureType::Diffuse;
+                            }
                             else
                             {
                                 CRASH();

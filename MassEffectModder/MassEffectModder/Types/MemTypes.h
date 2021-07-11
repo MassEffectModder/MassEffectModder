@@ -34,7 +34,7 @@ typedef enum
 
 typedef enum
 {
-    UnknownPixelFormat, Internal, DXT1, DXT3, DXT5, ATI2, V8U8, ARGB, RGBA, RGB, G8, BC5, BC7
+    UnknownPixelFormat, Internal, DXT1, DXT3, DXT5, ATI2, V8U8, ARGB, RGBA, RGB, G8, BC5, BC7, HDR
 } PixelFormat;
 
 typedef enum
@@ -80,9 +80,16 @@ typedef enum
 #define BIK_TAG               0x6A32424B // 'HB2j'
 
 #define PERCENT_OF_SIZE(x, y) (((x) * (y)) / 100)
+
 #ifndef MIN
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 #endif
 
+#ifndef MAX
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
+#endif
+
+#define ROUND_FLOAT_TO_BYTE(f) static_cast<quint8>(lroundf((f) * 255.0f))
+#define CONVERT_BYTE_TO_FLOAT(b) ((b) / 255.0f)
 
 #endif

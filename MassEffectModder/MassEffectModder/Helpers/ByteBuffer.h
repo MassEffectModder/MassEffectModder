@@ -56,6 +56,15 @@ public:
         _size = size;
     }
 
+    ByteBuffer(const float *ptr, quint64 size)
+    {
+        _ptr = new quint8[size];
+        if (_ptr == nullptr)
+            CRASH_MSG((QString("ByteBuffer: Out of memory! - amount: ") + QString::number(size)).toStdString().c_str());
+        memcpy(_ptr, ptr, size);
+        _size = size;
+    }
+
     void Free()
     {
         delete[] _ptr;
@@ -65,6 +74,11 @@ public:
     [[nodiscard]] quint8 *ptr() const
     {
         return _ptr;
+    }
+
+    [[nodiscard]] float *ptrAsFloat() const
+    {
+        return (float *)_ptr;
     }
 
     [[nodiscard]] qint64 size() const

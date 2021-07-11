@@ -36,7 +36,7 @@ void CompRGBBlock(CODECFLOAT* block_32,    [IN]  array of the 3 component color 
                   int _NbrClrs = BLOCK_SIZE_4X4,            [IN]  actuall number of elements in the array
                   bool _bUseSSE2 = true);                    [IN]  switch to SSE2 implementation
 ------------------------------------------------------------------------------------*/
-CODECFLOAT CompRGBBlock(CODECFLOAT* block_32,
+CODECFLOAT CompRGBBlock(const CODECFLOAT* block_32,
                         CODEC_WORD dwBlockSize,
                         CODEC_BYTE nRedBits,
                         CODEC_BYTE nGreenBits,

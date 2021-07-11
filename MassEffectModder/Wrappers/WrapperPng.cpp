@@ -23,6 +23,7 @@
 #include <png.h>
 #include <cstdlib>
 #include <cstring>
+#include <cmath>
 
 #define PNG_SIGN_LEN 8
 
@@ -61,7 +62,7 @@ static void WriteFunction(png_structp pngStruct, png_bytep buffer, png_size_t co
 }
 
 int PngRead(unsigned char *src, unsigned int srcSize,
-             unsigned char **dst, unsigned int *dstSize,
+             float **dst, unsigned int *dstSize,
              unsigned int *width, unsigned int *height)
 {
     IoHandle handle;
@@ -94,8 +95,7 @@ int PngRead(unsigned char *src, unsigned int srcSize,
 
     png_read_info(pngStruct, pngInfo);
 
-    if (png_get_IHDR(pngStruct, pngInfo, &pngWidth, &pngHeight, &bits,
-                     &colorType, nullptr, nullptr, nullptr) == 0)
+    if (png_get_IHDR(pngStruct, pngInfo, &pngWidth, &pngHeight, &bits, &colorType, nullptr, nullptr, nullptr) == 0)
     {
         png_destroy_read_struct(&pngStruct, &pngInfo, nullptr);
         return -1;
@@ -103,7 +103,6 @@ int PngRead(unsigned char *src, unsigned int srcSize,
     *width = pngWidth;
     *height = pngHeight;
 
-    png_set_scale_16(pngStruct);
     png_set_packing(pngStruct);
     if (colorType == PNG_COLOR_TYPE_PALETTE)
         png_set_palette_to_rgb(pngStruct);
@@ -114,34 +113,47 @@ int PngRead(unsigned char *src, unsigned int srcSize,
         png_set_tRNS_to_alpha(pngStruct);
     if (colorType == PNG_COLOR_TYPE_GRAY || colorType == PNG_COLOR_TYPE_GRAY_ALPHA)
         png_set_gray_to_rgb(pngStruct);
-    if ((colorType & PNG_COLOR_MASK_COLOR) != 0)
-        png_set_bgr(pngStruct);
-    png_set_swap_alpha(pngStruct);
     png_set_swap(pngStruct);
     png_set_filler(pngStruct, 0xff, PNG_FILLER_BEFORE);
     png_read_update_info(pngStruct, pngInfo);
 
-    *dstSize = pngWidth * pngHeight * 4;
-    unsigned char *dstPtr = *dst = new unsigned char[*dstSize];
+    *dstSize = pngWidth * pngHeight * 4 * sizeof(float);
+    float *dstPtr = *dst = new float[*dstSize];
     if (*dst == nullptr)
     {
         png_destroy_read_struct(&pngStruct, &pngInfo, nullptr);
         return -1;
     }
 
-    png_byte lineData[png_get_rowbytes(pngStruct, pngInfo)];
+    unsigned char lineData8[png_get_rowbytes(pngStruct, pngInfo)];
+    unsigned short lineData16[png_get_rowbytes(pngStruct, pngInfo)];
     int dstOffset = 0;
     for (png_uint_32 y = 0; y < pngHeight; y++)
     {
-        png_read_row(pngStruct, (png_bytep)lineData, nullptr);
         int lineOffset = 0;
-        for (png_uint_32 x = 0; x < pngWidth; x++)
+        if (bits == 16)
         {
-            dstPtr[dstOffset + 3] = lineData[lineOffset++];
-            dstPtr[dstOffset + 2] = lineData[lineOffset++];
-            dstPtr[dstOffset + 1] = lineData[lineOffset++];
-            dstPtr[dstOffset + 0] = lineData[lineOffset++];
-            dstOffset += 4;
+            png_read_row(pngStruct, (png_bytep)lineData16, nullptr);
+            for (png_uint_32 x = 0; x < pngWidth; x++)
+            {
+                dstPtr[dstOffset + 0] = lineData16[lineOffset++] / 65535.0f;
+                dstPtr[dstOffset + 1] = lineData16[lineOffset++] / 65535.0f;
+                dstPtr[dstOffset + 2] = lineData16[lineOffset++] / 65535.0f;
+                dstPtr[dstOffset + 3] = lineData16[lineOffset++] / 65535.0f;
+                dstOffset += 4;
+            }
+        }
+        else
+        {
+            png_read_row(pngStruct, (png_bytep)lineData8, nullptr);
+            for (png_uint_32 x = 0; x < pngWidth; x++)
+            {
+                dstPtr[dstOffset + 0] = lineData8[lineOffset++] / 255.0f;
+                dstPtr[dstOffset + 1] = lineData8[lineOffset++] / 255.0f;
+                dstPtr[dstOffset + 2] = lineData8[lineOffset++] / 255.0f;
+                dstPtr[dstOffset + 3] = lineData8[lineOffset++] / 255.0f;
+                dstOffset += 4;
+            }
         }
     }
     png_read_end(pngStruct, pngInfo);
@@ -151,8 +163,8 @@ int PngRead(unsigned char *src, unsigned int srcSize,
     return 0;
 }
 
-int PngWrite(const unsigned char *src, unsigned char **dst, unsigned int *dstSize,
-               unsigned int width, unsigned int height)
+int PngWrite(const float *src, unsigned char **dst, unsigned int *dstSize,
+             unsigned int width, unsigned int height, bool storeAs8bits)
 {
     IoHandle handle;
     png_structp pngStruct;
@@ -173,28 +185,54 @@ int PngWrite(const unsigned char *src, unsigned char **dst, unsigned int *dstSiz
         return -1;
     }
 
+    int bits = 16;
+    float scale = 65535.0f;
+    if (storeAs8bits)
+    {
+        bits = 8;
+        scale = 255.0f;
+    }
     png_set_IHDR(pngStruct, pngInfo, width, height,
-                 8, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
+                 bits, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
                  PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 
     png_set_write_fn(pngStruct, &handle, WriteFunction, nullptr);
 
     png_write_info(pngStruct, pngInfo);
 
-    unsigned char lineData[width * 4];
+    png_set_swap(pngStruct);
+
+    unsigned char lineData8[width * 4];
+    unsigned short lineData16[width * 4];
     int srcOffset = 0;
     for (png_uint_32 y = 0; y < height; y++)
     {
-        int lineOffset = 0;
-        for (png_uint_32 x = 0; x < width; x++)
+        if (bits == 8)
         {
-            lineData[lineOffset++] = src[srcOffset + 0];
-            lineData[lineOffset++] = src[srcOffset + 1];
-            lineData[lineOffset++] = src[srcOffset + 2];
-            lineData[lineOffset++] = src[srcOffset + 3];
-            srcOffset += 4;
+            int lineOffset = 0;
+            for (png_uint_32 x = 0; x < width; x++)
+            {
+                lineData8[lineOffset++] = roundf(src[srcOffset + 0] * scale);
+                lineData8[lineOffset++] = roundf(src[srcOffset + 1] * scale);
+                lineData8[lineOffset++] = roundf(src[srcOffset + 2] * scale);
+                lineData8[lineOffset++] = roundf(src[srcOffset + 3] * scale);
+                srcOffset += 4;
+            }
+            png_write_row(pngStruct, (png_bytep)lineData8);
         }
-        png_write_row(pngStruct, (png_bytep)lineData);
+        else
+        {
+            int lineOffset = 0;
+            for (png_uint_32 x = 0; x < width; x++)
+            {
+                lineData16[lineOffset++] = roundf(src[srcOffset + 0] * scale);
+                lineData16[lineOffset++] = roundf(src[srcOffset + 1] * scale);
+                lineData16[lineOffset++] = roundf(src[srcOffset + 2] * scale);
+                lineData16[lineOffset++] = roundf(src[srcOffset + 3] * scale);
+                srcOffset += 4;
+            }
+            png_write_row(pngStruct, (png_bytep)lineData16);
+        }
     }
 
     png_write_end(pngStruct, nullptr);

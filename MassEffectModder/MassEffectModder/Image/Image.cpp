@@ -26,6 +26,28 @@
 #include <Helpers/Logs.h>
 #include <Wrappers.h>
 
+Image::Image(int width, int height)
+{
+    ByteBuffer pixels(width * height * 4 * sizeof(float));
+    float *ptr = pixels.ptrAsFloat();
+    int offset = 0;
+    for (int h = 0; h < height; h++)
+    {
+        for (int w = 0; w < width; w++)
+        {
+            ptr[4 * offset + 0] = 0.0f;
+            ptr[4 * offset + 1] = 0.0f;
+            ptr[4 * offset + 2] = 0.0f;
+            ptr[4 * offset + 3] = 1.0f;
+            offset++;
+        }
+    }
+
+    pixelFormat = PixelFormat::Internal;
+    mipMaps.push_back(new MipMap(pixels, width, height, PixelFormat::Internal));
+    pixels.Free();
+}
+
 Image::Image(const QString &fileName, ImageFormat format)
 {
     if (format == ImageFormat::UnknownImageFormat)
@@ -159,6 +181,28 @@ Image::~Image()
     }
 }
 
+void Image::generateGradient()
+{
+    if (pixelFormat != PixelFormat::Internal)
+        CRASH();
+
+    auto mipmap = mipMaps.first();
+    float *ptr = mipmap->getRefData().ptrAsFloat();
+    int offset = 0;
+    for (int h = 0; h < mipmap->getHeight(); h++)
+    {
+        for (int w = 0; w < mipmap->getWidth(); w++)
+        {
+            float color = (float)w / mipmap->getWidth();
+            ptr[4 * offset + 0] = color;
+            ptr[4 * offset + 1] = color;
+            ptr[4 * offset + 2] = color;
+            ptr[4 * offset + 3] = 1.0f;
+            offset++;
+        }
+    }
+}
+
 void Image::removeMipByIndex(int n)
 {
     if (n < 0 || n >= mipMaps.count())
@@ -232,7 +276,7 @@ void Image::LoadImageFromBuffer(ByteBuffer data, ImageFormat format)
     }
     mipMaps.clear();
 
-    quint8 *imageBuffer;
+    float *imageBuffer;
     quint32 imageSize, imageWidth, imageHeight;
     if (format == ImageFormat::PNG)
     {
@@ -253,21 +297,21 @@ void Image::LoadImageFromBuffer(ByteBuffer data, ImageFormat format)
         return;
     }
 
-    ByteBuffer pixels(imageBuffer, imageSize);
+    ByteBuffer pixels((quint8 *)imageBuffer, imageSize);
     delete[] imageBuffer;
     mipMaps.push_back(new MipMap(pixels, imageWidth, imageHeight, PixelFormat::Internal));
     pixels.Free();
     pixelFormat = PixelFormat::Internal;
 }
 
-ByteBuffer Image::convertRawToInternal(const quint8 *src, int w, int h, PixelFormat format, bool clearAlpha)
+ByteBuffer Image::convertRawToInternal(const ByteBuffer src, int w, int h, PixelFormat format, bool clearAlpha)
 {
     ByteBuffer tmpPtr;
 
     switch (format)
     {
         case PixelFormat::Internal:
-            tmpPtr = ByteBuffer(src, w * h * 4);
+            tmpPtr = ByteBuffer(src.ptr(), src.size());
             break;
         case PixelFormat::DXT1:
         case PixelFormat::DXT3:
@@ -280,7 +324,7 @@ ByteBuffer Image::convertRawToInternal(const quint8 *src, int w, int h, PixelFor
                     w = 4;
                 if (h < 4)
                     h = 4;
-                tmpPtr = ByteBuffer(w * h * 4);
+                tmpPtr = ByteBuffer(w * h * 4 * sizeof(float));
                 memset(tmpPtr.ptr(), 0, tmpPtr.size());
                 return tmpPtr;
             }
@@ -289,7 +333,7 @@ ByteBuffer Image::convertRawToInternal(const quint8 *src, int w, int h, PixelFor
         case PixelFormat::ATI2:
             if (w < 4 || h < 4)
             {
-                tmpPtr = ByteBuffer(w * h * 4);
+                tmpPtr = ByteBuffer(w * h * 4 * sizeof(float));
                 memset(tmpPtr.ptr(), 0, tmpPtr.size());
                 return tmpPtr;
             }
@@ -305,264 +349,279 @@ ByteBuffer Image::convertRawToInternal(const quint8 *src, int w, int h, PixelFor
     }
 
     if (clearAlpha)
-        clearAlphaFromInternal(tmpPtr.ptr(), w, h);
+        clearAlphaFromInternal(tmpPtr, w, h);
 
     return tmpPtr;
 }
 
-ByteBuffer Image::convertRawToRGB(const quint8 *src, int w, int h, PixelFormat format)
+ByteBuffer Image::convertRawToRGB(const ByteBuffer src, int w, int h, PixelFormat format)
 {
     auto dataRGBA = convertRawToInternal(src, w, h, format);
-    auto dataRGB = InternalToRGB(dataRGBA.ptr(), w, h);
+    auto dataRGB = InternalToRGB(dataRGBA, w, h);
     dataRGBA.Free();
     return dataRGB;
 }
 
-ByteBuffer Image::convertRawToARGB(const quint8 *src, int w, int h, PixelFormat format)
+ByteBuffer Image::convertRawToARGB(const ByteBuffer src, int w, int h, PixelFormat format)
 {
     auto dataRGBA = convertRawToInternal(src, w, h, format);
-    auto dataARGB = InternalToARGB(dataRGBA.ptr(), w, h);
-    dataRGBA.Free();
-    return dataARGB;
-}
-
-ByteBuffer Image::convertRawToRGBA(const quint8 *src, int w, int h, PixelFormat format)
-{
-    auto dataRGBA = convertRawToInternal(src, w, h, format);
-    auto dataARGB = InternalToRGBA(dataRGBA.ptr(), w, h);
+    auto dataARGB = InternalToARGB(dataRGBA, w, h);
     dataRGBA.Free();
     return dataARGB;
 }
 
-ByteBuffer Image::convertRawToBGR(const quint8 *src, int w, int h, PixelFormat format)
+ByteBuffer Image::convertRawToRGBA(const ByteBuffer src, int w, int h, PixelFormat format)
 {
-    auto dataARGB = convertRawToInternal(src, w, h, format);
-    auto dataRGB = InternalToBGR(dataARGB.ptr(), w, h);
+    auto dataRGBA = convertRawToInternal(src, w, h, format);
+    auto dataARGB = InternalToRGBA(dataRGBA, w, h);
+    dataRGBA.Free();
+    return dataARGB;
+}
+
+ByteBuffer Image::convertRawToBGR(const ByteBuffer src, int w, int h, PixelFormat format, bool clearAlpha)
+{
+    auto dataARGB = convertRawToInternal(src, w, h, format, clearAlpha);
+    auto dataBGR = InternalToBGR(dataARGB, w, h);
+    dataARGB.Free();
+    return dataBGR;
+}
+
+ByteBuffer Image::convertRawToAlphaGreyscale(const ByteBuffer src, int w, int h, PixelFormat format, bool clearAlpha)
+{
+    auto dataARGB = convertRawToInternal(src, w, h, format, clearAlpha);
+    auto dataRGB = InternalToAlphaGreyscale(dataARGB, w, h);
     dataARGB.Free();
     return dataRGB;
 }
 
-ByteBuffer Image::convertRawToAlphaGreyscale(const quint8 *src, int w, int h, PixelFormat format)
+void Image::clearAlphaFromInternal(ByteBuffer data, int w, int h)
 {
-    auto dataARGB = convertRawToInternal(src, w, h, format);
-    auto dataRGB = InternalToAlphaGreyscale(dataARGB.ptr(), w, h);
-    dataARGB.Free();
-    return dataRGB;
-}
-
-void Image::clearAlphaFromInternal(quint8 *data, int w, int h)
-{
+    float *dst = data.ptrAsFloat();
     for (int i = 0; i < w * h; i++)
     {
-        data[4 * i + 3] = 255;
+        dst[4 * i + 3] = 1.0f;
     }
 }
 
-ByteBuffer Image::RGBtoInternal(const quint8 *src, int w, int h)
+ByteBuffer Image::RGBtoInternal(const ByteBuffer src, int w, int h)
 {
-    ByteBuffer tmpData(w * h * 4);
-    quint8 *ptr = tmpData.ptr();
+    ByteBuffer tmpData(w * h * 4 * sizeof(float));
+    float *ptr = tmpData.ptrAsFloat();
+    quint8 *srcPtr = src.ptr();
     for (int i = 0; i < w * h; i++)
     {
-        ptr[4 * i + 0] = src[3 * i + 2];
-        ptr[4 * i + 1] = src[3 * i + 1];
-        ptr[4 * i + 2] = src[3 * i + 0];
-        ptr[4 * i + 3] = 255;
+        ptr[4 * i + 0] = CONVERT_BYTE_TO_FLOAT(srcPtr[3 * i + 2]);
+        ptr[4 * i + 1] = CONVERT_BYTE_TO_FLOAT(srcPtr[3 * i + 1]);
+        ptr[4 * i + 2] = CONVERT_BYTE_TO_FLOAT(srcPtr[3 * i + 0]);
+        ptr[4 * i + 3] = 1.0f;
     }
     return tmpData;
 }
 
-ByteBuffer Image::RGBAtoInternal(const quint8 *src, int w, int h)
+ByteBuffer Image::RGBAtoInternal(const ByteBuffer src, int w, int h)
 {
-    ByteBuffer tmpData(w * h * 4);
-    quint8 *ptr = tmpData.ptr();
+    ByteBuffer tmpData(w * h * 4 * sizeof(float));
+    float *ptr = tmpData.ptrAsFloat();
+    quint8 *srcPtr = src.ptr();
     for (int i = 0; i < w * h; i++)
     {
-        ptr[4 * i + 0] = src[4 * i + 0];
-        ptr[4 * i + 1] = src[4 * i + 1];
-        ptr[4 * i + 2] = src[4 * i + 2];
-        ptr[4 * i + 3] = src[4 * i + 3];
+        ptr[4 * i + 0] = CONVERT_BYTE_TO_FLOAT(srcPtr[4 * i + 0]);
+        ptr[4 * i + 1] = CONVERT_BYTE_TO_FLOAT(srcPtr[4 * i + 1]);
+        ptr[4 * i + 2] = CONVERT_BYTE_TO_FLOAT(srcPtr[4 * i + 2]);
+        ptr[4 * i + 3] = CONVERT_BYTE_TO_FLOAT(srcPtr[4 * i + 3]);
     }
     return tmpData;
 }
 
-ByteBuffer Image::ARGBtoInternal(const quint8 *src, int w, int h)
+ByteBuffer Image::ARGBtoInternal(const ByteBuffer src, int w, int h)
 {
-    ByteBuffer tmpData(w * h * 4);
-    quint8 *ptr = tmpData.ptr();
+    ByteBuffer tmpData(w * h * 4 * sizeof(float));
+    float *ptr = tmpData.ptrAsFloat();
+    quint8 *srcPtr = src.ptr();
     for (int i = 0; i < w * h; i++)
     {
-        ptr[4 * i + 0] = src[4 * i + 2];
-        ptr[4 * i + 1] = src[4 * i + 1];
-        ptr[4 * i + 2] = src[4 * i + 0];
-        ptr[4 * i + 3] = src[4 * i + 3];
+        ptr[4 * i + 0] = CONVERT_BYTE_TO_FLOAT(srcPtr[4 * i + 2]);
+        ptr[4 * i + 1] = CONVERT_BYTE_TO_FLOAT(srcPtr[4 * i + 1]);
+        ptr[4 * i + 2] = CONVERT_BYTE_TO_FLOAT(srcPtr[4 * i + 0]);
+        ptr[4 * i + 3] = CONVERT_BYTE_TO_FLOAT(srcPtr[4 * i + 3]);
     }
     return tmpData;
 }
 
-ByteBuffer Image::InternalToARGB(const quint8 *src, int w, int h)
+ByteBuffer Image::InternalToARGB(const ByteBuffer src, int w, int h)
 {
     ByteBuffer tmpData(w * h * 4);
     quint8 *ptr = tmpData.ptr();
+    float *srcPtr = src.ptrAsFloat();
     for (int i = 0; i < w * h; i++)
     {
-        ptr[4 * i + 2] = src[4 * i + 0];
-        ptr[4 * i + 1] = src[4 * i + 1];
-        ptr[4 * i + 0] = src[4 * i + 2];
-        ptr[4 * i + 3] = src[4 * i + 3];
+        ptr[4 * i + 2] = ROUND_FLOAT_TO_BYTE(srcPtr[4 * i + 0]);
+        ptr[4 * i + 1] = ROUND_FLOAT_TO_BYTE(srcPtr[4 * i + 1]);
+        ptr[4 * i + 0] = ROUND_FLOAT_TO_BYTE(srcPtr[4 * i + 2]);
+        ptr[4 * i + 3] = ROUND_FLOAT_TO_BYTE(srcPtr[4 * i + 3]);
     }
     return tmpData;
 }
 
-ByteBuffer Image::InternalToRGBA(const quint8 *src, int w, int h)
+ByteBuffer Image::InternalToRGBA(const ByteBuffer src, int w, int h)
 {
     ByteBuffer tmpData(w * h * 4);
     quint8 *ptr = tmpData.ptr();
+    float *srcPtr = src.ptrAsFloat();
     for (int i = 0; i < w * h; i++)
     {
-        ptr[4 * i + 0] = src[4 * i + 0];
-        ptr[4 * i + 1] = src[4 * i + 1];
-        ptr[4 * i + 2] = src[4 * i + 2];
-        ptr[4 * i + 3] = src[4 * i + 3];
+        ptr[4 * i + 0] = ROUND_FLOAT_TO_BYTE(srcPtr[4 * i + 0]);
+        ptr[4 * i + 1] = ROUND_FLOAT_TO_BYTE(srcPtr[4 * i + 1]);
+        ptr[4 * i + 2] = ROUND_FLOAT_TO_BYTE(srcPtr[4 * i + 2]);
+        ptr[4 * i + 3] = ROUND_FLOAT_TO_BYTE(srcPtr[4 * i + 3]);
     }
     return tmpData;
 }
 
-ByteBuffer Image::InternalToRGB(const quint8 *src, int w, int h)
+ByteBuffer Image::InternalToRGB(const ByteBuffer src, int w, int h)
 {
     ByteBuffer tmpData(w * h * 3);
     quint8 *ptr = tmpData.ptr();
+    float *srcPtr = src.ptrAsFloat();
     for (int i = 0; i < w * h; i++)
     {
-        ptr[3 * i + 0] = src[4 * i + 2];
-        ptr[3 * i + 1] = src[4 * i + 1];
-        ptr[3 * i + 2] = src[4 * i + 0];
+        ptr[3 * i + 0] = ROUND_FLOAT_TO_BYTE(srcPtr[4 * i + 2]);
+        ptr[3 * i + 1] = ROUND_FLOAT_TO_BYTE(srcPtr[4 * i + 1]);
+        ptr[3 * i + 2] = ROUND_FLOAT_TO_BYTE(srcPtr[4 * i + 0]);
     }
     return tmpData;
 }
 
-ByteBuffer Image::InternalToBGR(const quint8 *src, int w, int h)
+ByteBuffer Image::InternalToBGR(const ByteBuffer src, int w, int h)
 {
     ByteBuffer tmpData(w * h * 3);
     quint8 *ptr = tmpData.ptr();
+    float *srcPtr = src.ptrAsFloat();
     for (int i = 0; i < w * h; i++)
     {
-        ptr[3 * i + 0] = src[4 * i + 0];
-        ptr[3 * i + 1] = src[4 * i + 1];
-        ptr[3 * i + 2] = src[4 * i + 2];
+        ptr[3 * i + 0] = ROUND_FLOAT_TO_BYTE(srcPtr[4 * i + 0]);
+        ptr[3 * i + 1] = ROUND_FLOAT_TO_BYTE(srcPtr[4 * i + 1]);
+        ptr[3 * i + 2] = ROUND_FLOAT_TO_BYTE(srcPtr[4 * i + 2]);
     }
     return tmpData;
 }
 
-ByteBuffer Image::V8U8ToInternal(const quint8 *src, int w, int h)
+ByteBuffer Image::V8U8ToInternal(const ByteBuffer src, int w, int h)
 {
-    ByteBuffer tmpData(w * h * 4);
-    quint8 *ptr = tmpData.ptr();
+    ByteBuffer tmpData(w * h * 4 * sizeof(float));
+    float *ptr = tmpData.ptrAsFloat();
+    quint8 *srcPtr = src.ptr();
     for (int i = 0; i < w * h; i++)
     {
-        ptr[4 * i + 0] = (quint8)(((qint8)src[2 * i + 0]) + 128);
-        ptr[4 * i + 1] = (quint8)(((qint8)src[2 * i + 1]) + 128);
-        ptr[4 * i + 2] = 255;
-        ptr[4 * i + 3] = 255;
+        ptr[4 * i + 0] = CONVERT_BYTE_TO_FLOAT((qint8)srcPtr[2 * i + 0] + 128);
+        ptr[4 * i + 1] = CONVERT_BYTE_TO_FLOAT((qint8)srcPtr[2 * i + 1] + 128);
+        ptr[4 * i + 2] = 1.0f;
+        ptr[4 * i + 3] = 1.0f;
     }
     return tmpData;
 }
 
-ByteBuffer Image::InternalToV8U8(const quint8 *src, int w, int h)
+ByteBuffer Image::InternalToV8U8(const ByteBuffer src, int w, int h)
 {
     ByteBuffer tmpData(w * h * 2);
     quint8 *ptr = tmpData.ptr();
+    float *srcPtr = src.ptrAsFloat();
     for (int i = 0; i < w * h; i++)
     {
-        ptr[2 * i + 0] = (quint8)((qint8)(src[4 * i + 0]) - 128);
-        ptr[2 * i + 1] = (quint8)((qint8)(src[4 * i + 1]) - 128);
+        ptr[2 * i + 0] = (quint8)((qint8)ROUND_FLOAT_TO_BYTE(srcPtr[4 * i + 0]) - 128);
+        ptr[2 * i + 1] = (quint8)((qint8)ROUND_FLOAT_TO_BYTE(srcPtr[4 * i + 1]) - 128);
     }
     return tmpData;
 }
 
-ByteBuffer Image::G8ToInternal(const quint8 *src, int w, int h)
+ByteBuffer Image::G8ToInternal(const ByteBuffer src, int w, int h)
 {
-    ByteBuffer tmpData(w * h * 4);
-    quint8 *ptr = tmpData.ptr();
+    ByteBuffer tmpData(w * h * 4 * sizeof(float));
+    float *ptr = tmpData.ptrAsFloat();
+    quint8 *srcPtr = src.ptr();
     for (int i = 0; i < w * h; i++)
     {
-        ptr[4 * i + 0] = src[i];
-        ptr[4 * i + 1] = src[i];
-        ptr[4 * i + 2] = src[i];
-        ptr[4 * i + 3] = 255;
+        ptr[4 * i + 0] = CONVERT_BYTE_TO_FLOAT(srcPtr[i]);
+        ptr[4 * i + 1] = CONVERT_BYTE_TO_FLOAT(srcPtr[i]);
+        ptr[4 * i + 2] = CONVERT_BYTE_TO_FLOAT(srcPtr[i]);
+        ptr[4 * i + 3] = 1.0f;
     }
 
     return tmpData;
 }
 
-ByteBuffer Image::InternalToG8(const quint8 *src, int w, int h)
+ByteBuffer Image::InternalToG8(const ByteBuffer src, int w, int h)
 {
     ByteBuffer tmpData(w * h);
     quint8 *ptr = tmpData.ptr();
+    float *srcPtr = src.ptrAsFloat();
     for (int i = 0; i < w * h; i++)
     {
-        int c = src[i * 4 + 0] + src[i * 4 + 1] + src[i * 4 + 2];
-        ptr[i] = (quint8)(c / 3);
+        float c = srcPtr[i * 4 + 0] + srcPtr[i * 4 + 1] + srcPtr[i * 4 + 2];
+        ptr[i] = ROUND_FLOAT_TO_BYTE(c / 3.0f);
     }
 
     return tmpData;
 }
 
-ByteBuffer Image::InternalToAlphaGreyscale(const quint8 *src, int w, int h)
+ByteBuffer Image::InternalToAlphaGreyscale(const ByteBuffer src, int w, int h)
 {
     ByteBuffer tmpData(w * h * 3);
     quint8 *ptr = tmpData.ptr();
+    float *srcPtr = src.ptrAsFloat();
     for (int i = 0; i < w * h; i++)
     {
-        quint8 alpha = src[4 * i + 3];
-        ptr[3 * i + 0] = alpha;
-        ptr[3 * i + 1] = alpha;
-        ptr[3 * i + 2] = alpha;
+        float alpha = srcPtr[4 * i + 3];
+        ptr[3 * i + 0] = ROUND_FLOAT_TO_BYTE(alpha);
+        ptr[3 * i + 1] = ROUND_FLOAT_TO_BYTE(alpha);
+        ptr[3 * i + 2] = ROUND_FLOAT_TO_BYTE(alpha);
     }
     return tmpData;
 }
 
-ByteBuffer Image::downscaleInternal(const quint8 *src, int w, int h)
+ByteBuffer Image::downscaleInternal(const ByteBuffer src, int w, int h)
 {
     if (w == 1 && h == 1)
         CRASH_MSG("1x1 can not be downscaled");
 
+    float *srcPtr = src.ptrAsFloat();
+
     if (w == 1 || h == 1)
     {
-        ByteBuffer tmpData(w * h * 2);
-        quint8 *ptr = tmpData.ptr();
+        ByteBuffer tmpData(w * h * 2 * sizeof(float));
+        float *ptr = tmpData.ptrAsFloat();
         for (int srcPos = 0, dstPos = 0; dstPos < w * h * 2; srcPos += 8)
         {
-            ptr[dstPos++] = (quint8)((uint)(src[srcPos + 0] + src[srcPos + 4 + 0]) >> 1);
-            ptr[dstPos++] = (quint8)((uint)(src[srcPos + 1] + src[srcPos + 4 + 1]) >> 1);
-            ptr[dstPos++] = (quint8)((uint)(src[srcPos + 2] + src[srcPos + 4 + 2]) >> 1);
-            ptr[dstPos++] = (quint8)((uint)(src[srcPos + 3] + src[srcPos + 4 + 3]) >> 1);
+            ptr[dstPos++] = (srcPtr[srcPos + 0] + srcPtr[srcPos + 4 + 0]) / 2.0f;
+            ptr[dstPos++] = (srcPtr[srcPos + 1] + srcPtr[srcPos + 4 + 1]) / 2.0f;
+            ptr[dstPos++] = (srcPtr[srcPos + 2] + srcPtr[srcPos + 4 + 2]) / 2.0f;
+            ptr[dstPos++] = (srcPtr[srcPos + 3] + srcPtr[srcPos + 4 + 3]) / 2.0f;
         }
         return tmpData;
     }
 
-    ByteBuffer tmpData(w * h);
-    quint8 *ptr = tmpData.ptr();
+    ByteBuffer tmpData(w * h * sizeof(float));
+    float *ptr = tmpData.ptrAsFloat();
     int pitch = w * 4;
     for (int srcPos = 0, dstPos = 0; dstPos < w * h; srcPos += pitch)
     {
         for (int x = 0; x < (w / 2); x++, srcPos += 8)
         {
-            ptr[dstPos++] = (quint8)((uint)(src[srcPos + 0] + src[srcPos + 4 + 0] + src[srcPos + pitch + 0] + src[srcPos + pitch + 4 + 0]) >> 2);
-            ptr[dstPos++] = (quint8)((uint)(src[srcPos + 1] + src[srcPos + 4 + 1] + src[srcPos + pitch + 1] + src[srcPos + pitch + 4 + 1]) >> 2);
-            ptr[dstPos++] = (quint8)((uint)(src[srcPos + 2] + src[srcPos + 4 + 2] + src[srcPos + pitch + 2] + src[srcPos + pitch + 4 + 2]) >> 2);
-            ptr[dstPos++] = (quint8)((uint)(src[srcPos + 3] + src[srcPos + 4 + 3] + src[srcPos + pitch + 3] + src[srcPos + pitch + 4 + 3]) >> 2);
+            ptr[dstPos++] = (srcPtr[srcPos + 0] + srcPtr[srcPos + 4 + 0] + srcPtr[srcPos + pitch + 0] + srcPtr[srcPos + pitch + 4 + 0]) / 4.0f;
+            ptr[dstPos++] = (srcPtr[srcPos + 1] + srcPtr[srcPos + 4 + 1] + srcPtr[srcPos + pitch + 1] + srcPtr[srcPos + pitch + 4 + 1]) / 4.0f;
+            ptr[dstPos++] = (srcPtr[srcPos + 2] + srcPtr[srcPos + 4 + 2] + srcPtr[srcPos + pitch + 2] + srcPtr[srcPos + pitch + 4 + 2]) / 4.0f;
+            ptr[dstPos++] = (srcPtr[srcPos + 3] + srcPtr[srcPos + 4 + 3] + srcPtr[srcPos + pitch + 3] + srcPtr[srcPos + pitch + 4 + 3]) / 4.0f;
         }
     }
     return tmpData;
 }
 
-void Image::saveToPng(const quint8 *src, int w, int h, PixelFormat format, const QString &filename, bool clearAlpha)
+void Image::saveToPng(const ByteBuffer src, int w, int h, PixelFormat format, const QString &filename, bool storeAs8bits, bool clearAlpha)
 {
     auto dataARGB = convertRawToInternal(src, w, h, format, clearAlpha);
     quint8 *buffer;
     quint32 bufferSize;
-    if (PngWrite(dataARGB.ptr(), &buffer, &bufferSize, w, h) != 0)
+    if (PngWrite(dataARGB.ptrAsFloat(), &buffer, &bufferSize, w, h, storeAs8bits) != 0)
     {
         PERROR("Failed to save to PNG.\n");
         return;
@@ -573,8 +632,8 @@ void Image::saveToPng(const quint8 *src, int w, int h, PixelFormat format, const
     dataARGB.Free();
 }
 
-ByteBuffer Image::convertToFormat(PixelFormat srcFormat, const quint8 *src, int w, int h, PixelFormat dstFormat,
-                               bool dxt1HasAlpha, quint8 dxt1Threshold, float bc7quality)
+ByteBuffer Image::convertToFormat(PixelFormat srcFormat, const ByteBuffer src, int w, int h, PixelFormat dstFormat,
+                                  bool dxt1HasAlpha, float dxt1Threshold, float bc7quality)
 {
     ByteBuffer tempData;
 
@@ -603,9 +662,9 @@ ByteBuffer Image::convertToFormat(PixelFormat srcFormat, const quint8 *src, int 
             }
             else
             {
-                ByteBuffer tempDataRGBA = convertRawToInternal(src, w, h, srcFormat);
-                tempData = compressMipmap(dstFormat, tempDataRGBA.ptr(), w, h, dxt1HasAlpha, dxt1Threshold, bc7quality);
-                tempDataRGBA.Free();
+                ByteBuffer tempDataInternal = convertRawToInternal(src, w, h, srcFormat);
+                tempData = compressMipmap(dstFormat, tempDataInternal, w, h, dxt1HasAlpha, dxt1Threshold, bc7quality);
+                tempDataInternal.Free();
             }
             break;
         }
@@ -620,16 +679,16 @@ ByteBuffer Image::convertToFormat(PixelFormat srcFormat, const quint8 *src, int 
             break;
         case PixelFormat::V8U8:
         {
-            ByteBuffer tempDataRGBA = convertRawToInternal(src, w, h, srcFormat);
-            tempData = InternalToV8U8(tempDataRGBA.ptr(), w, h);
-            tempDataRGBA.Free();
+            ByteBuffer tempDataInternal = convertRawToInternal(src, w, h, srcFormat);
+            tempData = InternalToV8U8(tempDataInternal, w, h);
+            tempDataInternal.Free();
             break;
         }
         case PixelFormat::G8:
         {
-            ByteBuffer tempDataRGBA = convertRawToInternal(src, w, h, srcFormat);
-            tempData = InternalToG8(tempDataRGBA.ptr(), w, h);
-            tempDataRGBA.Free();
+            ByteBuffer tempDataInternal = convertRawToInternal(src, w, h, srcFormat);
+            tempData = InternalToG8(tempDataInternal, w, h);
+            tempDataInternal.Free();
             break;
         }
         default:
@@ -639,10 +698,10 @@ ByteBuffer Image::convertToFormat(PixelFormat srcFormat, const quint8 *src, int 
     return tempData;
 }
 
-void Image::correctMips(PixelFormat dstFormat, bool dxt1HasAlpha, quint8 dxt1Threshold, float bc7quality)
+void Image::correctMips(PixelFormat dstFormat, bool dxt1HasAlpha, float dxt1Threshold, float bc7quality)
 {
     MipMap *firstMip = mipMaps.first();
-    auto tempData = convertRawToInternal(firstMip->getRefData().ptr(), firstMip->getWidth(), firstMip->getHeight(), pixelFormat);
+    auto tempData = convertRawToInternal(firstMip->getRefData(), firstMip->getWidth(), firstMip->getHeight(), pixelFormat);
 
     int width = firstMip->getOrigWidth();
     int height = firstMip->getOrigHeight();
@@ -660,7 +719,7 @@ void Image::correctMips(PixelFormat dstFormat, bool dxt1HasAlpha, quint8 dxt1Thr
     if (dstFormat != pixelFormat || (dstFormat == PixelFormat::DXT1 && !dxt1HasAlpha))
     {
         auto top = convertToFormat(PixelFormat::Internal,
-                                   tempData.ptr(), width, height, dstFormat, dxt1HasAlpha, dxt1Threshold, bc7quality);
+                                   tempData, width, height, dstFormat, dxt1HasAlpha, dxt1Threshold, bc7quality);
         mipMaps.push_back(new MipMap(top, width, height, dstFormat));
         top.Free();
         pixelFormat = dstFormat;
@@ -707,10 +766,10 @@ void Image::correctMips(PixelFormat dstFormat, bool dxt1HasAlpha, quint8 dxt1Thr
             }
         }
 
-        auto tempDataDownscaled = downscaleInternal(tempData.ptr(), prevW, prevH);
+        auto tempDataDownscaled = downscaleInternal(tempData, prevW, prevH);
         if (pixelFormat != PixelFormat::Internal)
         {
-            auto converted = convertToFormat(PixelFormat::Internal, tempDataDownscaled.ptr(), origW, origH,
+            auto converted = convertToFormat(PixelFormat::Internal, tempDataDownscaled, origW, origH,
                                              pixelFormat, dxt1HasAlpha, dxt1Threshold, bc7quality);
             mipMaps.push_back(new MipMap(converted, origW, origH, pixelFormat));
             converted.Free();

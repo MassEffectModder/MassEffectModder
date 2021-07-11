@@ -371,6 +371,8 @@ bool CmdLineTools::convertImage(QString &inputFile, QString &outputFile, QString
         pixFmt = PixelFormat::BC5;
     else if (format == "bc7")
         pixFmt = PixelFormat::BC7;
+    else if (format == "hdr")
+        pixFmt = PixelFormat::HDR;
     else
     {
         PERROR(QString("Error: not supported format: ") + format + "\n");
@@ -632,6 +634,12 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, QString
                 if (QFile(outputFile).exists())
                     continue;
                 PixelFormat pixelFormat = Image::getPixelFormatType(texture.getProperties().getProperty("Format").getValueName());
+                bool oneBitAlpha = texture.getProperties().exists("CompressionSettings") &&
+                                   texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_OneBitAlpha";
+                bool depthHdr = texture.getProperties().exists("CompressionSettings") &&
+                                texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_HighDynamicRange";
+                if (!clearAlpha)
+                    clearAlpha = (pixelFormat == PixelFormat::DXT1) && !oneBitAlpha;
                 if (png)
                 {
                     Texture::TextureMipMap mipmap = texture.getTopMipmap();
@@ -640,7 +648,7 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, QString
                     {
                         if (QFile(outputFile).exists())
                             QFile(outputFile).remove();
-                        Image::saveToPng(data.ptr(), mipmap.width, mipmap.height, pixelFormat, outputFile, clearAlpha);
+                        Image::saveToPng(data, mipmap.width, mipmap.height, pixelFormat, outputFile, !depthHdr, clearAlpha);
                         data.Free();
                     }
                 }

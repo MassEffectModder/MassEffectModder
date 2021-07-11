@@ -79,8 +79,8 @@ void Image::LoadImageTGA(Stream &stream)
 
     stream.Skip(idLength);
 
-    auto buffer = ByteBuffer(imageWidth * imageHeight * 4);
-    quint8 *ptr = buffer.ptr();
+    auto buffer = ByteBuffer(imageWidth * imageHeight * 4 * sizeof(float));
+    float *ptr = buffer.ptrAsFloat();
     int pos = downToTop ? imageWidth * (imageHeight - 1) * 4 : 0;
     int delta = downToTop ? -imageWidth * 4 * 2 : 0;
     if (compressed)
@@ -98,16 +98,16 @@ void Image::LoadImageTGA(Stream &stream)
             }
             else
             {
-                quint8 pixelR, pixelG, pixelB, pixelA;
+                float pixelR, pixelG, pixelB, pixelA;
                 if (repeat != 0)
                 {
-                    pixelB = stream.ReadByte();
-                    pixelG = stream.ReadByte();
-                    pixelR = stream.ReadByte();
+                    pixelB = CONVERT_BYTE_TO_FLOAT(stream.ReadByte());
+                    pixelG = CONVERT_BYTE_TO_FLOAT(stream.ReadByte());
+                    pixelR = CONVERT_BYTE_TO_FLOAT(stream.ReadByte());
                     if (imageDepth == 32)
-                        pixelA = stream.ReadByte();
+                        pixelA = CONVERT_BYTE_TO_FLOAT(stream.ReadByte());
                     else
-                        pixelA = 0xFF;
+                        pixelA = 1.0f;
                     for (; w < imageWidth && repeat > 0; w++, repeat--)
                     {
                         ptr[pos++] = pixelR;
@@ -120,16 +120,16 @@ void Image::LoadImageTGA(Stream &stream)
                 {
                     for (; w < imageWidth && count > 0; w++, count--)
                     {
-                        pixelB = stream.ReadByte();
-                        pixelG = stream.ReadByte();
-                        pixelR = stream.ReadByte();
+                        pixelB = CONVERT_BYTE_TO_FLOAT(stream.ReadByte());
+                        pixelG = CONVERT_BYTE_TO_FLOAT(stream.ReadByte());
+                        pixelR = CONVERT_BYTE_TO_FLOAT(stream.ReadByte());
                         ptr[pos++] = pixelR;
                         ptr[pos++] = pixelG;
                         ptr[pos++] = pixelB;
                         if (imageDepth == 32)
-                            ptr[pos++] = stream.ReadByte();
+                            ptr[pos++] = CONVERT_BYTE_TO_FLOAT(stream.ReadByte());
                         else
-                            ptr[pos++] = 0xFF;
+                            ptr[pos++] = 1.0f;
                     }
                 }
             }
@@ -149,16 +149,16 @@ void Image::LoadImageTGA(Stream &stream)
         {
             for (int w = 0; w < imageWidth; w++)
             {
-                quint8 pixelB = stream.ReadByte();
-                quint8 pixelG = stream.ReadByte();
-                quint8 pixelR = stream.ReadByte();
+                float pixelB = CONVERT_BYTE_TO_FLOAT(stream.ReadByte());
+                float pixelG = CONVERT_BYTE_TO_FLOAT(stream.ReadByte());
+                float pixelR = CONVERT_BYTE_TO_FLOAT(stream.ReadByte());
                 ptr[pos++] = pixelR;
                 ptr[pos++] = pixelG;
                 ptr[pos++] = pixelB;
                 if (imageDepth == 32)
-                    ptr[pos++] = stream.ReadByte();
+                    ptr[pos++] = CONVERT_BYTE_TO_FLOAT(stream.ReadByte());
                 else
-                    ptr[pos++] = 0xFF;
+                    ptr[pos++] = 1.0f;
             }
         }
     }

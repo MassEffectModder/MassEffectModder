@@ -427,8 +427,8 @@ ByteBuffer Image::StoreImageToDDS()
     return stream.ToArray();
 }
 
-void Image::readBlockInternalToDxt(quint8 blockARGB[BLOCK_SIZE_4X4X4], const quint8 *srcARGB,
-                               int srcW, int blockX, int blockY)
+void Image::readBlockInternalToDxt(float blockARGB[BLOCK_SIZE_4X4X4], const float *srcARGB,
+                                   int srcW, int blockX, int blockY)
 {
     int srcPitch = srcW * 4;
     int blockPitch = 4 * 4;
@@ -451,8 +451,8 @@ void Image::readBlockInternalToDxt(quint8 blockARGB[BLOCK_SIZE_4X4X4], const qui
     }
 }
 
-void Image::writeBlockDxtToInternal(const quint8 blockARGB[BLOCK_SIZE_4X4X4], quint8 *dstARGB,
-                                int dstW, int blockX, int blockY)
+void Image::writeBlockDxtToInternal(const float blockARGB[BLOCK_SIZE_4X4X4], float *dstARGB,
+                                    int dstW, int blockX, int blockY)
 {
     int dstPitch = dstW * 4;
     int blockPitch = 4 * 4;
@@ -486,29 +486,29 @@ void Image::readBlockDxtBpp8(quint8 *dst, const quint8 *src, int srcW, int block
     memcpy(dst, src + offset, BLOCK_SIZE_4X4BPP8);
 }
 
-void Image::convertBlock4X4X4FloatToByte(quint8 dst[BLOCK_SIZE_4X4X4], double src[BLOCK_SIZE_4X4][4])
+void Image::convertBlock4X4X4DoubleToFloat(float dst[BLOCK_SIZE_4X4X4], double src[BLOCK_SIZE_4X4][4])
 {
     int dstIndex = 0;
     for (int row = 0; row < 4; row++) {
         for (int col = 0; col < 4; col++) {
-            dst[dstIndex + 0] = (quint8)src[row * 4 + col][2];
-            dst[dstIndex + 1] = (quint8)src[row * 4 + col][1];
-            dst[dstIndex + 2] = (quint8)src[row * 4 + col][0];
-            dst[dstIndex + 3] = (quint8)src[row * 4 + col][3];
+            dst[dstIndex + 0] = src[row * 4 + col][2] / 255.0f;
+            dst[dstIndex + 1] = src[row * 4 + col][1] / 255.0f;
+            dst[dstIndex + 2] = src[row * 4 + col][0] / 255.0f;
+            dst[dstIndex + 3] = src[row * 4 + col][3] / 255.0f;
             dstIndex += 4;
         }
     }
 }
 
-void Image::convertBlock4X4X4ByteToFloat(double dst[BLOCK_SIZE_4X4][4], const quint8 src[BLOCK_SIZE_4X4X4])
+void Image::convertBlock4X4X4FloatToDouble(double dst[BLOCK_SIZE_4X4][4], const float src[BLOCK_SIZE_4X4X4])
 {
     int srcIndex = 0;
     for (int row = 0; row < 4; row++) {
         for (int col = 0; col < 4; col++) {
-            dst[row * 4 + col][0] = (double)src[srcIndex + 2];
-            dst[row * 4 + col][1] = (double)src[srcIndex + 1];
-            dst[row * 4 + col][2] = (double)src[srcIndex + 0];
-            dst[row * 4 + col][3] = (double)src[srcIndex + 3];
+            dst[row * 4 + col][0] = src[srcIndex + 2] * 255.0f;
+            dst[row * 4 + col][1] = src[srcIndex + 1] * 255.0f;
+            dst[row * 4 + col][2] = src[srcIndex + 0] * 255.0f;
+            dst[row * 4 + col][3] = src[srcIndex + 3] * 255.0f;
             srcIndex += 4;
         }
     }
@@ -527,15 +527,15 @@ void Image::writeBlockDxtBpp8(quint8 *src, quint8 *dst, int dstW, int blockX, in
 }
 
 void Image::writeBlock4X4ATI2(quint8 *blockSrcX, quint8 *blockSrcY,
-                                 quint8 *dst, int dstW, int blockX, int blockY)
+                              quint8 *dst, int dstW, int blockX, int blockY)
 {
     int offset = blockY * dstW * 4 + blockX * 4 * sizeof(uint);
     memcpy(dst + offset + 0, blockSrcX, BLOCK_SIZE_4X4BPP4);
     memcpy(dst + offset + 8, blockSrcY, BLOCK_SIZE_4X4BPP4);
 }
 
-void Image::readBlockInternalToAti2(quint8 blockDstX[BLOCK_SIZE_4X4BPP8], quint8 blockDstY[BLOCK_SIZE_4X4BPP8],
-                               const quint8 *src, int srcW, int blockX, int blockY)
+void Image::readBlockInternalToAti2(float blockDstX[BLOCK_SIZE_4X4BPP8], float blockDstY[BLOCK_SIZE_4X4BPP8],
+                                    const float *src, int srcW, int blockX, int blockY)
 {
     int srcPitch = srcW * 4;
     int srcPtr = (blockY * 4) * srcPitch + blockX * 4 * 4;
@@ -551,9 +551,9 @@ void Image::readBlockInternalToAti2(quint8 blockDstX[BLOCK_SIZE_4X4BPP8], quint8
     }
 }
 
-void Image::writeBlockAti2ToInternal(const quint8 blockR[BLOCK_SIZE_4X4BPP8],
-                                  const quint8 blockG[BLOCK_SIZE_4X4BPP8],
-                                  quint8 *dstARGB, int srcW, int blockX, int blockY)
+void Image::writeBlockAti2ToInternal(const float blockR[BLOCK_SIZE_4X4BPP8],
+                                     const float blockG[BLOCK_SIZE_4X4BPP8],
+                                     float *dstARGB, int srcW, int blockX, int blockY)
 {
     int dstPitch = srcW * 4;
     int blockPitch = 4;
@@ -568,14 +568,14 @@ void Image::writeBlockAti2ToInternal(const quint8 blockR[BLOCK_SIZE_4X4BPP8],
             int dstPtr = dstARGBPtrY + x;
             dstARGB[dstPtr + 0] = blockR[blockPtr];
             dstARGB[dstPtr + 1] = blockG[blockPtr];
-            dstARGB[dstPtr + 2] = 255;
-            dstARGB[dstPtr + 3] = 255;
+            dstARGB[dstPtr + 2] = 1.0f;
+            dstARGB[dstPtr + 3] = 1.0f;
         }
     }
 }
 
-ByteBuffer Image::compressMipmap(PixelFormat dstFormat, const quint8 *src, int w, int h,
-                                   bool useDXT1Alpha, quint8 DXT1Threshold, float bc7quality)
+ByteBuffer Image::compressMipmap(PixelFormat dstFormat, const ByteBuffer src, int w, int h,
+                                 bool useDXT1Alpha, quint8 DXT1Threshold, float bc7quality)
 {
     int blockSize = BLOCK_SIZE_4X4BPP8;
     if (dstFormat == PixelFormat::DXT1)
@@ -620,24 +620,24 @@ ByteBuffer Image::compressMipmap(PixelFormat dstFormat, const quint8 *src, int w
                 if (dstFormat == PixelFormat::DXT1)
                 {
                     uint block[2];
-                    quint8 srcBlock[BLOCK_SIZE_4X4X4];
-                    readBlockInternalToDxt(srcBlock, src, w, x, y);
+                    float srcBlock[BLOCK_SIZE_4X4X4];
+                    readBlockInternalToDxt(srcBlock, src.ptrAsFloat(), w, x, y);
                     DxtcCompressRGBBlock(srcBlock, block, true, useDXT1Alpha, DXT1Threshold);
                     writeBlockDxtBpp4((quint8 *)block, dst.ptr(), w, x, y);
                 }
                 else if (dstFormat == PixelFormat::DXT3)
                 {
                     uint block[4];
-                    quint8 srcBlock[BLOCK_SIZE_4X4X4];
-                    readBlockInternalToDxt(srcBlock, src, w, x, y);
+                    float srcBlock[BLOCK_SIZE_4X4X4];
+                    readBlockInternalToDxt(srcBlock, src.ptrAsFloat(), w, x, y);
                     DxtcCompressRGBABlock_ExplicitAlpha(srcBlock, block);
                     writeBlockDxtBpp8((quint8 *)block, dst.ptr(), w, x, y);
                 }
                 else if (dstFormat == PixelFormat::DXT5)
                 {
                     uint block[4];
-                    quint8 srcBlock[BLOCK_SIZE_4X4X4];
-                    readBlockInternalToDxt(srcBlock, src, w, x, y);
+                    float srcBlock[BLOCK_SIZE_4X4X4];
+                    readBlockInternalToDxt(srcBlock, src.ptrAsFloat(), w, x, y);
                     DxtcCompressRGBABlock(srcBlock, block);
                     writeBlockDxtBpp8((quint8 *)block, dst.ptr(), w, x, y);
                 }
@@ -646,9 +646,9 @@ ByteBuffer Image::compressMipmap(PixelFormat dstFormat, const quint8 *src, int w
                 {
                     uint blockX[2];
                     uint blockY[2];
-                    quint8 srcBlockX[BLOCK_SIZE_4X4BPP8];
-                    quint8 srcBlockY[BLOCK_SIZE_4X4BPP8];
-                    readBlockInternalToAti2(srcBlockX, srcBlockY, src, w, x, y);
+                    float srcBlockX[BLOCK_SIZE_4X4BPP8];
+                    float srcBlockY[BLOCK_SIZE_4X4BPP8];
+                    readBlockInternalToAti2(srcBlockX, srcBlockY, src.ptrAsFloat(), w, x, y);
                     DxtcCompressAlphaBlock(srcBlockX, blockX);
                     DxtcCompressAlphaBlock(srcBlockY, blockY);
                     writeBlock4X4ATI2((quint8 *)blockX, (quint8 *)blockY, dst.ptr(), w, x, y);
@@ -657,9 +657,9 @@ ByteBuffer Image::compressMipmap(PixelFormat dstFormat, const quint8 *src, int w
                 {
                     quint8 block[BLOCK_SIZE_4X4];
                     double blockToEncode[BLOCK_SIZE_4X4][4];
-                    quint8 srcBlock[BLOCK_SIZE_4X4X4];
-                    readBlockInternalToDxt(srcBlock, src, w, x, y);
-                    convertBlock4X4X4ByteToFloat(blockToEncode, srcBlock);
+                    float srcBlock[BLOCK_SIZE_4X4X4];
+                    readBlockInternalToDxt(srcBlock, src.ptrAsFloat(), w, x, y);
+                    convertBlock4X4X4FloatToDouble(blockToEncode, srcBlock);
                     BC7CompressBlock(bc7Encoder[omp_get_thread_num()], blockToEncode, block);
                     writeBlockDxtBpp8((quint8 *)block, dst.ptr(), w, x, y);
                 }
@@ -684,9 +684,9 @@ ByteBuffer Image::compressMipmap(PixelFormat dstFormat, const quint8 *src, int w
     return dst;
 }
 
-ByteBuffer Image::decompressMipmap(PixelFormat srcFormat, const quint8 *src, int w, int h)
+ByteBuffer Image::decompressMipmap(PixelFormat srcFormat, const ByteBuffer src, int w, int h)
 {
-    auto dst = ByteBuffer(w * h * 4);
+    auto dst = ByteBuffer(w * h * 4 * sizeof(float));
     int cores = omp_get_max_threads();
     int partSize;
     cores = returnPowerOfTwo(cores);
@@ -725,26 +725,26 @@ ByteBuffer Image::decompressMipmap(PixelFormat srcFormat, const quint8 *src, int
                 if (srcFormat == PixelFormat::DXT1)
                 {
                     uint block[2];
-                    quint8 dstBlock[BLOCK_SIZE_4X4X4];
-                    readBlockDxtBpp4((quint8 *)block, src, w, x, y);
+                    float dstBlock[BLOCK_SIZE_4X4X4];
+                    readBlockDxtBpp4((quint8 *)block, src.ptr(), w, x, y);
                     DxtcDecompressRGBBlock(dstBlock, block, true);
-                    writeBlockDxtToInternal(dstBlock, dst.ptr(), w, x, y);
+                    writeBlockDxtToInternal(dstBlock, dst.ptrAsFloat(), w, x, y);
                 }
                 else if (srcFormat == PixelFormat::DXT3)
                 {
                     uint block[4];
-                    quint8 dstBlock[BLOCK_SIZE_4X4X4];
-                    readBlockDxtBpp8((quint8 *)block, src, w, x, y);
+                    float dstBlock[BLOCK_SIZE_4X4X4];
+                    readBlockDxtBpp8((quint8 *)block, src.ptr(), w, x, y);
                     DxtcDecompressRGBABlock_ExplicitAlpha(dstBlock, block);
-                    writeBlockDxtToInternal(dstBlock, dst.ptr(), w, x, y);
+                    writeBlockDxtToInternal(dstBlock, dst.ptrAsFloat(), w, x, y);
                 }
                 else if (srcFormat == PixelFormat::DXT5)
                 {
                     uint block[4];
-                    quint8 dstBlock[BLOCK_SIZE_4X4X4];
-                    readBlockDxtBpp8((quint8 *)block, src, w, x, y);
+                    float dstBlock[BLOCK_SIZE_4X4X4];
+                    readBlockDxtBpp8((quint8 *)block, src.ptr(), w, x, y);
                     DxtcDecompressRGBABlock(dstBlock, block);
-                    writeBlockDxtToInternal(dstBlock, dst.ptr(), w, x, y);
+                    writeBlockDxtToInternal(dstBlock, dst.ptrAsFloat(), w, x, y);
                 }
                 else if (srcFormat == PixelFormat::ATI2 ||
                          srcFormat == PixelFormat::BC5)
@@ -752,26 +752,26 @@ ByteBuffer Image::decompressMipmap(PixelFormat srcFormat, const quint8 *src, int
                     uint blockX[2];
                     uint blockY[2];
                     uint block[4];
-                    quint8 blockDstR[BLOCK_SIZE_4X4BPP8];
-                    quint8 blockDstG[BLOCK_SIZE_4X4BPP8];
-                    readBlockDxtBpp8((quint8 *)block, src, w, x, y);
+                    float blockDstR[BLOCK_SIZE_4X4BPP8];
+                    float blockDstG[BLOCK_SIZE_4X4BPP8];
+                    readBlockDxtBpp8((quint8 *)block, src.ptr(), w, x, y);
                     blockY[0] = block[0];
                     blockY[1] = block[1];
                     blockX[0] = block[2];
                     blockX[1] = block[3];
                     DxtcDecompressAlphaBlock(blockDstR, blockX);
                     DxtcDecompressAlphaBlock(blockDstG, blockY);
-                    writeBlockAti2ToInternal(blockDstR, blockDstG, dst.ptr(), w, x, y);
+                    writeBlockAti2ToInternal(blockDstR, blockDstG, dst.ptrAsFloat(), w, x, y);
                 }
                 else if (srcFormat == PixelFormat::BC7)
                 {
                     quint8 block[BLOCK_SIZE_4X4X4];
                     double dstBlock[BLOCK_SIZE_4X4][4];
-                    quint8 destBlock[BLOCK_SIZE_4X4X4];
-                    readBlockDxtBpp8(block, src, w, x, y);
+                    float destBlock[BLOCK_SIZE_4X4X4];
+                    readBlockDxtBpp8(block, src.ptr(), w, x, y);
                     BC7DecompressBlock(bc7Decoder[omp_get_thread_num()], block, dstBlock);
-                    convertBlock4X4X4FloatToByte(destBlock, dstBlock);
-                    writeBlockDxtToInternal(destBlock, dst.ptr(), w, x, y);
+                    convertBlock4X4X4DoubleToFloat(destBlock, dstBlock);
+                    writeBlockDxtToInternal(destBlock, dst.ptrAsFloat(), w, x, y);
                 }
                 else
                     CRASH_MSG("Not supported codec.");

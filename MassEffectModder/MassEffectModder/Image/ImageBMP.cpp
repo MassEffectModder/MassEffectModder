@@ -112,8 +112,8 @@ void Image::LoadImageBMP(Stream &stream)
     Bshift = getShiftFromMask(Bmask);
     Ashift = getShiftFromMask(Amask);
 
-    auto buffer = ByteBuffer(imageWidth * imageHeight * 4);
-    quint8 *ptr = buffer.ptr();
+    auto buffer = ByteBuffer(imageWidth * imageHeight * 4 * sizeof(float));
+    float *ptr = buffer.ptrAsFloat();
     int pos = downToTop ? imageWidth * (imageHeight - 1) * 4 : 0;
     int delta = downToTop ? -imageWidth * 4 * 2 : 0;
     for (int h = 0; h < imageHeight; h++)
@@ -122,13 +122,13 @@ void Image::LoadImageBMP(Stream &stream)
         {
             if (bits == 24)
             {
-                uint b = stream.ReadByte();
-                uint g = stream.ReadByte();
-                uint r = stream.ReadByte();
+                float b = CONVERT_BYTE_TO_FLOAT(stream.ReadByte());
+                float g = CONVERT_BYTE_TO_FLOAT(stream.ReadByte());
+                float r = CONVERT_BYTE_TO_FLOAT(stream.ReadByte());
                 ptr[pos++] = r;
                 ptr[pos++] = g;
                 ptr[pos++] = b;
-                ptr[pos++] = 255;
+                ptr[pos++] = 1.0f;
             }
             else if (bits == 32)
             {
@@ -137,10 +137,10 @@ void Image::LoadImageBMP(Stream &stream)
                 uint p3 = stream.ReadByte();
                 uint p4 = stream.ReadByte();
                 uint pixel = p4 << 24 | p3 << 16 | p2 << 8 | p1;
-                ptr[pos++] = (pixel & Rmask) >> Rshift;
-                ptr[pos++] = (pixel & Gmask) >> Gshift;
-                ptr[pos++] = (pixel & Bmask) >> Bshift;
-                ptr[pos++] = (pixel & Amask) >> Ashift;
+                ptr[pos++] = CONVERT_BYTE_TO_FLOAT((pixel & Rmask) >> Rshift);
+                ptr[pos++] = CONVERT_BYTE_TO_FLOAT((pixel & Gmask) >> Gshift);
+                ptr[pos++] = CONVERT_BYTE_TO_FLOAT((pixel & Bmask) >> Bshift);
+                ptr[pos++] = CONVERT_BYTE_TO_FLOAT((pixel & Amask) >> Ashift);
             }
         }
         if (imageWidth % 4 != 0)
@@ -153,7 +153,7 @@ void Image::LoadImageBMP(Stream &stream)
         bool hasAlpha = false;
         for (int i = 0; i < imageWidth * imageHeight; i++)
         {
-            if (ptr[4 * i + 3] != 0)
+            if (ROUND_FLOAT_TO_BYTE(ptr[4 * i + 3]) != 0)
             {
                 hasAlpha = true;
                 break;
@@ -164,7 +164,7 @@ void Image::LoadImageBMP(Stream &stream)
         {
             for (int i = 0; i < imageWidth * imageHeight; i++)
             {
-                ptr[4 * i + 3] = 255;
+                ptr[4 * i + 3] = 1.0f;
             }
         }
     }
