@@ -25,7 +25,7 @@
 #include <Helpers/Logs.h>
 #include <Wrappers.h>
 
-void Image::LoadImageDDS(Stream &stream)
+void Image::LoadImageDDS(Stream &stream, bool &source8Bits)
 {
     if (stream.ReadUInt32() != DDS_TAG)
     {
@@ -38,6 +38,7 @@ void Image::LoadImageDDS(Stream &stream)
         PERROR("The data has wrong DDS header dwSize.\n");
         return;
     }
+    source8Bits = true;
 
     DDSflags = stream.ReadUInt32();
 

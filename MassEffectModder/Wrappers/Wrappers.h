@@ -72,7 +72,7 @@ int LzxDecompress(BYTE *src, UINT32 src_len, BYTE *dst, const UINT32 *dst_len);
 
 int PngRead(BYTE *src, UINT32 srcSize,
              float **dst, UINT32 *dstSize,
-             UINT32 *width, UINT32 *height);
+             UINT32 *width, UINT32 *height, bool &source8Bits);
 int PngWrite(const float *src, BYTE **dst, UINT32 *dstSize,
               UINT32 width, UINT32 height, bool storeAs8bits = true);
 

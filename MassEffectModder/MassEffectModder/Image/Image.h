@@ -224,12 +224,13 @@ private:
     DDS_PF ddsPixelFormat{};
     uint DDSflags{};
     bool DX10Type{};
+    bool sourceIs8Bits = true;
 
     ImageFormat DetectImageByFilename(const QString &fileName);
     ImageFormat DetectImageByExtension(const QString &extension);
-    void LoadImageFromStream(Stream &stream, ImageFormat format);
-    void LoadImageFromBuffer(ByteBuffer data, ImageFormat format);
-    void LoadImageDDS(Stream &stream);
+    void LoadImageFromStream(Stream &stream, ImageFormat format, bool &source8Bits);
+    void LoadImageFromBuffer(ByteBuffer data, ImageFormat format, bool &source8Bits);
+    void LoadImageDDS(Stream &stream, bool &source8Bits);
     void LoadImageTGA(Stream &stream);
     void LoadImageBMP(Stream &stream);
     static void clearAlphaFromInternal(ByteBuffer data, int w, int h);
@@ -255,6 +256,7 @@ public:
 
     QList<MipMap *> &getMipMaps() { return mipMaps; }
     PixelFormat getPixelFormat() { return pixelFormat; }
+    bool isSource8Bits() { return sourceIs8Bits; }
 
     Image(int width, int height);
     Image(const QString &fileName, ImageFormat format = ImageFormat::UnknownImageFormat);
@@ -265,6 +267,7 @@ public:
     Image(QList<MipMap *> &mipmaps, PixelFormat pixelFmt);
     ~Image();
     void generateGradient();
+    void convertInternalToRGBE();
     static ByteBuffer convertRawToInternal(const ByteBuffer src, int w, int h, PixelFormat format, bool clearAlpha = false);
     static ByteBuffer convertRawToRGB(const ByteBuffer src, int w, int h, PixelFormat format);
     static ByteBuffer convertRawToARGB(const ByteBuffer src, int w, int h, PixelFormat format);

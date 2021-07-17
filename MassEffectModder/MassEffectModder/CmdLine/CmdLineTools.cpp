@@ -634,6 +634,11 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, QString
                 if (QFile(outputFile).exists())
                     continue;
                 PixelFormat pixelFormat = Image::getPixelFormatType(texture.getProperties().getProperty("Format").getValueName());
+                if (texture.getProperties().exists("CompressionSettings") &&
+                    texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_HighDynamicRange")
+                {
+                    pixelFormat = PixelFormat::RGBE;
+                }
                 bool oneBitAlpha = texture.getProperties().exists("CompressionSettings") &&
                                    texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_OneBitAlpha";
                 bool depthHdr = texture.getProperties().exists("CompressionSettings") &&

@@ -746,6 +746,11 @@ void LayoutTexturesManager::UpdateRight(const QListWidgetItem *item)
         int width = texture.getTopMipmap().width;
         int height = texture.getTopMipmap().height;
         PixelFormat pixelFormat = Image::getPixelFormatType(texture.getProperties().getProperty("Format").getValueName());
+        if (texture.getProperties().exists("CompressionSettings") &&
+            texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_HighDynamicRange")
+        {
+            pixelFormat = PixelFormat::RGBE;
+        }
         bool oneBitAlpha = texture.getProperties().exists("CompressionSettings") &&
                            texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_OneBitAlpha";
         bool clearAlpha = (pixelFormat == PixelFormat::DXT1) && !oneBitAlpha;
@@ -893,7 +898,11 @@ void LayoutTexturesManager::ReplaceTexture(const QListWidgetItem *item, bool con
     g_logs->BufferEnableErrors(true);
     Image *image = nullptr;
     if (!nodeTexture.movieTexture)
+    {
         image = new Image(file);
+        if (!image->isSource8Bits())
+            image->convertInternalToRGBE();
+    }
     mainWindow->statusBar()->clearMessage();
     g_logs->BufferEnableErrors(false);
     if (g_logs->BufferGetErrors() != "")
@@ -1124,6 +1133,12 @@ void LayoutTexturesManager::ExtractTexture(const ViewTexture& viewTexture, bool 
             QFile(outputFile).remove();
 
         PixelFormat pixelFormat = Image::getPixelFormatType(texture.getProperties().getProperty("Format").getValueName());
+        if (texture.getProperties().exists("CompressionSettings") &&
+            texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_HighDynamicRange")
+        {
+            pixelFormat = PixelFormat::RGBE;
+        }
+
         bool oneBitAlpha = texture.getProperties().exists("CompressionSettings") &&
                            texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_OneBitAlpha";
         bool clearAlpha = (pixelFormat == PixelFormat::DXT1) && !oneBitAlpha;

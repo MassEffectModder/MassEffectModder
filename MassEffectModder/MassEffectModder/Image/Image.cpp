@@ -60,14 +60,14 @@ Image::Image(const QString &fileName, ImageFormat format)
         case ImageFormat::TGA:
         {
             FileStream file(fileName, FileMode::Open, FileAccess::ReadOnly);
-            LoadImageFromStream(file, format);
+            LoadImageFromStream(file, format, sourceIs8Bits);
             return;
         }
         case ImageFormat::PNG:
         {
             FileStream file(fileName, FileMode::Open, FileAccess::ReadOnly);
             ByteBuffer buffer = file.ReadToBuffer(file.Length());
-            LoadImageFromBuffer(buffer, format);
+            LoadImageFromBuffer(buffer, format, sourceIs8Bits);
             buffer.Free();
             return;
         }
@@ -86,7 +86,7 @@ Image::Image(Stream &stream, ImageFormat format)
         case ImageFormat::DDS:
         case ImageFormat::TGA:
         {
-            LoadImageFromStream(stream, format);
+            LoadImageFromStream(stream, format, sourceIs8Bits);
             return;
         }
         case ImageFormat::PNG:
@@ -106,7 +106,7 @@ Image::Image(Stream &stream, const QString &extension)
         case ImageFormat::DDS:
         case ImageFormat::TGA:
         {
-            LoadImageFromStream(stream, format);
+            LoadImageFromStream(stream, format, sourceIs8Bits);
             return;
         }
         case ImageFormat::PNG:
@@ -126,12 +126,12 @@ Image::Image(const ByteBuffer &data, ImageFormat format)
         case ImageFormat::TGA:
         {
             MemoryStream stream(data);
-            LoadImageFromStream(stream, format);
+            LoadImageFromStream(stream, format, sourceIs8Bits);
             return;
         }
         case ImageFormat::PNG:
         {
-            LoadImageFromBuffer(data, format);
+            LoadImageFromBuffer(data, format, sourceIs8Bits);
             return;
         }
         case ImageFormat::UnknownImageFormat:
@@ -151,12 +151,12 @@ Image::Image(const ByteBuffer &data, const QString &extension)
         case ImageFormat::TGA:
         {
             MemoryStream stream(data);
-            LoadImageFromStream(stream, format);
+            LoadImageFromStream(stream, format, sourceIs8Bits);
             return;
         }
         case ImageFormat::PNG:
         {
-            LoadImageFromBuffer(data, format);
+            LoadImageFromBuffer(data, format, sourceIs8Bits);
             return;
         }
         case ImageFormat::UnknownImageFormat:
@@ -233,7 +233,7 @@ ImageFormat Image::DetectImageByExtension(const QString &extension)
     return ImageFormat::UnknownImageFormat;
 }
 
-void Image::LoadImageFromStream(Stream &stream, ImageFormat format)
+void Image::LoadImageFromStream(Stream &stream, ImageFormat format, bool &source8Bits)
 {
     foreach(MipMap *mipmap, mipMaps)
     {
@@ -241,6 +241,7 @@ void Image::LoadImageFromStream(Stream &stream, ImageFormat format)
         delete mipmap;
     }
     mipMaps.clear();
+    source8Bits = true;
 
     switch (format)
     {
@@ -251,7 +252,7 @@ void Image::LoadImageFromStream(Stream &stream, ImageFormat format)
             }
         case ImageFormat::DDS:
             {
-                LoadImageDDS(stream);
+                LoadImageDDS(stream, source8Bits);
                 return;
             }
         case ImageFormat::TGA:
@@ -267,7 +268,7 @@ void Image::LoadImageFromStream(Stream &stream, ImageFormat format)
     CRASH();
 }
 
-void Image::LoadImageFromBuffer(ByteBuffer data, ImageFormat format)
+void Image::LoadImageFromBuffer(ByteBuffer data, ImageFormat format, bool &source8Bits)
 {
     foreach(MipMap *mipmap, mipMaps)
     {
@@ -275,13 +276,14 @@ void Image::LoadImageFromBuffer(ByteBuffer data, ImageFormat format)
         delete mipmap;
     }
     mipMaps.clear();
+    source8Bits = true;
 
     float *imageBuffer;
     quint32 imageSize, imageWidth, imageHeight;
     if (format == ImageFormat::PNG)
     {
         if (PngRead(data.ptr(), data.size(), &imageBuffer,
-                    &imageSize, &imageWidth, &imageHeight) != 0)
+                    &imageSize, &imageWidth, &imageHeight, source8Bits) != 0)
         {
             PERROR("Failed load PNG.\n");
             return;
@@ -302,6 +304,18 @@ void Image::LoadImageFromBuffer(ByteBuffer data, ImageFormat format)
     mipMaps.push_back(new MipMap(pixels, imageWidth, imageHeight, PixelFormat::Internal));
     pixels.Free();
     pixelFormat = PixelFormat::Internal;
+}
+
+void Image::convertInternalToRGBE()
+{
+    if (pixelFormat != PixelFormat::Internal)
+        CRASH();
+    auto mipmap = mipMaps.first();
+    auto pixels = InternalToRGBE(mipmap->getRefData(), mipmap->getWidth(), mipmap->getHeight());
+    mipMaps.clear();
+    mipMaps.push_back(new MipMap(pixels, mipmap->getWidth(), mipmap->getHeight(), PixelFormat::RGBE));
+    pixels.Free();
+    pixelFormat = PixelFormat::RGBE;
 }
 
 ByteBuffer Image::convertRawToInternal(const ByteBuffer src, int w, int h, PixelFormat format, bool clearAlpha)
@@ -802,6 +816,11 @@ void Image::correctMips(PixelFormat dstFormat, bool dxt1HasAlpha, float dxt1Thre
         mipMaps.push_back(new MipMap(top, width, height, dstFormat));
         top.Free();
         pixelFormat = dstFormat;
+    }
+    if (dstFormat == PixelFormat::RGBE)
+    {
+        tempData.Free();
+        return;
     }
 
     int prevW, prevH;

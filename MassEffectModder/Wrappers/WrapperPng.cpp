@@ -63,7 +63,7 @@ static void WriteFunction(png_structp pngStruct, png_bytep buffer, png_size_t co
 
 int PngRead(unsigned char *src, unsigned int srcSize,
              float **dst, unsigned int *dstSize,
-             unsigned int *width, unsigned int *height)
+             unsigned int *width, unsigned int *height, bool &source8Bits)
 {
     IoHandle handle;
     png_structp pngStruct;
@@ -102,6 +102,7 @@ int PngRead(unsigned char *src, unsigned int srcSize,
     }
     *width = pngWidth;
     *height = pngHeight;
+    source8Bits = bits == 8;
 
     png_set_packing(pngStruct);
     if (colorType == PNG_COLOR_TYPE_PALETTE)

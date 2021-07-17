@@ -121,16 +121,13 @@ PixelFormat MipMaps::changeTextureType(PixelFormat gamePixelFormat, PixelFormat 
         if (texture.getProperties().exists("CompressionSettings"))
             texture.getProperties().removeProperty("CompressionSettings");
     }
-    else if ((gamePixelFormat == PixelFormat::DXT1 || gamePixelFormat == PixelFormat::DXT5 ||
-              gamePixelFormat == PixelFormat::BC7 || gamePixelFormat == PixelFormat::ARGB ||
-              gamePixelFormat == PixelFormat::RGB) &&
-        (texturePixelFormat == PixelFormat::RGBE) &&
-        (!texture.getProperties().exists("CompressionSettings") ||
-        (texture.getProperties().exists("CompressionSettings") &&
-         texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_BC7")))
+    else if (((gamePixelFormat == PixelFormat::DXT1 || gamePixelFormat == PixelFormat::ARGB) &&
+          texturePixelFormat == PixelFormat::RGBE) ||
+         (texturePixelFormat == PixelFormat::RGBE && texture.getProperties().exists("CompressionSettings") &&
+         texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_HighDynamicRange"))
     {
-        gamePixelFormat = PixelFormat::ARGB;
-        texture.getProperties().setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
+        gamePixelFormat = PixelFormat::RGBE;
+        texture.getProperties().setByteValue("Format", Image::getEngineFormatType(PixelFormat::ARGB), "EPixelFormat");
         texture.getProperties().setByteValue("CompressionSettings", "TC_HighDynamicRange", "TextureCompressionSettings");
     }
     else
