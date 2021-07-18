@@ -900,8 +900,6 @@ void LayoutTexturesManager::ReplaceTexture(const QListWidgetItem *item, bool con
     if (!nodeTexture.movieTexture)
     {
         image = new Image(file);
-        if (!image->isSource8Bits())
-            image->convertInternalToRGBE();
     }
     mainWindow->statusBar()->clearMessage();
     g_logs->BufferEnableErrors(false);

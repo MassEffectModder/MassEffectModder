@@ -318,6 +318,34 @@ void Image::convertInternalToRGBE()
     pixelFormat = PixelFormat::RGBE;
 }
 
+void Image::convertInternalToRGBA10(bool clearAlpha)
+{
+    if (pixelFormat != PixelFormat::Internal)
+        CRASH();
+    auto mipmap = mipMaps.first();
+    ByteBuffer pixels;
+    if (clearAlpha)
+        pixels = InternalToR10G10B10A2ClearAlpha(mipmap->getRefData(), mipmap->getWidth(), mipmap->getHeight());
+    else
+        pixels = InternalToR10G10B10A2(mipmap->getRefData(), mipmap->getWidth(), mipmap->getHeight());
+    mipMaps.clear();
+    mipMaps.push_back(new MipMap(pixels, mipmap->getWidth(), mipmap->getHeight(), PixelFormat::R10G10B10A2));
+    pixels.Free();
+    pixelFormat = PixelFormat::R10G10B10A2;
+}
+
+void Image::convertInternalToRGBA16()
+{
+    if (pixelFormat != PixelFormat::Internal)
+        CRASH();
+    auto mipmap = mipMaps.first();
+    auto pixels = InternalToR16G16B16A16(mipmap->getRefData(), mipmap->getWidth(), mipmap->getHeight());
+    mipMaps.clear();
+    mipMaps.push_back(new MipMap(pixels, mipmap->getWidth(), mipmap->getHeight(), PixelFormat::R16G16B16A16));
+    pixels.Free();
+    pixelFormat = PixelFormat::R16G16B16A16;
+}
+
 ByteBuffer Image::convertRawToInternal(const ByteBuffer src, int w, int h, PixelFormat format, bool clearAlpha)
 {
     ByteBuffer tmpPtr;
@@ -354,6 +382,8 @@ ByteBuffer Image::convertRawToInternal(const ByteBuffer src, int w, int h, Pixel
             tmpPtr = decompressMipmap(format, src, w, h);
             break;
         case PixelFormat::RGBA: tmpPtr = RGBAtoInternal(src, w, h); break;
+        case PixelFormat::R10G10B10A2: tmpPtr = R10G10B10A2toInternal(src, w, h); break;
+        case PixelFormat::R16G16B16A16: tmpPtr = R16G16B16A16toInternal(src, w, h); break;
         case PixelFormat::ARGB: tmpPtr = ARGBtoInternal(src, w, h); break;
         case PixelFormat::RGB: tmpPtr = RGBtoInternal(src, w, h); break;
         case PixelFormat::V8U8: tmpPtr = V8U8ToInternal(src, w, h); break;
@@ -389,6 +419,22 @@ ByteBuffer Image::convertRawToRGBA(const ByteBuffer src, int w, int h, PixelForm
 {
     auto dataRGBA = convertRawToInternal(src, w, h, format);
     auto dataARGB = InternalToRGBA(dataRGBA, w, h);
+    dataRGBA.Free();
+    return dataARGB;
+}
+
+ByteBuffer Image::convertRawToR10G10B10A2(const ByteBuffer src, int w, int h, PixelFormat format)
+{
+    auto dataRGBA = convertRawToInternal(src, w, h, format);
+    auto dataARGB = InternalToR10G10B10A2(dataRGBA, w, h);
+    dataRGBA.Free();
+    return dataARGB;
+}
+
+ByteBuffer Image::convertRawToR16G16B16A16(const ByteBuffer src, int w, int h, PixelFormat format)
+{
+    auto dataRGBA = convertRawToInternal(src, w, h, format);
+    auto dataARGB = InternalToR16G16B16A16(dataRGBA, w, h);
     dataRGBA.Free();
     return dataARGB;
 }
@@ -448,6 +494,44 @@ ByteBuffer Image::RGBAtoInternal(const ByteBuffer src, int w, int h)
     return tmpData;
 }
 
+ByteBuffer Image::R10G10B10A2toInternal(const ByteBuffer src, int w, int h)
+{
+    ByteBuffer tmpData(w * h * 4 * sizeof(float));
+    float *ptr = tmpData.ptrAsFloat();
+    auto *srcPtr = (quint32 *)src.ptr();
+    for (int i = 0; i < w * h; i++)
+    {
+        quint32 r = (srcPtr[i] >> 0) & 0x3ff;
+        quint32 g = (srcPtr[i] >> 10) & 0x3ff;
+        quint32 b = (srcPtr[i] >> 20) & 0x3ff;
+        quint32 a = (srcPtr[i] >> 30);
+        ptr[4 * i + 0] = CONVERT_UINT10_TO_FLOAT(r);
+        ptr[4 * i + 1] = CONVERT_UINT10_TO_FLOAT(g);
+        ptr[4 * i + 2] = CONVERT_UINT10_TO_FLOAT(b);
+        ptr[4 * i + 3] = CONVERT_UINT2_TO_FLOAT(a);
+    }
+    return tmpData;
+}
+
+ByteBuffer Image::R16G16B16A16toInternal(const ByteBuffer src, int w, int h)
+{
+    ByteBuffer tmpData(w * h * 4 * sizeof(float));
+    float *ptr = tmpData.ptrAsFloat();
+    auto *srcPtr = (quint64 *)src.ptr();
+    for (int i = 0; i < w * h; i++)
+    {
+        quint64 r = (srcPtr[i] >> 0) & 0xffff;
+        quint64 g = (srcPtr[i] >> 16) & 0xffff;
+        quint64 b = (srcPtr[i] >> 32) & 0xffff;
+        quint64 a = (srcPtr[i] >> 48);
+        ptr[4 * i + 0] = CONVERT_UINT16_TO_FLOAT(r);
+        ptr[4 * i + 1] = CONVERT_UINT16_TO_FLOAT(g);
+        ptr[4 * i + 2] = CONVERT_UINT16_TO_FLOAT(b);
+        ptr[4 * i + 3] = CONVERT_UINT16_TO_FLOAT(a);
+    }
+    return tmpData;
+}
+
 ByteBuffer Image::ARGBtoInternal(const ByteBuffer src, int w, int h)
 {
     ByteBuffer tmpData(w * h * 4 * sizeof(float));
@@ -489,6 +573,57 @@ ByteBuffer Image::InternalToRGBA(const ByteBuffer src, int w, int h)
         ptr[4 * i + 1] = ROUND_FLOAT_TO_BYTE(srcPtr[4 * i + 1]);
         ptr[4 * i + 2] = ROUND_FLOAT_TO_BYTE(srcPtr[4 * i + 2]);
         ptr[4 * i + 3] = ROUND_FLOAT_TO_BYTE(srcPtr[4 * i + 3]);
+    }
+    return tmpData;
+}
+
+ByteBuffer Image::InternalToR10G10B10A2(const ByteBuffer src, int w, int h)
+{
+    ByteBuffer tmpData(w * h * sizeof(quint32));
+    auto *ptr = (quint32 *)tmpData.ptr();
+    float *srcPtr = src.ptrAsFloat();
+    for (int i = 0; i < w * h; i++)
+    {
+        quint32 r = ROUND_FLOAT_TO_UINT10(srcPtr[4 * i + 0]);
+        quint32 g = ROUND_FLOAT_TO_UINT10(srcPtr[4 * i + 1]);
+        quint32 b = ROUND_FLOAT_TO_UINT10(srcPtr[4 * i + 2]);
+        quint32 a = ROUND_FLOAT_TO_UINT2(srcPtr[4 * i + 3]);
+        quint32 pixel = r | g << 10 | b << 20 | a << 30;
+        ptr[i] = pixel;
+    }
+    return tmpData;
+}
+
+ByteBuffer Image::InternalToR10G10B10A2ClearAlpha(const ByteBuffer src, int w, int h)
+{
+    ByteBuffer tmpData(w * h * sizeof(quint32));
+    auto *ptr = (quint32 *)tmpData.ptr();
+    float *srcPtr = src.ptrAsFloat();
+    for (int i = 0; i < w * h; i++)
+    {
+        quint32 r = ROUND_FLOAT_TO_UINT10(srcPtr[4 * i + 0]);
+        quint32 g = ROUND_FLOAT_TO_UINT10(srcPtr[4 * i + 1]);
+        quint32 b = ROUND_FLOAT_TO_UINT10(srcPtr[4 * i + 2]);
+        quint32 a = 3;
+        quint32 pixel = r | g << 10 | b << 20 | a << 30;
+        ptr[i] = pixel;
+    }
+    return tmpData;
+}
+
+ByteBuffer Image::InternalToR16G16B16A16(const ByteBuffer src, int w, int h)
+{
+    ByteBuffer tmpData(w * h * sizeof(quint64));
+    auto *ptr = (quint64 *)tmpData.ptr();
+    float *srcPtr = src.ptrAsFloat();
+    for (int i = 0; i < w * h; i++)
+    {
+        quint64 r = ROUND_FLOAT_TO_UINT16(srcPtr[4 * i + 0]);
+        quint64 g = ROUND_FLOAT_TO_UINT16(srcPtr[4 * i + 1]);
+        quint64 b = ROUND_FLOAT_TO_UINT16(srcPtr[4 * i + 2]);
+        quint64 a = ROUND_FLOAT_TO_UINT16(srcPtr[4 * i + 3]);
+        quint64 pixel = r | g << 16 | b << 32 | a << 48;
+        ptr[i] = pixel;
     }
     return tmpData;
 }
@@ -760,6 +895,12 @@ ByteBuffer Image::convertToFormat(PixelFormat srcFormat, const ByteBuffer src, i
         case PixelFormat::RGBA:
             tempData = convertRawToRGBA(src, w, h, srcFormat);
             break;
+        case PixelFormat::R10G10B10A2:
+            tempData = convertRawToR10G10B10A2(src, w, h, srcFormat);
+            break;
+        case PixelFormat::R16G16B16A16:
+            tempData = convertRawToR16G16B16A16(src, w, h, srcFormat);
+            break;
         case PixelFormat::RGB:
             tempData = convertRawToRGB(src, w, h, srcFormat);
             break;
@@ -904,6 +1045,10 @@ PixelFormat Image::getPixelFormatType(const QString &format)
         return PixelFormat::BC5;
     if (format == "PF_BC7")
         return PixelFormat::BC7;
+    if (format == "PF_A2B10G10R10")
+        return PixelFormat::R10G10B10A2;
+    if (format == "PF_A16B16G16R16_UNORM")
+        return PixelFormat::R16G16B16A16;
 
     CRASH_MSG("Invalid texture format.");
 }
@@ -932,6 +1077,10 @@ QString Image::getEngineFormatType(PixelFormat format)
             return "PF_BC5";
         case PixelFormat::BC7:
             return "PF_BC7";
+        case PixelFormat::R10G10B10A2:
+            return "PF_A2B10G10R10";
+        case PixelFormat::R16G16B16A16:
+            return "PF_A16B16G16R16_UNORM";
         default:
             CRASH_MSG("Invalid texture format.");
     }

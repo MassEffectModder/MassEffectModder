@@ -49,6 +49,7 @@ PixelFormat Misc::changeTextureType(PixelFormat gamePixelFormat, PixelFormat tex
     else if ((gamePixelFormat == PixelFormat::DXT1 || gamePixelFormat == PixelFormat::DXT5 ||
               gamePixelFormat == PixelFormat::BC7) &&
              (texturePixelFormat == PixelFormat::ARGB || texturePixelFormat == PixelFormat::RGB ||
+              texturePixelFormat == PixelFormat::R10G10B10A2 || texturePixelFormat == PixelFormat::R16G16B16A16 ||
               texturePixelFormat == PixelFormat::DXT5 || texturePixelFormat == PixelFormat::BC7) &&
               flags == TextureType::Diffuse)
     {

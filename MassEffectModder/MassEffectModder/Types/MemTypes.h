@@ -34,7 +34,7 @@ typedef enum
 
 typedef enum
 {
-    UnknownPixelFormat, Internal, DXT1, DXT3, DXT5, ATI2, V8U8, ARGB, RGBA, RGB, G8, BC5, BC7, RGBE
+    UnknownPixelFormat, Internal, DXT1, DXT3, DXT5, ATI2, V8U8, ARGB, RGBA, RGB, G8, BC5, BC7, RGBE, R10G10B10A2, R16G16B16A16
 } PixelFormat;
 
 typedef enum
@@ -91,5 +91,12 @@ typedef enum
 
 #define ROUND_FLOAT_TO_BYTE(f) static_cast<quint8>(lroundf((f) * 255.0f))
 #define CONVERT_BYTE_TO_FLOAT(b) ((b) / 255.0f)
+#define CONVERT_UINT2_TO_FLOAT(b) ((b) / 3.0f)
+#define CONVERT_UINT10_TO_FLOAT(b) ((b) / 1023.0f)
+#define CONVERT_UINT16_TO_FLOAT(b) ((b) / 65535.0f)
+
+#define ROUND_FLOAT_TO_UINT2(f) static_cast<quint16>(lroundf((f) * 3.0f))
+#define ROUND_FLOAT_TO_UINT10(f) static_cast<quint16>(lroundf((f) * 1023.0f))
+#define ROUND_FLOAT_TO_UINT16(f) static_cast<quint16>(lroundf((f) * 65535.0f))
 
 #endif

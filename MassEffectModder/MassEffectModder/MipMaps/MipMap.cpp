@@ -72,10 +72,13 @@ int MipMap::getBufferSize(int w, int h, PixelFormat format)
 {
     switch (format)
     {
+        case PixelFormat::R16G16B16A16:
+            return 8 * w * h;
         case PixelFormat::Internal:
             return 4 * w * h * sizeof(float);
         case PixelFormat::ARGB:
         case PixelFormat::RGBA:
+        case PixelFormat::R10G10B10A2:
         case PixelFormat::RGBE:
             return 4 * w * h;
         case PixelFormat::RGB:

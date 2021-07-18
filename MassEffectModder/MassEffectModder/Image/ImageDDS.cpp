@@ -176,7 +176,7 @@ void Image::LoadImageDDS(Stream &stream, bool &source8Bits)
             return;
         }
         auto miscFlags2 = (DDS_ALPHA_MODE)stream.ReadUInt32();
-        if (miscFlags2 != DDS_ALPHA_MODE_UNKNOWN && miscFlags2 != DDS_ALPHA_MODE_OPAQUE)
+        if (miscFlags2 != DDS_ALPHA_MODE_OPAQUE)
         {
             PERROR("DDS DX10 alpha mode different than opaque is not supported.\n");
             return;
@@ -187,6 +187,16 @@ void Image::LoadImageDDS(Stream &stream, bool &source8Bits)
             case DDS_FORMAT_R8G8B8A8_UNORM:
                 DX10Type = true;
                 pixelFormat = PixelFormat::RGBA;
+                break;
+            case DDS_FORMAT_R10G10B10A2_UNORM:
+                DX10Type = true;
+                pixelFormat = PixelFormat::R10G10B10A2;
+                source8Bits = false;
+                break;
+            case DDS_FORMAT_R16G16B16A16_UNORM:
+                DX10Type = true;
+                pixelFormat = PixelFormat::R16G16B16A16;
+                source8Bits = false;
                 break;
             case DDS_FORMAT_R8_UNORM:
                 pixelFormat = PixelFormat::G8;
@@ -331,6 +341,16 @@ Image::DDS_PF Image::getDDSPixelFormat(PixelFormat format)
             pixelFormat.fourCC = FOURCC_DX10_TAG;
             break;
 
+        case PixelFormat::R10G10B10A2:
+            pixelFormat.flags = DDPF_FOURCC;
+            pixelFormat.fourCC = FOURCC_DX10_TAG;
+            break;
+
+        case PixelFormat::R16G16B16A16:
+            pixelFormat.flags = DDPF_FOURCC;
+            pixelFormat.fourCC = FOURCC_DX10_TAG;
+            break;
+
         case PixelFormat::BC5:
             pixelFormat.flags = DDPF_FOURCC;
             pixelFormat.fourCC = FOURCC_DX10_TAG;
@@ -389,6 +409,16 @@ void Image::StoreImageToDDS(Stream &stream, PixelFormat format)
     {
         case PixelFormat::RGBA:
             dds10Format = DDS_FORMAT_R8G8B8A8_UNORM;
+            miscFlag2 = DDS_ALPHA_MODE_OPAQUE;
+            DX10Type = true;
+            break;
+        case PixelFormat::R10G10B10A2:
+            dds10Format = DDS_FORMAT_R10G10B10A2_UNORM;
+            miscFlag2 = DDS_ALPHA_MODE_OPAQUE;
+            DX10Type = true;
+            break;
+        case PixelFormat::R16G16B16A16:
+            dds10Format = DDS_FORMAT_R16G16B16A16_UNORM;
             miscFlag2 = DDS_ALPHA_MODE_OPAQUE;
             DX10Type = true;
             break;

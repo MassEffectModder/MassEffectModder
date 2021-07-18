@@ -121,6 +121,30 @@ PixelFormat MipMaps::changeTextureType(PixelFormat gamePixelFormat, PixelFormat 
         if (texture.getProperties().exists("CompressionSettings"))
             texture.getProperties().removeProperty("CompressionSettings");
     }
+    else if ((gamePixelFormat == PixelFormat::DXT1 || gamePixelFormat == PixelFormat::DXT5 ||
+              gamePixelFormat == PixelFormat::BC7 || gamePixelFormat == PixelFormat::ARGB) &&
+        (texturePixelFormat == PixelFormat::R10G10B10A2) &&
+        (!texture.getProperties().exists("CompressionSettings") ||
+        (texture.getProperties().exists("CompressionSettings") &&
+         texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_BC7")))
+    {
+        gamePixelFormat = PixelFormat::R10G10B10A2;
+        texture.getProperties().setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
+        if (texture.getProperties().exists("CompressionSettings"))
+            texture.getProperties().removeProperty("CompressionSettings");
+    }
+    else if ((gamePixelFormat == PixelFormat::DXT1 || gamePixelFormat == PixelFormat::DXT5 ||
+              gamePixelFormat == PixelFormat::BC7 || gamePixelFormat == PixelFormat::ARGB) &&
+        (texturePixelFormat == PixelFormat::R16G16B16A16) &&
+        (!texture.getProperties().exists("CompressionSettings") ||
+        (texture.getProperties().exists("CompressionSettings") &&
+         texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_BC7")))
+    {
+        gamePixelFormat = PixelFormat::R16G16B16A16;
+        texture.getProperties().setByteValue("Format", Image::getEngineFormatType(gamePixelFormat), "EPixelFormat");
+        if (texture.getProperties().exists("CompressionSettings"))
+            texture.getProperties().removeProperty("CompressionSettings");
+    }
     else if (((gamePixelFormat == PixelFormat::DXT1 || gamePixelFormat == PixelFormat::ARGB) &&
           texturePixelFormat == PixelFormat::RGBE) ||
          (texturePixelFormat == PixelFormat::RGBE && texture.getProperties().exists("CompressionSettings") &&
