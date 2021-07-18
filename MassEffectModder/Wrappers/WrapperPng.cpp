@@ -114,8 +114,12 @@ int PngRead(unsigned char *src, unsigned int srcSize,
         png_set_tRNS_to_alpha(pngStruct);
     if (colorType == PNG_COLOR_TYPE_GRAY || colorType == PNG_COLOR_TYPE_GRAY_ALPHA)
         png_set_gray_to_rgb(pngStruct);
+    if ((colorType & PNG_COLOR_MASK_COLOR) != 0)
+        png_set_bgr(pngStruct);
     png_set_swap(pngStruct);
+    png_set_swap_alpha(pngStruct);
     png_set_filler(pngStruct, 0xff, PNG_FILLER_BEFORE);
+
     png_read_update_info(pngStruct, pngInfo);
 
     *dstSize = pngWidth * pngHeight * 4 * sizeof(float);
@@ -137,10 +141,10 @@ int PngRead(unsigned char *src, unsigned int srcSize,
             png_read_row(pngStruct, (png_bytep)lineData16, nullptr);
             for (png_uint_32 x = 0; x < pngWidth; x++)
             {
-                dstPtr[dstOffset + 0] = lineData16[lineOffset++] / 65535.0f;
-                dstPtr[dstOffset + 1] = lineData16[lineOffset++] / 65535.0f;
-                dstPtr[dstOffset + 2] = lineData16[lineOffset++] / 65535.0f;
                 dstPtr[dstOffset + 3] = lineData16[lineOffset++] / 65535.0f;
+                dstPtr[dstOffset + 2] = lineData16[lineOffset++] / 65535.0f;
+                dstPtr[dstOffset + 1] = lineData16[lineOffset++] / 65535.0f;
+                dstPtr[dstOffset + 0] = lineData16[lineOffset++] / 65535.0f;
                 dstOffset += 4;
             }
         }
@@ -149,10 +153,10 @@ int PngRead(unsigned char *src, unsigned int srcSize,
             png_read_row(pngStruct, (png_bytep)lineData8, nullptr);
             for (png_uint_32 x = 0; x < pngWidth; x++)
             {
-                dstPtr[dstOffset + 0] = lineData8[lineOffset++] / 255.0f;
-                dstPtr[dstOffset + 1] = lineData8[lineOffset++] / 255.0f;
-                dstPtr[dstOffset + 2] = lineData8[lineOffset++] / 255.0f;
                 dstPtr[dstOffset + 3] = lineData8[lineOffset++] / 255.0f;
+                dstPtr[dstOffset + 2] = lineData8[lineOffset++] / 255.0f;
+                dstPtr[dstOffset + 1] = lineData8[lineOffset++] / 255.0f;
+                dstPtr[dstOffset + 0] = lineData8[lineOffset++] / 255.0f;
                 dstOffset += 4;
             }
         }
@@ -202,6 +206,8 @@ int PngWrite(const float *src, unsigned char **dst, unsigned int *dstSize,
     png_write_info(pngStruct, pngInfo);
 
     png_set_swap(pngStruct);
+    png_set_swap_alpha(pngStruct);
+    png_set_bgr(pngStruct);
 
     unsigned char lineData8[width * 4];
     unsigned short lineData16[width * 4];
@@ -213,10 +219,10 @@ int PngWrite(const float *src, unsigned char **dst, unsigned int *dstSize,
             int lineOffset = 0;
             for (png_uint_32 x = 0; x < width; x++)
             {
-                lineData8[lineOffset++] = roundf(src[srcOffset + 0] * scale);
-                lineData8[lineOffset++] = roundf(src[srcOffset + 1] * scale);
-                lineData8[lineOffset++] = roundf(src[srcOffset + 2] * scale);
                 lineData8[lineOffset++] = roundf(src[srcOffset + 3] * scale);
+                lineData8[lineOffset++] = roundf(src[srcOffset + 2] * scale);
+                lineData8[lineOffset++] = roundf(src[srcOffset + 1] * scale);
+                lineData8[lineOffset++] = roundf(src[srcOffset + 0] * scale);
                 srcOffset += 4;
             }
             png_write_row(pngStruct, (png_bytep)lineData8);
@@ -226,10 +232,10 @@ int PngWrite(const float *src, unsigned char **dst, unsigned int *dstSize,
             int lineOffset = 0;
             for (png_uint_32 x = 0; x < width; x++)
             {
-                lineData16[lineOffset++] = roundf(src[srcOffset + 0] * scale);
-                lineData16[lineOffset++] = roundf(src[srcOffset + 1] * scale);
-                lineData16[lineOffset++] = roundf(src[srcOffset + 2] * scale);
                 lineData16[lineOffset++] = roundf(src[srcOffset + 3] * scale);
+                lineData16[lineOffset++] = roundf(src[srcOffset + 2] * scale);
+                lineData16[lineOffset++] = roundf(src[srcOffset + 1] * scale);
+                lineData16[lineOffset++] = roundf(src[srcOffset + 0] * scale);
                 srcOffset += 4;
             }
             png_write_row(pngStruct, (png_bytep)lineData16);
