@@ -357,7 +357,6 @@ bool LayoutTexturesManager::Startup()
 
     mainWindow->statusBar()->clearMessage();
     QApplication::processEvents();
-    bool removeEmptyMips = false;
     if (!QFile::exists(filename))
     {
         int result = QMessageBox::question(this, "Texture Manager",
@@ -402,16 +401,6 @@ bool LayoutTexturesManager::Startup()
         {
             MessageWindow msg;
             msg.Show(mainWindow, "Errors while scanning package files", g_logs->BufferGetErrors());
-        }
-        if (removeEmptyMips)
-        {
-            if (!Misc::ApplyPostInstall(gameType))
-            {
-                buttonExit->setEnabled(true);
-                mainWindow->LockClose(false);
-                return false;
-            }
-            TOCBinFile::UpdateAllTOCBinFiles(gameType);
         }
     }
 
