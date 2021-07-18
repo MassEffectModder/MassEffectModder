@@ -630,7 +630,6 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                 }
 
                 bool triggerCacheArc = false;
-                bool newTfcFile = false;
                 QString archiveFile;
                 if (GameData::gameType == MeType::ME2_TYPE ||
                     GameData::gameType == MeType::ME3_TYPE)
@@ -668,7 +667,6 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                                     FileStream fs = FileStream(DLCArchiveFile, FileMode::Create, FileAccess::WriteOnly);
                                     fs.WriteFromBuffer(texture.getProperties().getProperty("TFCFileGuid").valueStruct);
                                     archiveFile = DLCArchiveFile;
-                                    newTfcFile = true;
                                 }
                                 else
                                 {
@@ -703,7 +701,6 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                                     FileStream fs = FileStream(archiveFile, FileMode::Create, FileAccess::WriteOnly);
                                     fs.WriteFromBuffer(guid);
                                     guid.Free();
-                                    newTfcFile = true;
                                     break;
                                 }
 
