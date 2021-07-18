@@ -290,6 +290,8 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
                 PixelFormat newPixelFormat = f.pixfmt;
                 if (entryMarkToConvert)
                 {
+                    if (image.getPixelFormat() == PixelFormat::Internal && !image.isSource8Bits())
+                        image.convertInternalToRGBA10(true);
                     newPixelFormat = changeTextureType(f.pixfmt, image.getPixelFormat(), f.type, bc7format);
                     if (f.pixfmt == newPixelFormat)
                         PINFO(QString("Warning for texture: ") + BaseName(file)  +

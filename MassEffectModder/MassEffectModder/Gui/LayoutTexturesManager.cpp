@@ -900,6 +900,8 @@ void LayoutTexturesManager::ReplaceTexture(const QListWidgetItem *item, bool con
     if (!nodeTexture.movieTexture)
     {
         image = new Image(file);
+        if (image->getPixelFormat() == PixelFormat::Internal && !image->isSource8Bits())
+            image->convertInternalToRGBA16();
     }
     mainWindow->statusBar()->clearMessage();
     g_logs->BufferEnableErrors(false);
