@@ -95,11 +95,13 @@ QString Package::resolvePackagePath(int id)
 
 int Package::getPropertiesOffset(int exportIndex)
 {
-    int propertyOffset;
+    int propertiesOffset;
 
-    propertyOffset = 4;
+    Package::ExportEntry& exp = exportsTable[exportIndex];
 
-    return propertyOffset;
+    propertiesOffset = 4;
+
+    return propertiesOffset;
 }
 
 int Package::Open(const QString &filename, bool headerOnly, bool fullLoad)

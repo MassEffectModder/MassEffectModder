@@ -104,6 +104,11 @@ public:
         MaxChunkSize = 0x100000, // 1MB
     };
 
+    enum ObjectFlags
+    {
+        HasStack = 1 << 57
+    };
+
     struct ChunkBlock
     {
         uint comprSize;
@@ -143,8 +148,12 @@ public:
     {
         enum Offsets {
             ClassIdOffset = 0,
+            SuperClassIdOffset = 4,
             LinkIdOffset = 8,
             ObjectNameIdOffset = 12,
+            IndexValueOffset = 16,
+            ArchetypeOffset = 20,
+            ObjectFlagsOffset = 24,
             DataSizeOffset = 32,
             DataOffsetOffset = 36,
         };
