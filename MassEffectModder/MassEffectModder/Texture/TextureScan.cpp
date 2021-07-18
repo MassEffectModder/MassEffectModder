@@ -134,7 +134,8 @@ void TreeScan::loadTexturesMap(MeType gameId, Resources &resources, QList<Textur
         {
             TextureMapPackageEntry matched{};
             matched.exportID = fs.ReadInt32();
-            /*quint8 flags = */fs.ReadByte();
+            quint8 flags = fs.ReadByte();
+            matched.hasAlphaData = (flags & 1) == 1;
             matched.numMips = fs.ReadByte();
             matched.movieTexture = (texture.type == TextureType::Movie);
             matched.path = pkgs[fs.ReadInt16()];
@@ -266,7 +267,8 @@ void TreeScan::loadTexturesMapFileV1(Stream &streeam, QList<TextureMapEntry> &te
             TextureMapPackageEntry matched{};
             matched.exportID = streeam.ReadInt32();
             quint32 flags = streeam.ReadUInt32();
-            matched.movieTexture = ((flags & 1) == 1);
+            matched.movieTexture = (flags & 1) == 1;
+            matched.hasAlphaData = (flags & 2) == 2;
             len = streeam.ReadInt32();
             streeam.ReadStringASCII(matched.path, len);
             matched.path.replace(QChar('\\'), QChar('/'));
@@ -611,13 +613,15 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
                 mem.WriteInt32(m.exportID);
                 if (generateBuiltinMapFiles)
                 {
-                    mem.WriteByte(/*flags*/0);
+                    quint32 flags = m.hasAlphaData ? 1 : 0;
+                    mem.WriteByte(flags);
                     mem.WriteByte(m.numMips);
                     mem.WriteInt16(pkgs.indexOf(m.path));
                 }
                 else
                 {
                     quint32 flags = m.movieTexture ? 1 : 0;
+                    flags |= m.hasAlphaData ? 2 : 0;
                     mem.WriteUInt32(flags);
                     mem.WriteInt32(m.path.length());
                     QString path = m.path;
@@ -721,6 +725,7 @@ void TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &pac
             TextureMapPackageEntry matchTexture{};
             matchTexture.exportID = i;
             matchTexture.path = packagePath;
+            matchTexture.hasAlphaData = false;
 
             if (id == package.nameIdTextureMovie)
             {
@@ -831,7 +836,6 @@ void TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &pac
                     }
                 }
                 TextureMapEntry foundTex;
-                foundTex.list.push_back(matchTexture);
                 foundTex.name = exp.objectName;
                 foundTex.crc = crc;
 
@@ -847,45 +851,64 @@ void TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &pac
                 }
                 else
                 {
-                    if (generateBuiltinMapFiles)
+                    foundTex.width = texture->getTopMipmap().width;
+                    foundTex.height = texture->getTopMipmap().height;
+                    foundTex.pixfmt = Image::getPixelFormatType(texture->getProperties().getProperty("Format").getValueName());
+                    if (texture->getProperties().exists("CompressionSettings"))
                     {
-                        foundTex.width = texture->getTopMipmap().width;
-                        foundTex.height = texture->getTopMipmap().height;
-                        foundTex.pixfmt = Image::getPixelFormatType(texture->getProperties().getProperty("Format").getValueName());
-                        if (texture->getProperties().exists("CompressionSettings"))
+                        QString cmp = texture->getProperties().getProperty("CompressionSettings").getValueName();
+                        if (cmp == "TC_OneBitAlpha")
                         {
-                            QString cmp = texture->getProperties().getProperty("CompressionSettings").getValueName();
-                            if (cmp == "TC_OneBitAlpha")
-                                foundTex.type = TextureType::OneBitAlpha;
-                            else if (cmp == "TC_Displacementmap")
-                                foundTex.type = TextureType::Displacementmap;
-                            else if (cmp == "TC_Grayscale")
-                                foundTex.type = TextureType::GreyScale;
-                            else if (cmp == "TC_Normalmap" ||
-                                cmp == "TC_NormalmapHQ" ||
-                                cmp == "TC_NormalmapAlpha" ||
-                                cmp == "TC_NormalmapBC5" ||
-                                cmp == "TC_NormalmapBC7" ||
-                                cmp == "TC_NormalmapUncompressed")
-                            {
-                                foundTex.type = TextureType::Normalmap;
-                            }
-                            else if (cmp == "TC_BC7" ||
-                                     cmp == "TC_HighDynamicRange")
-                            {
-                                foundTex.type = TextureType::Diffuse;
-                            }
-                            else
-                            {
-                                CRASH();
-                            }
+                            foundTex.type = TextureType::OneBitAlpha;
+                            matchTexture.hasAlphaData = true;
                         }
-                        else
+                        else if (cmp == "TC_Displacementmap")
+                            foundTex.type = TextureType::Displacementmap;
+                        else if (cmp == "TC_Grayscale")
+                            foundTex.type = TextureType::GreyScale;
+                        else if (cmp == "TC_Normalmap" ||
+                            cmp == "TC_NormalmapHQ" ||
+                            cmp == "TC_NormalmapAlpha" ||
+                            cmp == "TC_NormalmapBC5" ||
+                            cmp == "TC_NormalmapBC7" ||
+                            cmp == "TC_NormalmapUncompressed")
+                        {
+                            foundTex.type = TextureType::Normalmap;
+                            if (cmp == "TC_NormalmapAlpha")
+                                matchTexture.hasAlphaData = true;
+                        }
+                        else if (cmp == "TC_BC7" ||
+                                 cmp == "TC_HighDynamicRange")
                         {
                             foundTex.type = TextureType::Diffuse;
                         }
+                        else
+                        {
+                            CRASH();
+                        }
+                    }
+                    else
+                    {
+                        foundTex.type = TextureType::Diffuse;
+                    }
+
+                    if (foundTex.type == TextureType::Diffuse)
+                    {
+                        if (foundTex.pixfmt == PixelFormat::DXT5 ||
+                            foundTex.pixfmt == PixelFormat::BC7 ||
+                            foundTex.pixfmt == PixelFormat::ARGB ||
+                            foundTex.pixfmt == PixelFormat::R10G10B10A2 ||
+                            foundTex.pixfmt == PixelFormat::R16G16B16A16)
+                        {
+                            ByteBuffer data = texture->getTopImageData();
+                            auto pixels = Image::convertRawToInternal(data, foundTex.width, foundTex.height, foundTex.pixfmt);
+                            matchTexture.hasAlphaData = Image::InternalDetectAlphaData(pixels, foundTex.width, foundTex.height);
+                            data.Free();
+                            pixels.Free();
+                        }
                     }
                 }
+                foundTex.list.push_back(matchTexture);
                 textures.push_back(foundTex);
             }
             delete textureMovie;

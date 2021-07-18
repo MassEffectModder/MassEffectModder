@@ -825,6 +825,7 @@ void LayoutTexturesManager::UpdateRight(const QListWidgetItem *item)
                 text += "  Texture name:       " + package.exportsTable[nodeTexture.exportID].objectName + "\n";
                 text += "  Export Id:          " + QString::number(nodeTexture.exportID + 1) + "\n";
                 text += "  Package path:       " + nodeTexture.path + "\n";
+                text += "  Alpha fully opaque: " + (!nodeTexture.hasAlphaData ? QString("yes") : QString("no")) + "\n";
                 text += "  Texture properties:\n";
                 for (int l = 0; l < texture.getProperties().propertyList.count(); l++)
                 {

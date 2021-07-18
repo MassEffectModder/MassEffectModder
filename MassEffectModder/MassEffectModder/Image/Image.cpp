@@ -800,6 +800,19 @@ ByteBuffer Image::InternalToAlphaGreyscale(const ByteBuffer src, int w, int h)
     return tmpData;
 }
 
+bool Image::InternalDetectAlphaData(const ByteBuffer src, int w, int h)
+{
+    float *srcPtr = src.ptrAsFloat();
+    for (int i = 0; i < w * h; i++)
+    {
+        if (ROUND_FLOAT_TO_BYTE(srcPtr[4 * i + 3]) != 255)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 ByteBuffer Image::downscaleInternal(const ByteBuffer src, int w, int h)
 {
     if (w == 1 && h == 1)

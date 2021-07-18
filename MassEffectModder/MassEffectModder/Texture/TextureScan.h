@@ -41,6 +41,7 @@ struct TextureMapPackageEntry
     QList<uint> crcs;
     int numMips;
     bool movieTexture;
+    bool hasAlphaData;
 };
 
 struct TextureMapEntry

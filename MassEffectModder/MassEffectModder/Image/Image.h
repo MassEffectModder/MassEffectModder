@@ -283,6 +283,7 @@ public:
     static ByteBuffer convertRawToR16G16B16A16(const ByteBuffer src, int w, int h, PixelFormat format);
     static ByteBuffer convertRawToBGR(const ByteBuffer src, int w, int h, PixelFormat format, bool clearAlpha = false);
     static ByteBuffer convertRawToAlphaGreyscale(const ByteBuffer src, int w, int h, PixelFormat format, bool clearAlpha = false);
+    static bool InternalDetectAlphaData(const ByteBuffer src, int w, int h);
     static void saveToPng(const ByteBuffer src, int w, int h, PixelFormat format, const QString &filename, bool storeAs8bits, bool clearAlpha = false);
     void correctMips(PixelFormat dstFormat, bool dxt1HasAlpha, float dxt1Threshold, float bc7quality);
     static PixelFormat getPixelFormatType(const QString &format);
