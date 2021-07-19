@@ -606,6 +606,11 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                     texture.getProperties().removeProperty("NeverStream");
                 }
 
+                if (pixelFormat == PixelFormat::G8)
+                {
+                    forceInternalMip = true;
+                }
+
                 auto mipmapsPre = QList<Texture::TextureMipMap>();
                 for (int m = 0; m < mod.cacheCprMipmaps.count(); m++)
                 {
