@@ -61,7 +61,7 @@ public:
     {
         SizeOfChunkBlock = 8,
         SizeOfChunk = 12,
-        MaxBlockSize = 0x40000, // 256KB
+        MaxBlockSize = 0x100000, // 1MB
     };
 
     typedef void (*ProgressCallback)(void *handle, int progress, const QString &stage);

@@ -631,7 +631,8 @@ bool Misc::compressData(ByteBuffer inputData, Stream &ouputStream, CompressionDa
 {
     uint compressedSize = 0;
     uint dataBlockLeft = inputData.size();
-    uint newNumBlocks = ((uint)inputData.size() + ModsDataEnums::MaxBlockSize - 1) / ModsDataEnums::MaxBlockSize;
+    uint maxBlockSize = ModsDataEnums::MaxBlockSize;
+    uint newNumBlocks = ((uint)inputData.size() + maxBlockSize - 1) / maxBlockSize;
     QList<Package::ChunkBlock> blocks{};
     {
         MemoryStream inputStream = MemoryStream(inputData);
@@ -641,7 +642,7 @@ bool Misc::compressData(ByteBuffer inputData, Stream &ouputStream, CompressionDa
         for (uint b = 0; b < newNumBlocks; b++)
         {
             Package::ChunkBlock block{};
-            block.uncomprSize = qMin((uint)ModsDataEnums::MaxBlockSize, dataBlockLeft);
+            block.uncomprSize = qMin((uint)maxBlockSize, dataBlockLeft);
             dataBlockLeft -= block.uncomprSize;
             block.uncompressedBuffer = new quint8[block.uncomprSize];
             if (block.uncompressedBuffer == nullptr)
@@ -693,7 +694,7 @@ bool Misc::compressData(ByteBuffer inputData, Stream &ouputStream, CompressionDa
     ouputStream.SeekBegin();
     ouputStream.WriteUInt32(compressedSize);
     ouputStream.WriteInt32(inputData.size());
-    ouputStream.WriteUInt32((quint32)compType);
+    ouputStream.WriteUInt32((quint32)maxBlockSize | compType);
     foreach (Package::ChunkBlock block, blocks)
     {
         ouputStream.WriteUInt32(block.comprSize);
@@ -707,9 +708,12 @@ ByteBuffer Misc::decompressData(Stream &stream, long compressedSize)
 {
     uint compressedChunkSize = stream.ReadUInt32();
     uint uncompressedChunkSize = stream.ReadUInt32();
-    auto compType = (CompressionDataType)stream.ReadUInt32();
+    uint maxBlockSize = stream.ReadUInt32();
+    auto compType = (CompressionDataType)(maxBlockSize & 0xffff);
+    if ((maxBlockSize & ~0xffff) == 0)
+        maxBlockSize = 0x40000; // original size 256KB
     auto data = ByteBuffer(uncompressedChunkSize);
-    uint blocksCount = (uncompressedChunkSize + ModsDataEnums::MaxBlockSize - 1) / ModsDataEnums::MaxBlockSize;
+    uint blocksCount = (uncompressedChunkSize + maxBlockSize - 1) / maxBlockSize;
     if ((compressedChunkSize + ModsDataEnums::SizeOfChunk + ModsDataEnums::SizeOfChunkBlock * blocksCount) != (uint)compressedSize)
     {
         return ByteBuffer{};
@@ -732,10 +736,10 @@ ByteBuffer Misc::decompressData(Stream &stream, long compressedSize)
             CRASH_MSG((QString("Out of memory! - amount: ") +
                        QString::number(block.comprSize)).toStdString().c_str());
         stream.ReadToBuffer(block.compressedBuffer, block.comprSize);
-        block.uncompressedBuffer = new quint8[ModsDataEnums::MaxBlockSize * 2];
+        block.uncompressedBuffer = new quint8[maxBlockSize * 2];
         if (block.uncompressedBuffer == nullptr)
             CRASH_MSG((QString("Out of memory! - amount: ") +
-                       QString::number(ModsDataEnums::MaxBlockSize * 2)).toStdString().c_str());
+                       QString::number(maxBlockSize * 2)).toStdString().c_str());
         blocks[b] = block;
     }
 
