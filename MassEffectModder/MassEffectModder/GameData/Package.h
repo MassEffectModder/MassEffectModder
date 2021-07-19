@@ -103,11 +103,11 @@ public:
         MaxBlockSize = 0x40000, // 256KB
         MaxChunkSize = 0x100000, // 1MB
     };
-
+/*
     enum ObjectFlags
     {
         HasStack = 1 << 57
-    };
+    };*/
 
     struct ChunkBlock
     {
