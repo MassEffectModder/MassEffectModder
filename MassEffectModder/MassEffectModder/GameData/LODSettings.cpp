@@ -509,12 +509,7 @@ void LODSettings::updateGFXSettings(MeType gameId, ConfigIni &engineConf)
         engineConf.Write("DepthOfField", "True", "SystemSettings");
         engineConf.Write("Bloom", "True", "SystemSettings");
         engineConf.Write("QualityBloom", "True", "SystemSettings");
-        engineConf.Write("ParticleLODBias", "-1", "SystemSettings");
-        engineConf.Write("SkeletalMeshLODBias", "-1", "SystemSettings");
         engineConf.Write("DetailMode", "2", "SystemSettings");
-        engineConf.Write("PoolSize", "1536", "TextureStreaming");
-        engineConf.Write("MinTimeToGuaranteeMinMipCount", "0", "TextureStreaming");
-        engineConf.Write("MaxTimeToGuaranteeMinMipCount", "0", "TextureStreaming");
     }
     else if (gameId == MeType::ME2_TYPE)
     {
@@ -529,8 +524,6 @@ void LODSettings::updateGFXSettings(MeType gameId, ConfigIni &engineConf)
         engineConf.Write("DepthOfField", "True", "SystemSettings");
         engineConf.Write("Bloom", "True", "SystemSettings");
         engineConf.Write("QualityBloom", "True", "SystemSettings");
-        engineConf.Write("ParticleLODBias", "-1", "SystemSettings");
-        engineConf.Write("SkeletalMeshLODBias", "-1", "SystemSettings");
         engineConf.Write("DetailMode", "2", "SystemSettings");
     }
     else if (gameId == MeType::ME3_TYPE)
@@ -545,8 +538,6 @@ void LODSettings::updateGFXSettings(MeType gameId, ConfigIni &engineConf)
         engineConf.Write("DepthOfField", "True", "SystemSettings");
         engineConf.Write("Bloom", "True", "SystemSettings");
         engineConf.Write("QualityBloom", "True", "SystemSettings");
-        engineConf.Write("ParticleLODBias", "-1", "SystemSettings");
-        engineConf.Write("SkeletalMeshLODBias", "-1", "SystemSettings");
         engineConf.Write("DetailMode", "2", "SystemSettings");
     }
     else
