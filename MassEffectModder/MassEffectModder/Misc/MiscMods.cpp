@@ -716,6 +716,7 @@ ByteBuffer Misc::decompressData(Stream &stream, long compressedSize)
     uint blocksCount = (uncompressedChunkSize + maxBlockSize - 1) / maxBlockSize;
     if ((compressedChunkSize + ModsDataEnums::SizeOfChunk + ModsDataEnums::SizeOfChunkBlock * blocksCount) != (uint)compressedSize)
     {
+        data.Free();
         return ByteBuffer{};
     }
 
@@ -781,7 +782,10 @@ ByteBuffer Misc::decompressData(Stream &stream, long compressedSize)
     }
 
     if (failed)
+    {
+        data.Free();
         return ByteBuffer{};
+    }
 
     return data;
 }
