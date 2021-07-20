@@ -118,16 +118,28 @@ void UserSettings::readLODIpc(MeType gameId, ConfigIni &engineConf)
     }
 }
 
-void UserSettings::updateGFXSettings(MeType gameId, ConfigIni &/*engineConf*/)
+void UserSettings::updateGFXSettings(MeType gameId, ConfigIni &engineConf)
 {
     if (gameId == MeType::ME1_TYPE)
     {
+        engineConf.Write("bEnableBranchingPCFShadows", "True", "SystemSettings");
+        engineConf.Write("MaxShadowResolution", "2048", "SystemSettings");
+        engineConf.Write("ShadowFilterQualityBias", "2", "SystemSettings");
+        engineConf.Write("MaxAnisotropy", "16", "SystemSettings");
     }
     else if (gameId == MeType::ME2_TYPE)
     {
+        engineConf.Write("bEnableBranchingPCFShadows", "True", "SystemSettings");
+        engineConf.Write("MaxShadowResolution", "2048", "SystemSettings");
+        engineConf.Write("ShadowFilterQualityBias", "2", "SystemSettings");
+        engineConf.Write("MaxAnisotropy", "16", "SystemSettings");
     }
     else if (gameId == MeType::ME3_TYPE)
     {
+        engineConf.Write("bEnableBranchingPCFShadows", "True", "SystemSettings");
+        engineConf.Write("MaxShadowResolution", "2048", "SystemSettings");
+        engineConf.Write("ShadowFilterQualityBias", "2", "SystemSettings");
+        engineConf.Write("MaxAnisotropy", "16", "SystemSettings");
     }
     else
     {
