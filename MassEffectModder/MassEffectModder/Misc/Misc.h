@@ -38,21 +38,6 @@ struct MD5ModFileEntry
     const char *modName;
 };
 
-struct BinaryMod
-{
-    QString packagePath;
-    int exportId;
-    ByteBuffer data;
-    QString name;
-    bool movieTexture;
-    uint textureCrc;
-    bool markConvert;
-    bool bc7Format;
-    bool forceHash;
-    long offset;
-    long size;
-};
-
 class Misc
 {
 public:

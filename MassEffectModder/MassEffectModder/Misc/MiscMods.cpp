@@ -150,7 +150,6 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
 
     QStringList ddsList;
 
-    QList<BinaryMod> mods = QList<BinaryMod>();
     QList<FileMod> modFiles = QList<FileMod>();
 
     QString dir = DirName(memFilePath);
@@ -173,12 +172,6 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
 #ifdef GUI
         QApplication::processEvents();
 #endif
-        foreach (BinaryMod mod, mods)
-        {
-            mod.data.Free();
-        }
-        mods.clear();
-
         QString file = files[n].absoluteFilePath();
         if (g_ipc)
         {
@@ -247,7 +240,6 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
                  file.endsWith(".bmp", Qt::CaseInsensitive) ||
                  file.endsWith(".tga", Qt::CaseInsensitive))
         {
-            BinaryMod mod{};
             TextureMapEntry f;
             bool entryMarkToConvert = markToConvert;
             uint crc = scanFilenameForCRC(file);
@@ -308,18 +300,28 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
                 continue;
             }
 
-            mod.data = image.StoreImageToDDS();
-            mod.name = f.name;
-            mod.movieTexture = false;
-            mod.textureCrc = crc;
-            mod.markConvert = entryMarkToConvert;
-            mod.bc7Format = bc7format;
-            mod.forceHash = forceHash;
-            mods.push_back(mod);
+            auto data = image.StoreImageToDDS();
+            FileMod fileMod{};
+            fileMod.tag = FileTextureTag;
+            fileMod.name = f.name;
+            std::unique_ptr<Stream> dst (new MemoryStream());
+            Misc::compressData(data, *dst, fastMode ? CompressionDataType::Zlib : CompressionDataType::LZMA);
+            data.Free();
+            dst->SeekBegin();
+            fileMod.offset = outFs.Position();
+            fileMod.size = dst->Length();
+            quint32 textureFlags{};
+            if (entryMarkToConvert)
+                textureFlags |= (quint32)ModTextureFlags::MarkToConvert;
+            if (forceHash)
+                textureFlags |= (quint32)ModTextureFlags::ForceHash;
+            outFs.WriteUInt32(textureFlags);
+            outFs.WriteUInt32(crc);
+            outFs.CopyFrom(*dst, dst->Length());
+            modFiles.push_back(fileMod);
         }
         else if (file.endsWith(".bik", Qt::CaseInsensitive))
         {
-            BinaryMod mod{};
             TextureMapEntry f;
 
             uint crc = scanFilenameForCRC(file);
@@ -383,59 +385,25 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
             }
             fs.SeekBegin();
 
-            mod.data = fs.ReadToBuffer(dataSize);
-            mod.name = f.name;
-            mod.movieTexture = true;
-            mod.textureCrc = crc;
-            mod.markConvert = false;
-            mod.forceHash = forceHash;
-            mods.push_back(mod);
-        }
-
-        for (int l = 0; l < mods.count(); l++)
-        {
-#ifdef GUI
-            QApplication::processEvents();
-#endif
+            auto data = fs.ReadToBuffer(dataSize);
             FileMod fileMod{};
-            quint32 textureFlags{};
+            fileMod.tag = FileMovieTextureTag;
+            fileMod.name = f.name;
             std::unique_ptr<Stream> dst (new MemoryStream());
-            if (mods[l].movieTexture)
-                fileMod.tag = FileMovieTextureTag;
-            else
-                fileMod.tag = FileTextureTag;
-            fileMod.name = mods[l].name;
-
-            if (mods[l].data.size() != 0)
-            {
-                Misc::compressData(mods[l].data, *dst, fastMode ? CompressionDataType::Zlib : CompressionDataType::LZMA);
-                dst->SeekBegin();
-                fileMod.offset = outFs.Position();
-                fileMod.size = dst->Length();
-            }
-            else
-            {
-                fileMod.offset = mods[l].offset;
-                fileMod.size = mods[l].size;
-            }
-
-            if (mods[l].markConvert)
-                textureFlags |= (quint32)ModTextureFlags::MarkToConvert;
-            if (mods[l].forceHash)
+            Misc::compressData(data, *dst, fastMode ? CompressionDataType::Zlib : CompressionDataType::LZMA);
+            data.Free();
+            dst->SeekBegin();
+            fileMod.offset = outFs.Position();
+            fileMod.size = dst->Length();
+            quint32 textureFlags{};
+            if (forceHash)
                 textureFlags |= (quint32)ModTextureFlags::ForceHash;
-
             outFs.WriteUInt32(textureFlags);
-            outFs.WriteUInt32(mods[l].textureCrc);
-            if (mods[l].data.size() != 0)
-                outFs.CopyFrom(*dst, dst->Length());
+            outFs.WriteUInt32(crc);
+            outFs.CopyFrom(*dst, dst->Length());
             modFiles.push_back(fileMod);
         }
     }
-    foreach (BinaryMod mod, mods)
-    {
-        mod.data.Free();
-    }
-    mods.clear();
 
     if (modFiles.count() == 0)
     {
