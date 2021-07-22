@@ -312,8 +312,15 @@ void Image::convertInternalToRGBE()
         CRASH();
     auto mipmap = mipMaps.first();
     auto pixels = InternalToRGBE(mipmap->getRefData(), mipmap->getWidth(), mipmap->getHeight());
+    int width = mipmap->getWidth();
+    int height = mipmap->getHeight();
+    foreach(MipMap *mip, mipMaps)
+    {
+        mip->Free();
+        delete mip;
+    }
     mipMaps.clear();
-    mipMaps.push_back(new MipMap(pixels, mipmap->getWidth(), mipmap->getHeight(), PixelFormat::RGBE));
+    mipMaps.push_back(new MipMap(pixels, width, height, PixelFormat::RGBE));
     pixels.Free();
     pixelFormat = PixelFormat::RGBE;
 }
@@ -328,8 +335,15 @@ void Image::convertInternalToRGBA10(bool clearAlpha)
         pixels = InternalToR10G10B10A2ClearAlpha(mipmap->getRefData(), mipmap->getWidth(), mipmap->getHeight());
     else
         pixels = InternalToR10G10B10A2(mipmap->getRefData(), mipmap->getWidth(), mipmap->getHeight());
+    int width = mipmap->getWidth();
+    int height = mipmap->getHeight();
+    foreach(MipMap *mip, mipMaps)
+    {
+        mip->Free();
+        delete mip;
+    }
     mipMaps.clear();
-    mipMaps.push_back(new MipMap(pixels, mipmap->getWidth(), mipmap->getHeight(), PixelFormat::R10G10B10A2));
+    mipMaps.push_back(new MipMap(pixels, width, height, PixelFormat::R10G10B10A2));
     pixels.Free();
     pixelFormat = PixelFormat::R10G10B10A2;
 }
@@ -340,8 +354,15 @@ void Image::convertInternalToRGBA16()
         CRASH();
     auto mipmap = mipMaps.first();
     auto pixels = InternalToR16G16B16A16(mipmap->getRefData(), mipmap->getWidth(), mipmap->getHeight());
+    int width = mipmap->getWidth();
+    int height = mipmap->getHeight();
+    foreach(MipMap *mip, mipMaps)
+    {
+        mip->Free();
+        delete mip;
+    }
     mipMaps.clear();
-    mipMaps.push_back(new MipMap(pixels, mipmap->getWidth(), mipmap->getHeight(), PixelFormat::R16G16B16A16));
+    mipMaps.push_back(new MipMap(pixels, width, height, PixelFormat::R16G16B16A16));
     pixels.Free();
     pixelFormat = PixelFormat::R16G16B16A16;
 }
