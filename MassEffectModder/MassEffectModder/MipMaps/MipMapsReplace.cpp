@@ -39,6 +39,11 @@ PixelFormat MipMaps::changeTextureType(PixelFormat gamePixelFormat, PixelFormat 
         texturePixelFormat = PixelFormat::ARGB;
     }
 
+    if (gamePixelFormat == texturePixelFormat)
+    {
+        return gamePixelFormat;
+    }
+
     if (texturePixelFormat == PixelFormat::ARGB && texture.getProperties().exists("CompressionSettings") &&
         texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_OneBitAlpha")
     {
@@ -158,7 +163,6 @@ PixelFormat MipMaps::changeTextureType(PixelFormat gamePixelFormat, PixelFormat 
     {
         PINFO(QString("This texture will not be converted to desired pixel format.\n"));
     }
-
 
     return gamePixelFormat;
 }
