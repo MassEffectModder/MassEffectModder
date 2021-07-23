@@ -252,6 +252,15 @@ void LayoutInstallModsManager::InstallMods(QStringList &mods)
         return;
     }
 
+    if (gameType == MeType::ME1_TYPE && QDir(g_GameData->DLCData()).exists())
+    {
+        QMessageBox::critical(this, "Installing MEM mods",
+                              QString("Program detected DLC mod(s).\n"
+                              "Installing textures with DLC mods is currently not supported."));
+        LockGui(false);
+        return;
+    }
+
     Resources resources;
     resources.loadMD5Tables();
 
