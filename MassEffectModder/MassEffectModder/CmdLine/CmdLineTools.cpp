@@ -645,8 +645,13 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, QString
                 }
                 bool oneBitAlpha = texture.getProperties().exists("CompressionSettings") &&
                                    texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_OneBitAlpha";
-                bool depthHdr = texture.getProperties().exists("CompressionSettings") &&
-                                texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_HighDynamicRange";
+                bool storeAs16Bits = false;
+                if (pixelFormat == PixelFormat::RGBE ||
+                    pixelFormat == PixelFormat::R10G10B10A2 ||
+                    pixelFormat == PixelFormat::R16G16B16A16)
+                {
+                    storeAs16Bits = true;
+                }
                 if (!clearAlpha)
                     clearAlpha = (pixelFormat == PixelFormat::DXT1) && !oneBitAlpha;
                 if (png)
@@ -657,7 +662,7 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, QString
                     {
                         if (QFile(outputFile).exists())
                             QFile(outputFile).remove();
-                        Image::saveToPng(data, mipmap.width, mipmap.height, pixelFormat, outputFile, !depthHdr, clearAlpha);
+                        Image::saveToPng(data, mipmap.width, mipmap.height, pixelFormat, outputFile, !storeAs16Bits, clearAlpha);
                         data.Free();
                     }
                 }

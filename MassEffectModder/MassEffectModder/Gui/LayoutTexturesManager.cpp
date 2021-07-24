@@ -1132,8 +1132,13 @@ void LayoutTexturesManager::ExtractTexture(const ViewTexture& viewTexture, bool 
         bool oneBitAlpha = texture.getProperties().exists("CompressionSettings") &&
                            texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_OneBitAlpha";
         bool clearAlpha = (pixelFormat == PixelFormat::DXT1) && !oneBitAlpha;
-        bool depthHdr = texture.getProperties().exists("CompressionSettings") &&
-                        texture.getProperties().getProperty("CompressionSettings").getValueName() == "TC_HighDynamicRange";
+        bool storeAs16Bits = false;
+        if (pixelFormat == PixelFormat::RGBE ||
+            pixelFormat == PixelFormat::R10G10B10A2 ||
+            pixelFormat == PixelFormat::R16G16B16A16)
+        {
+            storeAs16Bits = true;
+        }
         if (png)
         {
             ByteBuffer data = texture.getTopImageData();
@@ -1147,7 +1152,7 @@ void LayoutTexturesManager::ExtractTexture(const ViewTexture& viewTexture, bool 
                 return;
             }
             Texture::TextureMipMap mipmap = texture.getTopMipmap();
-            Image::saveToPng(data, mipmap.width, mipmap.height, pixelFormat, outputFile, !depthHdr, clearAlpha);
+            Image::saveToPng(data, mipmap.width, mipmap.height, pixelFormat, outputFile, !storeAs16Bits, clearAlpha);
             data.Free();
         }
         else
