@@ -176,7 +176,8 @@ void Image::LoadImageDDS(Stream &stream, bool &source8Bits)
             return;
         }
         auto miscFlags2 = (DDS_ALPHA_MODE)stream.ReadUInt32();
-        if (miscFlags2 != DDS_ALPHA_MODE_OPAQUE)
+        if (miscFlags2 != DDS_ALPHA_MODE_UNKNOWN &&
+            miscFlags2 != DDS_ALPHA_MODE_OPAQUE)
         {
             PERROR("DDS DX10 alpha mode different than opaque is not supported.\n");
             return;
