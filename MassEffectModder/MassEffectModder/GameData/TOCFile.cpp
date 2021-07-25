@@ -116,15 +116,19 @@ void TOCBinFile::GenerateDLCsTocBinFiles()
         foreach (QString DLCDir, DLCs)
         {
             QStringList files;
-            QDirIterator iterator(g_GameData->DLCData() + "/" + DLCDir, QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
             bool isValid = false;
+            QString validDlcPath = g_GameData->DLCData() + "/" + DLCDir + g_GameData->DLCDataSuffix() + "/Mount.dlc";
+            if (QFile::exists(validDlcPath))
+                isValid = true;
+            validDlcPath = g_GameData->DLCData() + "/" + DLCDir + "/AutoLoad.ini";
+            if (QFile::exists(validDlcPath))
+                isValid = true;
+            if (!isValid)
+                continue;
+            QDirIterator iterator(g_GameData->DLCData() + "/" + DLCDir, QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
             while (iterator.hasNext())
             {
                 iterator.next();
-                if (iterator.filePath().endsWith("Mount.dlc", Qt::CaseInsensitive))
-                {
-                    isValid = true;
-                }
                 if (iterator.filePath().endsWith(".pcc", Qt::CaseInsensitive) ||
                     iterator.filePath().endsWith(".upk", Qt::CaseInsensitive) ||
                     iterator.filePath().endsWith(".tfc", Qt::CaseInsensitive) ||
