@@ -49,7 +49,7 @@ BASE_CHROOT=$BASE_PATH/$PROJECT-$DISTRO_BASE-$DISTRO_ARCH
 CHROOT_CMD_USER="schroot --user=$USER_NAME --directory=/home/$USER_NAME --chroot=$PROJECT-$DISTRO_BASE-$DISTRO_ARCH -- bash -c "
 
 sudo mount --bind /proc $BASE_CHROOT/proc
-$CHROOT_CMD_USER "cd /home/$USER_NAME/builds/sources/MassEffectModder; git clean -fdx; git pull; git checkout $BRANCH;
+$CHROOT_CMD_USER "cd /home/$USER_NAME/builds/sources/MassEffectModder; git clean -fdx; git checkout $BRANCH; git pull;
 mkdir -p /home/$USER_NAME/builds/sources/MassEffectModder/build-MassEffectModder-sandbox-Release;
 cd /home/$USER_NAME/builds/sources/MassEffectModder/build-MassEffectModder-sandbox-Release;
 qmake ../MassEffectModder/MassEffectModder.pro; make -j$NUM_THREADS;
