@@ -24,15 +24,11 @@
 #include <GameData/TOCFile.h>
 #include <GameData/GameData.h>
 
-static bool compareFullPath(const QString &e1, const QString &e2)
-{
-    return e1.compare(e2, Qt::CaseInsensitive) < 0;
-}
-
 void TOCBinFile::UpdateAllTOCBinFiles(MeType gameType)
 {
     GenerateMainTocBinFile(gameType);
-    GenerateDLCsTocBinFiles();
+    if (gameType != MeType::ME1_TYPE)
+        GenerateDLCsTocBinFiles();
 }
 
 void TOCBinFile::GenerateMainTocBinFile(MeType gameType)
@@ -54,6 +50,7 @@ void TOCBinFile::GenerateMainTocBinFile(MeType gameType)
             MainIterator.filePath().endsWith(".afc", Qt::CaseInsensitive) ||
             MainIterator.filePath().endsWith(".cnd", Qt::CaseInsensitive) ||
             MainIterator.filePath().endsWith(".ini", Qt::CaseInsensitive) ||
+            MainIterator.filePath().endsWith(".txt", Qt::CaseInsensitive) ||
             MainIterator.filePath().endsWith(".bin", Qt::CaseInsensitive))
         {
             files.push_back(MainIterator.filePath().mid(pathLen + 1));
@@ -87,7 +84,35 @@ void TOCBinFile::GenerateMainTocBinFile(MeType gameType)
             files.push_back(UsfIterator.filePath().mid(pathLen + 1));
     }
 
-    std::sort(files.begin(), files.end(), compareFullPath);
+    if (gameType == MeType::ME1_TYPE && QDir(g_GameData->DLCData()).exists())
+    {
+        int pathLen = g_GameData->DLCData().length();
+        QStringList DLCs = QDir(g_GameData->DLCData(), "DLC_*", QDir::NoSort, QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryList();
+        foreach (QString DLCDir, DLCs)
+        {
+            QString validDlcPath = g_GameData->DLCData() + "/" + DLCDir + "/AutoLoad.ini";
+            if (!QFile::exists(validDlcPath))
+                continue;
+            QDirIterator iterator(g_GameData->DLCData() + "/" + DLCDir, QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
+            while (iterator.hasNext())
+            {
+                iterator.next();
+                if (iterator.filePath().endsWith(".pcc", Qt::CaseInsensitive) ||
+                    iterator.filePath().endsWith(".upk", Qt::CaseInsensitive) ||
+                    iterator.filePath().endsWith(".tfc", Qt::CaseInsensitive) ||
+                    iterator.filePath().endsWith(".tlk", Qt::CaseInsensitive) ||
+                    iterator.filePath().endsWith(".afc", Qt::CaseInsensitive) ||
+                    iterator.filePath().endsWith(".cnd", Qt::CaseInsensitive) ||
+                    iterator.filePath().endsWith(".bik", Qt::CaseInsensitive) ||
+                    iterator.filePath().endsWith(".ini", Qt::CaseInsensitive) ||
+                    iterator.filePath().endsWith(".dlc", Qt::CaseInsensitive) ||
+                    iterator.filePath().endsWith(".bin", Qt::CaseInsensitive))
+                {
+                    files.push_back(iterator.filePath().mid(pathLen + DLCDir.length() + 2));
+                }
+            }
+        }
+    }
 
     QVector<FileEntry> filesList;
     for (int f = 0; f < files.count(); f++)
@@ -116,14 +141,8 @@ void TOCBinFile::GenerateDLCsTocBinFiles()
         foreach (QString DLCDir, DLCs)
         {
             QStringList files;
-            bool isValid = false;
             QString validDlcPath = g_GameData->DLCData() + "/" + DLCDir + g_GameData->DLCDataSuffix() + "/Mount.dlc";
-            if (QFile::exists(validDlcPath))
-                isValid = true;
-            validDlcPath = g_GameData->DLCData() + "/" + DLCDir + "/AutoLoad.ini";
-            if (QFile::exists(validDlcPath))
-                isValid = true;
-            if (!isValid)
+            if (!QFile::exists(validDlcPath))
                 continue;
             QDirIterator iterator(g_GameData->DLCData() + "/" + DLCDir, QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
             while (iterator.hasNext())
@@ -137,18 +156,13 @@ void TOCBinFile::GenerateDLCsTocBinFiles()
                     iterator.filePath().endsWith(".cnd", Qt::CaseInsensitive) ||
                     iterator.filePath().endsWith(".bik", Qt::CaseInsensitive) ||
                     iterator.filePath().endsWith(".ini", Qt::CaseInsensitive) ||
+                    iterator.filePath().endsWith(".txt", Qt::CaseInsensitive) ||
                     iterator.filePath().endsWith(".dlc", Qt::CaseInsensitive) ||
                     iterator.filePath().endsWith(".bin", Qt::CaseInsensitive))
                 {
                     files.push_back(iterator.filePath().mid(pathLen + DLCDir.length() + 2));
                 }
             }
-            if (!isValid)
-            {
-                continue;
-            }
-
-            std::sort(files.begin(), files.end(), compareFullPath);
 
             QVector<FileEntry> filesList;
             for (int f = 0; f < files.count(); f++)
