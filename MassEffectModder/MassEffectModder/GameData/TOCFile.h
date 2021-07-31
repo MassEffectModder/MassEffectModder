@@ -30,15 +30,16 @@ class TOCBinFile
 {
     struct FileEntry
     {
-        uint size;
+        quint64 size;
         QString path;
+        quint32 hashFilename;
     };
 
 private:
 
     static void GenerateMainTocBinFile(MeType gameType);
     static void GenerateDLCsTocBinFiles();
-    static void CreateTocBinFile(QString &path, QVector<FileEntry> filesList);
+    static void CreateTocBinFile(QString &path, const QVector<FileEntry>& filesList);
 
 public:
 
