@@ -469,7 +469,7 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
 
 bool Misc::ApplyPostInstall(MeType gameId, bool limit2k)
 {
-    if (!applyModTag(gameId, 0, 0))
+    if (!applyModTag(gameId))
         PERROR("Failed applying stamp for installation!\n");
 
     PINFO("Updating LODs and other settings started...\n");

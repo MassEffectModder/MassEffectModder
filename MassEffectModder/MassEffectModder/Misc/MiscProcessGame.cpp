@@ -163,7 +163,7 @@ bool Misc::ChangeRegKeyForME1Exe()
     return false;
 }
 
-bool Misc::applyModTag(MeType gameId, int MeuitmV, int AlotV)
+bool Misc::applyModTag(MeType gameId)
 {
     QString path;
     if (gameId == MeType::ME1_TYPE)
@@ -173,26 +173,20 @@ bool Misc::applyModTag(MeType gameId, int MeuitmV, int AlotV)
     else if (gameId == MeType::ME3_TYPE)
         path = "/BIOGame/CookedPCConsole/adv_combat_tutorial_xbox_D_Int.afc";
 
+    MemoryStream marker;
+    marker.WriteInt32(2); // version 2 for extended marker
+    marker.WriteStringUnicode16Null(QString("Mass Effect Modder v%1").arg(MEM_VERSION));
+    marker.WriteInt64(QDateTime::currentSecsSinceEpoch());
+    marker.WriteInt32(0); // number of mods - 0 for MEM
+    marker.SeekBegin();
     FileStream fs = FileStream(g_GameData->GamePath() + path, FileMode::Open, FileAccess::ReadWrite);
-    fs.Seek(-16, SeekOrigin::End);
-    int prevMeuitmV = fs.ReadInt32();
-    int prevAlotV = fs.ReadInt32();
-    int prevProductV = fs.ReadInt32();
-    uint memiTag = fs.ReadUInt32();
-    if (memiTag == MEMI_TAG)
-    {
-        if (prevProductV < 10 || prevProductV == 4352 || prevProductV == 16777472) // default before MEM v178
-            prevProductV = prevAlotV = prevMeuitmV = 0;
-    }
-    else
-        prevProductV = prevAlotV = prevMeuitmV = 0;
-    if (MeuitmV != 0)
-        prevMeuitmV = MeuitmV;
-    if (AlotV != 0)
-        prevAlotV = AlotV;
-    fs.WriteInt32(prevMeuitmV);
-    fs.WriteInt32(prevAlotV);
-    fs.WriteInt32((prevProductV & 0xffff0000) | QString(MEM_VERSION).toInt());
+    fs.SeekEnd();
+    fs.CopyFrom(marker, marker.Length());
+    fs.WriteInt32(marker.Length());
+    fs.WriteUInt32(0xDEADBEEF); // extended marker tag
+    fs.WriteInt32(0); // meuitm major version - 0 for MEM
+    fs.WriteInt32(0); // alot major version - 0 for MEM
+    fs.WriteInt32(QString(MEM_VERSION).toInt());
     fs.WriteUInt32(MEMI_TAG);
 
     return true;

@@ -94,7 +94,7 @@ public:
     static long elapsedStageTime();
     static QString getTimerFormat(long time);
     static bool CheckGamePath();
-    static bool applyModTag(MeType gameId, int MeuitmV, int AlotV);
+    static bool applyModTag(MeType gameId);
     static int ParseLegacyMe3xScriptMod(QList<TextureMapEntry> &textures, QString &script,
                                         QString &textureName);
     static void ParseME3xBinaryScriptMod(QString &script, QString &package,
