@@ -577,7 +577,7 @@ void Package::loadNames(Stream &input)
             nameIdShadowMapTexture2D = i;
         else if (nameIdTextureFlipBook == -1 && entry.name == "TextureFlipBook")
             nameIdTextureFlipBook = i;
-        else if (nameIdTextureFlipBook == -1 && entry.name == "TextureMovie")
+        else if (nameIdTextureMovie == -1 && entry.name == "TextureMovie")
             nameIdTextureMovie = i;
         else if (nameIdTextureCube == -1 && entry.name == "TextureCube")
             nameIdTextureCube = i;
