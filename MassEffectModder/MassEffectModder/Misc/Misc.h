@@ -76,7 +76,7 @@ public:
     static long elapsedStageTime();
     static QString getTimerFormat(quint64 time);
     static bool CheckGamePath();
-    static void applyModTag();
+    static bool applyModTag(int MeuitmV, int AlotV);
     static PixelFormat changeTextureType(PixelFormat gamePixelFormat,
                                          PixelFormat texturePixelFormat,
                                          TextureType flags, bool bc7format = false);

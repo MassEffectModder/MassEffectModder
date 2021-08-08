@@ -309,9 +309,10 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
 
 bool Misc::ApplyPostInstall(MeType gameId)
 {
-    applyModTag();
+    if (!applyModTag(0, 0))
+        PERROR("Failed applying stamp for installation!\n");
 
-    PINFO("Updating GFXs settings started...\n");
+    PINFO("Updating LODs and other settings started...\n");
     QString path = g_GameData->EngineConfigIniPath(gameId);
     QDir().mkpath(DirName(path));
 #if defined(_WIN32)
@@ -321,7 +322,7 @@ bool Misc::ApplyPostInstall(MeType gameId)
 #endif
     UserSettings::updateGFXSettings(gameId, engineConf);
 
-    PINFO("Updating GFXs settings finished.\n\n");
+    PINFO("Updating LODs and other settings finished.\n\n");
 
     return true;
 }
