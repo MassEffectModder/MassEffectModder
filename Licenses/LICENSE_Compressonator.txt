@@ -2,7 +2,7 @@ This program use Compressonator code which is covered by the following
 license.
 
 Copyright (c) 2017-2021 Pawel Kolodziejski
-Copyright (c) 2016-2020 Advanced Micro Devices, Inc. All rights reserved.
+Copyright (c) 2016-2021 Advanced Micro Devices, Inc. All rights reserved.
 Copyright (c) 2004-2006 ATI Technologies Inc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
