@@ -94,6 +94,8 @@ class BC7BlockEncoder {
                          CMP_BYTE   out[COMPRESSED_BLOCK_SIZE]);
 
   private:
+
+
     double quant_single_point_d(
         double data[MAX_ENTRIES][MAX_DIMENSION_BIG],
         int numEntries, int index[MAX_ENTRIES],
@@ -128,7 +130,7 @@ class BC7BlockEncoder {
         int epo_code[2][MAX_DIMENSION_BIG],
         int Mi_,                // last cluster
         int bits[3],            // including parity
-        CMP_qt type,
+        CMP_qt_cpu type,
         int dimension
     );
 

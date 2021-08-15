@@ -51,7 +51,7 @@ double g_HIGHQULITY_THRESHOLD = 0.7;
 //
 
 void    BC7BlockEncoder::BlockSetup(CMP_DWORD blockMode) {
-    switch(bti[blockMode].pBitType) {
+    switch(bti_cpu[blockMode].pBitType) {
     case    NO_PBIT:
         m_parityBits = CART;
         break;
@@ -72,30 +72,30 @@ void    BC7BlockEncoder::BlockSetup(CMP_DWORD blockMode) {
         break;
     }
 
-    if(bti[blockMode].encodingType == NO_ALPHA) {
-        m_componentBits[COMP_RED] = bti[blockMode].vectorBits/3;
-        m_componentBits[COMP_GREEN] = bti[blockMode].vectorBits/3;
-        m_componentBits[COMP_BLUE] = bti[blockMode].vectorBits/3;
+    if(bti_cpu[blockMode].encodingType == NO_ALPHA) {
+        m_componentBits[COMP_RED] = bti_cpu[blockMode].vectorBits/3;
+        m_componentBits[COMP_GREEN] = bti_cpu[blockMode].vectorBits/3;
+        m_componentBits[COMP_BLUE] = bti_cpu[blockMode].vectorBits/3;
         m_componentBits[COMP_ALPHA] = 0;
 
-        m_clusters[0] = 1 << bti[blockMode].indexBits[0];
+        m_clusters[0] = 1 << bti_cpu[blockMode].indexBits[0];
         m_clusters[1] = 0;
-    } else if(bti[blockMode].encodingType == COMBINED_ALPHA) {
-        m_componentBits[COMP_RED] = bti[blockMode].vectorBits/4;
-        m_componentBits[COMP_GREEN] = bti[blockMode].vectorBits/4;
-        m_componentBits[COMP_BLUE] = bti[blockMode].vectorBits/4;
-        m_componentBits[COMP_ALPHA] = bti[blockMode].vectorBits/4;
+    } else if(bti_cpu[blockMode].encodingType == COMBINED_ALPHA) {
+        m_componentBits[COMP_RED] = bti_cpu[blockMode].vectorBits/4;
+        m_componentBits[COMP_GREEN] = bti_cpu[blockMode].vectorBits/4;
+        m_componentBits[COMP_BLUE] = bti_cpu[blockMode].vectorBits/4;
+        m_componentBits[COMP_ALPHA] = bti_cpu[blockMode].vectorBits/4;
 
-        m_clusters[0] = 1 << bti[blockMode].indexBits[0];
+        m_clusters[0] = 1 << bti_cpu[blockMode].indexBits[0];
         m_clusters[1] = 0;
-    } else if(bti[blockMode].encodingType == SEPARATE_ALPHA) {
-        m_componentBits[COMP_RED] = bti[blockMode].vectorBits/3;
-        m_componentBits[COMP_GREEN] = bti[blockMode].vectorBits/3;
-        m_componentBits[COMP_BLUE] = bti[blockMode].vectorBits/3;
-        m_componentBits[COMP_ALPHA] = bti[blockMode].scalarBits;
+    } else if(bti_cpu[blockMode].encodingType == SEPARATE_ALPHA) {
+        m_componentBits[COMP_RED] = bti_cpu[blockMode].vectorBits/3;
+        m_componentBits[COMP_GREEN] = bti_cpu[blockMode].vectorBits/3;
+        m_componentBits[COMP_BLUE] = bti_cpu[blockMode].vectorBits/3;
+        m_componentBits[COMP_ALPHA] = bti_cpu[blockMode].scalarBits;
 
-        m_clusters[0] = 1 << bti[blockMode].indexBits[0];
-        m_clusters[1] = 1 << bti[blockMode].indexBits[1];
+        m_clusters[0] = 1 << bti_cpu[blockMode].indexBits[0];
+        m_clusters[1] = 1 << bti_cpu[blockMode].indexBits[1];
     }
 }
 
@@ -119,18 +119,18 @@ void BC7BlockEncoder::EncodeSingleIndexBlock(CMP_DWORD blockMode,
     CMP_DWORD   blockIndices[MAX_SUBSET_SIZE];
 
     // Generate Unary header
-    for(i=0; i < blockMode; i++) {
+    for(i=0; i < (int)blockMode; i++) {
         WriteBit(basePtr, bitPosition++, 0);
     }
     WriteBit(basePtr, bitPosition++, 1);
 
     // Write partition bits
-    for(i=0; i<bti[blockMode].partitionBits; i++) {
+    for(i=0; i<bti_cpu[blockMode].partitionBits; i++) {
         WriteBit(basePtr, bitPosition++, (CMP_BYTE)(partition>>i) & 0x1);
     }
 
     // Extract the index bits from the partitions
-    partitionTable = (CMP_DWORD*)BC7_PARTITIONS[bti[blockMode].subsetCount-1][partition];
+    partitionTable = (CMP_DWORD*)BC7_PARTITIONS_CPU[bti_cpu[blockMode].subsetCount-1][partition];
 
     CMP_DWORD   idxCount[3] = {0, 0, 0};
     bool    flipColours[3] = {false, false, false};
@@ -139,7 +139,7 @@ void BC7BlockEncoder::EncodeSingleIndexBlock(CMP_DWORD blockMode,
     // endpoints to get the correct state in the implicit index bits
     // The implicitly encoded MSB of the fixup index must be 0
     CMP_DWORD   fixup[3] = {0, 0, 0};
-    switch(bti[blockMode].subsetCount) {
+    switch(bti_cpu[blockMode].subsetCount) {
     case    3:
         fixup[1] = BC7_FIXUPINDICES[2][partition][1];
         fixup[2] = BC7_FIXUPINDICES[2][partition][2];
@@ -157,9 +157,9 @@ void BC7BlockEncoder::EncodeSingleIndexBlock(CMP_DWORD blockMode,
         CMP_DWORD   p = partitionTable[i];
         blockIndices[i] = indices[p][idxCount[p]++];
 
-        for(j=0; j<bti[blockMode].subsetCount; j++) {
+        for(j=0; j<(int)bti_cpu[blockMode].subsetCount; j++) {
             if(i==fixup[j]) {
-                if(blockIndices[i] & (1<<(bti[blockMode].indexBits[0]-1))) {
+                if(blockIndices[i] & (1<<(bti_cpu[blockMode].indexBits[0]-1))) {
                     flipColours[j] = true;
                 }
             }
@@ -168,7 +168,7 @@ void BC7BlockEncoder::EncodeSingleIndexBlock(CMP_DWORD blockMode,
 
     // Now we must flip the endpoints where necessary so that the implicitly encoded
     // index bits have the correct state
-    for(i=0; i<bti[blockMode].subsetCount; i++) {
+    for(i=0; i<(int)bti_cpu[blockMode].subsetCount; i++) {
         if(flipColours[i]) {
             CMP_DWORD   temp;
             temp = colour[i][0];
@@ -181,7 +181,7 @@ void BC7BlockEncoder::EncodeSingleIndexBlock(CMP_DWORD blockMode,
     for(i=0; i<MAX_SUBSET_SIZE; i++) {
         CMP_DWORD   p = partitionTable[i];
         if(flipColours[p]) {
-            blockIndices[i] = ((1 << bti[blockMode].indexBits[0]) - 1) - blockIndices[i];
+            blockIndices[i] = ((1 << bti_cpu[blockMode].indexBits[0]) - 1) - blockIndices[i];
         }
     }
 
@@ -193,17 +193,17 @@ void BC7BlockEncoder::EncodeSingleIndexBlock(CMP_DWORD blockMode,
     CMP_DWORD   parityBits[MAX_SUBSETS][2];
 
     // Unpack the colour values for the subsets
-    for(i=0; i<bti[blockMode].subsetCount; i++) {
+    for(i=0; i<bti_cpu[blockMode].subsetCount; i++) {
         CMP_DWORD   packedColours[2] = {colour[i][0],
                                         colour[i][1]
                                        };
 
-        if(bti[blockMode].pBitType == TWO_PBIT) {
+        if(bti_cpu[blockMode].pBitType == TWO_PBIT) {
             parityBits[i][0] = packedColours[0] & 1;
             parityBits[i][1] = packedColours[1] & 1;
             packedColours[0] >>= 1;
             packedColours[1] >>= 1;
-        } else if(bti[blockMode].pBitType == ONE_PBIT) {
+        } else if(bti_cpu[blockMode].pBitType == ONE_PBIT) {
             parityBits[i][0] = packedColours[1] & 1;
             parityBits[i][1] = packedColours[1] & 1;
             packedColours[0] >>= 1;
@@ -227,7 +227,7 @@ void BC7BlockEncoder::EncodeSingleIndexBlock(CMP_DWORD blockMode,
     // Loop over components
     for(component=0; component < MAX_DIMENSION_BIG; component++) {
         // loop over subsets
-        for(subset=0; subset<bti[blockMode].subsetCount; subset++) {
+        for(subset=0; subset<(int)bti_cpu[blockMode].subsetCount; subset++) {
             // Loop over endpoints and write colour bits
             for(ep=0; ep<2; ep++) {
                 // Write this component
@@ -241,13 +241,13 @@ void BC7BlockEncoder::EncodeSingleIndexBlock(CMP_DWORD blockMode,
     }
 
     // Now write parity bits if present
-    if(bti[blockMode].pBitType != NO_PBIT) {
-        for(subset=0; subset<bti[blockMode].subsetCount; subset++) {
-            if(bti[blockMode].pBitType == ONE_PBIT) {
+    if(bti_cpu[blockMode].pBitType != NO_PBIT) {
+        for(subset=0; subset<(int)bti_cpu[blockMode].subsetCount; subset++) {
+            if(bti_cpu[blockMode].pBitType == ONE_PBIT) {
                 WriteBit(basePtr,
                          bitPosition++,
                          parityBits[subset][0] & 1);
-            } else if(bti[blockMode].pBitType == TWO_PBIT) {
+            } else if(bti_cpu[blockMode].pBitType == TWO_PBIT) {
                 WriteBit(basePtr,
                          bitPosition++,
                          parityBits[subset][0] & 1);
@@ -263,11 +263,11 @@ void BC7BlockEncoder::EncodeSingleIndexBlock(CMP_DWORD blockMode,
         CMP_DWORD   p = partitionTable[i];
         // If this is a fixup index then drop the MSB which is implicitly 0
         if(i==fixup[p]) {
-            for(j=0; j<(bti[blockMode].indexBits[0]-1); j++) {
+            for(j=0; j<(bti_cpu[blockMode].indexBits[0]-1); j++) {
                 WriteBit(basePtr, bitPosition++,(CMP_BYTE)(blockIndices[i]>>j));
             }
         } else {
-            for(j=0; j<bti[blockMode].indexBits[0]; j++) {
+            for(j=0; j<bti_cpu[blockMode].indexBits[0]; j++) {
                 WriteBit(basePtr, bitPosition++,(CMP_BYTE)(blockIndices[i]>>j));
             }
         }
@@ -299,13 +299,13 @@ double BC7BlockEncoder::CompressSingleIndexBlock(
     CMP_DWORD   dimension;
 
     // Figure out the effective dimension of this block mode
-    if(bti[blockMode].encodingType == NO_ALPHA) {
+    if(bti_cpu[blockMode].encodingType == NO_ALPHA) {
         dimension = 3;
     } else {
         dimension = 4;
     }
 
-    CMP_DWORD numPartitionModes = 1 << bti[blockMode].partitionBits;
+    CMP_DWORD numPartitionModes = 1 << bti_cpu[blockMode].partitionBits;
     CMP_DWORD partitionsToTry = numPartitionModes;
 
     // Linearly reduce the number of partitions to try as the quality falls below a threshold
@@ -337,7 +337,7 @@ double BC7BlockEncoder::CompressSingleIndexBlock(
         double  direction[MAX_DIMENSION_BIG];
         double  step;
 
-        for(subset=0; subset < bti[blockMode].subsetCount; subset++) {
+        for(subset=0; subset < bti_cpu[blockMode].subsetCount; subset++) {
             int     indices[MAX_SUBSETS][MAX_SUBSET_SIZE];
 
             if(entryCount[subset]) {
@@ -421,7 +421,7 @@ double BC7BlockEncoder::CompressSingleIndexBlock(
 
     // shakeSize gives the size of the shake cube (for ep_shaker_2_d)
     // ep_shaker always runs on a 1x1x1 cube on both endpoints
-    CMP_DWORD   shakeSize = 8 - (CMP_DWORD)floor(1.5 * bti[blockMode].indexBits[0]);
+    CMP_DWORD   shakeSize = 8 - (CMP_DWORD)floor(1.5 * bti_cpu[blockMode].indexBits[0]);
     shakeSize = MAX(2, MIN((CMP_DWORD)floor( shakeSize * m_quality + 0.5), 6));
 
     // Shake attempts indicates how many partitions to try to shake
@@ -447,7 +447,7 @@ double BC7BlockEncoder::CompressSingleIndexBlock(
                   blockMode,
                   dimension);
 
-        for(subset=0; subset < bti[blockMode].subsetCount; subset++) {
+        for(subset=0; subset < bti_cpu[blockMode].subsetCount; subset++) {
             if(entryCount[subset]) {
                 // If quality is set low or the dimension is not compatible with
                 // shaker_d then just run shaker_2_d
@@ -480,7 +480,7 @@ double BC7BlockEncoder::CompressSingleIndexBlock(
                                                temp_epo_code,
                                                m_clusters[0]-1,
                                                bits,
-                                               (CMP_qt)m_parityBits,
+                                               (CMP_qt_cpu)m_parityBits,
                                                dimension);
 
                     tempError[1] = ep_shaker_2_d(partition[subset],
@@ -529,7 +529,7 @@ double BC7BlockEncoder::CompressSingleIndexBlock(
         if(error < bestError) {
             bestPartition = blockPartition;
 
-            for(subset=0; subset < bti[blockMode].subsetCount; subset++) {
+            for(subset=0; subset < bti_cpu[blockMode].subsetCount; subset++) {
                 bestEntryCount[subset] = entryCount[subset];
 
                 if(entryCount[subset]) {
@@ -558,7 +558,7 @@ double BC7BlockEncoder::CompressSingleIndexBlock(
     // Now we have all the data needed to encode the block
     // We need to pack the endpoints prior to encoding
     CMP_DWORD   packedEndpoints[3][2];
-    for(subset=0; subset<bti[blockMode].subsetCount; subset++) {
+    for(subset=0; subset<bti_cpu[blockMode].subsetCount; subset++) {
         if(bestEntryCount[subset]) {
             CMP_DWORD   rightAlignment = 0;
             packedEndpoints[subset][0] = 0;
@@ -621,23 +621,23 @@ void BC7BlockEncoder::EncodeDualIndexBlock(CMP_DWORD blockMode,
     WriteBit(basePtr, bitPosition++, 1);
 
     // Write rotation bits
-    for(i=0; i<bti[blockMode].rotationBits; i++) {
+    for(i=0; i<bti_cpu[blockMode].rotationBits; i++) {
         WriteBit(basePtr, bitPosition++, (CMP_BYTE)((componentRotation>>i) & 0xff));
     }
 
     // Write index selector bits
-    for(i=0; i<bti[blockMode].indexModeBits; i++) {
+    for(i=0; i<bti_cpu[blockMode].indexModeBits; i++) {
         WriteBit(basePtr, bitPosition++, (CMP_BYTE)(indexSelection ? 1: 0));
     }
 
     if(indexSelection) {
         swapIndices = true;
-        idxBits[0] = bti[blockMode].indexBits[1];
-        idxBits[1] = bti[blockMode].indexBits[0];
+        idxBits[0] = bti_cpu[blockMode].indexBits[1];
+        idxBits[1] = bti_cpu[blockMode].indexBits[0];
     } else {
         swapIndices = false;
-        idxBits[0] = bti[blockMode].indexBits[0];
-        idxBits[1] = bti[blockMode].indexBits[1];
+        idxBits[0] = bti_cpu[blockMode].indexBits[0];
+        idxBits[1] = bti_cpu[blockMode].indexBits[1];
     }
 
     bool   flipColours[2] = {false, false};
@@ -674,7 +674,7 @@ void BC7BlockEncoder::EncodeDualIndexBlock(CMP_DWORD blockMode,
 
     CMP_DWORD   ep, component;
     // Encode the colour and alpha information
-    CMP_DWORD   vectorComponentBits = bti[blockMode].vectorBits / 3;
+    CMP_DWORD   vectorComponentBits = bti_cpu[blockMode].vectorBits / 3;
 
     // Loop over components
     for(component=0; component < MAX_DIMENSION_BIG; component++) {
@@ -688,7 +688,7 @@ void BC7BlockEncoder::EncodeDualIndexBlock(CMP_DWORD blockMode,
             }
         } else {
             for(ep=0; ep<2; ep++) {
-                for(j=0; j<bti[blockMode].scalarBits; j++) {
+                for(j=0; j<bti_cpu[blockMode].scalarBits; j++) {
                     WriteBit(basePtr,
                              bitPosition++,
                              (CMP_BYTE)((endpoint[1][ep][0] >> j) & 0x1));
@@ -731,10 +731,10 @@ double BC7BlockEncoder::CompressDualIndexBlock(double in[MAX_SUBSET_SIZE][MAX_DI
     double  cBlock[MAX_SUBSET_SIZE][MAX_DIMENSION_BIG];
     double  aBlock[MAX_SUBSET_SIZE][MAX_DIMENSION_BIG];
 
-    CMP_DWORD maxRotation = 1 << bti[blockMode].rotationBits;
+    CMP_DWORD maxRotation = 1 << bti_cpu[blockMode].rotationBits;
     CMP_DWORD rotation;
 
-    CMP_DWORD maxIndexSelection = 1 << bti[blockMode].indexModeBits;
+    CMP_DWORD maxIndexSelection = 1 << bti_cpu[blockMode].indexModeBits;
     CMP_DWORD indexSelection;
 
     int        indices[2][MAX_SUBSET_SIZE];
@@ -768,7 +768,7 @@ double BC7BlockEncoder::CompressDualIndexBlock(double in[MAX_SUBSET_SIZE][MAX_DI
             if(m_blockMaxRange <= m_quantizerRangeThreshold) {
                 quantizerError = optQuantAnD_d(cBlock,
                                                MAX_SUBSET_SIZE,
-                                               (1 << bti[blockMode].indexBits[0 ^ indexSelection]),
+                                               (1 << bti_cpu[blockMode].indexBits[0 ^ indexSelection]),
                                                indices[0],
                                                outQ[0],
                                                direction,
@@ -777,7 +777,7 @@ double BC7BlockEncoder::CompressDualIndexBlock(double in[MAX_SUBSET_SIZE][MAX_DI
             } else {
                 quantizerError = optQuantTrace_d(cBlock,
                                                  MAX_SUBSET_SIZE,
-                                                 (1 << bti[blockMode].indexBits[0 ^ indexSelection]),
+                                                 (1 << bti_cpu[blockMode].indexBits[0 ^ indexSelection]),
                                                  indices[0],
                                                  outQ[0],
                                                  direction,
@@ -789,7 +789,7 @@ double BC7BlockEncoder::CompressDualIndexBlock(double in[MAX_SUBSET_SIZE][MAX_DI
             if(m_blockMaxRange <= m_quantizerRangeThreshold) {
                 quantizerError += optQuantAnD_d(aBlock,
                                                 MAX_SUBSET_SIZE,
-                                                (1 << bti[blockMode].indexBits[1 ^ indexSelection]),
+                                                (1 << bti_cpu[blockMode].indexBits[1 ^ indexSelection]),
                                                 indices[1],
                                                 outQ[1],
                                                 direction,
@@ -798,7 +798,7 @@ double BC7BlockEncoder::CompressDualIndexBlock(double in[MAX_SUBSET_SIZE][MAX_DI
             } else {
                 quantizerError += optQuantTrace_d(aBlock,
                                                   MAX_SUBSET_SIZE,
-                                                  (1 << bti[blockMode].indexBits[1 ^ indexSelection]),
+                                                  (1 << bti_cpu[blockMode].indexBits[1 ^ indexSelection]),
                                                   indices[1],
                                                   outQ[1],
                                                   direction,
@@ -841,7 +841,7 @@ double BC7BlockEncoder::CompressDualIndexBlock(double in[MAX_SUBSET_SIZE][MAX_DI
                                                   outQ[0],
                                                   epo_code[0],
                                                   shakeSize,
-                                                  (1 << bti[blockMode].indexBits[0 ^ indexSelection])-1,
+                                                  (1 << bti_cpu[blockMode].indexBits[0 ^ indexSelection])-1,
                                                   bits[0][3],
                                                   3,
                                                   epo);
@@ -851,9 +851,9 @@ double BC7BlockEncoder::CompressDualIndexBlock(double in[MAX_SUBSET_SIZE][MAX_DI
                                 indices[0],
                                 outQ[0],
                                 epo_code[0],
-                                (1 << bti[blockMode].indexBits[0 ^ indexSelection])-1,
+                                (1 << bti_cpu[blockMode].indexBits[0 ^ indexSelection])-1,
                                 bits[0],
-                                (CMP_qt)0,
+                                (CMP_qt_cpu)0,
                                 3);
 
                     overallError += ep_shaker_2_d(cBlock,
@@ -862,7 +862,7 @@ double BC7BlockEncoder::CompressDualIndexBlock(double in[MAX_SUBSET_SIZE][MAX_DI
                                                   outQ[0],
                                                   epo_code[0],
                                                   shakeSize,
-                                                  (1 << bti[blockMode].indexBits[0 ^ indexSelection])-1,
+                                                  (1 << bti_cpu[blockMode].indexBits[0 ^ indexSelection])-1,
                                                   bits[0][3],
                                                   3,
                                                   epo);
@@ -875,7 +875,7 @@ double BC7BlockEncoder::CompressDualIndexBlock(double in[MAX_SUBSET_SIZE][MAX_DI
                                                   outQ[1],
                                                   epo_code[1],
                                                   shakeSize,
-                                                  (1 << bti[blockMode].indexBits[1 ^ indexSelection])-1,
+                                                  (1 << bti_cpu[blockMode].indexBits[1 ^ indexSelection])-1,
                                                   bits[1][3],
                                                   3,
                                                   epo) / 3.;
@@ -885,9 +885,9 @@ double BC7BlockEncoder::CompressDualIndexBlock(double in[MAX_SUBSET_SIZE][MAX_DI
                                 indices[1],
                                 outQ[1],
                                 epo_code[1],
-                                (1 << bti[blockMode].indexBits[1 ^ indexSelection])-1,
+                                (1 << bti_cpu[blockMode].indexBits[1 ^ indexSelection])-1,
                                 bits[1],
-                                (CMP_qt)0,
+                                (CMP_qt_cpu)0,
                                 3);
 
                     overallError += ep_shaker_2_d(aBlock,
@@ -896,7 +896,7 @@ double BC7BlockEncoder::CompressDualIndexBlock(double in[MAX_SUBSET_SIZE][MAX_DI
                                                   outQ[1],
                                                   epo_code[1],
                                                   shakeSize,
-                                                  (1 << bti[blockMode].indexBits[1 ^ indexSelection])-1,
+                                                  (1 << bti_cpu[blockMode].indexBits[1 ^ indexSelection])-1,
                                                   bits[1][3],
                                                   3,
                                                   epo) / 3.;
@@ -986,7 +986,7 @@ double BC7BlockEncoder::CompressBlock(double in[MAX_SUBSET_SIZE][MAX_DIMENSION_B
             // If the block needs Alpha and this mode doesn't support alpha then
             // indicate that this is not a valid mode and continue
             if((blockNeedsAlpha) &&
-                    (bti[blockMode].encodingType == NO_ALPHA)) {
+                    (bti_cpu[blockMode].encodingType == NO_ALPHA)) {
                 validModeMask &= ~(1<<blockMode);
             }
 
@@ -999,7 +999,7 @@ double BC7BlockEncoder::CompressBlock(double in[MAX_SUBSET_SIZE][MAX_DIMENSION_B
             // the 4th component can safely be assumed to be 1.0 all the time)
             if((!blockNeedsAlpha) &&
                     (m_colourRestrict) &&
-                    (bti[blockMode].encodingType == COMBINED_ALPHA)) {
+                    (bti_cpu[blockMode].encodingType == COMBINED_ALPHA)) {
                 validModeMask &= ~(1<<blockMode);
             }
 
@@ -1008,7 +1008,7 @@ double BC7BlockEncoder::CompressBlock(double in[MAX_SUBSET_SIZE][MAX_DIMENSION_B
             if((blockNeedsAlpha) &&
                     (m_alphaRestrict) &&
                     (blockAlphaZeroOne) &&
-                    (bti[blockMode].encodingType == COMBINED_ALPHA)) {
+                    (bti_cpu[blockMode].encodingType == COMBINED_ALPHA)) {
                 validModeMask &= ~(1<<blockMode);
             }
         }
@@ -1044,7 +1044,7 @@ double BC7BlockEncoder::CompressBlock(double in[MAX_SUBSET_SIZE][MAX_DIMENSION_B
             // Setup mode parameters for this block
             BlockSetup(blockMode);
 
-            if(bti[blockMode].encodingType != SEPARATE_ALPHA) {
+            if(bti_cpu[blockMode].encodingType != SEPARATE_ALPHA) {
                 thisError = CompressSingleIndexBlock(in, temporaryOutputBlock, blockMode);
             } else {
                 thisError = CompressDualIndexBlock(in, temporaryOutputBlock, blockMode);
