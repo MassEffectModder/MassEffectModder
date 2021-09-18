@@ -287,7 +287,7 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
 
     if (!alotInstallerMode)
     {
-        if (!ApplyPostInstall(gameId))
+        if (!ApplyPostInstall(gameId, modFiles))
             return false;
     }
 
@@ -307,9 +307,9 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
     return true;
 }
 
-bool Misc::ApplyPostInstall(MeType gameId)
+bool Misc::ApplyPostInstall(MeType gameId, QStringList &mods)
 {
-    applyModTag();
+    applyModTag(mods);
 
     PINFO("Updating GFXs settings started...\n");
     QString path = g_GameData->EngineConfigIniPath(gameId);

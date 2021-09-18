@@ -30,13 +30,18 @@
 #include <Helpers/Logs.h>
 #include <Helpers/FileStream.h>
 
-void Misc::applyModTag()
+void Misc::applyModTag(QStringList &mods)
 {
     MemoryStream marker;
     marker.WriteInt32(2); // version 2 for extended marker
     marker.WriteStringUnicode16Null(QString("Mass Effect Modder v%1").arg(MEM_VERSION));
     marker.WriteInt64(QDateTime::currentSecsSinceEpoch());
-    marker.WriteInt32(0); // number of mods - 0 for MEM
+    marker.WriteInt32(mods.count());
+    foreach (QString file, mods)
+    {
+        marker.WriteByte(0); // user mod file type
+        marker.WriteStringUnicode16Null(BaseName(file)); // MEM mod filename
+    }
     marker.SeekBegin();
     FileStream fs = FileStream(g_GameData->MainData() + "/SFXTest.pcc", FileMode::Open, FileAccess::ReadWrite);
     fs.SeekEnd();

@@ -76,7 +76,7 @@ public:
     static long elapsedStageTime();
     static QString getTimerFormat(quint64 time);
     static bool CheckGamePath();
-    static void applyModTag();
+    static void applyModTag(QStringList &mods);
     static PixelFormat changeTextureType(PixelFormat gamePixelFormat,
                                          PixelFormat texturePixelFormat,
                                          TextureType flags, bool bc7format = false);
@@ -121,7 +121,7 @@ public:
     static bool detectMod();
     static void detectBrokenMod(QStringList &mods);
     static bool CheckGameDataAndMods(MeType gameId, Resources &resources);
-    static bool ApplyPostInstall(MeType gameId);
+    static bool ApplyPostInstall(MeType gameId, QStringList &mods);
     static bool checkGameFiles(MeType gameType, Resources &resources, QString &errors,
                                QStringList &mods, ProgressCallback callback,
                                void *callbackHandle);
