@@ -497,6 +497,8 @@ void LayoutTexturesManager::ListMiddleContextMenu(const QPoint &pos)
         enableInfoAll = singleInfoMode && !singlePackageMode;
 
     auto item = listMiddle->itemAt(pos);
+    if (!item)
+        return;
     auto viewTexture = item->data(Qt::UserRole).value<ViewTexture>();
     TextureMapPackageEntry nodeTexture;
     for (int index = 0; index < textures[viewTexture.indexInTextures].list.count(); index++)
@@ -508,7 +510,7 @@ void LayoutTexturesManager::ListMiddleContextMenu(const QPoint &pos)
         }
     }
 
-    if (item && !singlePackageMode)
+    if (!singlePackageMode)
     {
         auto menu = new QMenu(this);
         auto subMenu = new QAction("Replace Texture", this);
