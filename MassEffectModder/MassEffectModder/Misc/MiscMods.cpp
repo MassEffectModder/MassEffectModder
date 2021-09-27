@@ -342,7 +342,7 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
 
             FileStream fs = FileStream(file, FileMode::Open);
             quint32 tag = fs.ReadUInt32();
-            if (tag != BIK_TAG)
+            if (tag != BIK1_TAG && tag != BIK2_TAG)
             {
                 PINFO(QString("File mod is not supported Bik movie: ") + BaseName(file) +
                              ", skipping...\n");

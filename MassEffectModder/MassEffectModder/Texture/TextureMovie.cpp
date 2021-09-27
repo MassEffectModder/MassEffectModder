@@ -51,7 +51,7 @@ TextureMovie::TextureMovie(Package &package, int exportId, const ByteBuffer &dat
     {
         dataOffset = textureData->Position();
         quint32 tag = textureData->ReadUInt32();
-        if (tag != BIK_TAG)
+        if (tag != BIK1_TAG && tag != BIK2_TAG)
             CRASH_MSG("Not supported movie texture");
     }
     else if (storageType != StorageTypes::extUnc && storageType == StorageTypes::extUnc2)
@@ -171,7 +171,7 @@ const ByteBuffer TextureMovie::getData()
             auto fs = FileStream(filename, FileMode::Open, FileAccess::ReadOnly);
             fs.JumpTo(dataOffset);
             quint32 tag = fs.ReadUInt32();
-            if (tag != BIK_TAG)
+            if (tag != BIK1_TAG && tag != BIK2_TAG)
             {
                 if (g_ipc)
                 {

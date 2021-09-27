@@ -916,7 +916,7 @@ void LayoutTexturesManager::ReplaceTexture(const QListWidgetItem *item, bool con
     {
         FileStream fs(file, FileMode::Open);
         quint32 tag = fs.ReadUInt32();
-        if (tag != BIK_TAG)
+        if (tag != BIK1_TAG && tag != BIK2_TAG)
         {
             QMessageBox::critical(this, "Replacing texture",
                                   QString("File mod is not supported Bik movie."));
