@@ -19,6 +19,7 @@ Exec=MassEffectModder
 Icon=MassEffectModder
 Type=Application
 Categories=Utility;" > $bundle_path/MassEffectModder.desktop
+linuxdeploy --appdir $bundle_path
 appimagetool $bundle_path MassEffectModder.AppImage
 zip MassEffectModder-Linux-v$version.zip MassEffectModder.AppImage -0
 rm MassEffectModder.AppImage
