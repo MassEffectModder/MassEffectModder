@@ -99,6 +99,9 @@ if [ ! -f .stamp-appimage ]; then
 wget https://github.com/AppImage/AppImageKit/releases/download/12/appimagetool-x86_64.AppImage;
 chmod +x appimagetool-x86_64.AppImage;
 mv appimagetool-x86_64.AppImage /usr/local/bin/appimagetool"
+	$CHROOT_CMD_ROOT "wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage;
+chmod +x linuxdeploy-x86_64.AppImage;
+mv linuxdeploy-x86_64.AppImage /usr/local/bin/linuxdeploy"
 	touch .stamp-appimage
 fi
 
