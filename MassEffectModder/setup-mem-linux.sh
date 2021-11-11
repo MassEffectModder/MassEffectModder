@@ -165,9 +165,6 @@ cd /home/$USER_NAME/builds/sources/MassEffectModder/MassEffectModder; ./deploy_g
 mkdir -p /home/$USER_NAME/builds/sources/MassEffectModder/build-MassEffectModderNoGui-sandbox-Release;
 cd /home/$USER_NAME/builds/sources/MassEffectModder/build-MassEffectModderNoGui-sandbox-Release;
 qmake ../MassEffectModder/MassEffectModderNoGui.pro; make -j$NUM_THREADS
-cd /home/$USER_NAME/builds/sources/MassEffectModder/MassEffectModder; ./deploy_nogui_linux.sh;
-mkdir -p /home/$USER_NAME/builds/sources/MassEffectModder/build-MassEffectModderWrappers-sandbox-Release;
-cd /home/$USER_NAME/builds/sources/MassEffectModder/build-MassEffectModderWrappers-sandbox-Release;
-qmake ../MassEffectModder/MassEffectModderWrappers.pro; make -j$NUM_THREADS;"
+cd /home/$USER_NAME/builds/sources/MassEffectModder/MassEffectModder; ./deploy_nogui_linux.sh;"
 	sudo umount $BASE_CHROOT/proc
 fi
