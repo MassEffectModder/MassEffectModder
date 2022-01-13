@@ -93,11 +93,11 @@ QString Package::resolvePackagePath(int id)
     return s;
 }
 
-int Package::getPropertiesOffset(int exportIndex)
+int Package::getPropertiesOffset(int /*exportIndex*/)
 {
     int propertiesOffset;
 
-    Package::ExportEntry& exp = exportsTable[exportIndex];
+    //Package::ExportEntry& exp = exportsTable[exportIndex];
 
     propertiesOffset = 4;
 
