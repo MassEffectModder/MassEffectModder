@@ -1,7 +1,7 @@
 /*
  * Wrapper
  *
- * Copyright (C) 2017-2021 Pawel Kolodziejski
+ * Copyright (C) 2017-2022 Pawel Kolodziejski
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

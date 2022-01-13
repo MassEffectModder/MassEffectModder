@@ -1,6 +1,6 @@
 /* WrapperZlib.cpp
 
-        Copyright (C) 2017-2021 Pawel Kolodziejski
+        Copyright (C) 2017-2022 Pawel Kolodziejski
 
         ---------------------------------------------------------------------------------
 
