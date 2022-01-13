@@ -195,7 +195,7 @@ void LayoutInstallModsManager::AddSelected()
     if (g_logs->BufferGetErrors() != "")
     {
         MessageWindow msg;
-        msg.Show(mainWindow, "Ading MEM file(s)", g_logs->BufferGetErrors());
+        msg.Show(mainWindow, "Adding MEM file(s)", g_logs->BufferGetErrors());
     }
 
     LockGui(false);
