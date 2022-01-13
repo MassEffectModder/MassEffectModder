@@ -116,7 +116,7 @@ bool Misc::CheckMEMGameVersion(FileStream &fs, const QString &file, int gameId)
         }
         else
         {
-            PERROR(QString("File ") + file + " is not a MEM mod valid for this game.\n");
+            PERROR(QString("MEM mod file ") + file + " is for LE" + QString::number(gameType) + ".\n");
         }
         return false;
     }
