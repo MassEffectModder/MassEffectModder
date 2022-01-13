@@ -84,11 +84,6 @@ private slots:
     void ChangeGamePathME1Selected() { ChangeGamePathSelected(MeType::ME1_TYPE); }
     void ChangeGamePathME2Selected() { ChangeGamePathSelected(MeType::ME2_TYPE); }
     void ChangeGamePathME3Selected() { ChangeGamePathSelected(MeType::ME3_TYPE); }
-#if !defined(_WIN32)
-    void ChangeUserPathME1Selected() { ChangeUserPathSelected(MeType::ME1_TYPE); }
-    void ChangeUserPathME2Selected() { ChangeUserPathSelected(MeType::ME2_TYPE); }
-    void ChangeUserPathME3Selected() { ChangeUserPathSelected(MeType::ME3_TYPE); }
-#endif
     void UpdateTOCsME1Selected() { UpdateTOCsSelected(MeType::ME1_TYPE); }
     void UpdateTOCsME2Selected() { UpdateTOCsSelected(MeType::ME2_TYPE); }
     void UpdateTOCsME3Selected() { UpdateTOCsSelected(MeType::ME3_TYPE); }
@@ -130,9 +125,6 @@ private:
     QPushButton   *buttonCheckGameFilesME1;
     QPushButton   *buttonUpdateTOCsME1;
     QPushButton   *buttonChangeGamePathME1;
-#if !defined(_WIN32)
-    QPushButton   *buttonChangeUserPathME1;
-#endif
     QSpacerItem   *spacerBottomGameUtilitiesME1;
     QPushButton   *buttonModsManagerME1;
     QPushButton   *buttonInstallModsME1;
@@ -150,9 +142,6 @@ private:
     QPushButton   *buttonCheckGameFilesME2;
     QPushButton   *buttonUpdateTOCsME2;
     QPushButton   *buttonChangeGamePathME2;
-#if !defined(_WIN32)
-    QPushButton   *buttonChangeUserPathME2;
-#endif
     QSpacerItem   *spacerBottomGameUtilitiesME2;
     QPushButton   *buttonModsManagerME2;
     QPushButton   *buttonInstallModsME2;
@@ -170,9 +159,6 @@ private:
     QPushButton   *buttonCheckGameFilesME3;
     QPushButton   *buttonUpdateTOCsME3;
     QPushButton   *buttonChangeGamePathME3;
-#if !defined(_WIN32)
-    QPushButton   *buttonChangeUserPathME3;
-#endif
     QSpacerItem   *spacerBottomGameUtilitiesME3;
     QPushButton   *buttonModsManagerME3;
     QPushButton   *buttonInstallModsME3;
@@ -201,9 +187,6 @@ private:
     void CheckGameFilesSelected(MeType gameType);
     void UpdateTOCsSelected(MeType gameType);
     void ChangeGamePathSelected(MeType gameType);
-#if !defined(_WIN32)
-    void ChangeUserPathSelected(MeType gameType);
-#endif
     static void CheckCallback(void *handle, int progress, const QString &stage);
 
     void ExtractModsSelected(MeType gameType);

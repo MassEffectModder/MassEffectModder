@@ -166,42 +166,6 @@ void LayoutMain::ChangeGamePathSelected(MeType gameType)
     LockGui(false);
 }
 
-#if !defined(_WIN32)
-void LayoutMain::ChangeUserPathSelected(MeType gameType)
-{
-    LockGui(true);
-
-    mainWindow->statusBar()->showMessage("Detecting game data...");
-    QApplication::processEvents();
-    ConfigIni configIni{};
-    g_GameData->Init(gameType, configIni, true);
-    QString caption = "Please select the Mass Effect " +
-            QString::number(static_cast<int>(gameType)) +
-            " user configuration path";
-    QString path = QFileDialog::getExistingDirectory(this, caption,
-                                                     g_GameData->GameUserPath(),
-                                                     QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-    if (path.length() != 0 && QDir(path).exists())
-    {
-#if defined(_WIN32)
-        configIni.Write("MELE", QString(path).replace(QChar('/'), QChar('\\'), Qt::CaseInsensitive), "GameUserPath");
-#else
-        configIni.Write("MELE", path, "GameUserPath");
-#endif
-        QString newPath = g_GameData->GameUserPath();
-        QMessageBox::information(this, "Changing user configuration path",
-                                 "User configuration path changed to\n" + newPath);
-    }
-    else
-    {
-        QMessageBox::information(this, "Changing user configuration path",
-                                 "User configuration path NOT changed.");
-    }
-    mainWindow->statusBar()->clearMessage();
-    LockGui(false);
-}
-#endif
-
 void LayoutMain::UpdateTOCsSelected(MeType gameType)
 {
     LockGui(true);
