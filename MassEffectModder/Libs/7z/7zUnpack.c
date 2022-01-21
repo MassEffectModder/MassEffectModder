@@ -364,9 +364,6 @@ int sevenzip_unpack(const char *path, const char *output_path,
 
     FileInStream_CreateVTable(&archiveStream);
     LookToRead2_CreateVTable(&lookStream, False);
-    lookStream.buf = NULL;
-
-    res = SZ_OK;
     lookStream.buf = ISzAlloc_Alloc(&allocImp, kInputBufSize);
     if (!lookStream.buf)
     {
@@ -795,9 +792,6 @@ int sevenzip_list(const char *path, int ipc)
 
     FileInStream_CreateVTable(&archiveStream);
     LookToRead2_CreateVTable(&lookStream, False);
-    lookStream.buf = NULL;
-
-    res = SZ_OK;
     lookStream.buf = ISzAlloc_Alloc(&allocImp, kInputBufSize);
     if (!lookStream.buf)
     {
