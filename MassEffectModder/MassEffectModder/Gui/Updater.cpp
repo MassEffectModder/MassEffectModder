@@ -110,7 +110,7 @@ void Updater::finishedDownloadRelase(QNetworkReply *reply)
     if (dstPath.endsWith(".7z", Qt::CaseInsensitive))
     {
 #if defined(_WIN32)
-        status = SevenZipUnpack(dstPath.toStdWString().c_str(), unpackPath.toStdWString().c_str(), "", true);
+        status = SevenZipUnpack(dstPath.toStdWString().c_str(), unpackPath.toStdWString().c_str(), QString("").toStdWString().c_str(), false);
 #else
         status = SevenZipUnpack(dstPath.toStdString().c_str(), unpackPath.toStdString().c_str(), "", false);
 #endif
@@ -118,7 +118,7 @@ void Updater::finishedDownloadRelase(QNetworkReply *reply)
     else if (dstPath.endsWith(".zip", Qt::CaseInsensitive))
     {
 #if defined(_WIN32)
-        status = ZipUnpack(dstPath.toStdWString().c_str(), unpackPath.toStdWString().c_str(), "", false);
+        status = ZipUnpack(dstPath.toStdWString().c_str(), unpackPath.toStdWString().c_str(), QString("").toStdWString().c_str(), false);
 #else
         status = ZipUnpack(dstPath.toStdString().c_str(), unpackPath.toStdString().c_str(), "", false);
 #endif
