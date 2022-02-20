@@ -250,3 +250,7 @@ linux {
         QMAKE_LFLAGS += -rdynamic
     }
 }
+
+# ASan
+#QMAKE_CXXFLAGS += -fsanitize=address -fno-omit-frame-pointer
+#QMAKE_LFLAGS += -fsanitize=address -fno-omit-frame-pointer
