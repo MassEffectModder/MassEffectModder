@@ -204,7 +204,15 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
                 DLCFiles += files;
             }
 
-            if (gameType == MeType::ME2_TYPE)
+            if (gameType == MeType::ME1_TYPE)
+            {
+                for (int i = 0; i < DLCFiles.count(); i++)
+                {
+                    if (AsciiStringEndsWith(DLCFiles[i], EXTENSION_TFC, EXTENSION_TFC_LEN))
+                        tfcFiles.push_back(DLCFiles[i]);
+                }
+            }
+            else if (gameType == MeType::ME2_TYPE)
             {
                 for (int i = 0; i < DLCFiles.count(); i++)
                 {
