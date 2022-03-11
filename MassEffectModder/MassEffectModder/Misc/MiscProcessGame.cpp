@@ -50,7 +50,8 @@ void Misc::applyModTag(QStringList &mods)
     fs.WriteUInt32(0xDEADBEEF); // extended marker tag
     fs.WriteInt32(0); // meuitm major version - 0 for MEM
     fs.WriteInt32(0); // alot major version - 0 for MEM
-    fs.WriteInt32(MEM_VERSION);
+    fs.WriteInt16(0);
+    fs.WriteInt16(MEM_VERSION);
     fs.WriteUInt32(MEMI_TAG);
 }
 
