@@ -1,7 +1,7 @@
 /*
  * MassEffectModder
  *
- * Copyright (C) 2018-2021 Pawel Kolodziejski
+ * Copyright (C) 2018-2022 Pawel Kolodziejski
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -186,7 +186,8 @@ bool Misc::applyModTag(MeType gameId)
     fs.WriteUInt32(0xDEADBEEF); // extended marker tag
     fs.WriteInt32(0); // meuitm major version - 0 for MEM
     fs.WriteInt32(0); // alot major version - 0 for MEM
-    fs.WriteInt32(MEM_VERSION);
+    fs.WriteInt16(0);
+    fs.WriteInt16(MEM_VERSION);
     fs.WriteUInt32(MEMI_TAG);
 
     return true;
