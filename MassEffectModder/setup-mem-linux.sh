@@ -3,7 +3,7 @@
 #
 # MIT License
 #
-# Copyright (c) 2019-2021 Pawel Kolodziejski
+# Copyright (c) 2019-2022 Pawel Kolodziejski
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -47,7 +47,7 @@ BRANCH=master
 USER_NAME=aquadran
 USER_ID=1001
 NUM_THREADS=`grep -c '^processor' /proc/cpuinfo`
-QT_VERSION=5.15.2
+QT_VERSION=5.15.4
 QT_VERSION_BASE=`echo $QT_VERSION | cut -d'.' -f 1,2`
 PACKAGES_ADD=bash,build-essential,nasm,git,perl,python,wget,ca-certificates,libx11-dev,libsdl2-dev,\
 libopenal-dev,libfontconfig1-dev,libssl-dev,libxkbcommon-dev,libxkbcommon-x11-dev,libxcomposite-dev,\
@@ -117,9 +117,9 @@ if [ ! -f .stamp-sources ]; then
 	# Get source code
 	$CHROOT_CMD_USER "rm -rf /home/$USER_NAME/builds/sources; mkdir -p /home/$USER_NAME/builds/sources;
 cd /home/$USER_NAME/builds/sources;
-wget https://download.qt.io/archive/qt/$QT_VERSION_BASE/$QT_VERSION/single/qt-everywhere-src-${QT_VERSION}.tar.xz;
-tar xf qt-everywhere-src-$QT_VERSION.tar.xz;
-rm -f qt-everywhere-src-$QT_VERSION.tar.xz;
+wget https://download.qt.io/archive/qt/$QT_VERSION_BASE/$QT_VERSION/single/qt-everywhere-opensource-src-${QT_VERSION}.tar.xz;
+tar xf qt-everywhere-opensource-src-$QT_VERSION.tar.xz;
+rm -f qt-everywhere-opensource-src-$QT_VERSION.tar.xz;
 git clone https://github.com/MassEffectModder/MassEffectModder.git;
 cd /home/$USER_NAME/builds/sources/MassEffectModder;
 git checkout $BRANCH"
