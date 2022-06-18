@@ -96,7 +96,7 @@ fi
 
 if [ ! -f .stamp-appimage ]; then
 	$CHROOT_CMD_ROOT "mknod -m 666 /dev/fuse c 10 229;
-wget https://github.com/AppImage/AppImageKit/releases/download/12/appimagetool-x86_64.AppImage;
+wget https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage;
 chmod +x appimagetool-x86_64.AppImage;
 mv appimagetool-x86_64.AppImage /usr/local/bin/appimagetool"
 	$CHROOT_CMD_ROOT "wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage;
