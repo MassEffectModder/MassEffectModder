@@ -65,12 +65,15 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
         unsigned int sourceLine = 0;
         char moduleFilePath[MAX_PATH], tmpBuffer[MAX_PATH];
 
+        strcpy(sourceFunc, "???");
+        strcpy(sourceFile, "???");
+
         DWORD64 moduleBase = SymGetModuleBase64(process, stackFrame.AddrPC.Offset);
         if (moduleBase && GetModuleFileNameA(reinterpret_cast<HINSTANCE>(moduleBase), moduleFilePath, MAX_PATH))
         {
             moduleName = moduleFilePath;
             status = BacktraceGetInfoFromModule(moduleFilePath, stackFrame.AddrPC.Offset,
-                                       sourceFile, sourceFunc, &sourceLine);
+                                                sourceFile, sourceFunc, &sourceLine);
         }
         if (moduleName)
             BacktraceGetFilename(moduleFilePath, moduleName, MAX_PATH);
@@ -86,15 +89,13 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
 
         if (status == 0)
         {
-            if (!sourceFunc)
-                strcpy(sourceFunc, "???");
-            if (!sourceFile)
-                strcpy(sourceFile, "???");
             if (strcmp(sourceFunc, "WinMain") == 0 ||
-                  strcmp(sourceFunc, "__tmainCRTStartup") == 0 ||
-                  strcmp(sourceFunc, "mainCRTStartup") == 0 ||
-                  strcmp(sourceFunc, "WinMainCRTStartup") == 0)
+                strcmp(sourceFunc, "__tmainCRTStartup") == 0 ||
+                strcmp(sourceFunc, "mainCRTStartup") == 0 ||
+                strcmp(sourceFunc, "WinMainCRTStartup") == 0)
+            {
                 continue;
+            }
             sprintf(tmpBuffer, "%02d.  ", count + 1);
             output += tmpBuffer;
             int status;
@@ -116,12 +117,14 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
         {
             DWORD64 unused = 0;
             if (SymFromAddr(process, stackFrame.AddrPC.Offset, &unused, symbol))
+            {
                 strcpy(sourceFile, symbol->Name);
-            else
-                strcpy(sourceFile, "???");
+            }
             if (strcmp(sourceFile, "BaseThreadInitThunk") == 0 ||
                 strcmp(sourceFile, "RtlUserThreadStart") == 0)
+            {
                 continue;
+            }
             sprintf(tmpBuffer, "#%02d.  %s\n", count + 1, sourceFile);
             output += tmpBuffer;
         }
