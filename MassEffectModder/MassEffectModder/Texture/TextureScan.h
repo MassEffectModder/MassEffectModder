@@ -58,7 +58,7 @@ class TreeScan
 {
 private:
 
-    static void FindTextures(QList<TextureMapEntry> &textures,
+	static bool FindTextures(QList<TextureMapEntry> &textures,
                              const QString &packagePath, bool modified);
 
 public:

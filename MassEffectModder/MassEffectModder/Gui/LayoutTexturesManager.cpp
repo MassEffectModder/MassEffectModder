@@ -401,6 +401,7 @@ bool LayoutTexturesManager::Startup()
         {
             MessageWindow msg;
             msg.Show(mainWindow, "Errors while scanning package files", g_logs->BufferGetErrors());
+            return false;
         }
     }
 

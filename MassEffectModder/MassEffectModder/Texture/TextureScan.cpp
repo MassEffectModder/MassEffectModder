@@ -488,7 +488,8 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
                     callback(callbackHandle, newProgress, "Scanning textures");
                 }
             }
-            FindTextures(textures, modifiedFiles[i], true);
+			if (!FindTextures(textures, modifiedFiles[i], true))
+				return false;
         }
 
         for (int i = 0; i < addedFiles.count(); i++, currentPackage++)
@@ -526,8 +527,9 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
                     callback(callbackHandle, newProgress, "Scanning textures");
                 }
             }
-            FindTextures(textures, addedFiles[i], false);
-        }
+			if (!FindTextures(textures, addedFiles[i], false))
+				return false;
+		}
     }
     else
     {
@@ -567,8 +569,9 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
                     callback(callbackHandle, newProgress, "Scanning textures");
                 }
             }
-            FindTextures(textures, g_GameData->packageFiles[i], false);
-        }
+			if (!FindTextures(textures, g_GameData->packageFiles[i], false))
+				return false;
+		}
     }
 
     if (callback)
@@ -669,7 +672,7 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
     return true;
 }
 
-void TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &packagePath, bool modified)
+bool TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &packagePath, bool modified)
 {
     Package package;
     int status = package.Open(g_GameData->GamePath() + packagePath);
@@ -684,7 +687,7 @@ void TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &pac
         {
             PERROR(QString("ERROR: Issue opening package file: ") + packagePath + "\n");
         }
-        return;
+		return false;
     }
 
     for (int i = 0; i < package.exportsTable.count(); i++)
@@ -714,8 +717,8 @@ void TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &pac
                                  " has broken export data in package: " +
                                  packagePath +"\nExport Id: " + QString::number(i + 1) + "\nSkipping...\n");
                 }
-                continue;
-            }
+				return false;
+			}
 
             TextureMovie *textureMovie = nullptr;
             TextureCube *textureCube = nullptr;
@@ -775,8 +778,8 @@ void TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &pac
                 }
                 delete textureMovie;
                 delete texture;
-                continue;
-            }
+				return false;
+			}
 
             int foundTextureIndex = -1;
             for (int k = 0; k < textures.count(); k++)
@@ -915,4 +918,6 @@ void TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &pac
             delete texture;
         }
     }
+
+	return true;
 }
