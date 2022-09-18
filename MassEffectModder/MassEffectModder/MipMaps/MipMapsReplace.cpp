@@ -681,7 +681,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                 if (mod.arcTexture.count() == 0)
                 {
                     archiveFile = g_GameData->MainData() + "/" + archive + ".tfc";
-                    if (g_GameData->gameType == ME1_TYPE || matched.path.contains("/DLC", Qt::CaseInsensitive))
+                    if (g_GameData->gameType == MeType::ME1_TYPE || matched.path.contains("/DLC", Qt::CaseInsensitive))
                     {
                         mod.arcTfcDLC = true;
                         QString DLCArchiveFile = g_GameData->GamePath() + DirName(matched.path) + "/" + archive + ".tfc";
