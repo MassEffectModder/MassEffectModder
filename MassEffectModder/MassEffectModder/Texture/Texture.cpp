@@ -299,7 +299,7 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
             QString filename;
             QString archive = properties->getProperty("TextureFileCacheName").getValueName();
             filename = g_GameData->MainData() + "/" + archive + ".tfc";
-            if (packagePath.contains("/DLC", Qt::CaseInsensitive))
+            if (GameData::gameType == MeType::ME1_TYPE || packagePath.contains("/DLC", Qt::CaseInsensitive))
             {
                 QString DLCArchiveFile = g_GameData->GamePath() + DirName(packagePath) + "/" + archive + ".tfc";
                 if (QFile(DLCArchiveFile).exists())
