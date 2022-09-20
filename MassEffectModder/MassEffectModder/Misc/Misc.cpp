@@ -36,7 +36,7 @@ bool Misc::SetGameDataPath(MeType gameId, const QString &path)
     g_GameData->Init(gameId, configIni, true);
     if (!QFile(g_GameData->GameExePath()).exists())
     {
-        PERROR("Error: Could not found the game!\n");
+        PERROR("Error: Could not find Mass Effect Legendary Edition!\n");
         return false;
     }
 
@@ -57,7 +57,7 @@ bool Misc::SetGameUserPath(const QString &path)
     QString newPath = g_GameData->GameUserPath();
     if (newPath.length() == 0 || !QDir(newPath).exists())
     {
-        PERROR("Error: Could not found game user config path!\n");
+        PERROR("Error: Could not find game user config path!\n");
         return false;
     }
 
@@ -69,7 +69,7 @@ bool Misc::CheckGamePath()
 {
     if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
     {
-        PERROR("Error: Could not found the game!\n");
+        PERROR("Error: Could not find Mass Effect Legendary Edition!\n");
         return false;
     }
 
@@ -135,7 +135,7 @@ bool Misc::CheckAndCorrectAccessToGame()
 {
     if (!checkWriteAccessDir(g_GameData->MainData()))
     {
-        PERROR(QString("MEM has not write access to game folders:\n") +
+        PERROR(QString("The current user does not have write access to game folders:\n") +
                      g_GameData->MainData() + "\n");
         return false;
     }

@@ -30,7 +30,7 @@ MainWindow::MainWindow()
     statusBar()->clearMessage();
     QString title = QString("Mass Effect Modder v%1").arg(MEM_VERSION);
     if (DetectAdminRights())
-        title += " (run as Administrator)";
+        title += " (running as Administrator)";
     setWindowTitle(title);
     setMinimumSize(kMinWindowWidth, kMinWindowHeight);
 
@@ -78,6 +78,6 @@ void MainWindow::SetTitle(MeType gameType, const QString &appendText)
     if (appendText != "")
         title += " - " + appendText;
     if (DetectAdminRights())
-        title += " (run as Administrator)";
+        title += " (running as Administrator)";
     setWindowTitle(title);
 }

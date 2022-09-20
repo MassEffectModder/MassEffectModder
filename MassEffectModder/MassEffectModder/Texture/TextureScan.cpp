@@ -157,7 +157,7 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<TextureMapEntry> &textur
         }
         else
         {
-            PERROR("Missing textures scan file!\n");
+            PERROR("No existing texture map scan file was found!\n");
         }
         return false;
     }
@@ -177,7 +177,7 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<TextureMapEntry> &textur
         }
         else
         {
-            PERROR("Detected wrong or old version of textures scan file!\n");
+            PERROR("Detected corrupt or old version of texture map scan file!\n");
         }
         return false;
     }
@@ -211,13 +211,13 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<TextureMapEntry> &textur
                 }
                 else
                 {
-                    PERROR(QString("Removed file since last game data scan: ") + packages[i] + "\n");
+                    PERROR(QString("Files were removed since the texture scan was conducted: ") + packages[i] + "\n");
                 }
                 foundRemoved = true;
             }
         }
         if (!g_ipc && foundRemoved)
-            PERROR("Above files removed since last game data scan.\n");
+            PERROR("The above files were removed since last game data scan.\n");
 
         for (int i = 0; i < g_GameData->packageFiles.count(); i++)
         {
@@ -245,7 +245,7 @@ bool TreeScan::loadTexturesMapFile(QString &path, QList<TextureMapEntry> &textur
             }
         }
         if (!g_ipc && foundAdded)
-            PERROR("Above files added since last game data scan.\n");
+            PERROR("The above files added since last game data scan.\n");
     }
 
     return !foundRemoved && !foundAdded;
@@ -708,14 +708,14 @@ bool TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &pac
                 {
                     ConsoleWrite(QString("[IPC]ERROR Texture ") + exp.objectName +
                                  " has broken export data in package: " +
-                                 packagePath + "\nExport Id: " + QString::number(i + 1) + "\nSkipping...");
+                                 packagePath + "\nExport UIndex: " + QString::number(i + 1) + "\nSkipping...");
                     ConsoleSync();
                 }
                 else
                 {
                     PERROR(QString("Error: Texture ") + exp.objectName +
                                  " has broken export data in package: " +
-                                 packagePath +"\nExport Id: " + QString::number(i + 1) + "\nSkipping...\n");
+                                 packagePath +"\nExport UIndex: " + QString::number(i + 1) + "\nSkipping...\n");
                 }
 				return false;
 			}
@@ -768,13 +768,13 @@ bool TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &pac
                 if (g_ipc)
                 {
                     ConsoleWrite(QString("[IPC]ERROR Texture ") + exp.objectName + " is broken in package: " +
-                                 packagePath + "\nExport Id: " + QString::number(i + 1) + "\nSkipping...");
+                                 packagePath + "\nExport UIndex: " + QString::number(i + 1) + "\nSkipping...");
                     ConsoleSync();
                 }
                 else
                 {
                     PERROR(QString("Error: Texture ") + exp.objectName + " is broken in package: " +
-                                 packagePath +"\nExport Id: " + QString::number(i + 1) + "\nSkipping...\n");
+                                 packagePath +"\nExport UIndex: " + QString::number(i + 1) + "\nSkipping...\n");
                 }
                 delete textureMovie;
                 delete texture;

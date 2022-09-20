@@ -136,7 +136,7 @@ int ProcessArguments()
         DisplayHelp();
         return 0;
     case CmdType::UNKNOWN:
-        PERROR("Wrong command!\n");
+        PERROR("Unknown command!\n");
         DisplayHelp();
         return 1;
     }
@@ -363,7 +363,7 @@ int ProcessArguments()
     case CmdType::SCAN:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
-            PERROR("Wrong game id!\n");
+            PERROR("Invalid game id!\n");
             errorCode = 1;
             break;
         }
@@ -372,7 +372,7 @@ int ProcessArguments()
     case CmdType::SCAN_TEXTURES:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
-            PERROR("Wrong game id!\n");
+            PERROR("Invalid game id!\n");
             errorCode = 1;
             break;
         }
@@ -382,7 +382,7 @@ int ProcessArguments()
     {
         if (gameId == MeType::UNKNOWN_TYPE)
         {
-            PERROR("Wrong game id!\n");
+            PERROR("Invalid game id!\n");
             errorCode = 1;
             break;
         }
@@ -393,13 +393,13 @@ int ProcessArguments()
     case CmdType::CONVERT_TO_MEM:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
-            PERROR("Wrong game id!\n");
+            PERROR("Invalid game id!\n");
             errorCode = 1;
             break;
         }
         if (!QDir(input).exists())
         {
-            PERROR("Input folder doesn't exists! " + input + "\n");
+            PERROR("Input folder doesn't exist! " + input + "\n");
             errorCode = 1;
             break;
         }
@@ -421,13 +421,13 @@ int ProcessArguments()
     case CmdType::CONVERT_GAME_IMAGE:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
-            PERROR("Wrong game id!\n");
+            PERROR("Invalid game id!\n");
             errorCode = 1;
             break;
         }
         if (!QFile(input).exists())
         {
-            PERROR("Input file doesn't exists! " + input + "\n");
+            PERROR("Input file doesn't exist! " + input + "\n");
             errorCode = 1;
             break;
         }
@@ -459,7 +459,7 @@ int ProcessArguments()
     case CmdType::CONVERT_GAME_IMAGES:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
-            PERROR("Wrong game id!\n");
+            PERROR("Invalid game id!\n");
             errorCode = 1;
             break;
         }
@@ -481,13 +481,13 @@ int ProcessArguments()
     case CmdType::INSTALL_MODS:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
-            PERROR("Wrong game id!\n");
+            PERROR("Invalid game id!\n");
             errorCode = 1;
             break;
         }
         if (!QDir(input).exists())
         {
-            PERROR("Input folder doesn't exists! " + input + "\n");
+            PERROR("Input folder doesn't exist! " + input + "\n");
             errorCode = 1;
             break;
         }
@@ -505,7 +505,7 @@ int ProcessArguments()
     case CmdType::EXTRACT_MEM:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
-            PERROR("Wrong game id!\n");
+            PERROR("Invalid game id!\n");
             errorCode = 1;
             break;
         }
@@ -513,7 +513,7 @@ int ProcessArguments()
         {
             if (!QFile(input).exists())
             {
-                PERROR("Input file doesn't exists! " + input + "\n");
+                PERROR("Input file doesn't exist! " + input + "\n");
                 errorCode = 1;
                 break;
             }
@@ -530,7 +530,7 @@ int ProcessArguments()
     case CmdType::DETECT_MODS:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
-            PERROR("Wrong game id!\n");
+            PERROR("Invalid game id!\n");
             errorCode = 1;
             break;
         }
@@ -540,7 +540,7 @@ int ProcessArguments()
     case CmdType::DETECT_BAD_MODS:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
-            PERROR("Wrong game id!\n");
+            PERROR("Invalid game id!\n");
             errorCode = 1;
             break;
         }
@@ -550,7 +550,7 @@ int ProcessArguments()
     case CmdType::APPLY_LODS_GFX:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
-            PERROR("Wrong game id!\n");
+            PERROR("Invalid game id!\n");
             errorCode = 1;
             break;
         }
@@ -560,7 +560,7 @@ int ProcessArguments()
     case CmdType::PRINT_LODS:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
-            PERROR("Wrong game id!\n");
+            PERROR("Invalid game id!\n");
             errorCode = 1;
             break;
         }
@@ -572,7 +572,7 @@ int ProcessArguments()
     case CmdType::CHECK_GAME_DATA_TEXTURES:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
-            PERROR("Wrong game id!\n");
+            PERROR("Invalid game id!\n");
             errorCode = 1;
             break;
         }
@@ -582,7 +582,7 @@ int ProcessArguments()
     case CmdType::CHECK_GAME_DATA_AFTER:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
-            PERROR("Wrong game id!\n");
+            PERROR("Invalid game id!\n");
             errorCode = 1;
             break;
         }
@@ -592,7 +592,7 @@ int ProcessArguments()
     case CmdType::CHECK_GAME_DATA_MISMATCH:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
-            PERROR("Wrong game id!\n");
+            PERROR("Invalid game id!\n");
             errorCode = 1;
             break;
         }
@@ -602,7 +602,7 @@ int ProcessArguments()
     case CmdType::CHECK_GAME_DATA_VANILLA:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
-            PERROR("Wrong game id!");
+            PERROR("Invalid game id!");
             errorCode = 1;
             break;
         }
@@ -612,7 +612,7 @@ int ProcessArguments()
     case CmdType::CHECK_FOR_MARKERS:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
-            PERROR("Wrong game id!\n");
+            PERROR("Invalid game id!\n");
             errorCode = 1;
             break;
         }
@@ -622,7 +622,7 @@ int ProcessArguments()
     case CmdType::EXTRACT_ALL_DDS:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
-            PERROR("Wrong game id!\n");
+            PERROR("Invalid game id!\n");
             errorCode = 1;
             break;
         }
@@ -634,7 +634,7 @@ int ProcessArguments()
         }
         if (input.length() != 0 && !QFile(input).exists())
         {
-            PERROR("Input package doesn't exists! " + input + "\n");
+            PERROR("Input package doesn't exist! " + input + "\n");
             errorCode = 1;
             break;
         }
@@ -644,7 +644,7 @@ int ProcessArguments()
     case CmdType::EXTRACT_ALL_PNG:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
-            PERROR("Wrong game id!\n");
+            PERROR("Invalid game id!\n");
             errorCode = 1;
             break;
         }
@@ -656,7 +656,7 @@ int ProcessArguments()
         }
         if (input.length() != 0 && !QFile(input).exists())
         {
-            PERROR("Input package doesn't exists! " + input + "\n");
+            PERROR("Input package doesn't exist! " + input + "\n");
             errorCode = 1;
             break;
         }
@@ -666,7 +666,7 @@ int ProcessArguments()
     case CmdType::EXTRACT_ALL_BIK:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
-            PERROR("Wrong game id!\n");
+            PERROR("Invalid game id!\n");
             errorCode = 1;
             break;
         }
@@ -678,7 +678,7 @@ int ProcessArguments()
         }
         if (input.length() != 0 && !QFile(input).exists())
         {
-            PERROR("Input package doesn't exists! " + input + "\n");
+            PERROR("Input package doesn't exist! " + input + "\n");
             errorCode = 1;
             break;
         }
@@ -698,7 +698,7 @@ int ProcessArguments()
     case CmdType::LIST_ARCHIVE:
         if (!QFile(input).exists())
         {
-            PERROR("Input file doesn't exists!\n");
+            PERROR("Input file doesn't exist!\n");
             errorCode = 1;
             break;
         }
@@ -708,7 +708,7 @@ int ProcessArguments()
     case CmdType::SET_GAME_DATA_PATH:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
-            PERROR("Wrong game id!\n");
+            PERROR("Invalid game id!\n");
             errorCode = 1;
             break;
         }
@@ -730,14 +730,14 @@ int ProcessArguments()
     case CmdType::SET_GAME_USER_PATH:
         if (gameId == MeType::UNKNOWN_TYPE)
         {
-            PERROR("Wrong game id!\n");
+            PERROR("Invalid game id!\n");
             errorCode = 1;
             break;
         }
         path = QDir::cleanPath(path);
         if (path.length() == 0 || !QDir(path).exists())
         {
-            PERROR("Game config path doesn't exists!\n");
+            PERROR("Game config path doesn't exist!\n");
             errorCode = 1;
             break;
         }

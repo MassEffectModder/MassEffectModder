@@ -227,7 +227,7 @@ bool MipMaps::VerifyTextures(QList<TextureMapEntry> &textures,
                         {
                             ConsoleWrite(QString("[IPC]ERROR Texture ") + foundTexture.name +
                                          " has broken export data in package: " +
-                                         matchedTexture.path + "Export Id: " +
+                                         matchedTexture.path + "Export UIndex: " +
                                          QString::number(matchedTexture.exportID + 1) + " Skipping...");
                             ConsoleSync();
                         }
@@ -235,7 +235,7 @@ bool MipMaps::VerifyTextures(QList<TextureMapEntry> &textures,
                         {
                             PERROR(QString("Error: Texture ") + foundTexture.name +
                                    " has broken export data in package: " +
-                                   matchedTexture.path + "\nExport Id: " +
+                                   matchedTexture.path + "\nExport UIndex: " +
                                    QString::number(matchedTexture.exportID + 1) + "\nSkipping...\n");
                         }
                         errors = true;
@@ -252,7 +252,7 @@ bool MipMaps::VerifyTextures(QList<TextureMapEntry> &textures,
                                 ConsoleWrite(QString("[IPC]ERROR Texture ") + foundTexture.name +
                                              " CRC does not match, mipmap: " +
                                              QString::number(m) + ", Package: " +
-                                             matchedTexture.path + ", Export Id: " +
+                                             matchedTexture.path + ", Export UIndex: " +
                                              QString::number(matchedTexture.exportID + 1));
                                 ConsoleSync();
                             }
@@ -261,7 +261,7 @@ bool MipMaps::VerifyTextures(QList<TextureMapEntry> &textures,
                                 PERROR(QString("Error: Texture ") + foundTexture.name +
                                        " CRC does not match, mipmap: " +
                                        QString::number(m) + "\nPackage: " +
-                                       matchedTexture.path + "\nExport Id: " +
+                                       matchedTexture.path + "\nExport UIndex: " +
                                        QString::number(matchedTexture.exportID + 1) + "\n");
                             }
                             errors = true;
@@ -359,14 +359,14 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                 {
                     ConsoleWrite(QString("[IPC]ERROR Texture ") + mod.textureName +
                                  " has broken export data in package: " +
-                                 matched.path + "\nExport Id: " + QString::number(matched.exportID + 1) + "\nSkipping...");
+                                 matched.path + "\nExport UIndex: " + QString::number(matched.exportID + 1) + "\nSkipping...");
                     ConsoleSync();
                 }
                 else
                 {
                     PERROR(QString("Error: Texture ") + mod.textureName +
                            " has broken export data in package: " +
-                           matched.path + "\nExport Id: " + QString::number(matched.exportID + 1) + "\nSkipping...\n");
+                           matched.path + "\nExport UIndex: " + QString::number(matched.exportID + 1) + "\nSkipping...\n");
                 }
                 continue;
             }
@@ -432,7 +432,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                                     list += file + "\n";
                                 CRASH_MSG((QString("More instances of TFC file: ") + archive + ".tfc\n" +
                                            list + "package: " + matched.path + "\n" +
-                                           "export id: " + QString::number(matched.exportID + 1)).toStdString().c_str());
+                                           "Export UIndex: " + QString::number(matched.exportID + 1)).toStdString().c_str());
                             }
                         }
                     }
@@ -706,7 +706,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                                     list += file + "\n";
                                 CRASH_MSG((QString("More instances of TFC file: ") + archive + ".tfc\n" +
                                            list + "package: " + matched.path + "\n" +
-                                           "export id: " + QString::number(matched.exportID + 1)).toStdString().c_str());
+                                           "Export UIndex: " + QString::number(matched.exportID + 1)).toStdString().c_str());
                             }
                         }
                     }

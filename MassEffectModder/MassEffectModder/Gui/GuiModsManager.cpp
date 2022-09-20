@@ -71,7 +71,7 @@ void LayoutMain::ExtractModsSelected(MeType gameType)
     if (diskUsage >= diskFreeSpace)
     {
         QMessageBox::critical(this, "Extracting MEM file(s)",
-                              "You have not enough disk space remaining. You need about " +
+                              "There is not enough disk space on the selected disk. You need about " +
                               Misc::getBytesFormat(diskUsage) + " free disk space.");
         LockGui(false);
         return;
@@ -155,7 +155,7 @@ void LayoutMain::CreateModSelected(MeType gameType)
     if (diskUsage >= diskFreeSpace)
     {
         QMessageBox::critical(this, "Creating MEM mod",
-                              "You have not enough disk space remaining. You need about " +
+                              "There is not enough disk space on the selected disk. You need about " +
                               Misc::getBytesFormat(diskUsage) + " free disk space.");
         LockGui(false);
         return;

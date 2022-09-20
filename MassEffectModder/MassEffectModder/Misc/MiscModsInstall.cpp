@@ -55,7 +55,7 @@ bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
             }
             else
             {
-                PERROR(QString("MEM mod file has 0 length: ") + files[i] + "\n");
+                PERROR(QString("MEM mod file is 0 bytes in length: ") + files[i] + "\n");
             }
             continue;
         }
@@ -155,7 +155,7 @@ bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
                                 appendMarker, verify, cacheAmount,
                                 callback, callbackHandle);
 
-    PINFO("Process textures finished.\n\n");
+    PINFO("Processing textures finished.\n\n");
 
     long elapsed = Misc::elapsedStageTime();
     if (g_ipc)
@@ -204,7 +204,7 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
         bool writeAccess = Misc::CheckAndCorrectAccessToGame();
         if (!writeAccess)
         {
-            PERROR("Error: Detected no write access to game folders.\n");
+            PERROR("Error: The current user does not have write access to game folders.\n");
             return false;
         }
 
@@ -212,7 +212,7 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
         Misc::detectBrokenMod(badMods);
         if (badMods.count() != 0)
         {
-            PERROR("Error: Detected not compatible mods:\n");
+            PERROR("Error: Detected incompatible mods:\n");
             for (int l = 0; l < badMods.count(); l++)
             {
                 PERROR(badMods[l] + "\n");
@@ -262,7 +262,7 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
     }
 
 
-    PINFO("Process textures started...\n");
+    PINFO("Texture installation started...\n");
     if (g_ipc)
     {
         ConsoleWrite("[IPC]STAGE_CONTEXT STAGE_INSTALLTEXTURES");

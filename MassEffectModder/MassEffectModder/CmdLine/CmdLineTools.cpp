@@ -67,7 +67,7 @@ int CmdLineTools::scan(MeType gameId)
             if (exportData.ptr() == nullptr)
             {
                 PERROR(QString("Error: broken export data in package: " +
-                                 g_GameData->packageFiles[i] +"\nExport Id: " + QString::number(e + 1) + "\nSkipping...\n"));
+                                 g_GameData->packageFiles[i] +"\nExport UIndex: " + QString::number(e + 1) + "\nSkipping...\n"));
                 continue;
             }
             auto properties = new Properties(package, exportData, package.getPropertiesOffset(e));
@@ -286,7 +286,7 @@ bool CmdLineTools::convertGameTexture(const QString &inputFile,
             image.getPixelFormat() == PixelFormat::BC7)
         {
             PINFO(QString("Warning for texture: ") + BaseName(inputFile) +
-                         ". This texture converted from full alpha to binary alpha.\n");
+                         ". This texture was converted from full alpha to binary alpha.\n");
         }
     }
     image.correctMips(newPixelFormat, dxt1HasAlpha, dxt1Threshold, bc7quality);
@@ -386,7 +386,7 @@ bool CmdLineTools::convertImage(QString &inputFile, QString &outputFile, QString
     Image image = Image(inputFile);
     if (image.getMipMaps().count() == 0)
     {
-        PERROR("Texture not compatible!\n");
+        PERROR("Texture is not compatible!\n");
         return false;
     }
     if (QFile(outputFile).exists())
@@ -547,7 +547,7 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, QString
         QString relPath = g_GameData->RelativeGameData(inputFile);
         if (inputFile == relPath)
         {
-            PERROR(QString("ERROR: Input package path: ") + inputFile + " is not part of game!\n");
+            PERROR(QString("ERROR: Input package path: ") + inputFile + " is not part of the game!\n");
             return false;
         }
         packages.append(relPath);
@@ -586,7 +586,7 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, QString
                 {
                     PERROR(QString("Error: Texture ") + exp.objectName +
                                  " has broken export data in package: " +
-                                 packages[p] +"\nExport Id: " + QString::number(e + 1) + "\nSkipping...\n");
+                                 packages[p] +"\nExport UIndex: " + QString::number(e + 1) + "\nSkipping...\n");
                     continue;
                 }
                 Texture texture(package, e, exportData);
@@ -623,7 +623,7 @@ bool CmdLineTools::extractAllTextures(MeType gameId, QString &outputDir, QString
                 if (crc == 0)
                 {
                     PERROR(QString("Error: Texture ") + name + " is broken in package: " +
-                                 packages[p] +"\nExport Id: " + QString::number(e + 1) + "\nSkipping...\n");
+                                 packages[p] +"\nExport UIndex: " + QString::number(e + 1) + "\nSkipping...\n");
                     continue;
                 }
                 QString outputFile = outputDir + "/" +  name + QString::asprintf("_0x%08X", crc);
@@ -760,7 +760,7 @@ bool CmdLineTools::extractAllMovieTextures(MeType gameId, QString &outputDir, QS
                 {
                     PERROR(QString("Error: Movie Texture ") + exp.objectName +
                                  " has broken export data in package: " +
-                                 packages[p] +"\nExport Id: " + QString::number(e + 1) + "\nSkipping...\n");
+                                 packages[p] +"\nExport UIndex: " + QString::number(e + 1) + "\nSkipping...\n");
                     continue;
                 }
                 TextureMovie textureMovie(package, e, exportData);
@@ -798,7 +798,7 @@ bool CmdLineTools::extractAllMovieTextures(MeType gameId, QString &outputDir, QS
                 if (crc == 0)
                 {
                     PERROR(QString("Error: Movie Texture ") + name + " is broken in package: " +
-                                 packages[p] +"\nExport Id: " + QString::number(e + 1) + "\nSkipping...\n");
+                                 packages[p] +"\nExport UIndex: " + QString::number(e + 1) + "\nSkipping...\n");
                     continue;
                 }
                 QString outputFile = outputDir + "/" +  name + QString::asprintf("_0x%08X.bik", crc);
@@ -884,16 +884,16 @@ bool CmdLineTools::CheckTextures(MeType gameId)
                     {
                         if (g_ipc)
                         {
-                            ConsoleWrite(QString("[IPC]ERROR_TEXTURE_SCAN_DIAGNOSTIC Issue opening texture data: ") +
+                            ConsoleWrite(QString("[IPC]ERROR_TEXTURE_SCAN_DIAGNOSTIC Issue accessing texture data: ") +
                                         package.exportsTable[e].objectName + ", mipmap: " + QString::number(m) + ", package: " +
-                                        g_GameData->packageFiles[i] + ", export id: " + QString::number(e + 1));
+                                        g_GameData->packageFiles[i] + ", Export UIndex: " + QString::number(e + 1));
                             ConsoleSync();
                         }
                         else
                         {
-                            PERROR(QString("Error: Issue opening texture data: ") +
+                            PERROR(QString("Error: Issue accessing texture data: ") +
                                    package.exportsTable[e].objectName + "\nMipmap: " + QString::number(m) + "\nPackage: " +
-                                   g_GameData->packageFiles[i] + "\nExport Id: " + QString::number(e + 1) + "\n");
+                                   g_GameData->packageFiles[i] + "\nExport UIndex: " + QString::number(e + 1) + "\n");
                         }
                     }
                     data.Free();
@@ -978,7 +978,7 @@ bool CmdLineTools::detectsMismatchPackagesAfter(MeType gameType)
         }
         else
         {
-            PERROR("Detected wrong or old version of textures scan file!\n");
+            PERROR("Detected corrupt or old version of texture map scan file!\n");
         }
         return false;
     }
@@ -1005,7 +1005,7 @@ bool CmdLineTools::detectsMismatchPackagesAfter(MeType gameType)
         pkgPath.replace(QChar('\\'), QChar('/'));
         packages.push_back(pkgPath);
     }
-    PINFO("Checking for removed files since last game data scan...\n");
+    PINFO("Checking for removed files since texture scan took place...\n");
     for (int i = 0; i < packages.count(); i++)
     {
         if (!g_GameData->packageFiles.contains(packages[i], Qt::CaseInsensitive))
@@ -1021,9 +1021,9 @@ bool CmdLineTools::detectsMismatchPackagesAfter(MeType gameType)
             }
         }
     }
-    PINFO("Finished checking for removed files since last game data scan.\n\n");
+    PINFO("Finished checking for removed files since texture scan took place.\n\n");
 
-    PINFO("Checking for additional files since last game data scan...\n");
+    PINFO("Checking for additional files since texture scan took place...\n");
     for (int i = 0; i < g_GameData->packageFiles.count(); i++)
     {
         if (!packages.contains(g_GameData->packageFiles[i], Qt::CaseInsensitive))
@@ -1039,7 +1039,7 @@ bool CmdLineTools::detectsMismatchPackagesAfter(MeType gameType)
             }
         }
     }
-    PINFO("Finished checking for additional files since last game data scan.\n\n");
+    PINFO("Finished checking for additional files since texture scan took place.\n\n");
 
     return true;
 }

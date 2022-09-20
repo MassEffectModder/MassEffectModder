@@ -100,6 +100,7 @@ HEADERS += \
     Image/Image.h \
     Md5/MD5BadEntries.h \
     Md5/MD5ModEntries.h \
+    Misc/CommonStrings.h \
     Misc/Misc.h \
     MipMaps/MipMap.h \
     MipMaps/MipMaps.h \

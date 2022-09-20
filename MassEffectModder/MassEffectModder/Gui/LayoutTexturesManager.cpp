@@ -112,7 +112,7 @@ LayoutTexturesManager::LayoutTexturesManager(MainWindow *window, MeType type)
     GroupBoxView->setAlignment(Qt::AlignBottom);
     GroupBoxView->setLayout(VerticalLayoutListView);
 
-    buttonSearch = new QPushButton("Search Texture");
+    buttonSearch = new QPushButton("Search for a texture");
     buttonSearch->setMinimumWidth(kButtonMinWidth);
     buttonSearch->setMinimumHeight(kButtonMinHeight);
     buttonSearch->setShortcut(QKeySequence("Ctrl+F"));
@@ -214,7 +214,7 @@ bool LayoutTexturesManager::Startup()
     g_GameData->Init(gameType, configIni, true);
     if (!Misc::CheckGamePath())
     {
-        QMessageBox::critical(this, "Texture Manager", "Game data not found.");
+        QMessageBox::critical(this, "Texture Manager", STR_GAME_DATA_NOT_FOUND);
         mainWindow->statusBar()->clearMessage();
         buttonExit->setEnabled(true);
         mainWindow->LockClose(false);
@@ -232,9 +232,9 @@ bool LayoutTexturesManager::Startup()
         if (tag != textureMapBinTag || version != textureMapBinVersion)
         {
             QMessageBox::critical(this, "Texture Manager",
-                                  QString("Detected wrong or old version of textures scan file!") +
-                "\n\nYou need to restore the game to vanilla state then reinstall optional DLC/PCC mods." +
-                "\n\nThen from the 'Texture Utilities', select 'Delete Textures Scan File' and start Texture Manager again.");
+                                  QString("Detected a corrupt or old version of texture scan file!") +
+                "\n\nYou need to restore the game to a vanilla state then reinstall non-texture mods." +
+                "\n\nThen, from 'Texture Utilities', select 'Delete Texture Scan File' and start Texture Manager again.");
             mainWindow->statusBar()->clearMessage();
             buttonExit->setEnabled(true);
             mainWindow->LockClose(false);
@@ -277,9 +277,9 @@ bool LayoutTexturesManager::Startup()
             if (!found)
             {
                 QMessageBox::critical(this, "Texture Manager",
-                                      QString("Detected removal of game files since last game data scan.") +
-                      "\n\nYou need to restore the game to vanilla state then reinstall optional DLC/PCC mods." +
-                      "\n\nThen from the 'Texture Utilities', select 'Delete Textures Scan File' and start Texture Manager again.");
+                                      QString("Detected removal of game files since the texture map was created. This is not supported.") +
+                      "\n\nYou need to restore the game to a vanilla state then reinstall non-texture mods." +
+                      "\n\nThen, from the 'Texture Utilities', select 'Delete Texture Scan File' and start Texture Manager again.");
                 mainWindow->statusBar()->clearMessage();
                 buttonExit->setEnabled(true);
                 mainWindow->LockClose(false);
@@ -300,9 +300,9 @@ bool LayoutTexturesManager::Startup()
             if (!found)
             {
                 QMessageBox::critical(this, "Texture Manager",
-                                      QString("Detected additional game files not present in latest game data scan.") +
-                      "\n\nYou need to restore the game to vanilla state then reinstall optional DLC/PCC mods." +
-                      "\n\nThen from the 'Texture Utilities', select 'Delete Textures Scan File' and start Texture Manager again.");
+                                      QString("Detected new or modified game files that have changed since the texture scan was created. This is not supported.") +
+                      "\n\nYou need to restore the game to a vanilla state then reinstall non-texture mods." +
+                      "\n\nThen, from the 'Texture Utilities', select 'Delete Texture Scan File' and start Texture Manager again.");
                 mainWindow->statusBar()->clearMessage();
                 buttonExit->setEnabled(true);
                 mainWindow->LockClose(false);
@@ -326,8 +326,8 @@ bool LayoutTexturesManager::Startup()
         if (modded)
         {
             QMessageBox::critical(this, "Texture Manager",
-                                  QString("Detected game as already modded.") +
-                  "\n\nYou need to restore the game to vanilla state then reinstall optional DLC/PCC mods." +
+                                  QString("Detected game as already texture modded, but the game does not have a texture scan. The game is in a unsupported configuration.") +
+                  "\n\nYou need to restore the game to a vanilla state then reinstall non-texture mods." +
                   "\n\nThen start Texture Manager again.");
             mainWindow->statusBar()->clearMessage();
             buttonExit->setEnabled(true);
@@ -336,7 +336,7 @@ bool LayoutTexturesManager::Startup()
         }
     }
 
-    mainWindow->statusBar()->showMessage("Checking for not compatible mods...");
+    mainWindow->statusBar()->showMessage("Checking for incompatible mods...");
     QApplication::processEvents();
     QStringList badMods;
     Misc::detectBrokenMod(badMods);
@@ -348,7 +348,7 @@ bool LayoutTexturesManager::Startup()
             list += badMods[l] + "\n";
         }
         QMessageBox::critical(this, "Texture Manager",
-                              QString("Detected not compatible mods: \n\n") + list);
+                              QString("Detected incompatible mods: \n\n") + list);
         mainWindow->statusBar()->clearMessage();
         buttonExit->setEnabled(true);
         mainWindow->LockClose(false);
@@ -361,9 +361,9 @@ bool LayoutTexturesManager::Startup()
     {
         int result = QMessageBox::question(this, "Texture Manager",
                               QString("Replacing textures and creating mods requires generating a map of the game's textures.\n") +
-                              "You only need to do it once.\n\n" +
-                              "IMPORTANT! Your game needs to be in vanilla state and have optional DLC/PCC mods installed.\n\n" +
-                              "You can continue or abort", "Continue", "Abort");
+                              "This scan only needs to be done once.\n\n" + // this 'scan' mention is here as it is mentioned in other parts of the UI
+                              "IMPORTANT! Your game needs to be in a non-texture modded state, and all non-texture mods must be installed at ths point, they cannot be installed later.\n\n" +
+                              "You can continue to make the map, or abort.", "Continue", "Abort");
         if (result != 0)
         {
             buttonExit->setEnabled(true);
@@ -375,9 +375,9 @@ bool LayoutTexturesManager::Startup()
     if (!Misc::checkWriteAccessDir(g_GameData->MainData()))
     {
         QMessageBox::critical(this, "Texture Manager",
-                              QString("Detected program has not write access to game folder.") +
-              "\n\nCorrect access to game directory." +
-              "\n\nThen start Texture Manager again.");
+                              QString("The current user does not have write access to game folder.") +
+                              "\nGrant write access to the game directory and then open Texture Manager again.");
+
         buttonExit->setEnabled(true);
         mainWindow->LockClose(false);
         return false;
@@ -551,13 +551,13 @@ void LayoutTexturesManager::ListMiddleContextMenu(const QPoint &pos)
             connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::ViewImageAlphaSelected);
             menuViewMode->addAction(subMenu);
         }
-        subMenu = new QAction("Info (single)", this);
+        subMenu = new QAction("Info (single instance)", this);
         subMenu->setCheckable(true);
         subMenu->setChecked(!imageViewMode && !imageViewAlphaMode && singleInfoMode);
         subMenu->setEnabled(enableInfoSingle);
         connect(subMenu, &QAction::triggered, this, &LayoutTexturesManager::InfoSingleSelected);
         menuViewMode->addAction(subMenu);
-        subMenu = new QAction("Info (all)", this);
+        subMenu = new QAction("Info (all instances)", this);
         subMenu->setCheckable(true);
         subMenu->setChecked(!imageViewMode && !imageViewAlphaMode && !singleInfoMode);
         subMenu->setEnabled(enableInfoAll);
@@ -720,7 +720,7 @@ void LayoutTexturesManager::UpdateRight(const QListWidgetItem *item)
         {
             PERROR(QString(QString("Error: Texture ") + package.exportsTable[nodeTexture.exportID].objectName +
                     " has broken export data in package: " +
-                    nodeTexture.path +"\nExport Id: " + QString::number(nodeTexture.exportID + 1) +
+                    nodeTexture.path +"\nExport UIndex: " + QString::number(nodeTexture.exportID + 1) +
                     "\nSkipping...\n").toStdString().c_str());
             return;
         }
@@ -731,7 +731,7 @@ void LayoutTexturesManager::UpdateRight(const QListWidgetItem *item)
         {
             PERROR(QString(QString("Error: Texture ") + package.exportsTable[nodeTexture.exportID].objectName +
                     " has broken export data in package: " +
-                    nodeTexture.path +"\nExport Id: " + QString::number(nodeTexture.exportID + 1) +
+                    nodeTexture.path +"\nExport UIndex: " + QString::number(nodeTexture.exportID + 1) +
                     "\nSkipping...\n").toStdString().c_str());
             return;
         }
@@ -766,7 +766,7 @@ void LayoutTexturesManager::UpdateRight(const QListWidgetItem *item)
         if (!singleInfoMode && textures[viewTexture.indexInTextures].list.count() > 50)
         {
             int answer = QMessageBox::question(this, "Texture Manager",
-                                  QString("Detected more than 50 instances of textures.") +
+                                  QString("Detected more than 50 instances of this texture.") +
                   "\n\nYou can continue or switch to single instance view.", "Continue", "Single mode");
             if (answer != 0)
             {
@@ -790,7 +790,7 @@ void LayoutTexturesManager::UpdateRight(const QListWidgetItem *item)
             {
                 text += "Error: Texture " + package.exportsTable[nodeTexture.exportID].objectName +
                         " has broken export data in package: " +
-                        nodeTexture.path +"\nExport Id: " + QString::number(nodeTexture.exportID + 1) +
+                        nodeTexture.path +"\nExport UIndex: " + QString::number(nodeTexture.exportID + 1) +
                         "\nSkipping...\n";
                 continue;
             }
@@ -800,7 +800,7 @@ void LayoutTexturesManager::UpdateRight(const QListWidgetItem *item)
                 exportData.Free();
                 text += "\nTexture instance: " + QString::number(index2 + 1) + "\n";
                 text += "  Texture name:       " + package.exportsTable[nodeTexture.exportID].objectName + "\n";
-                text += "  Export Id:          " + QString::number(nodeTexture.exportID + 1) + "\n";
+                text += "  Export UIndex:          " + QString::number(nodeTexture.exportID + 1) + "\n";
                 text += "  Bik data size:      " + QString::number(textureMovie.getUncompressedSize()) + "\n";
                 text += "  Package path:       " + nodeTexture.path + "\n";
                 text += "  Texture properties:\n";
@@ -815,7 +815,7 @@ void LayoutTexturesManager::UpdateRight(const QListWidgetItem *item)
                 exportData.Free();
                 text += "\nTexture instance: " + QString::number(index2 + 1) + "\n";
                 text += "  Texture name:       " + package.exportsTable[nodeTexture.exportID].objectName + "\n";
-                text += "  Export Id:          " + QString::number(nodeTexture.exportID + 1) + "\n";
+                text += "  Export UIndex:          " + QString::number(nodeTexture.exportID + 1) + "\n";
                 text += "  Package path:       " + nodeTexture.path + "\n";
                 text += "  Alpha fully opaque: " + (!nodeTexture.hasAlphaData ? QString("yes") : QString("no")) + "\n";
                 text += "  Texture properties:\n";
@@ -920,7 +920,7 @@ void LayoutTexturesManager::ReplaceTexture(const QListWidgetItem *item, bool con
         if (tag != BIK1_TAG && tag != BIK2_TAG)
         {
             QMessageBox::critical(this, "Replacing texture",
-                                  QString("File mod is not supported Bik movie."));
+                                  QString("File does not contain a supported version of Bik."));
             LockGui(false);
             return;
         }
@@ -928,7 +928,7 @@ void LayoutTexturesManager::ReplaceTexture(const QListWidgetItem *item, bool con
         if (dataSize != QFile(file).size())
         {
             QMessageBox::critical(this, "Replacing texture",
-                                  QString("This movie texture has wrong size."));
+                                  QString("This movie texture lists the wrong size (bad header)."));
             LockGui(false);
             return;
         }
@@ -941,7 +941,7 @@ void LayoutTexturesManager::ReplaceTexture(const QListWidgetItem *item, bool con
             if (w / h != f.width / f.height)
             {
                 QMessageBox::critical(this, "Replacing texture",
-                                      QString("This movie texture has wrong aspect ratio."));
+                                      QString("This movie texture has the wrong aspect ratio (bad header)."));
                 LockGui(false);
                 return;
             }
@@ -1061,7 +1061,7 @@ void LayoutTexturesManager::ExtractTexture(const ViewTexture& viewTexture, bool 
         QMessageBox::critical(this, "Extracting texture", QString("Error: Texture ") +
                               package.exportsTable[nodeTexture.exportID].objectName +
                               " has broken export data in package: " +
-                              nodeTexture.path +"\nExport Id: " + QString::number(nodeTexture.exportID + 1));
+                              nodeTexture.path +"\nExport UIndex: " + QString::number(nodeTexture.exportID + 1));
         LockGui(false);
         return;
     }
@@ -1078,7 +1078,7 @@ void LayoutTexturesManager::ExtractTexture(const ViewTexture& viewTexture, bool 
             QMessageBox::critical(this, "Extracting texture", QString("Error: Movie texture ") +
                                   package.exportsTable[nodeTexture.exportID].objectName +
                                   " has broken export data in package: " +
-                                  nodeTexture.path +"\nExport Id: " + QString::number(nodeTexture.exportID + 1));
+                                  nodeTexture.path +"\nExport UIndex: " + QString::number(nodeTexture.exportID + 1));
             LockGui(false);
             return;
         }
@@ -1106,7 +1106,7 @@ void LayoutTexturesManager::ExtractTexture(const ViewTexture& viewTexture, bool 
             QMessageBox::critical(this, "Extracting texture", QString("Error: Texture ") +
                                   package.exportsTable[nodeTexture.exportID].objectName +
                                   " has broken export data in package: " +
-                                  nodeTexture.path +"\nExport Id: " + QString::number(nodeTexture.exportID + 1));
+                                  nodeTexture.path +"\nExport UIndex: " + QString::number(nodeTexture.exportID + 1));
             LockGui(false);
             return;
         }
@@ -1150,7 +1150,7 @@ void LayoutTexturesManager::ExtractTexture(const ViewTexture& viewTexture, bool 
                 QMessageBox::critical(this, "Extracting texture", QString("Error: Texture ") +
                                       package.exportsTable[nodeTexture.exportID].objectName +
                                       " has broken export data in package: " +
-                                      nodeTexture.path +"\nExport Id: " + QString::number(nodeTexture.exportID + 1));
+                                      nodeTexture.path +"\nExport UIndex: " + QString::number(nodeTexture.exportID + 1));
                 LockGui(false);
                 return;
             }
@@ -1170,7 +1170,7 @@ void LayoutTexturesManager::ExtractTexture(const ViewTexture& viewTexture, bool 
                     QMessageBox::critical(this, "Extracting texture", QString("Error: Texture ") +
                                           package.exportsTable[nodeTexture.exportID].objectName +
                                           " has broken export data in package: " +
-                                          nodeTexture.path +"\nExport Id: " + QString::number(nodeTexture.exportID + 1));
+                                          nodeTexture.path +"\nExport UIndex: " + QString::number(nodeTexture.exportID + 1));
                     LockGui(false);
                     return;
                 }
@@ -1443,7 +1443,7 @@ void LayoutTexturesManager::SearchTexture(const QString &name, uint crc)
     }
     if (listLeftSearch->count() == 0)
     {
-        QMessageBox::information(this, "Search texture", "Texture not found.");
+        QMessageBox::information(this, "Search for texture", "Texture not found.");
     }
 }
 

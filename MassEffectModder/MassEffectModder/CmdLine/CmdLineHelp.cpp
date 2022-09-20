@@ -36,10 +36,10 @@ void DisplayHelp()
         "     Scan game data.\n" \
         "\n" \
         "  --scan-textures --gameid <game id> [--ipc]\n" \
-        "     Scan game data for textures.\n" \
+        "     Scan game data for textures and create a texture map.\n" \
         "\n" \
         "  --update-toc --gameid <game id>\n" \
-        "     Update TOC files\n" \
+        "     Update TOC files.\n" \
         "\n" \
         "  --check-game-data-after --gameid <game id> [--ipc]\n" \
         "     Check game data for mods installed after textures installation.\n" \
@@ -52,17 +52,17 @@ void DisplayHelp()
         "     Check game data with md5 database.\n" \
         "\n" \
         "  --check-for-markers --gameid <game id> [--ipc]\n" \
-        "     Check game data for markers.\n" \
+        "     Check game data for texture markers.\n" \
         "\n" \
         "  --install-mods --gameid <game id> --input <input dir> [--cache-amount <percent>]\n" \
         "  [--repack] [--skip-markers] [--ipc] [--alot-mode] [--limit-2k] [--verify]\n" \
         "     Install MEM mods from input directory.\n" \
         "\n" \
         "  --detect-mods --gameid <game id> [--ipc]\n" \
-        "     Detect compatible mods.\n" \
+        "     Detect known compatible mods.\n" \
         "\n" \
         "  --detect-bad-mods --gameid <game id> [--ipc]\n" \
-        "     Detect not compatible mods.\n" \
+        "     Detect known incompatible mods.\n" \
         "\n" \
         "  --apply-lods-gfx --gameid <game id>\n" \
         "     Update GFX settings.\n" \
@@ -186,7 +186,7 @@ void DisplayHelp()
     help +=
         "\n" \
         "\n" \
-        "  Additonal option to enable debug logs level to all commands: --debug-logs\n" \
+        "  Additional option to enable debug logs level to all commands: --debug-logs\n" \
         "\n";
     PINFO(help);
 }

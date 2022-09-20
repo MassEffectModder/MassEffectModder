@@ -39,7 +39,7 @@ void LayoutMain::CheckGameFilesSelected(MeType gameType)
     if (!Misc::CheckGamePath())
     {
         mainWindow->statusBar()->clearMessage();
-        QMessageBox::critical(this, "Checking game files", "Game data not found.");
+        QMessageBox::critical(this, "No installation found", STR_GAME_DATA_NOT_FOUND);
         LockGui(false);
         return;
     }
@@ -70,7 +70,7 @@ void LayoutMain::CheckGameFilesSelected(MeType gameType)
     if (!vanilla)
     {
         PERROR("===========================================================================\n");
-        PERROR("WARNING: looks like the following file(s) are not vanilla or not recognized\n");
+        PERROR("WARNING: The following files(s) are not vanilla or not recognized\n");
         PERROR("===========================================================================\n\n");
         PERROR(errors);
     }
@@ -155,12 +155,12 @@ void LayoutMain::ChangeGamePathSelected(MeType gameType)
         }
         else
         {
-            QMessageBox::information(this, "Changing game path", "Game path NOT changed. Not supported version");
+            QMessageBox::information(this, "Changing game path", "Game path NOT changed. The selected executable is not a supported version. Is this a Legendary Edition executable?");
         }
     }
     else
     {
-        QMessageBox::information(this, "Changing game path", "Game path NOT changed.");
+        QMessageBox::information(this, "Changing game path", "Game path was NOT changed.");
     }
     mainWindow->statusBar()->clearMessage();
     LockGui(false);
@@ -177,7 +177,7 @@ void LayoutMain::UpdateTOCsSelected(MeType gameType)
     if (!Misc::CheckGamePath())
     {
         mainWindow->statusBar()->clearMessage();
-        QMessageBox::critical(this, "Updating TOC files", "Game data not found.");
+        QMessageBox::critical(this, "Updating TOC files", STR_GAME_DATA_NOT_FOUND);
         LockGui(false);
         return;
     }
@@ -186,9 +186,8 @@ void LayoutMain::UpdateTOCsSelected(MeType gameType)
     {
         mainWindow->statusBar()->clearMessage();
         QMessageBox::critical(this, "Updating TOC files",
-                              QString("Detected program has not write access to game folder.") +
-              "\n\nCorrect access to game directory." +
-              "\n\nThen start again.");
+                              QString("The current user does not have write access to the game folder.") +
+              "\nGrant write access to the game directory and then try again.");
         LockGui(false);
         return;
     }
