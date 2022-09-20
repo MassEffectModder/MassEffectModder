@@ -361,8 +361,8 @@ bool LayoutTexturesManager::Startup()
     {
         int result = QMessageBox::question(this, "Texture Manager",
                               QString("Replacing textures and creating mods requires generating a map of the game's textures.\n") +
-                              "This scan onlys needs to be done once.\n\n" + // this 'scan' mention is here as it is mentioned in other parts of the UI
-                              "IMPORTANT! Your game needs to be in non-texture modded state, and all non-texture mods must be installed at ths point, they cannot be installed later.\n\n" +
+                              "This scan only needs to be done once.\n\n" + // this 'scan' mention is here as it is mentioned in other parts of the UI
+                              "IMPORTANT! Your game needs to be in a non-texture modded state, and all non-texture mods must be installed at ths point, they cannot be installed later.\n\n" +
                               "You can continue to make the map, or abort.", "Continue", "Abort");
         if (result != 0)
         {
