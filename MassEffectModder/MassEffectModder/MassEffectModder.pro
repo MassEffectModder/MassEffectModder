@@ -100,6 +100,7 @@ HEADERS += \
     Image/Image.h \
     Md5/MD5BadEntries.h \
     Md5/MD5ModEntries.h \
+    Misc/CommonStrings.h \
     Misc/Misc.h \
     MipMaps/MipMap.h \
     MipMaps/MipMaps.h \
@@ -169,8 +170,8 @@ QMAKE_CXXFLAGS_DEBUG += -g
 win32-g++: {
     # Disable compiler warning
     QMAKE_CXXFLAGS += -Wno-deprecated-copy
-    QMAKE_LFLAGS_RELEASE = "-Wl,--relax -Wl,--disable-dynamicbase"
-    QMAKE_LFLAGS_DEBUG += "-Wl,--disable-dynamicbase"
+    QMAKE_LFLAGS_RELEASE = "-Wl,--relax"
+    QMAKE_LFLAGS_DEBUG += ""
     Release:PRE_TARGETDEPS += $$OUT_PWD/../Wrappers/release/libWrappers.a
     Debug:PRE_TARGETDEPS += $$OUT_PWD/../Wrappers/debug/libWrappers.a
 } else:unix: {

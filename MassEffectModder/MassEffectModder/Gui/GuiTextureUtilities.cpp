@@ -31,10 +31,10 @@
 void LayoutMain::RemoveScanFileSelected(MeType gameType)
 {
     QMessageBox msgBox;
-    msgBox.setWindowTitle("Remove textures map of the game.");
-    msgBox.setText("You are going to delete your current textures scan file.");
+    msgBox.setWindowTitle(STR_REMOVING_TEXTURE_MAP_TITLE);
+    msgBox.setText("You are about to delete your current textures scan file.");
     msgBox.setInformativeText(QString("After that, and before scanning your game again, ") +
-                              "you need to restore game to vanilla state and reinstall vanilla DLCs and DLC mods." +
+                              "you need to restore game to a vanilla state and reinstall any DLC mods." +
                               "\n\nAre you sure you want to proceed?");
     msgBox.setIcon(QMessageBox::Warning);
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Abort);
@@ -48,12 +48,12 @@ void LayoutMain::RemoveScanFileSelected(MeType gameType)
         if (QFile(filename).exists())
         {
             QFile(filename).remove();
-            QMessageBox::information(this, "Remove textures map of the game.",
+            QMessageBox::information(this, STR_REMOVING_TEXTURE_MAP_TITLE,
                     QString("File at ") + filename + " deleted.");
         }
         else
         {
-            QMessageBox::information(this, "Remove textures map of the game.",
+            QMessageBox::information(this,  STR_REMOVING_TEXTURE_MAP_TITLE,
                     QString("File at ") + filename + " not found.");
         }
     }
@@ -71,7 +71,7 @@ void LayoutMain::ApplyHQGfx(MeType gameType)
 #endif
     UserSettings::updateGFXSettings(gameType, engineConf);
 
-    QMessageBox::information(this, "Appling HQ gfx settings.",
+    QMessageBox::information(this, "Applying HQ gfx settings.",
             QString("Game configuration file at ") + path + " updated.");
 }
 

@@ -30,7 +30,7 @@ InstallerWindow::InstallerWindow(MeType gameType)
     statusBar()->hide();
     QString title = QString("Mass Effect Modder v%1").arg(MEM_VERSION);
     if (DetectAdminRights())
-        title += " (run as Administrator)";
+        title += " (running as Administrator)";
     setWindowTitle(title);
     setMinimumSize(kMinWindowWidth, kMinWindowHeight);
     setMaximumSize(kMinWindowWidth, kMinWindowHeight);
@@ -67,7 +67,7 @@ void InstallerWindow::closeEvent(QCloseEvent *event)
 {
     if (busy)
     {
-        QMessageBox::information(this, "Closing application", "Installer is busy.");
+        QMessageBox::information(this, "Cannot close application", "Installer is currently busy.");
         event->ignore();
     }
 }
@@ -80,6 +80,6 @@ void InstallerWindow::SetTitle(MeType gameType, const QString &appendText)
     if (appendText != "")
         title += " - " + appendText;
     if (DetectAdminRights())
-        title += " (run as Administrator)";
+        title += " (running as Administrator)";
     setWindowTitle(title);
 }

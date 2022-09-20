@@ -52,11 +52,11 @@ TextureMovie::TextureMovie(Package &package, int exportId, const ByteBuffer &dat
         dataOffset = textureData->Position();
         quint32 tag = textureData->ReadUInt32();
         if (tag != BIK1_TAG && tag != BIK2_TAG)
-            CRASH_MSG("Not supported movie texture");
+            CRASH_MSG("Not a supported version of bink movie for texture (bad header)");
     }
     else if (storageType != StorageTypes::extUnc && storageType == StorageTypes::extUnc2)
     {
-        CRASH_MSG("TextureMovie as compressed data is not supported!");
+        CRASH_MSG("Texture Movies cannot be stored as comrpessed data! This is not supported.");
     }
 }
 
@@ -106,7 +106,7 @@ const ByteBuffer TextureMovie::getData()
     case StorageTypes::extZlib:
     case StorageTypes::extOodle:
         {
-            CRASH_MSG("TextureMovie as compressed data is not supported!");
+            CRASH_MSG("Texture Movies cannot be stored as comrpessed data! This is not supported.");
         }
         break;
     case StorageTypes::extUnc:
@@ -135,7 +135,7 @@ const ByteBuffer TextureMovie::getData()
                         }
                         else
                         {
-                            PERROR(QString("TFC file not found: ") + archive + ".tfc" + "\n");
+                            PERROR(QString("Referenced TFC file not found: ") + archive + ".tfc" + "\n");
                         }
                         return ByteBuffer();
                     }
@@ -160,11 +160,11 @@ const ByteBuffer TextureMovie::getData()
                 }
                 else
                 {
-                    PERROR(QString("File no found: " + filename + "\n"));
+                    PERROR(QString("Referenced file not found: " + filename + "\n"));
                 }
                 PERROR(QString("\nPackage: ") + packagePath +
                        "\nStorageType: " + QString::number(storageType) +
-                       "\nExport Id: " + QString::number(dataExportId + 1) +
+                       "\nExport UIndex: " + QString::number(dataExportId + 1) +
                        "\nExternal file offset: " + QString::number(dataOffset) + "\n");
                 return ByteBuffer();
             }
@@ -175,16 +175,16 @@ const ByteBuffer TextureMovie::getData()
             {
                 if (g_ipc)
                 {
-                    ConsoleWrite("[IPC]ERROR Not supported movie texture");
+                    ConsoleWrite("[IPC]ERROR Not a supported movie texture version");
                     ConsoleSync();
                 }
                 else
                 {
-                    PERROR(QString("Not supported movie texture\n"));
+                    PERROR(QString("Not a supported movie texture version\n"));
                 }
                 PERROR(QString("\nPackage: ") + packagePath +
                        "\nStorageType: " + QString::number(storageType) +
-                       "\nExport Id: " + QString::number(dataExportId + 1) + "\n");
+                       "\nExport UIndex: " + QString::number(dataExportId + 1) + "\n");
                 return ByteBuffer();
             }
             fs.JumpTo(dataOffset);
@@ -225,7 +225,7 @@ const ByteBuffer TextureMovie::toArray()
     else if (storageType == StorageTypes::pccZlib ||
              storageType == StorageTypes::pccOodle)
     {
-        CRASH_MSG("TextureMovie as compressed data is not supported!");
+        CRASH_MSG("Texture Movies cannot be stored as comrpessed data! This is not supported.");
     }
     else
     {

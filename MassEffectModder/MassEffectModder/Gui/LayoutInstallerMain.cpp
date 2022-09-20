@@ -95,7 +95,7 @@ void LayoutInstallerMain::StartSelected()
     g_GameData->Init(gameId, configIni);
     if (!Misc::CheckGamePath())
     {
-        QMessageBox::critical(this, "Installing MEM mods", "Game data not found.");
+        QMessageBox::critical(this, "Installing MEM mods", STR_GAME_DATA_NOT_FOUND);
         buttonStart->show();
         return;
     }
@@ -103,9 +103,8 @@ void LayoutInstallerMain::StartSelected()
     if (!Misc::checkWriteAccessDir(g_GameData->MainData()))
     {
         QMessageBox::critical(this, "Installing MEM mods",
-                              QString("Installer has not write access to game folder.") +
-              "\n\nCorrect access to game directory." +
-              "\n\nThen start Installer again.");
+                              QString("The current user does not have write access to game folder.") +
+                              "\nGrant write access to the game directory and then try again.");
         buttonStart->show();
         return;
     }
@@ -135,8 +134,9 @@ void LayoutInstallerMain::StartSelected()
     if (diskUsage >= diskFreeSpace)
     {
         QMessageBox::critical(this, "Installing MEM file(s)",
-                              "You have not enough disk space remaining. You need about " +
+                              "There is not enough disk space on the disk the game is installed on. You need about " +
                               Misc::getBytesFormat(diskUsage) + " free disk space.");
+        LockGui(false);
         buttonStart->show();
         return;
     }

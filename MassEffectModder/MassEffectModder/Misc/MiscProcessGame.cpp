@@ -80,7 +80,7 @@ bool Misc::CheckForMarkers(ProgressCallback callback, void *callbackHandle)
             }
             else if (callback)
             {
-                callback(callbackHandle, newProgress, "Checking markers");
+                callback(callbackHandle, newProgress, "Checking for texture markers");
             }
         }
 
@@ -97,7 +97,7 @@ bool Misc::CheckForMarkers(ProgressCallback callback, void *callbackHandle)
             }
             else
             {
-                PERROR(QString("Error: detected marker: ") + packages[i] + "\n");
+                PERROR(QString("Error: detected texture marker: ") + packages[i] + "\n");
             }
         }
     }
@@ -125,7 +125,7 @@ bool Misc::MarkersPresent(ProgressCallback callback, void *callbackHandle)
             lastProgress = newProgress;
             if (callback)
             {
-                callback(callbackHandle, newProgress, "Checking markers");
+                callback(callbackHandle, newProgress, "Checking for texture markers");
             }
         }
 
@@ -174,7 +174,7 @@ bool Misc::ReportBadMods()
     if (badMods.count() != 0)
     {
         if (!g_ipc)
-            PERROR("Error: Detected not compatible mods:\n");
+            PERROR("Error: Detected incompatible mods:\n");
         for (int l = 0; l < badMods.count(); l++)
         {
             if (g_ipc)
@@ -228,7 +228,7 @@ bool Misc::detectMod()
 void Misc::AddMarkers(QStringList &pkgsToMarker,
                       ProgressCallback callback, void *callbackHandle)
 {
-    PINFO("Adding markers started...\n");
+    PINFO("Adding texture markers started...\n");
     Misc::restartStageTimer();
     if (g_ipc)
     {
@@ -249,7 +249,7 @@ void Misc::AddMarkers(QStringList &pkgsToMarker,
             }
             else if (callback)
             {
-                callback(callbackHandle, newProgress, "Adding markers");
+                callback(callbackHandle, newProgress, "Adding texture markers");
             }
         }
         PDEBUG(QString("Misc::AddMarkers File: ") + pkgsToMarker[i] + "\n");
@@ -270,7 +270,7 @@ void Misc::AddMarkers(QStringList &pkgsToMarker,
         ConsoleWrite(QString("[IPC]STAGE_TIMING %1").arg(elapsed));
         ConsoleSync();
     }
-    PINFO("Adding markers finished.\n\n");
+    PINFO("Adding texture markers finished.\n\n");
 }
 
 

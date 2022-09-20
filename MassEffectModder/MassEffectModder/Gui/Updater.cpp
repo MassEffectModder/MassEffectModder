@@ -55,7 +55,7 @@ void Updater::finishedDownloadRelase(QNetworkReply *reply)
     if (reply->error())
     {
         textWidget.setText(QString("Downloading failed! Error: ") + reply->errorString());
-        g_logs->PrintError(QString("Updater: Failed download releases list! Error: ") + reply->errorString());
+        g_logs->PrintError(QString("Updater: Failed to fetch releases list! Error: ") + reply->errorString());
         reply->abort();
         file->close();
         return;
@@ -80,8 +80,8 @@ void Updater::finishedDownloadRelase(QNetworkReply *reply)
     auto userDownloadPath = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
     if (!QDir(userDownloadPath).exists())
     {
-        textWidget.setText(QString("User download path not exists! Path: ") + userDownloadPath);
-        g_logs->PrintError(QString("Updater: User download path not exists! Path: ") + userDownloadPath);
+        textWidget.setText(QString("User download path does not exist! Path: ") + userDownloadPath);
+        g_logs->PrintError(QString("Updater: User download path does not exist! Path: ") + userDownloadPath);
         return;
     }
     const QString dstPath = QDir::cleanPath(userDownloadPath + "/" + BaseName(filePath));
@@ -89,8 +89,8 @@ void Updater::finishedDownloadRelase(QNetworkReply *reply)
     {
         if (!QFile(dstPath).remove())
         {
-            textWidget.setText(QString("Failed to override existing file! Path: ") + dstPath);
-            g_logs->PrintError(QString("Updater: Failed to override existing file! Path: " + dstPath));
+            textWidget.setText(QString("Failed to remove existing file! Path: ") + dstPath);
+            g_logs->PrintError(QString("Updater: Failed to remove existing file! Path: " + dstPath));
             return;
         }
     }
@@ -128,11 +128,11 @@ void Updater::finishedDownloadRelase(QNetworkReply *reply)
         QDesktopServices::openUrl(QUrl::fromLocalFile(dstPath));
     }
     else
-        CRASH_MSG("Updater: Not supported archive!");
+        CRASH_MSG("Updater: Not a supported archive type!");
     if (status != 0)
     {
-        textWidget.setText("Failed unpack archive!");
-        g_logs->PrintError(QString("Updater: Failed unpack archive!"));
+        textWidget.setText("Failed to unpack archive!");
+        g_logs->PrintError(QString("Updater: Failed to unpack archive!"));
         return;
     }
 
@@ -147,7 +147,7 @@ void Updater::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
     if (replyRelease->error())
     {
         textWidget.setText(QString("Downloading failed! Error: ") + replyRelease->errorString());
-        g_logs->PrintError(QString("Updater: Failed download releases list! Error: ") + replyRelease->errorString());
+        g_logs->PrintError(QString("Updater: Failed to download releases list! Error: ") + replyRelease->errorString());
         replyRelease->abort();
         return;
     }
@@ -178,7 +178,7 @@ void Updater::downloadRelease(const QString &downLoadUrl)
     tmpDir = new QTemporaryDir;
     if (!tmpDir->isValid())
     {
-        g_logs->PrintError(QString("Updater: Failed create temporary dir! Error: ") + tmpDir->errorString());
+        g_logs->PrintError(QString("Updater: Failed to create temporary dir! Error: ") + tmpDir->errorString());
         return;
     }
     filePath = tmpDir->path() + "/" + BaseName(downLoadUrl);
@@ -186,7 +186,7 @@ void Updater::downloadRelease(const QString &downLoadUrl)
     file->open(QIODevice::WriteOnly | QIODevice::Truncate);
     if (!file->isOpen())
     {
-        g_logs->PrintError(QString("Updater: Failed create temporary file! Error: ") + file->errorString());
+        g_logs->PrintError(QString("Updater: Failed to create temporary file! Error: ") + file->errorString());
         delete file;
         file = nullptr;
         delete tmpDir;
@@ -234,7 +234,7 @@ void Updater::finishedDownloadRelasesList(QNetworkReply *reply)
 {
     if (reply->error())
     {
-        g_logs->PrintError(QString("Updater: Failed download releases list! Error: ") + reply->errorString());
+        g_logs->PrintError(QString("Updater: Failed to download releases list! Error: ") + reply->errorString());
         return;
     }
 
@@ -242,7 +242,7 @@ void Updater::finishedDownloadRelasesList(QNetworkReply *reply)
     QJsonDocument jsonRelases = QJsonDocument::fromJson(reply->readAll(), &jsonError);
     if (jsonError.error != QJsonParseError::NoError)
     {
-        g_logs->PrintError(QString("Updater: Failed parse releases list! Error: ") + jsonError.errorString());
+        g_logs->PrintError(QString("Updater: Failed to parse releases list! Error: ") + jsonError.errorString());
         return;
     }
 

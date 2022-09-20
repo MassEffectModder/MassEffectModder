@@ -62,7 +62,7 @@ MipMap::MipMap(const ByteBuffer &src, int w, int h, PixelFormat format, bool ski
     if (!skipCheck)
     {
         if (src.size() != getBufferSize(width, height, format))
-            CRASH_MSG("Data size is not valid.");
+            CRASH_MSG("Data size of texture is not valid.");
     }
 
     buffer = ByteBuffer(src.ptr(), src.size());

@@ -149,7 +149,7 @@ bool Misc::CorrectTexture(Image &image, TextureMapEntry &f, int numMips,
                 image.getPixelFormat() == PixelFormat::BC7)
             {
                 PINFO(QString("Warning for texture: " ) + f.name +
-                             ". This texture converted from full alpha to binary alpha.\n");
+                             ". This texture was converted from full alpha to binary alpha.\n");
             }
         }
         image.correctMips(newPixelFormat, dxt1HasAlpha, dxt1Threshold, bc7quality);
@@ -180,7 +180,7 @@ QString Misc::CorrectTexture(Image *image, Texture &texture,
                     image->getPixelFormat() == PixelFormat::BC7)
                 {
                     errors += "Warning for texture: " + textureName +
-                              ". This texture converted from full alpha to binary alpha.\n";
+                              ". This texture was converted from full alpha to binary alpha.\n";
                 }
             }
         }
@@ -206,7 +206,7 @@ bool Misc::CheckImage(Image &image, TextureMapEntry &f, const QString &file, int
             }
             else
             {
-                PERROR(QString("Skipping not compatible content, entry: ") +
+                PERROR(QString("Skipping incompatible content, entry: ") +
                              QString::number(index + 1) + " - mod: " + BaseName(file) + "\n");
             }
         }

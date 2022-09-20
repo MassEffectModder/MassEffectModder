@@ -39,7 +39,7 @@ LayoutInstallModsManager::LayoutInstallModsManager(MainWindow *window, MeType ty
     ListMods->setMaximumHeight(kListViewModsMinHeight);
     ListMods->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-    auto LabelListMods = new QLabel("List of loaded mods:");
+    auto LabelListMods = new QLabel("List of mods to install:");
     LabelListMods->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     QFont LabelListModsFont = LabelListMods->font();
     LabelListModsFont.setPointSize(kFontSize);
@@ -94,7 +94,7 @@ LayoutInstallModsManager::LayoutInstallModsManager(MainWindow *window, MeType ty
     ButtonInstallAll->setFont(ButtonFont);
     connect(ButtonInstallAll, &QPushButton::clicked, this, &LayoutInstallModsManager::InstallAllSelected);
 
-    auto ButtonReturn = new QPushButton("Exit Mods Installer");
+    auto ButtonReturn = new QPushButton("Exit Mod Installer");
     ButtonReturn->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     ButtonReturn->setMinimumWidth(kButtonMinWidth);
     ButtonReturn->setMinimumHeight(kButtonMinHeight / 2);
@@ -237,7 +237,7 @@ void LayoutInstallModsManager::InstallMods(QStringList &mods)
     if (g_GameData->GamePath().length() == 0 || !QDir(g_GameData->GamePath()).exists())
     {
         mainWindow->statusBar()->clearMessage();
-        QMessageBox::critical(this, "Installing MEM mods", "Game data not found.");
+        QMessageBox::critical(this, "Installing MEM mods", STR_GAME_DATA_NOT_FOUND);
         LockGui(false);
         return;
     }
@@ -245,9 +245,9 @@ void LayoutInstallModsManager::InstallMods(QStringList &mods)
     if (!Misc::checkWriteAccessDir(g_GameData->MainData()))
     {
         QMessageBox::critical(this, "Installing MEM mods",
-                              QString("Program has not write access to game folder.") +
-              "\n\nCorrect access to game directory." +
-              "\n\nThen start Texture Manager again.");
+                              QString("The current user does not have write access to game folder.") +
+                              "\nGrant write access to the game directory and then try installing the texture mods again.");
+
         LockGui(false);
         return;
     }

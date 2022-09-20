@@ -146,7 +146,7 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
                                bool fastMode, bool markToConvert, bool bc7format, float bc7quality,
                                ProgressCallback callback, void *callbackHandle)
 {
-    PINFO("Mods conversion started...\n");
+    PINFO("Texture mod(s) conversion started...\n");
 
     QStringList ddsList;
 
@@ -344,7 +344,7 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
             quint32 tag = fs.ReadUInt32();
             if (tag != BIK1_TAG && tag != BIK2_TAG)
             {
-                PINFO(QString("File mod is not supported Bik movie: ") + BaseName(file) +
+                PINFO(QString("File is not a supported version of a Bik movie: ") + BaseName(file) +
                              ", skipping...\n");
                 continue;
             }
@@ -417,7 +417,7 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
             return true;
         }
 
-        PERROR("MEM file not created, nothing to build!\n");
+        PERROR("MEM file not created, there's nothing to build!\n");
         return false;
     }
 
@@ -482,7 +482,7 @@ bool Misc::extractMEM(MeType gameId, QFileInfoList &inputList, QString &outputDi
         }
         else
         {
-            PINFO(QString("Extract MEM: ") + file.absoluteFilePath() + "\n");
+            PINFO(QString("Extracting MEM: ") + file.absoluteFilePath() + "\n");
         }
         QString outputMODdir = outputDir + BaseNameWithoutExt(file.fileName());
         QDir().mkpath(outputMODdir);
@@ -562,8 +562,8 @@ bool Misc::extractMEM(MeType gameId, QFileInfoList &inputList, QString &outputDi
                     ConsoleWrite(QString("[IPC]ERROR_FILE_NOT_COMPATIBLE ") + file.absoluteFilePath());
                     ConsoleSync();
                 }
-                PERROR(QString("Failed decompress data: ") + file.absoluteFilePath() + "\n");
-                PERROR("Extract MEM mod files failed.\n\n");
+                PERROR(QString("Failed to decompress data: ") + file.absoluteFilePath() + "\n");
+                PERROR("Extracting MEM mod files failed.\n\n");
                 return false;
             }
 
@@ -591,7 +591,7 @@ bool Misc::extractMEM(MeType gameId, QFileInfoList &inputList, QString &outputDi
     long elapsed = Misc::elapsedTime();
     PINFO(Misc::getTimerFormat(elapsed) + "\n");
 
-    PINFO("Extract MEM mod files completed.\n\n");
+    PINFO("Finished extracting MEM mod files.\n\n");
     return true;
 }
 
@@ -637,7 +637,7 @@ bool Misc::compressData(ByteBuffer inputData, Stream &ouputStream, CompressionDa
                 CRASH_MSG("Out of memory!");
         }
         else
-            CRASH_MSG("Compression type not expected!");
+            CRASH_MSG("Unsupported compression type detected!");
         if (block.comprSize == 0)
         {
             failed = true;
@@ -730,7 +730,7 @@ ByteBuffer Misc::decompressData(Stream &stream, long compressedSize)
                 failed = true;
         }
         else
-            CRASH_MSG("Compression type not expected!");
+            CRASH_MSG("Unsupported compression type detected!");
         if (dstLen != block.uncomprSize)
         {
             failed = true;

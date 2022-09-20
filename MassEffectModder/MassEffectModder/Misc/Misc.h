@@ -28,6 +28,7 @@
 #include <Texture/Texture.h>
 #include <Texture/TextureScan.h>
 #include <Types/MemTypes.h>
+#include "CommonStrings.h"
 
 class MipMaps;
 

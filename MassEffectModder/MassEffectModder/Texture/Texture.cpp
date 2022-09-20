@@ -286,7 +286,7 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
             {
                 PERROR(QString("\nPackage: ") + packagePath +
                     "\nStorageType: " + QString::number(mipmap.storageType) +
-                    "\nExport Id: " + QString::number(dataExportId + 1) +
+                    "\nExport UIndex: " + QString::number(dataExportId + 1) +
                     "\nInternal offset: " + QString::number(mipmap.internalOffset) + "\n");
             }
             break;
@@ -319,7 +319,7 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
                         }
                         else
                         {
-                            PERROR(QString("TFC file not found: ") + archive + ".tfc" + "\n");
+                            PERROR(QString("Referenced TFC file not found: ") + archive + ".tfc" + "\n");
                         }
                         return ByteBuffer();
                     }
@@ -348,7 +348,7 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
                 }
                 PERROR(QString("\nPackage: ") + packagePath +
                        "\nStorageType: " + QString::number(mipmap.storageType) +
-                       "\nExport Id: " + QString::number(dataExportId + 1) +
+                       "\nExport UIndex: " + QString::number(dataExportId + 1) +
                        "\nExternal file offset: " + QString::number(mipmap.dataOffset) + "\n");
                 return ByteBuffer();
             }
@@ -362,7 +362,7 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
                     PERROR(QString("\nFile: ") + filename +
                         "\nPackage: " + packagePath +
                         "\nStorageType: " + QString::number(mipmap.storageType) +
-                        "\nExport Id: " + QString::number(dataExportId + 1) +
+                        "\nExport UIndex: " + QString::number(dataExportId + 1) +
                         "\nExternal file offset: " + QString::number(mipmap.dataOffset) + "\n");
                     return ByteBuffer();
                 }
