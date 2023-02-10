@@ -86,7 +86,7 @@ bool Misc::CheckMEMHeader(FileStream &fs, const QString &file)
     {
         if (version != TextureModVersion)
         {
-            PERROR(QString("File ") + BaseName(file) + " was made with an older version of MEM, skipping...\n");
+            PERROR(QString("File ") + BaseName(file) + " was made with an older version of MEM - is this file actually for Mass Effect Legendary Edition? Skipping...\n");
         }
         else
         {
@@ -287,7 +287,7 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
                     newPixelFormat = changeTextureType(f.pixfmt, image.getPixelFormat(), f.type, bc7format);
                     if (f.pixfmt == newPixelFormat)
                         PINFO(QString("Warning for texture: ") + BaseName(file)  +
-                              " This texture can not be converted to desired format...\n");
+                              " This texture cannot be converted to desired format...\n");
                 }
 
                 int numMips = Misc::GetNumberOfMipsFromMap(f);
@@ -296,7 +296,7 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
             else if (image.getPixelFormat() == PixelFormat::Internal)
             {
                 PINFO(QString("Warning for texture: ") + BaseName(file) +
-                      " This texture can not be included as non-DDS...\n");
+                      " This texture cannot be included as non-DDS...\n");
                 continue;
             }
 
@@ -342,7 +342,7 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
 
             FileStream fs = FileStream(file, FileMode::Open);
             quint32 tag = fs.ReadUInt32();
-            if (tag != BIK1_TAG && tag != BIK2_TAG)
+            if (tag != BIK1_TAG && tag != BIK2_TAG && tag != BIK2_202205_TAG)
             {
                 PINFO(QString("File is not a supported version of a Bik movie: ") + BaseName(file) +
                              ", skipping...\n");
@@ -447,7 +447,7 @@ bool Misc::convertDataModtoMem(QFileInfoList &files, QString &memFilePath,
 bool Misc::extractMEM(MeType gameId, QFileInfoList &inputList, QString &outputDir,
                       ProgressCallback callback, void *callbackHandle)
 {
-    PINFO("Extract MEM files started...\n");
+    PINFO("MEM file extraction started...\n");
 
     outputDir = QDir::cleanPath(outputDir);
     if (outputDir.length() != 0)

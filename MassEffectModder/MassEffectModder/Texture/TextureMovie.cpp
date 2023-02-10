@@ -51,12 +51,12 @@ TextureMovie::TextureMovie(Package &package, int exportId, const ByteBuffer &dat
     {
         dataOffset = textureData->Position();
         quint32 tag = textureData->ReadUInt32();
-        if (tag != BIK1_TAG && tag != BIK2_TAG)
-            CRASH_MSG("Not a supported version of bink movie for texture (bad header)");
+        if (tag != BIK1_TAG && tag != BIK2_TAG && tag != BIK2_202205_TAG)
+            CRASH_MSG(QString("Unsuppported version of bink movie for texture: %i").toStdString().c_str());
     }
     else if (storageType != StorageTypes::extUnc && storageType == StorageTypes::extUnc2)
     {
-        CRASH_MSG("Texture Movies cannot be stored as comrpessed data! This is not supported.");
+        CRASH_MSG("Texture Movies cannot be stored as compressed data! This is not supported.");
     }
 }
 
@@ -135,7 +135,7 @@ const ByteBuffer TextureMovie::getData()
                         }
                         else
                         {
-                            PERROR(QString("Referenced TFC file not found: ") + archive + ".tfc" + "\n");
+                            PERROR(QString("Referenced TFC file not found, do you have a patch for a mod that is not installed?: ") + archive + ".tfc" + "\n");
                         }
                         return ByteBuffer();
                     }
@@ -144,7 +144,7 @@ const ByteBuffer TextureMovie::getData()
                         QString list;
                         foreach(QString file, files)
                             list += file + "\n";
-                        PERROR((QString("More instances of TFC file: ") + archive + ".tfc\n" +
+                        PERROR((QString("Multiple instances of TFC file found, this is not supported: ") + archive + ".tfc\n" +
                                    list).toStdString().c_str());
                         return ByteBuffer();
                     }
@@ -160,7 +160,7 @@ const ByteBuffer TextureMovie::getData()
                 }
                 else
                 {
-                    PERROR(QString("Referenced file not found: " + filename + "\n"));
+                    PERROR(QString("Referenced TFC file not found, do you have a patch for a mod that is not installed?: " + filename + "\n"));
                 }
                 PERROR(QString("\nPackage: ") + packagePath +
                        "\nStorageType: " + QString::number(storageType) +
@@ -171,16 +171,16 @@ const ByteBuffer TextureMovie::getData()
             auto fs = FileStream(filename, FileMode::Open, FileAccess::ReadOnly);
             fs.JumpTo(dataOffset);
             quint32 tag = fs.ReadUInt32();
-            if (tag != BIK1_TAG && tag != BIK2_TAG)
+            if (tag != BIK1_TAG && tag != BIK2_TAG && tag != BIK2_202205_TAG)
             {
                 if (g_ipc)
                 {
-                    ConsoleWrite("[IPC]ERROR Not a supported movie texture version");
+                    ConsoleWrite("[IPC]ERROR Unsupported bink movie texture version version");
                     ConsoleSync();
                 }
                 else
                 {
-                    PERROR(QString("Not a supported movie texture version\n"));
+                    PERROR(QString("Unsupported texture movie texture version\n"));
                 }
                 PERROR(QString("\nPackage: ") + packagePath +
                        "\nStorageType: " + QString::number(storageType) +
@@ -225,7 +225,7 @@ const ByteBuffer TextureMovie::toArray()
     else if (storageType == StorageTypes::pccZlib ||
              storageType == StorageTypes::pccOodle)
     {
-        CRASH_MSG("Texture Movies cannot be stored as comrpessed data! This is not supported.");
+        CRASH_MSG("Texture Movies cannot be stored as compressed data! This is not supported.");
     }
     else
     {
