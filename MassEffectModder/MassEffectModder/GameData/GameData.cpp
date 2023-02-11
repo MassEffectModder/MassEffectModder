@@ -279,7 +279,8 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
 
 void GameData::Init(MeType type)
 {
-    gameType = type;
+	ConfigIni configIni{};
+	InternalInit(type, configIni);
 }
 
 void GameData::Init(MeType type, ConfigIni &configIni)
