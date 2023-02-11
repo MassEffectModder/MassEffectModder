@@ -36,9 +36,12 @@ void LogCrash(string output, string &message)
 #ifdef GUI
     QString error = QString::fromStdString(message).replace("\n", "<br>") + "<br>" +
             "Callstack for the crash is provided by pressing 'Show Details'.<br><br>";
-    if (g_logs != nullptr)
+	if (g_logs != nullptr)
+	{
         error += "Program log provided in the file: <br>'" + QDir::toNativeSeparators(g_logs->GetLogPath()) + "'";
-    QMessageBox msgBox;
+	}
+	auto window = QApplication::activeWindow();
+	QMessageBox msgBox(window);
     msgBox.setTextFormat(Qt::RichText);
     msgBox.setText(error);
     msgBox.setStandardButtons(QMessageBox::Close);
