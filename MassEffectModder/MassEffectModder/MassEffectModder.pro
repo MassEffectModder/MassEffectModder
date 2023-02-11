@@ -170,14 +170,18 @@ QMAKE_CXXFLAGS_DEBUG += -g
 win32-g++: {
     # Disable compiler warning
     QMAKE_CXXFLAGS += -Wno-deprecated-copy
+
     QMAKE_LFLAGS_RELEASE = "-Wl,--relax"
 
     COMPILER_VERSION = $$system($$QMAKE_CXX " -dumpversion")
     VERSIONS = $$split(COMPILER_VERSION, .)
     COMPILER_MAJOR_VERSION = $$member(VERSIONS, 0)
     greaterThan(COMPILER_MAJOR_VERSION, 8) {
+        # Disabled dynamic base, needed to get symbols matched with base
         QMAKE_LFLAGS_RELEASE += "-Wl,--disable-dynamicbase"
         QMAKE_LFLAGS_DEBUG += "-Wl,--disable-dynamicbase"
+        # Enforce DWARF-4 for backtraces (bfd code needs to be updated)
+        QMAKE_CXXFLAGS += -gdwarf-4
     }
 
     Release:PRE_TARGETDEPS += $$OUT_PWD/../Wrappers/release/libWrappers.a
