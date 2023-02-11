@@ -219,7 +219,10 @@ bool Misc::ReportMods()
 
 bool Misc::detectMod()
 {
-    FileStream fs = FileStream(g_GameData->MainData() + "/SFXTest.pcc", FileMode::Open, FileAccess::ReadOnly);
+	QString marker = g_GameData->MainData() + "/SFXTest.pcc";
+	if (!QFile::exists(marker))
+		return false;
+	FileStream fs = FileStream(marker, FileMode::Open, FileAccess::ReadOnly);
     fs.Seek(-4, SeekOrigin::End);
     auto tag = fs.ReadUInt32();
     return tag == MEMI_TAG;
