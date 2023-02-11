@@ -217,8 +217,11 @@ bool Misc::ReportMods()
     return true;
 }
 
-bool Misc::detectMod()
+bool Misc::detectMod(MeType gameType)
 {
+	g_GameData->Init(gameType);
+	if (!Misc::CheckGamePath())
+		return false;
 	QString marker = g_GameData->MainData() + "/SFXTest.pcc";
 	if (!QFile::exists(marker))
 		return false;

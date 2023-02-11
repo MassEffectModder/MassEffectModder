@@ -119,7 +119,7 @@ public:
     static int GetNumberOfMipsFromMap(TextureMapEntry &f);
     static QByteArray calculateMD5(const QString &filePath);
     static void detectMods(QStringList &mods);
-    static bool detectMod();
+	static bool detectMod(MeType gameType);
     static void detectBrokenMod(QStringList &mods);
     static bool CheckGameDataAndMods(MeType gameId, Resources &resources);
     static bool ApplyPostInstall(MeType gameId, QStringList &mods);
