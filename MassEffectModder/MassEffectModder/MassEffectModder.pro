@@ -170,10 +170,19 @@ QMAKE_CXXFLAGS_DEBUG += -g
 win32-g++: {
     # Disable compiler warning
     QMAKE_CXXFLAGS += -Wno-deprecated-copy
-    QMAKE_LFLAGS_RELEASE = "-Wl,--relax -Wl,--disable-dynamicbase"
-    # QMAKE_LFLAGS_RELEASE = "-Wl,--relax" # Building on Windows Qt seems to use this version
-    QMAKE_LFLAGS_DEBUG += "-Wl,--disable-dynamicbase"
-    # QMAKE_LFLAGS_DEBUG += "" # Building on Windows Qt seems to use this version
+    QMAKE_LFLAGS_RELEASE = "-Wl,--relax"
+
+    COMPILER_VERSION = $$system($$QMAKE_CXX " -dumpversion")
+    VERSIONS = $$split(COMPILER_VERSION, .)
+    COMPILER_MAJOR_VERSION = $$member(VERSIONS, 0)
+    greaterThan(COMPILER_MAJOR_VERSION, 8) {
+        # Disabled dynamic base, needed to get symbols matched with base
+        QMAKE_LFLAGS_RELEASE += "-Wl,--disable-dynamicbase"
+        QMAKE_LFLAGS_DEBUG += "-Wl,--disable-dynamicbase"
+        # Enforce DWARF-4 for backtraces (bfd code needs to be updated)
+        QMAKE_CXXFLAGS += -gdwarf-4
+    }
+
     Release:PRE_TARGETDEPS += $$OUT_PWD/../Wrappers/release/libWrappers.a
     Debug:PRE_TARGETDEPS += $$OUT_PWD/../Wrappers/debug/libWrappers.a
 } else:unix: {
@@ -235,8 +244,7 @@ equals(ZSTD_ENABLE, true) {
 }
 
 macx {
-    QMAKE_CXXFLAGS += -Xpreprocessor -fopenmp
-    QMAKE_CXXFLAGS_RELEASE += -fvisibility=hidden -fvisibility-inlines-hidden
+    QMAKE_CXXFLAGS_RELEASE += -fvisibility=hidden -fvisibility-inlines-hidden -Xpreprocessor -fopenmp
     QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.13
 }
 

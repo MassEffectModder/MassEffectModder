@@ -36,8 +36,6 @@ bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
                      ProgressCallback callback, void *callbackHandle)
 {
     bool status = true;
-
-    int totalNumberOfMods = 0;
     int currentNumberOfTotalMods = 1;
 
     QList<ModEntry> modsToReplace;
@@ -64,8 +62,8 @@ bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
             continue;
         fs.JumpTo(fs.ReadInt64());
         fs.SkipInt32();
-        totalNumberOfMods += fs.ReadInt32();
-    }
+		fs.SkipInt32();
+	}
 
     for (int i = 0; i < files.count(); i++)
     {

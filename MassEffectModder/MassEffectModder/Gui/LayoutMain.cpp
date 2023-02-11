@@ -698,6 +698,8 @@ void LayoutMain::ButtonModsInstallerSelected(MeType gameType)
     RemoveEffectsOnMenus();
     mainWindow->GetLayout()->addWidget(new LayoutInstallModsManager(mainWindow, gameType));
     mainWindow->SwitchLayoutById(MainWindow::kLayoutInstallModsManager);
+	if (!Misc::detectMod())
+		QMessageBox::information(this, "Mods Installer", "Important information.");
 }
 
 void LayoutMain::ButtonTextureUtilitiesME1Selected()

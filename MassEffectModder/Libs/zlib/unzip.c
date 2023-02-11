@@ -108,7 +108,7 @@
 # define ALLOC(size) (malloc(size))
 #endif
 #ifndef TRYFREE
-# define TRYFREE(p) {if (p) free(p);}
+# define TRYFREE(p) { free(p);}
 #endif
 
 #define SIZECENTRALDIRITEM (0x2e)
@@ -1562,6 +1562,7 @@ extern int ZEXPORT unzOpenCurrentFile3 (unzFile file, int* method,
         pfile_in_zip_read_info->stream_initialised=Z_BZIP2ED;
       else
       {
+        TRYFREE(pfile_in_zip_read_info->read_buffer);
         TRYFREE(pfile_in_zip_read_info);
         return err;
       }
@@ -1582,6 +1583,7 @@ extern int ZEXPORT unzOpenCurrentFile3 (unzFile file, int* method,
         pfile_in_zip_read_info->stream_initialised=Z_DEFLATED;
       else
       {
+        TRYFREE(pfile_in_zip_read_info->read_buffer);
         TRYFREE(pfile_in_zip_read_info);
         return err;
       }
