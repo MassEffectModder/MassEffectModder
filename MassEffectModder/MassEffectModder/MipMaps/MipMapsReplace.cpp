@@ -533,7 +533,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                                 ConsoleWrite(QString("[IPC]ERROR ") + mod.textureName + " MEM file: " + mod.memPath);
                                 ConsoleSync();
                             }
-                            PERROR(QString("Failed decompress data: ") + mod.textureName +
+                            PERROR(QString("Failed to decompress MEM data: ") + mod.textureName +
                                    " MEM file: " + mod.memPath + "\n");
                             continue;
                         }

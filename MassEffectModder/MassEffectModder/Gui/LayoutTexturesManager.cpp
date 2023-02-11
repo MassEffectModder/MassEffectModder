@@ -917,7 +917,7 @@ void LayoutTexturesManager::ReplaceTexture(const QListWidgetItem *item, bool con
     {
         FileStream fs(file, FileMode::Open);
         quint32 tag = fs.ReadUInt32();
-        if (tag != BIK1_TAG && tag != BIK2_TAG)
+        if (tag != BIK1_TAG && tag != BIK2_TAG && tag != BIK2_202205_TAG)
         {
             QMessageBox::critical(this, "Replacing texture",
                                   QString("File does not contain a supported version of Bik."));

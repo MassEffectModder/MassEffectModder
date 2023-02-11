@@ -170,7 +170,6 @@ QMAKE_CXXFLAGS_DEBUG += -g
 win32-g++: {
     # Disable compiler warning
     QMAKE_CXXFLAGS += -Wno-deprecated-copy
-
     QMAKE_LFLAGS_RELEASE = "-Wl,--relax"
 
     COMPILER_VERSION = $$system($$QMAKE_CXX " -dumpversion")

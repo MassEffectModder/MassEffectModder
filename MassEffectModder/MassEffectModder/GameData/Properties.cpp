@@ -80,7 +80,7 @@ void Properties::getProperty(quint8 *data, int offset)
             size = 1;
         }
         else
-            CRASH("");
+            CRASH_MSG(QString("Unknown property type: %1").arg(property.type).toStdString().c_str());
 
         nextOffset = valueRawPos + size;
     }
@@ -104,7 +104,7 @@ Properties::PropertyEntry Properties::getProperty(const QString &name)
             return propertyList[i];
         }
     }
-    CRASH("");
+    CRASH_MSG(QString("Could not find property with name: %1").arg(name).toStdString().c_str());
 }
 
 void Properties::fetchValue(const QString &name)
@@ -122,7 +122,7 @@ void Properties::fetchValue(const QString &name)
 void Properties::fetchValue(int index)
 {
     if (index < 0 || index >= propertyList.count())
-        CRASH("");
+        CRASH("Fetching property index out of bounds (internal error)");
     PropertyEntry property = propertyList[index];
     if (property.fetched || property.name == "None")
         return;
@@ -180,7 +180,7 @@ void Properties::fetchValue(int index)
         memcpy(property.valueStruct.ptr(), property.valueRaw.ptr() + 8, property.valueStruct.size());
     }
     else
-        CRASH("");
+        CRASH_MSG(QString("Cannot fetch property value on property type of %1").arg(property.type).toStdString().c_str());
 
     property.fetched = true;
     propertyList[index] = property;
@@ -229,7 +229,7 @@ QString Properties::getDisplayString(int index)
         result += property.valueName + "\n";
     }
     else
-        CRASH();
+        CRASH_MSG(QString("Cannot fetch property displayvalue on property type of %1").arg(property.type).toStdString().c_str());
 
     return result;
 }

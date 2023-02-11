@@ -319,7 +319,7 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
                         }
                         else
                         {
-                            PERROR(QString("Referenced TFC file not found: ") + archive + ".tfc" + "\n");
+                            PERROR(QString("Referenced TFC file not found - do you have a patch installed for a mod that is not installed?: ") + archive + ".tfc" + "\n");
                         }
                         return ByteBuffer();
                     }
@@ -328,7 +328,7 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
                         QString list;
                         foreach(QString file, files)
                             list += file + "\n";
-                        PERROR((QString("More instances of TFC file: ") + archive + ".tfc\n" +
+                        PERROR((QString("Multiple instances of TFC file found in game, this is not supported: ") + archive + ".tfc\n" +
                                    list).toStdString().c_str());
                         return ByteBuffer();
                     }
