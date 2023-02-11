@@ -503,6 +503,10 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                     bufferTexture.Free();
                 }
                 bufferProperties.Free();
+
+                mod.instance--;
+                if (mod.instance < 0)
+                    CRASH();
             }
             else
             {
