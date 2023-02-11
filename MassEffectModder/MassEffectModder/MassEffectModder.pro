@@ -170,8 +170,16 @@ QMAKE_CXXFLAGS_DEBUG += -g
 win32-g++: {
     # Disable compiler warning
     QMAKE_CXXFLAGS += -Wno-deprecated-copy
-    QMAKE_LFLAGS_RELEASE = "-Wl,--relax -Wl,--disable-dynamicbase"
-    QMAKE_LFLAGS_DEBUG += "-Wl,--disable-dynamicbase"
+    QMAKE_LFLAGS_RELEASE = "-Wl,--relax"
+
+    COMPILER_VERSION = $$system($$QMAKE_CXX " -dumpversion")
+    VERSIONS = $$split(COMPILER_VERSION, .)
+    COMPILER_MAJOR_VERSION = $$member(VERSIONS, 0)
+    greaterThan(COMPILER_MAJOR_VERSION, 8) {
+        QMAKE_LFLAGS_RELEASE += "-Wl,--disable-dynamicbase"
+        QMAKE_LFLAGS_DEBUG += "-Wl,--disable-dynamicbase"
+    }
+
     Release:PRE_TARGETDEPS += $$OUT_PWD/../Wrappers/release/libWrappers.a
     Debug:PRE_TARGETDEPS += $$OUT_PWD/../Wrappers/debug/libWrappers.a
 } else:unix: {
