@@ -911,7 +911,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
     {
         if (modsToReplace[e].instance > 0)
         {
-            PERROR(QString("Mod index: ") + QString::number(e) + ", instances: " + QString::number(modsToReplace[e].instance));
+            PINFO(QString("Mod index: ") + QString::number(e) + ", instances: " + QString::number(modsToReplace[e].instance));
         }
     }
 
