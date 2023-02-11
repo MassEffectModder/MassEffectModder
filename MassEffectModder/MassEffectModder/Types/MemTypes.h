@@ -78,8 +78,8 @@ typedef enum
 #define MEMMarkerLength       (sizeof(MEMendFileMarker) - 1)
 
 #define BIK1_TAG              0x694B4942 // 'BIKi'
-#define BIK2_TAG              0x6A32424B // 'HB2j'
-#define BIK2_202205_TAG       0x6A32424B // 'KB2j' // Used to support Bik2 videos since there is public available encoder
+#define BIK2_TAG              0x6A32424B // 'KB2j'
+#define BIK2_202205_TAG       0x6E32424B // 'KB2n' // Used to support Bik2 videos since there is public available encoder
 
 #define PERCENT_OF_SIZE(x, y) (((x) * (y)) / 100)
 
