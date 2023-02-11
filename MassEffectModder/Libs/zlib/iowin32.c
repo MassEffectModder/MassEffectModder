@@ -1,5 +1,4 @@
 /* iowin32.c -- IO base function header for compress/uncompress .zip
-
      Version 1.1, February 14h, 2010
      part of the MiniZip project - ( http://www.winimage.com/zLibDll/minizip.html )
 
@@ -7,9 +6,6 @@
 
          Modifications for Zip64 support
          Copyright (C) 2009-2010 Mathias Svensson ( http://result42.com )
-
-         Xor encoding support
-         Copyright (C) 2017 - 2018 Pawel Kolodziejski
 
      For more info read MiniZip_info.txt
 
@@ -32,6 +28,11 @@
 
 // see Include/shared/winapifamily.h in the Windows Kit
 #if defined(WINAPI_FAMILY_PARTITION) && (!(defined(IOWIN32_USING_WINRT_API)))
+
+#if !defined(WINAPI_FAMILY_ONE_PARTITION)
+#define WINAPI_FAMILY_ONE_PARTITION(PartitionSet, Partition) ((WINAPI_FAMILY & PartitionSet) == Partition)
+#endif
+
 #if WINAPI_FAMILY_ONE_PARTITION(WINAPI_FAMILY, WINAPI_PARTITION_APP)
 #define IOWIN32_USING_WINRT_API 1
 #endif
@@ -208,7 +209,6 @@ uLong ZCALLBACK win32_read_file_func (voidpf opaque, voidpf stream, void* buf,uL
 
     if (hFile != NULL)
     {
-        unsigned long filePos = 0;
         if (!ReadFile(hFile, buf, size, &ret, NULL))
         {
             DWORD dwErr = GetLastError();
