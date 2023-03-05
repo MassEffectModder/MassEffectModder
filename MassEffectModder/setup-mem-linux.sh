@@ -47,7 +47,7 @@ BRANCH=master
 USER_NAME=aquadran
 USER_ID=1001
 NUM_THREADS=`grep -c '^processor' /proc/cpuinfo`
-QT_VERSION=5.15.6
+QT_VERSION=5.15.8
 QT_VERSION_BASE=`echo $QT_VERSION | cut -d'.' -f 1,2`
 PACKAGES_ADD=bash,build-essential,nasm,git,perl,python,wget,ca-certificates,libx11-dev,libsdl2-dev,\
 libopenal-dev,libfontconfig1-dev,libssl-dev,libxkbcommon-dev,libxkbcommon-x11-dev,libxcomposite-dev,\
@@ -130,12 +130,12 @@ if [ ! -f .stamp-qt-prepare ]; then
 	sudo mount --bind /proc $BASE_CHROOT/proc
 	$CHROOT_CMD_USER "cd /home/$USER_NAME/builds/sources/qt-everywhere-src-$QT_VERSION; ./configure \
 -prefix /usr -static -release -qt-zlib -qt-pcre -qt-libpng -qt-libjpeg -system-freetype \
--no-dbus -iconv -no-icu -glib -no-cups -no-gif -no-ico -qt-harfbuzz -no-eglfs -no-gbm -no-mimetype-database \
--no-feature-relocatable -make libs -nomake examples -nomake tests -skip qt3d -skip qtactiveqt \
--skip qtcanvas3d -skip qtcharts -skip qtconnectivity -skip qtdatavis3d -skip qtdeclarative -skip qtdoc \
--skip gamepad -skip qtgraphicaleffects -skip qtlocation -skip qtmultimedia -skip qtnetworkauth \
--skip qtpurchasing -skip qtquickcontrols -skip qtquickcontrols2 -skip qtremoteobjects -skip qtscript \
--skip qtscxml -skip qtsensors -skip qtserialbus -skip qtserialport -skip qtspeech -skip qttools \
+-iconv -no-icu -glib -no-cups -no-gif -no-ico -qt-harfbuzz -no-eglfs -no-gbm -no-tiff -no-webp \
+-no-mimetype-database -no-feature-relocatable -no-opengl -make libs -nomake examples -nomake tests \
+-skip qt3d -skip qtactiveqt -skip qtcanvas3d -skip qtcharts -skip qtconnectivity -skip qtdatavis3d \
+-skip qtdeclarative -skip qtdoc -skip gamepad -skip qtgraphicaleffects -skip qtlocation -skip qtmultimedia \
+-skip qtnetworkauth -skip qtpurchasing -skip qtquickcontrols -skip qtquickcontrols2 -skip qtremoteobjects \
+-skip qtscript -skip qtscxml -skip qtsensors -skip qtserialbus -skip qtserialport -skip qtspeech -skip qttools \
 -skip qttranslations -skip qtvirtualkeyboard -skip qtwebengine -skip qtwebglplugin -skip qtwebsockets \
 -skip qtwebview -skip qtxmlpatterns -confirm-license -opensource \
 -system-freetype -qt-doubleconversion -qpa xcb -xcb -xcb-native-painting"
