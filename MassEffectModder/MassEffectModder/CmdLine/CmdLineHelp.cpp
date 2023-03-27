@@ -54,9 +54,9 @@ void DisplayHelp()
         "  --check-for-markers --gameid <game id> [--ipc]\n" \
         "     Check game data for texture markers.\n" \
         "\n" \
-        "  --install-mods --gameid <game id> --input <input dir> [--cache-amount <percent>]\n" \
+        "  --install-mods --gameid <game id> --input <input dir/.mfl file> [--cache-amount <percent>]\n" \
         "  [--repack] [--skip-markers] [--ipc] [--alot-mode] [--limit-2k] [--verify]\n" \
-        "     Install MEM mods from input directory.\n" \
+        "     Install MEM mods from input directory or MFL file list.\n" \
         "\n" \
         "  --detect-mods --gameid <game id> [--ipc]\n" \
         "     Detect known compatible mods.\n" \

@@ -511,15 +511,36 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir,
     if (!Misc::CheckGamePath())
         return false;
 
-    auto files = QDir(inputDir, "*.mem",
-                      QDir::SortFlag::Name | QDir::SortFlag::IgnoreCase,
-                      QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
     QStringList modFiles;
-    foreach (QFileInfo file, files)
-    {
-        modFiles.push_back(file.absoluteFilePath());
-    }
 
+    if (QDir(inputDir).exists()){
+        auto files = QDir(inputDir, "*.mem",
+                          QDir::SortFlag::Name | QDir::SortFlag::IgnoreCase,
+                          QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
+        foreach (QFileInfo file, files)
+        {
+            modFiles.push_back(file.absoluteFilePath());
+        }
+    } else if (QFile(inputDir).exists()){
+        QFileInfo fi(inputDir);
+        QString ext = fi.completeSuffix();  // ext = "tar.gz")
+        if (ext == "mfl") {
+            // MEM File List
+            QFile inputFile(inputDir);
+            if (inputFile.open(QIODevice::ReadOnly))
+            {
+                QTextStream in(&inputFile);
+                while (!in.atEnd())
+                {
+                   QString line = in.readLine();
+                   if (QFile(line).exists()){
+                       modFiles.push_back(line);
+                   }
+                }
+                inputFile.close();
+            }
+        }
+    }
     return Misc::InstallMods(gameId, resources, modFiles,
                              false, alotMode, skipMarkers, verify, cacheAmount,
                              nullptr, nullptr);

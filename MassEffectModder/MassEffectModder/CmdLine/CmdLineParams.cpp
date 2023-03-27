@@ -485,9 +485,9 @@ int ProcessArguments()
             errorCode = 1;
             break;
         }
-        if (!QDir(input).exists())
+        if (!QFile(input).exists() && !QDir(input).exists())
         {
-            PERROR("Input folder doesn't exist! " + input + "\n");
+            PERROR("Input folder/file doesn't exist! " + input + "\n");
             errorCode = 1;
             break;
         }
