@@ -513,7 +513,8 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir,
 
     QStringList modFiles;
 
-    if (QDir(inputDir).exists()){
+    if (QDir(inputDir).exists())
+    {
         auto files = QDir(inputDir, "*.mem",
                           QDir::SortFlag::Name | QDir::SortFlag::IgnoreCase,
                           QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks).entryInfoList();
@@ -521,10 +522,13 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir,
         {
             modFiles.push_back(file.absoluteFilePath());
         }
-    } else if (QFile(inputDir).exists()){
+    }
+    else if (QFile(inputDir).exists())
+    {
         QFileInfo fi(inputDir);
-        QString ext = fi.completeSuffix();  // ext = "tar.gz")
-        if (ext == "mfl") {
+        QString ext = fi.completeSuffix();
+        if (ext == "mfl")
+        {
             // MEM File List
             QFile inputFile(inputDir);
             if (inputFile.open(QIODevice::ReadOnly))
@@ -532,12 +536,12 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir,
                 QTextStream in(&inputFile);
                 while (!in.atEnd())
                 {
-                   QString line = in.readLine();
-                   if (QFile(line).exists()){
+                   QString line = in.readLine().replace(QChar('\'), QChar('/''))); // Standardize path separators to /
+                   if (QFile(line).exists())
+                   {
                        modFiles.push_back(line);
                    }
                 }
-                inputFile.close();
             }
         }
     }
