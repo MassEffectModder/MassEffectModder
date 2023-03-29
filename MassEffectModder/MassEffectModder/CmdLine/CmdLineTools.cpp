@@ -536,7 +536,7 @@ bool CmdLineTools::InstallMods(MeType gameId, QString &inputDir,
                 QTextStream in(&inputFile);
                 while (!in.atEnd())
                 {
-                   QString line = in.readLine().replace(QChar('\'), QChar('/''))); // Standardize path separators to /
+                   QString line = in.readLine().replace('\\','/'); // Standardize path separators to /
                    if (QFile(line).exists())
                    {
                        modFiles.push_back(line);
