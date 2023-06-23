@@ -860,7 +860,12 @@ bool TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &pac
                     if (texture->getProperties().exists("CompressionSettings"))
                     {
                         QString cmp = texture->getProperties().getProperty("CompressionSettings").getValueName();
-                        if (cmp == "TC_OneBitAlpha")
+                        if (cmp == "TC_Default")
+                        {
+                            //Some textures may have this set, treat same as if no compression setting
+                            foundTex.type = TextureType::Diffuse;
+                        }
+                        else if (cmp == "TC_OneBitAlpha")
                         {
                             foundTex.type = TextureType::OneBitAlpha;
                             matchTexture.hasAlphaData = true;
@@ -887,7 +892,7 @@ bool TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &pac
                         }
                         else
                         {
-                            CRASH();
+                            CRASH_MSG(QString("Unknown texture compression type on %1: %2").arg(foundTex.name, cmp).toStdString().c_str());
                         }
                     }
                     else
