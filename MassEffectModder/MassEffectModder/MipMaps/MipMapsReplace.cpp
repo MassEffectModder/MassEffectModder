@@ -677,10 +677,14 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                     texture.getProperties().setStructValue("TFCFileGuid", "Guid", guid);
                 }
                 QString archive = texture.getProperties().getProperty("TextureFileCacheName").getValueName();
-                if (mod.arcTfcDLC && mod.arcTfcName != archive)
-                {
-                    mod.arcTexture.clear();
-                }
+
+                // Commented out on June 23, 2023
+                // Appears to be leftover from when TFCs were rebuilt in OT MEM
+                // Leaving here in case it is needed if an issue is found
+            	// if (mod.arcTfcDLC && mod.arcTfcName != archive)
+				// {
+				//     mod.arcTexture.clear();
+				// }
 
                 if (mod.arcTexture.count() == 0)
                 {
