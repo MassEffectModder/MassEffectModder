@@ -70,7 +70,7 @@ extern const uint32_t Crc32Lookup[MaxSlice][256]; // extern is needed to keep co
 uint32_t crc32_bitwise(const void* data, size_t length, uint32_t previousCrc32)
 {
   uint32_t crc = ~previousCrc32; // same as previousCrc32 ^ 0xFFFFFFFF
-  const uint8_t* current = (const uint8_t*) data;
+  auto current = (const uint8_t*) data;
 
   while (length-- != 0)
   {
@@ -97,7 +97,7 @@ uint32_t crc32_bitwise(const void* data, size_t length, uint32_t previousCrc32)
 uint32_t crc32_halfbyte(const void* data, size_t length, uint32_t previousCrc32)
 {
   uint32_t crc = ~previousCrc32; // same as previousCrc32 ^ 0xFFFFFFFF
-  const uint8_t* current = (const uint8_t*) data;
+  auto current = (const uint8_t*) data;
 
   /// look-up table for half-byte, same as crc32Lookup[0][16*i]
   static const uint32_t Crc32Lookup16[16] =
@@ -122,7 +122,7 @@ uint32_t crc32_halfbyte(const void* data, size_t length, uint32_t previousCrc32)
 uint32_t crc32_1byte(const void* data, size_t length, uint32_t previousCrc32)
 {
   uint32_t crc = ~previousCrc32; // same as previousCrc32 ^ 0xFFFFFFFF
-  const uint8_t* current = (const uint8_t*) data;
+  auto current = (const uint8_t*) data;
 
   while (length-- != 0)
     crc = (crc >> 8) ^ Crc32Lookup[0][(crc & 0xFF) ^ *current++];
@@ -136,7 +136,7 @@ uint32_t crc32_1byte(const void* data, size_t length, uint32_t previousCrc32)
 uint32_t crc32_1byte_tableless(const void* data, size_t length, uint32_t previousCrc32)
 {
   uint32_t crc = ~previousCrc32; // same as previousCrc32 ^ 0xFFFFFFFF
-  const uint8_t* current = (const uint8_t*) data;
+  auto current = (const uint8_t*) data;
 
   while (length-- != 0)
   {
@@ -190,7 +190,7 @@ uint32_t crc32_1byte_tableless(const void* data, size_t length, uint32_t previou
 uint32_t crc32_1byte_tableless2(const void* data, size_t length, uint32_t previousCrc32)
 {
   int32_t crc = ~previousCrc32; // note: signed integer, right shift distributes sign bit into lower bits
-  const uint8_t* current = (const uint8_t*) data;
+  auto current = (const uint8_t*) data;
 
   while (length-- != 0)
   {
@@ -254,7 +254,7 @@ uint32_t crc32_4bytes(const void* data, size_t length, uint32_t previousCrc32)
 uint32_t crc32_8bytes(const void* data, size_t length, uint32_t previousCrc32)
 {
   uint32_t crc = ~previousCrc32; // same as previousCrc32 ^ 0xFFFFFFFF
-  const uint32_t* current = (const uint32_t*) data;
+  auto current = (const uint32_t*) data;
 
   // process eight bytes at once (Slicing-by-8)
   while (length >= 8)
@@ -286,7 +286,7 @@ uint32_t crc32_8bytes(const void* data, size_t length, uint32_t previousCrc32)
     length -= 8;
   }
 
-  const uint8_t* currentChar = (const uint8_t*) current;
+  auto currentChar = (const uint8_t*) current;
   // remaining 1 to 7 bytes (standard algorithm)
   while (length-- != 0)
     crc = (crc >> 8) ^ Crc32Lookup[0][(crc & 0xFF) ^ *currentChar++];
@@ -299,7 +299,7 @@ uint32_t crc32_8bytes(const void* data, size_t length, uint32_t previousCrc32)
 uint32_t crc32_4x8bytes(const void* data, size_t length, uint32_t previousCrc32)
 {
   uint32_t crc = ~previousCrc32; // same as previousCrc32 ^ 0xFFFFFFFF
-  const uint32_t* current = (const uint32_t*) data;
+  auto current = (const uint32_t*) data;
 
   // enabling optimization (at least -O2) automatically unrolls the inner for-loop
   const size_t Unroll = 4;
@@ -339,7 +339,7 @@ uint32_t crc32_4x8bytes(const void* data, size_t length, uint32_t previousCrc32)
     length -= BytesAtOnce;
   }
 
-  const uint8_t* currentChar = (const uint8_t*) current;
+  auto currentChar = (const uint8_t*) current;
   // remaining 1 to 31 bytes (standard algorithm)
   while (length-- != 0)
     crc = (crc >> 8) ^ Crc32Lookup[0][(crc & 0xFF) ^ *currentChar++];
@@ -354,7 +354,7 @@ uint32_t crc32_4x8bytes(const void* data, size_t length, uint32_t previousCrc32)
 uint32_t crc32_16bytes(const void* data, size_t length, uint32_t previousCrc32)
 {
   uint32_t crc = ~previousCrc32; // same as previousCrc32 ^ 0xFFFFFFFF
-  const uint32_t* current = (const uint32_t*) data;
+  auto current = (const uint32_t*) data;
 
   // enabling optimization (at least -O2) automatically unrolls the inner for-loop
   const size_t Unroll = 4;
@@ -412,7 +412,7 @@ uint32_t crc32_16bytes(const void* data, size_t length, uint32_t previousCrc32)
     length -= BytesAtOnce;
   }
 
-  const uint8_t* currentChar = (const uint8_t*) current;
+  auto currentChar = (const uint8_t*) current;
   // remaining 1 to 63 bytes (standard algorithm)
   while (length-- != 0)
     crc = (crc >> 8) ^ Crc32Lookup[0][(crc & 0xFF) ^ *currentChar++];
@@ -428,7 +428,7 @@ uint32_t crc32_16bytes_prefetch(const void* data, size_t length, uint32_t previo
   // 256 bytes look-ahead seems to be the sweet spot on Core i7 CPUs
 
   uint32_t crc = ~previousCrc32; // same as previousCrc32 ^ 0xFFFFFFFF
-  const uint32_t* current = (const uint32_t*) data;
+  auto current = (const uint32_t*) data;
 
   // enabling optimization (at least -O2) automatically unrolls the for-loop
   const size_t Unroll = 4;
@@ -488,7 +488,7 @@ uint32_t crc32_16bytes_prefetch(const void* data, size_t length, uint32_t previo
     length -= BytesAtOnce;
   }
 
-  const uint8_t* currentChar = (const uint8_t*) current;
+  auto currentChar = (const uint8_t*) current;
   // remaining 1 to 63 bytes (standard algorithm)
   while (length-- != 0)
     crc = (crc >> 8) ^ Crc32Lookup[0][(crc & 0xFF) ^ *currentChar++];
