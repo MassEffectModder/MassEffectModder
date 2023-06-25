@@ -25,7 +25,9 @@
 #include <cstring>
 #include <cmath>
 
-#define PNG_SIGN_LEN 8
+enum {
+    PNG_SIGN_LEN = 8
+};
 
 typedef struct {
     unsigned char *bufferPtr;
@@ -33,7 +35,9 @@ typedef struct {
     png_size_t bufferSize;
 } IoHandle;
 
-static void ReadFunction(png_structp pngStruct, png_bytep buffer, png_size_t count)
+namespace {
+
+void ReadFunction(png_structp pngStruct, png_bytep buffer, png_size_t count)
 {
     auto *handle = static_cast<IoHandle *>(png_get_io_ptr(pngStruct));
     if ((count + handle->bufferOffset) <= handle->bufferSize)
@@ -43,7 +47,7 @@ static void ReadFunction(png_structp pngStruct, png_bytep buffer, png_size_t cou
     handle->bufferOffset += count;
 }
 
-static void WriteFunction(png_structp pngStruct, png_bytep buffer, png_size_t count)
+void WriteFunction(png_structp pngStruct, png_bytep buffer, png_size_t count)
 {
     auto *handle = static_cast<IoHandle *>(png_get_io_ptr(pngStruct));
     if (!handle->bufferPtr)
@@ -60,6 +64,8 @@ static void WriteFunction(png_structp pngStruct, png_bytep buffer, png_size_t co
     memcpy(handle->bufferPtr + handle->bufferOffset, buffer, count);
     handle->bufferOffset += count;
 }
+
+} // namespace
 
 int PngRead(unsigned char *src, unsigned int srcSize,
              float **dst, unsigned int *dstSize,

@@ -187,7 +187,9 @@ LayoutTexturesManager::LayoutTexturesManager(MainWindow *window, MeType type)
     mainWindow->SetTitle(gameType, "Texture Manager");
 }
 
-static int compareTextures(const ViewPackage &e1, const ViewPackage &e2)
+namespace {
+
+int compareTextures(const ViewPackage &e1, const ViewPackage &e2)
 {
     int compResult = AsciiStringCompareCaseIgnore(e1.packageName, e2.packageName);
     if (compResult < 0)
@@ -204,6 +206,8 @@ static int compareTextures(const ViewPackage &e1, const ViewPackage &e2)
         return 1;
     return 0;
 }
+
+} // namespace
 
 bool LayoutTexturesManager::Startup()
 {

@@ -26,13 +26,17 @@
 
 #include "Wrappers.h"
 
-#define MAX_CALLSTACK 100
-#define PATH_MAX      1024
+enum {
+    MAX_CALLSTACK = 100,
+    MAX_PATH_LEN = 1024
+};
 
-static intptr_t GetLoadAddressShift()
+namespace {
+
+intptr_t GetLoadAddressShift()
 {
-    char path[PATH_MAX];
-    uint32_t maxLen = PATH_MAX;
+    char path[MAX_PATH_LEN];
+    uint32_t maxLen = MAX_PATH_LEN;
 
     if (_NSGetExecutablePath(path, &maxLen) != 0)
         return 0;
@@ -46,7 +50,7 @@ static intptr_t GetLoadAddressShift()
     return 0;
 }
 
-static void getExecutablePath(char *path, uint32_t maxLen)
+void getExecutablePath(char *path, uint32_t maxLen)
 {
     if (_NSGetExecutablePath(path, &maxLen) != 0) {
         path[0] = '\0';
@@ -58,6 +62,8 @@ static void getExecutablePath(char *path, uint32_t maxLen)
         }
     }
 }
+
+} // namespace
 
 bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
 {

@@ -255,8 +255,10 @@ void ZipClose(void *handle)
     unzipHandle = nullptr;
 }
 
+namespace {
+
 #if defined(_WIN32)
-static int MyCreateDir(const wchar_t *name)
+int MyCreateDir(const wchar_t *name)
 {
     errno_t error = _waccess_s(name, 0);
     if (error != 0 && errno != ENOENT) {
@@ -276,7 +278,7 @@ static int MyCreateDir(const wchar_t *name)
     return 0;
 }
 #else
-static int MyCreateDir(const char *name)
+int MyCreateDir(const char *name)
 {
     struct stat s{};
     int error = stat(name, &s);
@@ -297,7 +299,7 @@ static int MyCreateDir(const char *name)
 #endif
 
 #if defined(_WIN32)
-static bool compareExt(char *filename, const wchar_t *ext)
+bool compareExt(char *filename, const wchar_t *ext)
 {
     wchar_t file[MAX_PATH];
     int size = strlen(filename) + 1;
@@ -308,7 +310,7 @@ static bool compareExt(char *filename, const wchar_t *ext)
     return _wcsicmp(&pExt[1], ext) == 0;
 }
 #else
-static bool compareExt(char *filename, const char *ext)
+bool compareExt(char *filename, const char *ext)
 {
     char *pExt = strrchr(filename, '.');
     if (pExt == nullptr)
@@ -317,12 +319,12 @@ static bool compareExt(char *filename, const char *ext)
 }
 #endif
 
-static bool g_ipc;
-static int lastProgress;
-static ZPOS64_T progressUnpackedSize;
-static ZPOS64_T totalUnpackedSize;
+bool g_ipc;
+int lastProgress;
+ZPOS64_T progressUnpackedSize;
+ZPOS64_T totalUnpackedSize;
 
-static void PrintProgressIpc(ZPOS64_T processedBytes)
+void PrintProgressIpc(ZPOS64_T processedBytes)
 {
     if (g_ipc)
     {
@@ -340,6 +342,8 @@ static void PrintProgressIpc(ZPOS64_T processedBytes)
         }
     }
 }
+
+} // namespace
 
 int ZipUnpack(const void *path, const void *output_path,
               const void *filter, bool full_path, bool ipc)

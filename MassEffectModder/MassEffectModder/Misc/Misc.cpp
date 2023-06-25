@@ -164,8 +164,12 @@ QString Misc::getBytesFormat(quint64 size)
     return  QString::number(size / 1024.0 / 1024 / 1024.0, 'f', 2) + " GB";
 }
 
-static QElapsedTimer timer;
-static QElapsedTimer timerStage;
+namespace {
+
+QElapsedTimer timer;
+QElapsedTimer timerStage;
+
+} // namespace
 
 void Misc::startTimer()
 {

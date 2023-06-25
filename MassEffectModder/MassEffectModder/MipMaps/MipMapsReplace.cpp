@@ -29,7 +29,11 @@
 #include <Helpers/Logs.h>
 #include <Helpers/QSort.h>
 
-static const quint8 tfcNewGuid[16] = { 0xB4, 0xD2, 0xD7, 0x16, 0x08, 0x4A, 0x4B, 0x99, 0x9F, 0xC9, 0x07, 0x89, 0x87, 0xE0, 0x38, 0x21 };
+namespace {
+
+const quint8 tfcNewGuid[16] = { 0xB4, 0xD2, 0xD7, 0x16, 0x08, 0x4A, 0x4B, 0x99, 0x9F, 0xC9, 0x07, 0x89, 0x87, 0xE0, 0x38, 0x21 };
+
+} // namespace
 
 PixelFormat MipMaps::changeTextureType(PixelFormat gamePixelFormat, PixelFormat texturePixelFormat, Texture &texture)
 {
@@ -918,7 +922,9 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
     return errors;
 }
 
-static int comparePaths(const MapTexturesToMod &e1, const MapTexturesToMod &e2)
+namespace {
+
+int comparePaths(const MapTexturesToMod &e1, const MapTexturesToMod &e2)
 {
     int compResult = AsciiStringCompareCaseIgnore(e1.packagePath, e2.packagePath);
     if (compResult < 0)
@@ -935,6 +941,8 @@ static int comparePaths(const MapTexturesToMod &e1, const MapTexturesToMod &e2)
         return 1;
     return 0;
 }
+
+} // namespace
 
 QString MipMaps::replaceModsFromList(QList<TextureMapEntry> &textures, QStringList &pkgsToMarker,
                                      QList<ModEntry> &modsToReplace,

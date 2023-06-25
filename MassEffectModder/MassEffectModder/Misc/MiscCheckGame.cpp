@@ -27,8 +27,12 @@
 #include <Helpers/Logs.h>
 #include <Helpers/FileStream.h>
 
-static bool generateModsMd5Entries = false;
-static bool generateMd5Entries = false;
+namespace {
+
+bool generateModsMd5Entries = false;
+bool generateMd5Entries = false;
+
+} // namespace
 
 bool Misc::CheckGameDataAndMods(MeType gameId, Resources &resources)
 {

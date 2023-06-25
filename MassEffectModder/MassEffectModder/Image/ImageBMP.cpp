@@ -24,7 +24,9 @@
 #include <Helpers/Logs.h>
 #include <Wrappers.h>
 
-static int getShiftFromMask(uint mask)
+namespace {
+
+int getShiftFromMask(uint mask)
 {
     int shift = 0;
 
@@ -39,6 +41,8 @@ static int getShiftFromMask(uint mask)
 
     return shift;
 }
+
+} // namespace
 
 void Image::LoadImageBMP(Stream &stream)
 {

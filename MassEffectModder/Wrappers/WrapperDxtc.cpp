@@ -34,8 +34,10 @@
 #define LIB_EXPORT
 #endif
 
-#define BLOCK_SIZE_4X4        16
-#define BLOCK_SIZE_4X4X4      64
+enum {
+    BLOCK_SIZE_4X4 =        16,
+    BLOCK_SIZE_4X4X4 =      64
+};
 
 typedef unsigned int        CODEC_DWORD;         ///< A 32-bit integer format.
 typedef unsigned char       CODEC_BYTE;          ///< An 8-bit integer format.

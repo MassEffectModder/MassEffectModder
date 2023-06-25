@@ -34,10 +34,14 @@
 #define LIB_EXPORT
 #endif
 
-#define BLOCK_SIZE_4X4        16
+enum {
+    BLOCK_SIZE_4X4 = 16
+};
 
 // Number of image components
-#define BC7_COMPONENT_COUNT 4
+enum {
+    BC7_COMPONENT_COUNT = 4
+};
 
 typedef unsigned int        CODEC_DWORD;         ///< A 32-bit integer format.
 typedef unsigned char       CODEC_BYTE;          ///< An 8-bit integer format.

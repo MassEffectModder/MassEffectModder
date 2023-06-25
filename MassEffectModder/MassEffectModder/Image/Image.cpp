@@ -735,7 +735,9 @@ ByteBuffer Image::InternalToG8(const ByteBuffer src, int w, int h)
     return tmpData;
 }
 
-static inline void float2rgbe(unsigned char rgbe[4], float red, float green, float blue)
+namespace {
+
+inline void float2rgbe(unsigned char rgbe[4], float red, float green, float blue)
 {
     float v = red;
 
@@ -760,21 +762,7 @@ static inline void float2rgbe(unsigned char rgbe[4], float red, float green, flo
     }
 }
 
-ByteBuffer Image::InternalToRGBE(const ByteBuffer src, int w, int h)
-{
-    ByteBuffer tmpData(w * h * 4);
-    quint8 *ptr = tmpData.ptr();
-    float *srcPtr = src.ptrAsFloat();
-
-    for (int i = 0; i < w * h; i++)
-    {
-        float2rgbe(&ptr[4 * i], srcPtr[4 * i + 0], srcPtr[4 * i + 1], srcPtr[4 * i + 2]);
-    }
-
-    return tmpData;
-}
-
-static inline void rgbe2float(float *red, float *green, float *blue, unsigned char rgbe[4])
+inline void rgbe2float(float *red, float *green, float *blue, unsigned char rgbe[4])
 {
     if (rgbe[3])
     {
@@ -787,6 +775,22 @@ static inline void rgbe2float(float *red, float *green, float *blue, unsigned ch
     {
         *red = *green = *blue = 0.0f;
     }
+}
+
+} // namespace
+
+ByteBuffer Image::InternalToRGBE(const ByteBuffer src, int w, int h)
+{
+    ByteBuffer tmpData(w * h * 4);
+    quint8 *ptr = tmpData.ptr();
+    float *srcPtr = src.ptrAsFloat();
+
+    for (int i = 0; i < w * h; i++)
+    {
+        float2rgbe(&ptr[4 * i], srcPtr[4 * i + 0], srcPtr[4 * i + 1], srcPtr[4 * i + 2]);
+    }
+
+    return tmpData;
 }
 
 ByteBuffer Image::RGBEToInternal(const ByteBuffer src, int w, int h)

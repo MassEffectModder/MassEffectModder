@@ -29,7 +29,9 @@
 
 using namespace std;
 
-#define MAX_FILE_PATH 1024
+enum {
+    MAX_FILE_PATH = 1024
+};
 
 void LogCrash(string output, string &message)
 {
@@ -64,7 +66,9 @@ void LogCrash(string output, string &message)
         cerr << output;
 }
 
-static void getFilename(char *dst, const char *src)
+namespace {
+
+void getFilename(char *dst, const char *src)
 {
     long offset = 0;
     for (auto *ptr = src; *ptr != 0 && (ptr - src < MAX_FILE_PATH); ptr++)
@@ -74,6 +78,8 @@ static void getFilename(char *dst, const char *src)
     }
     strncpy(dst, src + offset, MAX_FILE_PATH - 1);
 }
+
+} // namespace
 
 #ifdef NDEBUG
 [[ noreturn ]]

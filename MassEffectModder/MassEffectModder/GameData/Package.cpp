@@ -424,10 +424,14 @@ void Package::MoveExportDataToEnd(int id)
     modified = true;
 }
 
-static bool compareExportsDataOffset(Package::ExportEntry &e1, Package::ExportEntry &e2)
+namespace {
+
+bool compareExportsDataOffset(Package::ExportEntry &e1, Package::ExportEntry &e2)
 {
     return e1.getDataOffset() < e2.getDataOffset();
 }
+
+} // namespace
 
 void Package::SortExportsTableByDataOffset(const QList<ExportEntry> &list, QList<ExportEntry> &sortedExports)
 {
