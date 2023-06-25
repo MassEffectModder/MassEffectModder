@@ -492,8 +492,8 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
                     callback(callbackHandle, newProgress, "Scanning textures");
                 }
             }
-			if (!FindTextures(textures, modifiedFiles[i], true))
-				return false;
+            if (!FindTextures(textures, modifiedFiles[i], true))
+                return false;
         }
 
         for (int i = 0; i < addedFiles.count(); i++, currentPackage++)
@@ -531,9 +531,9 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
                     callback(callbackHandle, newProgress, "Scanning textures");
                 }
             }
-			if (!FindTextures(textures, addedFiles[i], false))
-				return false;
-		}
+            if (!FindTextures(textures, addedFiles[i], false))
+                return false;
+            }
     }
     else
     {
@@ -573,9 +573,9 @@ bool TreeScan::PrepareListOfTextures(MeType gameId, Resources &resources,
                     callback(callbackHandle, newProgress, "Scanning textures");
                 }
             }
-			if (!FindTextures(textures, g_GameData->packageFiles[i], false))
-				return false;
-		}
+            if (!FindTextures(textures, g_GameData->packageFiles[i], false))
+                return false;
+        }
     }
 
     if (callback)
@@ -691,7 +691,7 @@ bool TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &pac
         {
             PERROR(QString("ERROR: Issue opening package file: ") + packagePath + "\n");
         }
-		return false;
+        return false;
     }
 
     for (int i = 0; i < package.exportsTable.count(); i++)
@@ -721,8 +721,8 @@ bool TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &pac
                                  " has broken export data in package: " +
                                  packagePath +"\nExport UIndex: " + QString::number(i + 1) + "\nSkipping...\n");
                 }
-				return false;
-			}
+                return false;
+            }
 
             TextureMovie *textureMovie = nullptr;
             TextureCube *textureCube = nullptr;
@@ -782,8 +782,8 @@ bool TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &pac
                 }
                 delete textureMovie;
                 delete texture;
-				return false;
-			}
+                return false;
+            }
 
             int foundTextureIndex = -1;
             for (int k = 0; k < textures.count(); k++)
@@ -928,5 +928,5 @@ bool TreeScan::FindTextures(QList<TextureMapEntry> &textures, const QString &pac
         }
     }
 
-	return true;
+    return true;
 }

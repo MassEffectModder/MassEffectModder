@@ -219,13 +219,13 @@ bool Misc::ReportMods()
 
 bool Misc::detectMod(MeType gameType)
 {
-	g_GameData->Init(gameType);
-	if (!Misc::CheckGamePath())
-		return false;
-	QString marker = g_GameData->MainData() + "/SFXTest.pcc";
-	if (!QFile::exists(marker))
-		return false;
-	FileStream fs = FileStream(marker, FileMode::Open, FileAccess::ReadOnly);
+    g_GameData->Init(gameType);
+    if (!Misc::CheckGamePath())
+        return false;
+    QString marker = g_GameData->MainData() + "/SFXTest.pcc";
+    if (!QFile::exists(marker))
+        return false;
+    FileStream fs = FileStream(marker, FileMode::Open, FileAccess::ReadOnly);
     fs.Seek(-4, SeekOrigin::End);
     auto tag = fs.ReadUInt32();
     return tag == MEMI_TAG;
@@ -308,7 +308,9 @@ void Misc::detectMods(QStringList &mods)
 QByteArray Misc::calculateMD5(const QString &filePath)
 {
     QFile file(filePath);
-    if (file.open(QIODevice::ReadOnly))
+    if (file.open(QIODevice::ReadOnly)) {
         return QCryptographicHash::hash(file.readAll(), QCryptographicHash::Md5);
-    return QByteArray(16, 0);
+    } else {
+        return {16, 0};
+    }
 }

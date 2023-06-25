@@ -62,8 +62,8 @@ bool Misc::applyMods(QStringList &files, QList<TextureMapEntry> &textures,
             continue;
         fs.JumpTo(fs.ReadInt64());
         fs.SkipInt32();
-		fs.SkipInt32();
-	}
+        fs.SkipInt32();
+    }
 
     for (int i = 0; i < files.count(); i++)
     {

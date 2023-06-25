@@ -698,7 +698,7 @@ void LayoutMain::ButtonModsInstallerSelected(MeType gameType)
     RemoveEffectsOnMenus();
     mainWindow->GetLayout()->addWidget(new LayoutInstallModsManager(mainWindow, gameType));
     mainWindow->SwitchLayoutById(MainWindow::kLayoutInstallModsManager);
-	if (!Misc::detectMod(gameType))
+    if (!Misc::detectMod(gameType))
         QMessageBox::warning(this, "Important information", "Once texture mods are installed, you cannot install or update mods outside of Mass Effect Modder without a complete game restore to a vanilla state (uninstall/repairing the game will not restore it). Use ME3Tweaks Mod Manager to create a vanilla game backup for quick game restores.\n\nEnsure you have installed all non-texture mods before continuing!");
 }
 
