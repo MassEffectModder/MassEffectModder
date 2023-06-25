@@ -29,8 +29,8 @@
 Updater::Updater(QMainWindow *window) :
     replyRelease(nullptr), parentWindow(window)
 {
-    connect(&managerListReleases, SIGNAL(finished(QNetworkReply *)), SLOT(finishedDownloadRelasesList(QNetworkReply *)));
-    connect(&managerRelease, SIGNAL(finished(QNetworkReply *)), SLOT(finishedDownloadRelase(QNetworkReply *)));
+    connect(&managerListReleases, SIGNAL(finished(QNetworkReply*)), SLOT(finishedDownloadRelasesList(QNetworkReply*)));
+    connect(&managerRelease, SIGNAL(finished(QNetworkReply*)), SLOT(finishedDownloadRelase(QNetworkReply*)));
 }
 
 Updater::~Updater()
@@ -69,7 +69,7 @@ void Updater::finishedDownloadRelase(QNetworkReply *reply)
         request.setRawHeader("User-Agent", "MEM");
         replyRelease = managerRelease.get(request);
         connect(replyRelease, SIGNAL(sslErrors(QList<QSslError>)), SLOT(sslErrors(QList<QSslError>)));
-        connect(replyRelease, SIGNAL(downloadProgress(qint64, qint64)), this, SLOT(downloadProgress(qint64, qint64)));
+        connect(replyRelease, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(downloadProgress(qint64,qint64)));
         return;
     }
 
@@ -199,7 +199,7 @@ void Updater::downloadRelease(const QString &downLoadUrl)
     request.setRawHeader("User-Agent", "MEM");
     replyRelease = managerRelease.get(request);
     connect(replyRelease, SIGNAL(sslErrors(QList<QSslError>)), SLOT(sslErrors(QList<QSslError>)));
-    connect(replyRelease, SIGNAL(downloadProgress(qint64, qint64)), this, SLOT(downloadProgress(qint64, qint64)));
+    connect(replyRelease, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(downloadProgress(qint64,qint64)));
 
     QVBoxLayout layout;
     dialog.setBaseSize(500, 100);
