@@ -1099,27 +1099,27 @@ uLong ZEXPORT crc32_combine(crc1, crc2, len2)
 }
 
 /* ========================================================================= */
-uLong ZEXPORT crc32_combine_gen64(len2)
+/*uLong ZEXPORT crc32_combine_gen64(len2)
     z_off64_t len2;
 {
 #ifdef DYNAMIC_CRC_TABLE
     once(&made, make_crc_table);
-#endif /* DYNAMIC_CRC_TABLE */
-    return x2nmodp(len2, 3);
-}
+#endif *//* DYNAMIC_CRC_TABLE */
+/*    return x2nmodp(len2, 3);
+}*/
 
 /* ========================================================================= */
-uLong ZEXPORT crc32_combine_gen(len2)
+/*uLong ZEXPORT crc32_combine_gen(len2)
     z_off_t len2;
 {
     return crc32_combine_gen64((z_off64_t)len2);
-}
+}*
 
 /* ========================================================================= */
-uLong ZEXPORT crc32_combine_op(crc1, crc2, op)
+/*uLong ZEXPORT crc32_combine_op(crc1, crc2, op)
     uLong crc1;
     uLong crc2;
     uLong op;
 {
     return multmodp(op, crc1) ^ (crc2 & 0xffffffff);
-}
+}*/
