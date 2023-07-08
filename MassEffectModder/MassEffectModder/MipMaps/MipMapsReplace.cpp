@@ -681,10 +681,6 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                     texture.getProperties().setStructValue("TFCFileGuid", "Guid", guid);
                 }
                 QString archive = texture.getProperties().getProperty("TextureFileCacheName").getValueName();
-                if (mod.arcTfcDLC && mod.arcTfcName != archive)
-                {
-                    mod.arcTexture.clear();
-                }
 
                 if (mod.arcTexture.count() == 0)
                 {
