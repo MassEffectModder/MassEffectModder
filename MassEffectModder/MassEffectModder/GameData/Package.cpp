@@ -1144,27 +1144,37 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
                 chunk.blocks.push_back(block);
             }
 
-            #pragma omp parallel for
-            for (int b = 0; b < chunk.blocks.count(); b++)
+            if (targetCompression == CompressionType::Zlib)
             {
-                ChunkBlock block = chunk.blocks[b];
-                if (targetCompression == CompressionType::Zlib)
+                #pragma omp parallel for
+                for (int b = 0; b < chunk.blocks.count(); b++)
                 {
+                    ChunkBlock block = chunk.blocks[b];
                     if (ZlibCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize,
                                      forceCompressed ? 9 : 1) == -100)
                         CRASH_MSG("Out of memory!");
+                    if (block.comprSize == 0)
+                        CRASH_MSG("Compression failed!");
+                    chunk.blocks.replace(b, block);
                 }
-                else if (targetCompression == CompressionType::Oddle)
+            }
+            else if (targetCompression == CompressionType::Oddle)
+            {
+#ifndef __APPLE__
+                #pragma omp parallel for
+#endif
+                for (int b = 0; b < chunk.blocks.count(); b++)
                 {
+                    ChunkBlock block = chunk.blocks[b];
                     if (OodleCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) == -100)
                         CRASH_MSG("Out of memory!");
+                    if (block.comprSize == 0)
+                        CRASH_MSG("Compression failed!");
+                    chunk.blocks.replace(b, block);
                 }
-                else
-                    CRASH_MSG("Compression type not expected!");
-                if (block.comprSize == 0)
-                    CRASH_MSG("Compression failed!");
-                chunk.blocks.replace(b, block);
             }
+            else
+                CRASH_MSG("Compression type not expected!");
 
             for (uint b = 0; b < newNumBlocks; b++)
             {
@@ -1260,27 +1270,37 @@ const ByteBuffer Package::compressData(const ByteBuffer &inputData, StorageTypes
         }
     }
 
-    #pragma omp parallel for
-    for (int b = 0; b < blocks.count(); b++)
+    if (type == StorageTypes::extZlib || type == StorageTypes::pccZlib)
     {
-        Package::ChunkBlock block = blocks[b];
-        if (type == StorageTypes::extZlib || type == StorageTypes::pccZlib)
+        #pragma omp parallel for
+        for (int b = 0; b < blocks.count(); b++)
         {
+            Package::ChunkBlock block = blocks[b];
             if (ZlibCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize,
                              maxCompress ? 9 : 1) == -100)
                 CRASH_MSG("Out of memory!");
+            if (block.comprSize == 0)
+                CRASH_MSG("Compression failed!");
+            blocks[b] = block;
         }
-        else if (type == StorageTypes::extOodle || type == StorageTypes::pccOodle)
+    }
+    else if (type == StorageTypes::extOodle || type == StorageTypes::pccOodle)
+    {
+#ifndef __APPLE__
+        #pragma omp parallel for
+#endif
+        for (int b = 0; b < blocks.count(); b++)
         {
+            Package::ChunkBlock block = blocks[b];
             if (OodleCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) == -100)
                 CRASH_MSG("Compression failed!");
+            if (block.comprSize == 0)
+                CRASH_MSG("Compression failed!");
+            blocks[b] = block;
         }
-        else
-            CRASH_MSG("Compression type not expected!");
-        if (block.comprSize == 0)
-            CRASH_MSG("Compression failed!");
-        blocks[b] = block;
-    };
+    }
+    else
+        CRASH_MSG("Compression type not expected!");
 
     for (int b = 0; b < blocks.count(); b++)
     {
