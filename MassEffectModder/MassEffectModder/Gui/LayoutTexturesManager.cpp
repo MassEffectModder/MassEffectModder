@@ -913,7 +913,6 @@ void LayoutTexturesManager::ReplaceTexture(const QListWidgetItem *item, bool con
     MipMaps mipMaps;
     QList<ModEntry> modsToReplace;
     QStringList pkgsToMarker;
-    QStringList pkgsToRepack;
     ModEntry modEntry;
     modEntry.injectedTexture = image;
     auto texture = textures[viewTexture.indexInTextures];
