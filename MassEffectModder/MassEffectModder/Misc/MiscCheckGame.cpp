@@ -176,7 +176,7 @@ bool Misc::checkGameFilesSub(FileStream *fs, QStringList &files, QList<MD5FileEn
         if (generateModsMd5Entries)
         {
             fs->WriteStringASCII(QString("{\n\"") + files[index] + "\",\n{ ");
-            for (int i = 0; i < md5.count(); i++)
+            for (int i = 0; i < md5.length(); i++)
             {
                 fs->WriteStringASCII(QString::asprintf("0x%02X, ", (quint8)md5[i]));
             }
@@ -185,7 +185,7 @@ bool Misc::checkGameFilesSub(FileStream *fs, QStringList &files, QList<MD5FileEn
         if (generateMd5Entries)
         {
             fs->WriteStringASCII(QString("{\n\"") + files[index] + "\",\n{ ");
-            for (int i = 0; i < md5.count(); i++)
+            for (int i = 0; i < md5.length(); i++)
             {
                 fs->WriteStringASCII(QString::asprintf("0x%02X, ", (quint8)md5[i]));
             }
@@ -196,7 +196,7 @@ bool Misc::checkGameFilesSub(FileStream *fs, QStringList &files, QList<MD5FileEn
         if (!generateMd5Entries && !generateModsMd5Entries)
         {
             errors += "File " + files[index] + " has wrong MD5 checksum: ";
-            for (int i = 0; i < md5.count(); i++)
+            for (int i = 0; i < md5.length(); i++)
             {
                 errors += QString::asprintf("%02X", (quint8)md5[i]);
             }

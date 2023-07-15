@@ -112,7 +112,7 @@ QString ConfigIni::Read(const QString &key, const QString &section)
             for (int k = indexOfSection + 1; k < list.count(); k++)
             {
                 QString line = list[k];
-                if (line.count() == 0 || line.startsWith("//") || line.startsWith(';'))
+                if (line.length() == 0 || line.startsWith("//") || line.startsWith(';'))
                     continue;
                 if (line.startsWith('[') && line.endsWith(']'))
                     return "";
@@ -180,7 +180,7 @@ bool ConfigIni::Write(const QString &key, const QString &value, const QString &s
             for (int k = indexInSection + 1; k < list.count(); k++)
             {
                 QString line = list[k];
-                if (line.count() == 0 || line.startsWith("//") || line.startsWith(';'))
+                if (line.length() == 0 || line.startsWith("//") || line.startsWith(';'))
                     continue;
                 if (line.startsWith('[') && line.endsWith(']'))
                     break;
@@ -269,7 +269,7 @@ bool ConfigIni::DeleteKey(const QString &key, const QString &section)
         for (int k = indexInSection + 1; k < list.count(); k++)
         {
             QString line = list[k];
-            if (line.count() == 0 || line.startsWith("//") || line.startsWith(';'))
+            if (line.length() == 0 || line.startsWith("//") || line.startsWith(';'))
                 continue;
             if (line.startsWith('[') && line.endsWith(']'))
                 return true;

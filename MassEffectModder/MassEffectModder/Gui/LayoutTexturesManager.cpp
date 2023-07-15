@@ -784,7 +784,7 @@ void LayoutTexturesManager::UpdateRight(const QListWidgetItem *item)
         text += "Node name:             " + textures[viewTexture.indexInTextures].name + "\n";
         for (int index2 = 0; index2 < (!singleInfoMode ? textures[viewTexture.indexInTextures].list.count() : 1); index2++)
         {
-            if (textures[viewTexture.indexInTextures].list[index2].path.count() == 0)
+            if (textures[viewTexture.indexInTextures].list[index2].path.length() == 0)
                 continue;
             TextureMapPackageEntry nodeTexture = textures[viewTexture.indexInTextures].list[index2];
             Package package;
