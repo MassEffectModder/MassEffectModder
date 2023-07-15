@@ -104,7 +104,7 @@ void Logs::Print(int level, const QString &message, int flags)
         errorsString += message;
 
     if (timeStampEnabled)
-        timestampStr = QString("[") + (startedTimestamp - timestamp) + "] ";
+        timestampStr = QString("[") + QString::number(startedTimestamp - timestamp) + "] ";
 
     if (consoleEnabled && (flags & LOG_CONSOLE))
     {
