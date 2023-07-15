@@ -28,7 +28,11 @@
 #include <Types/MemTypes.h>
 #include <Misc/Misc.h>
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void HoverLabel::enterEvent(QEvent *ev)
+#else
+void HoverLabel::enterEvent(QEnterEvent *ev)
+#endif
 {
     if (!hover) {
         hover = true;
