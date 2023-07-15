@@ -33,9 +33,9 @@ if [ $? != 0 ]; then
 fi
 echo
 
-BASE_PATH=/srv/chroot
+BASE_PATH=/opt/stuff/schroot
 DISTRO_BASE=debian
-DISTRO_NAME=buster
+DISTRO_NAME=bullseye
 DISTRO_ARCH=amd64
 DISTRO_URL=
 if [ "$1" != "" ]; then
@@ -47,11 +47,12 @@ BRANCH=master
 USER_NAME=aquadran
 USER_ID=1000
 NUM_THREADS=`grep -c '^processor' /proc/cpuinfo`
-QT_VERSION=5.15.10
+QT_VERSION=6.5.1
 QT_VERSION_BASE=`echo $QT_VERSION | cut -d'.' -f 1,2`
-PACKAGES_ADD=bash,build-essential,nasm,git,perl,python,wget,ca-certificates,libx11-dev,libsdl2-dev,\
-libopenal-dev,libfontconfig1-dev,libssl-dev,libxkbcommon-dev,libxkbcommon-x11-dev,libxcomposite-dev,\
-libx11-xcb-dev,libglu1-mesa-dev,libxrender-dev,libxi-dev,fuse,file,appstream,zip
+PACKAGES_ADD=bash,build-essential,ninja-build,clang,nasm,git,perl,python3,wget,\
+ca-certificates,libx11-dev,libsdl2-dev,libopenal-dev,libfontconfig1-dev,libssl-dev,\
+libxkbcommon-dev,libxkbcommon-x11-dev,libxcomposite-dev,libx11-xcb-dev,\
+libglu1-mesa-dev,libxrender-dev,libxi-dev,fuse,file,appstream,zip
 
 BASE_CHROOT="${BASE_PATH}/$PROJECT-$DISTRO_BASE-$DISTRO_ARCH"
 
@@ -90,7 +91,7 @@ CHROOT_CMD_USER="schroot --user=$USER_NAME --directory=/home/$USER_NAME --chroot
 if [ ! -f .stamp-backports ]; then
 	$CHROOT_CMD_ROOT "echo \"deb http://deb.debian.org/debian $DISTRO_NAME-backports main\" >> /etc/apt/sources.list;
 apt-get --assume-yes update"
-	$CHROOT_CMD_ROOT "apt-get -y install libxcb.*-dev"
+	$CHROOT_CMD_ROOT "apt-get -y install libxcb.*-dev cmake/$DISTRO_NAME-backports"
 	touch .stamp-backports
 fi
 
@@ -117,9 +118,11 @@ if [ ! -f .stamp-sources ]; then
 	# Get source code
 	$CHROOT_CMD_USER "rm -rf /home/$USER_NAME/builds/sources; mkdir -p /home/$USER_NAME/builds/sources;
 cd /home/$USER_NAME/builds/sources;
-wget https://download.qt.io/archive/qt/$QT_VERSION_BASE/$QT_VERSION/single/qt-everywhere-opensource-src-${QT_VERSION}.tar.xz;
-tar xf qt-everywhere-opensource-src-$QT_VERSION.tar.xz;
-rm -f qt-everywhere-opensource-src-$QT_VERSION.tar.xz;
+wget https://download.qt.io/archive/qt/$QT_VERSION_BASE/$QT_VERSION/single/qt-everywhere-src-${QT_VERSION}.tar.xz;
+tar xf qt-everywhere-src-$QT_VERSION.tar.xz;
+rm -f qt-everywhere-src-$QT_VERSION.tar.xz;
+rm qt-everywhere-src-$QT_VERSION/qtbase/cmake/FindWrapZSTD.cmake;
+touch qt-everywhere-src-$QT_VERSION/qtbase/cmake/FindWrapZSTD.cmake;
 git clone https://github.com/MassEffectModder/MassEffectModder.git;
 cd /home/$USER_NAME/builds/sources/MassEffectModder;
 git checkout $BRANCH"
@@ -128,17 +131,26 @@ fi
 
 if [ ! -f .stamp-qt-prepare ]; then
 	sudo mount --bind /proc $BASE_CHROOT/proc
-	$CHROOT_CMD_USER "cd /home/$USER_NAME/builds/sources/qt-everywhere-src-$QT_VERSION; ./configure \
--prefix /usr -static -release -qt-zlib -qt-pcre -qt-libpng -qt-libjpeg -system-freetype \
--iconv -no-icu -glib -no-cups -no-gif -no-ico -qt-harfbuzz -no-eglfs -no-gbm -no-tiff -no-webp \
--no-mimetype-database -no-feature-relocatable -no-opengl -make libs -nomake examples -nomake tests \
--skip qt3d -skip qtactiveqt -skip qtcanvas3d -skip qtcharts -skip qtconnectivity -skip qtdatavis3d \
--skip qtdeclarative -skip qtdoc -skip gamepad -skip qtgraphicaleffects -skip qtlocation -skip qtmultimedia \
--skip qtnetworkauth -skip qtpurchasing -skip qtquickcontrols -skip qtquickcontrols2 -skip qtremoteobjects \
--skip qtscript -skip qtscxml -skip qtsensors -skip qtserialbus -skip qtserialport -skip qtspeech -skip qttools \
--skip qttranslations -skip qtvirtualkeyboard -skip qtwebengine -skip qtwebglplugin -skip qtwebsockets \
--skip qtwebview -skip qtxmlpatterns -confirm-license -opensource \
--system-freetype -qt-doubleconversion -qpa xcb -xcb -xcb-native-painting"
+	$CHROOT_CMD_USER "cd /home/$USER_NAME/builds/sources/qt-everywhere-src-$QT_VERSION; \
+cmake \
+-Wno-dev --log-level=STATUS -G Ninja -DBUILD_SHARED_LIBS=OFF -DFEATURE_static_runtime=ON \
+-DINPUT_zlib=qt -DINPUT_pcre=qt -DINPUT_libpng=qt -DINPUT_libjpeg=qt -DINPUT_doubleconversion=qt \
+-DINPUT_harfbuzz=qt -DFEATURE_dbus=OFF -DFEATURE_icu=OFF -DFEATURE_cups=OFF -DFEATURE_gif=OFF \
+-DFEATURE_ico=OFF -DFEATURE_eglfs=OFF -DFEATURE_gbm=OFF -DFEATURE_tiff=OFF -DFEATURE_webp=OFF \
+-DFEATURE_journald=OFF -DFEATURE_syslog=OFF -DFEATURE_mimetype-database=OFF -DFEATURE_slog2=OFF \
+-DFEATURE_feature-relocatable=OFF -DFEATURE_opengl=OFF \
+-DQT_BUILD_TESTS=OFF -DQT_BUILD_EXAMPLES=OFF \
+-DBUILD_qt3d=OFF -DBUILD_qt5compat=OFF -DBUILD_qtactiveqt=OFF -DBUILD_qtcoap=OFF -DBUILD_qtcharts=OFF -DBUILD_qtconnectivit=OFF \
+-DBUILD_qtdatavis3d=OFF -DBUILD_qtdeclarative=OFF -DBUILD_qtdoc=OFF -DBUILD_qtgrpc=OFF -DBUILD_qthttpserver=OFF \
+-DBUILD_qtgraphicaleffects=OFF -DBUILD_qttools=ON -DBUILD_qtlocation=OFF -DBUILD_qtlottie=OFF -DBUILD_qtmqtt=OFF \
+-DBUILD_qtmultimedia=OFF -DBUILD_qtnetworkauth=OFF -DBUILD_qtopcua=OFF -DBUILD_qtpositioning=OFF -DBUILD_qtquick3d=OFF \
+-DBUILD_qtquick3dphysics=OFF -DBUILD_qtquickeffectmaker=OFF -DBUILD_qtquicktimeline=OFF -DBUILD_qtremoteobjects=OFF \
+-DBUILD_qtscxml=OFF -DBUILD_qtsensors=OFF -DBUILD_qtserialbus=OFF -DBUILD_qtserialport=OFF -DBUILD_qtshadertools=OFF \
+-DBUILD_qtspeech=OFF -DBUILD_qtsvg=OFF -DBUILD_qttools=OFF -DBUILD_qttranslations=OFF -DBUILD_qtvirtualkeyboard=OFF \
+-DBUILD_qtwayland=OFF -DBUILD_qtwebchannel=OFF -DBUILD_qtwebengine=OFF -DBUILD_qtwebsockets=OFF -DBUILD_qtwebview=OFF \
+-DQT_QMAKE_TARGET_MKSPEC=linux-clang -DFEATURE_glib=ON -DFEATURE_system_freetype=ON -DFEATURE_system_fontconfig=ON \
+-DINPUT_qpa=xcb -DFEATURE_xcb=ON -DFEATURE_xcb-native-painting=ON \
+-DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr"
 	sudo umount $BASE_CHROOT/proc
 	touch .stamp-qt-prepare
 fi
@@ -146,8 +158,8 @@ fi
 sudo -v
 if [ ! -f .stamp-qt-build ]; then
 	sudo mount --bind /proc $BASE_CHROOT/proc
-	$CHROOT_CMD_USER "cd /home/$USER_NAME/builds/sources/qt-everywhere-src-$QT_VERSION; make -j$NUM_THREADS"
-	$CHROOT_CMD_ROOT "cd /home/$USER_NAME/builds/sources/qt-everywhere-src-$QT_VERSION; make install"
+	$CHROOT_CMD_USER "cd /home/$USER_NAME/builds/sources/qt-everywhere-src-$QT_VERSION; cmake --build . --parallel $NUM_THREADS"
+	$CHROOT_CMD_ROOT "cd /home/$USER_NAME/builds/sources/qt-everywhere-src-$QT_VERSION; cmake --install ."
 	$CHROOT_CMD_USER "rm -rf /home/$USER_NAME/builds/sources/qt-everywhere-src-$QT_VERSION"
 	sudo umount $BASE_CHROOT/proc
 	touch .stamp-qt-build
@@ -168,3 +180,6 @@ qmake ../MassEffectModder/MassEffectModderNoGui.pro; make -j$NUM_THREADS
 cd /home/$USER_NAME/builds/sources/MassEffectModder/MassEffectModder; ./deploy_nogui_linux.sh;"
 	sudo umount $BASE_CHROOT/proc
 fi
+
+sudo umount $BASE_CHROOT/tmp/.mount_appima*
+sudo umount $BASE_CHROOT/tmp/.mount_linux*
