@@ -49,7 +49,7 @@ ConfigIni::ConfigIni(const QString &iniPath, bool mode, bool unixMode)
             while (!inputFile->atEnd())
             {
                 QString line = inputFile->readLine();
-                line.remove(QRegExp("[\\n\\r]"));
+                line.remove(QRegularExpression("[\\n\\r]"));
                 list.append(line);
             }
             delete inputFile;

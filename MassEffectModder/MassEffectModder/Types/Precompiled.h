@@ -42,7 +42,7 @@
 #include <QFileInfo>
 #include <QList>
 #include <QMap>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QSet>
 #include <QSettings>
 #include <QStandardPaths>
