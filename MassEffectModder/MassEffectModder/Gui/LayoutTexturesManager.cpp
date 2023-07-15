@@ -363,12 +363,19 @@ bool LayoutTexturesManager::Startup()
     QApplication::processEvents();
     if (!QFile::exists(filename))
     {
-        int result = QMessageBox::question(this, "Texture Manager",
-                              QString("Replacing textures and creating mods requires generating a map of the game's textures.\n") +
-                              "This scan only needs to be done once.\n\n" + // this 'scan' mention is here as it is mentioned in other parts of the UI
-                              "IMPORTANT! Your game needs to be in a non-texture modded state, and all non-texture mods must be installed at ths point, they cannot be installed later.\n\n" +
-                              "You can continue to make the map, or abort.", "Continue", "Abort");
-        if (result != 0)
+        QMessageBox msgBox;
+        msgBox.setText(QString("Replacing textures and creating mods requires generating a map of the game's textures.\n") +
+                       "This scan only needs to be done once.\n\n" + // this 'scan' mention is here as it is mentioned in other parts of the UI
+                       "IMPORTANT! Your game needs to be in a non-texture modded state, and all non-texture mods must be installed at ths point, they cannot be installed later.\n\n" +
+                       "You can continue to make the map, or abort.");
+        QPushButton *buttonContinue = msgBox.addButton(tr("Continue"), QMessageBox::ActionRole);
+        QPushButton *buttonAbort = msgBox.addButton(tr("Abort"), QMessageBox::ActionRole);
+        msgBox.setDefaultButton(buttonContinue);
+        msgBox.setIcon(QMessageBox::Question);
+        msgBox.setWindowTitle("Texture Manager");
+        //msgBox.setParent(this);
+        msgBox.exec();
+        if (msgBox.clickedButton() == buttonAbort)
         {
             buttonExit->setEnabled(true);
             mainWindow->LockClose(false);
@@ -769,10 +776,17 @@ void LayoutTexturesManager::UpdateRight(const QListWidgetItem *item)
     {
         if (!singleInfoMode && textures[viewTexture.indexInTextures].list.count() > 50)
         {
-            int answer = QMessageBox::question(this, "Texture Manager",
-                                  QString("Detected more than 50 instances of this texture.") +
-                  "\n\nYou can continue or switch to single instance view.", "Continue", "Single mode");
-            if (answer != 0)
+            QMessageBox msgBox;
+            msgBox.setText(QString("Detected more than 50 instances of this texture.") +
+                           "\n\nYou can continue or switch to single instance view.");
+            msgBox.addButton(tr("Continue"), QMessageBox::ActionRole);
+            QPushButton *buttonSingle = msgBox.addButton(tr("Single mode"), QMessageBox::ActionRole);
+            msgBox.setDefaultButton(buttonSingle);
+            msgBox.setIcon(QMessageBox::Question);
+            msgBox.setWindowTitle("Texture Manager");
+            //msgBox.setParent(this);
+            msgBox.exec();
+            if (msgBox.clickedButton() == buttonSingle)
             {
                 singleInfoMode = true;
             }

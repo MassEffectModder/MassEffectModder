@@ -301,16 +301,22 @@ void Updater::finishedDownloadRelasesList(QNetworkReply *reply)
 
     if (downLoadUrl != "")
     {
-        int result = QMessageBox::information(parentWindow->window(), "Updater",
-                                              "New version of MEM is available: " +
-                                              QString::number(latestRelease),
-                                              "Download and unpack",
-                                              "Download with browser", "Skip it");
-        if (result == 1)
+        QMessageBox msgBox;
+        msgBox.setText(QString("New version of MEM is available: " +
+                               QString::number(latestRelease)));
+        QPushButton *buttonDownUnpack = msgBox.addButton(tr("Download and unpack"), QMessageBox::ActionRole);
+        QPushButton *buttonDownBrowser = msgBox.addButton(tr("Download with browser"), QMessageBox::ActionRole);
+        msgBox.addButton(tr("Skip it"), QMessageBox::ActionRole);
+        msgBox.setDefaultButton(buttonDownUnpack);
+        msgBox.setIcon(QMessageBox::Information);
+        msgBox.setWindowTitle("Updater");
+        //msgBox.setParent(parentWindow->window());
+        msgBox.exec();
+        if (msgBox.clickedButton() == buttonDownBrowser)
         {
             QDesktopServices::openUrl(QUrl(downLoadUrl));
         }
-        else if (result == 0)
+        else if (msgBox.clickedButton() == buttonDownUnpack)
         {
             downloadRelease(downLoadUrl);
         }
