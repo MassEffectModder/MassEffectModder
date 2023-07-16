@@ -167,20 +167,27 @@ equals(RELEASE_IN_DEBUG_MODE, true) {
 QMAKE_CXXFLAGS +=
 QMAKE_CXXFLAGS_DEBUG += -g
 
-win32-g++: {
-    # Disable compiler warning
-    QMAKE_CXXFLAGS += -Wno-deprecated-copy
-    QMAKE_LFLAGS_RELEASE = "-Wl,--relax"
+win32: {
+    equals(QMAKE_CXX, g++) {
+        # Disable compiler warning
+        QMAKE_CXXFLAGS += -Wno-deprecated-copy
+        QMAKE_LFLAGS_RELEASE = "-Wl,--relax"
 
-    COMPILER_VERSION = $$system($$QMAKE_CXX " -dumpversion")
-    VERSIONS = $$split(COMPILER_VERSION, .)
-    COMPILER_MAJOR_VERSION = $$member(VERSIONS, 0)
-    greaterThan(COMPILER_MAJOR_VERSION, 8) {
-        # Disabled dynamic base, needed to get symbols matched with base
+        COMPILER_VERSION = $$system($$QMAKE_CXX " -dumpversion")
+        VERSIONS = $$split(COMPILER_VERSION, .)
+        COMPILER_MAJOR_VERSION = $$member(VERSIONS, 0)
+        greaterThan(COMPILER_MAJOR_VERSION, 8) {
+            # Disabled dynamic base, needed to get symbols matched with base
+            QMAKE_LFLAGS_RELEASE += "-Wl,--disable-dynamicbase"
+            QMAKE_LFLAGS_DEBUG += "-Wl,--disable-dynamicbase"
+            # Enforce DWARF-4 for backtraces (bfd code needs to be updated)
+            QMAKE_CXXFLAGS += -gdwarf-4
+        }
+    }
+
+    equals(QMAKE_CXX, clang++) {
         QMAKE_LFLAGS_RELEASE += "-Wl,--disable-dynamicbase"
         QMAKE_LFLAGS_DEBUG += "-Wl,--disable-dynamicbase"
-        # Enforce DWARF-4 for backtraces (bfd code needs to be updated)
-        QMAKE_CXXFLAGS += -gdwarf-4
     }
 
     Release:PRE_TARGETDEPS += $$OUT_PWD/../Wrappers/release/libWrappers.a
@@ -196,7 +203,7 @@ INCLUDEPATH += $$PWD/../Wrappers
 
 DEPENDPATH += $$PWD/../Wrappers
 
-win32-g++: {
+win32: {
 Release:LIBS += \
     -L$$OUT_PWD/../Wrappers/release -lWrappers \
     -L$$OUT_PWD/../Libs/7z/release -l7z \
@@ -209,7 +216,7 @@ Release:LIBS += \
     -L$$OUT_PWD/../Libs/zlib/release -lzlib \
     -L$$OUT_PWD/../Libs/unrar/release -lunrar
 equals(ZSTD_ENABLE, true) {
-    Release:LIBS += -L$$OUT_PWD/../Libs/zstd/debug -lzstd
+    Release:LIBS += -L$$OUT_PWD/../Libs/zstd/release -lzstd
 }
 Debug:LIBS += \
     -L$$OUT_PWD/../Wrappers/debug -lWrappers \
@@ -250,7 +257,13 @@ macx {
 
 win32 {
     QMAKE_CXXFLAGS += -fopenmp
-    LIBS += -limagehlp -lgomp -lversion
+    LIBS += -limagehlp -lversion -lpsapi
+    equals(QMAKE_CXX, g++) {
+        LIBS += -lgomp
+    }
+    equals(QMAKE_CXX, clang++) {
+        LIBS += -lomp
+    }
 }
 
 linux {

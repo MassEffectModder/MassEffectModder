@@ -86,7 +86,7 @@ equals(WRAPPERS_SHARED, true) {
 
 QMAKE_CXXFLAGS += -DEXPORT_LIBS
 
-win32-g++: {
+win32: {
 Release:LIBS += \
     -L$$OUT_PWD/../Libs/7z/release -l7z \
     -L$$OUT_PWD/../Libs/unlzx/release -lunlzx \

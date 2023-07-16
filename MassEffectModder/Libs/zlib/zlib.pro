@@ -38,7 +38,7 @@ HEADERS += \
     zlib.h \
     zutil.h
 
-win32-g++: {
+win32: {
     SOURCES += iowin32.c
     HEADERS += iowin32.h
 }
