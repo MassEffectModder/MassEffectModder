@@ -372,7 +372,7 @@ int sevenzip_unpack(const char *path, const char *output_path,
 
     lookStream.bufSize = kInputBufSize;
     lookStream.realStream = &archiveStream.vt;
-    LookToRead2_Init(&lookStream);
+    LookToRead2_INIT(&lookStream);
 
     CrcGenerateTable();
 
@@ -800,7 +800,7 @@ int sevenzip_list(const char *path, int ipc)
 
     lookStream.bufSize = kInputBufSize;
     lookStream.realStream = &archiveStream.vt;
-    LookToRead2_Init(&lookStream);
+    LookToRead2_INIT(&lookStream);
 
     CrcGenerateTable();
 
