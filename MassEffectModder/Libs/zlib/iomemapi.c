@@ -29,15 +29,13 @@
 
 #include "iomemapi.h"
 
-typedef struct _IOMEMHANDLE
-{
-	voidpf buffer;
-	ZPOS64_T bufferLen;
-	ZPOS64_T bufferPos;
+typedef struct _IOMEMHANDLE {
+    voidpf buffer;
+    ZPOS64_T bufferLen;
+    ZPOS64_T bufferPos;
 } IOMEMHANDLE;
 
-static uLong ZCALLBACK iomem_read_func(voidpf opaque __attribute__ ((unused)), voidpf stream, voidpf buf, uLong size)
-{
+static uLong ZCALLBACK iomem_read_func(voidpf opaque __attribute__ ((unused)), voidpf stream, voidpf buf, uLong size) {
     IOMEMHANDLE* ioMemHandle = stream;
 
     if (ioMemHandle == Z_NULL || buf == Z_NULL)
@@ -52,8 +50,7 @@ static uLong ZCALLBACK iomem_read_func(voidpf opaque __attribute__ ((unused)), v
     return size;
 }
 
-static uLong ZCALLBACK iomem_write_func(voidpf opaque __attribute__ ((unused)), voidpf stream, voidpc buf, uLong size)
-{
+static uLong ZCALLBACK iomem_write_func(voidpf opaque __attribute__ ((unused)), voidpf stream, voidpc buf, uLong size) {
     IOMEMHANDLE* ioMemHandle = stream;
 
     if (ioMemHandle == Z_NULL || buf == Z_NULL)
@@ -74,8 +71,7 @@ static uLong ZCALLBACK iomem_write_func(voidpf opaque __attribute__ ((unused)), 
     return size;
 }
 
-static ZPOS64_T ZCALLBACK iomem_tell_func(voidpf opaque __attribute__ ((unused)), voidpf stream)
-{
+static ZPOS64_T ZCALLBACK iomem_tell_func(voidpf opaque __attribute__ ((unused)), voidpf stream) {
     IOMEMHANDLE* ioMemHandle = stream;
 
     if (ioMemHandle == Z_NULL)
@@ -84,8 +80,7 @@ static ZPOS64_T ZCALLBACK iomem_tell_func(voidpf opaque __attribute__ ((unused))
     return ioMemHandle->bufferPos;
 }
 
-static long ZCALLBACK iomem_seek_func(voidpf opaque __attribute__ ((unused)), voidpf stream, ZPOS64_T offset, int origin)
-{
+static long ZCALLBACK iomem_seek_func(voidpf opaque __attribute__ ((unused)), voidpf stream, ZPOS64_T offset, int origin) {
     IOMEMHANDLE* ioMemHandle = stream;
 
     if (ioMemHandle == Z_NULL)
@@ -121,8 +116,7 @@ static long ZCALLBACK iomem_seek_func(voidpf opaque __attribute__ ((unused)), vo
     return 0;
 }
 
-static int ZCALLBACK iomem_close_func(voidpf opaque __attribute__ ((unused)), voidpf stream)
-{
+static int ZCALLBACK iomem_close_func(voidpf opaque __attribute__ ((unused)), voidpf stream) {
     IOMEMHANDLE* ioMemHandle = stream;
 
     if (ioMemHandle == Z_NULL)
@@ -133,13 +127,11 @@ static int ZCALLBACK iomem_close_func(voidpf opaque __attribute__ ((unused)), vo
     return 0;
 }
 
-static int ZCALLBACK iomem_error_func(voidpf opaque __attribute__ ((unused)), voidpf stream __attribute__ ((unused)))
-{
+static int ZCALLBACK iomem_error_func(voidpf opaque __attribute__ ((unused)), voidpf stream __attribute__ ((unused))) {
     return 0;
 }
 
-ZEXTERN voidpf create_ioapi_from_buffer(zlib_filefunc64_def* ioMemApi, voidpf buffer, size_t bufferLen)
-{
+ZEXTERN voidpf create_ioapi_from_buffer(zlib_filefunc64_def* ioMemApi, voidpf buffer, size_t bufferLen) {
     ioMemApi->zopen64_file = Z_NULL;
     ioMemApi->zread_file = iomem_read_func;
     ioMemApi->zwrite_file = iomem_write_func;

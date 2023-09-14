@@ -7,7 +7,7 @@ SOURCES += \
     adler32.c \
     compress.c \
     crc32.c \
-    deflate_fast.c \
+    deflate.c \
     infback.c \
     inffast.c \
     inflate.c \
@@ -25,7 +25,6 @@ HEADERS += \
     crypt.h \
     deflate.h \
     gzguts.h \
-    match.h \
     inffast.h \
     inffixed.h \
     inflate.h \
