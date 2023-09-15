@@ -461,6 +461,7 @@ static RTL_BITMAP TlsBitmap = {
 
 static bool setup_nt_threadinfo(void)
 {
+#ifdef linux
     static PEB ProcessEnvironmentBlock = {
         .TlsBitmap          = &TlsBitmap,
     };
@@ -470,7 +471,6 @@ static bool setup_nt_threadinfo(void)
         .ProcessEnvironmentBlock    = &ProcessEnvironmentBlock,
     };
 
-#ifdef linux
     long set_tib_syscall_result = syscall(__NR_arch_prctl, ARCH_SET_GS, &ThreadEnvironment);
     if (set_tib_syscall_result != 0) {
         int error = errno;
