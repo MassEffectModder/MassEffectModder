@@ -195,6 +195,7 @@ inline int AsciiStringCompareCaseIgnore(const QString &str1, const QString &str2
 
 
 bool DetectAdminRights();
+bool DetectProcessTranslated ();
 
 QString getVersionString(const QString &filePath);
 

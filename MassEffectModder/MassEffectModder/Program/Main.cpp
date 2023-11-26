@@ -40,11 +40,20 @@ int runQtApplication(int argc, char *argv[])
 {
     QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
 
+    bool translated = DetectProcessTranslated ();
+
     CreateGameData();
 #ifdef GUI
     qputenv("QT_AUTO_SCREEN_SCALE_FACTOR", QByteArray("1"));
 
     QApplication application(argc, argv);
+
+    if (translated)
+    {
+        QMessageBox::critical(nullptr, "MEM", "Running MEM with Rosetta 2 is not supported!");
+        return -1;
+    }
+
     QStringList args = QApplication::arguments();
     if (args.count() != 0)
         args.removeFirst();
@@ -177,6 +186,12 @@ int runQtApplication(int argc, char *argv[])
                   "This is free software; see the source for copying conditions.  There is NO.\n"
                   "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n"
                   ).arg(MEM_VERSION).arg(MEM_YEAR));
+
+    if (translated)
+    {
+        PERROR(QString("Running MEM with Rosetta 2 is not supported!\n"));
+        return -1;
+    }
 
     int status = ProcessArguments();
 #endif
