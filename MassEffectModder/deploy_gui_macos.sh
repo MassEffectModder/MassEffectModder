@@ -1,7 +1,7 @@
 build_path=$(cd ../build-MassEffectModder-*-Release/MassEffectModder; pwd)
 top_path=$build_path/deploy
 bundle_path=$top_path/MassEffectModder.app
-mkdir -p $bundle_path
+mkdir -p $bundle_path/Contents/Resources
 cp -R $build_path/MassEffectModder.app $top_path
 cp MassEffectModder/Resources/MEM.icns $bundle_path/Contents/Resources/MassEffectModder.icns
 rm -f $bundle_path/Contents/Resources/empty.lproj
