@@ -339,7 +339,7 @@ int ProcessArguments()
     if (args.count() != 0)
     {
         QString error = "Wrong options: ";
-        for (const auto& a : qAsConst(args)) {
+        for (const auto& a : std::as_const(args)) {
             error += a + " ";
         }
         PERROR(error + "\n");

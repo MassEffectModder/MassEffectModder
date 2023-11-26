@@ -276,7 +276,7 @@ void TOCBinFile::CreateTocBinFile(QString &path, const QVector<FileEntry>& files
 
     qint32 entryPos = tableSize * 8;
     qint32 tablePos = 0;
-    for (const auto& bucket : qAsConst(buckets))
+    for (const auto& bucket : std::as_const(buckets))
     {
         if (bucket.empty())
         {
@@ -296,7 +296,7 @@ void TOCBinFile::CreateTocBinFile(QString &path, const QVector<FileEntry>& files
     }
 
     long lastOffset = 0;
-    for (const auto& bucket : qAsConst(buckets))
+    for (const auto& bucket : std::as_const(buckets))
     {
         for (const auto& fileEntry : bucket)
         {

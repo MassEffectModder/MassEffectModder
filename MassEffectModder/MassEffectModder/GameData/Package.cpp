@@ -771,7 +771,7 @@ void Package::loadExports(Stream &input)
         ExportEntry entry{};
 
         long start = input.Position();
-        input.Skip(entry.DataOffsetOffset + 4);
+        input.Skip(Package::ExportEntry::DataOffsetOffset + 4);
         input.SkipInt32();
         input.Skip(input.ReadUInt32() * 4 + 16 + 4); // skip entries + skip guid + some
 

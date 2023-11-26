@@ -163,7 +163,7 @@ static int import(struct pe_image *pe, IMAGE_IMPORT_DESCRIPTOR *dirent, char *dl
 
     for (i = 0; lookup_tbl[i]; i++) {
         if (IMAGE_SNAP_BY_ORDINAL(lookup_tbl[i])) {
-            ERROR("ordinal import not supported: %lu", (uint64_t)lookup_tbl[i]);
+            ERROR("ordinal import not supported: %llu", (uint64_t)lookup_tbl[i]);
             address_tbl[i] = (ULONG_PTR)NULL;
             continue;
         }
@@ -343,7 +343,7 @@ static int fix_pe_image(struct pe_image *pe)
                       0);
 
     if (image == MAP_FAILED) {
-        ERROR("failed to mmap desired space for image: %d bytes, image base %#lx, %m",
+        ERROR("failed to mmap desired space for image: %d bytes, image base %#llx, %m",
             image_size, pe->opt_hdr->ImageBase);
         return -ENOMEM;
     }
@@ -453,6 +453,7 @@ static int link_pe_image(struct pe_image *pe)
     return 0;
 }
 
+#ifdef linux
 static ULONG TlsBitmapData[32];
 static RTL_BITMAP TlsBitmap = {
     .SizeOfBitMap = sizeof(TlsBitmapData) * CHAR_BIT,
@@ -461,7 +462,6 @@ static RTL_BITMAP TlsBitmap = {
 
 static bool setup_nt_threadinfo(void)
 {
-#ifdef linux
     static PEB ProcessEnvironmentBlock = {
         .TlsBitmap          = &TlsBitmap,
     };
@@ -477,9 +477,9 @@ static bool setup_nt_threadinfo(void)
         l_error("Failed to set the thread area. Error: %u", error);
         return false;
     }
-#endif
     return true;
 }
+#endif
 
 struct pe_image *LoadLibrary(const char *filename)
 {
@@ -534,9 +534,11 @@ struct pe_image *LoadLibrary(const char *filename)
         goto error;
     }
 
+#ifdef linux
     if (!setup_nt_threadinfo()) {
         goto error;
     }
+#endif
 
     if (!peimage->entry((PVOID)'ODLE', DLL_PROCESS_ATTACH, NULL)) {
         l_error("failed execution of library entry %s, %m", filename);

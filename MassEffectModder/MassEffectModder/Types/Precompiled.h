@@ -21,6 +21,8 @@
 
 #if defined __cplusplus
 
+#include <sys/types.h>
+#include <utility>
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
@@ -29,6 +31,9 @@
 #include <mutex>
 #include <memory>
 
+#include <qttypetraits.h>
+#include <qcontainerfwd.h>
+#include <qnamespace.h>
 #include <QtGlobal>
 #include <QCommandLineOption>
 #include <QCommandLineParser>
