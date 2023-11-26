@@ -501,7 +501,7 @@ struct pe_image *LoadLibrary(const char *filename)
     peimage->size = 0;
     peimage->image = MAP_FAILED;
 
-    if ((fd = open(filename, O_RDONLY)) < 0) {
+    if ((fd = open(filename, O_RDWR)) < 0) {
         l_error("failed to open pe library %s, %m", filename);
         goto error;
     }
@@ -512,11 +512,9 @@ struct pe_image *LoadLibrary(const char *filename)
         goto error;
     }
 
-    /* Attempt to map the file PROT_READ | PROT_WRITE, it doesn't need to be
-       executable yet because I haven't applied the relocations.*/
+    /* Attempt to map the file.*/
     peimage->size  = buf.st_size;
-    peimage->image = mmap(NULL, peimage->size, PROT_READ, MAP_SHARED, fd, 0);
-
+    peimage->image = mmap(NULL, peimage->size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE, fd, 0);
     if (peimage->image == MAP_FAILED) {
         l_error("failed to map library %s, %m", filename);
         goto error;
@@ -527,6 +525,11 @@ struct pe_image *LoadLibrary(const char *filename)
 
     /* File descriptor no longer required.*/
     close(fd);
+
+    // patch __alloca_probe function to return from function immediatelly
+    // this is windows specific function to probe stack size
+    // and not compatible on non Windows systems
+    *(uint *)(peimage->image + 0x0000BC8A0) = 0x00CCCCC3; // retn
 
     PeLoadCrtExports(peimage);
 
@@ -580,8 +583,11 @@ bool FreeLibrary(struct pe_image *pe)
     if (!pe)
         return false;
 
-    if (pe->entry)
-        pe->entry((PVOID)'ODLE', DLL_PROCESS_DETACH, NULL);
+    // on macOS debug free might report some unknown heaps
+    // skip it detach dll, library is loaded one time per process.
+    // heaps will be released after process exit
+    //if (pe->entry)
+    //    pe->entry((PVOID)'ODLE', DLL_PROCESS_DETACH, NULL);
 
     if (pe->num_pe_exports) {
         clearexports(pe);

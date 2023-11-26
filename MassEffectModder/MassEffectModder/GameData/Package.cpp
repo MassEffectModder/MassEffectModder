@@ -1160,9 +1160,7 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
             }
             else if (targetCompression == CompressionType::Oddle)
             {
-#ifndef __APPLE__
                 #pragma omp parallel for
-#endif
                 for (int b = 0; b < chunk.blocks.count(); b++)
                 {
                     ChunkBlock block = chunk.blocks[b];
@@ -1286,9 +1284,7 @@ const ByteBuffer Package::compressData(const ByteBuffer &inputData, StorageTypes
     }
     else if (type == StorageTypes::extOodle || type == StorageTypes::pccOodle)
     {
-#ifndef __APPLE__
         #pragma omp parallel for
-#endif
         for (int b = 0; b < blocks.count(); b++)
         {
             Package::ChunkBlock block = blocks[b];
