@@ -48,6 +48,7 @@
 #include <QList>
 #include <QMap>
 #include <QRegularExpression>
+#include <QRegExp>
 #include <QSet>
 #include <QSettings>
 #include <QStandardPaths>

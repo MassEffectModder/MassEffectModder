@@ -122,9 +122,8 @@ const ByteBuffer TextureMovie::getData()
                     filename = DLCArchiveFile;
                 else if (!QFile(filename).exists())
                 {
-                    QRegularExpression regex(QRegularExpression::wildcardToRegularExpression(QString("*/") + archive + ".tfc"),
-                                             QRegularExpression::CaseInsensitiveOption);
-                    QStringList files = g_GameData->tfcFiles.filter(regex);
+                    QStringList files = QRegExp(QString("*/") + archive + ".tfc",
+                                                Qt::CaseInsensitive, QRegExp::Wildcard).filterList(g_GameData->tfcFiles);
                     if (files.count() == 1)
                         filename = g_GameData->GamePath() + files.first();
                     else if (files.count() == 0)

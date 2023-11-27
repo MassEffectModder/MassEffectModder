@@ -1407,8 +1407,9 @@ void LayoutTexturesManager::SearchTexture(const QString &name, uint crc)
         {
             if (name.contains("*"))
             {
-                QRegularExpression regex(QRegularExpression::wildcardToRegularExpression(name.toLower()));
-                if (regex.match(foundTexture.name.toLower()).hasMatch())
+                QRegExp regex(name.toLower());
+                regex.setPatternSyntax(QRegExp::Wildcard);
+                if (regex.exactMatch(foundTexture.name.toLower()))
                 {
                     found = true;
                 }
