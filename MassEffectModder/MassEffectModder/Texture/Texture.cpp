@@ -306,8 +306,7 @@ const ByteBuffer Texture::getMipMapData(TextureMipMap &mipmap)
                     filename = DLCArchiveFile;
                 else if (!QFile(filename).exists())
                 {
-                    QStringList files = QRegExp(QString("*/") + archive + ".tfc",
-                                                Qt::CaseInsensitive, QRegExp::Wildcard).filterList(g_GameData->tfcFiles);
+                    QStringList files = FilterByFilename(g_GameData->tfcFiles, archive + ".tfc");
                     if (files.count() == 1)
                         filename = g_GameData->GamePath() + files.first();
                     else if (files.count() == 0)

@@ -31,6 +31,7 @@ QString BaseName(const QString &path);
 QString DirName(const QString &path);
 QString BaseNameWithoutExt(const QString &path);
 QString GetFileExtension(const QString &path);
+QStringList FilterByFilename(const QStringList &list, const QString &filename);
 
 inline bool AsciiStringEndsWith(const QString &str, const char *endStr, int endStrLen)
 {

@@ -108,6 +108,20 @@ QString GetFileExtension(const QString &path)
     return str.mid(index + 1, -1);
 }
 
+QStringList FilterByFilename(const QStringList &list, const QString &filename)
+{
+    QStringList filteredList;
+    QString pattern = QString("/" + filename);
+
+    foreach(QString filePath, list)
+    {
+        if (filePath.endsWith(pattern, Qt::CaseInsensitive))
+            filteredList.append(filePath);
+    }
+
+    return filteredList;
+}
+
 bool DetectAdminRights()
 {
     bool status;

@@ -419,8 +419,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                             archiveFile = DLCArchiveFile;
                         else if (!QFile(archiveFile).exists())
                         {
-                            QStringList files = QRegExp(QString("*/") + archive + ".tfc",
-                                                        Qt::CaseInsensitive, QRegExp::Wildcard).filterList(g_GameData->tfcFiles);
+                            QStringList files = FilterByFilename(g_GameData->tfcFiles, archive + ".tfc");
                             if (files.count() == 1)
                                 archiveFile = g_GameData->GamePath() + files.first();
                             else if (files.count() == 0)
@@ -693,8 +692,7 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                             archiveFile = DLCArchiveFile;
                         else if (!QFile(archiveFile).exists())
                         {
-                            QStringList files = QRegExp(QString("*/") + archive + ".tfc",
-                                                        Qt::CaseInsensitive, QRegExp::Wildcard).filterList(g_GameData->tfcFiles);
+                            QStringList files = FilterByFilename(g_GameData->tfcFiles, archive + ".tfc");
                             if (files.count() == 1)
                                 archiveFile = g_GameData->GamePath() + files.first();
                             else if (files.count() == 0)

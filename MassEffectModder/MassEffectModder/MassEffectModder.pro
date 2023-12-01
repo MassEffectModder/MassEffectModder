@@ -1,7 +1,5 @@
 QT += core
 
-greaterThan(QT_MAJOR_VERSION,5)  QT += core5compat
-
 equals(GUI_MODE, true) {
     QT += gui widgets network
 } else {
