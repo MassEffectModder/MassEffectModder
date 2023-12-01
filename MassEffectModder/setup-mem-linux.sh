@@ -47,7 +47,7 @@ BRANCH=master
 USER_NAME=aquadran
 USER_ID=1000
 NUM_THREADS=`grep -c '^processor' /proc/cpuinfo`
-QT_VERSION=6.5.1
+QT_VERSION=6.6.1
 QT_VERSION_BASE=`echo $QT_VERSION | cut -d'.' -f 1,2`
 PACKAGES_ADD=bash,build-essential,ninja-build,clang,nasm,git,perl,python3,wget,\
 ca-certificates,libx11-dev,libsdl2-dev,libopenal-dev,libfontconfig1-dev,libssl-dev,\
@@ -141,7 +141,7 @@ cmake \
 -DFEATURE_feature-relocatable=OFF -DFEATURE_opengl=OFF \
 -DQT_BUILD_TESTS=OFF -DQT_BUILD_EXAMPLES=OFF \
 -DBUILD_qt3d=OFF -DBUILD_qt5compat=OFF -DBUILD_qtactiveqt=OFF -DBUILD_qtcoap=OFF -DBUILD_qtcharts=OFF -DBUILD_qtconnectivit=OFF \
--DBUILD_qtdatavis3d=OFF -DBUILD_qtdeclarative=OFF -DBUILD_qtdoc=OFF -DBUILD_qtgrpc=OFF -DBUILD_qthttpserver=OFF \
+-DBUILD_qtdatavis3d=OFF -DBUILD_qtdeclarative=OFF -DBUILD_qtdoc=OFF -DBUILD_qtgrpc=OFF -DBUILD_qtgraphs=OFF -DBUILD_qthttpserver=OFF \
 -DBUILD_qtgraphicaleffects=OFF -DBUILD_qttools=ON -DBUILD_qtlocation=OFF -DBUILD_qtlottie=OFF -DBUILD_qtmqtt=OFF \
 -DBUILD_qtmultimedia=OFF -DBUILD_qtnetworkauth=OFF -DBUILD_qtopcua=OFF -DBUILD_qtpositioning=OFF -DBUILD_qtquick3d=OFF \
 -DBUILD_qtquick3dphysics=OFF -DBUILD_qtquickeffectmaker=OFF -DBUILD_qtquicktimeline=OFF -DBUILD_qtremoteobjects=OFF \
