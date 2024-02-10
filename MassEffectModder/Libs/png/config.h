@@ -4,19 +4,19 @@
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #define HAVE_DLFCN_H 1
 
-/* Define to 1 if you have the `feenableexcept' function. */
+/* Define to 1 if you have the 'feenableexcept' function. */
 /* #undef HAVE_FEENABLEEXCEPT */
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define HAVE_INTTYPES_H 1
 
-/* Define to 1 if you have the `m' library (-lm). */
+/* Define to 1 if you have the 'm' library (-lm). */
 /* #undef HAVE_LIBM */
 
-/* Define to 1 if you have the `z' library (-lz). */
+/* Define to 1 if you have the 'z' library (-lz). */
 #define HAVE_LIBZ 1
 
-/* Define to 1 if you have the `pow' function. */
+/* Define to 1 if you have the 'pow' function. */
 #define HAVE_POW 1
 
 /* Define to 1 if you have the <stdint.h> header file. */
@@ -56,7 +56,7 @@
 #define PACKAGE_NAME "libpng"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "libpng 1.6.39"
+#define PACKAGE_STRING "libpng 1.6.42"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "libpng"
@@ -65,7 +65,7 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.6.39"
+#define PACKAGE_VERSION "1.6.42"
 
 /* Turn on ARM Neon optimizations at run-time */
 /* #undef PNG_ARM_NEON_API_SUPPORTED */
@@ -74,10 +74,26 @@
 /* #undef PNG_ARM_NEON_CHECK_SUPPORTED */
 
 /* Enable ARM Neon optimizations */
-/* #undef PNG_ARM_NEON_OPT */
+#if defined(__aarch64__)
+#define PNG_ARM_NEON_OPT 2
+#endif
 
 /* Enable Intel SSE optimizations */
+#if defined(__x86_64__)
 #define PNG_INTEL_SSE_OPT 1
+#endif
+
+/* Enable LOONGARCH LSX optimizations */
+/* #undef PNG_LOONGARCH_LSX_OPT */
+
+/* Turn on MIPS MMI optimizations at run-time */
+/* #undef PNG_MIPS_MMI_API_SUPPORTED */
+
+/* Check for MIPS MMI support at run-time */
+/* #undef PNG_MIPS_MMI_CHECK_SUPPORTED */
+
+/* Enable MIPS MMI optimizations */
+/* #undef PNG_MIPS_MMI_OPT */
 
 /* Turn on MIPS MSA optimizations at run-time */
 /* #undef PNG_MIPS_MSA_API_SUPPORTED */
@@ -97,16 +113,16 @@
 /* Enable POWERPC VSX optimizations */
 /* #undef PNG_POWERPC_VSX_OPT */
 
-/* Define to 1 if all of the C90 standard headers exist (not just the ones
+/* Define to 1 if all of the C89 standard headers exist (not just the ones
    required in a freestanding environment). This macro is provided for
    backward compatibility; new code need not use it. */
 #define STDC_HEADERS 1
 
-/* Define to 1 if your <sys/time.h> declares `struct tm'. */
+/* Define to 1 if your <sys/time.h> declares 'struct tm'. */
 /* #undef TM_IN_SYS_TIME */
 
 /* Version number of package */
-#define VERSION "1.6.39"
+#define VERSION "1.6.42"
 
 /* Define to the equivalent of the C99 'restrict' keyword, or to
    nothing if this is not supported.  Do not define if restrict is
