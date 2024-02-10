@@ -61,8 +61,7 @@ HEADERS += \
         kmp_wait_release.h \
         kmp_wrapper_getpid.h \
         kmp_wrapper_malloc.h \
-        omp.h \
-        tsan_annotations.h
+        omp.h
 
 QMAKE_CXXFLAGS += -std=gnu++11 -O3 -DNDEBUG -D _GNU_SOURCE -D _REENTRANT \
                   -fno-exceptions -fno-rtti -w
