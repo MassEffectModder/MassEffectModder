@@ -12,6 +12,8 @@
  * GNU General Public License for more details.
  */
 
+#if defined(__x86_64__)
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -64,3 +66,5 @@ void pe_l_debug_(const char *function, const char *format, ...)
     va_end(ap);
     fputc('\n', stderr);
 }
+
+#endif

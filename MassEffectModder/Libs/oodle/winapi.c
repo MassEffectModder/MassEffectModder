@@ -13,6 +13,8 @@
  * GNU General Public License for more details.
  */
 
+#if defined(__x86_64__)
+
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
@@ -821,3 +823,5 @@ void PeLoadCrtExports(struct pe_image *pe)
         pe_hsearch_r(e, ENTER, &ep, &pe->crtexports);
     }
 }
+
+#endif

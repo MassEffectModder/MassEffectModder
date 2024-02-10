@@ -5,7 +5,10 @@ QT -= gui core
 
 SOURCES += \
     filter_sse2_intrinsics.c \
+    filter_neon_intrinsics.c \
+    palette_neon_intrinsics.c \
     intel_init.c \
+    arm_init.c \
     png.c \
     pngerror.c \
     pngget.c \

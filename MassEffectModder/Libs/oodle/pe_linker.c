@@ -18,6 +18,8 @@
  * GNU General Public License for more details.
  */
 
+#if defined(__x86_64__)
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
@@ -601,3 +603,5 @@ bool FreeLibrary(struct pe_image *pe)
 
     return true;
 }
+
+#endif

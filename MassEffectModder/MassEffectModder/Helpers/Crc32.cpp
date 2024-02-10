@@ -20,17 +20,22 @@
 #include "Crc32.h"
 
 // define endianess and some integer data types
-#if defined(_MSC_VER) || defined(__MINGW32__) || defined (__i386__) || defined(__x86_64__)
+#if defined(_MSC_VER) || defined(__MINGW32__) || defined (__i386__) || defined(__x86_64__) || defined(__aarch64__)
   #define __LITTLE_ENDIAN 1234
   #define __BIG_ENDIAN    4321
   #define __BYTE_ORDER    __LITTLE_ENDIAN
 
+#if defined(__aarch64__)
+#include "../sse2neon/sse2neon.h"
+#define PREFETCH(location) _mm_prefetch(location, _MM_HINT_T0)
+#else
   #include <xmmintrin.h>
   #ifdef __MINGW32__
     #define PREFETCH(location) __builtin_prefetch(location)
   #else
     #define PREFETCH(location) _mm_prefetch(location, _MM_HINT_T0)
   #endif
+#endif
 #else
   // defines __BYTE_ORDER as __LITTLE_ENDIAN or __BIG_ENDIAN
   #include <sys/param.h>

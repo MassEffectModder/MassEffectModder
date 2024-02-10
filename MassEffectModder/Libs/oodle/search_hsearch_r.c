@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#if defined(__x86_64__)
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
@@ -255,3 +257,5 @@ pe_hsearch_r (ENTRY item, ACTION action, ENTRY **retval,
   }
   return 0;
 }
+
+#endif

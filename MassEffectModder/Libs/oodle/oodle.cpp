@@ -17,6 +17,8 @@
  *
  */
 
+#if defined(__x86_64__)
+
 #include "oodle.h"
 
 #include <cstdint>
@@ -44,6 +46,8 @@ static HINSTANCE libInst = nullptr;
 static struct pe_image *libInst = nullptr;
 #endif
 
+#endif // __x86_64__
+
 #ifdef WIN32
 bool OodleLoadLib(const wchar_t *libPath)
 #else
@@ -53,6 +57,7 @@ bool OodleLoadLib(const char *libPath)
     if (!libPath)
         return false;
 
+#if defined(__x86_64__)
     if (libInst)
         return true;
 
@@ -68,22 +73,26 @@ bool OodleLoadLib(const char *libPath)
         libInst = nullptr;
         return false;
     }
+#endif
 
     return true;
 }
 
 void OodleUnloadLib()
 {
+#if defined(__x86_64__)
     if (!libInst)
         return;
 
     FreeLibrary(libInst);
     libInst = nullptr;
+#endif
 }
 
 int OodleCompressData(unsigned char *src, unsigned int srcLen,
                       unsigned char *dst, unsigned int *dstLen)
 {
+#if defined(__x86_64__)
     if (!OodleLZCompress)
         return -5;
 
@@ -92,6 +101,7 @@ int OodleCompressData(unsigned char *src, unsigned int srcLen,
         return -1;
 
     *dstLen = outputSize;
+#endif
 
     return 0;
 }
@@ -99,12 +109,14 @@ int OodleCompressData(unsigned char *src, unsigned int srcLen,
 int OodleDecompressData(unsigned char *src, unsigned int srcLen,
                         unsigned char *dst, unsigned int dstLen)
 {
+#if defined(__x86_64__)
     if (!OodleLZDecompress)
         return -5;
 
     unsigned int outputSize = OodleLZDecompress(src, srcLen, dst, dstLen, 0, 0, 0, nullptr, 0, nullptr, nullptr, nullptr, 0, 0);
     if (outputSize < 0)
         return -1;
+#endif
 
     return 0;
 }

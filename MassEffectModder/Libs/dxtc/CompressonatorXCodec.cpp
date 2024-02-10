@@ -27,8 +27,12 @@
 #include "Common.h"
 
 #ifdef USE_SSE
+#if defined(__aarch64__)
+#include "../sse2neon/sse2neon.h"
+#else
 #include <xmmintrin.h>
 #include <emmintrin.h>
+#endif
 #endif // USE_SSE
 
 #include "CompressonatorXCodec.h"

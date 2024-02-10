@@ -23,7 +23,11 @@
 #define EXCEPTION_H
 
 #ifndef NDEBUG
+#if defined(__x86_64__)
 #define TRAP __asm__ volatile("int $3"); exit(1);
+#elif defined(__aarch64__)
+#define TRAP __asm__ volatile("brk 0"); exit(1);
+#endif
 #else
 #define TRAP
 #endif
