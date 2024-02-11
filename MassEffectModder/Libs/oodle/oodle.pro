@@ -4,7 +4,8 @@ CONFIG += staticlib warn_off
 QT -= gui core
 
 SOURCES += \
-     oodle.cpp
+    oodle.cpp \
+    oodle_decode.cpp
 
 !win32 {
 SOURCES += \

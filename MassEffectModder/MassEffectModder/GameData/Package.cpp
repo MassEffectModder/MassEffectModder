@@ -856,6 +856,8 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
     CompressionType targetCompression = compressionType;
     if (forceCompressed)
         targetCompression = CompressionType::Oddle;
+    if (targetCompression == CompressionType::Oddle && !OodleIsCompressionSupported())
+        targetCompression = CompressionType::Zlib;
 
     QString marker;
     packageStream->Seek(-MEMMarkerLength, SeekOrigin::End);

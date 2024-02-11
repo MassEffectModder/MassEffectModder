@@ -311,8 +311,8 @@ static void PrintfCurrentFile(SzArEx_StreamOutEntry *streamOutInfo)
             wprintf(L"%d of %d - %ls - size %llu\n", (streamOutInfo->entryIndex + 1),
                    totalFiles, streamOutInfo->path, streamOutInfo->UnpackSize);
 #else
-            printf("%d of %d - %s - size %llu\n", (streamOutInfo->entryIndex + 1),
-                   totalFiles, streamOutInfo->path, streamOutInfo->UnpackSize);
+            printf("%d of %d - %s - size %zu\n", (streamOutInfo->entryIndex + 1),
+                   totalFiles, streamOutInfo->path, (size_t)streamOutInfo->UnpackSize);
 #endif
         }
     }

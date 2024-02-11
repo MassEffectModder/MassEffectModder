@@ -349,6 +349,7 @@ struct pe_image {
     char name[1024];
     BOOL WINAPI (*entry)(PVOID hinstDLL, DWORD fdwReason, PVOID lpvReserved);
     void *image;
+    void *dl_handle;
     size_t size;
     int type;
     struct pe_exports *pe_exports;
@@ -359,8 +360,9 @@ struct pe_image {
 };
 
 void PeLoadCrtExports(struct pe_image *pe);
-struct pe_image *LoadLibrary(const char *filename);
-bool FreeLibrary(struct pe_image *pe);
-void *GetProcAddress(struct pe_image *pe, const char *name);
+void *LoadLibrary(const char *filename);
+bool FreeLibrary(void *handle);
+bool NativeLibrary(void *peimage);
+void *GetProcAddress(void *peimage, const char *name);
 
 #endif

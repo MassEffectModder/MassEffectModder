@@ -44,13 +44,32 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
 
     if (packageFiles.count() == 0)
     {
-        QString dllPath = _path + "/Game/ME" + QString::number((int)gameType) +
-                "/Binaries/Win64/oo2core_8_win64.dll";
+        bool status = false;
+        QString libPath = _path + "/Game/ME" + QString::number((int)gameType) +
+                "/Binaries/Win64/oo2core_8_win64";
 #ifdef WIN32
-        OodleInitLib(dllPath.toStdWString().c_str());
+        QString libExt = ".dll";
+#elif defined(__APPLE__)
+        QString libExt = ".dylib";
 #else
-        OodleInitLib(dllPath.toStdString().c_str());
+        QString libExt = ".so";
 #endif
+        if (QFile::exists(libPath + libExt))
+        {
+#ifdef WIN32
+            status = OodleInitLib((libPath + libExt).toStdWString().c_str());
+#else
+            status = OodleInitLib((libPath + libExt).toStdString().c_str());
+#endif
+        }
+        if (!status) {
+#ifndef WIN32
+            status = OodleInitLib((libPath + ".dll").toStdString().c_str());
+#endif
+            if (!status) {
+                OodleInitLib(nullptr);
+            }
+        }
 
 #ifdef GUI
         QElapsedTimer timer;

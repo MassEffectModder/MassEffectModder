@@ -62,6 +62,7 @@ bool OodleInitLib(const wchar_t *libPath);
 bool OodleInitLib(const char *libPath);
 #endif
 void OodleUninitLib();
+bool OodleIsCompressionSupported();
 int OodleDecompress(BYTE *src, UINT32 src_len, BYTE *dst, UINT32 dst_len);
 int OodleCompress(BYTE *src, UINT32 src_len, BYTE **dst, UINT32 *dst_len);
 

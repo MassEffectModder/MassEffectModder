@@ -28,6 +28,7 @@ bool OodleLoadLib(const wchar_t *libPath);
 bool OodleLoadLib(const char *libPath);
 #endif
 void OodleUnloadLib();
+bool OodleSupportCompression();
 int OodleCompressData(unsigned char *src, unsigned int srcLen,
                       unsigned char *dst, unsigned int *dstLen);
 int OodleDecompressData(unsigned char *src, unsigned int srcLen,

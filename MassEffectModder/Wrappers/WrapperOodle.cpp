@@ -21,7 +21,6 @@
 
 #include <cstring>
 #include <cstdio>
-#include <memory>
 #include <oodle.h>
 
 #ifndef EXPORT_LIBS
@@ -38,6 +37,11 @@ bool OodleInitLib(const char *libPath)
 void OodleUninitLib()
 {
     OodleUnloadLib();
+}
+
+bool OodleIsCompressionSupported()
+{
+    return OodleSupportCompression();
 }
 
 int OodleDecompress(unsigned char *src, unsigned int srcLen, unsigned char *dst, unsigned int dstLen)

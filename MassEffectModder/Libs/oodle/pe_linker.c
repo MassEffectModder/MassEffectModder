@@ -18,18 +18,16 @@
  * GNU General Public License for more details.
  */
 
-#if defined(__x86_64__)
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <fcntl.h>
+#include <dlfcn.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include <limits.h>
 #include <errno.h>
 #include <string.h>
 #include <search.h>
@@ -37,9 +35,12 @@
 #include <assert.h>
 #include <err.h>
 #ifdef linux
+#include <limits.h>
 #include <asm/prctl.h>
 #include <asm/unistd.h>
 #endif
+
+#if defined(__x86_64__)
 
 #include "pe_linker.h"
 #include "log.h"
@@ -165,7 +166,7 @@ static int import(struct pe_image *pe, IMAGE_IMPORT_DESCRIPTOR *dirent, char *dl
 
     for (i = 0; lookup_tbl[i]; i++) {
         if (IMAGE_SNAP_BY_ORDINAL(lookup_tbl[i])) {
-            ERROR("ordinal import not supported: %llu", (uint64_t)lookup_tbl[i]);
+            ERROR("ordinal import not supported: %zu", (size_t)lookup_tbl[i]);
             address_tbl[i] = (ULONG_PTR)NULL;
             continue;
         }
@@ -177,8 +178,8 @@ static int import(struct pe_image *pe, IMAGE_IMPORT_DESCRIPTOR *dirent, char *dl
             address_tbl[i] = (ULONG_PTR)NULL;
             continue;
         } else {
-            DBGLINKER("found symbol: %s:%s: addr: %p, rva = %llu",
-                      dll, symname, adr, (uint64_t)address_tbl[i]);
+            DBGLINKER("found symbol: %s:%s: addr: %p, rva = %zu",
+                      dll, symname, adr, (size_t)address_tbl[i]);
             address_tbl[i] = (ULONG_PTR)adr;
         }
     }
@@ -483,7 +484,7 @@ static bool setup_nt_threadinfo(void)
 }
 #endif
 
-struct pe_image *LoadLibrary(const char *filename)
+void *LoadLibrary(const char *filename)
 {
     int fd = -1;
     struct stat buf;
@@ -496,6 +497,12 @@ struct pe_image *LoadLibrary(const char *filename)
         l_error("failed to alloc pe library instance %s, %m", filename);
         goto error;
     }
+
+    peimage->dl_handle = dlopen(filename, RTLD_NOW);
+    if (peimage->dl_handle) {
+        return peimage;
+    }
+
     if (strlen(filename) >= sizeof(peimage->name)) {
         goto error;
     }
@@ -571,19 +578,32 @@ error:
     return NULL;
 }
 
-void *GetProcAddress(struct pe_image *pe, const char *name)
+void *GetProcAddress(void *peimage, const char *name)
 {
+    struct pe_image *pe = peimage;
     void *ptr = NULL;
+
+    if (pe->dl_handle) {
+        ptr = dlsym(pe->dl_handle, name);
+        return ptr;
+    }
 
     get_export(pe, name, &ptr);
 
     return ptr;
 }
 
-bool FreeLibrary(struct pe_image *pe)
+bool FreeLibrary(void *peimage)
 {
+    struct pe_image *pe = peimage;
+
     if (!pe)
         return false;
+
+    if (pe->dl_handle) {
+        dlclose(pe->dl_handle);
+        return true;
+    }
 
     // on macOS debug free might report some unknown heaps
     // skip it detach dll, library is loaded one time per process.
@@ -601,6 +621,39 @@ bool FreeLibrary(struct pe_image *pe)
 
     free(pe);
 
+    return true;
+}
+
+bool NativeLibrary(void *peimage)
+{
+    struct pe_image *pe = peimage;
+
+    return pe->dl_handle != NULL;
+}
+
+#else
+
+void *LoadLibrary(const char *filename)
+{
+    return dlopen(filename, RTLD_NOW);
+}
+
+bool FreeLibrary(void *handle)
+{
+    if (!handle)
+        return false;
+
+    dlclose(handle);
+    return true;
+}
+
+void *GetProcAddress(void *handle, const char *name)
+{
+    return dlsym(handle, name);
+}
+
+bool NativeLibrary(void *handle)
+{
     return true;
 }
 

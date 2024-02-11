@@ -28,6 +28,7 @@
 #include <Helpers/MiscHelpers.h>
 #include <Helpers/Logs.h>
 #include <Helpers/QSort.h>
+#include <Wrappers.h>
 
 namespace {
 
@@ -595,10 +596,13 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                     {
                         if (verify)
                             matched.crcs.push_back(texture.getCrcData(image->getMipMaps()[m]->getRefData()));
-                        mod.cacheCprMipmapsStorageType = StorageTypes::extOodle;
+                        if (OodleIsCompressionSupported())
+                            mod.cacheCprMipmapsStorageType = StorageTypes::extOodle;
+                        else
+                            mod.cacheCprMipmapsStorageType = StorageTypes::extZlib;
                         mod.cacheCprMipmapsDecompressedSize.push_back(image->getMipMaps()[m]->getRefData().size());
                         auto data = Package::compressData(image->getMipMaps()[m]->getRefData(),
-                                                            mod.cacheCprMipmapsStorageType);
+                                                          mod.cacheCprMipmapsStorageType);
                         mod.cacheCprMipmaps.push_back(MipMap(data, image->getMipMaps()[m]->getOrigWidth(),
                                                       image->getMipMaps()[m]->getOrigHeight(), mod.cachedPixelFormat, true));
                         mod.cacheSize += data.size();
@@ -640,8 +644,12 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                     {
                         if (texture.mipMapsList.count() == 1)
                             mipmap.storageType = StorageTypes::pccUnc;
-                        else
-                            mipmap.storageType = StorageTypes::extOodle;
+                        else {
+                            if (OodleIsCompressionSupported())
+                                mipmap.storageType = StorageTypes::extOodle;
+                            else
+                                mipmap.storageType = StorageTypes::extZlib;
+                        }
                     }
 
                     mipmapsPre.push_front(mipmap);
@@ -784,8 +792,8 @@ QString MipMaps::replaceTextures(QList<MapPackagesToMod> &map, QList<TextureMapE
                         {
                             MemoryStream stream(mod.cacheCprMipmaps[m].getRefData());
                             auto mip = Package::decompressData(stream, mod.cacheCprMipmapsStorageType,
-                                                                 mipmap.uncompressedSize,
-                                                                 mod.cacheCprMipmaps[m].getRefData().size());
+                                                               mipmap.uncompressedSize,
+                                                               mod.cacheCprMipmaps[m].getRefData().size());
                             mipmap.newData = mip;
                             mipmap.freeNewData = true;
                         }

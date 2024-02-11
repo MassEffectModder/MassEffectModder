@@ -106,7 +106,7 @@ const ByteBuffer TextureMovie::getData()
     case StorageTypes::extZlib:
     case StorageTypes::extOodle:
         {
-            CRASH_MSG("Texture Movies cannot be stored as comrpessed data! This is not supported.");
+            CRASH_MSG("Texture Movies cannot be stored as compressed data! This is not supported.");
         }
         break;
     case StorageTypes::extUnc:
