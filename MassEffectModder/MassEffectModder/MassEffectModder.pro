@@ -190,6 +190,7 @@ win32: {
         QMAKE_LFLAGS_DEBUG += "-Wl,--disable-dynamicbase"
         # Enforce DWARF-4 for backtraces (bfd code needs to be updated)
         QMAKE_CXXFLAGS += -gdwarf-4
+        QMAKE_LFLAGS_RELEASE -= "-Wl,-s"
     }
 
     Release:PRE_TARGETDEPS += $$OUT_PWD/../Wrappers/release/libWrappers.a
