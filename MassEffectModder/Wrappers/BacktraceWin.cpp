@@ -90,6 +90,8 @@ bool GetBackTrace(std::string &output, bool exceptionMode, bool crashMode)
         if (status == 0)
         {
             if (strcmp(sourceFunc, "WinMain") == 0 ||
+                strcmp(sourceFunc, "main") == 0 ||
+                strcmp(sourceFunc, "???") == 0 ||
                 strcmp(sourceFunc, "__tmainCRTStartup") == 0 ||
                 strcmp(sourceFunc, "mainCRTStartup") == 0 ||
                 strcmp(sourceFunc, "WinMainCRTStartup") == 0)
