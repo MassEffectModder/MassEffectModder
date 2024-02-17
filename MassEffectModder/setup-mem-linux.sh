@@ -3,7 +3,7 @@
 #
 # MIT License
 #
-# Copyright (c) 2019-2023 Pawel Kolodziejski
+# Copyright (c) 2019-2024 Pawel Kolodziejski
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,7 @@ echo
 
 BASE_PATH=/opt/stuff/schroot
 DISTRO_BASE=debian
-DISTRO_NAME=bullseye
+DISTRO_NAME=bookworm
 DISTRO_ARCH=amd64
 DISTRO_URL=
 if [ "$1" != "" ]; then
@@ -47,7 +47,7 @@ BRANCH=master
 USER_NAME=aquadran
 USER_ID=1000
 NUM_THREADS=`grep -c '^processor' /proc/cpuinfo`
-QT_VERSION=6.6.1
+QT_VERSION=6.6.2
 QT_VERSION_BASE=`echo $QT_VERSION | cut -d'.' -f 1,2`
 PACKAGES_ADD=bash,build-essential,ninja-build,clang,nasm,git,perl,python3,wget,\
 ca-certificates,libx11-dev,libsdl2-dev,libopenal-dev,libfontconfig1-dev,libssl-dev,\
@@ -96,7 +96,7 @@ apt-get --assume-yes update"
 fi
 
 if [ ! -f .stamp-appimage ]; then
-	$CHROOT_CMD_ROOT "mknod -m 666 /dev/fuse c 10 229;
+	$CHROOT_CMD_ROOT "mknod /dev/fuse c 10 229; chmod 666 /dev/fuse;
 wget https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage;
 chmod +x appimagetool-x86_64.AppImage;
 mv appimagetool-x86_64.AppImage /usr/local/bin/appimagetool"
@@ -135,20 +135,23 @@ if [ ! -f .stamp-qt-prepare ]; then
 cmake \
 -Wno-dev --log-level=STATUS -G Ninja -DBUILD_SHARED_LIBS=OFF -DFEATURE_static_runtime=ON \
 -DINPUT_zlib=qt -DINPUT_pcre=qt -DINPUT_libpng=qt -DINPUT_libjpeg=qt -DINPUT_doubleconversion=qt \
--DINPUT_harfbuzz=qt -DFEATURE_dbus=OFF -DFEATURE_icu=OFF -DFEATURE_cups=OFF -DFEATURE_gif=OFF \
--DFEATURE_ico=OFF -DFEATURE_eglfs=OFF -DFEATURE_gbm=OFF -DFEATURE_tiff=OFF -DFEATURE_webp=OFF \
--DFEATURE_journald=OFF -DFEATURE_syslog=OFF -DFEATURE_mimetype-database=OFF -DFEATURE_slog2=OFF \
--DFEATURE_feature-relocatable=OFF -DFEATURE_opengl=OFF \
+-DINPUT_harfbuzz=qt -DINPUT_opengl=OFF -DFEATURE_dbus=OFF -DFEATURE_icu=OFF -DFEATURE_cups=OFF \
+-DFEATURE_gif=OFF -DFEATURE_ico=OFF -DFEATURE_eglfs=OFF -DFEATURE_gbm=OFF -DFEATURE_tiff=OFF \
+-DFEATURE_webp=OFF -DFEATURE_journald=OFF -DFEATURE_syslog=OFF -DFEATURE_mimetype-database=OFF \
+-DFEATURE_slog2=OFF -DFEATURE_feature-relocatable=OFF -DFEATURE_opengl=OFF \
 -DQT_BUILD_TESTS=OFF -DQT_BUILD_EXAMPLES=OFF \
--DBUILD_qt3d=OFF -DBUILD_qt5compat=OFF -DBUILD_qtactiveqt=OFF -DBUILD_qtcoap=OFF -DBUILD_qtcharts=OFF -DBUILD_qtconnectivit=OFF \
--DBUILD_qtdatavis3d=OFF -DBUILD_qtdeclarative=OFF -DBUILD_qtdoc=OFF -DBUILD_qtgrpc=OFF -DBUILD_qtgraphs=OFF -DBUILD_qthttpserver=OFF \
--DBUILD_qtgraphicaleffects=OFF -DBUILD_qttools=ON -DBUILD_qtlocation=OFF -DBUILD_qtlottie=OFF -DBUILD_qtmqtt=OFF \
--DBUILD_qtmultimedia=OFF -DBUILD_qtnetworkauth=OFF -DBUILD_qtopcua=OFF -DBUILD_qtpositioning=OFF -DBUILD_qtquick3d=OFF \
--DBUILD_qtquick3dphysics=OFF -DBUILD_qtquickeffectmaker=OFF -DBUILD_qtquicktimeline=OFF -DBUILD_qtremoteobjects=OFF \
--DBUILD_qtscxml=OFF -DBUILD_qtsensors=OFF -DBUILD_qtserialbus=OFF -DBUILD_qtserialport=OFF -DBUILD_qtshadertools=OFF \
--DBUILD_qtspeech=OFF -DBUILD_qtsvg=OFF -DBUILD_qttools=OFF -DBUILD_qttranslations=OFF -DBUILD_qtvirtualkeyboard=OFF \
--DBUILD_qtwayland=OFF -DBUILD_qtwebchannel=OFF -DBUILD_qtwebengine=OFF -DBUILD_qtwebsockets=OFF -DBUILD_qtwebview=OFF \
--DQT_QMAKE_TARGET_MKSPEC=linux-clang -DFEATURE_glib=ON -DFEATURE_system_freetype=ON -DFEATURE_system_fontconfig=ON \
+-DBUILD_qt3d=OFF -DBUILD_qt5compat=OFF -DBUILD_qtactiveqt=OFF -DBUILD_qtcoap=OFF -DBUILD_qtcharts=OFF \
+-DBUILD_qtconnectivit=OFF -DBUILD_qtdatavis3d=OFF -DBUILD_qtdeclarative=OFF -DBUILD_qtdoc=OFF \
+-DBUILD_qtgrpc=OFF -DBUILD_qtgraphs=OFF -DBUILD_qthttpserver=OFF -DBUILD_qtgraphicaleffects=OFF \
+-DBUILD_qttools=ON -DBUILD_qtlocation=OFF -DBUILD_qtlottie=OFF -DBUILD_qtmqtt=OFF -DBUILD_qtmultimedia=OFF \
+-DBUILD_qtnetworkauth=OFF -DBUILD_qtopcua=OFF -DBUILD_qtpositioning=OFF -DBUILD_qtquick3d=OFF \
+-DBUILD_qtquick3dphysics=OFF -DBUILD_qtquickeffectmaker=OFF -DBUILD_qtquicktimeline=OFF \
+-DBUILD_qtremoteobjects=OFF -DBUILD_qtscxml=OFF -DBUILD_qtsensors=OFF -DBUILD_qtserialbus=OFF \
+-DBUILD_qtserialport=OFF -DBUILD_qtshadertools=OFF -DBUILD_qtspeech=OFF -DBUILD_qtsvg=OFF \
+-DBUILD_qttools=OFF -DBUILD_qttranslations=OFF -DBUILD_qtvirtualkeyboard=OFF -DBUILD_qtwayland=OFF \
+-DBUILD_qtwebchannel=OFF -DBUILD_qtwebengine=OFF -DBUILD_qtwebsockets=OFF -DBUILD_qtwebview=OFF \
+-DQT_QMAKE_TARGET_MKSPEC=linux-clang -DFEATURE_glib=ON -DFEATURE_system_freetype=ON \
+-DFEATURE_system_fontconfig=ON \
 -DINPUT_qpa=xcb -DFEATURE_xcb=ON -DFEATURE_xcb-native-painting=ON \
 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr"
 	sudo umount $BASE_CHROOT/proc
