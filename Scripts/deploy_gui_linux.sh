@@ -1,10 +1,10 @@
-build_path=$(cd ../build-MassEffectModder-*-Release; pwd)
+build_path=$(cd build-MassEffectModder-*-Release; pwd)
 top_path=$build_path/deploy
 bundle_path=$top_path/MassEffectModder.Appdir
 mkdir -p $bundle_path/usr/bin
 cp $build_path/MassEffectModder/MassEffectModder $bundle_path/usr/bin
-cp MassEffectModder/Resources/MEM.png $bundle_path/MassEffectModder.png
-version=`grep -E "^VERSION" MassEffectModder/Program/Version.pri | grep -o -E "[0-9]+"`
+cp ../MassEffectModder/MassEffectModder/Resources/MEM.png $bundle_path/MassEffectModder.png
+version=`grep -E "^VERSION" ../MassEffectModder/MassEffectModder/Program/Version.pri | grep -o -E "[0-9]+"`
 echo "#!/bin/sh
 SELF=\$(readlink -f \"\$0\")
 HERE=\${SELF%/*}

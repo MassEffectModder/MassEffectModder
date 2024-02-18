@@ -53,11 +53,11 @@ $CHROOT_CMD_USER "cd /home/$USER_NAME/builds/sources/MassEffectModder; git clean
 mkdir -p /home/$USER_NAME/builds/sources/MassEffectModder/build-MassEffectModder-sandbox-Release;
 cd /home/$USER_NAME/builds/sources/MassEffectModder/build-MassEffectModder-sandbox-Release;
 qmake ../MassEffectModder/MassEffectModder.pro; make -j$NUM_THREADS;
-cd /home/$USER_NAME/builds/sources/MassEffectModder/MassEffectModder; ./deploy_gui_linux.sh;
+cd /home/$USER_NAME/builds/sources/MassEffectModder/Scripts; ./deploy_gui_linux.sh;
 mkdir -p /home/$USER_NAME/builds/sources/MassEffectModder/build-MassEffectModderNoGui-sandbox-Release;
 cd /home/$USER_NAME/builds/sources/MassEffectModder/build-MassEffectModderNoGui-sandbox-Release;
 qmake ../MassEffectModder/MassEffectModderNoGui.pro; make -j$NUM_THREADS
-cd /home/$USER_NAME/builds/sources/MassEffectModder/MassEffectModder; ./deploy_nogui_linux.sh;"
+cd /home/$USER_NAME/builds/sources/MassEffectModder/Scripts; ./deploy_nogui_linux.sh;"
 sudo umount $BASE_CHROOT/proc
 sudo umount $BASE_CHROOT/tmp/.mount_appima*
 sudo umount $BASE_CHROOT/tmp/.mount_linux*
