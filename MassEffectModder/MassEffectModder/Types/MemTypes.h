@@ -63,8 +63,7 @@ typedef enum
 {
     LZO = 1,
     Zlib = 2,
-    LZMA = 3,
-    ZSTD = 4
+    LZMA = 3
 } CompressionDataType;
 
 #define textureMapBinTag      0x5054454D

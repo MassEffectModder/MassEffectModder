@@ -218,9 +218,6 @@ Release:LIBS += \
     -L$$OUT_PWD/../Libs/oodle/release -loodle \
     -L$$OUT_PWD/../Libs/zlib/release -lzlib \
     -L$$OUT_PWD/../Libs/unrar/release -lunrar
-equals(ZSTD_ENABLE, true) {
-    Release:LIBS += -L$$OUT_PWD/../Libs/zstd/release -lzstd
-}
 Debug:LIBS += \
     -L$$OUT_PWD/../Wrappers/debug -lWrappers \
     -L$$OUT_PWD/../Libs/7z/debug -l7z \
@@ -232,9 +229,6 @@ Debug:LIBS += \
     -L$$OUT_PWD/../Libs/oodle/debug -loodle \
     -L$$OUT_PWD/../Libs/zlib/debug -lzlib \
     -L$$OUT_PWD/../Libs/unrar/debug -lunrar
-equals(ZSTD_ENABLE, true) {
-    Debug:LIBS += -L$$OUT_PWD/../Libs/zstd/debug -lzstd
-}
 } else:unix: {
 LIBS += \
     -L$$OUT_PWD/../Wrappers -lWrappers \
@@ -248,9 +242,6 @@ LIBS += \
     -L$$OUT_PWD/../Libs/oodle -loodle \
     -L$$OUT_PWD/../Libs/zlib -lzlib \
     -L$$OUT_PWD/../Libs/unrar -lunrar
-equals(ZSTD_ENABLE, true) {
-    LIBS += -L$$OUT_PWD/../Libs/zstd -lzstd
-}
 }
 
 macx {

@@ -16,14 +16,7 @@ SUBDIRS += Libs/omp
 SUBDIRS += \
     Libs/oodle \
     Libs/png \
-    Libs/zlib
-
-equals(ZSTD_ENABLE, true) {
-SUBDIRS += \
-    Libs/zstd
-}
-
-SUBDIRS += \
+    Libs/zlib \
     Libs/unrar \
     Wrappers \
     MassEffectModder

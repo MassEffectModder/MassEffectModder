@@ -27,10 +27,6 @@ SOURCES += \
     WrapperOodle.cpp \
     WrapperPng.cpp \
     WrapperUnrar.cpp
-
-equals(ZSTD_ENABLE, true) {
-    SOURCES += WrapperZstd.cpp
-}
 }
 
 !equals(WRAPPERS_SHARED, true) {
@@ -67,7 +63,6 @@ INCLUDEPATH += \
     $$PWD/../Libs/png \
     $$PWD/../Libs/oodle \
     $$PWD/../Libs/zlib \
-    $$PWD/../Libs/zstd \
     $$PWD/../Libs/unrar
 
 DEPENDPATH += \
@@ -78,7 +73,6 @@ DEPENDPATH += \
     $$PWD/../Libs/png \
     $$PWD/../Libs/oodle \
     $$PWD/../Libs/zlib \
-    $$PWD/../Libs/zstd \
     $$PWD/../Libs/unrar
 
 
@@ -97,9 +91,6 @@ Release:LIBS += \
     Release:LIBS += -L$$OUT_PWD/../Libs/dxtc/release -ldxtc
 }
 
-equals(ZSTD_ENABLE, true) {
-    Release:LIBS += -L$$OUT_PWD/../Libs/zstd/release -lzstd
-}
 Debug:LIBS += \
     -L$$OUT_PWD/../Libs/7z/debug -l7z \
     -L$$OUT_PWD/../Libs/unlzx/debug -lunlzx \
@@ -110,9 +101,6 @@ Debug:LIBS += \
     Debug:LIBS += -L$$OUT_PWD/../Libs/dxtc/debug -ldxtc \
 }
 
-equals(ZSTD_ENABLE, true) {
-    Debug:LIBS += -L$$OUT_PWD/../Libs/zstd/debug -lzstd
-}
 } else:unix: {
 LIBS += \
     -L$$OUT_PWD/../Libs/7z -l7z \
@@ -125,9 +113,6 @@ LIBS += \
     LIBS += -L$$OUT_PWD/../Libs/oodle -loodle
 }
 
-equals(ZSTD_ENABLE, true) {
-    LIBS += -L$$OUT_PWD/../Libs/zstd -lzstd
-}
 }
 
 }
