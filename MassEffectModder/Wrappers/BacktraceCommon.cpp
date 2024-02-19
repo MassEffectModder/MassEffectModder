@@ -75,8 +75,8 @@ int BacktraceGetInfoFromModule(char *moduleFilePath, unsigned long long offset, 
             if (offset >= address && offset < address + sectionSize)
             {
                 const char *filename = nullptr, *function = nullptr;
-                if (bfd_find_nearest_line(bfdHandle, section, reinterpret_cast<bfd_symbol **>(symbolsTable),
-                    offset - address, &filename, &function, sourceLine))
+                if (bfd_find_nearest_line(bfdHandle, section, &symbolsTable,
+                                          offset - address, &filename, &function, sourceLine))
                 {
                     if (filename)
                         strcpy(sourceFile, filename);
