@@ -153,7 +153,7 @@ equals(RELEASE_IN_DEBUG_MODE, true) {
 } else {
     CONFIG(release, debug | release) {
         DEFINES += NDEBUG
-        macx {
+        macos {
             equals(GUI_MODE, true) {
                 QMAKE_POST_LINK += dsymutil "$$TARGET".app/Contents/MacOS/$$TARGET -o "$$TARGET".app/Contents/MacOS/"$$TARGET".dSYM
             } else {
@@ -244,7 +244,7 @@ LIBS += \
     -L$$OUT_PWD/../Libs/unrar -lunrar
 }
 
-macx {
+macos {
     QMAKE_CXXFLAGS_RELEASE += -fvisibility=hidden -fvisibility-inlines-hidden -Xpreprocessor -fopenmp
     QMAKE_MACOSX_DEPLOYMENT_TARGET = 11.00
 }

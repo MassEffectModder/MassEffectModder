@@ -30,7 +30,7 @@ SOURCES += \
 }
 
 !equals(WRAPPERS_SHARED, true) {
-    macx {
+    macos {
         SOURCES += BacktraceMac.cpp
     }
 

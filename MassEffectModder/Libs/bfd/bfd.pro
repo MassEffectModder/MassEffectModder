@@ -48,7 +48,7 @@ SOURCES += \
     elfxx-x86.c
 }
 
-macx {
+macos {
 SOURCES += \
     mach-o-x86-64.c \
     mach-o.c
