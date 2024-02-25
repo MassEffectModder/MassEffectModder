@@ -586,6 +586,8 @@ to find an alternative output format that is suitable.
    Alphabetized for easy reference.
    They are listed a second time below, since
    we can't intermix extern's and initializers.  */
+extern const bfd_target aarch64_elf64_le_vec;
+extern const bfd_target aarch64_mach_o_vec;
 extern const bfd_target x86_64_elf64_vec;
 extern const bfd_target x86_64_mach_o_vec;
 extern const bfd_target x86_64_pei_vec;
@@ -613,9 +615,11 @@ static const bfd_target * const _bfd_target_vector[] =
 
 #ifdef BFD64
 #if defined(__linux__)
+	&aarch64_elf64_le_vec,
 	&x86_64_elf64_vec,
 #endif
 #if defined(__APPLE__)
+	&aarch64_mach_o_vec,
 	&x86_64_mach_o_vec,
 #endif
 #if defined(__MINGW32__)

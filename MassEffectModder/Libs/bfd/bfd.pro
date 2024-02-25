@@ -10,6 +10,7 @@ SOURCES += \
     bfdio.c \
     cache.c \
     compress.c \
+    cpu-aarch64.c \
     cpu-i386.c \
     dwarf2.c \
     filename_cmp.c \
@@ -45,11 +46,14 @@ SOURCES += \
     elf.c \
     elf64.c \
     elf64-x86-64.c \
-    elfxx-x86.c
+    elfxx-x86.c \
+    elf64-aarch64.c \
+    elfxx-aarch64.c
 }
 
 macos {
 SOURCES += \
+    mach-o-aarch64.c \
     mach-o-x86-64.c \
     mach-o.c
 }
