@@ -1,4 +1,4 @@
-build_path=$(cd build-MassEffectModder-*-Release/MassEffectModder; pwd)
+build_path=$(cd ../build-MassEffectModder-*-Release/MassEffectModder; pwd)
 top_path=$build_path/deploy
 bundle_path=$top_path/MassEffectModder.app
 mkdir -p $bundle_path/Contents/Resources
@@ -8,9 +8,9 @@ rm -f $bundle_path/Contents/Resources/empty.lproj
 mkdir -p $top_path/Licenses
 cp ../Licenses/* $top_path/Licenses
 cp ../COPYING.txt $top_path/License.txt
-version=`grep -E "^VERSION" MassEffectModder/Program/Version.pri | grep -o -E "[0-9]+"`
-year=`grep -E "^MEM_YEAR" MassEffectModder/Program/Version.pri | grep -o -E "[0-9]+"`
-copyright=`grep -E "^QMAKE_TARGET_COPYRIGHT" MassEffectModder/Program/Version.pri | grep -o -E "\".*\""`
+version=`grep -E "^VERSION" ../MassEffectModder/MassEffectModder/Program/Version.pri | grep -o -E "[0-9]+"`
+year=`grep -E "^MEM_YEAR" ../MassEffectModder/MassEffectModder/Program/Version.pri | grep -o -E "[0-9]+"`
+copyright=`grep -E "^QMAKE_TARGET_COPYRIGHT" ../MassEffectModder/MassEffectModder/Program/Version.pri | grep -o -E "\".*\""`
 copyright=`echo $copyright | sed -e "s|MEM_YEAR|$year|g" | sed -e 's|\$*||g' | sed -e 's|\"||g'`
 sed -i '' "s/Created by Qt/$copyright/" $bundle_path/Contents/Info.plist
 sed -i '' "s/NOTE/CFBundleVersion/" $bundle_path/Contents/Info.plist
