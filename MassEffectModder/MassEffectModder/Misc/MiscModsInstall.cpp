@@ -221,7 +221,7 @@ bool Misc::InstallMods(MeType gameId, Resources &resources, QStringList &modFile
 
     Misc::startTimer();
 
-	bool modded = detectMod(gameId);
+    bool modded = detectMod(gameId);
     if (g_ipc)
     {
         if (!modded)
