@@ -82,6 +82,17 @@ HEADERS += \
 
 DEFINES += HAVE_CONFIG_H
 
+macos {
+    CONFIG(debug, debug|release) {
+        contains(QT_ARCH, x86_64) {
+            QMAKE_APPLE_DEVICE_ARCHS=x86_64h
+        }
+        contains(QT_ARCH, arm64) {
+            QMAKE_APPLE_DEVICE_ARCHS=arm64
+        }
+    }
+}
+
 win32-g++: {
     QMAKE_CFLAGS += -Wno-format-extra-args -Wno-format
 }

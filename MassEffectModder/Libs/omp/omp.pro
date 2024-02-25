@@ -63,6 +63,17 @@ HEADERS += \
         kmp_wrapper_malloc.h \
         omp.h
 
+macos {
+    CONFIG(debug, debug|release) {
+        contains(QT_ARCH, x86_64) {
+            QMAKE_APPLE_DEVICE_ARCHS=x86_64h
+        }
+        contains(QT_ARCH, arm64) {
+            QMAKE_APPLE_DEVICE_ARCHS=arm64
+        }
+    }
+}
+
 QMAKE_CXXFLAGS += -std=gnu++11 -O3 -DNDEBUG -D _GNU_SOURCE -D _REENTRANT \
                   -fno-exceptions -fno-rtti -w
 

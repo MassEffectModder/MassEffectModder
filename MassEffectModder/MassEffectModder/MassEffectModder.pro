@@ -247,6 +247,14 @@ LIBS += \
 macos {
     QMAKE_CXXFLAGS_RELEASE += -fvisibility=hidden -fvisibility-inlines-hidden -Xpreprocessor -fopenmp
     QMAKE_MACOSX_DEPLOYMENT_TARGET = 11.00
+    CONFIG(debug, debug|release) {
+        contains(QT_ARCH, x86_64) {
+            QMAKE_APPLE_DEVICE_ARCHS=x86_64h
+        }
+        contains(QT_ARCH, arm64) {
+            QMAKE_APPLE_DEVICE_ARCHS=arm64
+        }
+    }
 }
 
 win32 {
