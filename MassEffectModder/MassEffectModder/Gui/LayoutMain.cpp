@@ -19,6 +19,7 @@
  *
  */
 
+#include <Gui/MessageWindow.h>
 #include <Gui/MainWindow.h>
 #include <Gui/LayoutTexturesManager.h>
 #include <Gui/LayoutInstallMods.h>
@@ -28,11 +29,7 @@
 #include <Types/MemTypes.h>
 #include <Misc/Misc.h>
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-void HoverLabel::enterEvent(QEvent *ev)
-#else
 void HoverLabel::enterEvent(QEnterEvent *ev)
-#endif
 {
     if (!hover) {
         hover = true;
@@ -48,6 +45,21 @@ void HoverLabel::leaveEvent(QEvent *ev)
         layoutMain->HoverOutME(idLabel);
     }
     QLabel::leaveEvent(ev);
+}
+
+bool HoverLabel::event(QEvent *ev)
+{
+    switch (ev->type())
+    {
+        case (QEvent::MouseButtonRelease):
+        {
+            emit labelClicked();
+            break;
+        }
+        default:
+            break;
+    }
+    return QLabel::event(ev);
 }
 
 void LayoutMain::LockGui(bool lock)
@@ -474,17 +486,13 @@ LayoutMain::LayoutMain(MainWindow *window)
     groupBoxViewME3->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
     groupBoxViewME3->setLayout(verticalLayoutMenuME3);
 
-    auto verticalLayoutMainME1 = new QVBoxLayout();
-    verticalLayoutMainME1->setAlignment(Qt::AlignCenter);
-    verticalLayoutMainME1->addWidget(groupBoxViewME1);
+    labelLicense = new HoverLabel(4, this);
+    labelLicense->setAlignment(Qt::AlignRight);
+    labelLicense->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    labelLicense->setText("License");
+    labelLicense->setStyleSheet("color: grey");
+    connect(labelLicense, &HoverLabel::labelClicked, this, &LayoutMain::ButtonLicenseClicked);
 
-    auto verticalLayoutMainME2 = new QVBoxLayout();
-    verticalLayoutMainME2->setAlignment(Qt::AlignCenter);
-    verticalLayoutMainME2->addWidget(groupBoxViewME2);
-
-    auto verticalLayoutMainME3 = new QVBoxLayout();
-    verticalLayoutMainME3->setAlignment(Qt::AlignCenter);
-    verticalLayoutMainME3->addWidget(groupBoxViewME3);
 
     auto verticalLayoutME1 = new QVBoxLayout(labelME1);
     verticalLayoutME1->setAlignment(Qt::AlignCenter | Qt::AlignTop);
@@ -503,15 +511,28 @@ LayoutMain::LayoutMain(MainWindow *window)
     labelME2->setLayout(verticalLayoutME2);
     labelME3->setLayout(verticalLayoutME3);
 
-    auto horizontalLayoutMain = new QHBoxLayout(this);
+    auto horizontalLayoutMain = new QHBoxLayout();
     horizontalLayoutMain->addWidget(labelME1);
     horizontalLayoutMain->addWidget(labelME2);
     horizontalLayoutMain->addWidget(labelME3);
+
+    auto hLicenseLayout = new QHBoxLayout();
+    hLicenseLayout->addWidget(labelLicense);
+    hLicenseLayout->setAlignment(Qt::AlignRight);
+
+    auto verticalLayout = new QVBoxLayout(this);
+    verticalLayout->addLayout(horizontalLayoutMain);
+    verticalLayout->addLayout(hLicenseLayout);
 
     HideAllSubMenusME1();
     HideAllSubMenusME2();
     HideAllSubMenusME3();
     DefaultMenuState();
+
+    QFile file(":COPYING.txt");
+    file.open(QIODevice::ReadOnly);
+    QTextStream in(&file);
+    license.append(in.readAll());
 
     mainWindow->SetTitle(MeType::UNKNOWN_TYPE, "");
 }
@@ -562,6 +583,7 @@ void LayoutMain::HoverInME(int id)
         auto effectGr1 = new QGraphicsColorizeEffect(this);
         effectGr1->setStrength(0);
         iconME1Logo->setGraphicsEffect(effectGr1);
+        effect->setOpacity(1);
     }
     else if (id == 2)
     {
@@ -569,6 +591,7 @@ void LayoutMain::HoverInME(int id)
         auto effectGr2 = new QGraphicsColorizeEffect(this);
         effectGr2->setStrength(0);
         iconME2Logo->setGraphicsEffect(effectGr2);
+        effect->setOpacity(1);
     }
     else if (id == 3)
     {
@@ -576,43 +599,58 @@ void LayoutMain::HoverInME(int id)
         auto effectGr3 = new QGraphicsColorizeEffect(this);
         effectGr3->setStrength(0);
         iconME3Logo->setGraphicsEffect(effectGr3);
+        effect->setOpacity(1);
     }
-    effect->setOpacity(1);
+    else if (id == 4)
+    {
+        labelLicense->setStyleSheet("color: white");
+    }
 }
 
 void LayoutMain::HoverOutME(int id)
 {
-    auto effect = new QGraphicsOpacityEffect(this);
-    auto effectGr = new QGraphicsColorizeEffect(this);
-    effectGr->setColor(QColor(0, 0, 0));
+    QGraphicsOpacityEffect *effectOpacity;
+    QGraphicsColorizeEffect *effectColor;
+
+    if (id >= 1 && id <= 3) {
+        effectOpacity = new QGraphicsOpacityEffect(this);
+        effectColor = new QGraphicsColorizeEffect(this);
+        effectColor->setColor(QColor(0, 0, 0));
+    }
     if (id == 1)
     {
-        groupBoxViewME1->setGraphicsEffect(effect);
-        iconME1Logo->setGraphicsEffect(effectGr);
+        groupBoxViewME1->setGraphicsEffect(effectOpacity);
+        iconME1Logo->setGraphicsEffect(effectColor);
     }
     else if (id == 2)
     {
-        groupBoxViewME2->setGraphicsEffect(effect);
-        iconME2Logo->setGraphicsEffect(effectGr);
+        groupBoxViewME2->setGraphicsEffect(effectOpacity);
+        iconME2Logo->setGraphicsEffect(effectColor);
     }
     else if (id == 3)
     {
-        groupBoxViewME3->setGraphicsEffect(effect);
-        iconME3Logo->setGraphicsEffect(effectGr);
+        groupBoxViewME3->setGraphicsEffect(effectOpacity);
+        iconME3Logo->setGraphicsEffect(effectColor);
     }
-    auto anim = new QPropertyAnimation(effect, "opacity");
-    anim->setDuration(500);
-    anim->setStartValue(1);
-    anim->setEndValue(0.5);
-    anim->setEasingCurve(QEasingCurve::OutBack);
-    anim->start(QPropertyAnimation::DeleteWhenStopped);
+    else if (id == 4)
+    {
+        labelLicense->setStyleSheet("color: grey");
+    }
+    if (id >= 1 && id <= 3) {
+        auto anim = new QPropertyAnimation(effectOpacity, "opacity");
+        anim->setDuration(500);
+        anim->setStartValue(1);
+        anim->setEndValue(0.5);
+        anim->setEasingCurve(QEasingCurve::OutBack);
+        anim->start(QPropertyAnimation::DeleteWhenStopped);
 
-    auto animGr = new QPropertyAnimation(effectGr, "strength");
-    animGr->setDuration(500);
-    animGr->setStartValue(0);
-    animGr->setEndValue(1);
-    animGr->setEasingCurve(QEasingCurve::OutBack);
-    animGr->start(QPropertyAnimation::DeleteWhenStopped);
+        auto animGr = new QPropertyAnimation(effectColor, "strength");
+        animGr->setDuration(500);
+        animGr->setStartValue(0);
+        animGr->setEndValue(1);
+        animGr->setEasingCurve(QEasingCurve::OutBack);
+        animGr->start(QPropertyAnimation::DeleteWhenStopped);
+    }
 }
 
 void LayoutMain::RemoveEffectsOnMenus()
@@ -851,4 +889,10 @@ void LayoutMain::ButtonModsManagerME3Selected()
     buttonExtractModsME3->setHidden(!checked);
     buttonCreateModME3->setHidden(!checked);
     buttonModsManagerME3->show();
+}
+
+void LayoutMain::ButtonLicenseClicked()
+{
+    MessageWindow msg;
+    msg.Show(mainWindow, "License", license);
 }

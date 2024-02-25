@@ -30,6 +30,9 @@ class HoverLabel : public QLabel
 {
     Q_OBJECT
 
+signals:
+    void labelClicked();
+
 private:
     bool       hover;
     int        idLabel;
@@ -46,11 +49,8 @@ public:
 
 protected:
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    void enterEvent(QEvent *ev) override;
-#else
+    bool event(QEvent *ev) override;
     void enterEvent(QEnterEvent *ev) override;
-#endif
     void leaveEvent(QEvent *ev) override;
 };
 
@@ -102,6 +102,8 @@ private slots:
     void CreateModME1Selected() { CreateModSelected(MeType::ME1_TYPE); }
     void CreateModME2Selected() { CreateModSelected(MeType::ME2_TYPE); }
     void CreateModME3Selected() { CreateModSelected(MeType::ME3_TYPE); }
+
+    void ButtonLicenseClicked();
 
     friend class HoverLabel;
 
@@ -170,6 +172,9 @@ private:
     QPushButton   *buttonExtractModsME3;
     QPushButton   *buttonCreateModME3;
     QGroupBox     *groupBoxViewME3;
+
+    HoverLabel    *labelLicense;
+    QString       license;
 
     void OnStackChanged() override;
 

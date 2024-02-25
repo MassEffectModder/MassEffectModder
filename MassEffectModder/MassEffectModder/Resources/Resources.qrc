@@ -13,5 +13,6 @@
     <file>me1_bg.jpg</file>
     <file>me2_bg.jpg</file>
     <file>me3_bg.jpg</file>
+    <file>../../../COPYING.txt</file>
 </qresource>
 </RCC>
