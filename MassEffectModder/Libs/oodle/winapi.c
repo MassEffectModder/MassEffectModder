@@ -682,7 +682,7 @@ static BOOL WINAPI QueryPerformanceCounter(LARGE_INTEGER *lpPerformanceCount)
     if (clock_gettime(CLOCK_MONOTONIC_RAW, &tm) != 0)
         return FALSE;
 
-    lpPerformanceCount = tm.tv_nsec;
+    *lpPerformanceCount = tm.tv_nsec;
 
     return TRUE;
 }
