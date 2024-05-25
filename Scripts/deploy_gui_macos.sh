@@ -1,4 +1,4 @@
-build_path=$(cd ../build-MassEffectModder-*-Release/MassEffectModder; pwd)
+build_path=$(cd ../MassEffectModder/build/*-Release/MassEffectModder; pwd)
 top_path=$build_path/deploy
 bundle_path=$top_path/MassEffectModder.app
 mkdir -p $bundle_path/Contents/Resources

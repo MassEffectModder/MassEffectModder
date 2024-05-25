@@ -1,4 +1,4 @@
-build-*
+MassEffectModder/build/
 *.user
 *.dmg
 *.zip
