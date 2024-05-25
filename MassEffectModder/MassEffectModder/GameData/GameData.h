@@ -96,6 +96,14 @@ bool comparePath(const QString &e1, const QString &e2);
 #define LANG_ES            "_es."
 #define LANG_ES_LEN        (sizeof(LANG_ES) - 1)
 
+#ifdef WIN32
+#define LIB_EXT            ".dll"
+#elif defined(__APPLE__)
+#define LIB_EXT            ".dylib"
+#else
+#define LIB_EXT            ".so"
+#endif
+
 class GameData
 {
 private:

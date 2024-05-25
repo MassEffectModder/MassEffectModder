@@ -47,13 +47,7 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
         bool status = false;
         QString libPath = _path + "/Game/ME" + QString::number((int)gameType) +
                 "/Binaries/Win64/oo2core_8_win64";
-#ifdef WIN32
-        QString libExt = ".dll";
-#elif defined(__APPLE__)
-        QString libExt = ".dylib";
-#else
-        QString libExt = ".so";
-#endif
+        QString libExt = LIB_EXT;
         if (QFile::exists(libPath + libExt))
         {
 #ifdef WIN32
@@ -298,8 +292,8 @@ void GameData::ScanGameFiles(bool force, const QString &filterPath)
 
 void GameData::Init(MeType type)
 {
-	ConfigIni configIni{};
-	InternalInit(type, configIni);
+    ConfigIni configIni{};
+    InternalInit(type, configIni);
 }
 
 void GameData::Init(MeType type, ConfigIni &configIni)
