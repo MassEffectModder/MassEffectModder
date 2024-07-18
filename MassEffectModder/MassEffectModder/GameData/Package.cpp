@@ -129,7 +129,7 @@ int Package::Open(const QString &filename, bool headerOnly, bool fullLoad)
     {
         delete packageStream;
         packageStream = nullptr;
-        PERROR(QString("FATA ERROR: Wrong package tag: %1\n").arg(filename));
+        PERROR(QString("FATAL ERROR: Package has wrong tag: %1\n").arg(filename));
         return -1;
     }
     ushort ver = packageStream->ReadUInt16();
@@ -147,14 +147,14 @@ int Package::Open(const QString &filename, bool headerOnly, bool fullLoad)
     {
         delete packageStream;
         packageStream = nullptr;
-        PERROR(QString("FATA ERROR: Wrong package version in file: %1\n").arg(filename));
+        PERROR(QString("FATAL ERROR: Package has invalid version number: %1\n").arg(filename));
         return -1;
     }
 
     packageHeader = new quint8[packageHeaderSize];
     if (packageHeader == nullptr)
     {
-        PERROR((QString("FATA ERROR: Out of memory! - amount: ") +
+        PERROR((QString("FATAL ERROR: Out of memory! - amount: ") +
                 QString::number(packageHeaderSize)).toStdString().c_str());
         return -1;
     }
@@ -192,12 +192,12 @@ int Package::Open(const QString &filename, bool headerOnly, bool fullLoad)
     if (getCompressedFlag())
     {
         if (packageStream->Position() != chunks[0].comprOffset) {
-            PERROR(QString("FATA ERROR: Package file has broken header: %1\n").arg(filename));
+            PERROR(QString("FATAL ERROR: Package file has broken header (Invalid compressed offset): %1\n").arg(filename));
             return -1;
         }
 
         if ((uint)dataOffset != chunks[0].uncomprOffset) {
-            PERROR(QString("FATA ERROR: Package file has broken header: %1\n").arg(filename));
+            PERROR(QString("FATAL ERROR: Package file has broken header (Invalid uncompressed offset): %1\n").arg(filename));
             return -1;
         }
 
@@ -206,7 +206,7 @@ int Package::Open(const QString &filename, bool headerOnly, bool fullLoad)
         packageData->JumpTo(dataOffset);
         if (!getData((uint)dataOffset, length, packageData))
         {
-            PERROR(QString("FATA ERROR: Package file has broken header: %1\n").arg(filename));
+            PERROR(QString("FATAL ERROR: Package file has broken header (Invalid data offset): %1\n").arg(filename));
             return -1;
         }
     }
@@ -220,7 +220,7 @@ int Package::Open(const QString &filename, bool headerOnly, bool fullLoad)
     {
         if (getCompressedFlag()) // allowed only uncompressed
         {
-            PERROR(QString("FATA ERROR: Broken package header (compressed flag not expected)!"));
+            PERROR(QString("FATAL ERROR: Broken package header (compression flag not expected (names table))"));
             return -1;
         }
     }
@@ -234,7 +234,7 @@ int Package::Open(const QString &filename, bool headerOnly, bool fullLoad)
     {
         if (getCompressedFlag()) // allowed only uncompressed
         {
-            PERROR(QString("FATA ERROR: Broken package header (compressed flag not expected)!"));
+            PERROR(QString("FATAL ERROR: Broken package header (compressed flag not expected (imports table))"));
             return -1;
         }
     }
@@ -290,27 +290,27 @@ bool Package::getData(uint offset, uint length, Stream *outputStream, quint8 *ou
                 uint blockTag = packageStream->ReadUInt32(); // block tag
                 if (blockTag != DataTag)
                 {
-                    PERROR(QString("FATA ERROR: Broken data header (data tag)!"));
+                    PERROR(QString("FATAL ERROR: Broken data header (data tag)!"));
                     return false;
                 }
                 uint blockSize = packageStream->ReadUInt32(); // max block size
                 if (blockSize != MaxBlockSize)
                 {
-                    PERROR(QString("FATA ERROR: Broken data header (data block size)!"));
+                    PERROR(QString("FATAL ERROR: Broken data header (data block size)!"));
                     return false;
                 }
                 uint compressedChunkSize = packageStream->ReadUInt32(); // compressed chunk size
                 uint uncompressedChunkSize = packageStream->ReadUInt32();
                 if (uncompressedChunkSize != chunk.uncomprSize)
                 {
-                    PERROR(QString("FATA ERROR: Broken data header (data chunk size)!"));
+                    PERROR(QString("FATAL ERROR: Broken data header (data chunk size)!"));
                     return false;
                 }
 
                 uint blocksCount = (uncompressedChunkSize + MaxBlockSize - 1) / MaxBlockSize;
                 if ((compressedChunkSize + SizeOfChunk + SizeOfChunkBlock * blocksCount) != chunk.comprSize)
                 {
-                    PERROR(QString("FATA ERROR: Broken data header (compressed data size)!"));
+                    PERROR(QString("FATAL ERROR: Broken data header (compressed data size)!"));
                     return false;
                 }
 
@@ -330,7 +330,7 @@ bool Package::getData(uint offset, uint length, Stream *outputStream, quint8 *ou
                     block.compressedBuffer = new quint8[block.comprSize];
                     if (block.compressedBuffer == nullptr)
                     {
-                        PERROR((QString("FATA ERROR: Out of memory! - amount: ") +
+                        PERROR((QString("FATAL ERROR: Out of memory! - amount: ") +
                                 QString::number(block.comprSize)).toStdString().c_str());
                         return false;
                     }
@@ -338,7 +338,7 @@ bool Package::getData(uint offset, uint length, Stream *outputStream, quint8 *ou
                     block.uncompressedBuffer = new quint8[MaxBlockSize * 2];
                     if (block.uncompressedBuffer == nullptr)
                     {
-                        PERROR((QString("FATA ERROR: Out of memory! - amount: ") +
+                        PERROR((QString("FATAL ERROR: Out of memory! - amount: ") +
                                 QString::number(MaxBlockSize * 2)).toStdString().c_str());
                         return false;
                     }
@@ -355,12 +355,12 @@ bool Package::getData(uint offset, uint length, Stream *outputStream, quint8 *ou
                         uint dstLen = MaxBlockSize * 2;
                         if (ZlibDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen) == -100)
                         {
-                            PERROR(QString("FATA ERROR: Out of memory!"));
+                            PERROR(QString("FATAL ERROR: Out of memory!"));
                             failed = true;
                         }
                         if (dstLen != block.uncomprSize)
                         {
-                            PERROR(QString("FATA ERROR: Decompression failed!"));
+                            PERROR(QString("FATAL ERROR: Package decompression failed (ZLib)!"));
                             failed = true;
                         }
                     }
@@ -373,13 +373,13 @@ bool Package::getData(uint offset, uint length, Stream *outputStream, quint8 *ou
                         const ChunkBlock& block = blocks[b];
                         if (OodleDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, block.uncomprSize) != 0)
                         {
-                            PERROR(QString("FATA ERROR: Decompression failed!"));
+                            PERROR(QString("FATAL ERROR: Package decompression failed (Oodle)!"));
                             failed = true;
                         }
                     }
                 }
                 else
-                    CRASH_MSG("Compression type not expected!");
+                    CRASH_MSG("Unsupported compression type encountered!");
 
                 for (int b = 0; b < blocks.count(); b++)
                 {
@@ -1048,7 +1048,7 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
         {
             if (!getData(exp.getDataOffset(), exp.getDataSize(), &tempOutput))
             {
-                PERROR(QString("FATA ERROR: Package file has broken export data: %1\n").arg(packagePath));
+                PERROR(QString("FATAL ERROR: Package file has broken export data %1: %2\n").arg((i+1)).arg(packagePath));
                 return false;
             }
         }
@@ -1108,7 +1108,7 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
     std::unique_ptr<FileStream> fs (new FileStream(g_GameData->GamePath() + packagePath,
                                                    FileMode::Create, FileAccess::WriteOnly));
     if (fs == nullptr) {
-        PERROR(QString("FATA ERROR: Failed to write to file: %1").arg(packagePath).toStdString().c_str());
+        PERROR(QString("FATAL ERROR: Failed to open file for writing: %1").arg(packagePath).toStdString().c_str());
         return false;
     }
 
@@ -1185,7 +1185,7 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
                 block.uncompressedBuffer = new quint8[block.uncomprSize];
                 if (block.uncompressedBuffer == nullptr)
                 {
-                    PERROR((QString("FATA ERROR: Out of memory! - amount: ") +
+                    PERROR((QString("FATAL ERROR: Out of memory! - amount: ") +
                             QString::number(block.uncomprSize)).toStdString().c_str());
                     return -1;
                 }
@@ -1202,12 +1202,12 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
                     if (ZlibCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize,
                                      forceCompressed ? 9 : 1) == -100)
                     {
-                        PERROR(QString("FATA ERROR: Out of memory!"));
+                        PERROR(QString("FATAL ERROR: Out of memory!"));
                         return -1;
                     }
                     if (block.comprSize == 0)
                     {
-                        PERROR(QString("FATA ERROR: Compression failed!"));
+                        PERROR(QString("FATAL ERROR: Compression failed (ZLib)!"));
                         return -1;
                     }
                     chunk.blocks.replace(b, block);
@@ -1221,19 +1221,19 @@ bool Package::SaveToFile(bool forceCompressed, bool forceDecompressed, bool appe
                     ChunkBlock block = chunk.blocks[b];
                     if (OodleCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) == -100)
                     {
-                        PERROR(QString("FATA ERROR: Out of memory!"));
+                        PERROR(QString("FATAL ERROR: Out of memory!"));
                         return false;
                     }
                     if (block.comprSize == 0)
                     {
-                        PERROR(QString("FATA ERROR: Compression failed!"));
+                        PERROR(QString("FATAL ERROR: Compression failed (Oodle)!"));
                         return false;
                     }
                     chunk.blocks.replace(b, block);
                 }
             }
             else
-                CRASH_MSG("Compression type not expected!");
+                CRASH_MSG("Unsupported compression type encountered!");
 
             for (uint b = 0; b < newNumBlocks; b++)
             {
@@ -1323,7 +1323,7 @@ const ByteBuffer Package::compressData(const ByteBuffer &inputData, StorageTypes
             block.uncompressedBuffer = new quint8[block.uncomprSize];
             if (block.uncompressedBuffer == nullptr)
             {
-                PERROR((QString("FATA ERROR: Out of memory! - amount: ") +
+                PERROR((QString("FATAL ERROR: Out of memory! - amount: ") +
                         QString::number(block.uncomprSize)).toStdString().c_str());
                 return ByteBuffer{};
             }
@@ -1341,12 +1341,12 @@ const ByteBuffer Package::compressData(const ByteBuffer &inputData, StorageTypes
             if (ZlibCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize,
                              maxCompress ? 9 : 1) == -100)
             {
-                PERROR(QString("FATA ERROR: Out of memory!"));
+                PERROR(QString("FATAL ERROR: Out of memory!"));
                 return ByteBuffer{};
             }
             if (block.comprSize == 0)
             {
-                PERROR(QString("FATA ERROR: Compression failed!"));
+                PERROR(QString("FATAL ERROR: Compression failed (ZLib - compressed block size is 0)!"));
                 return ByteBuffer{};
             }
             blocks[b] = block;
@@ -1360,12 +1360,12 @@ const ByteBuffer Package::compressData(const ByteBuffer &inputData, StorageTypes
             Package::ChunkBlock block = blocks[b];
             if (OodleCompress(block.uncompressedBuffer, block.uncomprSize, &block.compressedBuffer, &block.comprSize) == -100)
             {
-                PERROR(QString("FATA ERROR: Compression failed!"));
+                PERROR(QString("FATAL ERROR: Compression failed (Oodle)!"));
                 return ByteBuffer{};
             }
             if (block.comprSize == 0)
             {
-                PERROR(QString("FATA ERROR: Compression failed!"));
+                PERROR(QString("FATAL ERROR: Compression failed (Oodle - compressed block size is 0)!"));
                 return ByteBuffer{};
             }
             blocks[b] = block;
@@ -1404,12 +1404,13 @@ const ByteBuffer Package::decompressData(Stream &stream, StorageTypes type,
     uint blockTag = stream.ReadUInt32();
     if (blockTag != DataTag)
     {
-        PERROR(QString("Data tag wrong!\n"));
+        PERROR(QString("Encountered an invalid magic number in block!\n"));
         return ByteBuffer();
     }
     uint blockSize = stream.ReadUInt32();
     if (blockSize != MaxBlockSize)
     {
+        // Listing invalid value might help debug issues
         PERROR(QString("Data block size is wrong!\n"));
         return ByteBuffer();
     }
@@ -1417,14 +1418,16 @@ const ByteBuffer Package::decompressData(Stream &stream, StorageTypes type,
     uint uncompressedChunkSize = stream.ReadUInt32();
     if (uncompressedChunkSize != (uint)uncompressedSize)
     {
-        PERROR(QString("Data uncompressed size diffrent than expected!\n"));
+        // Listing invalid value might help debug issues
+        PERROR(QString("Uncompressed chunk size doesn't match expected value!\n"));
         return ByteBuffer();
     }
 
     uint blocksCount = (uncompressedChunkSize + MaxBlockSize - 1) / MaxBlockSize;
     if ((compressedChunkSize + SizeOfChunk + SizeOfChunkBlock * blocksCount) != (uint)compressedSize)
     {
-        PERROR(QString("Data compressed size diffrent than expected!\n"));
+        // Listing invalid value might help debug issues
+        PERROR(QString("Compressed chunk size doesn't match expected value!\n"));
         return ByteBuffer();
     }
 
@@ -1443,7 +1446,7 @@ const ByteBuffer Package::decompressData(Stream &stream, StorageTypes type,
         block.compressedBuffer = new quint8[blocks[b].comprSize];
         if (block.compressedBuffer == nullptr)
         {
-            PERROR((QString("FATA ERROR: Out of memory! - amount: ") +
+            PERROR((QString("FATAL ERROR: Out of memory! - amount: ") +
                     QString::number(blocks[b].comprSize)).toStdString().c_str());
             return ByteBuffer{};
         }
@@ -1451,7 +1454,7 @@ const ByteBuffer Package::decompressData(Stream &stream, StorageTypes type,
         block.uncompressedBuffer = new quint8[MaxBlockSize * 2];
         if (block.uncompressedBuffer == nullptr)
         {
-            PERROR((QString("FATA ERROR: Out of memory! - amount: ") +
+            PERROR((QString("FATAL ERROR: Out of memory! - amount: ") +
                     QString::number(MaxBlockSize * 2)).toStdString().c_str());
             return ByteBuffer{};
         }
@@ -1468,7 +1471,7 @@ const ByteBuffer Package::decompressData(Stream &stream, StorageTypes type,
             Package::ChunkBlock block = blocks[b];
             if (ZlibDecompress(block.compressedBuffer, block.comprSize, block.uncompressedBuffer, &dstLen) == -100)
             {
-                PERROR(QString("FATA ERROR: Out of memory!"));
+                PERROR(QString("FATAL ERROR: Out of memory!"));
                 return ByteBuffer();
             }
             if (dstLen != block.uncomprSize)
@@ -1486,11 +1489,12 @@ const ByteBuffer Package::decompressData(Stream &stream, StorageTypes type,
         }
     }
     else
-        CRASH_MSG("Compression type not expected!");
+        CRASH_MSG("Encountered unexpected compression type");
 
     if (errorFlag)
     {
-        PERROR(QString("ERROR: Decompressed data size not expected!"));
+        // Listing invalid value might help debug issues
+        PERROR(QString("ERROR: Failed to decompress the expected amount of data!"));
         return ByteBuffer();
     }
 
