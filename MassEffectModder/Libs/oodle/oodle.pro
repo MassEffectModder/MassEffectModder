@@ -26,17 +26,6 @@ HEADERS += \
     winnt_types.h
 }
 
-macos {
-    CONFIG(debug, debug|release) {
-        contains(QT_ARCH, x86_64) {
-            QMAKE_APPLE_DEVICE_ARCHS=x86_64h
-        }
-        contains(QT_ARCH, arm64) {
-            QMAKE_APPLE_DEVICE_ARCHS=arm64
-        }
-    }
-}
-
 !win32 {
 QMAKE_CFLAGS += -fshort-wchar -Wno-multichar -DNDEBUG -O3
 QMAKE_CFLAGS_RELEASE -= -O2

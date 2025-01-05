@@ -42,17 +42,6 @@ win32: {
     HEADERS += iowin32.h
 }
 
-macos {
-    CONFIG(debug, debug|release) {
-        contains(QT_ARCH, x86_64) {
-            QMAKE_APPLE_DEVICE_ARCHS=x86_64h
-        }
-        contains(QT_ARCH, arm64) {
-            QMAKE_APPLE_DEVICE_ARCHS=arm64
-        }
-    }
-}
-
 QMAKE_CFLAGS += -O3
 QMAKE_CFLAGS_RELEASE -= -O2
 QMAKE_CFLAGS_RELEASE += -g1

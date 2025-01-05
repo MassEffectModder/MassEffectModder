@@ -31,37 +31,12 @@ HEADERS += \
     pngpriv.h \
     pngstruct.h
 
-macos {
-    CONFIG(debug, debug|release) {
-        contains(QT_ARCH, x86_64) {
-            QMAKE_APPLE_DEVICE_ARCHS=x86_64h
-            SOURCES += \
-                filter_sse2_intrinsics.c \
-                intel_init.c
-        }
-        contains(QT_ARCH, arm64) {
-            QMAKE_APPLE_DEVICE_ARCHS=arm64
-            SOURCES += \
-                filter_neon_intrinsics.c \
-                palette_neon_intrinsics.c \
-                arm_init.c
-        }
-    } else {
-    SOURCES += \
-        filter_sse2_intrinsics.c \
-        filter_neon_intrinsics.c \
-        palette_neon_intrinsics.c \
-        intel_init.c \
-        arm_init.c
-    }
-} else {
-    SOURCES += \
-        filter_sse2_intrinsics.c \
-        filter_neon_intrinsics.c \
-        palette_neon_intrinsics.c \
-        intel_init.c \
-        arm_init.c
-}
+SOURCES += \
+    filter_sse2_intrinsics.c \
+    filter_neon_intrinsics.c \
+    palette_neon_intrinsics.c \
+    intel_init.c \
+    arm_init.c
 
 QMAKE_CFLAGS += -O3 -I../zlib -Wno-unused-parameter
 QMAKE_CFLAGS_RELEASE -= -O2

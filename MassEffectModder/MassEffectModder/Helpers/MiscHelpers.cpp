@@ -146,19 +146,6 @@ bool DetectAdminRights()
     return status;
 }
 
-bool DetectProcessTranslated ()
-{
-#if defined(__APPLE__)
-    int ret = 0;
-    size_t size = sizeof(ret);
-    if (sysctlbyname("sysctl.proctranslated", &ret, &size, nullptr, 0) != -1)
-    {
-        return ret != 0;
-    }
-#endif
-    return false;
-}
-
 #if defined(_WIN32)
 QString getVersionString(const QString &filePath)
 {

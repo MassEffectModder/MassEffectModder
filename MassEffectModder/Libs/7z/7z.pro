@@ -44,17 +44,6 @@ HEADERS += \
     LzmaLib.h \
     Precomp.h
 
-macos {
-    CONFIG(debug, debug|release) {
-        contains(QT_ARCH, x86_64) {
-            QMAKE_APPLE_DEVICE_ARCHS=x86_64h
-        }
-        contains(QT_ARCH, arm64) {
-            QMAKE_APPLE_DEVICE_ARCHS=arm64
-        }
-    }
-}
-
 equals(QMAKE_CXX, g++) {
 QMAKE_CFLAGS += -Wno-format-truncation -Wno-stringop-truncation
 }

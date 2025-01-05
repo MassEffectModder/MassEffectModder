@@ -40,19 +40,11 @@ int runQtApplication(int argc, char *argv[])
 {
     QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
 
-    bool translated = DetectProcessTranslated ();
-
     CreateGameData();
 #ifdef GUI
     qputenv("QT_AUTO_SCREEN_SCALE_FACTOR", QByteArray("1"));
 
     QApplication application(argc, argv);
-
-    if (translated)
-    {
-        QMessageBox::critical(nullptr, "MEM", "Running MEM with Rosetta 2 is not supported!");
-        return -1;
-    }
 
     QStringList args = QApplication::arguments();
     if (args.count() != 0)

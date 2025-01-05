@@ -14,17 +14,6 @@ HEADERS += \
 
 DEFINES += USE_SSE USE_SSE2
 
-macos {
-    CONFIG(debug, debug|release) {
-        contains(QT_ARCH, x86_64) {
-            QMAKE_APPLE_DEVICE_ARCHS=x86_64h
-        }
-        contains(QT_ARCH, arm64) {
-            QMAKE_APPLE_DEVICE_ARCHS=arm64
-        }
-    }
-}
-
 QMAKE_CXXFLAGS += -O3
 QMAKE_CXXFLAGS_RELEASE -= -O2
 QMAKE_CXXFLAGS_RELEASE += -g1

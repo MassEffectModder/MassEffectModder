@@ -75,17 +75,6 @@ DEPENDPATH += \
     $$PWD/../Libs/zlib \
     $$PWD/../Libs/unrar
 
-macos {
-    CONFIG(debug, debug|release) {
-        contains(QT_ARCH, x86_64) {
-            QMAKE_APPLE_DEVICE_ARCHS=x86_64h
-        }
-        contains(QT_ARCH, arm64) {
-            QMAKE_APPLE_DEVICE_ARCHS=arm64
-        }
-    }
-}
-
 equals(WRAPPERS_SHARED, true) {
 
 QMAKE_CXXFLAGS += -DEXPORT_LIBS
