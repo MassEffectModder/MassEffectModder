@@ -18,13 +18,13 @@ SOURCES += \
     Wrapper7Zip.cpp \
     WrapperUnLzx.cpp \
     WrapperUnzip.cpp \
+    WrapperOodle.cpp \
     WrapperZlib.cpp
 
 !equals(WRAPPERS_SHARED, true) {
 SOURCES += \
     WrapperBc7.cpp \
     WrapperDxtc.cpp \
-    WrapperOodle.cpp \
     WrapperPng.cpp \
     WrapperUnrar.cpp
 }
@@ -104,12 +104,12 @@ Debug:LIBS += \
 LIBS += \
     -L$$OUT_PWD/../Libs/7z -l7z \
     -L$$OUT_PWD/../Libs/unlzx -lunlzx \
+    -L$$OUT_PWD/../Libs/oodle -loodle \
     -L$$OUT_PWD/../Libs/zlib -lzlib
 
 !equals(WRAPPERS_SHARED, true) {
     LIBS += -L$$OUT_PWD/../Libs/bc7 -lbc7 \
     LIBS += -L$$OUT_PWD/../Libs/dxtc -ldxtc \
-    LIBS += -L$$OUT_PWD/../Libs/oodle -loodle
 }
 
 }

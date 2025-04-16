@@ -23,8 +23,32 @@
 #include <cstdio>
 #include <oodle.h>
 
-#ifndef EXPORT_LIBS
+#ifdef EXPORT_LIBS
+#ifdef _WIN32
+#define LIB_EXPORT extern "C" __declspec(dllexport)
+#else
+#define LIB_EXPORT extern "C"
+#endif
+#else
+#define LIB_EXPORT
+#endif
 
+#ifdef EXPORT_LIBS
+#ifdef WIN32
+bool OodleLoadLib(const wchar_t *libPath);
+#else
+bool OodleLoadLib(const char *libPath);
+#endif
+void OodleUnloadLib();
+bool OodleSupportCompression();
+int OodleCompressData(unsigned char *src, unsigned int srcLen,
+                      unsigned char *dst, unsigned int *dstLen);
+int OodleDecompressData(unsigned char *src, unsigned int srcLen,
+                        unsigned char *dst, unsigned int dstLen);
+#endif
+
+
+LIB_EXPORT
 #ifdef WIN32
 bool OodleInitLib(const wchar_t *libPath)
 #else
@@ -34,21 +58,25 @@ bool OodleInitLib(const char *libPath)
     return OodleLoadLib(libPath);
 }
 
+LIB_EXPORT
 void OodleUninitLib()
 {
     OodleUnloadLib();
 }
 
+LIB_EXPORT
 bool OodleIsCompressionSupported()
 {
     return OodleSupportCompression();
 }
 
+LIB_EXPORT
 int OodleDecompress(unsigned char *src, unsigned int srcLen, unsigned char *dst, unsigned int dstLen)
 {
     return OodleDecompressData(src, srcLen, dst, dstLen);
 }
 
+LIB_EXPORT
 int OodleCompress(unsigned char *src, unsigned int srcLen,
                   unsigned char **dst, unsigned int *dstLen)
 {
@@ -80,5 +108,3 @@ int OodleCompress(unsigned char *src, unsigned int srcLen,
 
     return status;
 }
-
-#endif

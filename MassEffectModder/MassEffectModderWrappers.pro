@@ -7,9 +7,11 @@ cache(WRAPPERS_SHARED, set)
 
 SUBDIRS += \
     Libs/7z \
+    Libs/bc7 \
+    Libs/dxtc \
+    Libs/oodle \
+    Libs/png \
     Libs/unlzx \
-    Libs/zlib
-
-SUBDIRS += \
     Libs/unrar \
+    Libs/zlib \
     Wrappers
