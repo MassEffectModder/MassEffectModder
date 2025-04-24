@@ -246,7 +246,7 @@ LIBS += \
 
 macos {
     QMAKE_CXXFLAGS_RELEASE += -fvisibility=hidden -fvisibility-inlines-hidden -Xpreprocessor -fopenmp
-    QMAKE_MACOSX_DEPLOYMENT_TARGET = 11.00
+    QMAKE_MACOSX_DEPLOYMENT_TARGET = 12.00
 }
 
 win32 {
