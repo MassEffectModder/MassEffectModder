@@ -3,7 +3,7 @@
 #
 # MIT License
 #
-# Copyright (c) 2019-2024 Pawel Kolodziejski
+# Copyright (c) 2019-2025 Pawel Kolodziejski
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -47,7 +47,7 @@ BRANCH=master
 USER_NAME=aquadran
 USER_ID=1000
 NUM_THREADS=`grep -c '^processor' /proc/cpuinfo`
-QT_VERSION=6.7.3
+QT_VERSION=6.8.3
 QT_VERSION_BASE=`echo $QT_VERSION | cut -d'.' -f 1,2`
 PACKAGES_ADD=bash,build-essential,ninja-build,clang,nasm,git,perl,python3,wget,\
 ca-certificates,libx11-dev,libsdl2-dev,libopenal-dev,libfontconfig1-dev,libssl-dev,\
