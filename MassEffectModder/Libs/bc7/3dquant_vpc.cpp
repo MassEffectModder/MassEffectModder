@@ -24,6 +24,7 @@
 
 #include <cmath>
 #include <cfloat>
+#include <cstdlib>
 #include "3dquant_constants.h"
 #include "3dquant_vpc.h"
 #include "bc7_definitions.h"
