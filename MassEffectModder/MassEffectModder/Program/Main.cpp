@@ -179,12 +179,6 @@ int runQtApplication(int argc, char *argv[])
                   "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n"
                   ).arg(MEM_VERSION).arg(MEM_YEAR));
 
-    if (translated)
-    {
-        PERROR(QString("Running MEM with Rosetta 2 is not supported!\n"));
-        return -1;
-    }
-
     int status = ProcessArguments();
 #endif
     ReleaseGameData();
