@@ -589,22 +589,10 @@ void Package::loadNames(Stream &input)
         if (len < 0) // unicode
         {
             entry.name = "";
-            if (packageFileVersion == packageFileVersion685)
+            for (int n = 0; n < -len; n++)
             {
-                for (int n = 0; n < -len; n++)
-                {
-                    quint16 c = input.ReadUInt16();
-                    entry.name += QChar(static_cast<ushort>(c));
-                }
-            }
-            else
-            {
-                for (int n = 0; n < -len; n++)
-                {
-                    quint8 c = input.ReadByte();
-                    input.ReadByte();
-                    entry.name += (char)c;
-                }
+                quint16 c = input.ReadUInt16();
+                entry.name += QChar(static_cast<ushort>(c));
             }
         }
         else
@@ -656,15 +644,10 @@ void Package::saveNames(Stream &output)
             {
                 output.WriteInt32(0);
             }
-            else if (packageFileVersion == packageFileVersion685)
+            else
             {
                 output.WriteInt32(-(entry.name.length() + 1));
                 output.WriteStringUnicode16Null(entry.name);
-            }
-            else
-            {
-                output.WriteInt32(entry.name.length() + 1);
-                output.WriteStringASCIINull(entry.name);
             }
         }
     }
